@@ -7,7 +7,8 @@ import {
   CheckCircle,
   ChevronDown,
   Loader2,
-  WifiOff
+  WifiOff,
+  Clock
 } from "lucide-react";
 import { useFloatingMenu } from '../../context/FloatingMenuContext';
 import { useTimer } from '../../context/TimerContext';
@@ -27,6 +28,8 @@ interface TaskOption {
   estimatedTime: number;
   disabled?: boolean;
   secondsSpent: number; // Accumulated time from history
+  canStart: boolean;
+  startTooltip?: string;
 }
 
 export function FloatingTimerBar() {
@@ -138,11 +141,12 @@ export function FloatingTimerBar() {
 
         if (t.disabled) return false;
 
-        // Check if user is a member OR a leader
-        const isMember = t.task_members?.some(m => m.user_id === userId);
-        const isLeader = t.leader_id === userId || (t.leader_user?.id === userId);
+        // 3. User MUST be a member to see/track the task here.
+        const memberRecord = t.task_members?.find(m => m.user_id === userId);
+        if (!memberRecord) return false;
 
-        if (!isMember && !isLeader) return false;
+        // 4. User MUST have provided an estimate to track time on it via this bar
+        if (memberRecord.estimated_time === null) return false;
 
         return true;
       })
@@ -153,13 +157,28 @@ export function FloatingTimerBar() {
         // Showing personal time (0) is safer for the "My Timer" context.
         const secondsSpent = memberRecord?.seconds_spent || 0;
         const estimatedTime = memberRecord ? (memberRecord.estimated_time || t.estimated_time || 0) : (t.estimated_time || 0);
+
+        // Calculate Can Start
+        let canStart = true;
+        let startTooltip = undefined;
+
+        if (t.execution_mode === 'sequential') {
+          // In sequential mode, they can only start if it is their turn.
+          if (!memberRecord?.is_current_turn) {
+            canStart = false;
+            startTooltip = "Not your turn (Sequential Task)";
+          }
+        }
+
         return {
           id: t.id,
           name: t.name || t.title || "Untitled Task",
           project: t.task_workspace?.name || t.task_project?.company?.name || "Unknown Project",
           estimatedTime: Number(estimatedTime), // Ensure it is a number
           disabled: t.disabled,
-          secondsSpent: secondsSpent
+          secondsSpent: secondsSpent,
+          canStart,
+          startTooltip
         };
       });
   }, [assignedTasksData, userId]);
@@ -306,30 +325,49 @@ export function FloatingTimerBar() {
                   <Loader2 className="w-5 h-5 text-[#999999] animate-spin" />
                 </div>
               ) : tasks.length > 0 ? (
-                tasks.map((task) => (
-                  <button
-                    key={task.id}
-                    onClick={() => handleTaskSelect(task)}
-                    className={`w-full flex items-center justify-between px-3 py-2 rounded-[12px] text-left transition-all ${currentDisplayTaskId === task.id
-                      ? 'bg-gradient-to-br from-[#ff3b3b] to-[#cc2f2f] text-white shadow-sm'
-                      : 'hover:bg-[#F7F7F7] text-[#111111]'
-                      }`}
-                  >
-                    <div className="flex-1 min-w-0">
-                      <p className={`text-[13px] font-['Manrope:SemiBold',sans-serif] truncate ${currentDisplayTaskId === task.id ? 'text-white' : 'text-[#111111]'
-                        }`}>
-                        {task.name}
-                      </p>
-                      <p className={`text-[10px] font-['Inter:Regular',sans-serif] mt-0.5 truncate ${currentDisplayTaskId === task.id ? 'text-white/80' : 'text-[#999999]'
-                        }`}>
-                        {task.project}
-                      </p>
-                    </div>
-                    {currentDisplayTaskId === task.id && (
-                      <CheckCircle className="w-4 h-4 text-white flex-shrink-0 ml-2" />
-                    )}
-                  </button>
-                ))
+                tasks.map((task) => {
+                  const content = (
+                    <button
+                      key={task.id}
+                      onClick={() => task.canStart && handleTaskSelect(task)}
+                      disabled={!task.canStart}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-[12px] text-left transition-all 
+                        ${!task.canStart ? 'opacity-50 cursor-not-allowed grayscale' : ''}
+                        ${currentDisplayTaskId === task.id
+                          ? 'bg-gradient-to-br from-[#ff3b3b] to-[#cc2f2f] text-white shadow-sm'
+                          : task.canStart ? 'hover:bg-[#F7F7F7] text-[#111111]' : 'text-[#999999]'
+                        }`}
+                    >
+                      <div className="flex-1 min-w-0">
+                        <p className={`text-[13px] font-['Manrope:SemiBold',sans-serif] truncate ${currentDisplayTaskId === task.id ? 'text-white' : 'text-inherit'
+                          }`}>
+                          {task.name}
+                        </p>
+                        <p className={`text-[10px] font-['Inter:Regular',sans-serif] mt-0.5 truncate ${currentDisplayTaskId === task.id ? 'text-white/80' : 'text-inherit opacity-70'
+                          }`}>
+                          {task.project}
+                        </p>
+                      </div>
+                      {currentDisplayTaskId === task.id && (
+                        <CheckCircle className="w-4 h-4 text-white flex-shrink-0 ml-2" />
+                      )}
+                      {!task.canStart && (
+                        // Optional: Icon indicating wait?
+                        <Clock className="w-3 h-3 ml-2 opacity-50 flex-shrink-0" />
+                      )}
+                    </button>
+                  );
+
+                  if (!task.canStart && task.startTooltip) {
+                    return (
+                      <Tooltip key={task.id} title={task.startTooltip} placement="left">
+                        {content}
+                      </Tooltip>
+                    );
+                  }
+
+                  return content;
+                })
               ) : (
                 <div className="p-3 text-center text-[#999999] text-xs">
                   No assigned tasks found
@@ -389,7 +427,7 @@ export function FloatingTimerBar() {
                   </Tooltip>
                 )}
                 <p className="text-[14px] text-white font-['Inter:Medium',sans-serif] group-hover:text-white transition-colors truncate max-w-[200px]">
-                  {currentTaskName}
+                  {currentTask?.name || timerState.taskName || "Select Task"}
                 </p>
                 <ChevronDown className="w-4 h-4 text-white/70 group-hover:text-white transition-colors shrink-0" />
               </>

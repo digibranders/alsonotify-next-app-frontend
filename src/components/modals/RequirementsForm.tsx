@@ -99,12 +99,12 @@ export function RequirementsForm({
     });
 
     const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-    
+
     // Reset form when initialData changes (for editing mode switching or new creation)
     useEffect(() => {
         if (initialData) {
-            setFormData((prev) => ({ 
-                ...prev, 
+            setFormData((prev) => ({
+                ...prev,
                 ...initialData,
                 contact_person_id: initialData.contact_person_id ?? undefined,
                 workspace: initialData.workspace ?? undefined
@@ -126,7 +126,7 @@ export function RequirementsForm({
     const handleSubmit = () => {
         // Find the selected partner to extract receiver_company_id
         const selectedPartner = partners.find(p => p.id === formData.contact_person_id);
-        
+
         console.log('RequirementsForm handleSubmit DEBUG:', {
             formDataType: formData.type,
             formDataContactPersonId: formData.contact_person_id,
@@ -151,7 +151,7 @@ export function RequirementsForm({
             budget: Number(formData.budget) || 0,
             quoted_price: Number(formData.quoted_price) || undefined,
             currency: formData.currency || 'USD',
-            end_date: formData.dueDate ? dayjs(formData.dueDate).toISOString() : undefined,
+            end_date: formData.dueDate ? dayjs(formData.dueDate).format('YYYY-MM-DD') : undefined,
             start_date: new Date().toISOString(),
             // Note: priority enum removed - backend uses is_high_priority boolean directly
         };
@@ -218,13 +218,13 @@ export function RequirementsForm({
                         className="w-full h-11"
                         placeholder="Select type"
                         value={formData.type}
-                        onChange={(v) => setFormData({ 
-                            ...formData, 
-                            type: v, 
-                            contact_person_id: undefined, 
+                        onChange={(v) => setFormData({
+                            ...formData,
+                            type: v,
+                            contact_person_id: undefined,
                             contactPerson: undefined,
                             // Keep workspace even if outsourced
-                            workspace: formData.workspace 
+                            workspace: formData.workspace
                         })}
                         suffixIcon={<ChevronDown className="w-4 h-4 text-gray-400" />}
                     >
@@ -314,13 +314,13 @@ export function RequirementsForm({
             {/* Upload Documents */}
             <div className="space-y-1.5">
                 <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">Upload Documents</span>
-                <label 
+                <label
                     className="border-2 border-dashed border-[#EEEEEE] rounded-xl p-3 flex flex-col items-center justify-center text-center hover:border-[#ff3b3b]/30 hover:bg-[#FFFAFA] transition-colors cursor-pointer bg-white group"
                 >
-                    <input 
-                        type="file" 
-                        multiple 
-                        className="hidden" 
+                    <input
+                        type="file"
+                        multiple
+                        className="hidden"
                         onChange={handleFileSelect}
                         accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.jpeg,.jpg,.png"
                     />

@@ -67,8 +67,10 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
                 const elapsed = Math.floor((now.getTime() - start.getTime()) / 1000);
 
                 setTimerState(prev => {
-                    console.log(`[${new Date().toISOString()}] Server returned Active Timer ID: ${timer.worklog_id}`);
-                    // Avoid unnecessary re-renders if state matches
+                    const localElapsed = Math.floor((now.getTime() - start.getTime()) / 1000);
+                    console.log(`[TimerSync] Active Worklog: ${timer.worklog_id}, Task: ${timer.task_id}, Start: ${timer.start_datetime}, Calculated Elapsed: ${localElapsed}s`);
+
+                    // Avoid unnecessary re-renders if state matches, but update elapsed
                     if (prev.worklogId === timer.worklog_id && prev.isRunning) {
                         return {
                             ...prev,
@@ -78,7 +80,7 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
                             projectName: timer.project_name || timer.workspace_name || null,
                             worklogId: timer.worklog_id,
                             startTime: start,
-                            elapsedSeconds: elapsed,
+                            elapsedSeconds: localElapsed,
                         };
                     }
 
@@ -89,7 +91,7 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
                         projectName: timer.project_name || timer.workspace_name || null,
                         worklogId: timer.worklog_id,
                         startTime: start,
-                        elapsedSeconds: elapsed,
+                        elapsedSeconds: localElapsed,
                     };
                 });
             } else {
