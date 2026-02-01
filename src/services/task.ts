@@ -1,4 +1,6 @@
-
+/**
+ * Task/Timer/Worklog API client. Canonical contract: alsonotify-backend-new/docs/api/task-timer-worklog-api.md
+ */
 import axiosApi from "../config/axios";
 import { ApiResponse } from "../types/api";
 import { ApiError, NetworkError, getErrorMessage, isAxiosError } from "../types/errors";
@@ -451,8 +453,23 @@ export const provideEstimate = async (id: number, hours: number): Promise<ApiRes
 };
 
 export const getCurrentActiveTimer = async (): Promise<ApiResponse<ActiveTimerResponseDto>> => {
-  const { data } = await axiosApi.get<ApiResponse<ActiveTimerResponseDto>>('/task/active-timer');
-  return data;
+  try {
+    const { data } = await axiosApi.get<ApiResponse<ActiveTimerResponseDto>>('/task/active-timer');
+    return data;
+  } catch (error) {
+    if (error instanceof ApiError) throw error;
+    if (isAxiosError(error)) {
+      // Network-level failure (no response): treat as no active timer so timer sync does not crash the UI
+      if (!error.response) {
+        return { success: true, message: '', result: null };
+      }
+      const statusCode = error.response.status ?? 500;
+      const message = getErrorMessage(error);
+      throw new ApiError(message, statusCode, error.response?.data);
+    }
+    // Other (e.g. Axios network error): treat as no active timer
+    return { success: true, message: '', result: null };
+  }
 };
 
 /**
