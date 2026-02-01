@@ -66,7 +66,8 @@ export function FloatingTimerBar() {
       const isModalOpen = document.querySelector('.ant-modal-wrap:not([style*="display: none"])') !== null ||
         document.body.classList.contains('ant-modal-open');
 
-      setIsFormOpen(!!isDrawerOpen || !!isModalOpen);
+      const next = !!isDrawerOpen || !!isModalOpen;
+      setIsFormOpen(next);
     };
 
     // Initial check
@@ -88,13 +89,6 @@ export function FloatingTimerBar() {
     return () => observer.disconnect();
   }, []);
 
-  // Visibility Logic - also hide on task details and requirement details
-  const isHidden = (pathname && (
-    HIDDEN_ROUTES.some(route => pathname.startsWith(route)) ||
-    pathname.includes('/dashboard/requirements/') ||
-    pathname.includes('/dashboard/tasks/')
-  )) || isFormOpen;
-
   const { expandedContent } = useFloatingMenu();
   const { timerState, startTimer, stopTimer, isLoading: timerLoading } = useTimer();
 
@@ -103,6 +97,16 @@ export function FloatingTimerBar() {
   const [showCompleteModal, setShowCompleteModal] = useState(false);
   const [completeDescription, setCompleteDescription] = useState("");
   const [completeTaskId, setCompleteTaskId] = useState<number | null>(null);
+
+  // Visibility Logic - also hide on task details and requirement details.
+  // When our own Complete modal is open (showCompleteModal), do NOT hide the bar — otherwise
+  // the MutationObserver would set isFormOpen true → bar returns null → modal unmounts →
+  // observer sets isFormOpen false → bar re-renders with modal → infinite loop.
+  const isHidden = (pathname && (
+    HIDDEN_ROUTES.some(route => pathname.startsWith(route)) ||
+    pathname.includes('/dashboard/requirements/') ||
+    pathname.includes('/dashboard/tasks/')
+  )) || (isFormOpen && !showCompleteModal);
 
   // Sync selected task with running timer ONLY if user hasn't actively selected another one?
   // Or strictly follow the running timer.
