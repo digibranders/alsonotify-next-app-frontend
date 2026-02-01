@@ -117,27 +117,29 @@ const TaskRowComponent = memo(function TaskRow({
     }
   };
 
-  // Handle Stuck action
-  const handleStuckClick = async () => {
-    if (isActive) await stopTimer();
+  // Handle Stuck action - open modal first, timer keeps running until submit
+  const handleStuckClick = () => {
     setWorklogAction('stuck');
     setWorklogDescription('');
     setShowWorklogModal(true);
   };
 
-  // Handle Complete action 
-  const handleCompleteClick = async () => {
-    if (isActive) await stopTimer();
+  // Handle Complete action - open modal first, timer keeps running until submit
+  const handleCompleteClick = () => {
     setWorklogAction('complete');
     setWorklogDescription('');
     setShowWorklogModal(true);
   };
 
-  // Handle worklog modal submission
+  // Handle worklog modal submission - stop with description first (if timer running), then status change
   const handleWorklogSubmit = async () => {
     if (!worklogAction) return;
     setWorklogSubmitting(true);
     try {
+      const description = worklogDescription?.trim() ?? "";
+      if (isActive) {
+        await stopTimer(description);
+      }
       const newStatus = worklogAction === 'stuck' ? 'Stuck' : 'Review';
       onStatusChange?.(newStatus);
       message.success(worklogAction === 'stuck' ? 'Task marked as blocked' : 'Task marked for review');

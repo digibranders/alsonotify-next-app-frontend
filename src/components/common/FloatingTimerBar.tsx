@@ -15,7 +15,7 @@ import { useTimer } from '../../context/TimerContext';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getAssignedTasks, updateTaskStatusById } from '../../services/task';
 import { useUserDetails } from '../../hooks/useUser';
-import { App, Tooltip } from 'antd';
+import { App, Tooltip, Modal, Input } from 'antd';
 import { queryKeys } from '../../lib/queryKeys';
 
 // Global floating timer bar - expands with bulk actions from pages
@@ -100,6 +100,9 @@ export function FloatingTimerBar() {
 
   const [showTaskSelector, setShowTaskSelector] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null);
+  const [showCompleteModal, setShowCompleteModal] = useState(false);
+  const [completeDescription, setCompleteDescription] = useState("");
+  const [completeTaskId, setCompleteTaskId] = useState<number | null>(null);
 
   // Sync selected task with running timer ONLY if user hasn't actively selected another one?
   // Or strictly follow the running timer.
@@ -260,42 +263,47 @@ export function FloatingTimerBar() {
     }
   };
 
-  const handleComplete = async () => {
-    if (!timerState.isRunning) {
+  const handleCompleteClick = () => {
+    if (!timerState.isRunning || !currentDisplayTaskId) {
       message.warning("No active timer to complete");
       return;
     }
+    setCompleteTaskId(currentDisplayTaskId);
+    setCompleteDescription("");
+    setShowCompleteModal(true);
+  };
 
-    // 1. Stop the Timer (Log time) - Optimistic update handled in TimerContext
-    await stopTimer();
+  const handleCompleteSubmit = async () => {
+    const taskIdToComplete = completeTaskId;
+    if (!taskIdToComplete) return;
+
+    const description = completeDescription?.trim() ?? "";
+    setShowCompleteModal(false);
+    setCompleteDescription("");
+    setCompleteTaskId(null);
+
+    // stopTimer is idempotent - safe to call even if timer already stopped remotely
+    await stopTimer(description);
 
     // 2. Update Status to 'Review' (Submit for Review)
-    if (currentDisplayTaskId) {
-      try {
-        await updateTaskStatusById(currentDisplayTaskId, 'Review');
-        message.success("Task worklog saved and submitted for Review!");
-
-        // CLEAR SELECTION immediately to reset UI status
+    try {
+      await updateTaskStatusById(taskIdToComplete, 'Review');
+      message.success("Task worklog saved and submitted for Review!");
+      setSelectedTaskId(null);
+    } catch (e: any) {
+      console.error("Failed to update status", e);
+      if (e.message?.includes('Review to Review')) {
         setSelectedTaskId(null);
-      } catch (e: any) {
-        console.error("Failed to update status", e);
-        // Specialized error handling
-        if (e.message?.includes('Review to Review')) {
-          // Task is already in review, likely a race condition or double click
-          // Treat as success for UI purposes (hide it)
-          setSelectedTaskId(null);
-          message.info("Task is already in Review.");
-        } else {
-          message.warning("Worklog saved, but failed to update status.");
-        }
+        message.info("Task is already in Review.");
+      } else {
+        message.warning("Worklog saved, but failed to update status.");
       }
-    } else {
-      message.success("Worklog saved!");
     }
 
-    // 3. Refresh Data
     queryClient.invalidateQueries({ queryKey: queryKeys.tasks.listRoot() });
     queryClient.invalidateQueries({ queryKey: queryKeys.tasks.assigned() });
+    queryClient.invalidateQueries({ queryKey: queryKeys.tasks.detail(taskIdToComplete) });
+    queryClient.invalidateQueries({ queryKey: queryKeys.tasks.worklogsRoot(taskIdToComplete) });
   };
 
   if (isHidden) return null;
@@ -452,7 +460,7 @@ export function FloatingTimerBar() {
           <button
             className="text-white hover:text-white/80 transition-all active:scale-90 disabled:opacity-50"
             title="Stop Timer & Save Worklog"
-            onClick={handleComplete}
+            onClick={handleCompleteClick}
             disabled={timerLoading}
           >
             <CheckCircle className="w-5 h-5" />
@@ -464,6 +472,34 @@ export function FloatingTimerBar() {
           {formatTime(displayTime)}
         </div>
       </div>
+
+      {/* Complete description modal */}
+      <Modal
+        title="Mark as Complete"
+        open={showCompleteModal}
+        onOk={handleCompleteSubmit}
+        onCancel={() => {
+          setShowCompleteModal(false);
+          setCompleteDescription("");
+          setCompleteTaskId(null);
+        }}
+        okText="Mark Complete"
+        cancelText="Cancel"
+        okButtonProps={{ style: { backgroundColor: '#16a34a', borderColor: '#16a34a' } }}
+      >
+        <div className="py-4">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Add a note (optional)
+          </label>
+          <Input.TextArea
+            value={completeDescription}
+            onChange={(e) => setCompleteDescription(e.target.value)}
+            placeholder="Add final notes about what you completed..."
+            rows={4}
+            className="w-full"
+          />
+        </div>
+      </Modal>
     </div>
   );
 }

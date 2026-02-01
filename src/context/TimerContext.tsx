@@ -17,7 +17,7 @@ type TimerState = {
 type TimerContextType = {
     timerState: TimerState;
     startTimer: (taskId: number, taskName: string, projectName: string) => Promise<void>;
-    stopTimer: () => Promise<void>;
+    stopTimer: (description?: string) => Promise<void>;
     isLoading: boolean;
 };
 
@@ -43,6 +43,9 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
 
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
+    // Pending stop when user stops before start returns (worklogId === -1)
+    const pendingStopRef = useRef<{ taskId: number; startTime: Date; description?: string } | null>(null);
+
     // Core Sync Logic - Stable Reference
     // This function is the "Single Source of Truth" enforcer.
     const syncTimer = async (isBackground = false) => {
@@ -62,9 +65,6 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
 
                 // Found active timer -> Reset debounce
                 consecutiveNullsRef.current = 0;
-
-                // Recalculate elapsed based on server start time + current local time
-                const elapsed = Math.floor((now.getTime() - start.getTime()) / 1000);
 
                 setTimerState(prev => {
                     const localElapsed = Math.floor((now.getTime() - start.getTime()) / 1000);
@@ -171,6 +171,7 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
             document.removeEventListener('visibilitychange', handleVisibilityChange);
             window.removeEventListener('online', handleOnline);
             window.removeEventListener('focus', handleVisibilityChange);
+            pendingStopRef.current = null;
         };
     }, []);
 
@@ -215,21 +216,44 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
         try {
             const data = await startWorkLog(taskId, now.toISOString());
 
+            const worklogId = data.result.id;
+
+            // Apply pending stop if user stopped before start resolved
+            const pending = pendingStopRef.current;
+            if (pending && pending.taskId === taskId) {
+                try {
+                    await updateWorklog({
+                        task_id: taskId,
+                        start_datetime: pending.startTime.toISOString(),
+                        end_datetime: new Date().toISOString(),
+                        description: pending.description ?? "",
+                    }, worklogId);
+                    pendingStopRef.current = null;
+                    setTimerState({
+                        isRunning: false,
+                        taskId: null,
+                        taskName: null,
+                        projectName: null,
+                        worklogId: null,
+                        startTime: null,
+                        elapsedSeconds: 0,
+                    });
+                    return;
+                } catch (pendingErr) {
+                    console.error("Failed to apply pending stop", pendingErr);
+                    pendingStopRef.current = null;
+                    // Fall through to set worklogId so user can manually retry
+                }
+            }
+
             // Confirm with actual server ID
             setTimerState(prev => ({
                 ...prev,
-                worklogId: data.result.id,
-                // We keep the optimistic start time to avoid jumping, 
-                // or we could update it to server time if returned.
-                // Keeping local 'now' is smoother.
+                worklogId,
             }));
-
-            // Immediate re-sync to ensure full consistency? 
-            // Usually not needed if the response is clean, but safe.
-            // syncTimer(true); 
         } catch (err) {
             console.error("Failed to start timer", err);
-            // Rollback on error
+            pendingStopRef.current = null;
             setTimerState({
                 isRunning: false,
                 taskId: null,
@@ -239,14 +263,15 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
                 startTime: null,
                 elapsedSeconds: 0,
             });
-            throw err; // Re-throw so UI can show error toast
+            throw err;
         }
     };
 
-    const stopTimer = async () => {
-        if (!timerState.worklogId) return;
+    const stopTimer = async (description?: string) => {
+        if (timerState.worklogId === null) return;
 
         const currentId = timerState.worklogId;
+        const currentTaskId = timerState.taskId;
         const currentStart = timerState.startTime;
 
         // Optimistic Stop
@@ -260,28 +285,24 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
             elapsedSeconds: 0,
         });
 
+        // Handle worklogId === -1: queue pending stop, apply when start resolves
+        if (currentId === -1 && currentTaskId !== null && currentStart !== null) {
+            pendingStopRef.current = { taskId: currentTaskId, startTime: currentStart, description };
+            return;
+        }
+
+        if (currentId <= 0 || currentTaskId === null || currentStart === null) return;
+
         try {
             const now = new Date();
-            // Handle the "Temporary ID" case (rare race condition where user clicks stop before start returns)
-            if (currentId === -1) {
-                // This is complex. We might need to wait or queue. 
-                // For now, assume network speed > user speed or handle in UI.
-                console.warn("Attempted to stop timer before start completed.");
-                return;
-            }
-
             await updateWorklog({
-                task_id: timerState.taskId!,
-                start_datetime: currentStart!.toISOString(),
+                task_id: currentTaskId,
+                start_datetime: currentStart.toISOString(),
                 end_datetime: now.toISOString(),
-                description: "",
+                description: description ?? "",
             }, currentId);
-
         } catch (err) {
             console.error("Failed to stop timer", err);
-            // Critical: If stop fails, do we re-enable?
-            // Yes, to prevent data loss.
-            // Actually, the server might have failed, so we should probably check syncTimer
             syncTimer(true);
         }
     };

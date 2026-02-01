@@ -13,6 +13,7 @@ import { TaskStatusBadge, TaskChatPanel, StepRow } from './components';
 import { TaskMembersList } from './components/TaskMembersList';
 import { TaskActionPanel } from './components/TaskActionPanel';
 import { useTask, useTaskTimer, useUpdateMemberStatus } from '@/hooks/useTask';
+import { useTimer } from '@/context/TimerContext';
 import { useAuth } from '@/hooks/useAuth';
 import { format } from 'date-fns';
 import { Skeleton } from '../../ui/Skeleton';
@@ -27,9 +28,16 @@ export function TaskDetailsPage() {
 
   const { data: taskData, isLoading } = useTask(taskId);
   const { data: timerData } = useTaskTimer(taskId);
-  
+  const { timerState } = useTimer();
+
   const task = taskData?.result;
   const timer = timerData?.result;
+
+  // Merge live elapsed from TimerContext when timer runs for this task
+  const isTimerRunningForThisTask = timerState.isRunning && timerState.taskId === taskId;
+  const workedSeconds = isTimerRunningForThisTask
+    ? (timer?.worked_time || 0) + timerState.elapsedSeconds
+    : (timer?.worked_time || 0);
 
   // Use standardized tab sync hook for consistent URL handling
   type TaskDetailsTab = 'details' | 'steps';
@@ -167,7 +175,6 @@ export function TaskDetailsPage() {
 
   // Progress calculations
   const estimatedHours = Number(task.estimated_time || timer?.estimated_time || 0);
-  const workedSeconds = timer?.worked_time || 0;
   const workedHours = workedSeconds / 3600;
   const progressPercent = estimatedHours > 0
     ? Math.min(Math.round((workedHours / estimatedHours) * 100), 100)
