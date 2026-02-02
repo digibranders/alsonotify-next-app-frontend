@@ -8,15 +8,18 @@ import {
   Loader2, AlertCircle, Briefcase, FolderOpen,
   ArrowRight, Plus, Send, Paperclip, X, MessageSquare
 } from 'lucide-react';
-import { Breadcrumb, Checkbox, Tooltip, App } from 'antd';
+import { Breadcrumb, Checkbox, Tooltip, App, Modal, Input } from 'antd';
 import { TaskStatusBadge, TaskChatPanel, StepRow } from './components';
 import { TaskMembersList } from './components/TaskMembersList';
 import { TaskActionPanel } from './components/TaskActionPanel';
 import { useTask, useTaskTimer, useUpdateMemberStatus } from '@/hooks/useTask';
+import { useTimer } from '@/context/TimerContext';
 import { useAuth } from '@/hooks/useAuth';
+import { useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { Skeleton } from '../../ui/Skeleton';
 import { PageLayout } from '../../layout/PageLayout';
+import { queryKeys } from '@/lib/queryKeys';
 
 export function TaskDetailsPage() {
   const params = useParams();
@@ -27,9 +30,16 @@ export function TaskDetailsPage() {
 
   const { data: taskData, isLoading } = useTask(taskId);
   const { data: timerData } = useTaskTimer(taskId);
-  
+  const { timerState } = useTimer();
+
   const task = taskData?.result;
   const timer = timerData?.result;
+
+  // Merge live elapsed from TimerContext when timer runs for this task
+  const isTimerRunningForThisTask = timerState.isRunning && timerState.taskId === taskId;
+  const workedSeconds = isTimerRunningForThisTask
+    ? (timer?.worked_time || 0) + timerState.elapsedSeconds
+    : (timer?.worked_time || 0);
 
   // Use standardized tab sync hook for consistent URL handling
   type TaskDetailsTab = 'details' | 'steps';
@@ -38,20 +48,80 @@ export function TaskDetailsPage() {
     validTabs: ['details', 'steps']
   });
   const [selectedSteps, setSelectedSteps] = useState<string[]>([]);
-  
-  const { mutate: updateMemberStatus, isPending: isUpdatingStatus } = useUpdateMemberStatus();
+  const [showCompleteModal, setShowCompleteModal] = useState(false);
+  const [completeDescription, setCompleteDescription] = useState('');
+  const [completeSubmitting, setCompleteSubmitting] = useState(false);
 
-  const handleTaskAction = (action: 'start' | 'complete') => {
+  const queryClient = useQueryClient();
+  const { mutate: updateMemberStatus, mutateAsync: updateMemberStatusAsync, isPending: isUpdatingStatus } = useUpdateMemberStatus();
+  const { startTimer, stopTimer } = useTimer();
+
+  // Start: member-status first, then startTimer on success; do not start timer if member-status denies (403/409)
+  const handleStart = () => {
     if (!task) return;
-    const status = action === 'start' ? 'In_Progress' : 'Completed';
-    updateMemberStatus({ taskId: Number(task.id), status }, {
-      onSuccess: () => {
-        message.success(action === 'start' ? 'Work started! Timer is active.' : 'Task marked as completed!');
-      },
-      onError: (err: any) => {
-        message.error(err.message || 'Failed to update status');
+    updateMemberStatus(
+      { taskId: Number(task.id), status: 'In_Progress' },
+      {
+        onSuccess: async () => {
+          try {
+            const taskWithProject = task as {
+              task_workspace?: { name?: string };
+              task_project?: { company?: { name?: string } };
+              project?: string;
+            };
+            const projectName =
+              taskWithProject.task_workspace?.name ||
+              taskWithProject.task_project?.company?.name ||
+              taskWithProject.project ||
+              'Unknown';
+            await startTimer(Number(task.id), task.name || 'Untitled Task', projectName);
+            message.success('Work started! Timer is active.');
+          } catch (err) {
+            message.error(err instanceof Error ? err.message : 'Failed to start timer');
+            queryClient.invalidateQueries({ queryKey: queryKeys.tasks.detail(taskId) });
+            queryClient.invalidateQueries({ queryKey: queryKeys.tasks.timer(taskId) });
+          }
+        },
+        onError: (err: Error & { response?: { status?: number } }) => {
+          const status = err.response?.status ?? 0;
+          message.error(err.message || 'Failed to update status');
+          queryClient.invalidateQueries({ queryKey: queryKeys.tasks.detail(taskId) });
+          queryClient.invalidateQueries({ queryKey: queryKeys.tasks.timer(taskId) });
+          if (status === 403 || status === 409) {
+            queryClient.invalidateQueries({ queryKey: queryKeys.tasks.listRoot() });
+            queryClient.invalidateQueries({ queryKey: queryKeys.tasks.assigned() });
+          }
+        },
       }
-    });
+    );
+  };
+
+  // Complete: open modal first; on submit stopTimer(description) then updateMemberStatus(Completed)
+  const handleCompleteRequest = () => {
+    setCompleteDescription('');
+    setShowCompleteModal(true);
+  };
+
+  const handleCompleteSubmit = async () => {
+    if (!task) return;
+    setCompleteSubmitting(true);
+    try {
+      await stopTimer(completeDescription?.trim() ?? '');
+      await updateMemberStatusAsync({ taskId: Number(task.id), status: 'Completed' });
+      setShowCompleteModal(false);
+      setCompleteDescription('');
+      message.success('Task marked as completed!');
+      queryClient.invalidateQueries({ queryKey: queryKeys.tasks.detail(taskId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.tasks.timer(taskId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.tasks.listRoot() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.tasks.assigned() });
+    } catch (err) {
+      message.error(err instanceof Error ? err.message : 'Failed to update status');
+      queryClient.invalidateQueries({ queryKey: queryKeys.tasks.detail(taskId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.tasks.timer(taskId) });
+    } finally {
+      setCompleteSubmitting(false);
+    }
   };
 
   // Access Control
@@ -167,7 +237,6 @@ export function TaskDetailsPage() {
 
   // Progress calculations
   const estimatedHours = Number(task.estimated_time || timer?.estimated_time || 0);
-  const workedSeconds = timer?.worked_time || 0;
   const workedHours = workedSeconds / 3600;
   const progressPercent = estimatedHours > 0
     ? Math.min(Math.round((workedHours / estimatedHours) * 100), 100)
@@ -175,6 +244,10 @@ export function TaskDetailsPage() {
   const formattedLogged = workedHours < 0.1 && workedHours > 0 ? '< 0.1' : workedHours.toFixed(1);
 
   const steps = task.steps || [];
+
+  // Enable Start only when current member has provided estimate (align with FloatingTimerBar)
+  const currentMember = task.task_members?.find((tm: { user_id?: number }) => tm.user_id === currentUser?.id);
+  const canStart = currentMember != null && currentMember.estimated_time != null;
 
   return (
     <PageLayout
@@ -432,12 +505,44 @@ export function TaskDetailsPage() {
           </div>
         </div>
       </div>
-      <TaskActionPanel 
-        task={task as any} 
-        currentUser={currentUser as any} 
-        onAction={handleTaskAction} 
+      <TaskActionPanel
+        task={{
+          id: Number(task.id),
+          execution_mode: (task.execution_mode ?? 'parallel') as 'parallel' | 'sequential',
+          task_members: task.task_members ?? [],
+        }}
+        currentUser={{ id: Number(currentUser?.id) }}
+        onAction={handleStart}
+        onCompleteRequest={handleCompleteRequest}
+        canStart={canStart}
         isLoading={isUpdatingStatus}
       />
+      <Modal
+        title="Mark as Complete"
+        open={showCompleteModal}
+        onOk={handleCompleteSubmit}
+        onCancel={() => {
+          setShowCompleteModal(false);
+          setCompleteDescription('');
+        }}
+        okText="Mark Complete"
+        cancelText="Cancel"
+        confirmLoading={completeSubmitting}
+        okButtonProps={{ style: { backgroundColor: '#16a34a', borderColor: '#16a34a' } }}
+      >
+        <div className="py-4">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Add a note (optional)
+          </label>
+          <Input.TextArea
+            value={completeDescription}
+            onChange={(e) => setCompleteDescription(e.target.value)}
+            placeholder="Add final notes about what you completed..."
+            rows={4}
+            className="w-full"
+          />
+        </div>
+      </Modal>
     </PageLayout>
   );
 }

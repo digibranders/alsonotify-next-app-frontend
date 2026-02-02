@@ -17,11 +17,13 @@ interface TaskActionPanelProps {
     task_members: TaskMember[];
   };
   currentUser: { id: number };
-  onAction: (action: 'start' | 'complete') => void;
+  onAction: (action: 'start') => void;
+  onCompleteRequest?: () => void;
+  canStart?: boolean;
   isLoading?: boolean;
 }
 
-export function TaskActionPanel({ task, currentUser, onAction, isLoading }: TaskActionPanelProps) {
+export function TaskActionPanel({ task, currentUser, onAction, onCompleteRequest, canStart = true, isLoading }: TaskActionPanelProps) {
   const currentMember = task.task_members?.find(m => m.user_id === currentUser.id);
 
   if (!currentMember) return null; // Not assigned
@@ -97,8 +99,15 @@ export function TaskActionPanel({ task, currentUser, onAction, isLoading }: Task
         <Button
           type="primary"
           size="large"
-          disabled={!canAct || isLoading}
-          onClick={() => actionType && onAction(actionType)}
+          disabled={!canAct || isLoading || (actionType === 'start' && !canStart)}
+          onClick={() => {
+            if (!actionType) return;
+            if (actionType === 'complete' && onCompleteRequest) {
+              onCompleteRequest();
+            } else if (actionType === 'start') {
+              onAction('start');
+            }
+          }}
           className={`h-14 rounded-xl px-6 flex items-center gap-3 text-[14px] font-bold shadow-none transition-colors border-none ${
              !canAct ? 'bg-gray-100 text-gray-400' :
              actionType === 'start' ? 'bg-[#111111] hover:bg-black' : 

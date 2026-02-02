@@ -1,5 +1,5 @@
-import { Checkbox, Tooltip, Dropdown, Popover, Input, Button, message, Avatar, Modal } from "antd";
-import { AlertCircle, CheckCircle2, Clock, Loader2, MoreVertical, ArrowRightCircle, Eye, XCircle, Ban, Edit, Trash2, Play, CircleStop, RotateCcw } from "lucide-react";
+import { Checkbox, Tooltip, Dropdown, Popover, Input, Button, message, Avatar } from "antd";
+import { Clock, MoreVertical, Edit, Trash2, RotateCcw } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { MenuProps } from "antd";
@@ -34,19 +34,13 @@ const TaskRowComponent = memo(function TaskRow({
   onRequestRevision
 }: TaskRowProps) {
   const router = useRouter();
-  const { timerState, startTimer, stopTimer } = useTimer();
+  const { timerState } = useTimer();
   const { taskId: activeTaskId, elapsedSeconds, isRunning } = timerState;
   const [estimateOpen, setEstimateOpen] = useState(false);
   const [estimateHours, setEstimateHours] = useState("");
   const [submissionLoading, setSubmissionLoading] = useState(false);
 
-  // Worklog modal state for Stuck/Complete actions
-  const [showWorklogModal, setShowWorklogModal] = useState(false);
-  const [worklogAction, setWorklogAction] = useState<'stuck' | 'complete' | null>(null);
-  const [worklogDescription, setWorklogDescription] = useState("");
-  const [worklogSubmitting, setWorklogSubmitting] = useState(false);
-
-  // Local ticker state for re-rendering live times for OTHER members (not current user)
+  // Local ticker state for re-rendering live times (read-only from task data + timer context)
   const [now, setNow] = useState(new Date());
 
   useEffect(() => {
@@ -101,55 +95,8 @@ const TaskRowComponent = memo(function TaskRow({
     return num % 1 === 0 ? num.toString() : num.toFixed(1);
   };
 
-  // Play/Stop Logic
   const myMember = task.task_members?.find(m => m.user_id === currentUserId);
-  const isMyTurn = task.execution_mode === 'sequential' ? myMember?.is_current_turn : true;
-  const isPlayDisabled = task.execution_mode === 'sequential' && !isMyTurn;
-  const isActive = String(activeTaskId) === String(task.id);
-
-  const handleTimerClick = async (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (isActive) {
-      await stopTimer();
-    } else {
-      if (isPlayDisabled || isPendingEstimate) return;
-      await startTimer(Number(task.id), task.name, task.project || ''); // Pass task info
-    }
-  };
-
-  // Handle Stuck action
-  const handleStuckClick = async () => {
-    if (isActive) await stopTimer();
-    setWorklogAction('stuck');
-    setWorklogDescription('');
-    setShowWorklogModal(true);
-  };
-
-  // Handle Complete action 
-  const handleCompleteClick = async () => {
-    if (isActive) await stopTimer();
-    setWorklogAction('complete');
-    setWorklogDescription('');
-    setShowWorklogModal(true);
-  };
-
-  // Handle worklog modal submission
-  const handleWorklogSubmit = async () => {
-    if (!worklogAction) return;
-    setWorklogSubmitting(true);
-    try {
-      const newStatus = worklogAction === 'stuck' ? 'Stuck' : 'Review';
-      onStatusChange?.(newStatus);
-      message.success(worklogAction === 'stuck' ? 'Task marked as blocked' : 'Task marked for review');
-      setShowWorklogModal(false);
-      setWorklogAction(null);
-      setWorklogDescription('');
-    } catch (error) {
-      message.error('Failed to update task status');
-    } finally {
-      setWorklogSubmitting(false);
-    }
-  };
+  const isPendingEstimate = myMember && myMember.status === 'PendingEstimate';
 
   // Progress/Styling Logic
   const percentage = task.estTime > 0 ? (totalSeconds / (task.estTime * 3600)) * 100 : 0;
@@ -157,7 +104,6 @@ const TaskRowComponent = memo(function TaskRow({
   const isBlockedOrDelayed = ['Stuck', 'Impediment', 'Delayed'].includes(task.status);
   const showRed = isOvertime || isBlockedOrDelayed;
   const textColor = showRed ? 'text-[#ff3b3b]' : 'text-[#666666]';
-  const isPendingEstimate = myMember && myMember.status === 'PendingEstimate';
 
   return (
     <div
@@ -385,40 +331,6 @@ const TaskRowComponent = memo(function TaskRow({
           </Dropdown>
         </div>
       </div>
-
-      {/* Worklog Modal for Stuck/Complete actions */}
-      <Modal
-        title={worklogAction === 'stuck' ? 'Mark as Blocked' : 'Mark as Complete'}
-        open={showWorklogModal}
-        onCancel={() => {
-          setShowWorklogModal(false);
-          setWorklogAction(null);
-          setWorklogDescription('');
-        }}
-        onOk={handleWorklogSubmit}
-        okText={worklogAction === 'stuck' ? 'Mark Blocked' : 'Mark Complete'}
-        okButtonProps={{
-          loading: worklogSubmitting,
-          danger: worklogAction === 'stuck',
-          style: worklogAction === 'complete' ? { backgroundColor: '#16a34a', borderColor: '#16a34a' } : undefined
-        }}
-        cancelButtonProps={{ disabled: worklogSubmitting }}
-      >
-        <div className="py-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Add a note (optional)
-          </label>
-          <Input.TextArea
-            value={worklogDescription}
-            onChange={(e) => setWorklogDescription(e.target.value)}
-            placeholder={worklogAction === 'stuck'
-              ? "Describe what's blocking this task..."
-              : "Add final notes about this task..."}
-            rows={4}
-            className="w-full"
-          />
-        </div>
-      </Modal>
     </div>
   );
 });

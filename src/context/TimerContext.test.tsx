@@ -218,4 +218,67 @@ describe('TimerContext Verification', () => {
         // Should now be stopped
         expect(result.current.timerState.isRunning).toBe(false);
     });
+
+    it('pending stop (worklogId -1): applies stop when start resolves and calls updateWorklog once', async () => {
+        activeTimerSpy.mockResolvedValue({ success: true, message: 'No timer', result: null });
+
+        let resolveStart: (value: any) => void;
+        const startPromise = new Promise<{ result: { id: number } }>((resolve) => {
+            resolveStart = resolve;
+        });
+        startWorkLogSpy.mockReturnValue(startPromise);
+
+        const { result } = renderHook(() => useTimer(), { wrapper });
+
+        await act(async () => {
+            result.current.startTimer(5, 'Task', 'Proj');
+        });
+        expect(result.current.timerState.worklogId).toBe(-1);
+        expect(result.current.timerState.isRunning).toBe(true);
+
+        await act(async () => {
+            result.current.stopTimer();
+        });
+        expect(updateWorklogSpy).not.toHaveBeenCalled();
+        expect(result.current.timerState.isRunning).toBe(false);
+
+        await act(async () => {
+            resolveStart!({ result: { id: 123 } });
+        });
+
+        await waitFor(() => {
+            expect(updateWorklogSpy).toHaveBeenCalledTimes(1);
+        }, { timeout: 2000 });
+        expect(updateWorklogSpy).toHaveBeenCalledWith(
+            expect.objectContaining({
+                task_id: 5,
+                start_datetime: expect.any(String),
+                end_datetime: expect.any(String),
+                description: '',
+            }),
+            123
+        );
+    });
+
+    it('stopTimer(description) passes description to updateWorklog', async () => {
+        activeTimerSpy.mockResolvedValue(createMockTimer());
+
+        const { result } = renderHook(() => useTimer(), { wrapper });
+
+        await waitFor(() => {
+            expect(result.current.timerState.isRunning).toBe(true);
+        }, { timeout: 3000 });
+        expect(result.current.timerState.worklogId).toBe(101);
+
+        await act(async () => {
+            result.current.stopTimer('my note');
+        });
+
+        expect(updateWorklogSpy).toHaveBeenCalledWith(
+            expect.objectContaining({
+                description: 'my note',
+            }),
+            101
+        );
+    });
 });

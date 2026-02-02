@@ -106,7 +106,8 @@ export interface Requirement {
   contact_person?: { name: string; id: number };
 }
 
-export type TaskStatus = 'Assigned' | 'In_Progress' | 'Completed' | 'Delayed' | 'Impediment' | 'Review' | 'Stuck' | 'Pending' | 'In Progress' | 'Todo';
+// Backend enum only (Prisma TaskStatus). Re-export from workflow for single source of truth.
+export type TaskStatus = 'Assigned' | 'In_Progress' | 'Completed' | 'Delayed' | 'Impediment' | 'Review' | 'Stuck';
 
 export interface Task {
   id: string;

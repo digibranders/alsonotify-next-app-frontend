@@ -14,7 +14,7 @@ import { useTasks, useCreateTask, useDeleteTask, useUpdateTask, useUpdateTaskSta
 import { useWorkspaces, useWorkspaceRequirementsDropdown } from '@/hooks/useWorkspace';
 import { useEmployeesDropdown, useUserDetails, useCurrentUserCompany } from '@/hooks/useUser';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { getTaskStatusUI } from '@/lib/workflow';
+import { getTaskStatusUI, TASK_STATUSES } from '@/lib/workflow';
 import { getRoleFromUser } from '@/utils/roleUtils';
 import { Skeleton } from '../../ui/Skeleton';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -49,6 +49,7 @@ export function TasksPage() {
   const createTaskMutation = useCreateTask();
   const deleteTaskMutation = useDeleteTask();
   const updateTaskMutation = useUpdateTask();
+  const updateTaskStatusMutation = useUpdateTaskStatus();
   const { data: workspacesData } = useWorkspaces();
 
   // Use new centralized hooks for dropdowns
@@ -176,19 +177,9 @@ export function TasksPage() {
       }
     }
     // Tab-based filtering is done client-side to prevent re-fetches on tab switch
-    // Only apply status filter from explicit filter dropdown
+    // Only apply status filter from explicit filter dropdown (value is already backend enum)
     if (filters.status !== 'All') {
-      // Map UI status to backend status
-      const statusMap: Record<string, string> = {
-        'Assigned': 'Assigned',
-        'In Progress': 'In_Progress',
-        'Completed': 'Completed',
-        'Delayed': 'Delayed',
-        'Impediment': 'Impediment',
-        'Review': 'Review',
-        'Stuck': 'Stuck',
-      };
-      params.status = statusMap[filters.status] || filters.status;
+      params.status = filters.status;
     }
     if (searchQuery) {
       params.name = searchQuery;
@@ -250,20 +241,10 @@ export function TasksPage() {
 
 
 
-  // Transform backend data to UI format
-  // Backend statuses: 'Assigned', 'In_Progress', 'Completed', 'Delayed', 'Impediment', 'Review', 'Stuck'
-  // Use backend statuses directly - no mapping needed
+  // Backend returns Prisma TaskStatus enum only. Thin guard for unknown/legacy values.
   const normalizeBackendStatus = (status: string): ITaskStatus => {
     if (!status) return 'Assigned';
-
-    // Normalize status (handle both 'In_Progress' and 'In Progress')
-    const normalizedStatus = status.replace(/\s+/g, '_');
-
-    // Map to backend enum values
-    const validStatuses: ITaskStatus[] = ['Assigned', 'In_Progress', 'Completed', 'Delayed', 'Impediment', 'Review', 'Stuck', 'Pending'];
-    const matchedStatus = validStatuses.find(s => s === normalizedStatus || s.toLowerCase() === normalizedStatus.toLowerCase());
-
-    return matchedStatus || 'Assigned'; // Default to Assigned
+    return (TASK_STATUSES as readonly string[]).includes(status) ? (status as ITaskStatus) : 'Assigned';
   };
 
   // Create a map of requirement IDs to names for quick lookup
@@ -468,7 +449,10 @@ export function TasksPage() {
     return ['All', ...workspacesData.result.workspaces.map((p: { name: string }) => p.name)];
   }, [workspacesData]);
 
-  const statuses = useMemo(() => ['All', 'Assigned', 'In Progress', 'Completed', 'Delayed', 'Impediment', 'Review', 'Stuck'], []);
+  const statuses = useMemo(
+    () => ['All', ...TASK_STATUSES.map((s) => ({ label: getTaskStatusUI(s).label, value: s }))],
+    []
+  );
 
   const requirementsList = useMemo(() => {
     return ['All', ...requirementsDropdown.map(r => r.name).sort()];
@@ -612,10 +596,9 @@ export function TasksPage() {
   const handleBulkComplete = async () => {
     try {
       await Promise.all(
-        selectedTasks.map(id => {
-          // Use status 'Completed' (matching backend enum)
-          return updateTaskMutation.mutateAsync({ id: parseInt(id), status: 'Completed' } as any);
-        })
+        selectedTasks.map(id =>
+          updateTaskStatusMutation.mutateAsync({ id: parseInt(id), status: 'Completed' })
+        )
       );
       message.success(`${selectedTasks.length} tasks marked as completed`);
       setSelectedTasks([]);
@@ -1079,9 +1062,7 @@ export function TasksPage() {
               key={task.id}
               task={{
                 ...task,
-                status: (task.status === 'In Progress' ? 'In_Progress' :
-                  task.status === 'Todo' ? 'Assigned' :
-                    task.status) as unknown as TaskStatus
+                status: task.status as TaskStatus
               }}
               selected={selectedTasks.includes(task.id)}
               onSelect={() => toggleSelect(task.id)}
@@ -1089,7 +1070,7 @@ export function TasksPage() {
               onDelete={() => handleDeleteTask(task.id)}
               onStatusChange={
                 canChangeTaskStatus(task)
-                  ? (status) => updateTaskMutation.mutate({ id: Number(task.id), status })
+                  ? (status) => updateTaskStatusMutation.mutate({ id: Number(task.id), status })
                   : undefined  // ✅ FIX BUG #2: Disable status change if no permission
               }
               currentUserId={currentUserId ? Number(currentUserId) : undefined}

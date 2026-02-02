@@ -1,16 +1,14 @@
 import { TaskDto } from '../../types/dto/task.dto';
 import { Task, TaskStatus } from '../../types/domain';
+import { TASK_STATUSES } from '@/lib/workflow';
 import { format } from 'date-fns';
 
 export function mapTaskToDomain(dto: TaskDto): Task {
-  // Normalize Status
-  let status: TaskStatus = 'Assigned';
-  if (dto.status) {
-    if (dto.status === 'In Progress' || dto.status === 'In_Progress') status = 'In_Progress';
-    else if (['Completed', 'Delayed', 'Impediment', 'Review', 'Stuck', 'Assigned', 'Todo'].includes(dto.status)) {
-      status = dto.status as TaskStatus;
-    }
-  }
+  // API returns Prisma TaskStatus enum only. Guard: if value in TASK_STATUSES use it, else default to Assigned.
+  const status: TaskStatus =
+    dto.status && (TASK_STATUSES as readonly string[]).includes(dto.status)
+      ? (dto.status as TaskStatus)
+      : 'Assigned';
 
   // Safe Date parsing
   const startDate = dto.start_date || '';

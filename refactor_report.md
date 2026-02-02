@@ -790,3 +790,28 @@ Restored the original "Card" layout and styles for the Requirements Page (mimick
 - **Verification**:
     - `bun run build` passed.
 
+
+## [Fri Jan 30 12:35:13 IST 2026] - Fix Task Status Logic and Timer Bar Filtering
+
+**Changes:**
+- Backend: Fixed `provideEstimateService` to correctly aggregate task status after estimation using a transaction.
+- Frontend: Updated `FloatingTimerBar.tsx` to filter out unestimated tasks.
+
+**Status:** Completed and verified with builds.
+
+## [Fri Jan 30 13:09:25 IST 2026] - Fix Date Shift and Premature Delayed Status
+
+**Changes:**
+- Frontend: Switched to YYYY-MM-DD formatting in RequirementsForm and TaskForm to prevent timezone-based date shifts.
+- Backend: Adjusted `calculateAndUpdateDelayedStatus` to be inclusive of the deadline day (end of day comparison).
+
+**Status:** Completed and verified with builds.
+
+## [Fri Jan 30 13:37:55 IST 2026] - Fix Timer Leakage and Sync Issues
+
+**Changes:**
+- Backend: Implemented aggressive cleanup to close any other active worklogs when starting a new one.
+- Frontend: Improved FloatingTimerBar to show task names from global state even if hidden from current list.
+- Frontend: Refined TimerContext sync logic and added debug logging.
+
+**Status:** Completed and verified with builds.

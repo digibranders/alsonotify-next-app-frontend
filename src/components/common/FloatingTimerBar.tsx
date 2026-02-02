@@ -7,14 +7,15 @@ import {
   CheckCircle,
   ChevronDown,
   Loader2,
-  WifiOff
+  WifiOff,
+  Clock
 } from "lucide-react";
 import { useFloatingMenu } from '../../context/FloatingMenuContext';
 import { useTimer } from '../../context/TimerContext';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getAssignedTasks, updateTaskStatusById } from '../../services/task';
 import { useUserDetails } from '../../hooks/useUser';
-import { App, Tooltip } from 'antd';
+import { App, Tooltip, Modal, Input } from 'antd';
 import { queryKeys } from '../../lib/queryKeys';
 
 // Global floating timer bar - expands with bulk actions from pages
@@ -27,6 +28,8 @@ interface TaskOption {
   estimatedTime: number;
   disabled?: boolean;
   secondsSpent: number; // Accumulated time from history
+  canStart: boolean;
+  startTooltip?: string;
 }
 
 export function FloatingTimerBar() {
@@ -63,7 +66,8 @@ export function FloatingTimerBar() {
       const isModalOpen = document.querySelector('.ant-modal-wrap:not([style*="display: none"])') !== null ||
         document.body.classList.contains('ant-modal-open');
 
-      setIsFormOpen(!!isDrawerOpen || !!isModalOpen);
+      const next = !!isDrawerOpen || !!isModalOpen;
+      setIsFormOpen(next);
     };
 
     // Initial check
@@ -85,18 +89,24 @@ export function FloatingTimerBar() {
     return () => observer.disconnect();
   }, []);
 
-  // Visibility Logic - also hide on task details and requirement details
-  const isHidden = (pathname && (
-    HIDDEN_ROUTES.some(route => pathname.startsWith(route)) ||
-    pathname.includes('/dashboard/requirements/') ||
-    pathname.includes('/dashboard/tasks/')
-  )) || isFormOpen;
-
   const { expandedContent } = useFloatingMenu();
   const { timerState, startTimer, stopTimer, isLoading: timerLoading } = useTimer();
 
   const [showTaskSelector, setShowTaskSelector] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null);
+  const [showCompleteModal, setShowCompleteModal] = useState(false);
+  const [completeDescription, setCompleteDescription] = useState("");
+  const [completeTaskId, setCompleteTaskId] = useState<number | null>(null);
+
+  // Visibility Logic - hide on reports/finance/settings/profile and requirement details only.
+  // Timer bar is visible on /dashboard/tasks/* (task list and task detail) so users can control timer there.
+  // When our own Complete modal is open (showCompleteModal), do NOT hide the bar — otherwise
+  // the MutationObserver would set isFormOpen true → bar returns null → modal unmounts →
+  // observer sets isFormOpen false → bar re-renders with modal → infinite loop.
+  const isHidden = (pathname && (
+    HIDDEN_ROUTES.some(route => pathname.startsWith(route)) ||
+    pathname.includes('/dashboard/requirements/')
+  )) || (isFormOpen && !showCompleteModal);
 
   // Sync selected task with running timer ONLY if user hasn't actively selected another one?
   // Or strictly follow the running timer.
@@ -138,11 +148,12 @@ export function FloatingTimerBar() {
 
         if (t.disabled) return false;
 
-        // Check if user is a member OR a leader
-        const isMember = t.task_members?.some(m => m.user_id === userId);
-        const isLeader = t.leader_id === userId || (t.leader_user?.id === userId);
+        // 3. User MUST be a member to see/track the task here.
+        const memberRecord = t.task_members?.find(m => m.user_id === userId);
+        if (!memberRecord) return false;
 
-        if (!isMember && !isLeader) return false;
+        // 4. User MUST have provided an estimate to track time on it via this bar
+        if (memberRecord.estimated_time === null) return false;
 
         return true;
       })
@@ -153,13 +164,28 @@ export function FloatingTimerBar() {
         // Showing personal time (0) is safer for the "My Timer" context.
         const secondsSpent = memberRecord?.seconds_spent || 0;
         const estimatedTime = memberRecord ? (memberRecord.estimated_time || t.estimated_time || 0) : (t.estimated_time || 0);
+
+        // Calculate Can Start
+        let canStart = true;
+        let startTooltip = undefined;
+
+        if (t.execution_mode === 'sequential') {
+          // In sequential mode, they can only start if it is their turn.
+          if (!memberRecord?.is_current_turn) {
+            canStart = false;
+            startTooltip = "Not your turn (Sequential Task)";
+          }
+        }
+
         return {
           id: t.id,
           name: t.name || t.title || "Untitled Task",
           project: t.task_workspace?.name || t.task_project?.company?.name || "Unknown Project",
           estimatedTime: Number(estimatedTime), // Ensure it is a number
           disabled: t.disabled,
-          secondsSpent: secondsSpent
+          secondsSpent: secondsSpent,
+          canStart,
+          startTooltip
         };
       });
   }, [assignedTasksData, userId]);
@@ -241,42 +267,47 @@ export function FloatingTimerBar() {
     }
   };
 
-  const handleComplete = async () => {
-    if (!timerState.isRunning) {
+  const handleCompleteClick = () => {
+    if (!timerState.isRunning || !currentDisplayTaskId) {
       message.warning("No active timer to complete");
       return;
     }
+    setCompleteTaskId(currentDisplayTaskId);
+    setCompleteDescription("");
+    setShowCompleteModal(true);
+  };
 
-    // 1. Stop the Timer (Log time) - Optimistic update handled in TimerContext
-    await stopTimer();
+  const handleCompleteSubmit = async () => {
+    const taskIdToComplete = completeTaskId;
+    if (!taskIdToComplete) return;
+
+    const description = completeDescription?.trim() ?? "";
+    setShowCompleteModal(false);
+    setCompleteDescription("");
+    setCompleteTaskId(null);
+
+    // stopTimer is idempotent - safe to call even if timer already stopped remotely
+    await stopTimer(description);
 
     // 2. Update Status to 'Review' (Submit for Review)
-    if (currentDisplayTaskId) {
-      try {
-        await updateTaskStatusById(currentDisplayTaskId, 'Review');
-        message.success("Task worklog saved and submitted for Review!");
-
-        // CLEAR SELECTION immediately to reset UI status
+    try {
+      await updateTaskStatusById(taskIdToComplete, 'Review');
+      message.success("Task worklog saved and submitted for Review!");
+      setSelectedTaskId(null);
+    } catch (e: any) {
+      console.error("Failed to update status", e);
+      if (e.message?.includes('Review to Review')) {
         setSelectedTaskId(null);
-      } catch (e: any) {
-        console.error("Failed to update status", e);
-        // Specialized error handling
-        if (e.message?.includes('Review to Review')) {
-          // Task is already in review, likely a race condition or double click
-          // Treat as success for UI purposes (hide it)
-          setSelectedTaskId(null);
-          message.info("Task is already in Review.");
-        } else {
-          message.warning("Worklog saved, but failed to update status.");
-        }
+        message.info("Task is already in Review.");
+      } else {
+        message.warning("Worklog saved, but failed to update status.");
       }
-    } else {
-      message.success("Worklog saved!");
     }
 
-    // 3. Refresh Data
     queryClient.invalidateQueries({ queryKey: queryKeys.tasks.listRoot() });
     queryClient.invalidateQueries({ queryKey: queryKeys.tasks.assigned() });
+    queryClient.invalidateQueries({ queryKey: queryKeys.tasks.detail(taskIdToComplete) });
+    queryClient.invalidateQueries({ queryKey: queryKeys.tasks.worklogsRoot(taskIdToComplete) });
   };
 
   if (isHidden) return null;
@@ -306,30 +337,49 @@ export function FloatingTimerBar() {
                   <Loader2 className="w-5 h-5 text-[#999999] animate-spin" />
                 </div>
               ) : tasks.length > 0 ? (
-                tasks.map((task) => (
-                  <button
-                    key={task.id}
-                    onClick={() => handleTaskSelect(task)}
-                    className={`w-full flex items-center justify-between px-3 py-2 rounded-[12px] text-left transition-all ${currentDisplayTaskId === task.id
-                      ? 'bg-gradient-to-br from-[#ff3b3b] to-[#cc2f2f] text-white shadow-sm'
-                      : 'hover:bg-[#F7F7F7] text-[#111111]'
-                      }`}
-                  >
-                    <div className="flex-1 min-w-0">
-                      <p className={`text-[13px] font-['Manrope:SemiBold',sans-serif] truncate ${currentDisplayTaskId === task.id ? 'text-white' : 'text-[#111111]'
-                        }`}>
-                        {task.name}
-                      </p>
-                      <p className={`text-[10px] font-['Inter:Regular',sans-serif] mt-0.5 truncate ${currentDisplayTaskId === task.id ? 'text-white/80' : 'text-[#999999]'
-                        }`}>
-                        {task.project}
-                      </p>
-                    </div>
-                    {currentDisplayTaskId === task.id && (
-                      <CheckCircle className="w-4 h-4 text-white flex-shrink-0 ml-2" />
-                    )}
-                  </button>
-                ))
+                tasks.map((task) => {
+                  const content = (
+                    <button
+                      key={task.id}
+                      onClick={() => task.canStart && handleTaskSelect(task)}
+                      disabled={!task.canStart}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-[12px] text-left transition-all 
+                        ${!task.canStart ? 'opacity-50 cursor-not-allowed grayscale' : ''}
+                        ${currentDisplayTaskId === task.id
+                          ? 'bg-gradient-to-br from-[#ff3b3b] to-[#cc2f2f] text-white shadow-sm'
+                          : task.canStart ? 'hover:bg-[#F7F7F7] text-[#111111]' : 'text-[#999999]'
+                        }`}
+                    >
+                      <div className="flex-1 min-w-0">
+                        <p className={`text-[13px] font-['Manrope:SemiBold',sans-serif] truncate ${currentDisplayTaskId === task.id ? 'text-white' : 'text-inherit'
+                          }`}>
+                          {task.name}
+                        </p>
+                        <p className={`text-[10px] font-['Inter:Regular',sans-serif] mt-0.5 truncate ${currentDisplayTaskId === task.id ? 'text-white/80' : 'text-inherit opacity-70'
+                          }`}>
+                          {task.project}
+                        </p>
+                      </div>
+                      {currentDisplayTaskId === task.id && (
+                        <CheckCircle className="w-4 h-4 text-white flex-shrink-0 ml-2" />
+                      )}
+                      {!task.canStart && (
+                        // Optional: Icon indicating wait?
+                        <Clock className="w-3 h-3 ml-2 opacity-50 flex-shrink-0" />
+                      )}
+                    </button>
+                  );
+
+                  if (!task.canStart && task.startTooltip) {
+                    return (
+                      <Tooltip key={task.id} title={task.startTooltip} placement="left">
+                        {content}
+                      </Tooltip>
+                    );
+                  }
+
+                  return content;
+                })
               ) : (
                 <div className="p-3 text-center text-[#999999] text-xs">
                   No assigned tasks found
@@ -389,7 +439,7 @@ export function FloatingTimerBar() {
                   </Tooltip>
                 )}
                 <p className="text-[14px] text-white font-['Inter:Medium',sans-serif] group-hover:text-white transition-colors truncate max-w-[200px]">
-                  {currentTaskName}
+                  {currentTask?.name || timerState.taskName || "Select Task"}
                 </p>
                 <ChevronDown className="w-4 h-4 text-white/70 group-hover:text-white transition-colors shrink-0" />
               </>
@@ -414,7 +464,7 @@ export function FloatingTimerBar() {
           <button
             className="text-white hover:text-white/80 transition-all active:scale-90 disabled:opacity-50"
             title="Stop Timer & Save Worklog"
-            onClick={handleComplete}
+            onClick={handleCompleteClick}
             disabled={timerLoading}
           >
             <CheckCircle className="w-5 h-5" />
@@ -426,6 +476,34 @@ export function FloatingTimerBar() {
           {formatTime(displayTime)}
         </div>
       </div>
+
+      {/* Complete description modal */}
+      <Modal
+        title="Mark as Complete"
+        open={showCompleteModal}
+        onOk={handleCompleteSubmit}
+        onCancel={() => {
+          setShowCompleteModal(false);
+          setCompleteDescription("");
+          setCompleteTaskId(null);
+        }}
+        okText="Mark Complete"
+        cancelText="Cancel"
+        okButtonProps={{ style: { backgroundColor: '#16a34a', borderColor: '#16a34a' } }}
+      >
+        <div className="py-4">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Add a note (optional)
+          </label>
+          <Input.TextArea
+            value={completeDescription}
+            onChange={(e) => setCompleteDescription(e.target.value)}
+            placeholder="Add final notes about what you completed..."
+            rows={4}
+            className="w-full"
+          />
+        </div>
+      </Modal>
     </div>
   );
 }
