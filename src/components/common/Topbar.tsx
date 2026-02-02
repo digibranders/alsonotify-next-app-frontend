@@ -445,11 +445,12 @@ export function Header({ userRole = 'Admin', roleColor, setUserRole }: HeaderPro
             {/* Add Button with Dropdown */}
             <Dropdown menu={{ items: addMenuItems }} placement="bottomRight" trigger={['click']}>
               <Button
-                className="!w-9 !h-9 !min-w-[36px] rounded-full !bg-[#ff3b3b] hover:!bg-[#ff6b6b] flex items-center justify-center p-0 !border-none !shadow-none"
+                className="!w-9 !h-9 !min-w-[36px] rounded-full !bg-[#ff3b3b] hover:!bg-[#ff6b6b] !flex !items-center !justify-center !p-0 !border-none !shadow-none"
                 type="primary"
                 shape="circle"
-                icon={<Add24Filled className="w-5 h-5 text-white" />}
-              />
+              >
+                <Add24Filled className="w-5 h-5 text-white" />
+              </Button>
             </Dropdown>
 
             {/* AI Assistant Toggle */}
@@ -482,13 +483,14 @@ export function Header({ userRole = 'Admin', roleColor, setUserRole }: HeaderPro
             <>
               <button
                 onClick={() => setNotificationDrawerOpen(true)}
-                className="relative hover:opacity-70 transition-opacity p-1 cursor-pointer"
+                className="relative w-9 h-9 rounded-full bg-[#F7F7F7] hover:bg-[#EEEEEE] flex items-center justify-center transition-colors cursor-pointer"
+                title="Notifications"
               >
-                <Alert24Filled className="w-6 h-6 text-[#000000]" strokeWidth={1.5} />
+                <Alert24Filled className="w-5 h-5 text-[#111111]" />
                 {/* Notification Badge */}
                 {unreadCount > 0 && (
-                  <span className="absolute top-0 right-0 w-4 h-4 bg-[#ff3b3b] rounded-full border border-white flex items-center justify-center">
-                    <span className="text-[9px] font-['Inter:Bold',sans-serif] text-white">{unreadCount}</span>
+                  <span className="absolute top-0 right-0 w-3.5 h-3.5 bg-[#ff3b3b] rounded-full border-[1.5px] border-white flex items-center justify-center translate-x-1 -translate-y-1">
+                    <span className="text-[8px] font-['Inter:Bold',sans-serif] text-white leading-none">{unreadCount}</span>
                   </span>
                 )}
               </button>

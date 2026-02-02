@@ -475,10 +475,10 @@ export const getCurrentActiveTimer = async (): Promise<ApiResponse<ActiveTimerRe
 /**
  * Request a revision for a task
  */
-export const requestRevision = async (id: number, revisionNotes: string): Promise<ApiResponse<RevisionResponseDto>> => {
+export const requestRevision = async (id: number, revisionNotes: string, estimatedTime?: number): Promise<ApiResponse<RevisionResponseDto>> => {
   try {
     validateTaskId(id);
-    const { data } = await axiosApi.post<ApiResponse<RevisionResponseDto>>(`/task/${id}/revision`, { revisionNotes });
+    const { data } = await axiosApi.post<ApiResponse<RevisionResponseDto>>(`/task/${id}/revision`, { revisionNotes, estimatedTime });
     return data;
   } catch (error) {
     if (isAxiosError(error)) {
