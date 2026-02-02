@@ -498,7 +498,7 @@ export const updateTaskMemberStatus = async (taskId: number, status: string): Pr
     validateTaskId(taskId);
     if (!status) throw new ApiError('Status is required', 400);
 
-    const { data } = await axiosApi.post<ApiResponse<{ computedStatus: string }>>(`/task/${taskId}/member-status/${status}`);
+    const { data } = await axiosApi.put<ApiResponse<{ computedStatus: string }>>(`/task/${taskId}/member-status/${status}`);
 
     if (!data || typeof data !== 'object') {
       throw new ApiError('Invalid response format from server', 500);

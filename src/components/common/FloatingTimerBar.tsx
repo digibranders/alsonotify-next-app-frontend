@@ -98,14 +98,14 @@ export function FloatingTimerBar() {
   const [completeDescription, setCompleteDescription] = useState("");
   const [completeTaskId, setCompleteTaskId] = useState<number | null>(null);
 
-  // Visibility Logic - also hide on task details and requirement details.
+  // Visibility Logic - hide on reports/finance/settings/profile and requirement details only.
+  // Timer bar is visible on /dashboard/tasks/* (task list and task detail) so users can control timer there.
   // When our own Complete modal is open (showCompleteModal), do NOT hide the bar — otherwise
   // the MutationObserver would set isFormOpen true → bar returns null → modal unmounts →
   // observer sets isFormOpen false → bar re-renders with modal → infinite loop.
   const isHidden = (pathname && (
     HIDDEN_ROUTES.some(route => pathname.startsWith(route)) ||
-    pathname.includes('/dashboard/requirements/') ||
-    pathname.includes('/dashboard/tasks/')
+    pathname.includes('/dashboard/requirements/')
   )) || (isFormOpen && !showCompleteModal);
 
   // Sync selected task with running timer ONLY if user hasn't actively selected another one?
