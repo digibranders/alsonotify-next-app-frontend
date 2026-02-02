@@ -180,7 +180,7 @@ export function FloatingTimerBar() {
         return {
           id: t.id,
           name: t.name || t.title || "Untitled Task",
-          project: t.task_workspace?.name || t.task_project?.company?.name || "Unknown Project",
+          project: t.task_requirement?.name || t.task_workspace?.name || t.company?.name || t.task_project?.company?.name || "Unknown Project",
           estimatedTime: Number(estimatedTime), // Ensure it is a number
           disabled: t.disabled,
           secondsSpent: secondsSpent,
@@ -252,19 +252,17 @@ export function FloatingTimerBar() {
   };
 
   const handleTaskSelect = async (task: TaskOption) => {
+    // 1. If a timer is running for a DIFFERENT task, STOP it first (Pause A).
+    if (timerState.isRunning && timerState.taskId && timerState.taskId !== task.id) {
+      await stopTimer("Paused via task switch");
+      message.info(`Timer paused. Selected: ${task.name}`);
+    }
+
+    // 2. Select the new task Logic (View B)
     setSelectedTaskId(task.id);
     setShowTaskSelector(false);
 
-    // Immediate Switch Strategy per Plan
-    // If we are already running a different task, switch immediately.
-    // If we are stopped, just select it (wait for Play).
-    if (timerState.isRunning && timerState.taskId !== task.id) {
-      message.info(`Switching to ${task.name}...`);
-      await startTimer(task.id, task.name, task.project);
-
-      queryClient.invalidateQueries({ queryKey: queryKeys.tasks.listRoot() });
-      queryClient.invalidateQueries({ queryKey: queryKeys.tasks.assigned() });
-    }
+    // 3. DO NOT auto-start. User must click Play.
   };
 
   const handleCompleteClick = () => {

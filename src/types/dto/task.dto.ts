@@ -19,10 +19,7 @@ export interface WorklogDto {
 
 export type ActiveTimerResponseDto = WorklogDto | null;
 
-export interface RevisionResponseDto {
-  success: boolean;
-  message: string;
-}
+export type RevisionResponseDto = TaskDto;
 
 export interface CommentDto {
   id: number;

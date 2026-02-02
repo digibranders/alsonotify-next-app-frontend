@@ -45,7 +45,7 @@ type StatusTab = 'all' | 'In_Progress' | 'Completed' | 'Delayed';
 export function TasksPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { message } = App.useApp();
+  const { message, modal } = App.useApp();
   const createTaskMutation = useCreateTask();
   const deleteTaskMutation = useDeleteTask();
   const updateTaskMutation = useUpdateTask();
@@ -142,6 +142,14 @@ export function TasksPage() {
       setFilterInitialized(true);
     }
   }, [currentUserName, filterInitialized, usersDropdown, userDetailsData]);
+
+  // Determine if current user is Admin
+  // Use useMemo so it's stable and accessible for rendering
+  const isAdmin = useMemo(() => {
+    const apiUser = userDetailsData?.result || {};
+    const role = getRoleFromUser(apiUser);
+    return role?.toLowerCase() === 'admin';
+  }, [userDetailsData]);
 
   // Build query params for API call
   const queryParams = useMemo(() => {
@@ -546,7 +554,7 @@ export function TasksPage() {
 
   // Handle delete task
   const handleDeleteTask = (taskId: string) => {
-    Modal.confirm({
+    modal.confirm({
       title: 'Delete Task',
       content: 'Are you sure you want to delete this task? This action cannot be undone.',
       okText: 'Delete',
@@ -1003,7 +1011,7 @@ export function TasksPage() {
           </button>
 
           <button
-            className="flex items-center gap-1 group outline-none cursor-pointer justify-center"
+            className="flex items-center gap-1 group outline-none cursor-pointer"
             onClick={() => handleSort('assignedTo')}
           >
             <span className={`text-[11px] font-['Manrope:Bold',sans-serif] uppercase tracking-wide transition-colors ${sortColumn === 'assignedTo' ? 'text-[#111111]' : 'text-[#999999] group-hover:text-[#666666]'}`}>
@@ -1027,7 +1035,7 @@ export function TasksPage() {
           </div>
 
           <button
-            className="flex items-center gap-1 group outline-none cursor-pointer justify-center"
+            className="flex items-center gap-1 group outline-none cursor-pointer"
             onClick={() => handleSort('status')}
           >
             <span className={`text-[11px] font-['Manrope:Bold',sans-serif] uppercase tracking-wide transition-colors ${sortColumn === 'status' ? 'text-[#111111]' : 'text-[#999999] group-hover:text-[#666666]'}`}>
@@ -1074,6 +1082,7 @@ export function TasksPage() {
                   : undefined  // ✅ FIX BUG #2: Disable status change if no permission
               }
               currentUserId={currentUserId ? Number(currentUserId) : undefined}
+              isAdmin={isAdmin}
             />
           ))}
         </div>

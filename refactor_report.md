@@ -834,3 +834,40 @@ Restored the original "Card" layout and styles for the Requirements Page (mimick
     - Backend build (`npm run build`) passed successfully.
     - Frontend build (`npm run build`) passed successfully.
 - **Manual**: Logic verified to ensure compliance with Prisma's strict DateTime requirements.
+
+## [2026-02-02] Improve Timer Bar Task Context
+
+**Author**: Senior Developer / CTO Agent
+**Objective**: Display the Requirement Name (e.g., "Eventus SEO") instead of Workspace Name in the floating timer bar for better context.
+
+### Changes
+
+- **Backend**:
+    - `alsonotify-backend/service/task.service.ts`: Updated `getAllAssignedTasks` to include `task_requirement` (id, name) in the selected fields.
+- **Frontend**:
+    - `src/components/common/FloatingTimerBar.tsx`: Updated the task option mapping to prioritize `task_requirement.name` over `task_workspace.name` for the subtitle.
+
+### Verification
+
+- **Automated**:
+    - Backend build (`npm run build`) passed successfully.
+    - Frontend build (`npm run build`) passed successfully.
+
+## [2026-02-02] Topbar Icons Refinement
+
+**Author**: Senior Developer / CTO Agent
+**Objective**: Improve the visual alignment and consistency of the Topbar icons.
+
+### Changes
+
+- **Component**: `src/components/common/Topbar.tsx`
+    - **Add Button**: Removed `icon` prop and used `Add24Filled` as a direct child with `!flex !items-center !justify-center` classes to enforce perfect centering of the + icon.
+    - **Notification Icon**: 
+        - Added circular light gray background (`bg-[#F7F7F7]`) to match other auxiliary icons (Feedback, Sparkle).
+        - Normalized size to `w-9 h-9` with `w-5 h-5` icon.
+        - Refined badge positioning and styling for the new circular container.
+
+### Verification
+
+- **Automated**: `npm run build` passed successfully.
+- **Manual**: Verified styles via code review to match requested aesthetics.
