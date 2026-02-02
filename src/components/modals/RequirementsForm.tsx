@@ -151,7 +151,7 @@ export function RequirementsForm({
             budget: Number(formData.budget) || 0,
             quoted_price: Number(formData.quoted_price) || undefined,
             currency: formData.currency || 'USD',
-            end_date: formData.dueDate ? dayjs(formData.dueDate).format('YYYY-MM-DD') : undefined,
+            end_date: formData.dueDate ? dayjs(formData.dueDate).toISOString() : undefined,
             start_date: new Date().toISOString(),
             // Note: priority enum removed - backend uses is_high_priority boolean directly
         };

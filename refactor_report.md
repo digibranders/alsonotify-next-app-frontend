@@ -815,3 +815,22 @@ Restored the original "Card" layout and styles for the Requirements Page (mimick
 - Frontend: Refined TimerContext sync logic and added debug logging.
 
 **Status:** Completed and verified with builds.
+## [2026-02-02] Fix Prisma Task Creation Date Error
+
+**Author**: Senior Developer / CTO Agent
+**Objective**: Fix an error in `prisma.task.create()` caused by invalid date formatting (`YYYY-MM-DD` instead of ISO-8601).
+
+### Changes
+
+- **Backend**:
+    - `alsonotify-backend/service/task.service.ts`: Updated `createTaskService` and `updateTaskService` to robustly parse `start_date` and `end_date` using `new Date()`. This ensures the database receives valid DateTime objects regardless of the input format.
+- **Frontend**:
+    - `src/components/modals/TaskForm.tsx`: Changed `end_date` formatting from `dayjs().format('YYYY-MM-DD')` to `dayjs().toISOString()`.
+    - `src/components/modals/RequirementsForm.tsx`: Changed `end_date` formatting from `dayjs().format('YYYY-MM-DD')` to `dayjs().toISOString()`.
+
+### Verification
+
+- **Automated**:
+    - Backend build (`npm run build`) passed successfully.
+    - Frontend build (`npm run build`) passed successfully.
+- **Manual**: Logic verified to ensure compliance with Prisma's strict DateTime requirements.

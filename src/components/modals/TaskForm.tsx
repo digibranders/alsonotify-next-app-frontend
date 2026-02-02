@@ -135,7 +135,7 @@ export function TaskForm({
       workspace_id: formData.workspace_id ? parseInt(formData.workspace_id) : undefined,
       requirement_id: formData.requirement_id ? parseInt(formData.requirement_id) : undefined,
       leader_id: parseInt(currentUserId), // STRICTLY current user
-      end_date: formData.end_date ? dayjs(formData.end_date).format('YYYY-MM-DD') : undefined, // Map to end_date with plain format
+      end_date: formData.end_date ? dayjs(formData.end_date).toISOString() : undefined, // Map to end_date with ISO format
       start_date: formData.start_date || new Date().toISOString(), // Preserve existing start_date or default to now
       estimated_time: (formData.estimated_time && isCurrentUserAssigned) ? parseFloat(formData.estimated_time) : 0,
       is_high_priority: formData.is_high_priority,
