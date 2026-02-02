@@ -1,35 +1,44 @@
 import { NextResponse, NextRequest } from "next/server";
 
 export default async function proxy(req: NextRequest) {
-  const response = NextResponse;
-  const hasToken = req.cookies.get("_token");
-  const pathname = req.nextUrl.pathname;
+  // 1. Consistency: Access cookies and URL directly
+  const hasToken = req.cookies.has("_token");
+  const { pathname } = req.nextUrl;
 
-  // Public routes that don't require authentication
-  const publicRoutes = ["/login", "/register", "/forgot-password", "/company-details", "/password-reset"];
+  // 2. Extensibility: explicitly type your routes if this list grows
+  const publicRoutes = [
+    "/login",
+    "/register",
+    "/forgot-password",
+    "/company-details",
+    "/password-reset"
+  ];
+
+  // Optimization: specific check or startsWith
   const isPublicRoute = publicRoutes.some((route) => pathname.startsWith(route));
 
-  // If on root path "/" and has token, redirect to dashboard
-  if (pathname === "/" && hasToken) {
-    return response.redirect(new URL("/dashboard", req.url));
+  // 3. Logic: Direct return using NextResponse
+
+  // Root path logic
+  if (pathname === "/") {
+    if (hasToken) {
+      return NextResponse.redirect(new URL("/dashboard", req.url));
+    }
+    // Allow landing page for unauth users
+    return NextResponse.next();
   }
 
-  // If on root without token, allow (will show login)
-  if (pathname === "/" && !hasToken) {
-    return response.next();
-  }
-
-  // If accessing protected route without token, redirect to "/"
+  // Protected Routes logic
   if (!isPublicRoute && !hasToken) {
-    return response.redirect(new URL("/", req.url));
+    return NextResponse.redirect(new URL("/", req.url));
   }
 
-  // If accessing login/register with token, redirect to dashboard
+  // Auth Pages logic (already logged in)
   if ((pathname === "/login" || pathname === "/register") && hasToken) {
-    return response.redirect(new URL("/dashboard", req.url));
+    return NextResponse.redirect(new URL("/dashboard", req.url));
   }
 
-  return response.next();
+  return NextResponse.next();
 }
 
 export const config = {
