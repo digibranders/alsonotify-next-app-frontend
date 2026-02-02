@@ -11,7 +11,7 @@ import {
 import { Breadcrumb, Checkbox, Tooltip, App, Modal, Input } from 'antd';
 import { TaskStatusBadge, TaskChatPanel, StepRow } from './components';
 import { TaskMembersList } from './components/TaskMembersList';
-import { TaskActionPanel } from './components/TaskActionPanel';
+
 import { useTask, useTaskTimer, useUpdateMemberStatus } from '@/hooks/useTask';
 import { useTimer } from '@/context/TimerContext';
 import { useAuth } from '@/hooks/useAuth';
@@ -322,60 +322,60 @@ export function TaskDetailsPage() {
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
                 {/* Left Col: Task Members (Span 2) */}
                 <div className="lg:col-span-2">
-                   <TaskMembersList 
-                      members={task.task_members || []} 
-                      executionMode={task.execution_mode || 'parallel'}
-                      currentUser={currentUser}
-                   />
+                  <TaskMembersList
+                    members={task.task_members || []}
+                    executionMode={task.execution_mode || 'parallel'}
+                    currentUser={currentUser}
+                  />
                 </div>
 
                 {/* Right Col: Context Cards (Span 1) */}
                 <div className="space-y-4">
-                    {/* Leader Card */}
-                    <div className="bg-white rounded-xl p-4 border border-[#EEEEEE] shadow-sm">
-                      <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wider mb-3">Leader</p>
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-[#E0E0E0] border border-[#CCCCCC] flex items-center justify-center shadow-sm text-[#666666] font-['Manrope:Bold',sans-serif] text-[14px]">
-                          {leader?.name ? leader.name.charAt(0).toUpperCase() : '?'}
-                        </div>
-                        <div className="overflow-hidden">
-                          <p className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111] truncate">{leader?.name || 'Unknown'}</p>
-                          <p className="text-[11px] text-[#666666] truncate">Squad Leader</p>
-                        </div>
+                  {/* Leader Card */}
+                  <div className="bg-white rounded-xl p-4 border border-[#EEEEEE] shadow-sm">
+                    <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wider mb-3">Leader</p>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-[#E0E0E0] border border-[#CCCCCC] flex items-center justify-center shadow-sm text-[#666666] font-['Manrope:Bold',sans-serif] text-[14px]">
+                        {leader?.name ? leader.name.charAt(0).toUpperCase() : '?'}
+                      </div>
+                      <div className="overflow-hidden">
+                        <p className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111] truncate">{leader?.name || 'Unknown'}</p>
+                        <p className="text-[11px] text-[#666666] truncate">Squad Leader</p>
                       </div>
                     </div>
+                  </div>
 
-                     {/* Workspace Card */}
-                    <div className="bg-white rounded-xl p-4 border border-[#EEEEEE] shadow-sm">
-                      <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wider mb-3">Workspace</p>
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-white border border-[#EEEEEE] flex items-center justify-center text-[#111111]">
-                          <Briefcase className="w-4 h-4" />
-                        </div>
-                        <div className="overflow-hidden">
-                          <p className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111] truncate">
-                            {workspace?.name || 'In-House'}
-                          </p>
-                          <p className="text-[11px] text-[#666666] truncate">Project</p>
-                        </div>
+                  {/* Workspace Card */}
+                  <div className="bg-white rounded-xl p-4 border border-[#EEEEEE] shadow-sm">
+                    <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wider mb-3">Workspace</p>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-white border border-[#EEEEEE] flex items-center justify-center text-[#111111]">
+                        <Briefcase className="w-4 h-4" />
+                      </div>
+                      <div className="overflow-hidden">
+                        <p className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111] truncate">
+                          {workspace?.name || 'In-House'}
+                        </p>
+                        <p className="text-[11px] text-[#666666] truncate">Project</p>
                       </div>
                     </div>
+                  </div>
 
-                    {/* Requirement Card */}
-                    <div className="bg-white rounded-xl p-4 border border-[#EEEEEE] shadow-sm">
-                      <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wider mb-3">Requirement</p>
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-white border border-[#EEEEEE] flex items-center justify-center text-[#111111]">
-                          <FolderOpen className="w-4 h-4" />
-                        </div>
-                        <div className="overflow-hidden">
-                          <p className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111] truncate">
-                            {requirement?.name || 'No Scope'}
-                          </p>
-                          <p className="text-[11px] text-[#666666] truncate">Scope</p>
-                        </div>
+                  {/* Requirement Card */}
+                  <div className="bg-white rounded-xl p-4 border border-[#EEEEEE] shadow-sm">
+                    <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wider mb-3">Requirement</p>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-white border border-[#EEEEEE] flex items-center justify-center text-[#111111]">
+                        <FolderOpen className="w-4 h-4" />
+                      </div>
+                      <div className="overflow-hidden">
+                        <p className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111] truncate">
+                          {requirement?.name || 'No Scope'}
+                        </p>
+                        <p className="text-[11px] text-[#666666] truncate">Scope</p>
                       </div>
                     </div>
+                  </div>
                 </div>
               </div>
 
@@ -420,10 +420,9 @@ export function TaskDetailsPage() {
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className={`text-[18px] font-['Manrope:Bold',sans-serif] leading-none ${
-                          task.status?.toLowerCase() === 'completed' ? 'text-[#0F9D58]' :
-                          task.status?.toLowerCase() === 'delayed' ? 'text-[#ff3b3b]' : 'text-[#2F80ED]'
-                        }`}>
+                        <p className={`text-[18px] font-['Manrope:Bold',sans-serif] leading-none ${task.status?.toLowerCase() === 'completed' ? 'text-[#0F9D58]' :
+                            task.status?.toLowerCase() === 'delayed' ? 'text-[#ff3b3b]' : 'text-[#2F80ED]'
+                          }`}>
                           {progressPercent}%
                         </p>
                       </div>
@@ -436,10 +435,9 @@ export function TaskDetailsPage() {
                       </div>
                       <div className="w-full h-2 bg-[#E0E0E0] rounded-full overflow-hidden">
                         <div
-                          className={`h-full rounded-full transition-all duration-700 ${
-                            task.status?.toLowerCase() === 'completed' ? 'bg-[#0F9D58]' :
-                            task.status?.toLowerCase() === 'delayed' ? 'bg-[#ff3b3b]' : 'bg-[#2F80ED]'
-                          }`}
+                          className={`h-full rounded-full transition-all duration-700 ${task.status?.toLowerCase() === 'completed' ? 'bg-[#0F9D58]' :
+                              task.status?.toLowerCase() === 'delayed' ? 'bg-[#ff3b3b]' : 'bg-[#2F80ED]'
+                            }`}
                           style={{ width: `${progressPercent}%` }}
                         />
                       </div>
@@ -489,7 +487,7 @@ export function TaskDetailsPage() {
                       key={step.id}
                       step={step}
                       selected={selectedSteps.includes(step.id)}
-                      onSelect={() => setSelectedSteps(prev => 
+                      onSelect={() => setSelectedSteps(prev =>
                         prev.includes(step.id) ? prev.filter(id => id !== step.id) : [...prev, step.id]
                       )}
                     />
@@ -505,18 +503,7 @@ export function TaskDetailsPage() {
           </div>
         </div>
       </div>
-      <TaskActionPanel
-        task={{
-          id: Number(task.id),
-          execution_mode: (task.execution_mode ?? 'parallel') as 'parallel' | 'sequential',
-          task_members: task.task_members ?? [],
-        }}
-        currentUser={{ id: Number(currentUser?.id) }}
-        onAction={handleStart}
-        onCompleteRequest={handleCompleteRequest}
-        canStart={canStart}
-        isLoading={isUpdatingStatus}
-      />
+      {/* TaskActionPanel removed as per request */}
       <Modal
         title="Mark as Complete"
         open={showCompleteModal}

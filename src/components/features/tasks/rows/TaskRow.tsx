@@ -143,23 +143,21 @@ const TaskRowComponent = memo(function TaskRow({
               <span className="font-['Manrope:Bold',sans-serif] text-[14px] !text-[#111111] group-hover:text-[#ff3b3b] transition-colors">
                 {task.name}
               </span>
-              {task.is_high_priority && (
-                <span className="bg-red-100 text-red-600 text-[10px] px-1.5 py-0.5 rounded-full font-bold border border-red-200">
-                  HIGH
-                </span>
-              )}
             </div>
             <div className="flex items-center gap-2">
               <span className="text-[11px] text-[#999999] font-['Manrope:Regular',sans-serif]">
                 #{task.taskId}
               </span>
-              <Link
-                href="/dashboard/clients"
-                onClick={(e) => e.stopPropagation()}
-                className="text-[11px] !text-[#111111] visited:!text-[#111111] font-['Manrope:Medium',sans-serif] hover:text-[#ff3b3b] hover:underline"
+              <span
+                className="text-[11px] !text-[#111111] font-['Manrope:Medium',sans-serif]"
               >
                 • {task.client}
-              </Link>
+              </span>
+              {task.is_high_priority && (
+                <Tooltip title="High Priority">
+                  <div className="w-1.5 h-1.5 bg-[#ff3b3b] rounded-full shadow-sm blink-animation flex-shrink-0" />
+                </Tooltip>
+              )}
             </div>
           </div>
 
@@ -236,9 +234,15 @@ const TaskRowComponent = memo(function TaskRow({
                 </span>
               </div>
               <SegmentedProgressBar
-                members={liveMembers}
+                members={liveMembers.sort((a, b) => {
+                  if (task.execution_mode === 'sequential') {
+                    return (a.queue_order || 0) - (b.queue_order || 0);
+                  }
+                  return 0; // Keep default order (by ID usually or DB order) for parallel
+                })}
                 totalEstimate={task.estTime}
                 taskStatus={task.status}
+                executionMode={task.execution_mode || 'parallel'}
               />
             </div>
           </div>

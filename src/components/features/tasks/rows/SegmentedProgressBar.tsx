@@ -16,13 +16,11 @@ interface SegmentedProgressBarProps {
     members: Member[];
     totalEstimate: number; // In hours (from Task)
     taskStatus: string; // To check Blocked/Delayed top-level
+    executionMode: 'parallel' | 'sequential';
 }
 
-export function SegmentedProgressBar({ members, totalEstimate, taskStatus }: SegmentedProgressBarProps) {
+export function SegmentedProgressBar({ members, totalEstimate, taskStatus, executionMode }: SegmentedProgressBarProps) {
     if (!totalEstimate || totalEstimate <= 0) {
-        // If no total estimate, maybe show a generic bar or nothing?
-        // User: "Width: (member.est / task.total) * 100". Undefined if total=0.
-        // If total=0, we can't segment by estimate.
         return (
             <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden" />
         );
@@ -30,35 +28,45 @@ export function SegmentedProgressBar({ members, totalEstimate, taskStatus }: Seg
 
     // Helper to determine color
     const getSegmentColor = (member: Member, ratio: number) => {
-        // 1. Red: Task Blocked/Delayed OR Member Overtime
+        // 1. Red: Member Overtime OR specific block status
+        // Note: We check member.status for specific blocks if available, or fallback to check if overtime.
         const isOvertime = ratio > 1; // spent > est
-        const isTaskProblematic = ['Impediment', 'Stuck', 'Delayed'].includes(taskStatus);
+        const isMemberBlocked = ['Impediment', 'Stuck', 'Delayed'].includes(member.status);
 
-        if (isTaskProblematic || isOvertime) {
+        if (isMemberBlocked || isOvertime) {
             return 'bg-[#ff3b3b]'; // Red
         }
 
-        // 2. Green: Completed
-        if (member.status === 'Completed') {
-            return 'bg-[#16a34a]'; // Green (Google Greenish) or #0F9D58
+        // 2. Review: Yellow
+        if (member.status === 'Review') {
+            return 'bg-[#fbbf24]'; // Amber-400
         }
 
-        // 3. Blue: In Progress (Started work or status In_Progress)
+        // 3. Completed: Green
+        if (member.status === 'Completed') {
+            return 'bg-[#16a34a]'; // Green
+        }
+
+        // 4. In Progress / Active: Blue
+        // Check if actually worked on (seconds > 0) or marked In_Progress
         if (member.status === 'In_Progress' || member.seconds_spent > 0) {
             return 'bg-[#2F80ED]'; // Blue
         }
 
-        // 4. Gray: Not started
+        // 5. Assigned/Pending: Gray
         return 'bg-[#E0E0E0]';
     };
 
     const segments = members.map((member) => {
-        const est = member.estimated_time || 0;
-        const spent = member.seconds_spent / 3600; // hours
+        const est = Number(member.estimated_time || 0);
+        const spent = Number(member.seconds_spent || 0) / 3600; // hours
 
+        // In Parallel mode, we might want to just show equal parts? 
+        // Or proportional to their estimate? 
+        // Reqs usually imply proportional to estimate timeline.
         const widthPercent = (est / totalEstimate) * 100;
 
-        // Progress ratio for overlay (capped at 100% physically, but color handles 'over')
+        // Progress ratio for overlay
         const progressRatio = est > 0 ? spent / est : 0;
         const overlayPercent = Math.min(progressRatio * 100, 100);
 
@@ -69,38 +77,47 @@ export function SegmentedProgressBar({ members, totalEstimate, taskStatus }: Seg
             widthPercent,
             colorClass,
             overlayPercent,
-            spentHours: spent
+            spentHours: spent,
+            estimate: est
         };
     });
 
     return (
-        <div className="flex w-full h-1.5 rounded-full overflow-hidden bg-[#E5E5E5]">
+        <div className="flex w-full h-1.5 rounded-full overflow-hidden bg-[#F3F3F3] border border-transparent">
             {segments.map((seg, idx) => {
-                const estimate = seg.estimated_time ?? 0;
+                const estimate = seg.estimate;
                 const overtime = seg.spentHours > estimate ? seg.spentHours - estimate : 0;
+
                 return (
                     <Tooltip
                         key={seg.id || idx}
                         title={
-                            <div className="text-center">
-                                <div>{seg.user.name} | {seg.status}</div>
+                            <div className="text-center text-xs">
+                                <div className="font-bold mb-1">{seg.user.name}</div>
+                                <div className="text-[10px] opacity-80 mb-1">Status: {seg.status}</div>
                                 <div>
-                                    {seg.spentHours.toFixed(1)}h of {estimate}h
+                                    {seg.spentHours.toFixed(2)}h / {estimate.toFixed(2)}h
                                     {overtime > 0 && (
-                                        <span style={{ color: '#ff3b3b', marginLeft: 4 }}>+{overtime.toFixed(1)}h</span>
+                                        <span className="text-[#ff4d4f] font-bold ml-1">
+                                            (+{overtime.toFixed(2)}h)
+                                        </span>
                                     )}
                                 </div>
                             </div>
                         }
+                        mouseEnterDelay={0.1}
                     >
                         <div
-                            className="h-full bg-[#E5E5E5] relative first:rounded-l-full last:rounded-r-full border-r border-white/50 last:border-0"
-                            style={{ width: `${seg.widthPercent}%` }}
+                            className="h-full bg-[#E5E5E5]/50 relative border-r-2 border-white last:border-0 cursor-pointer hover:brightness-95 transition-all"
+                            style={{
+                                width: `${seg.widthPercent}%`,
+                                minWidth: '2px' // Ensure tiny segments are visible/hoverable
+                            }}
                         >
-                            {/* Colored Progress Fill - only the spent portion gets color */}
+                            {/* Colored Progress Fill */}
                             {seg.overlayPercent > 0 && (
                                 <div
-                                    className={`h-full ${seg.colorClass} absolute left-0 top-0 first:rounded-l-full`}
+                                    className={`h-full ${seg.colorClass} absolute left-0 top-0 transition-all duration-500`}
                                     style={{ width: `${seg.overlayPercent}%` }}
                                 />
                             )}
