@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { usePathname } from 'next/navigation';
 import {
   Play,
@@ -97,6 +97,29 @@ export function FloatingTimerBar() {
   const [showCompleteModal, setShowCompleteModal] = useState(false);
   const [completeDescription, setCompleteDescription] = useState("");
   const [completeTaskId, setCompleteTaskId] = useState<number | null>(null);
+
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const toggleButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node) &&
+        toggleButtonRef.current &&
+        !toggleButtonRef.current.contains(event.target as Node)
+      ) {
+        setShowTaskSelector(false);
+      }
+    }
+
+    if (showTaskSelector) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showTaskSelector]);
 
   // Visibility Logic - hide on reports/finance/settings/profile and requirement details only.
   // Timer bar is visible on /dashboard/tasks/* (task list and task detail) so users can control timer there.
@@ -319,10 +342,8 @@ export function FloatingTimerBar() {
       {showTaskSelector && (
         <>
           <div
-            className="fixed inset-0 z-[9998]"
-            onClick={() => setShowTaskSelector(false)}
-          />
-          <div className="absolute bottom-full mb-3 bg-white rounded-[20px] shadow-xl border border-[#EEEEEE] p-3 animate-in slide-in-from-bottom-2 duration-200 z-[10000] w-[320px]">
+            ref={dropdownRef}
+            className="absolute bottom-full mb-3 bg-white rounded-[20px] shadow-xl border border-[#EEEEEE] p-3 animate-in slide-in-from-bottom-2 duration-200 z-[10000] w-[320px]">
             <div className="flex items-center gap-2 mb-2 px-2">
               <span className="text-[10px] text-[#999999] font-['Inter:SemiBold',sans-serif] uppercase tracking-wide">
                 Select Task
@@ -422,6 +443,7 @@ export function FloatingTimerBar() {
         {/* Task Selector Button */}
         <div className="relative">
           <button
+            ref={toggleButtonRef}
             onClick={() => setShowTaskSelector(!showTaskSelector)}
             className="flex items-center gap-2 group hover:bg-white/10 rounded-full px-4 py-2 transition-all"
             disabled={timerLoading}
