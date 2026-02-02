@@ -57,16 +57,18 @@ export function SegmentedProgressBar({ members, totalEstimate, taskStatus, execu
         return 'bg-[#E0E0E0]';
     };
 
+    // Calculate total estimate from members for segmentation
+    const totalMemberEstimate = members.reduce((sum, m) => sum + (Number(m.estimated_time) || 0), 0);
+
     const segments = members.map((member) => {
         const est = Number(member.estimated_time || 0);
         const spent = Number(member.seconds_spent || 0) / 3600; // hours
 
-        // In Parallel mode, we might want to just show equal parts? 
-        // Or proportional to their estimate? 
-        // Reqs usually imply proportional to estimate timeline.
-        const widthPercent = (est / totalEstimate) * 100;
+        // Use totalMemberEstimate for width calculation to ensure segments sum to 100%
+        // If totalMemberEstimate is 0, avoid division by zero (though usually blocked by early return if no estimates)
+        const widthPercent = totalMemberEstimate > 0 ? (est / totalMemberEstimate) * 100 : 0;
 
-        // Progress ratio for overlay
+        // Progress ratio for overlay (still relative to OWN estimate)
         const progressRatio = est > 0 ? spent / est : 0;
         const overlayPercent = Math.min(progressRatio * 100, 100);
 
