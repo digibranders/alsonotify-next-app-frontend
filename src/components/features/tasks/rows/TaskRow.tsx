@@ -153,13 +153,11 @@ const TaskRowComponent = memo(function TaskRow({
               <span className="text-[11px] text-[#999999] font-['Manrope:Regular',sans-serif]">
                 #{task.taskId}
               </span>
-              <Link
-                href="/dashboard/clients"
-                onClick={(e) => e.stopPropagation()}
-                className="text-[11px] !text-[#111111] visited:!text-[#111111] font-['Manrope:Medium',sans-serif] hover:text-[#ff3b3b] hover:underline"
+              <span
+                className="text-[11px] !text-[#111111] font-['Manrope:Medium',sans-serif]"
               >
                 • {task.client}
-              </Link>
+              </span>
             </div>
           </div>
 
@@ -236,9 +234,15 @@ const TaskRowComponent = memo(function TaskRow({
                 </span>
               </div>
               <SegmentedProgressBar
-                members={liveMembers}
+                members={liveMembers.sort((a, b) => {
+                  if (task.execution_mode === 'sequential') {
+                    return (a.queue_order || 0) - (b.queue_order || 0);
+                  }
+                  return 0; // Keep default order (by ID usually or DB order) for parallel
+                })}
                 totalEstimate={task.estTime}
                 taskStatus={task.status}
+                executionMode={task.execution_mode || 'parallel'}
               />
             </div>
           </div>

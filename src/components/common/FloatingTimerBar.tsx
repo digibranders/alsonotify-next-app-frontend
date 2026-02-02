@@ -266,8 +266,8 @@ export function FloatingTimerBar() {
   };
 
   const handleCompleteClick = () => {
-    if (!timerState.isRunning || !currentDisplayTaskId) {
-      message.warning("No active timer to complete");
+    if (!currentDisplayTaskId) {
+      message.warning("Please select a task to complete");
       return;
     }
     setCompleteTaskId(currentDisplayTaskId);
@@ -487,11 +487,11 @@ export function FloatingTimerBar() {
         }}
         okText="Mark Complete"
         cancelText="Cancel"
-        okButtonProps={{ style: { backgroundColor: '#16a34a', borderColor: '#16a34a' } }}
+        okButtonProps={{ style: { backgroundColor: '#16a34a', borderColor: '#16a34a', boxShadow: 'none' } }}
       >
         <div className="py-4">
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Add a note (optional)
+            Remarks
           </label>
           <Input.TextArea
             value={completeDescription}
