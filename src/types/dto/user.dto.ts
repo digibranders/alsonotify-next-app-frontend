@@ -10,7 +10,9 @@ export interface UserDto {
   role_id?: number;
   roleColor?: string;
   status?: string;
-  
+  date_of_birth?: string;
+  employee_id?: string;
+
   // Nested structure often found in employee responses
   user_employee?: {
     is_active?: boolean;
@@ -19,18 +21,20 @@ export interface UserDto {
     salary?: number;
     salary_yearly?: number;
   };
-  
+
   department_id?: number;
   department?: { id: number; name: string } | string; // Sometimes string in some responses
   manager_id?: number | null;
   manager?: { id: number; name: string };
-  
+
   employment_type?: string;
   salary_yearly?: number;
   salary?: number;
   hourly_rates?: number;
-  working_hours?: { start_time: string; end_time: string; 
-    break_time?: string | number };
+  working_hours?: {
+    start_time: string; end_time: string;
+    break_time?: string | number
+  };
   no_of_leaves?: number;
   joining_date?: string;
   experience?: string | number;
@@ -43,7 +47,7 @@ export interface UserDto {
   profile_pic?: string;
   date_of_joining?: string;
   late_time?: string;
-  
+
   // Other observed fields
   employmentType?: string;
   access?: string;
@@ -52,14 +56,37 @@ export interface UserDto {
   currency?: string;
   leaves?: number;
   workingHours?: number;
-  user_profile?: { mobile_number?: string; phone?: string };
+  user_profile?: {
+    mobile_number?: string;
+    phone?: string;
+    date_of_birth?: string;
+    employee_id?: string;
+    designation?: string;
+    first_name?: string;
+    middle_name?: string;
+    last_name?: string;
+    gender?: string;
+    address?: string;
+    city?: string;
+    state?: string;
+    zipcode?: string;
+    country?: string;
+    currency?: string;
+    skills?: string[];
+    emergency_contact?: any;
+    working_hours?: any;
+    date_of_joining?: string;
+    experience?: number;
+    hourly_rates?: number;
+    no_of_leaves?: number;
+  };
   user?: { mobile_number?: string; phone?: string }; // Nested user object sometimes returned
   company?: string | { id: number; name: string }; // Company name (from ClientOrOutsourceType) or object
   company_id?: number;
   companies?: { id: number; name: string }[];
-  
+
   partner_company?: { name: string; id?: number };
-  
+
   // Partner specific fields
   association_id?: number;
   partner_user_id?: number;
@@ -130,14 +157,24 @@ export interface UpdateEmployeeRequestDto extends Partial<CreateEmployeeRequestD
 
 export interface UpdateUserProfileRequestDto {
   name?: string;
+  email?: string;
+  first_name?: string;
+  middle_name?: string;
+  last_name?: string;
+  designation?: string;
   mobile_number?: string;
   phone?: string;
+  date_of_birth?: string | null;
+  gender?: string;
   address?: string;
   city?: string;
   state?: string;
   country?: string;
   zipcode?: string;
   profile_pic?: string;
+  currency?: string;
+  employee_id?: string;
+  skills?: string[];
   emergency_contact?: {
     name: string;
     relationship: string;
