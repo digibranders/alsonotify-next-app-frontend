@@ -92,13 +92,13 @@ export function EmployeesPage() {
       if (rolesData?.result) {
         // Use the normalized roleName if available, or fall back to role/access
         const currentRoleName = emp.roleName || emp.role || emp.access;
-        
+
         // Try precise ID match first (robust against string/number types)
         let foundRole = emp.roleId ? rolesData.result.find((r: { id: number }) => r.id == emp.roleId) : undefined;
-        
+
         // If not found by ID, try finding by name (case-insensitive)
         if (!foundRole && currentRoleName) {
-             foundRole = rolesData.result.find((r: { name: string }) => r.name.toLowerCase() === currentRoleName.toLowerCase());
+          foundRole = rolesData.result.find((r: { name: string }) => r.name.toLowerCase() === currentRoleName.toLowerCase());
         }
 
         if (foundRole) {
@@ -275,7 +275,7 @@ export function EmployeesPage() {
     if (!roleId) {
       // Fallback: Find by name
       roleId = rolesData?.result?.find((r: { name: string; id: number }) => r.name === roleName)?.id;
-      
+
       // Fallback: Try case-insensitive match
       if (!roleId && rolesData?.result) {
         roleId = rolesData.result.find((r: { name: string }) => r.name.toLowerCase() === roleName.toLowerCase())?.id;
@@ -415,11 +415,11 @@ export function EmployeesPage() {
   // Get current user ID to prevent self-deactivation
   const currentUserId = useMemo(() => {
     if (currentUser?.id) {
-        return Number(currentUser.id);
+      return Number(currentUser.id);
     }
     // Fallback if ID is in a different structure
     if (currentUser?.user_id) {
-        return Number(currentUser.user_id);
+      return Number(currentUser.user_id);
     }
     return null;
   }, [currentUser]);
@@ -427,7 +427,7 @@ export function EmployeesPage() {
   // Robustly get current user email (API -> LocalStorage)
   const currentUserEmail = useMemo(() => {
     if (currentUser?.email) {
-        return currentUser.email;
+      return currentUser.email;
     }
     return null;
   }, [currentUser]);
@@ -442,7 +442,7 @@ export function EmployeesPage() {
     // Find role ID from name
     let selectedRole = rolesData?.result?.find((r: { name: string; id: number }) => r.name === access);
     if (!selectedRole && rolesData?.result) {
-        selectedRole = rolesData.result.find((r: { name: string }) => r.name.toLowerCase() === access.toLowerCase());
+      selectedRole = rolesData.result.find((r: { name: string }) => r.name.toLowerCase() === access.toLowerCase());
     }
 
     if (!selectedRole) {
@@ -534,7 +534,8 @@ export function EmployeesPage() {
         date_of_joining: dateOfJoining || undefined,
         no_of_leaves: rawEmployee.no_of_leaves || undefined,
         // Preserve address fields
-        address: rawEmployee.address || undefined,
+        address_line_1: rawEmployee.address_line_1 || undefined,
+        address_line_2: rawEmployee.address_line_2 || undefined,
         city: rawEmployee.city || undefined,
         state: rawEmployee.state || undefined,
         zipcode: rawEmployee.zipcode || undefined,
@@ -677,7 +678,7 @@ export function EmployeesPage() {
         let foundRole = rolesData?.result?.find((r: { name: string; id: number }) => r.name === employee.access);
         // Robust fallback: Case-insensitive search
         if (!foundRole && rolesData?.result) {
-            foundRole = rolesData.result.find((r: { name: string }) => r.name.toLowerCase() === employee.access?.toLowerCase());
+          foundRole = rolesData.result.find((r: { name: string }) => r.name.toLowerCase() === employee.access?.toLowerCase());
         }
         if (foundRole) currentRoleId = foundRole.id;
       }
@@ -713,7 +714,8 @@ export function EmployeesPage() {
         date_of_joining: dateOfJoining || undefined,
         no_of_leaves: rawEmployee.no_of_leaves || undefined,
         // Preserve address fields
-        address: rawEmployee.address || undefined,
+        address_line_1: rawEmployee.address_line_1 || undefined,
+        address_line_2: rawEmployee.address_line_2 || undefined,
         city: rawEmployee.city || undefined,
         state: rawEmployee.state || undefined,
         zipcode: rawEmployee.zipcode || undefined,
@@ -835,17 +837,17 @@ export function EmployeesPage() {
 
     // Robust check for self-selection: Check by ID or Email
     const isSelfSelected = selectedEmployees.some(empId => {
-       if (currentUserId && empId === currentUserId) return true;
-       // Fallback check by email if ID match fails (rare but safe)
-       const emp = employees.find(e => e.id === empId);
-       return emp?.email && currentUserEmail && emp.email.toLowerCase() === currentUserEmail.toLowerCase();
+      if (currentUserId && empId === currentUserId) return true;
+      // Fallback check by email if ID match fails (rare but safe)
+      const emp = employees.find(e => e.id === empId);
+      return emp?.email && currentUserEmail && emp.email.toLowerCase() === currentUserEmail.toLowerCase();
     });
 
     // Valid employees to deactivate (filtering out self)
     const employeesToDeactivate = selectedEmployees.filter(empId => {
-       if (currentUserId && empId === currentUserId) return false;
-       const emp = employees.find(e => e.id === empId);
-       return !((emp?.email && currentUserEmail && emp.email.toLowerCase() === currentUserEmail.toLowerCase()));
+      if (currentUserId && empId === currentUserId) return false;
+      const emp = employees.find(e => e.id === empId);
+      return !((emp?.email && currentUserEmail && emp.email.toLowerCase() === currentUserEmail.toLowerCase()));
     });
 
     // Case 1: Attempting to deactivate ONLY self
@@ -889,51 +891,51 @@ export function EmployeesPage() {
   };
 
   const performBulkDeactivation = async (idsToDeactivate: number[]) => {
-      // Prepare all deactivation promises
-      const deactivatePromises: Promise<any>[] = [];
-      const failedEmployees: { id: number; name: string; reason: string }[] = [];
+    // Prepare all deactivation promises
+    const deactivatePromises: Promise<any>[] = [];
+    const failedEmployees: { id: number; name: string; reason: string }[] = [];
 
-      for (const empId of idsToDeactivate) {
-        // Get employee name for error reporting
-        const employee = employees.find(e => e.id === empId);
-        const employeeName = employee?.name || 'Unknown';
+    for (const empId of idsToDeactivate) {
+      // Get employee name for error reporting
+      const employee = employees.find(e => e.id === empId);
+      const employeeName = employee?.name || 'Unknown';
 
-        // Create promise for this deactivation using mutateAsync
-        const deactivatePromise = updateEmployeeStatusMutation.mutateAsync({
-          user_id: empId,
-          is_active: false,
-        }).catch((error: any) => {
-          const errorMsg = error?.response?.data?.message || 'Deactivation failed';
-          failedEmployees.push({ id: empId, name: employeeName, reason: errorMsg });
-          throw error; // Re-throw to mark as failed in Promise.allSettled
-        });
+      // Create promise for this deactivation using mutateAsync
+      const deactivatePromise = updateEmployeeStatusMutation.mutateAsync({
+        user_id: empId,
+        is_active: false,
+      }).catch((error: any) => {
+        const errorMsg = error?.response?.data?.message || 'Deactivation failed';
+        failedEmployees.push({ id: empId, name: employeeName, reason: errorMsg });
+        throw error; // Re-throw to mark as failed in Promise.allSettled
+      });
 
-        deactivatePromises.push(deactivatePromise);
+      deactivatePromises.push(deactivatePromise);
+    }
+
+    // Execute all deactivations and wait for completion
+    try {
+      const results = await Promise.allSettled(deactivatePromises);
+
+      // Count successful deactivations
+      const successfulDeactivations = results.filter(r => r.status === 'fulfilled').length;
+      const totalFailed = failedEmployees.length;
+      const totalToDeactivate = idsToDeactivate.length;
+
+      if (totalFailed === 0 && successfulDeactivations === totalToDeactivate) {
+        message.success(`Deactivated ${totalToDeactivate} employee(s)`);
+        setSelectedEmployees([]);
+        // Query invalidation is handled in the hook's onSuccess
+      } else if (successfulDeactivations > 0) {
+        message.warning(`Deactivated ${successfulDeactivations} employee(s), ${totalFailed} failed`);
+        // Failed employees logged
+      } else {
+        message.error(`Failed to deactivate all ${totalToDeactivate} employee(s)`);
+        // Failed employees logged
       }
-
-      // Execute all deactivations and wait for completion
-      try {
-        const results = await Promise.allSettled(deactivatePromises);
-
-        // Count successful deactivations
-        const successfulDeactivations = results.filter(r => r.status === 'fulfilled').length;
-        const totalFailed = failedEmployees.length;
-        const totalToDeactivate = idsToDeactivate.length;
-
-        if (totalFailed === 0 && successfulDeactivations === totalToDeactivate) {
-          message.success(`Deactivated ${totalToDeactivate} employee(s)`);
-          setSelectedEmployees([]);
-          // Query invalidation is handled in the hook's onSuccess
-        } else if (successfulDeactivations > 0) {
-          message.warning(`Deactivated ${successfulDeactivations} employee(s), ${totalFailed} failed`);
-          // Failed employees logged
-        } else {
-          message.error(`Failed to deactivate all ${totalToDeactivate} employee(s)`);
-          // Failed employees logged
-        }
-      } catch (error) {
-        message.error('An error occurred during bulk deactivation');
-      }
+    } catch (error) {
+      message.error('An error occurred during bulk deactivation');
+    }
   };
 
 
@@ -945,134 +947,134 @@ export function EmployeesPage() {
     if (selectedEmployees.length > 0) {
       setExpandedContent(
         <>
-            <div className="flex items-center gap-2 border-r border-white/20 pr-6">
-              <div className="bg-[#ff3b3b] text-white text-[12px] font-bold px-2 py-0.5 rounded-full">
-                {selectedEmployees.length}
-              </div>
-              <span className="text-[14px] font-['Manrope:SemiBold',sans-serif]">Selected</span>
+          <div className="flex items-center gap-2 border-r border-white/20 pr-6">
+            <div className="bg-[#ff3b3b] text-white text-[12px] font-bold px-2 py-0.5 rounded-full">
+              {selectedEmployees.length}
             </div>
+            <span className="text-[14px] font-['Manrope:SemiBold',sans-serif]">Selected</span>
+          </div>
 
-            <div className="flex items-center gap-2">
-              {/* Update Access Level Button with Dropdown */}
-              <div className="relative" ref={accessDropdownRef}>
-                <Tooltip
-                  title="Update Access Level"
-                  placement="top"
-                  styles={{ root: { marginBottom: '8px' } }}
-                >
-                  <button
-                    onClick={() => setShowAccessDropdown(!showAccessDropdown)}
-                    className="p-2 hover:bg-white/10 rounded-full transition-colors"
-                  >
-                    <ShieldCheck className="w-4 h-4" />
-                  </button>
-                </Tooltip>
-                {showAccessDropdown && (
-                  <div className="absolute bottom-full left-0 mb-6 z-30">
-                    {/* Arrow */}
-                    <div className="absolute -bottom-2 left-4 w-0 h-0 border-l-[6px] border-r-[6px] border-t-[6px] border-l-transparent border-r-transparent border-t-white"></div>
-                    <div className="absolute -bottom-2.5 left-4 w-0 h-0 border-l-[7px] border-r-[7px] border-t-[7px] border-l-transparent border-r-transparent border-t-[#EEEEEE]"></div>
-                    {/* Dropdown content */}
-                    <div className="bg-white rounded-lg shadow-lg border border-[#EEEEEE] overflow-hidden min-w-[200px]">
-                      {[
-                        { value: 'Admin', icon: ShieldCheck, color: '#ff3b3b', bgColor: '#FFF5F5' },
-                        { value: 'Manager', icon: Briefcase, color: '#2E90FA', bgColor: '#EFF8FF' },
-                        { value: 'Leader', icon: Users, color: '#7F56D9', bgColor: '#F9F5FF' },
-                        { value: 'Employee', icon: UserIcon, color: '#12B76A', bgColor: '#ECFDF3' },
-                      ].map((access) => {
-                        const IconComponent = access.icon;
-                        return (
-                          <button
-                            key={access.value}
-                            onClick={() => handleBulkUpdateAccess(access.value as 'Admin' | 'Manager' | 'Leader' | 'Employee')}
-                            className="w-full flex items-center gap-3 px-4 py-3 hover:bg-[#F7F7F7] transition-colors text-left"
-                          >
-                            <div className="p-2 rounded-full" style={{ backgroundColor: access.bgColor }}>
-                              <IconComponent className="w-4 h-4" style={{ color: access.color }} />
-                            </div>
-                            <span className="text-[14px] font-['Manrope:Medium',sans-serif] text-[#111111]">
-                              {access.value}
-                            </span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Change Department Button with Dropdown */}
-              <div className="relative" ref={departmentDropdownRef}>
-                <Tooltip
-                  title="Change Department"
-                  placement="top"
-                  styles={{ root: { marginBottom: '8px' } }}
-                >
-                  <button
-                    onClick={() => setShowDepartmentDropdown(!showDepartmentDropdown)}
-                    className="p-2 hover:bg-white/10 rounded-full transition-colors"
-                  >
-                    <Briefcase className="w-4 h-4" />
-                  </button>
-                </Tooltip>
-                {showDepartmentDropdown && (
-                  <div className="absolute bottom-full left-0 mb-6 z-30">
-                    {/* Arrow */}
-                    <div className="absolute -bottom-2 left-4 w-0 h-0 border-l-[6px] border-r-[6px] border-t-[6px] border-l-transparent border-r-transparent border-t-white"></div>
-                    <div className="absolute -bottom-2.5 left-4 w-0 h-0 border-l-[7px] border-r-[7px] border-t-[7px] border-l-transparent border-r-transparent border-t-[#EEEEEE]"></div>
-                    {/* Dropdown content */}
-                    <div className="bg-white rounded-lg shadow-lg border border-[#EEEEEE] overflow-hidden min-w-[200px] max-h-[300px] overflow-y-auto">
-                      {uniqueDepts.filter(dept => dept !== 'All').map((dept) => (
-                        <button
-                          key={dept}
-                          onClick={() => handleBulkUpdateDepartment(dept)}
-                          className="w-full flex items-center gap-3 px-4 py-3 hover:bg-[#F7F7F7] transition-colors text-left"
-                        >
-                          <span className="text-[14px] font-['Manrope:Medium',sans-serif] text-[#111111]">
-                            {dept}
-                          </span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Export Data Button */}
+          <div className="flex items-center gap-2">
+            {/* Update Access Level Button with Dropdown */}
+            <div className="relative" ref={accessDropdownRef}>
               <Tooltip
-                title="Export Data"
+                title="Update Access Level"
                 placement="top"
                 styles={{ root: { marginBottom: '8px' } }}
               >
                 <button
-                  onClick={handleExportToCSV}
+                  onClick={() => setShowAccessDropdown(!showAccessDropdown)}
                   className="p-2 hover:bg-white/10 rounded-full transition-colors"
                 >
-                  <Download className="w-4 h-4" />
+                  <ShieldCheck className="w-4 h-4" />
                 </button>
               </Tooltip>
+              {showAccessDropdown && (
+                <div className="absolute bottom-full left-0 mb-6 z-30">
+                  {/* Arrow */}
+                  <div className="absolute -bottom-2 left-4 w-0 h-0 border-l-[6px] border-r-[6px] border-t-[6px] border-l-transparent border-r-transparent border-t-white"></div>
+                  <div className="absolute -bottom-2.5 left-4 w-0 h-0 border-l-[7px] border-r-[7px] border-t-[7px] border-l-transparent border-r-transparent border-t-[#EEEEEE]"></div>
+                  {/* Dropdown content */}
+                  <div className="bg-white rounded-lg shadow-lg border border-[#EEEEEE] overflow-hidden min-w-[200px]">
+                    {[
+                      { value: 'Admin', icon: ShieldCheck, color: '#ff3b3b', bgColor: '#FFF5F5' },
+                      { value: 'Manager', icon: Briefcase, color: '#2E90FA', bgColor: '#EFF8FF' },
+                      { value: 'Leader', icon: Users, color: '#7F56D9', bgColor: '#F9F5FF' },
+                      { value: 'Employee', icon: UserIcon, color: '#12B76A', bgColor: '#ECFDF3' },
+                    ].map((access) => {
+                      const IconComponent = access.icon;
+                      return (
+                        <button
+                          key={access.value}
+                          onClick={() => handleBulkUpdateAccess(access.value as 'Admin' | 'Manager' | 'Leader' | 'Employee')}
+                          className="w-full flex items-center gap-3 px-4 py-3 hover:bg-[#F7F7F7] transition-colors text-left"
+                        >
+                          <div className="p-2 rounded-full" style={{ backgroundColor: access.bgColor }}>
+                            <IconComponent className="w-4 h-4" style={{ color: access.color }} />
+                          </div>
+                          <span className="text-[14px] font-['Manrope:Medium',sans-serif] text-[#111111]">
+                            {access.value}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
 
-              {/* Delete Button */}
+            {/* Change Department Button with Dropdown */}
+            <div className="relative" ref={departmentDropdownRef}>
               <Tooltip
-                title="Delete"
+                title="Change Department"
                 placement="top"
                 styles={{ root: { marginBottom: '8px' } }}
               >
                 <button
-                  onClick={handleBulkDelete}
-                  className="p-2 hover:bg-white/10 rounded-full transition-colors text-[#ff3b3b]"
+                  onClick={() => setShowDepartmentDropdown(!showDepartmentDropdown)}
+                  className="p-2 hover:bg-white/10 rounded-full transition-colors"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Briefcase className="w-4 h-4" />
                 </button>
               </Tooltip>
+              {showDepartmentDropdown && (
+                <div className="absolute bottom-full left-0 mb-6 z-30">
+                  {/* Arrow */}
+                  <div className="absolute -bottom-2 left-4 w-0 h-0 border-l-[6px] border-r-[6px] border-t-[6px] border-l-transparent border-r-transparent border-t-white"></div>
+                  <div className="absolute -bottom-2.5 left-4 w-0 h-0 border-l-[7px] border-r-[7px] border-t-[7px] border-l-transparent border-r-transparent border-t-[#EEEEEE]"></div>
+                  {/* Dropdown content */}
+                  <div className="bg-white rounded-lg shadow-lg border border-[#EEEEEE] overflow-hidden min-w-[200px] max-h-[300px] overflow-y-auto">
+                    {uniqueDepts.filter(dept => dept !== 'All').map((dept) => (
+                      <button
+                        key={dept}
+                        onClick={() => handleBulkUpdateDepartment(dept)}
+                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-[#F7F7F7] transition-colors text-left"
+                      >
+                        <span className="text-[14px] font-['Manrope:Medium',sans-serif] text-[#111111]">
+                          {dept}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
-            <button
-              onClick={() => setSelectedEmployees([])}
-              className="ml-2 text-[12px] text-[#999999] hover:text-white transition-colors"
+            {/* Export Data Button */}
+            <Tooltip
+              title="Export Data"
+              placement="top"
+              styles={{ root: { marginBottom: '8px' } }}
             >
-              Cancel
-            </button>
+              <button
+                onClick={handleExportToCSV}
+                className="p-2 hover:bg-white/10 rounded-full transition-colors"
+              >
+                <Download className="w-4 h-4" />
+              </button>
+            </Tooltip>
+
+            {/* Delete Button */}
+            <Tooltip
+              title="Delete"
+              placement="top"
+              styles={{ root: { marginBottom: '8px' } }}
+            >
+              <button
+                onClick={handleBulkDelete}
+                className="p-2 hover:bg-white/10 rounded-full transition-colors text-[#ff3b3b]"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </Tooltip>
+          </div>
+
+          <button
+            onClick={() => setSelectedEmployees([])}
+            className="ml-2 text-[12px] text-[#999999] hover:text-white transition-colors"
+          >
+            Cancel
+          </button>
         </>
       );
     } else {

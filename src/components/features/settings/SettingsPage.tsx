@@ -29,7 +29,7 @@ export function SettingsPage() {
   const { message } = App.useApp();
   const router = useRouter();
   const { isIndividual } = useAccountType();
-  
+
   // Redirect individual accounts to profile page (matching reference implementation)
   useEffect(() => {
     if (isIndividual) {
@@ -37,7 +37,7 @@ export function SettingsPage() {
       return;
     }
   }, [isIndividual, router]);
-  
+
   // Use standardized tab sync hook for consistent URL handling
   const [activeTab, setActiveTab] = useTabSync<SettingsTab>({
     defaultTab: 'company',
@@ -47,6 +47,7 @@ export function SettingsPage() {
   const handleTabChange = useCallback((tab: string) => {
     // useTabSync handles URL updates automatically
     setActiveTab(tab as SettingsTab);
+    setIsEditing(false); // Reset editing mode when switching tabs
   }, [setActiveTab]);
   const [isEditing, setIsEditing] = useState(false);
 
@@ -87,11 +88,11 @@ export function SettingsPage() {
       setCountry(companyData.result.country || '');
       setAddress(companyData.result.address || '');
       setDefaultEmployeePassword(companyData.result.default_employee_password || 'Pass@123');
-      
+
       if (companyData.result.leaves) {
         setLeaves(companyData.result.leaves);
       }
-      
+
       if (companyData.result.working_hours) {
         setWorkStartTime(companyData.result.working_hours.start_time || '09:00');
         setWorkEndTime(companyData.result.working_hours.end_time || '18:00');
@@ -356,7 +357,37 @@ export function SettingsPage() {
 
   const handleCancelEdit = () => {
     setIsEditing(false);
-    // Reset changes if needed
+    // Reset changes to original database values
+    if (companyData?.result) {
+      if (activeTab === 'company') {
+        setCompanyName(companyData.result.name || '');
+        setCompanyLogo(companyData.result.logo || '');
+        setTaxId(companyData.result.tax_id || '');
+        setTimeZone(companyData.result.timezone || 'Asia/Kolkata');
+        setCurrency(companyData.result.currency || 'USD');
+        setCountry(companyData.result.country || '');
+        setAddress(companyData.result.address || '');
+      }
+
+      if (activeTab === 'leaves') {
+        if (companyData.result.leaves) {
+          setLeaves([...companyData.result.leaves]);
+        }
+      }
+
+      if (activeTab === 'working-hours') {
+        if (companyData.result.working_hours) {
+          setWorkStartTime(companyData.result.working_hours.start_time || '09:00');
+          setWorkEndTime(companyData.result.working_hours.end_time || '18:00');
+          setWorkingDays(companyData.result.working_hours.working_days || ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']);
+          setBreakTime(companyData.result.working_hours.break_time || '60');
+        }
+      }
+
+      if (activeTab === 'security') {
+        setDefaultEmployeePassword(companyData.result.default_employee_password || 'Pass@123');
+      }
+    }
   };
 
   const handleEdit = () => {
@@ -365,7 +396,7 @@ export function SettingsPage() {
 
   // Determine if the user is an employee (not Admin/Owner)
   const permissions = userDetails?.result?.permissions?.['Settings'] || {};
-  
+
   const canViewCompany = isAdmin || permissions['VIEW_COMPANY_DETAILS'];
   const canEditCompany = isAdmin || permissions['EDIT_COMPANY_DETAILS'];
   const canViewNotifications = isAdmin || permissions['VIEW_NOTIFICATIONS'];
@@ -386,9 +417,9 @@ export function SettingsPage() {
       // Individual User Tabs
       return ['company', 'financials', 'notifications', 'security', 'integrations'].includes(tabId);
     }
-    
+
     // Organization User Tabs (Permission Check)
-    switch(tabId) {
+    switch (tabId) {
       case 'company': return isAdmin || canViewCompany;
       case 'leaves': return isAdmin || canViewLeaves;
       case 'working-hours': return isAdmin || canViewWorkingHours;
@@ -396,7 +427,7 @@ export function SettingsPage() {
       case 'notifications': return isAdmin || canViewNotifications;
       case 'security': return isAdmin || canViewSecurity;
       case 'access-management': return isAdmin || canViewAccessManagement;
-      case 'financials': return isAdmin; 
+      case 'financials': return isAdmin;
       default: return true;
     }
   };
@@ -410,7 +441,10 @@ export function SettingsPage() {
             {isIndividual ? 'Settings' : 'Company Settings'}
           </h1>
           {/* Only show Edit button if user has edit permission */}
-          {(activeTab === 'company' && canEditCompany) || (activeTab === 'security' && canEditSecurity) ? (
+          {(activeTab === 'company' && canEditCompany) ||
+            (activeTab === 'security' && canEditSecurity) ||
+            (activeTab === 'leaves' && canEditLeaves) ||
+            (activeTab === 'working-hours' && canEditWorkingHours) ? (
             !isEditing ? (
               <Button
                 onClick={handleEdit}
@@ -442,82 +476,82 @@ export function SettingsPage() {
 
         {/* Tabs */}
         <div className="flex items-center gap-8 border-b border-[#EEEEEE] overflow-x-auto">
-            {showTab('company') && (
-              <button
-                onClick={() => handleTabChange('company')}
-                className={`pb-3 px-1 relative font-['Manrope:SemiBold',sans-serif] text-[14px] transition-colors whitespace-nowrap ${activeTab === 'company' ? 'text-[#ff3b3b]' : 'text-[#666666] hover:text-[#111111]'
-                  }`}
-              >
-                {isIndividual ? 'Details' : 'Company Details'}
-                {activeTab === 'company' && <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#ff3b3b]" />}
-              </button>
-            )}
+          {showTab('company') && (
+            <button
+              onClick={() => handleTabChange('company')}
+              className={`pb-3 px-1 relative font-['Manrope:SemiBold',sans-serif] text-[14px] transition-colors whitespace-nowrap ${activeTab === 'company' ? 'text-[#ff3b3b]' : 'text-[#666666] hover:text-[#111111]'
+                }`}
+            >
+              {isIndividual ? 'Details' : 'Company Details'}
+              {activeTab === 'company' && <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#ff3b3b]" />}
+            </button>
+          )}
 
-            {showTab('notifications') && (
-              <button
-                onClick={() => handleTabChange('notifications')}
-                className={`pb-3 px-1 relative font-['Manrope:SemiBold',sans-serif] text-[14px] transition-colors whitespace-nowrap ${activeTab === 'notifications' ? 'text-[#ff3b3b]' : 'text-[#666666] hover:text-[#111111]'
-                  }`}
-              >
-                Notifications
-                {activeTab === 'notifications' && <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#ff3b3b]" />}
-              </button>
-            )}
-            
-            {showTab('security') && (
-              <button
-                onClick={() => handleTabChange('security')}
-                className={`pb-3 px-1 relative font-['Manrope:SemiBold',sans-serif] text-[14px] transition-colors whitespace-nowrap ${activeTab === 'security' ? 'text-[#ff3b3b]' : 'text-[#666666] hover:text-[#111111]'
-                  }`}
-              >
-                Security
-                {activeTab === 'security' && <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#ff3b3b]" />}
-              </button>
-            )}
+          {showTab('notifications') && (
+            <button
+              onClick={() => handleTabChange('notifications')}
+              className={`pb-3 px-1 relative font-['Manrope:SemiBold',sans-serif] text-[14px] transition-colors whitespace-nowrap ${activeTab === 'notifications' ? 'text-[#ff3b3b]' : 'text-[#666666] hover:text-[#111111]'
+                }`}
+            >
+              Notifications
+              {activeTab === 'notifications' && <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#ff3b3b]" />}
+            </button>
+          )}
 
-            {showTab('leaves') && (
-              <button
-                onClick={() => handleTabChange('leaves')}
-                className={`pb-3 px-1 relative font-['Manrope:SemiBold',sans-serif] text-[14px] transition-colors whitespace-nowrap ${activeTab === 'leaves' ? 'text-[#ff3b3b]' : 'text-[#666666] hover:text-[#111111]'
-                  }`}
-              >
-                Leaves
-                {activeTab === 'leaves' && <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#ff3b3b]" />}
-              </button>
-            )}
-            
-            {showTab('working-hours') && (
-              <button
-                onClick={() => handleTabChange('working-hours')}
-                className={`pb-3 px-1 relative font-['Manrope:SemiBold',sans-serif] text-[14px] transition-colors whitespace-nowrap ${activeTab === 'working-hours' ? 'text-[#ff3b3b]' : 'text-[#666666] hover:text-[#111111]'
-                  }`}
-              >
-                Working Hours
-                {activeTab === 'working-hours' && <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#ff3b3b]" />}
-              </button>
-            )}
-            
-            {showTab('access-management') && (
-              <button
-                onClick={() => handleTabChange('access-management')}
-                className={`pb-3 px-1 relative font-['Manrope:SemiBold',sans-serif] text-[14px] transition-colors whitespace-nowrap ${activeTab === 'access-management' ? 'text-[#ff3b3b]' : 'text-[#666666] hover:text-[#111111]'
-                  }`}
-              >
-                Access Management
-                {activeTab === 'access-management' && <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#ff3b3b]" />}
-              </button>
-            )}
-            
-            {showTab('integrations') && (
-              <button
-                onClick={() => handleTabChange('integrations')}
-                className={`pb-3 px-1 relative font-['Manrope:SemiBold',sans-serif] text-[14px] transition-colors whitespace-nowrap ${activeTab === 'integrations' ? 'text-[#ff3b3b]' : 'text-[#666666] hover:text-[#111111]'
-                  }`}
-              >
-                Integrations
-                {activeTab === 'integrations' && <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#ff3b3b]" />}
-              </button>
-            )}
+          {showTab('security') && (
+            <button
+              onClick={() => handleTabChange('security')}
+              className={`pb-3 px-1 relative font-['Manrope:SemiBold',sans-serif] text-[14px] transition-colors whitespace-nowrap ${activeTab === 'security' ? 'text-[#ff3b3b]' : 'text-[#666666] hover:text-[#111111]'
+                }`}
+            >
+              Security
+              {activeTab === 'security' && <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#ff3b3b]" />}
+            </button>
+          )}
+
+          {showTab('leaves') && (
+            <button
+              onClick={() => handleTabChange('leaves')}
+              className={`pb-3 px-1 relative font-['Manrope:SemiBold',sans-serif] text-[14px] transition-colors whitespace-nowrap ${activeTab === 'leaves' ? 'text-[#ff3b3b]' : 'text-[#666666] hover:text-[#111111]'
+                }`}
+            >
+              Leaves
+              {activeTab === 'leaves' && <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#ff3b3b]" />}
+            </button>
+          )}
+
+          {showTab('working-hours') && (
+            <button
+              onClick={() => handleTabChange('working-hours')}
+              className={`pb-3 px-1 relative font-['Manrope:SemiBold',sans-serif] text-[14px] transition-colors whitespace-nowrap ${activeTab === 'working-hours' ? 'text-[#ff3b3b]' : 'text-[#666666] hover:text-[#111111]'
+                }`}
+            >
+              Working Hours
+              {activeTab === 'working-hours' && <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#ff3b3b]" />}
+            </button>
+          )}
+
+          {showTab('access-management') && (
+            <button
+              onClick={() => handleTabChange('access-management')}
+              className={`pb-3 px-1 relative font-['Manrope:SemiBold',sans-serif] text-[14px] transition-colors whitespace-nowrap ${activeTab === 'access-management' ? 'text-[#ff3b3b]' : 'text-[#666666] hover:text-[#111111]'
+                }`}
+            >
+              Access Management
+              {activeTab === 'access-management' && <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#ff3b3b]" />}
+            </button>
+          )}
+
+          {showTab('integrations') && (
+            <button
+              onClick={() => handleTabChange('integrations')}
+              className={`pb-3 px-1 relative font-['Manrope:SemiBold',sans-serif] text-[14px] transition-colors whitespace-nowrap ${activeTab === 'integrations' ? 'text-[#ff3b3b]' : 'text-[#666666] hover:text-[#111111]'
+                }`}
+            >
+              Integrations
+              {activeTab === 'integrations' && <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#ff3b3b]" />}
+            </button>
+          )}
         </div>
       </div>
 
@@ -571,6 +605,10 @@ export function SettingsPage() {
             leaves={leaves}
             handleUpdateLeaveCount={handleUpdateLeaveCount}
             canEditLeaves={canEditLeaves}
+            isEditing={isEditing}
+            onEdit={handleEdit}
+            onSave={handleSaveChanges}
+            isSaving={updateCompanyMutation.isPending}
             isLoadingHolidays={isLoadingHolidays}
             publicHolidays={publicHolidays}
             handleAddHoliday={handleAddHoliday}
@@ -585,6 +623,10 @@ export function SettingsPage() {
             workingDays={workingDays}
             toggleWorkingDay={toggleWorkingDay}
             canEditWorkingHours={canEditWorkingHours}
+            isEditing={isEditing}
+            onEdit={handleEdit}
+            onSave={handleSaveChanges}
+            isSaving={updateCompanyMutation.isPending}
             workStartTime={workStartTime}
             setWorkStartTime={setWorkStartTime}
             workEndTime={workEndTime}

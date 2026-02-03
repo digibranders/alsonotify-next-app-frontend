@@ -29,7 +29,8 @@ interface UserProfile {
     last_name?: string;
     mobile_number?: string;
     phone?: string;
-    address?: string;
+    address_line_1?: string;
+    address_line_2?: string;
     working_hours?: { start_time?: string; end_time?: string };
     designation?: string;
     date_of_birth?: string;
@@ -101,11 +102,9 @@ export function ProfilePage() {
             phone = "";
         }
 
-        // Parse address
-        const fullAddress = userProfile?.address || "";
-        const addressParts = fullAddress.split(",").map((p: string) => p.trim());
-        const addressLine1 = addressParts[0] || "";
-        const addressLine2 = addressParts.slice(1).join(", ") || "";
+        // Address fields
+        const addressLine1 = userProfile?.address_line_1 || "";
+        const addressLine2 = userProfile?.address_line_2 || "";
 
         // Parse Working Hours
         const workingHours = userProfile?.working_hours || {};
@@ -212,7 +211,8 @@ export function ProfilePage() {
         value: string,
         field: keyof typeof profile,
         type: string = "text",
-        placeholder: string = "-"
+        placeholder: string = "-",
+        onChange?: (val: string) => void
     ) => {
         return (
             <div className="space-y-2">
@@ -221,9 +221,11 @@ export function ProfilePage() {
                 </div>
                 <Input
                     value={profile[field]}
-                    onChange={(e) =>
-                        setProfile({ ...profile, [field]: e.target.value })
-                    }
+                    onChange={(e) => {
+                        const newVal = e.target.value;
+                        setProfile({ ...profile, [field]: newVal });
+                        if (onChange) onChange(newVal);
+                    }}
                     placeholder={placeholder}
                     type={type}
                     disabled={!isEditing}
@@ -232,6 +234,28 @@ export function ProfilePage() {
                 />
             </div>
         );
+    };
+
+    const handleZipCodeChange = async (zip: string) => {
+        if (zip.length >= 5) {
+            try {
+                const response = await fetch(
+                    `https://nominatim.openstreetmap.org/search?postalcode=${zip}&format=json&addressdetails=1`
+                );
+                const data = await response.json();
+                if (data && data.length > 0) {
+                    const addr = data[0].address;
+                    setProfile(prev => ({
+                        ...prev,
+                        city: addr.city || addr.town || addr.village || addr.suburb || prev.city,
+                        state: addr.state || prev.state,
+                        country: addr.country || prev.country
+                    }));
+                }
+            } catch (error) {
+                console.error("Failed to fetch address details:", error);
+            }
+        }
     };
 
     const renderSelect = (
@@ -281,8 +305,8 @@ export function ProfilePage() {
                     : null,
                 gender: profile.gender,
                 employee_id: profile.employeeId,
-                address:
-                    `${profile.addressLine1}, ${profile.addressLine2}`.trim(),
+                address_line_1: profile.addressLine1,
+                address_line_2: profile.addressLine2,
                 city: profile.city,
                 state: profile.state,
                 zipcode: profile.zipCode,
@@ -770,10 +794,10 @@ export function ProfilePage() {
                                         profile.addressLine2,
                                         "addressLine2"
                                     )}
+                                    {renderField("ZIP Code", profile.zipCode, "zipCode", "text", "Enter ZIP Code", handleZipCodeChange)}
                                     {renderField("City", profile.city, "city")}
-                                    {renderField("State", profile.state, "state")}
-                                    {renderField("ZIP Code", profile.zipCode, "zipCode")}
                                     {renderField("Country", profile.country, "country")}
+                                    {renderField("State", profile.state, "state")}
                                 </div>
                             </section>
 

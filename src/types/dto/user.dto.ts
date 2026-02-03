@@ -39,7 +39,8 @@ export interface UserDto {
   joining_date?: string;
   experience?: string | number;
   skills?: string[];
-  address?: string;
+  address_line_1?: string;
+  address_line_2?: string;
   city?: string;
   state?: string;
   zipcode?: string;
@@ -66,7 +67,8 @@ export interface UserDto {
     middle_name?: string;
     last_name?: string;
     gender?: string;
-    address?: string;
+    address_line_1?: string;
+    address_line_2?: string;
     city?: string;
     state?: string;
     zipcode?: string;
@@ -132,7 +134,8 @@ export interface CreateEmployeeRequestDto {
   salary_yearly?: number;
   hourly_rates?: number;
   date_of_joining?: string;
-  address?: string;
+  address_line_1?: string;
+  address_line_2?: string;
   city?: string;
   state?: string;
   country?: string;
@@ -166,7 +169,8 @@ export interface UpdateUserProfileRequestDto {
   phone?: string;
   date_of_birth?: string | null;
   gender?: string;
-  address?: string;
+  address_line_1?: string;
+  address_line_2?: string;
   city?: string;
   state?: string;
   country?: string;

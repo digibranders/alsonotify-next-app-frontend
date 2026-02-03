@@ -326,7 +326,8 @@ export interface Employee {
     middle_name?: string;
     last_name?: string;
     gender?: string;
-    address?: string;
+    address_line_1?: string;
+    address_line_2?: string;
     city?: string;
     state?: string;
     zipcode?: string;
