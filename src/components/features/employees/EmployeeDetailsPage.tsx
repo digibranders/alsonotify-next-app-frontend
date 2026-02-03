@@ -214,9 +214,19 @@ export function EmployeeDetailsPage() {
     const file = event.target.files?.[0];
     if (!file || !uploadingDocType) return;
 
+    // Validate file size (50MB limit)
+    const maxSize = 50 * 1024 * 1024; // 50MB
+    if (file.size > maxSize) {
+      message.error(`File size must be less than 50MB. Selected file is ${(file.size / (1024 * 1024)).toFixed(1)}MB`);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+      return;
+    }
+
     try {
       message.loading({ content: 'Uploading document...', key: 'doc-upload' });
-      
+
       // Find the document type name from the list
       const doc = documents.find(d => d.documentTypeId === uploadingDocType);
       const docTypeName = doc?.documentTypeName || 'Supporting Docs'; // Fallback
@@ -226,15 +236,15 @@ export function EmployeeDetailsPage() {
         parseInt(employeeId),
         docTypeName
       );
-      
+
       message.success({ content: 'Document uploaded successfully!', key: 'doc-upload' });
-      
+
       // Refresh employee data
       queryClient.invalidateQueries({ queryKey: queryKeys.users.detail(parseInt(employeeId)) });
-      
+
     } catch (error) {
-       console.error(error);
-       message.error({ content: 'Failed to upload document.', key: 'doc-upload' });
+      console.error(error);
+      message.error({ content: 'Failed to upload document.', key: 'doc-upload' });
     } finally {
       // Reset input
       if (fileInputRef.current) {
