@@ -2,8 +2,6 @@ import { Breadcrumb, Button, Modal, Select, Skeleton } from 'antd';
 import { X, FileText, ListTodo, BarChart2, Columns, TrendingUp, Paperclip } from 'lucide-react';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { TabButton } from './TabButton';
-import { App } from 'antd';
-import { useState } from 'react';
 
 const { Option } = Select;
 
@@ -32,34 +30,6 @@ export function RequirementHeader({
   activeTab,
   setActiveTab
 }: RequirementHeaderProps) {
-  const { message } = App.useApp();
-  const [isAcceptModalOpen, setIsAcceptModalOpen] = useState(false);
-  const [selectedReceiverWorkspace, setSelectedReceiverWorkspace] = useState<string | undefined>(undefined);
-
-  const handleAcceptRequirement = () => {
-    if (!selectedReceiverWorkspace) {
-      message.error("Please select a workspace to import this requirement into.");
-      return;
-    }
-    if (!requirement) return;
-
-    updateRequirement.mutate({
-      id: requirement.id,
-      workspace_id: requirement.workspace_id,
-      title: requirement.title,
-      status: 'Assigned',
-      receiver_workspace_id: Number(selectedReceiverWorkspace)
-    } as unknown as any, {
-      onSuccess: () => {
-        message.success("Requirement accepted and assigned to workspace.");
-        setIsAcceptModalOpen(false);
-      },
-      onError: (err: any) => {
-        message.error((err as any).message || "Failed to accept requirement");
-      }
-    });
-  };
-
   return (
     <div className="px-6 pt-6 pb-0">
       <div className="flex items-center justify-between mb-2">
@@ -93,110 +63,6 @@ export function RequirementHeader({
         </div>
 
         <div className="flex items-center gap-4">
-          {/* Standardized Requirement Action CTA */}
-          {ctaConfig.primaryAction && (
-            <div className="flex items-center gap-2">
-              {ctaConfig.primaryAction.modal === 'mapping' && (
-                <Button 
-                  type="primary" 
-                  className="bg-[#111111] hover:bg-[#000000]/90"
-                  onClick={() => setIsAcceptModalOpen(true)}
-                >
-                  {ctaConfig.primaryAction.label}
-                </Button>
-              )}
-              {ctaConfig.primaryAction.modal === 'quotation' && (
-                <Button 
-                  type="primary" 
-                  className="bg-[#111111]"
-                  onClick={() => {
-                    message.info("Please use the 'Edit' action in the requirements list to resubmit your quote.");
-                  }}
-                >
-                  {ctaConfig.primaryAction.label}
-                </Button>
-              )}
-              {ctaConfig.primaryAction.modal === 'none' && (
-                <Button 
-                  type="primary" 
-                  className="bg-[#111111]"
-                  onClick={() => {
-                    const newStatus = requirement.status === 'Submitted' ? 'Assigned' : 'Completed';
-                    updateRequirement.mutate({
-                      id: requirement.id,
-                      workspace_id: requirement.workspace_id,
-                      status: newStatus
-                    } as any, {
-                      onSuccess: () => message.success("Requirement accepted successfully")
-                    });
-                  }}
-                >
-                  {ctaConfig.primaryAction.label}
-                </Button>
-              )}
-              {ctaConfig.primaryAction.modal === 'edit' && (
-                <Button 
-                  type="primary" 
-                  className="bg-[#111111]"
-                  onClick={() => {
-                    message.info("Edit functionality");
-                  }}
-                >
-                  {ctaConfig.primaryAction.label}
-                </Button>
-              )}
-            </div>
-          )}
-
-          {/* Reject Action (Secondary) */}
-          {ctaConfig.secondaryAction?.type === 'danger' && (
-            <Button 
-              danger 
-              icon={<X className="w-4 h-4" />}
-              onClick={() => {
-                Modal.confirm({
-                  title: 'Reject Requirement',
-                  content: 'Are you sure you want to reject this requirement?',
-                  onOk: () => {
-                    updateRequirement.mutate({
-                      id: requirement.id,
-                      workspace_id: requirement.workspace_id,
-                      status: 'Rejected'
-                    } as any);
-                  }
-                });
-              }}
-            >
-              {ctaConfig.secondaryAction.label || 'Reject'}
-            </Button>
-          )}
-
-          {/* Accept Modal */}
-          <Modal
-            open={isAcceptModalOpen}
-            onCancel={() => setIsAcceptModalOpen(false)}
-            title="Accept Requirement"
-            onOk={handleAcceptRequirement}
-            okText="Accept & Import"
-            okButtonProps={{ className: "bg-[#111111]" }}
-          >
-            <div className="py-4">
-              <p className="text-sm text-gray-600 mb-2">
-                Select one of your existing workspaces to assign this requirement to.
-              </p>
-              <Select
-                className="w-full"
-                placeholder="Select your workspace"
-                value={selectedReceiverWorkspace}
-                onChange={setSelectedReceiverWorkspace}
-              >
-                {myWorkspacesData?.result?.workspaces?.map((w: { id: number; name: string }) => (
-                  <Option key={w.id} value={String(w.id)}>{w.name}</Option>
-                ))}
-              </Select>
-            </div>
-          </Modal>
-
           <StatusBadge status={requirementStatus} showLabel />
           {requirement.is_high_priority && (
             <span className="px-3 py-1.5 rounded-full text-[11px] font-['Manrope:SemiBold',sans-serif] uppercase tracking-wide bg-[#FFF5F5] text-[#ff3b3b]">

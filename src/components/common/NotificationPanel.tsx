@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { Drawer } from 'antd';
-import { 
+import {
   BellOff, FileText, AlertCircle, CheckSquare, Info, X, Check, Users,
   Inbox, CheckCircle2, XCircle, ClipboardList, BadgeCheck, RotateCcw,
   UserPlus, UserCheck, UserX, Bell
@@ -10,7 +10,7 @@ import {
 import { useRouter } from 'next/navigation';
 
 // All notification types from backend NotificationType enum + legacy types
-export type NotificationTypeValue = 
+export type NotificationTypeValue =
   // Database NotificationType enum values
   | 'GENERAL' | 'TODO_REMINDER' | 'PARTNER_INVITE'
   | 'REQUIREMENT_RECEIVED' | 'REQUIREMENT_ACCEPTED' | 'REQUIREMENT_REJECTED'
@@ -83,7 +83,7 @@ function NotificationItemComponent({
         case 'inbox': return <Inbox className="w-5 h-5" />;
       }
     }
-    
+
     // Then check type for category-based icons
     switch (type) {
       // Requirements
@@ -135,7 +135,7 @@ function NotificationItemComponent({
     if (notification.actionLink) {
       navigate(notification.actionLink);
     } else {
-      if (notification.type === 'requirement') navigate('/dashboard/kanban');
+      if (notification.type === 'requirement') navigate('/dashboard/requirements');
       if (notification.type === 'task') navigate('/dashboard/tasks');
       if (notification.type === 'alert') navigate('/dashboard/tasks');
       if (notification.type === 'partner_invite') navigate('/dashboard/partners');
@@ -180,7 +180,7 @@ function NotificationItemComponent({
                   if (notification.metadata?.requirement_id) {
                     try {
                       const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
-                      const resp = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/requirements/approve`, {
+                      const resp = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/requirement/approve`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                         body: JSON.stringify({ requirement_id: notification.metadata.requirement_id, status: 'Rejected' })
@@ -191,7 +191,7 @@ function NotificationItemComponent({
                         return;
                       }
                       markAsRead(notification.id);
-                    } catch (err) { 
+                    } catch (err) {
                       console.error('Reject failed:', err);
                       alert('Network error. Please try again.');
                     }
@@ -208,7 +208,7 @@ function NotificationItemComponent({
                   if (notification.metadata?.requirement_id) {
                     try {
                       const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
-                      const resp = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/requirements/approve`, {
+                      const resp = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/requirement/approve`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                         body: JSON.stringify({ requirement_id: notification.metadata.requirement_id, status: 'Assigned' })
@@ -220,7 +220,7 @@ function NotificationItemComponent({
                       }
                       markAsRead(notification.id);
                       if (notification.actionLink) navigate(notification.actionLink);
-                    } catch (err) { 
+                    } catch (err) {
                       console.error('Accept failed:', err);
                       alert('Network error. Please try again.');
                     }
@@ -233,7 +233,7 @@ function NotificationItemComponent({
               </button>
             </div>
           )}
-          
+
           {/* Show action button for rejected requirements (Revision) */}
           {(notification.type === 'REQUIREMENT_REJECTED' && notification.metadata?.actions?.includes('revise')) && (
             <div className="flex justify-start gap-2 mt-2">
@@ -276,7 +276,7 @@ export function NotificationPanel({
   const filteredNotifications = useMemo(() => {
     switch (activeTab) {
       case 'requirements':
-        return notifications.filter((n) => 
+        return notifications.filter((n) =>
           n.type === 'REQUIREMENT_RECEIVED' ||
           n.type === 'REQUIREMENT_ACCEPTED' ||
           n.type === 'REQUIREMENT_REJECTED' ||
@@ -286,8 +286,8 @@ export function NotificationPanel({
           n.type === 'requirement'
         );
       case 'tasks':
-        return notifications.filter((n) => 
-          n.type === 'task' || 
+        return notifications.filter((n) =>
+          n.type === 'task' ||
           n.type === 'TODO_REMINDER'
         );
       default:
