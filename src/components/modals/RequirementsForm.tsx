@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import dayjs from 'dayjs';
-import { Input, Select, Button, DatePicker, Checkbox } from 'antd';
+import { Input, Select, Button, DatePicker, Checkbox, App } from 'antd';
 import { Upload as UploadIcon, FileText, ChevronDown, User } from 'lucide-react';
 import { useOutsourcePartners, useEmployees } from '@/hooks/useUser';
 import { FormLayout } from '@/components/common/FormLayout';
@@ -47,6 +47,8 @@ export function RequirementsForm({
 }: Readonly<RequirementsFormProps>) {
     const { data: partnersData, isLoading: isLoadingPartners, refetch: refetchPartners } = useOutsourcePartners();
     const { data: employeesData, isLoading: isLoadingEmployees } = useEmployees();
+    const { message } = App.useApp();
+
 
     // Refetch partners when form opens to ensure fresh data (especially after status changes)
     useEffect(() => {
@@ -119,7 +121,17 @@ export function RequirementsForm({
 
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
-            setSelectedFiles(Array.from(e.target.files));
+            const files = Array.from(e.target.files);
+            const maxSize = 50 * 1024 * 1024; // 50MB
+
+            // Validate file sizes
+            const oversizedFiles = files.filter(file => file.size > maxSize);
+            if (oversizedFiles.length > 0) {
+                message.error(`File size must be less than 50MB. ${oversizedFiles.length} file(s) exceeded the limit.`);
+                return;
+            }
+
+            setSelectedFiles(files);
         }
     };
 

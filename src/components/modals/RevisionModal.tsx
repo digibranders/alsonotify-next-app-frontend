@@ -124,6 +124,11 @@ export const RevisionModal = ({ open, onClose, task, onSuccess }: RevisionModalP
                             setFileList((prev) => prev.filter((item) => item.uid !== file.uid));
                         }}
                         beforeUpload={(file) => {
+                            const maxSize = 25 * 1024 * 1024; // 25MB
+                            if (file.size > maxSize) {
+                                message.error(`${file.name} exceeds the 25MB size limit`);
+                                return Upload.LIST_IGNORE;
+                            }
                             setFileList((prev) => [...prev, file]);
                             return false; // Prevent auto-upload
                         }}

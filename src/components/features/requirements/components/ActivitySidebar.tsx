@@ -31,7 +31,7 @@ export function ActivitySidebar({ reqId, employeesData, partnersData, tasks }: A
 
   const mentionOptions = useMemo(() => {
     const options: { value: string; label: string; key: string }[] = [];
-    
+
     // Internal Employees
     if (employeesData?.result) {
       employeesData.result.forEach((emp: any) => {
@@ -76,13 +76,13 @@ export function ActivitySidebar({ reqId, employeesData, partnersData, tasks }: A
     if (!msg) return '';
     const allNames = mentionOptions.map(o => o.value);
     const taskNames = taskOptions.map(o => o.value);
-    
+
     if (allNames.length === 0 && taskNames.length === 0) return msg;
 
     // Simpler approach for React grouping
     const parts: React.ReactNode[] = [];
     let lastIndex = 0;
-    
+
     // Combine both prefixes into one regex for systematic parsing
     const mentionRegex = new RegExp(`(@(?:${allNames.map(escapeRegExp).join('|')}))|(#(?:${taskNames.map(escapeRegExp).join('|')}))`, 'g');
     let match;
@@ -91,7 +91,7 @@ export function ActivitySidebar({ reqId, employeesData, partnersData, tasks }: A
       if (match.index > lastIndex) {
         parts.push(msg.substring(lastIndex, match.index));
       }
-      
+
       const isTask = match[0].startsWith('#');
       if (isTask) {
         parts.push(
@@ -111,7 +111,7 @@ export function ActivitySidebar({ reqId, employeesData, partnersData, tasks }: A
     if (lastIndex < msg.length) {
       parts.push(msg.substring(lastIndex));
     }
-    
+
     return parts;
   };
 
@@ -135,11 +135,11 @@ export function ActivitySidebar({ reqId, employeesData, partnersData, tasks }: A
 
   const handleMentionSearch = (text: string, prefix: string) => {
     if (prefix === '@') {
-      setActiveMentionOptions(mentionOptions.filter(opt => 
+      setActiveMentionOptions(mentionOptions.filter(opt =>
         opt.value.toLowerCase().includes(text.toLowerCase())
       ));
     } else if (prefix === '#') {
-      setActiveMentionOptions(taskOptions.filter(opt => 
+      setActiveMentionOptions(taskOptions.filter(opt =>
         opt.value.toLowerCase().includes(text.toLowerCase())
       ));
     }
@@ -153,14 +153,14 @@ export function ActivitySidebar({ reqId, employeesData, partnersData, tasks }: A
         // Upload files if any
         if (attachments.length > 0) {
           message.loading({ content: 'Uploading attachments...', key: 'chat-upload' });
-          
-          const uploadPromises = attachments.map(file => 
+
+          const uploadPromises = attachments.map(file =>
             fileService.uploadFile(file, 'REQUIREMENT', reqId)
           );
-          
+
           const uploadedFiles = await Promise.all(uploadPromises);
           uploadedAttachmentIds = uploadedFiles.map(f => f.id);
-          
+
           message.success({ content: 'Attachments uploaded!', key: 'chat-upload' });
         }
 
@@ -170,7 +170,7 @@ export function ActivitySidebar({ reqId, employeesData, partnersData, tasks }: A
           type: attachments.length > 0 ? 'FILE' : 'CHAT',
           attachment_ids: uploadedAttachmentIds.length > 0 ? uploadedAttachmentIds : undefined
         });
-        
+
         setMessageText('');
         setAttachments([]);
       } catch (err: unknown) {
@@ -183,7 +183,17 @@ export function ActivitySidebar({ reqId, employeesData, partnersData, tasks }: A
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setAttachments([...attachments, ...Array.from(e.target.files)]);
+      const files = Array.from(e.target.files);
+      const maxSize = 25 * 1024 * 1024; // 25MB
+
+      // Validate file sizes
+      const oversizedFiles = files.filter(file => file.size > maxSize);
+      if (oversizedFiles.length > 0) {
+        message.error(`File size must be less than 25MB. ${oversizedFiles.length} file(s) exceeded the limit.`);
+        return;
+      }
+
+      setAttachments([...attachments, ...files]);
     }
   };
 
@@ -193,32 +203,32 @@ export function ActivitySidebar({ reqId, employeesData, partnersData, tasks }: A
       handleSendMessage();
     } else if (e.key === 'Backspace') {
       const { selectionStart, selectionEnd } = e.currentTarget;
-      
+
       // Atomic deletion of mentions like WhatsApp
       if (selectionStart === selectionEnd && selectionStart > 0) {
         const text = messageText;
         const textBefore = text.slice(0, selectionStart);
-        
+
         // Find if the cursor is at the end of a mention or task tag
         const lastAtIndex = textBefore.lastIndexOf('@');
         const lastHashIndex = textBefore.lastIndexOf('#');
         const lastTriggerIndex = Math.max(lastAtIndex, lastHashIndex);
-        
+
         if (lastTriggerIndex !== -1) {
           const prefix = text[lastTriggerIndex];
           const namePart = textBefore.slice(lastTriggerIndex + 1);
-          
+
           let matchedOption;
           if (prefix === '@') {
-            matchedOption = mentionOptions.find(opt => 
+            matchedOption = mentionOptions.find(opt =>
               namePart === opt.value + ' ' || namePart === opt.value
             );
           } else if (prefix === '#') {
-            matchedOption = taskOptions.find(opt => 
+            matchedOption = taskOptions.find(opt =>
               namePart === opt.value + ' ' || namePart === opt.value
             );
           }
-          
+
           if (matchedOption) {
             e.preventDefault();
             const newText = text.slice(0, lastTriggerIndex) + text.slice(selectionStart);
@@ -232,8 +242,8 @@ export function ActivitySidebar({ reqId, employeesData, partnersData, tasks }: A
   const handleEditorSelectionJump = (e: React.SyntheticEvent<HTMLTextAreaElement> | React.KeyboardEvent<HTMLTextAreaElement> | React.MouseEvent<HTMLTextAreaElement>) => {
     const textarea = e.currentTarget as HTMLTextAreaElement;
     const { selectionStart, selectionEnd } = textarea;
-    
-    if (selectionStart !== selectionEnd) return; 
+
+    if (selectionStart !== selectionEnd) return;
 
     const text = messageText;
     const allMentions = [

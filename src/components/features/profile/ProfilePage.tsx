@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { Button, Input, Select, Divider, Upload, Switch, Progress, App } from "antd";
+import { useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { Camera, Pencil, Upload as UploadIcon, FileText, Bell, Shield, User } from "lucide-react";
 import Image from "next/image";
@@ -170,6 +171,9 @@ export function ProfilePage() {
     const [selectedDocument, setSelectedDocument] =
         useState<UserDocument | null>(null);
     const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [uploadingDocType, setUploadingDocType] = useState<string | null>(null);
+    const queryClient = useQueryClient();
 
 
 
@@ -200,10 +204,53 @@ export function ProfilePage() {
     };
 
     const handleDocumentUpload = (documentTypeId: string) => {
-        message.info(
-            `Upload functionality for document type ${documentTypeId} - To be implemented`
-        );
-        // TODO: Implement upload functionality
+        setUploadingDocType(documentTypeId);
+        if (fileInputRef.current) {
+            fileInputRef.current.click();
+        }
+    };
+
+    const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file || !uploadingDocType || !user?.id) return;
+
+        // Validate file size (50MB limit)
+        const maxSize = 50 * 1024 * 1024; // 50MB
+        if (file.size > maxSize) {
+            message.error(`File size must be less than 50MB. Selected file is ${(file.size / (1024 * 1024)).toFixed(1)}MB`);
+            if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+            }
+            return;
+        }
+
+        try {
+            message.loading({ content: 'Uploading document...', key: 'doc-upload' });
+
+            // Find the document type name
+            const docType = documentTypes?.find(dt => dt.id === uploadingDocType);
+            const docTypeName = docType?.name || 'Supporting Document';
+
+            await fileService.uploadEmployeeDocument(
+                file,
+                Number(user.id),
+                docTypeName
+            );
+
+            message.success({ content: 'Document uploaded successfully!', key: 'doc-upload' });
+
+            // Refresh user data to show the new document
+            queryClient.invalidateQueries({ queryKey: ['user-details'] });
+
+        } catch (error) {
+            console.error('Upload failed:', error);
+            message.error({ content: 'Failed to upload document', key: 'doc-upload' });
+        } finally {
+            setUploadingDocType(null);
+            if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+            }
+        }
     };
 
     const renderField = (
@@ -890,6 +937,14 @@ export function ProfilePage() {
                                         </p>
                                     </div>
                                 )}
+                                {/* Hidden file input for document uploads */}
+                                <input
+                                    type="file"
+                                    ref={fileInputRef}
+                                    className="hidden"
+                                    onChange={handleFileChange}
+                                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.csv,.xls,.xlsx"
+                                />
                             </section>
 
                             <Divider className="my-8 bg-[#EEEEEE]" />

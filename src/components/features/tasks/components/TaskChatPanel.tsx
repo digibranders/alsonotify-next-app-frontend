@@ -16,7 +16,7 @@ export function TaskChatPanel({ taskId }: TaskChatPanelProps) {
   const { user } = useAuth();
   const { data: activitiesData, isLoading: isLoadingActivities } = useTaskActivities(taskId);
   const { mutate: createActivity, isPending: isSending } = useCreateTaskActivity();
-  
+
   const [messageText, setMessageText] = useState('');
   const [attachments, setAttachments] = useState<File[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -39,20 +39,20 @@ export function TaskChatPanel({ taskId }: TaskChatPanelProps) {
 
       if (attachments.length > 0) {
         message.loading({ content: 'Uploading attachments...', key: 'task-upload' });
-        
+
         try {
-          const uploadPromises = attachments.map(file => 
+          const uploadPromises = attachments.map(file =>
             fileService.uploadFile(file, 'TASK', taskId)
           );
-          
+
           const uploadedFiles = await Promise.all(uploadPromises);
           uploadedAttachmentIds = uploadedFiles.map(f => f.id);
-          
+
           message.success({ content: 'Attachments uploaded!', key: 'task-upload' });
         } catch (error) {
-           console.error("Upload failed", error);
-           message.error({ content: 'Failed to upload attachments', key: 'task-upload' });
-           return; // Stop if upload fails
+          console.error("Upload failed", error);
+          message.error({ content: 'Failed to upload attachments', key: 'task-upload' });
+          return; // Stop if upload fails
         }
       }
 
@@ -74,7 +74,17 @@ export function TaskChatPanel({ taskId }: TaskChatPanelProps) {
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setAttachments([...attachments, ...Array.from(e.target.files)]);
+      const files = Array.from(e.target.files);
+      const maxSize = 25 * 1024 * 1024; // 25MB
+
+      // Validate file sizes
+      const oversizedFiles = files.filter(file => file.size > maxSize);
+      if (oversizedFiles.length > 0) {
+        message.error(`File size must be less than 25MB. ${oversizedFiles.length} file(s) exceeded the limit.`);
+        return;
+      }
+
+      setAttachments([...attachments, ...files]);
     }
   };
 
@@ -118,21 +128,18 @@ export function TaskChatPanel({ taskId }: TaskChatPanelProps) {
 
             return (
               <div key={activity.id} className="flex gap-3">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
-                  isSystem ? 'bg-[#F0F0F0]' : 'bg-gradient-to-br from-[#666666] to-[#999999]'
-                }`}>
-                  <span className={`text-[11px] font-['Manrope:Bold',sans-serif] ${
-                    isSystem ? 'text-[#999999]' : 'text-white'
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${isSystem ? 'bg-[#F0F0F0]' : 'bg-gradient-to-br from-[#666666] to-[#999999]'
                   }`}>
+                  <span className={`text-[11px] font-['Manrope:Bold',sans-serif] ${isSystem ? 'text-[#999999]' : 'text-white'
+                    }`}>
                     {avatar}
                   </span>
                 </div>
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-baseline gap-2 mb-1">
-                    <span className={`text-[13px] font-['Manrope:SemiBold',sans-serif] ${
-                      isSystem ? 'text-[#999999]' : 'text-[#111111]'
-                    }`}>
+                    <span className={`text-[13px] font-['Manrope:SemiBold',sans-serif] ${isSystem ? 'text-[#999999]' : 'text-[#111111]'
+                      }`}>
                       {activity.user?.name || 'System'}
                     </span>
                     <span className="text-[11px] text-[#999999] font-['Inter:Regular',sans-serif]">
@@ -149,10 +156,10 @@ export function TaskChatPanel({ taskId }: TaskChatPanelProps) {
                   {activity.attachments && activity.attachments.length > 0 && (
                     <div className="mt-2 flex flex-wrap gap-2">
                       {activity.attachments.map((file: any) => (
-                        <a 
-                          key={file.id} 
-                          href={file.file_url} 
-                          target="_blank" 
+                        <a
+                          key={file.id}
+                          href={file.file_url}
+                          target="_blank"
                           rel="noopener noreferrer"
                           className="flex items-center gap-2 p-2 bg-white rounded border border-[#EEEEEE] hover:border-[#ff3b3b]/30 transition-colors"
                         >
