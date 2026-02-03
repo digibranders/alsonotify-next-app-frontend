@@ -9,32 +9,32 @@ export function mapRequirementToDomain(dto: RequirementDto): Requirement {
     description: dto.description || '',
     workspaceId: dto.workspace_id || dto.workspaceId || 0,
     workspace_id: dto.workspace_id, // keep compatibility
-    
+
     // Enum mappings with fallbacks
     type: (dto.type as 'inhouse' | 'outsourced' | 'client') || 'inhouse',
     status: (dto.status as 'in-progress' | 'completed' | 'delayed' | 'draft' | 'Waiting') || 'draft',
     approvalStatus: (dto.approvalStatus as 'pending' | 'approved' | 'rejected') || 'pending',
-    
+
     company: dto.company || dto.sender_company?.name || null,
     client: dto.client || null,
     assignedTo: Array.isArray(dto.assignedTo) ? dto.assignedTo.map(String) : [],
-    
+
     dueDate: dto.dueDate || dto.end_date || '',
     createdDate: dto.createdDate || '', // Needs mapping if blank?
     startDate: dto.start_date || '',
-    
+
     isHighPriority: dto.is_high_priority || dto.priority === 'High',
     is_high_priority: dto.is_high_priority || dto.priority === 'High',
-    
+
     category: dto.category || '',
     departments: dto.departments,
-    
+
     progress: dto.progress || 0,
     tasksCompleted: dto.tasksCompleted || 0,
     tasksTotal: dto.tasksTotal || dto.total_task || 0,
-    
+
     workspace: dto.workspace || '',
-    
+
     // Financials
     pricingModel: (dto.pricingModel || dto.pricing_model) as 'hourly' | 'project',
     pricing_model: (dto.pricing_model || dto.pricingModel) as 'hourly' | 'project',
@@ -44,14 +44,14 @@ export function mapRequirementToDomain(dto: RequirementDto): Requirement {
     estimatedHours: dto.estimatedHours,
     quotedPrice: dto.quotedPrice || dto.quoted_price,
     quoted_price: dto.quoted_price,
-    
+
     // Relations
     contactPerson: dto.contactPerson || dto.contact_person?.name,
     rejectionReason: dto.rejectionReason,
     headerContact: dto.headerContact,
     headerCompany: dto.headerCompany,
     rawStatus: dto.rawStatus || dto.status,
-    
+
     clientId: dto.client_id,
     client_id: dto.client_id,
     contactPersonId: dto.contact_person_id,
@@ -68,7 +68,7 @@ export function mapRequirementToDomain(dto: RequirementDto): Requirement {
     isSender: dto.isSender,
     receiverProjectId: dto.receiver_project_id,
     receiver_project_id: dto.receiver_project_id,
-    
+
     receiver_company: dto.receiver_company,
     senderCompany: dto.sender_company,
     sender_company: dto.sender_company,
@@ -84,22 +84,26 @@ export function mapRequirementToDomain(dto: RequirementDto): Requirement {
     invoice_id: dto.invoice_id,
     // contactPerson already handled above
     contact_person: dto.contact_person,
-    
+
     // Snake case aliases - Ensure stricter type compliance
     manager: dto.manager,
     leader: dto.leader,
-    department: undefined, 
-    
+    department: undefined,
+
     leaderUser: dto.leader_user ? { ...dto.leader_user, name: dto.leader_user.name || null } : undefined,
     leader_user: dto.leader_user ? { ...dto.leader_user, name: dto.leader_user.name || null } : undefined,
     managerUser: dto.manager_user ? { ...dto.manager_user, name: dto.manager_user.name || null } : undefined,
     manager_user: dto.manager_user ? { ...dto.manager_user, name: dto.manager_user.name || null } : undefined,
-    
+
     documentLink: dto.document_link,
     document_link: dto.document_link,
-    
+
     totalTasks: dto.total_task,
-    total_task: dto.total_task
+    total_task: dto.total_task,
+
+    // Add snake_case aliases for dates to ensure UI compatibility
+    start_date: dto.start_date || (dto as { startDate?: string }).startDate || '',
+    end_date: dto.end_date || (dto as { dueDate?: string }).dueDate || ''
   };
 }
 

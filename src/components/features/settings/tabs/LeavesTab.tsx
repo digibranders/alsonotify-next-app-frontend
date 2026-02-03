@@ -7,6 +7,10 @@ interface LeavesTabProps {
   leaves: CompanyLeaveSetting[];
   handleUpdateLeaveCount: (id: string, count: string) => void;
   canEditLeaves: boolean;
+  isEditing: boolean;
+  onEdit: () => void;
+  onSave: () => void;
+  isSaving: boolean;
   isLoadingHolidays: boolean;
   publicHolidays: Holiday[];
   handleAddHoliday: () => void;
@@ -18,6 +22,10 @@ export function LeavesTab({
   leaves,
   handleUpdateLeaveCount,
   canEditLeaves,
+  isEditing,
+  onEdit,
+  onSave,
+  isSaving,
   isLoadingHolidays,
   publicHolidays,
   handleAddHoliday,
@@ -39,23 +47,40 @@ export function LeavesTab({
               <Input
                 value={leave.count}
                 onChange={(e) => handleUpdateLeaveCount(String(leave.id), e.target.value)}
-                disabled={!canEditLeaves}
-                className="h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-['Manrope:Medium',sans-serif] text-[13px]"
+                disabled={!canEditLeaves || !isEditing}
+                className={`h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-['Manrope:Medium',sans-serif] text-[13px] ${!isEditing ? 'bg-[#F7F7F7] cursor-not-allowed' : 'bg-white'}`}
               />
-              <button className="p-2 text-[#666666] hover:text-[#111111] hover:bg-[#F7F7F7] rounded-full transition-colors">
-                <Edit className="w-4 h-4" />
-              </button>
+              {canEditLeaves && !isEditing && (
+                <button
+                  onClick={onEdit}
+                  className="p-2 text-[#666666] hover:text-[#111111] hover:bg-[#F7F7F7] rounded-full transition-colors"
+                >
+                  <Edit className="w-4 h-4" />
+                </button>
+              )}
             </div>
           </div>
         ))}
 
-        <div className="pt-6">
+        <div className="pt-6 space-y-6">
           <div className="space-y-2">
             <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#666666]">Total Leaves</span>
             <div className="h-11 px-3 flex items-center rounded-lg border border-[#EEEEEE] bg-[#F7F7F7] text-[#666666] font-['Manrope:Medium',sans-serif] text-[13px]">
               {leaves.reduce((acc, curr) => acc + curr.count, 0)} days
             </div>
           </div>
+
+          {canEditLeaves && isEditing && (
+            <div className="flex justify-end">
+              <button
+                onClick={onSave}
+                disabled={isSaving}
+                className="bg-[#ff3b3b] hover:bg-[#ff3b3b]/90 disabled:opacity-50 text-white font-['Manrope:SemiBold',sans-serif] px-8 h-10 rounded-full shadow-lg shadow-[#ff3b3b]/20 text-[13px] transition-all active:scale-95"
+              >
+                {isSaving ? 'Saving...' : 'Save Changes'}
+              </button>
+            </div>
+          )}
         </div>
       </div>
 

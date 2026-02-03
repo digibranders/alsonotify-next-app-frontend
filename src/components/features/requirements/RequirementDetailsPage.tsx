@@ -393,7 +393,7 @@ export function RequirementDetailsPage() {
                         total_seconds_spent: task.total_seconds_spent || 0,
                         activities: 0,
                         status: task.status || 'Assigned',
-                        is_high_priority: task.is_high_priority || (task as any).priority === 'HIGH' || false,
+                        is_high_priority: task.is_high_priority || (task as { priority?: string }).priority === 'HIGH' || false,
                         timelineDate: task.end_date ? format(new Date(task.end_date), 'MMM dd') : 'N/A',
                         timelineLabel: task.status === 'Delayed' ? 'Overdue' : '',
                         execution_mode: task.execution_mode,
@@ -402,7 +402,7 @@ export function RequirementDetailsPage() {
                       return (
                         <TaskRow
                           key={task.id}
-                          task={mappedTask as unknown as any}
+                          task={mappedTask as any}
                           selected={selectedTasks.includes(String(task.id))}
                           onSelect={() => {
                             if (selectedTasks.includes(String(task.id))) {

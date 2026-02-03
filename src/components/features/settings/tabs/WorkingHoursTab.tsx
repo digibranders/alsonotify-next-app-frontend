@@ -5,6 +5,10 @@ interface WorkingHoursTabProps {
   workingDays: string[];
   toggleWorkingDay: (day: string) => void;
   canEditWorkingHours: boolean;
+  isEditing: boolean;
+  onEdit: () => void;
+  onSave: () => void;
+  isSaving: boolean;
   workStartTime: string;
   setWorkStartTime: (val: string) => void;
   workEndTime: string;
@@ -19,6 +23,10 @@ export function WorkingHoursTab({
   workingDays,
   toggleWorkingDay,
   canEditWorkingHours,
+  isEditing,
+  onEdit,
+  onSave,
+  isSaving,
   workStartTime,
   setWorkStartTime,
   workEndTime,
@@ -36,16 +44,16 @@ export function WorkingHoursTab({
           <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">Working Days</span>
           <div className="min-h-[48px] p-2 rounded-lg border border-[#EEEEEE] flex flex-wrap gap-2">
             {workingDays.map(day => (
-              <div key={day} className="h-8 px-3 bg-[#F0F0F0] rounded-md flex items-center gap-2 text-[13px] font-['Manrope:Medium',sans-serif] text-[#111111]">
+              <div key={day} className={`h-8 px-3 bg-[#F0F0F0] rounded-md flex items-center gap-2 text-[13px] font-['Manrope:Medium',sans-serif] text-[#111111] ${!isEditing ? 'opacity-70' : ''}`}>
                 {day}
-                {canEditWorkingHours && (
+                {canEditWorkingHours && isEditing && (
                   <button onClick={() => toggleWorkingDay(day)} className="hover:text-[#ff3b3b]">
                     <X className="w-3 h-3" />
                   </button>
                 )}
               </div>
             ))}
-            {canEditWorkingHours && (
+            {canEditWorkingHours && isEditing && (
               <div className="relative group">
                 <button className="h-8 w-8 flex items-center justify-center hover:scale-110 transition-transform">
                   <Plus className="w-5 h-5 text-[#ff3b3b]" />
@@ -66,6 +74,15 @@ export function WorkingHoursTab({
                 </div>
               </div>
             )}
+            {canEditWorkingHours && !isEditing && (
+              <button
+                onClick={onEdit}
+                className="h-8 px-3 text-[#ff3b3b] hover:bg-[#FFF5F5] rounded-md transition-colors text-[12px] font-['Manrope:SemiBold',sans-serif] flex items-center gap-1"
+              >
+                <Plus className="w-3 h-3" />
+                Edit
+              </button>
+            )}
           </div>
         </div>
 
@@ -78,8 +95,8 @@ export function WorkingHoursTab({
                 type="time"
                 value={workStartTime}
                 onChange={(e) => setWorkStartTime(e.target.value)}
-                disabled={!canEditWorkingHours}
-                className="h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-['Manrope:Medium',sans-serif] text-[13px]"
+                disabled={!canEditWorkingHours || !isEditing}
+                className={`h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-['Manrope:Medium',sans-serif] text-[13px] ${!isEditing ? 'bg-[#F7F7F7] cursor-not-allowed' : 'bg-white'}`}
               />
             </div>
             <span className="text-[13px] text-[#666666] font-['Manrope:Medium',sans-serif]">to</span>
@@ -88,8 +105,8 @@ export function WorkingHoursTab({
                 type="time"
                 value={workEndTime}
                 onChange={(e) => setWorkEndTime(e.target.value)}
-                disabled={!canEditWorkingHours}
-                className="h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-['Manrope:Medium',sans-serif] text-[13px]"
+                disabled={!canEditWorkingHours || !isEditing}
+                className={`h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-['Manrope:Medium',sans-serif] text-[13px] ${!isEditing ? 'bg-[#F7F7F7] cursor-not-allowed' : 'bg-white'}`}
               />
             </div>
           </div>
@@ -102,10 +119,22 @@ export function WorkingHoursTab({
             type="number"
             value={breakTime}
             onChange={(e) => setBreakTime(e.target.value)}
-            disabled={!canEditWorkingHours}
-            className="h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-['Manrope:Medium',sans-serif] text-[13px]"
+            disabled={!canEditWorkingHours || !isEditing}
+            className={`h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-['Manrope:Medium',sans-serif] text-[13px] ${!isEditing ? 'bg-[#F7F7F7] cursor-not-allowed' : 'bg-white'}`}
           />
         </div>
+
+        {canEditWorkingHours && isEditing && (
+          <div className="flex justify-end pt-4">
+            <button
+              onClick={onSave}
+              disabled={isSaving}
+              className="bg-[#ff3b3b] hover:bg-[#ff3b3b]/90 disabled:opacity-50 text-white font-['Manrope:SemiBold',sans-serif] px-8 h-10 rounded-full shadow-lg shadow-[#ff3b3b]/20 text-[13px] transition-all active:scale-95"
+            >
+              {isSaving ? 'Saving...' : 'Save Changes'}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

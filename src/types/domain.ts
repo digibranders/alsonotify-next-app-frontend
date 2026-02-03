@@ -282,6 +282,7 @@ export interface Employee {
   phone: string;
   hourlyRate: string;
   dateOfJoining: string;
+  date_of_birth?: string;
   experience: number | string; // UI uses string or number sometimes
   skillsets: string;
   status: 'active' | 'inactive';
@@ -315,8 +316,37 @@ export interface Employee {
   designation?: string;
   mobileNumber?: string;
   mobile_number?: string;
-  userProfile?: { mobileNumber?: string; mobile_number?: string; phone?: string };
-  user_profile?: { mobile_number?: string; phone?: string };
+  userProfile?: {
+    mobile_number?: string;
+    phone?: string;
+    date_of_birth?: string;
+    employee_id?: string;
+    designation?: string;
+    first_name?: string;
+    middle_name?: string;
+    last_name?: string;
+    gender?: string;
+    address_line_1?: string;
+    address_line_2?: string;
+    city?: string;
+    state?: string;
+    zipcode?: string;
+    country?: string;
+    currency?: string;
+    skills?: string[];
+    emergency_contact?: any;
+    working_hours?: any;
+    date_of_joining?: string;
+    experience?: number;
+    hourly_rates?: number;
+    no_of_leaves?: number;
+  };
+  user_profile?: {
+    mobile_number?: string;
+    phone?: string;
+    date_of_birth?: string;
+    employee_id?: string;
+  };
   user?: { mobile_number?: string; phone?: string };
   hourlyRates?: number;
   hourly_rates?: number;
