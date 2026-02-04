@@ -30,7 +30,7 @@ export const useUpdateMemberStatus = () => {
   });
 };
 
-import { TaskDto, CreateTaskRequestDto, UpdateTaskRequestDto } from '@/types/dto/task.dto';
+import { CreateTaskRequestDto, UpdateTaskRequestDto } from '@/types/dto/task.dto';
 
 // Re-export useClients for convenience
 // useClients removed

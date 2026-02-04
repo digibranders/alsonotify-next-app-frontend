@@ -323,9 +323,11 @@ export function TaskDetailsPage() {
                 {/* Left Col: Task Members (Span 2) */}
                 <div className="lg:col-span-2">
                   <TaskMembersList
+                    taskId={taskId}
                     members={task.task_members || []}
                     executionMode={task.execution_mode || 'parallel'}
                     currentUser={currentUser}
+                    isLeader={isLeader}
                   />
                 </div>
 
@@ -421,7 +423,7 @@ export function TaskDetailsPage() {
                       </div>
                       <div className="text-right">
                         <p className={`text-[18px] font-['Manrope:Bold',sans-serif] leading-none ${task.status?.toLowerCase() === 'completed' ? 'text-[#0F9D58]' :
-                            task.status?.toLowerCase() === 'delayed' ? 'text-[#ff3b3b]' : 'text-[#2F80ED]'
+                          task.status?.toLowerCase() === 'delayed' ? 'text-[#ff3b3b]' : 'text-[#2F80ED]'
                           }`}>
                           {progressPercent}%
                         </p>
@@ -436,7 +438,7 @@ export function TaskDetailsPage() {
                       <div className="w-full h-2 bg-[#E0E0E0] rounded-full overflow-hidden">
                         <div
                           className={`h-full rounded-full transition-all duration-700 ${task.status?.toLowerCase() === 'completed' ? 'bg-[#0F9D58]' :
-                              task.status?.toLowerCase() === 'delayed' ? 'bg-[#ff3b3b]' : 'bg-[#2F80ED]'
+                            task.status?.toLowerCase() === 'delayed' ? 'bg-[#ff3b3b]' : 'bg-[#2F80ED]'
                             }`}
                           style={{ width: `${progressPercent}%` }}
                         />
