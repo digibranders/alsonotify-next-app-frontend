@@ -12,6 +12,7 @@ import type { Tab, ModalType } from './common.types';
  * Matches backend Prisma enum exactly (12 values).
  */
 export const REQUIREMENT_STATUSES = [
+  'Draft',
   'Assigned',
   'In_Progress',
   'On_Hold',

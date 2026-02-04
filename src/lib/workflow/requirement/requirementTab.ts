@@ -75,8 +75,8 @@ export function getRequirementTab(
     return 'delayed';
   }
 
-  // Priority 3: Draft status (special status, not in state machine)
-  if (status === 'draft') {
+  // Priority 3: Draft status (first-class or legacy special)
+  if (status === 'Draft' || status === 'draft') {
     return 'draft';
   }
 
@@ -167,8 +167,8 @@ function getRejectedTab(role: UserRole, context: TabContext): Tab {
       // Sender rejected the quote, waiting for receiver to revise
       return 'pending';
     }
-    // Receiver rejected the requirement, sender needs to edit & resend
-    return 'draft';
+    // Receiver rejected the requirement; show in Pending (not Draft) per product rule
+    return 'pending';
   }
 
   // Receiver or internal is viewing

@@ -69,6 +69,14 @@ function getSenderCTA(
   const tab = getRequirementTab(status, type, 'sender', tabContext);
 
   switch (status) {
+    case 'Draft':
+      return {
+        displayStatus: 'Draft',
+        isPending: true,
+        tab,
+        primaryAction: createAction('Send to Partner', 'primary', 'none', 'send_to_partner'),
+      };
+
     case 'Waiting':
       return {
         displayStatus: 'Awaiting Quote...',
@@ -218,6 +226,13 @@ function getReceiverCTA(
   const tab = getRequirementTab(status, type, 'receiver', tabContext);
 
   switch (status) {
+    case 'Draft':
+      return {
+        displayStatus: 'Not sent yet',
+        isPending: false,
+        tab,
+      };
+
     case 'Waiting':
       return {
         displayStatus: 'Action Needed: Submit Quote',
@@ -377,6 +392,14 @@ function getInternalCTA(
   const tab = getRequirementTab(status, 'inhouse', 'internal', tabContext);
 
   switch (status) {
+    case 'Draft':
+      return {
+        displayStatus: 'Draft',
+        isPending: true,
+        tab,
+        primaryAction: createAction('Submit for Work', 'primary', 'none', 'submit_for_work'),
+      };
+
     case 'Waiting':
     case 'Submitted':
       // These shouldn't exist for internal, but handle gracefully

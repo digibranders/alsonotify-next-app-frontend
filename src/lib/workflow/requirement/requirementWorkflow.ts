@@ -12,6 +12,9 @@ import type { RequirementStatus, UserRole } from '../types/requirement.types';
  * For in-house requirements where sender and receiver are the same company.
  */
 export const INTERNAL_TRANSITIONS: Readonly<Record<RequirementStatus, readonly RequirementStatus[]>> = {
+  // From Draft: internal can submit for work
+  Draft: ['Assigned'],
+
   // From Assigned: can start work, pause, or delay
   Assigned: ['In_Progress', 'On_Hold', 'Delayed'],
 
@@ -50,6 +53,9 @@ export const INTERNAL_TRANSITIONS: Readonly<Record<RequirementStatus, readonly R
  * The company that created and sent the requirement.
  */
 export const SENDER_TRANSITIONS: Readonly<Record<RequirementStatus, readonly RequirementStatus[]>> = {
+  // From Draft: sender can send to partner
+  Draft: ['Waiting'],
+
   // From Assigned: can pause, delay, or monitor progress
   Assigned: ['On_Hold', 'In_Progress', 'Delayed'],
 
@@ -88,6 +94,9 @@ export const SENDER_TRANSITIONS: Readonly<Record<RequirementStatus, readonly Req
  * The company that receives and works on the requirement.
  */
 export const RECEIVER_TRANSITIONS: Readonly<Record<RequirementStatus, readonly RequirementStatus[]>> = {
+  // Draft: receiver never sees Draft (requirement not sent yet)
+  Draft: [],
+
   // QUOTE FLOW: Waiting -> Submit Quote (Submitted) or Reject
   Waiting: ['Submitted', 'Rejected'],
 

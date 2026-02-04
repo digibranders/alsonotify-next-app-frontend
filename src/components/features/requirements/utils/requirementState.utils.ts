@@ -39,10 +39,10 @@ export type RequirementTab = 'draft' | 'pending' | 'active' | 'completed' | 'del
  */
 export function mapRequirementToStatus(req: Requirement): RequirementStatus | 'draft' {
   const rawStatus = req.rawStatus;
-  
-  // Handle draft status (special status, not in state machine)
-  if (rawStatus === 'draft') {
-    return 'draft';
+
+  // Handle Draft (first-class) or legacy lowercase
+  if (rawStatus === 'Draft' || rawStatus === 'draft') {
+    return 'Draft';
   }
 
   // Handle archived - treat as regular status (archived flag handled separately in context)
