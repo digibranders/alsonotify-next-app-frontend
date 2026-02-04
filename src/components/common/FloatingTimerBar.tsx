@@ -453,11 +453,11 @@ export function FloatingTimerBar() {
             ) : (
               <>
                 {/* Offline Indicator */}
-                {!isOnline && (
+                {/* {!isOnline && (
                   <Tooltip title="Offline - Changes may not save">
                     <WifiOff className="w-4 h-4 text-red-500 animate-pulse" />
                   </Tooltip>
-                )}
+                )} */}
                 <p className="text-[14px] text-white font-['Inter:Medium',sans-serif] group-hover:text-white transition-colors truncate max-w-[200px]">
                   {currentTask?.name || timerState.taskName || "Select Task"}
                 </p>

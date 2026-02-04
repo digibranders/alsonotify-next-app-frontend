@@ -49,33 +49,28 @@ export function DocumentCard({ document, onPreview, onDownload, showUpload, onUp
     // Placeholder for missing document
     return (
       <div
-        className="border border-[#EEEEEE] rounded-lg p-4 bg-white hover:shadow-sm transition-all relative group cursor-pointer"
+        className="border border-[#EEEEEE] border-dashed rounded-lg p-3 bg-[#FAFAFA] hover:shadow-sm transition-all relative group cursor-pointer"
         onClick={() => onUpload(document.documentTypeId)}
       >
-        <div className="flex items-start gap-3 pr-12">
-          <div className="flex-shrink-0 mt-0.5">
-            {getFileIcon()}
-          </div>
+        <div className="flex items-center gap-3 pr-12">
+
           <div className="flex-1 min-w-0">
-            <p className="text-[13px] font-['Manrope:SemiBold',sans-serif] text-[#111111] mb-1 truncate leading-tight">
-              {document.documentTypeName}
-            </p>
-            <p className="text-[11px] text-[#999999] font-['Manrope:Regular',sans-serif] leading-tight">
+            <p className="text-[12px] font-['Manrope:Medium',sans-serif] text-[#666666] leading-tight">
               Click to upload
             </p>
           </div>
         </div>
 
-        <div className="absolute top-4 right-4">
+        <div className="absolute top-1/2 -translate-y-1/2 right-3">
           <button
             onClick={(e) => {
               e.stopPropagation();
               onUpload(document.documentTypeId);
             }}
-            className="w-8 h-8 rounded-full bg-[#ff3b3b]/5 hover:bg-[#ff3b3b]/10 flex items-center justify-center transition-colors border border-[#ff3b3b]/40"
+            className="w-7 h-7 rounded-full bg-[#ff3b3b]/5 hover:bg-[#ff3b3b]/10 flex items-center justify-center transition-colors border border-[#ff3b3b]/40"
             title="Upload"
           >
-            <UploadIcon className="w-4 h-4 text-[#ff3b3b]" />
+            <UploadIcon className="w-3.5 h-3.5 text-[#ff3b3b]" />
           </button>
         </div>
       </div>
@@ -84,7 +79,7 @@ export function DocumentCard({ document, onPreview, onDownload, showUpload, onUp
 
   return (
     <div
-      className="border border-[#EEEEEE] rounded-lg p-4 bg-white hover:shadow-sm transition-all relative group cursor-pointer"
+      className="border border-[#EEEEEE] rounded-lg p-3 bg-white hover:shadow-sm transition-all relative group cursor-pointer"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -93,7 +88,7 @@ export function DocumentCard({ document, onPreview, onDownload, showUpload, onUp
           {getFileIcon()}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-[13px] font-['Manrope:SemiBold',sans-serif] text-[#111111] mb-1 truncate leading-tight">
+          <p className="text-[13px] font-['Manrope:SemiBold',sans-serif] text-[#111111] mb-0.5 truncate leading-tight">
             {document.fileName}
           </p>
           <p className="text-[11px] text-[#666666] font-['Manrope:Regular',sans-serif] leading-tight">
@@ -104,26 +99,26 @@ export function DocumentCard({ document, onPreview, onDownload, showUpload, onUp
 
       {/* Preview and Download buttons on hover */}
       {isHovered && (
-        <div className="absolute top-4 right-4 flex items-center gap-2">
+        <div className="absolute top-1/2 -translate-y-1/2 right-3 flex items-center gap-2">
           <button
             onClick={(e) => {
               e.stopPropagation();
               onPreview(document);
             }}
-            className="w-8 h-8 rounded-full bg-white hover:bg-[#F7F7F7] flex items-center justify-center transition-colors border border-[#EEEEEE] shadow-sm hover:border-[#DDDDDD]"
+            className="w-7 h-7 rounded-full bg-white hover:bg-[#F7F7F7] flex items-center justify-center transition-colors border border-[#EEEEEE] shadow-sm hover:border-[#DDDDDD]"
             title="Preview"
           >
-            <Eye className="w-4 h-4 text-[#666666]" />
+            <Eye className="w-3.5 h-3.5 text-[#666666]" />
           </button>
           <button
             onClick={(e) => {
               e.stopPropagation();
               onDownload(document);
             }}
-            className="w-8 h-8 rounded-full bg-white hover:bg-[#F7F7F7] flex items-center justify-center transition-colors border border-[#EEEEEE] shadow-sm hover:border-[#DDDDDD]"
+            className="w-7 h-7 rounded-full bg-white hover:bg-[#F7F7F7] flex items-center justify-center transition-colors border border-[#EEEEEE] shadow-sm hover:border-[#DDDDDD]"
             title="Download"
           >
-            <Download className="w-4 h-4 text-[#666666]" />
+            <Download className="w-3 h-3 text-[#666666]" />
           </button>
         </div>
       )}
