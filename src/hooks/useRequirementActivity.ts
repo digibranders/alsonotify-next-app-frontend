@@ -1,18 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useCallback } from "react";
-import { 
-  getRequirementActivities, 
-  createRequirementActivity, 
-  type CreateRequirementActivityRequest 
+import {
+  getRequirementActivities,
+  createRequirementActivity,
+  type CreateRequirementActivityRequest
 } from "../services/requirement-activity";
 import { queryKeys } from "../lib/queryKeys";
-import { useAuth } from "./useAuth";
 
 
 
 export const useRequirementActivities = (requirementId: number) => {
-  const queryClient = useQueryClient();
-  const { token } = useAuth();
 
   const query = useQuery({
     queryKey: queryKeys.requirements.activities(requirementId),
@@ -34,8 +30,8 @@ export const useCreateRequirementActivity = () => {
   return useMutation({
     mutationFn: (params: CreateRequirementActivityRequest) => createRequirementActivity(params),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ 
-        queryKey: queryKeys.requirements.activities(variables.requirement_id) 
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.requirements.activities(variables.requirement_id)
       });
     },
   });

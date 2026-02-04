@@ -115,3 +115,47 @@ export const getCommentById = async (
   return data;
 };
 
+// === WORKFLOW: Submit Requirement for Review ===
+export const submitRequirementForReview = async (requirementId: number): Promise<ApiResponse<RequirementDto>> => {
+  const { data } = await axiosApi.post<ApiResponse<RequirementDto>>(`/requirement/${requirementId}/submit-for-review`);
+  return data;
+};
+
+// === BILLING: Link Invoice to Requirement ===
+export interface BillingInfo {
+  billingStatus: 'Not_Billable' | 'Ready_To_Bill' | 'Invoiced' | 'Paid';
+  invoiceId: number | null;
+  invoiceNumber: string | null;
+  invoiceStatus: string | null;
+  invoiceTotal: number | null;
+}
+
+export const linkInvoiceToRequirement = async (
+  requirementId: number,
+  invoiceId: number
+): Promise<ApiResponse<RequirementDto & { billingInfo: BillingInfo }>> => {
+  const { data } = await axiosApi.patch<ApiResponse<RequirementDto & { billingInfo: BillingInfo }>>(
+    `/requirement/${requirementId}/link-invoice`,
+    { invoice_id: invoiceId }
+  );
+  return data;
+};
+
+export const unlinkInvoiceFromRequirement = async (
+  requirementId: number
+): Promise<ApiResponse<RequirementDto & { billingInfo: BillingInfo }>> => {
+  const { data } = await axiosApi.patch<ApiResponse<RequirementDto & { billingInfo: BillingInfo }>>(
+    `/requirement/${requirementId}/unlink-invoice`
+  );
+  return data;
+};
+
+export const getRequirementBillingStatus = async (
+  requirementId: number
+): Promise<ApiResponse<BillingInfo>> => {
+  const { data } = await axiosApi.get<ApiResponse<BillingInfo>>(
+    `/requirement/${requirementId}/billing-status`
+  );
+  return data;
+};
+

@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { PageLayout } from '../../layout/PageLayout';
 import { FilterBar, FilterOption } from '../../ui/FilterBar';
 import { DateRangeSelector } from '../../common/DateRangeSelector';
 import { useFloatingMenu } from '../../../context/FloatingMenuContext';
 import {
   X, Calendar as CalendarIcon, Clock, CheckCircle, CheckSquare, Users, Trash2,
-  FilePlus, Receipt, MoreHorizontal, Play, XCircle, RotateCcw, ChevronDown, AlertCircle,
+  FilePlus, Play, XCircle, RotateCcw,
   ArrowDown, ArrowUp, Archive
 } from 'lucide-react';
 
@@ -198,6 +198,8 @@ export function RequirementsPage() {
       const reqSenderCompanyId = req.sender_company_id ? Number(req.sender_company_id) : null;
       const isReceiver = myCompanyId !== null && reqReceiverCompanyId === myCompanyId;
       const isSender = myCompanyId !== null && reqSenderCompanyId === myCompanyId;
+
+
 
       const effectiveWorkspaceId = (isReceiver && req.receiver_workspace_id)
         ? req.receiver_workspace_id
@@ -398,6 +400,12 @@ export function RequirementsPage() {
     return mappedData;
 
   }, [allRequirements, workspaceMap, currentUser]);
+
+  // FIX: Create a ref to hold the latest requirements list
+  // This allows us to access the latest data in event handlers without adding 'requirements'
+  // to their dependency array, preventing an infinite update loop in FloatingMenuContext.
+  const requirementsRef = useRef(requirements);
+  requirementsRef.current = requirements;
 
   // Use standardized tab sync hook for consistent URL handling
   type RequirementTab = 'draft' | 'pending' | 'active' | 'completed' | 'delayed' | 'archived';
@@ -809,7 +817,7 @@ export function RequirementsPage() {
   const handleBulkDelete = useCallback(async () => {
     try {
       const deletePromises = selectedReqs.map(id => {
-        const req = requirements.find(r => r.id === id);
+        const req = requirementsRef.current.find(r => r.id === id); // Use ref
         if (!req) return Promise.resolve();
         return deleteRequirementMutation.mutateAsync({ id, workspace_id: req.workspaceId || 0 });
       });
@@ -819,12 +827,12 @@ export function RequirementsPage() {
     } catch (error: unknown) {
       messageApi.error(getErrorMessage(error, "Failed to delete requirements"));
     }
-  }, [selectedReqs, requirements, deleteRequirementMutation, messageApi]);
+  }, [selectedReqs, deleteRequirementMutation, messageApi]); // Removed 'requirements'
 
   const handleBulkComplete = useCallback(async () => {
     try {
       const updatePromises = selectedReqs.map(id => {
-        const req = requirements.find(r => r.id === id);
+        const req = requirementsRef.current.find(r => r.id === id); // Use ref
         if (!req) return Promise.resolve();
         return updateRequirementMutation.mutateAsync({
           id,
@@ -838,7 +846,7 @@ export function RequirementsPage() {
     } catch (error: unknown) {
       messageApi.error(getErrorMessage(error, "Failed to update requirements"));
     }
-  }, [selectedReqs, requirements, updateRequirementMutation, messageApi]);
+  }, [selectedReqs, updateRequirementMutation, messageApi]); // Removed 'requirements'
 
   const handleBulkApprove = useCallback(async () => {
     try {
@@ -869,7 +877,7 @@ export function RequirementsPage() {
   const handleBulkSubmit = useCallback(async () => {
     try {
       const updatePromises = selectedReqs.map(id => {
-        const req = requirements.find(r => r.id === id);
+        const req = requirementsRef.current.find(r => r.id === id); // Use ref
         if (!req) return Promise.resolve();
         return updateRequirementMutation.mutateAsync({
           id,
@@ -883,12 +891,12 @@ export function RequirementsPage() {
     } catch (error: unknown) {
       messageApi.error(getErrorMessage(error, "Failed to submit requirements"));
     }
-  }, [selectedReqs, requirements, updateRequirementMutation, messageApi]);
+  }, [selectedReqs, updateRequirementMutation, messageApi]); // Removed 'requirements'
 
   const handleBulkReopen = useCallback(async () => {
     try {
       const updatePromises = selectedReqs.map(id => {
-        const req = requirements.find(r => r.id === id);
+        const req = requirementsRef.current.find(r => r.id === id); // Use ref
         if (!req) return Promise.resolve();
         return updateRequirementMutation.mutateAsync({
           id,
@@ -902,12 +910,12 @@ export function RequirementsPage() {
     } catch (error: unknown) {
       messageApi.error(getErrorMessage(error, "Failed to reopen requirements"));
     }
-  }, [selectedReqs, requirements, updateRequirementMutation, messageApi]);
+  }, [selectedReqs, updateRequirementMutation, messageApi]); // Removed 'requirements'
 
   const handleBulkAssign = useCallback(async (employee: { user_id?: number; id?: number; name?: string }) => {
     try {
       const updatePromises = selectedReqs.map(id => {
-        const req = requirements.find(r => r.id === id);
+        const req = requirementsRef.current.find(r => r.id === id); // Use ref
         if (!req) return Promise.resolve();
 
         const leaderId = employee?.user_id || employee?.id;
@@ -925,7 +933,7 @@ export function RequirementsPage() {
     } catch (error: unknown) {
       messageApi.error(getErrorMessage(error, "Failed to assign requirements"));
     }
-  }, [selectedReqs, requirements, updateRequirementMutation, messageApi]);
+  }, [selectedReqs, updateRequirementMutation, messageApi]); // Removed 'requirements'
 
   const handleReqAccept = (id: number) => {
     const req = requirements.find(r => r.id === id);
@@ -1025,8 +1033,17 @@ export function RequirementsPage() {
     },
     {
       id: 'pending', label: 'Pending', count: baseFilteredReqs.filter(req => {
-        const isPendingWorkflow = req.rawStatus === 'Waiting' || (req.rawStatus as string) === 'Review' || req.rawStatus === 'Submitted';
-        return isPendingWorkflow || req.approvalStatus === 'pending';
+        const status = mapRequirementToStatus(req);
+        const type = mapRequirementToType(req);
+        const role = mapRequirementToRole(req);
+        const baseContext = mapRequirementToContext(req, undefined, role);
+        const tabContext: TabContext = {
+          ...baseContext,
+          isArchived: !!req.is_archived,
+          approvalStatus: req.approvalStatus,
+        };
+        const reqTab = getRequirementTab(status, type, role, tabContext);
+        return reqTab === 'pending';
       }).length
     },
     {
