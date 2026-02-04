@@ -1,4 +1,5 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 
 interface UseTabSyncOptions<T extends string> {
     defaultTab: T;
@@ -41,13 +42,28 @@ export function useTabSync<T extends string>({
     validTabs,
     paramName = 'tab'
 }: UseTabSyncOptions<T>) {
+    // Access searchParams via hook
+    const searchParams = useSearchParams();
+
     // Stabilize validTabs to prevent re-renders if passed as inline array
     const stableValidTabs = useMemo(() => validTabs, [JSON.stringify(validTabs)]);
 
     // Initialize state from URL (client-side only)
-    const [activeTab, setActiveTabState] = useState<T>(() => 
+    const [activeTab, setActiveTabState] = useState<T>(() =>
         getInitialTab(paramName, stableValidTabs, defaultTab)
     );
+
+    // Listen for URL changes via searchParams hook
+    const tabFromUrl = searchParams.get(paramName) as T | null;
+
+    useEffect(() => {
+        if (tabFromUrl && stableValidTabs.includes(tabFromUrl) && tabFromUrl !== activeTab) {
+            setActiveTabState(tabFromUrl);
+        } else if (!tabFromUrl && activeTab !== defaultTab) {
+            // Revert to default if param is removed from URL
+            setActiveTabState(defaultTab);
+        }
+    }, [tabFromUrl, defaultTab, stableValidTabs]);
 
     // Handler to update state and URL
     // Note: We use functional update to avoid stale closure issues
@@ -78,7 +94,7 @@ export function useTabSync<T extends string>({
             }
 
             const queryString = params.toString();
-            const newUrl = queryString 
+            const newUrl = queryString
                 ? `${window.location.pathname}?${queryString}`
                 : window.location.pathname;
 

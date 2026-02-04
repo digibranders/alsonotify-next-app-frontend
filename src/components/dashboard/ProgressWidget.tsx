@@ -40,19 +40,19 @@ export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => 
   // Helper to get label for ProgressCard
   const getRangeLabel = () => {
     if (dateRange && dateRange[0] && dateRange[1]) {
-       const start = dateRange[0];
-       const end = dateRange[1];
-       const now = dayjs();
-       
-       if (start.isSame(now.startOf('day'), 'day') && end.isSame(now.endOf('day'), 'day')) return 'Today';
-       if (start.isSame(now.subtract(1, 'day').startOf('day'), 'day') && end.isSame(now.subtract(1, 'day').endOf('day'), 'day')) return 'Yesterday';
-       if (start.isSame(now.startOf('isoWeek'), 'day') && end.isSame(now.endOf('isoWeek'), 'day')) return 'This Week';
-       if (start.isSame(now.startOf('month'), 'day') && end.isSame(now.endOf('month'), 'day')) return 'This Month';
-       if (start.isSame(now.subtract(1, 'month').startOf('month'), 'day') && end.isSame(now.subtract(1, 'month').endOf('month'), 'day')) return 'Last Month';
-       if (start.isSame(now.startOf('year'), 'day') && end.isSame(now.endOf('year'), 'day')) return 'This Year';
-       if (start.isSame(now.subtract(1, 'year').startOf('year'), 'day') && end.isSame(now.subtract(1, 'year').endOf('year'), 'day')) return 'Last Year';
+      const start = dateRange[0];
+      const end = dateRange[1];
+      const now = dayjs();
 
-       return `${start.format('MMM D')} - ${end.format('MMM D')}`;
+      if (start.isSame(now.startOf('day'), 'day') && end.isSame(now.endOf('day'), 'day')) return 'Today';
+      if (start.isSame(now.subtract(1, 'day').startOf('day'), 'day') && end.isSame(now.subtract(1, 'day').endOf('day'), 'day')) return 'Yesterday';
+      if (start.isSame(now.startOf('isoWeek'), 'day') && end.isSame(now.endOf('isoWeek'), 'day')) return 'This Week';
+      if (start.isSame(now.startOf('month'), 'day') && end.isSame(now.endOf('month'), 'day')) return 'This Month';
+      if (start.isSame(now.subtract(1, 'month').startOf('month'), 'day') && end.isSame(now.subtract(1, 'month').endOf('month'), 'day')) return 'Last Month';
+      if (start.isSame(now.startOf('year'), 'day') && end.isSame(now.endOf('year'), 'day')) return 'This Year';
+      if (start.isSame(now.subtract(1, 'year').startOf('year'), 'day') && end.isSame(now.subtract(1, 'year').endOf('year'), 'day')) return 'Last Year';
+
+      return `${start.format('MMM D')} - ${end.format('MMM D')}`;
     }
     return 'All Time';
   };
@@ -171,47 +171,47 @@ export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => 
   const hoursData = useMemo(() => {
     // Default zero state
     if (!tasksData?.result || isLoadingTasks || !currentUserId) {
-        return { allotted: 0, total: 160, percentage: 0, remaining: 160 };
+      return { allotted: 0, total: 160, percentage: 0, remaining: 160 };
     }
 
     // 1. Calculate Allotted Hours (Sum of estimated time of fetched tasks ASSIGNED TO CURRENT USER)
     const allotted = Math.round(tasksData.result.reduce((acc: number, task: any) => {
-        // Filter: Check if task is assigned to current user
-        // API might return 'assignedTo' as object or string, or 'assignedToUser' object, or 'taskMembers' array
-        // We check widely to be safe
-        let isAssigned = false;
-        
-        // Direct assignment check
-        if (task.assignedTo?.id === currentUserId || task.assignedToUser?.id === currentUserId) isAssigned = true;
-        
-        // Member list check (if available)
-        if (!isAssigned && Array.isArray(task.taskMembers)) {
-             isAssigned = task.taskMembers.some((m: any) => m.userId === currentUserId || m.user_id === currentUserId);
-        }
-        // Fallback: assignedTo might be string name, but we can't reliably match ID. 
-        // Assuming object existence for rigorous check as per "lggedin user" requirement.
+      // Filter: Check if task is assigned to current user
+      // API might return 'assignedTo' as object or string, or 'assignedToUser' object, or 'taskMembers' array
+      // We check widely to be safe
+      let isAssigned = false;
 
-        if (isAssigned) {
-            // Handle various property casing from API
-            const est = Number(task.estimatedTime || task.estimated_time || task.estTime || 0);
-            return acc + (isNaN(est) ? 0 : est);
-        }
-        return acc;
+      // Direct assignment check
+      if (task.assignedTo?.id === currentUserId || task.assignedToUser?.id === currentUserId) isAssigned = true;
+
+      // Member list check (if available)
+      if (!isAssigned && Array.isArray(task.taskMembers)) {
+        isAssigned = task.taskMembers.some((m: any) => m.userId === currentUserId || m.user_id === currentUserId);
+      }
+      // Fallback: assignedTo might be string name, but we can't reliably match ID. 
+      // Assuming object existence for rigorous check as per "lggedin user" requirement.
+
+      if (isAssigned) {
+        // Handle various property casing from API
+        const est = Number(task.estimatedTime || task.estimated_time || task.estTime || 0);
+        return acc + (isNaN(est) ? 0 : est);
+      }
+      return acc;
     }, 0));
 
     // 2. Calculate Total Capacity based on Date Range
     let total = 160; // Default fallback
     if (dateRange && dateRange[0] && dateRange[1]) {
-         const days = dateRange[1].diff(dateRange[0], 'day') + 1;
-         // Use user's working hours or default to 8
-         const dailyHours = Number(userDetailsData?.result?.workingHours) || 8;
-         // Subtract break time (in minutes) converted to hours
-         const breakTimeMinutes = Number(userDetailsData?.result?.breakTime) || 0;
-         const netDailyHours = Math.max(0, dailyHours - (breakTimeMinutes / 60));
-         
-         // Assume 5 working days per week
-         const workDays = Math.max(1, Math.round(days * (5/7)));
-         total = Math.round(workDays * netDailyHours);
+      const days = dateRange[1].diff(dateRange[0], 'day') + 1;
+      // Use user's working hours or default to 8
+      const dailyHours = Number(userDetailsData?.result?.workingHours) || 8;
+      // Subtract break time (in minutes) converted to hours
+      const breakTimeMinutes = Number(userDetailsData?.result?.breakTime) || 0;
+      const netDailyHours = Math.max(0, dailyHours - (breakTimeMinutes / 60));
+
+      // Assume 5 working days per week
+      const workDays = Math.max(1, Math.round(days * (5 / 7)));
+      total = Math.round(workDays * netDailyHours);
     }
 
     const percentage = total > 0 ? Math.round((allotted / total) * 100) : 0;
@@ -229,11 +229,11 @@ export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => 
         <h3 className="font-['Manrope:SemiBold',sans-serif] text-[20px] text-[#111111]">Progress</h3>
         {/* Date Range Selector */}
         <div className="relative z-20">
-            <DateRangeSelector
-                value={dateRange}
-                onChange={setDateRange}
-                defaultRangeType="this_month"
-            />
+          <DateRangeSelector
+            value={dateRange}
+            onChange={setDateRange}
+            defaultRangeType="this_month"
+          />
         </div>
       </div>
 
@@ -254,7 +254,7 @@ export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => 
               } else if (status === 'In Progress') {
                 tab = 'active';
               } else if (status === 'Delayed') {
-                tab = 'active'; // Delayed is part of active tab
+                tab = 'delayed'; // Correctly map to delayed tab
               }
               onNavigate(`requirements?tab=${tab}`);
             }
@@ -303,7 +303,7 @@ interface HoursBarProps {
 
 function HoursBar({ data, onClick }: HoursBarProps) {
   return (
-    <div 
+    <div
       className="group bg-white rounded-[14px] border border-gray-100 p-3 hover:shadow-lg hover:border-[#ff3b3b]/10 transition-all duration-300 cursor-pointer mt-4"
       onClick={onClick}
     >
@@ -316,7 +316,7 @@ function HoursBar({ data, onClick }: HoursBarProps) {
         {/* Progress Bar Section */}
         <div className="flex-1 flex items-center gap-2">
           <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-            <div 
+            <div
               className="h-full bg-gradient-to-r from-[#7ccf00] to-[#6ab800] transition-all duration-500 rounded-full"
               style={{ width: `${Math.min(data.percentage, 100)}%` }}
             />
@@ -520,8 +520,8 @@ function ProgressCard({ title, data, isLoading = false, dateRangeLabel = 'this p
                 }
               }}
               className={`flex items-center justify-between w-full py-2 border-b border-gray-50 last:border-0 group/item transition-colors rounded-lg px-2 -mx-2 ${onStatusClick
-                  ? 'hover:bg-gray-50/50 cursor-pointer'
-                  : 'cursor-default'
+                ? 'hover:bg-gray-50/50 cursor-pointer'
+                : 'cursor-default'
                 } ${item.value === 0 ? 'opacity-60' : ''}`}
             >
               <div className="flex items-center gap-3">
