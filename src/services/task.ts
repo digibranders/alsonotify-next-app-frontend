@@ -514,3 +514,57 @@ export const updateTaskMemberStatus = async (taskId: number, status: string): Pr
     throw new NetworkError(getErrorMessage(error));
   }
 };
+
+/**
+ * Reorder task members
+ */
+export const reorderTaskMembers = async (taskId: number, memberIds: number[]): Promise<ApiResponse<void>> => {
+  try {
+    validateTaskId(taskId);
+    const { data } = await axiosApi.patch<ApiResponse<void>>(`/task/${taskId}/reorder`, { memberIds });
+    return data;
+  } catch (error) {
+    if (isAxiosError(error)) {
+      const statusCode = error.response?.status || 500;
+      const message = getErrorMessage(error);
+      throw new ApiError(message, statusCode, error.response?.data);
+    }
+    throw new NetworkError(getErrorMessage(error));
+  }
+};
+
+/**
+ * Manual baton override (Leader only)
+ */
+export const overrideBaton = async (taskId: number, userId: number): Promise<ApiResponse<void>> => {
+  try {
+    validateTaskId(taskId);
+    const { data } = await axiosApi.post<ApiResponse<void>>(`/task/${taskId}/members/${userId}/give-baton`);
+    return data;
+  } catch (error) {
+    if (isAxiosError(error)) {
+      const statusCode = error.response?.status || 500;
+      const message = getErrorMessage(error);
+      throw new ApiError(message, statusCode, error.response?.data);
+    }
+    throw new NetworkError(getErrorMessage(error));
+  }
+};
+
+/**
+ * Reclaim baton (Member only)
+ */
+export const reclaimBaton = async (taskId: number): Promise<ApiResponse<void>> => {
+  try {
+    validateTaskId(taskId);
+    const { data } = await axiosApi.post<ApiResponse<void>>(`/task/${taskId}/reclaim-baton`);
+    return data;
+  } catch (error) {
+    if (isAxiosError(error)) {
+      const statusCode = error.response?.status || 500;
+      const message = getErrorMessage(error);
+      throw new ApiError(message, statusCode, error.response?.data);
+    }
+    throw new NetworkError(getErrorMessage(error));
+  }
+};

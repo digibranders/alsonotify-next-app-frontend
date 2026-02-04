@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import dayjs from 'dayjs';
-import { Input, Select, Button, DatePicker, Checkbox, App } from 'antd';
-import { Upload as UploadIcon, FileText, ChevronDown, User } from 'lucide-react';
+import { Input, Select, DatePicker, Checkbox, App, Button } from 'antd';
+import { Upload as UploadIcon, FileText, ChevronDown } from 'lucide-react';
 import { useOutsourcePartners, useEmployees } from '@/hooks/useUser';
 import { FormLayout } from '@/components/common/FormLayout';
 
@@ -30,7 +30,10 @@ export interface RequirementFormData {
 
 interface RequirementsFormProps {
     initialData?: RequirementFormData;
+    /** Save as draft: create → backend sets Draft; edit → update fields, keep Draft */
     onSubmit: (data: CreateRequirementRequestDto, files?: File[]) => void;
+    /** Send requirement: create then set Waiting/Assigned; edit Draft → set Waiting/Assigned */
+    onSubmitAndSend?: (data: CreateRequirementRequestDto, files?: File[]) => void;
     onCancel: () => void;
     workspaces: { id: number | string; name: string }[];
     isLoading?: boolean;
@@ -40,6 +43,7 @@ interface RequirementsFormProps {
 export function RequirementsForm({
     initialData,
     onSubmit,
+    onSubmitAndSend,
     onCancel,
     workspaces,
     isLoading = false,
@@ -135,27 +139,25 @@ export function RequirementsForm({
         }
     };
 
-    const handleSubmit = () => {
-        // Find the selected partner to extract receiver_company_id
+    /** Build typed payload once; does not set status (backend sets Draft on create; parent sets status on send). */
+    const buildPayload = useCallback((): CreateRequirementRequestDto | null => {
+        const title = (formData.title || '').trim();
+        const workspaceId = formData.workspace ? Number(formData.workspace) : 0;
+        if (!title) {
+            message.error('Requirement title is required');
+            return null;
+        }
+        if (!workspaceId) {
+            message.error('Please select a workspace');
+            return null;
+        }
         const selectedPartner = partners.find(p => p.id === formData.contact_person_id);
-
-        console.log('RequirementsForm handleSubmit DEBUG:', {
-            formDataType: formData.type,
-            formDataContactPersonId: formData.contact_person_id,
-            formDataWorkspace: formData.workspace,
-            partnersCount: partners.length,
-            selectedPartner,
-            derivedReceiverCompanyId: selectedPartner?.company_id,
-        });
-
-        // Build payload with workspace_id
-        const payload: CreateRequirementRequestDto = {
-            name: formData.title,
-            title: formData.title, // Keep title for DTO compatibility if needed, but 'name' is what backend reads
-            workspace_id: formData.workspace ? Number(formData.workspace) : 0, // Ensure valid ID
-            description: formData.description,
+        return {
+            name: title,
+            title,
+            workspace_id: workspaceId,
+            description: formData.description?.trim() ?? '',
             type: formData.type,
-            status: 'Assigned', // specific string literal if required or mapped
             is_high_priority: formData.is_high_priority,
             contact_person_id: formData.contact_person_id,
             contact_person: formData.contactPerson,
@@ -165,11 +167,65 @@ export function RequirementsForm({
             currency: formData.currency || 'USD',
             end_date: formData.dueDate ? dayjs(formData.dueDate).toISOString() : undefined,
             start_date: new Date().toISOString(),
-            // Note: priority enum removed - backend uses is_high_priority boolean directly
         };
+    }, [formData, partners, message]);
 
-        onSubmit(payload, selectedFiles);
-    };
+    const onSaveDraft = useCallback(() => {
+        const payload = buildPayload();
+        if (!payload) return;
+        try {
+            onSubmit(payload, selectedFiles);
+        } catch (err) {
+            message.error('Failed to save draft');
+        }
+    }, [buildPayload, onSubmit, selectedFiles, message]);
+
+    const onSendRequirement = useCallback(() => {
+        const payload = buildPayload();
+        if (!payload) return;
+        if (!onSubmitAndSend) {
+            onSubmit(payload, selectedFiles);
+            return;
+        }
+        try {
+            onSubmitAndSend(payload, selectedFiles);
+        } catch (err) {
+            message.error('Failed to send requirement');
+        }
+    }, [buildPayload, onSubmit, onSubmitAndSend, selectedFiles, message]);
+
+    /** Send button label: "Send to partner" (outsourced), "Submit for work" (inhouse), or "Send requirement" */
+    const sendButtonLabel = formData.type === 'outsourced' ? 'Send to Partner' : formData.type === 'inhouse' ? 'Submit for Work' : 'Send Requirement';
+
+    const footer = (
+        <>
+            <Button
+                type="text"
+                onClick={onCancel}
+                className="h-11 px-6 text-[14px] font-['Manrope:SemiBold',sans-serif] text-[#666666] hover:text-[#111111] hover:bg-[#F7F7F7] rounded-xl transition-all"
+            >
+                Cancel
+            </Button>
+            <Button
+                type="default"
+                onClick={onSaveDraft}
+                loading={isLoading}
+                disabled={isLoading}
+                className="h-11 px-6 text-[14px] font-['Manrope:SemiBold',sans-serif] rounded-xl border border-[#EEEEEE] hover:border-[#111111] hover:text-[#111111] transition-all"
+            >
+                Save draft
+            </Button>
+            <Button
+                type="primary"
+                onClick={onSendRequirement}
+                loading={isLoading}
+                disabled={isLoading}
+                className="h-11 px-8 rounded-xl bg-[#111111] hover:bg-[#000000] text-white text-[14px] font-['Manrope:SemiBold',sans-serif] border-none shadow-none transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+                {sendButtonLabel}
+            </Button>
+        </>
+    );
 
     return (
         <FormLayout
@@ -177,9 +233,10 @@ export function RequirementsForm({
             subtitle="Define a new requirement and send it for approval/processing."
             icon={FileText}
             onCancel={onCancel}
-            onSubmit={handleSubmit}
+            onSubmit={onSaveDraft}
             isLoading={isLoading}
-            submitLabel={isEditing ? 'Update Requirement' : 'Send Requirement'}
+            submitLabel={sendButtonLabel}
+            footer={footer}
         >
             {/* Row 1: Title & Workspace */}
             <div className="grid grid-cols-2 gap-x-6 gap-y-4 mb-4">

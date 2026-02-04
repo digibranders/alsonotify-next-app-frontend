@@ -14,7 +14,7 @@ export function mapTaskToDomain(dto: TaskDto): Task {
   const startDate = dto.start_date || '';
   const dueDate = dto.end_date || dto.due_date || '';
   const timelineDate = dto.end_date ? format(new Date(dto.end_date), 'MMM dd') : 'N/A';
-  
+
   // assignedTo name resolution
   let assignedToName = 'Unassigned';
   if (dto.member_user?.name) assignedToName = dto.member_user.name;
@@ -33,20 +33,20 @@ export function mapTaskToDomain(dto: TaskDto): Task {
     name: dto.name || dto.title || 'Untitled',
     taskId: String(dto.id),
     title: dto.title || dto.name || 'Untitled', // Keep compatibility
-    
+
     // Resolved Display Fields
     client: clientName,
     project: projectName,
     leader: leaderName,
     assignedTo: assignedToName,
-    
+
     // Dates
     startDate,
     dueDate,
     start_date: startDate,
     end_date: dueDate,
     endDateIso: dueDate,
-    
+
     // Metrics
     estTime: Number(dto.estimated_time || 0),
     estimated_time: Number(dto.estimated_time || 0),
@@ -54,20 +54,20 @@ export function mapTaskToDomain(dto: TaskDto): Task {
     timeSpent: Number(dto.time_spent || 0),
     time_spent: Number(dto.time_spent || 0),
     activities: 0, // Not in DTO usually
-    
+
     totalSecondsSpent: dto.total_seconds_spent || 0,
     total_seconds_spent: dto.total_seconds_spent || 0,
-    
+
     // Status & Priority
     status,
     isHighPriority: dto.is_high_priority || dto.priority === 'High' || dto.priority === 'HIGH' || false,
     is_high_priority: dto.is_high_priority || dto.priority === 'High' || dto.priority === 'HIGH' || false,
-    
+
     // Timeline
     timelineDate,
     timelineLabel: status === 'Delayed' ? 'Overdue' : '',
     dueDateValue: dueDate ? new Date(dueDate).getTime() : null,
-    
+
     // Metadata
     description: dto.description,
     workspaceId: dto.workspace_id,
@@ -80,7 +80,7 @@ export function mapTaskToDomain(dto: TaskDto): Task {
     leader_id: dto.leader_id,
     executionMode: dto.execution_mode,
     execution_mode: dto.execution_mode,
-    
+
     // Nested/Original - strictly map to ensure 'name' is present if object exists
     taskMembers: dto.task_members?.map(tm => ({
       ...tm,
@@ -105,17 +105,17 @@ export function mapTaskToDomain(dto: TaskDto): Task {
       }
     })) || [],
     task_members: dto.task_members || [],
-    
+
     worklogs: [], // Usually fetched separately or empty by default from list
-    
+
     // Relations preserved for compatibility (snake_case preserved in DTO)
     // camelCase mapping for relations
     taskProject: dto.task_project ? {
-        clientUser: dto.task_project.client_user ? { company: { name: dto.task_project.client_user.company?.name || '' } } : undefined,
-        client_user: dto.task_project.client_user,
-        company: dto.task_project.company,
-        companyName: dto.task_project.company?.name,
-        company_name: dto.task_project.company?.name,
+      clientUser: dto.task_project.client_user ? { company: { name: dto.task_project.client_user.company?.name || '' } } : undefined,
+      client_user: dto.task_project.client_user,
+      company: dto.task_project.company,
+      companyName: dto.task_project.company?.name,
+      company_name: dto.task_project.company?.name,
     } : undefined,
     task_project: dto.task_project,
 
@@ -143,16 +143,20 @@ export function mapTaskToDomain(dto: TaskDto): Task {
 
     assignedToUser: dto.assigned_to_user,
     assigned_to_user: dto.assigned_to_user,
-    
+
     // Expanded mappings
     company: dto.company ? { name: dto.company.name } : undefined,
     companyName: dto.company_name,
     company_name: dto.company_name,
     clientCompanyName: dto.client_company_name,
     client_company_name: dto.client_company_name,
-    
+
     taskRequirement: dto.task_requirement ? { id: dto.task_requirement.id, name: dto.task_requirement.name || '' } : undefined,
-    task_requirement: dto.task_requirement ? { id: dto.task_requirement.id, name: dto.task_requirement.name || '' } : undefined,
+    task_requirement: dto.task_requirement ? {
+      id: dto.task_requirement.id,
+      name: dto.task_requirement.name || '',
+      sender_company: dto.task_requirement.sender_company
+    } : undefined,
     requirementRelation: dto.requirement_relation,
     requirement_relation: dto.requirement_relation,
     requirementName: dto.requirement_name,

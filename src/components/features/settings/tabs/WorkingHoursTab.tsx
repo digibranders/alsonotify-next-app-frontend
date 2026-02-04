@@ -124,17 +124,6 @@ export function WorkingHoursTab({
           />
         </div>
 
-        {canEditWorkingHours && isEditing && (
-          <div className="flex justify-end pt-4">
-            <button
-              onClick={onSave}
-              disabled={isSaving}
-              className="bg-[#ff3b3b] hover:bg-[#ff3b3b]/90 disabled:opacity-50 text-white font-['Manrope:SemiBold',sans-serif] px-8 h-10 rounded-full shadow-lg shadow-[#ff3b3b]/20 text-[13px] transition-all active:scale-95"
-            >
-              {isSaving ? 'Saving...' : 'Save Changes'}
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );

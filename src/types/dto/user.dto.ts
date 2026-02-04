@@ -81,6 +81,7 @@ export interface UserDto {
     experience?: number;
     hourly_rates?: number;
     no_of_leaves?: number;
+    profile_pic?: string;
   };
   user?: { mobile_number?: string; phone?: string }; // Nested user object sometimes returned
   company?: string | { id: number; name: string }; // Company name (from ClientOrOutsourceType) or object

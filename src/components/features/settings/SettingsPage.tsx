@@ -122,8 +122,25 @@ export function SettingsPage() {
     { id: '2', name: 'Casual Leave', count: 5 }
   ]);
 
-  // Holidays - Fetch from API
+  // Holidays - Fetch from API, but manage locally for bulk saving
   const { data: holidaysData, isLoading: isLoadingHolidays } = usePublicHolidays();
+  const [localHolidays, setLocalHolidays] = useState<Holiday[]>([]);
+
+  // Initialize local holidays when data loads
+  useEffect(() => {
+    if (holidaysData?.result && !isEditing) {
+      const activeHolidays = holidaysData.result
+        .filter((h: Holiday) => !h.is_deleted)
+        .map((h: Holiday) => ({
+          id: h.id,
+          name: h.name,
+          date: h.date,
+          is_api: h.is_api
+        }));
+      setLocalHolidays(activeHolidays);
+    }
+  }, [holidaysData, isEditing]);
+
   const createHolidayMutation = useCreateHoliday();
   const updateHolidayMutation = useUpdateHoliday();
   const deleteHolidayMutation = useDeleteHoliday();
@@ -133,18 +150,9 @@ export function SettingsPage() {
   const [editingHoliday, setEditingHoliday] = useState<Holiday | null>(null);
   const [holidayForm, setHolidayForm] = useState({ name: '', date: null as dayjs.Dayjs | null });
 
-  // Get holidays from API, filter out deleted ones
   const publicHolidays = useMemo((): Holiday[] => {
-    if (!holidaysData?.result) return [];
-    return holidaysData.result
-      .filter((h: Holiday) => !h.is_deleted)
-      .map((h: Holiday) => ({
-        id: h.id,
-        name: h.name,
-        date: h.date,
-        is_api: h.is_api
-      }));
-  }, [holidaysData]);
+    return localHolidays.filter(h => !h.is_deleted);
+  }, [localHolidays]);
 
   // Working Hours State
   const [workingDays, setWorkingDays] = useState(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']);
@@ -237,16 +245,7 @@ export function SettingsPage() {
   };
 
   const handleDeleteHoliday = (id: number | string) => {
-    Modal.confirm({
-      title: 'Delete Holiday',
-      content: 'Are you sure you want to delete this holiday?',
-      okText: 'Delete',
-      okType: 'danger',
-      cancelText: 'Cancel',
-      onOk() {
-        deleteHolidayMutation.mutate(Number(id));
-      }
-    });
+    setLocalHolidays(prev => prev.map(h => h.id === id ? { ...h, is_deleted: true } : h));
   };
 
   const handleSaveHoliday = () => {
@@ -259,30 +258,25 @@ export function SettingsPage() {
       return;
     }
 
-    const payload = {
-      name: holidayForm.name.trim(),
-      date: holidayForm.date.format('YYYY-MM-DD')
-    };
-
     if (editingHoliday) {
-      updateHolidayMutation.mutate(
-        { id: Number(editingHoliday.id), payload },
-        {
-          onSuccess: () => {
-            setIsHolidayModalOpen(false);
-            setEditingHoliday(null);
-            setHolidayForm({ name: '', date: null });
-          }
-        }
-      );
+      setLocalHolidays(prev => prev.map(h =>
+        h.id === editingHoliday.id
+          ? { ...h, name: holidayForm.name.trim(), date: holidayForm.date!.format('YYYY-MM-DD') }
+          : h
+      ));
     } else {
-      createHolidayMutation.mutate(payload, {
-        onSuccess: () => {
-          setIsHolidayModalOpen(false);
-          setHolidayForm({ name: '', date: null });
-        }
-      });
+      const newHoliday: Holiday = {
+        id: `temp-${Date.now()}`,
+        name: holidayForm.name.trim(),
+        date: holidayForm.date.format('YYYY-MM-DD'),
+        is_api: false
+      };
+      setLocalHolidays(prev => [...prev, newHoliday]);
     }
+
+    setIsHolidayModalOpen(false);
+    setEditingHoliday(null);
+    setHolidayForm({ name: '', date: null });
   };
 
   const handleSaveRole = () => {
@@ -315,13 +309,15 @@ export function SettingsPage() {
     setLeaves(leaves.map(l => l.id === id ? { ...l, count: parseInt(count) || 0 } : l));
   };
 
-  const handleSaveChanges = async () => {
+  const handleSaveChanges = useCallback(async () => {
     try {
       // Prepare company update payload based on active tab
-      const payload: Record<string, unknown> = {};
+      // Always include Name to satisfy any potential backend requirement or synchronization
+      const payload: Record<string, unknown> = {
+        name: companyName
+      };
 
       if (activeTab === 'company') {
-        payload.name = companyName;
         payload.logo = companyLogo;
         payload.tax_id = taxId;
         payload.timezone = timeZone;
@@ -333,8 +329,11 @@ export function SettingsPage() {
       if (activeTab === 'security' && isAdmin) {
         payload.default_employee_password = defaultEmployeePassword;
       }
+
       if (activeTab === 'leaves') {
         payload.leaves = leaves;
+        // Include local holidays for bulk synchronization
+        payload.public_holidays = localHolidays;
       }
 
       if (activeTab === 'working-hours') {
@@ -349,11 +348,12 @@ export function SettingsPage() {
       await updateCompanyMutation.mutateAsync(payload as unknown as CompanyUpdateInput);
       message.success('Settings saved successfully!');
       setIsEditing(false);
+      // Ensure local state reflects newest DB state if needed, though useTabSync/Refresh usually handles it
     } catch (error: unknown) {
       const errorMessage = getErrorMessage(error, "Failed to update settings");
       message.error(errorMessage);
     }
-  };
+  }, [activeTab, companyName, companyLogo, taxId, timeZone, currency, country, address, isAdmin, defaultEmployeePassword, leaves, workStartTime, workEndTime, workingDays, breakTime, updateCompanyMutation, message]);
 
   const handleCancelEdit = () => {
     setIsEditing(false);
@@ -372,6 +372,16 @@ export function SettingsPage() {
       if (activeTab === 'leaves') {
         if (companyData.result.leaves) {
           setLeaves([...companyData.result.leaves]);
+        }
+        if (holidaysData?.result) {
+          setLocalHolidays(holidaysData.result
+            .filter((h: Holiday) => !h.is_deleted)
+            .map((h: Holiday) => ({
+              id: h.id,
+              name: h.name,
+              date: h.date,
+              is_api: h.is_api
+            })));
         }
       }
 

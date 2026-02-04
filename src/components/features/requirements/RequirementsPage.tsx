@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { PageLayout } from '../../layout/PageLayout';
 import { FilterBar, FilterOption } from '../../ui/FilterBar';
 import { DateRangeSelector } from '../../common/DateRangeSelector';
 import { useFloatingMenu } from '../../../context/FloatingMenuContext';
 import {
   X, Calendar as CalendarIcon, Clock, CheckCircle, CheckSquare, Users, Trash2,
-  FilePlus, Receipt, MoreHorizontal, Play, XCircle, RotateCcw, ChevronDown, AlertCircle,
+  FilePlus, Play, XCircle, RotateCcw,
   ArrowDown, ArrowUp, Archive
 } from 'lucide-react';
 
@@ -105,7 +105,7 @@ export function RequirementsPage() {
   }, []);
 
   const mapRequirementStatus = (status: string): 'in-progress' | 'completed' | 'delayed' | 'draft' => {
-    // Backend sends Prisma enum values: Assigned, In_Progress, Waiting, Review, Completed, etc.
+    // Backend sends Prisma enum values: Draft, Assigned, In_Progress, Waiting, Review, Completed, etc.
     // Map to frontend display statuses
 
     switch (status) {
@@ -116,6 +116,7 @@ export function RequirementsPage() {
       case 'Delayed':
         return 'delayed';
 
+      case 'Draft':
       case 'draft':
         return 'draft';
 
@@ -131,11 +132,11 @@ export function RequirementsPage() {
         return 'in-progress';
 
       case 'Rejected':
-        return 'draft';
+        return 'in-progress';
 
       case 'Archived':
       case 'archived':
-        return 'archived' as any;
+        return 'archived' as 'in-progress';
 
       default:
         return 'in-progress';
@@ -198,6 +199,8 @@ export function RequirementsPage() {
       const reqSenderCompanyId = req.sender_company_id ? Number(req.sender_company_id) : null;
       const isReceiver = myCompanyId !== null && reqReceiverCompanyId === myCompanyId;
       const isSender = myCompanyId !== null && reqSenderCompanyId === myCompanyId;
+
+
 
       const effectiveWorkspaceId = (isReceiver && req.receiver_workspace_id)
         ? req.receiver_workspace_id
@@ -399,6 +402,12 @@ export function RequirementsPage() {
 
   }, [allRequirements, workspaceMap, currentUser]);
 
+  // FIX: Create a ref to hold the latest requirements list
+  // This allows us to access the latest data in event handlers without adding 'requirements'
+  // to their dependency array, preventing an infinite update loop in FloatingMenuContext.
+  const requirementsRef = useRef(requirements);
+  requirementsRef.current = requirements;
+
   // Use standardized tab sync hook for consistent URL handling
   type RequirementTab = 'draft' | 'pending' | 'active' | 'completed' | 'delayed' | 'archived';
   const [activeStatusTab, setActiveStatusTab] = useTabSync<RequirementTab>({
@@ -589,6 +598,100 @@ export function RequirementsPage() {
       onError: (error: unknown) => {
         messageApi.error(getErrorMessage(error, "Failed to update requirement"));
       }
+    });
+  };
+
+  /** Save as draft: create → backend sets Draft; edit → update fields, keep status Draft */
+  const handleSaveDraft = (data: CreateRequirementRequestDto, files?: File[]) => {
+    if (editingReq) {
+      const updatePayload: UpdateRequirementRequestDto = { ...data, id: editingReq.id, status: 'Draft' };
+      updateRequirementMutation.mutate(updatePayload, {
+        onSuccess: () => {
+          messageApi.success("Draft saved");
+          setIsDialogOpen(false);
+          setEditingReq(undefined);
+        },
+        onError: (error: unknown) => {
+          messageApi.error(getErrorMessage(error, "Failed to save draft"));
+        },
+      });
+      return;
+    }
+    createRequirementMutation.mutate(data, {
+      onSuccess: async (response: { result?: { id?: number } }) => {
+        messageApi.success("Draft saved");
+        setIsDialogOpen(false);
+        const reqId = response?.result?.id;
+        if (files && files.length > 0 && reqId) {
+          messageApi.loading({ content: 'Uploading documents...', key: 'req-upload' });
+          try {
+            const uploadPromises = files.map(file => fileService.uploadFile(file, 'REQUIREMENT', reqId));
+            await Promise.all(uploadPromises);
+            messageApi.success({ content: 'Documents uploaded successfully', key: 'req-upload' });
+          } catch (err) {
+            console.error(err);
+            messageApi.error({ content: 'Failed to upload documents', key: 'req-upload' });
+          }
+        }
+      },
+      onError: (error: unknown) => {
+        messageApi.error(getErrorMessage(error, "Failed to save draft"));
+      },
+    });
+  };
+
+  /** Send requirement: create then set Waiting/Assigned; edit Draft → set Waiting/Assigned */
+  const handleSendRequirement = (data: CreateRequirementRequestDto, files?: File[]) => {
+    const targetStatus = data.type === 'outsourced' ? 'Waiting' : 'Assigned';
+    if (editingReq) {
+      const updatePayload: UpdateRequirementRequestDto = { ...data, id: editingReq.id, status: targetStatus };
+      updateRequirementMutation.mutate(updatePayload, {
+        onSuccess: () => {
+          messageApi.success(data.type === 'outsourced' ? "Sent to partner" : "Submitted for work");
+          setIsDialogOpen(false);
+          setEditingReq(undefined);
+        },
+        onError: (error: unknown) => {
+          messageApi.error(getErrorMessage(error, "Failed to send requirement"));
+        },
+      });
+      return;
+    }
+    createRequirementMutation.mutate(data, {
+      onSuccess: async (response: { result?: { id?: number } }) => {
+        if (!response?.result?.id) {
+          messageApi.success("Requirement created");
+          setIsDialogOpen(false);
+          return;
+        }
+        const reqId = response.result.id;
+        updateRequirementMutation.mutate(
+          { id: reqId, workspace_id: data.workspace_id, status: targetStatus } as UpdateRequirementRequestDto,
+          {
+            onSuccess: () => {
+              messageApi.success(data.type === 'outsourced' ? "Sent to partner" : "Submitted for work");
+              setIsDialogOpen(false);
+            },
+            onError: (error: unknown) => {
+              messageApi.error(getErrorMessage(error, "Failed to send requirement"));
+            },
+          }
+        );
+        if (files && files.length > 0) {
+          messageApi.loading({ content: 'Uploading documents...', key: 'req-upload' });
+          try {
+            const uploadPromises = files.map(file => fileService.uploadFile(file, 'REQUIREMENT', reqId));
+            await Promise.all(uploadPromises);
+            messageApi.success({ content: 'Documents uploaded successfully', key: 'req-upload' });
+          } catch (err) {
+            console.error(err);
+            messageApi.error({ content: 'Failed to upload documents', key: 'req-upload' });
+          }
+        }
+      },
+      onError: (error: unknown) => {
+        messageApi.error(getErrorMessage(error, "Failed to create requirement"));
+      },
     });
   };
 
@@ -809,7 +912,7 @@ export function RequirementsPage() {
   const handleBulkDelete = useCallback(async () => {
     try {
       const deletePromises = selectedReqs.map(id => {
-        const req = requirements.find(r => r.id === id);
+        const req = requirementsRef.current.find(r => r.id === id); // Use ref
         if (!req) return Promise.resolve();
         return deleteRequirementMutation.mutateAsync({ id, workspace_id: req.workspaceId || 0 });
       });
@@ -819,12 +922,12 @@ export function RequirementsPage() {
     } catch (error: unknown) {
       messageApi.error(getErrorMessage(error, "Failed to delete requirements"));
     }
-  }, [selectedReqs, requirements, deleteRequirementMutation, messageApi]);
+  }, [selectedReqs, deleteRequirementMutation, messageApi]); // Removed 'requirements'
 
   const handleBulkComplete = useCallback(async () => {
     try {
       const updatePromises = selectedReqs.map(id => {
-        const req = requirements.find(r => r.id === id);
+        const req = requirementsRef.current.find(r => r.id === id); // Use ref
         if (!req) return Promise.resolve();
         return updateRequirementMutation.mutateAsync({
           id,
@@ -838,7 +941,7 @@ export function RequirementsPage() {
     } catch (error: unknown) {
       messageApi.error(getErrorMessage(error, "Failed to update requirements"));
     }
-  }, [selectedReqs, requirements, updateRequirementMutation, messageApi]);
+  }, [selectedReqs, updateRequirementMutation, messageApi]); // Removed 'requirements'
 
   const handleBulkApprove = useCallback(async () => {
     try {
@@ -869,7 +972,7 @@ export function RequirementsPage() {
   const handleBulkSubmit = useCallback(async () => {
     try {
       const updatePromises = selectedReqs.map(id => {
-        const req = requirements.find(r => r.id === id);
+        const req = requirementsRef.current.find(r => r.id === id); // Use ref
         if (!req) return Promise.resolve();
         return updateRequirementMutation.mutateAsync({
           id,
@@ -883,12 +986,12 @@ export function RequirementsPage() {
     } catch (error: unknown) {
       messageApi.error(getErrorMessage(error, "Failed to submit requirements"));
     }
-  }, [selectedReqs, requirements, updateRequirementMutation, messageApi]);
+  }, [selectedReqs, updateRequirementMutation, messageApi]); // Removed 'requirements'
 
   const handleBulkReopen = useCallback(async () => {
     try {
       const updatePromises = selectedReqs.map(id => {
-        const req = requirements.find(r => r.id === id);
+        const req = requirementsRef.current.find(r => r.id === id); // Use ref
         if (!req) return Promise.resolve();
         return updateRequirementMutation.mutateAsync({
           id,
@@ -902,12 +1005,12 @@ export function RequirementsPage() {
     } catch (error: unknown) {
       messageApi.error(getErrorMessage(error, "Failed to reopen requirements"));
     }
-  }, [selectedReqs, requirements, updateRequirementMutation, messageApi]);
+  }, [selectedReqs, updateRequirementMutation, messageApi]); // Removed 'requirements'
 
   const handleBulkAssign = useCallback(async (employee: { user_id?: number; id?: number; name?: string }) => {
     try {
       const updatePromises = selectedReqs.map(id => {
-        const req = requirements.find(r => r.id === id);
+        const req = requirementsRef.current.find(r => r.id === id); // Use ref
         if (!req) return Promise.resolve();
 
         const leaderId = employee?.user_id || employee?.id;
@@ -925,7 +1028,7 @@ export function RequirementsPage() {
     } catch (error: unknown) {
       messageApi.error(getErrorMessage(error, "Failed to assign requirements"));
     }
-  }, [selectedReqs, requirements, updateRequirementMutation, messageApi]);
+  }, [selectedReqs, updateRequirementMutation, messageApi]); // Removed 'requirements'
 
   const handleReqAccept = (id: number) => {
     const req = requirements.find(r => r.id === id);
@@ -935,6 +1038,44 @@ export function RequirementsPage() {
     }
 
     setPendingReqId(id);
+
+    // Draft: Send to Partner (sender) or Submit for Work (internal)
+    if (req.rawStatus === 'Draft') {
+      if (req.type === 'outsourced' && req.isSender) {
+        updateRequirementMutation.mutate({
+          id: req.id,
+          workspace_id: req.workspaceId,
+          status: 'Waiting',
+        } as UpdateRequirementRequestDto, {
+          onSuccess: () => {
+            messageApi.success("Requirement sent to partner.");
+            setPendingReqId(null);
+          },
+          onError: (err: Error) => {
+            messageApi.error(getErrorMessage(err, "Failed to send requirement"));
+          },
+        });
+        return;
+      }
+      if (req.type === 'inhouse') {
+        updateRequirementMutation.mutate({
+          id: req.id,
+          workspace_id: req.workspaceId,
+          status: 'Assigned',
+        } as UpdateRequirementRequestDto, {
+          onSuccess: () => {
+            messageApi.success("Requirement submitted for work.");
+            setPendingReqId(null);
+          },
+          onError: (err: Error) => {
+            messageApi.error(getErrorMessage(err, "Failed to submit requirement"));
+          },
+        });
+        return;
+      }
+      messageApi.info("No action required at this stage");
+      return;
+    }
 
     // Intelligent routing based on requirement type, status, and user role
     if (req.type === 'outsourced') {
@@ -1025,18 +1166,28 @@ export function RequirementsPage() {
     },
     {
       id: 'pending', label: 'Pending', count: baseFilteredReqs.filter(req => {
-        const isPendingWorkflow = req.rawStatus === 'Waiting' || (req.rawStatus as string) === 'Review' || req.rawStatus === 'Submitted';
-        return isPendingWorkflow || req.approvalStatus === 'pending';
+        const status = mapRequirementToStatus(req);
+        const type = mapRequirementToType(req);
+        const role = mapRequirementToRole(req);
+        const baseContext = mapRequirementToContext(req, undefined, role);
+        const tabContext: TabContext = {
+          ...baseContext,
+          isArchived: !!req.is_archived,
+          approvalStatus: req.approvalStatus,
+        };
+        const reqTab = getRequirementTab(status, type, role, tabContext);
+        return reqTab === 'pending';
       }).length
     },
     {
       id: 'draft', label: 'Drafts', count: baseFilteredReqs.filter(req => {
+        if (req.is_archived) return false;
         if (req.status === 'draft') return true;
         return false;
       }).length
     },
     {
-      id: 'delayed', label: 'Delayed', count: baseFilteredReqs.filter(req => req.status === 'delayed').length
+      id: 'delayed', label: 'Delayed', count: baseFilteredReqs.filter(req => !req.is_archived && req.status === 'delayed').length
     },
     { id: 'completed', label: 'Completed' },
     {
@@ -1396,7 +1547,8 @@ export function RequirementsPage() {
             quoted_price: String(editingReq.quotedPrice || ''),
             currency: editingReq.currency || 'USD',
           } : undefined}
-          onSubmit={editingReq ? handleUpdateRequirement : handleCreateRequirement}
+          onSubmit={handleSaveDraft}
+          onSubmitAndSend={handleSendRequirement}
           onCancel={() => {
             setIsDialogOpen(false);
             setEditingReq(undefined);

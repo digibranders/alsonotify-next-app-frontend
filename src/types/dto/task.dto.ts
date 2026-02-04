@@ -60,7 +60,11 @@ export interface TaskDto {
   worklogs?: WorklogDto[];
   comments?: CommentDto[];
   task_workspace?: { id: number; name?: string };
-  task_requirement?: { id: number; name?: string };
+  task_requirement?: {
+    id: number;
+    name?: string;
+    sender_company?: { id: number; name: string };
+  };
   task_project?: {
     company?: { name: string };
     client_user?: { company?: { name: string } };

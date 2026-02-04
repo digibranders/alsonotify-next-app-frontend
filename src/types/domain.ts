@@ -225,7 +225,7 @@ export interface Task {
 
   // Requirement relation aliases
   taskRequirement?: { name: string; id: number };
-  task_requirement?: { name: string; id: number };
+  task_requirement?: { name: string; id: number; sender_company?: { name: string; id?: number } };
   requirementRelation?: { name: string; id: number };
   requirement_relation?: { name: string; id: number };
   requirementName?: string;

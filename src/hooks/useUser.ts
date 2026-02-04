@@ -24,7 +24,7 @@ import { ProfileUpdateInput, CompanyUpdateInput } from "../types/genericTypes";
 
 import { ApiResponse } from "../types/api";
 import { Employee, UserPermissions } from "../types/domain";
-import { mapUserDtoToEmployee, mapUserToDomain } from "../utils/mappers/user";
+import { mapUserDtoToEmployee } from "../utils/mappers/user";
 import { queryKeys } from "../lib/queryKeys";
 
 const selectEmployees = (data: ApiResponse<UserDto[]>): ApiResponse<Employee[]> => {
@@ -63,10 +63,10 @@ export const useEmployeesDropdown = () => {
   return useQuery({
     queryKey: queryKeys.users.employees('dropdown'),
     queryFn: async () => {
-       // We import searchEmployees dynamically or assume it's available. 
-       // Based on file read, searchEmployees IS in services/user.ts
-       const { searchEmployees } = await import('../services/user'); 
-       return searchEmployees();
+      // We import searchEmployees dynamically or assume it's available. 
+      // Based on file read, searchEmployees IS in services/user.ts
+      const { searchEmployees } = await import('../services/user');
+      return searchEmployees();
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
     select: (data) => (data.result || []).map((item: any) => ({

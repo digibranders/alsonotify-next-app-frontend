@@ -1,5 +1,5 @@
 import { Checkbox, Tooltip, Dropdown, Popover, Input, Button, message, Avatar } from "antd";
-import { Clock, MoreVertical, Edit, Trash2, RotateCcw, CheckCircle } from "lucide-react";
+import { MoreVertical, Edit, Trash2, RotateCcw, CheckCircle } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { MenuProps } from "antd";
@@ -145,13 +145,13 @@ const TaskRowComponent = memo(function TaskRow({
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-[11px] text-[#999999] font-['Manrope:Regular',sans-serif]">
+              {/* <span className="text-[11px] text-[#999999] font-['Manrope:Regular',sans-serif]">
                 #{task.taskId}
-              </span>
+              </span> */}
               <span
                 className="text-[11px] !text-[#111111] font-['Manrope:Medium',sans-serif]"
               >
-                • {task.client}
+                {task.client}
               </span>
               {task.is_high_priority && (
                 <Tooltip title="High Priority">

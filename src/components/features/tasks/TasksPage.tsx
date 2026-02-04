@@ -1,6 +1,6 @@
 
 import { useState, useMemo, useEffect, useCallback } from 'react';
-import { Plus, CheckSquare, Trash2, Users, ChevronDown, ChevronLeft, ChevronRight, ArrowUp, ArrowDown } from 'lucide-react';
+import { Plus, CheckSquare, Trash2, Users, ChevronDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { PageLayout } from '../../layout/PageLayout';
 import { PaginationBar } from '../../ui/PaginationBar';
 import { FilterBar, FilterOption } from '../../ui/FilterBar';
@@ -24,7 +24,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import isoWeek from 'dayjs/plugin/isoWeek';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
-import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subMonths, startOfYear, endOfYear, differenceInCalendarDays } from 'date-fns';
+import { format, differenceInCalendarDays } from 'date-fns';
 
 dayjs.extend(isoWeek);
 dayjs.extend(isSameOrBefore);
@@ -338,26 +338,16 @@ export function TasksPage() {
             : baseStatus;
 
       // Determine company/client name: if client exists, it's client work, otherwise show company name for in-house
-      // Client company comes from task_project.client_user.company.name
-      let clientCompanyName = t.task_project?.client_user?.company?.name ||
-        t.client ||
-        t.client_company_name ||
-        null;
+      // New logic: Use requirement sender company, fallback to current user's company or In-House
 
-      if (clientCompanyName === 'Unknown') clientCompanyName = null;
+      // 1. Try to get company from the requirement's sender (The company that sent the requirement)
+      // This covers both external (Client Co) and internal (My Co) requirements correctly
+      const senderCompanyName = t.task_requirement?.sender_company?.name;
 
-      // For in-house tasks, get company name from task's company relation, project's company, or current user's company
-      let inHouseCompanyName = t.company?.name ||
-        t.company_name ||
-        t.task_project?.company?.name ||
-        // t.task_project?.company_name || // removed as not in DTO
-        currentUserCompanyName ||
-        null;
+      // 2. Fallback to current user's company name (if we are viewing tasks in our own workspace but data is missing)
+      const fallbackCompanyName = currentUserCompanyName || 'In-House';
 
-      if (inHouseCompanyName === 'Unknown') inHouseCompanyName = null;
-
-      // If there's a client company, it's client work; otherwise show in-house company name
-      const displayCompanyName = clientCompanyName || inHouseCompanyName || 'In-House';
+      const displayCompanyName = senderCompanyName || fallbackCompanyName;
 
       // Get requirement name - check multiple possible paths
       // First try from API response (nested relation)

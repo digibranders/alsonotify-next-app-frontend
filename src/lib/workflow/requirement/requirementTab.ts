@@ -75,8 +75,8 @@ export function getRequirementTab(
     return 'delayed';
   }
 
-  // Priority 3: Draft status (special status, not in state machine)
-  if (status === 'draft') {
+  // Priority 3: Draft status (first-class or legacy special)
+  if (status === 'Draft' || status === 'draft') {
     return 'draft';
   }
 
@@ -88,7 +88,7 @@ export function getRequirementTab(
   // Priority 5: Type-specific logic
   // At this point, status is a workflow status (not Delayed, draft, Completed)
   const workflowStatus = status as WorkflowStatus;
-  
+
   if (type === 'outsourced') {
     return getOutsourcedTab(workflowStatus, role, context);
   }
@@ -109,11 +109,11 @@ type WorkflowStatus = Exclude<RequirementStatus, 'Delayed' | 'Completed'>;
  * Pending tab conditions:
  * - Waiting for quote (Waiting)
  * - Quote submitted, awaiting acceptance (Submitted)
- * - Work submitted for review (Review)
  * - Assigned but workspace not mapped
  * - Rejected (varies by role)
  *
  * Active tab conditions:
+ * - Work submitted for review (Review) - CHANGED: Now in Active tab
  * - Assigned with mapped workspace
  * - In_Progress
  * - Revision
@@ -124,8 +124,8 @@ function getOutsourcedTab(
   role: UserRole,
   context: TabContext
 ): Tab {
-  // Quote flow statuses → Pending
-  if (status === 'Waiting' || status === 'Submitted' || status === 'Review') {
+  // Quote flow statuses → Pending (CHANGED: Removed Review from this list)
+  if (status === 'Waiting' || status === 'Submitted') {
     return 'pending';
   }
 
@@ -140,7 +140,8 @@ function getOutsourcedTab(
   }
 
   // Active work states (On_Hold is handled in main function)
-  // Remaining statuses: Assigned, In_Progress, Revision, Impediment, Stuck
+  // Remaining statuses: Assigned, In_Progress, Review, Revision, Impediment, Stuck
+  // CHANGED: Review now stays in Active tab for manual submission workflow
   return 'active';
 }
 
@@ -166,8 +167,8 @@ function getRejectedTab(role: UserRole, context: TabContext): Tab {
       // Sender rejected the quote, waiting for receiver to revise
       return 'pending';
     }
-    // Receiver rejected the requirement, sender needs to edit & resend
-    return 'draft';
+    // Receiver rejected the requirement; show in Pending (not Draft) per product rule
+    return 'pending';
   }
 
   // Receiver or internal is viewing

@@ -6,14 +6,14 @@ import React from 'react';
 
 describe('TaskStatusBadge', () => {
   let container: HTMLDivElement | null = null;
-  let root: any = null;
+  let root: ReturnType<typeof createRoot> | null = null;
 
   async function render(component: React.ReactElement) {
     container = document.createElement('div');
     document.body.appendChild(container);
     root = createRoot(container);
     await act(async () => {
-      root.render(component);
+      root?.render(component);
     });
   }
 

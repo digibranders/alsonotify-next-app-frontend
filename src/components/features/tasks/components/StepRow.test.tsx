@@ -6,7 +6,7 @@ import React from 'react';
 
 describe('StepRow', () => {
   let container: HTMLDivElement | null = null;
-  let root: any = null;
+  let root: ReturnType<typeof createRoot> | null = null;
 
   const mockStep = {
     id: '1',
@@ -21,7 +21,7 @@ describe('StepRow', () => {
     document.body.appendChild(container);
     root = createRoot(container);
     await act(async () => {
-      root.render(component);
+      root?.render(component);
     });
   }
 
@@ -35,11 +35,11 @@ describe('StepRow', () => {
   it('calls onSelect when clicked', async () => {
     const onSelect = vi.fn();
     await render(<StepRow step={mockStep} onSelect={onSelect} />);
-    
+
     act(() => {
       container?.firstElementChild?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     });
-    
+
     expect(onSelect).toHaveBeenCalled();
   });
 });
