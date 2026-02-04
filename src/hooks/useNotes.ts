@@ -1,25 +1,25 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getNotes, createNote, updateNote, deleteNote, archiveNote, unarchiveNote } from "../services/notes";
 import { mapNoteToDomain } from "../utils/mappers/note";
-import { NoteDto, CreateNoteDto, UpdateNoteDto } from "../types/dto/note.dto";
+import { UpdateNoteDto } from "../types/dto/note.dto";
 import { queryKeys } from "../lib/queryKeys";
 
 export const useNotes = (
-  skip: number = 0,
-  limit: number = 100,
-  archived: boolean = false,
-  options?: { enabled?: boolean; staleTime?: number }
+    skip: number = 0,
+    limit: number = 100,
+    archived: boolean = false,
+    options?: { enabled?: boolean; staleTime?: number }
 ) => {
-  return useQuery({
-    queryKey: queryKeys.notes.list({ skip, limit, archived }),
-    queryFn: () => getNotes(skip, limit, archived),
-    staleTime: options?.staleTime || 30000,
-    enabled: options?.enabled,
-    select: (data) => ({
-      ...data,
-      result: data.result ? data.result.map(mapNoteToDomain) : []
-    })
-  });
+    return useQuery({
+        queryKey: queryKeys.notes.list({ skip, limit, archived }),
+        queryFn: () => getNotes(skip, limit, archived),
+        staleTime: options?.staleTime || 30000,
+        enabled: options?.enabled,
+        select: (data) => ({
+            ...data,
+            result: data.result ? data.result.map(mapNoteToDomain) : []
+        })
+    });
 };
 
 export const useCreateNote = () => {
@@ -27,7 +27,7 @@ export const useCreateNote = () => {
     return useMutation({
         mutationFn: createNote, // params type inferred from service
         onSuccess: () => {
-             // Invalidate all notes queries
+            // Invalidate all notes queries
             queryClient.invalidateQueries({ queryKey: queryKeys.notes.all() });
         }
     });

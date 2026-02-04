@@ -3,7 +3,6 @@ import {
   fetchNotifications,
   markAllNotificationsRead,
   markNotificationRead,
-  type Notification,
 } from "../services/notification";
 import { queryKeys } from "../lib/queryKeys";
 

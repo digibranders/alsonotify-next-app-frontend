@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { doLogin, doSignup, forgetPassword, doCompleteSignup, verifyRegisterToken } from "../services/auth";
 import { setToken, deleteToken, getToken } from "../services/cookies";
-import axiosApi, { setAuthToken } from "../config/axios";
+import { setAuthToken } from "../config/axios";
 import { getUserDetails } from "../services/user";
 import { queryKeys } from "../lib/queryKeys";
 import { useUserDetails } from "./useUser";
@@ -86,7 +86,6 @@ export const useVerifyToken = (token: string | null) => {
 };
 
 export const useCompleteSignup = () => {
-  const router = useRouter();
   const queryClient = useQueryClient();
 
   return useMutation({

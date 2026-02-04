@@ -4,10 +4,10 @@
 export const getTimezones = (): Array<{ value: string; label: string }> => {
   // Mapping of deprecated timezone aliases to their canonical names
   const deprecatedToCanonical: Record<string, string> = {
-    'Asia/Calcutta': 'Asia/Kolkata',      
-    'America/Godthab': 'America/Nuuk',    
-    'Europe/Kiev': 'Europe/Kyiv',        
-    'US/Alaska': 'America/Anchorage',     
+    'Asia/Calcutta': 'Asia/Kolkata',
+    'America/Godthab': 'America/Nuuk',
+    'Europe/Kiev': 'Europe/Kyiv',
+    'US/Alaska': 'America/Anchorage',
     'US/Aleutian': 'America/Adak',
     'US/Arizona': 'America/Phoenix',
     'US/Central': 'America/Chicago',
@@ -69,7 +69,7 @@ export const getTimezones = (): Array<{ value: string; label: string }> => {
 
       return uniqueTimezones.map(tz => ({ value: tz, label: tz }));
     }
-  } catch (e) {
+  } catch {
     // empty
   }
 

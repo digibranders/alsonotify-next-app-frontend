@@ -1,5 +1,5 @@
 import { UserDto } from '../../types/dto/user.dto';
-import { Employee, User, UserPermissions } from '../../types/domain';
+import { Employee, UserPermissions } from '../../types/domain';
 
 export const mapUserDtoToEmployee = (dto: UserDto, permissions?: UserPermissions): Employee => {
   // Strict ID Normalization:
@@ -103,19 +103,4 @@ export const mapUserDtoToEmployee = (dto: UserDto, permissions?: UserPermissions
   };
 };
 
-export const mapUserToDomain = (dto: UserDto): User => {
-  return {
-    id: dto.id,
-    name: dto.name || '',
-    email: dto.email || '',
-    role: (typeof dto.role === 'object' ? dto.role?.name : dto.role) || '',
-    profilePic: dto.profile_pic,
-    profile_pic: dto.profile_pic,
-    mobileNumber: dto.mobile_number,
-    mobile_number: dto.mobile_number,
-    isActive: dto.is_active,
-    is_active: dto.is_active,
-    company: typeof dto.company === 'object' ? dto.company : undefined, // safely extract object
-    department: typeof dto.department === 'object' ? dto.department : undefined,
-  };
-};
+
