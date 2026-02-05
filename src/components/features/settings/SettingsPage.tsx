@@ -21,6 +21,7 @@ import { LeavesTab } from './tabs/LeavesTab';
 import { WorkingHoursTab } from './tabs/WorkingHoursTab';
 import { AccessManagementTab } from './tabs/AccessManagementTab';
 import { IntegrationsTab } from './tabs/IntegrationsTab';
+import { useCompanyDetails } from '@/hooks/useCompanyDetails';
 
 
 type SettingsTab = 'company' | 'leaves' | 'working-hours' | 'integrations' | 'notifications' | 'security' | 'access-management';
@@ -67,28 +68,24 @@ export function SettingsPage() {
 
 
 
-  // Company Details State - initialize from backend data
-  const [companyName, setCompanyName] = useState(companyData?.result?.name || '');
-  const [companyLogo, setCompanyLogo] = useState(companyData?.result?.logo || '');
-  const [taxId, setTaxId] = useState(companyData?.result?.tax_id || '');
-  const [timeZone, setTimeZone] = useState(companyData?.result?.timezone || 'Asia/Kolkata');
-  const [currency, setCurrency] = useState(companyData?.result?.currency || 'USD');
-  const [country, setCountry] = useState(companyData?.result?.country || '');
-  const [address, setAddress] = useState(companyData?.result?.address || '');
-  const [defaultEmployeePassword, setDefaultEmployeePassword] = useState(companyData?.result?.default_employee_password || 'Pass@123');
+  // Company Details State - managed by custom hook
+  const {
+    companyName, setCompanyName,
+    companyLogo, setCompanyLogo,
+    taxId, setTaxId,
+    taxIdType, setTaxIdType,
+    timeZone, setTimeZone,
+    currency, setCurrency,
+    country, setCountry,
+    address, setAddress,
+    defaultEmployeePassword, setDefaultEmployeePassword,
+    resetCompanyDetails,
+    getCompanyDetailsPayload
+  } = useCompanyDetails({ companyData });
 
-  // Update state when company data loads
+  // Update other states when company data loads
   useEffect(() => {
     if (companyData?.result) {
-      setCompanyName(companyData.result.name || '');
-      setCompanyLogo(companyData.result.logo || '');
-      setTaxId(companyData.result.tax_id || '');
-      setTimeZone(companyData.result.timezone || 'Asia/Kolkata');
-      setCurrency(companyData.result.currency || 'USD');
-      setCountry(companyData.result.country || '');
-      setAddress(companyData.result.address || '');
-      setDefaultEmployeePassword(companyData.result.default_employee_password || 'Pass@123');
-
       if (companyData.result.leaves) {
         setLeaves(companyData.result.leaves);
       }
@@ -318,12 +315,11 @@ export function SettingsPage() {
       };
 
       if (activeTab === 'company') {
-        payload.logo = companyLogo;
-        payload.tax_id = taxId;
-        payload.timezone = timeZone;
-        payload.currency = currency;
-        payload.country = country;
-        payload.address = address;
+        const companyDetailsPayload = getCompanyDetailsPayload();
+        Object.assign(payload, companyDetailsPayload);
+
+        // Ensure name is present if not in payload (though it should be)
+        if (!payload.name) payload.name = companyName;
       }
 
       if (activeTab === 'security' && isAdmin) {
@@ -360,13 +356,7 @@ export function SettingsPage() {
     // Reset changes to original database values
     if (companyData?.result) {
       if (activeTab === 'company') {
-        setCompanyName(companyData.result.name || '');
-        setCompanyLogo(companyData.result.logo || '');
-        setTaxId(companyData.result.tax_id || '');
-        setTimeZone(companyData.result.timezone || 'Asia/Kolkata');
-        setCurrency(companyData.result.currency || 'USD');
-        setCountry(companyData.result.country || '');
-        setAddress(companyData.result.address || '');
+        resetCompanyDetails();
       }
 
       if (activeTab === 'leaves') {
@@ -581,6 +571,8 @@ export function SettingsPage() {
             setCompanyLogo={setCompanyLogo}
             taxId={taxId}
             setTaxId={setTaxId}
+            taxIdType={taxIdType}
+            setTaxIdType={setTaxIdType}
             timeZone={timeZone}
             setTimeZone={setTimeZone}
             currency={currency}
