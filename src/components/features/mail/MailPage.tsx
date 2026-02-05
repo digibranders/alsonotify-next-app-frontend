@@ -39,6 +39,8 @@ import dayjs from "dayjs";
 import DOMPurify from "dompurify";
 
 import { PageLayout } from "../../layout/PageLayout";
+import { DocumentPreviewModal } from "../../ui/DocumentPreviewModal";
+import { UserDocument } from "@/types/genericTypes";
 import { useMailAttachments, useMailFolders, useMailMessage, useMailMessages } from "@/hooks/useMail";
 import {
   deleteMail,
@@ -181,6 +183,9 @@ export function MailPage() {
   const [sendingQuick, setSendingQuick] = useState(false);
   const [quickFiles, setQuickFiles] = useState<UploadFile[]>([]);
 
+  // preview
+  const [previewDoc, setPreviewDoc] = useState<UserDocument | null>(null);
+
   // keyboard nav for list
   const [focusIndex, setFocusIndex] = useState(0);
   const listWrapRef = useRef<HTMLDivElement | null>(null);
@@ -290,13 +295,13 @@ export function MailPage() {
   };
 
   useEffect(() => {
-  const id = window.setInterval(() => {
-    refresh();
-  }, 60_000); // 1 min
+    const id = window.setInterval(() => {
+      refresh();
+    }, 60_000); // 1 min
 
-  return () => window.clearInterval(id);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-}, [selectedId, folder, unreadOnly]);
+    return () => window.clearInterval(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedId, folder, unreadOnly]);
 
 
   const confirmDelete = () => {
@@ -326,6 +331,66 @@ export function MailPage() {
     a.download = safeFilename(name);
     a.click();
     window.URL.revokeObjectURL(url);
+  };
+
+  const doPreview = async (attId: string, name: string, contentType: string, size: number) => {
+    if (!selectedId) return;
+    try {
+      const blob = await downloadAttachment(selectedId, attId);
+      const url = window.URL.createObjectURL(blob);
+
+      let fileType: UserDocument["fileType"] = "text";
+      const ct = (contentType || "").toLowerCase();
+      const nameLower = (name || "").toLowerCase();
+
+      if (ct.startsWith("image/")) {
+        fileType = "image";
+      } else if (ct === "application/pdf") {
+        fileType = "pdf";
+      } else if (
+        ct.includes("word") ||
+        nameLower.endsWith(".doc") ||
+        nameLower.endsWith(".docx")
+      ) {
+        fileType = "docx";
+      } else if (
+        ct.includes("csv") ||
+        nameLower.endsWith(".csv")
+      ) {
+        fileType = "csv";
+      } else if (
+        ct.includes("excel") ||
+        ct.includes("sheet") ||
+        nameLower.endsWith(".xls") ||
+        nameLower.endsWith(".xlsx")
+      ) {
+        fileType = "excel";
+      } else if (
+        ct.includes("text/") ||
+        ct.includes("json") ||
+        ct.includes("javascript") ||
+        nameLower.endsWith(".txt") ||
+        nameLower.endsWith(".log") ||
+        nameLower.endsWith(".json") ||
+        nameLower.endsWith(".md")
+      ) {
+        fileType = "text";
+      }
+
+      setPreviewDoc({
+        id: attId,
+        documentTypeId: "mail-attachment",
+        documentTypeName: "Mail Attachment",
+        fileName: name,
+        fileSize: size,
+        fileUrl: url,
+        uploadedDate: new Date().toISOString(),
+        fileType,
+        isRequired: false,
+      });
+    } catch (err) {
+      message.error("Failed to load preview");
+    }
   };
 
   // ---- validations ----
@@ -648,7 +713,10 @@ export function MailPage() {
                       {a.contentType || "file"} • {formatBytes(a.size || 0)}
                     </div>
                   </div>
-                  <Button onClick={() => doDownload(a.id, a.name)}>Download</Button>
+                  <Space>
+                    <Button onClick={() => doPreview(a.id, a.name, a.contentType, a.size)}>Preview</Button>
+                    <Button onClick={() => doDownload(a.id, a.name)}>Download</Button>
+                  </Space>
                 </div>
               ))}
             </div>
@@ -679,6 +747,15 @@ export function MailPage() {
               padding-left: 0;
             }
           `}</style>
+
+          <DocumentPreviewModal
+            open={!!previewDoc}
+            document={previewDoc}
+            onClose={() => {
+              if (previewDoc?.fileUrl) URL.revokeObjectURL(previewDoc.fileUrl);
+              setPreviewDoc(null);
+            }}
+          />
         </>
       )}
     </div>
@@ -689,7 +766,7 @@ export function MailPage() {
       title="Mail"
       tabs={[]}
       activeTab=""
-      onTabChange={() => {}}
+      onTabChange={() => { }}
       titleAction={{
         label: "Compose",
         icon: <Send className="w-4 h-4" />,
