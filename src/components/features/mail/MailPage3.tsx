@@ -38,6 +38,7 @@ import { PageLayout } from "../../layout/PageLayout";
 import { DocumentPreviewModal } from "../../ui/DocumentPreviewModal";
 import { UserDocument } from "@/types/genericTypes";
 import { useMailAttachments, useMailFolders, useMailMessage, useMailMessages } from "@/hooks/useMail";
+import { useDebounce } from "@/hooks/useDebounce";
 import {
   deleteMail,
   downloadAttachment,
@@ -141,6 +142,9 @@ export function MailPage() {
   const [folder, setFolder] = useState<string>("inbox");
   const [unreadOnly, setUnreadOnly] = useState(false);
   const [selectedId, setSelectedId] = useState<string | undefined>(undefined);
+  const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearch = useDebounce(searchTerm, 500);
+  const querySearch = debouncedSearch.trim().length >= 3 ? debouncedSearch.trim() : undefined;
 
   // view controls
   const [bodyView, setBodyView] = useState<"html" | "text">("html");
@@ -157,7 +161,7 @@ export function MailPage() {
   const [composeInitialData, setComposeInitialData] = useState<any>(undefined);
 
   const foldersQ = useMailFolders();
-  const messagesQ = useMailMessages(folder, unreadOnly, 25);
+  const messagesQ = useMailMessages(folder, unreadOnly, 25, querySearch);
 
   const msgs = useMemo(() => {
     return (messagesQ.data?.pages || []).flatMap((p) => p.result?.items || []);
@@ -545,7 +549,12 @@ export function MailPage() {
             {/* Message list */}
             <div className="bg-[#F7F7F7] rounded-[16px] p-3 overflow-hidden flex flex-col min-h-0">
               <div className="mb-2">
-                <Input placeholder="Search (later)" disabled />
+                <Input
+                  placeholder="Search (min 3 chars)"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  allowClear
+                />
               </div>
 
               <div

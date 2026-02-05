@@ -9,10 +9,10 @@ export const useMailFolders = () =>
     staleTime: 60_000,
   });
 
-export const useMailMessages = (folder: string, unreadOnly: boolean, top = 25) =>
+export const useMailMessages = (folder: string, unreadOnly: boolean, top = 25, search?: string) =>
   useInfiniteQuery({
-    queryKey: ["mail", "messages", folder, unreadOnly, top],
-    queryFn: ({ pageParam }) => getMailMessages(folder, top, unreadOnly, pageParam),
+    queryKey: ["mail", "messages", folder, unreadOnly, top, search],
+    queryFn: ({ pageParam }) => getMailMessages(folder, top, unreadOnly, pageParam, search),
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (lastPage) => lastPage?.result?.nextLink,
   });
