@@ -19,7 +19,7 @@ interface SegmentedProgressBarProps {
     executionMode: 'parallel' | 'sequential';
 }
 
-export function SegmentedProgressBar({ members, totalEstimate, taskStatus, executionMode }: SegmentedProgressBarProps) {
+export function SegmentedProgressBar({ members, totalEstimate }: Readonly<SegmentedProgressBarProps>) {
     if (!totalEstimate || totalEstimate <= 0) {
         return (
             <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden" />

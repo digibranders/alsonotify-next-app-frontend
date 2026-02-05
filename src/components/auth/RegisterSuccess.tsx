@@ -32,21 +32,6 @@ export default function RegisterSuccess({ email }: RegisterSuccessProps) {
     });
   };
 
-  const handleOutlookClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    
-    // Try to open the Outlook app
-    window.location.href = "ms-outlook://";
-    
-    // Fallback to web after a short delay if the app doesn't open
-    setTimeout(() => {
-      // If we're still on this page (document is visible), assume app didn't open
-      if (!document.hidden) {
-        window.open("https://outlook.live.com/mail/", "_blank");
-      }
-    }, 1000);
-  };
-
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}

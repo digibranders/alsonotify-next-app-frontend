@@ -31,7 +31,7 @@ export function FilterBar({
   searchValue = '',
   onSearchChange,
   showClearButton = true
-}: FilterBarProps) {
+}: Readonly<FilterBarProps>) {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const dropdownRefs = useRef<Record<string, HTMLDivElement | null>>({});
 

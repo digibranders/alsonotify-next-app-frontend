@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { Select, Avatar, Typography } from 'antd';
 import type { SelectProps } from 'antd';
 
@@ -19,27 +19,17 @@ interface EmailInputProps extends Omit<SelectProps, 'options' | 'onChange' | 'va
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export function EmailInput({ value, onChange, options, ...props }: EmailInputProps) {
+export function EmailInput({ value, onChange, options, ...props }: Readonly<EmailInputProps>) {
   const [searchValue, setSearchValue] = useState('');
 
   // Merge known options with current values (in case some values are not not in options)
   // This ensures we can display them correctly if we have data
-  const combinedOptions = useMemo(() => {
-    // Create a map of existing options
-    const optMap = new Map(options.map((o) => [o.value.toLowerCase(), o]));
-
-    // Ensure all current values have an option entry
-    const finalOptions = [...options];
-    
-    // Logic to handle custom values user typed
-    return finalOptions;
-  }, [options]);
 
   const isValidEmail = (email: string) => EMAIL_REGEX.test(email);
 
   // Custom Tag Render
   const tagRender: SelectProps['tagRender'] = (props) => {
-    const { label, value, closable, onClose } = props;
+    const { value, closable, onClose } = props;
     const email = (value as string) || '';
     
     // Find associated info if available

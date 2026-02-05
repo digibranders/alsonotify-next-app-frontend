@@ -1,8 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
-import { Button, Input, Select, Checkbox, DatePicker, App, Radio, Tooltip, Avatar } from 'antd';
+import { Button, Input, Select, Checkbox, DatePicker, App, Avatar } from 'antd';
 import { CheckSquare, Calendar, Users, ArrowRight, Layers, UserPlus, X } from 'lucide-react';
 import dayjs from 'dayjs';
-import { useUserDetails } from '@/hooks/useUser';
 import { FormLayout } from '@/components/common/FormLayout';
 
 const { TextArea } = Input;
@@ -67,7 +66,7 @@ export function TaskForm({
   requirements = [],
   workspaces = [],
   disabledFields = {},
-}: TaskFormProps) {
+}: Readonly<TaskFormProps>) {
   const { message } = App.useApp();
   const { user: currentUser } = useCurrentUser();
   const [formData, setFormData] = useState<TaskFormData>(defaultFormData);

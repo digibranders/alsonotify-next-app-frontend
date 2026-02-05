@@ -3,11 +3,12 @@
 import { useMemo, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { AccessBadge } from '../ui/AccessBadge';
-import { Button, Dropdown, Modal, Input, Select, Avatar, Typography, App } from 'antd';
+import { Button, Dropdown, Modal, Avatar, App } from 'antd';
 import type { MenuProps } from 'antd';
 import {
   Alert24Filled,
-  Add24Filled
+  Add24Filled, 
+  Sparkle24Filled
 } from '@fluentui/react-icons';
 import {
   UserCog,
@@ -28,31 +29,23 @@ import { NotificationPanel, NotificationItem } from './NotificationPanel';
 import { Skeleton } from '../ui/Skeleton';
 import { FeedbackWidget } from './FeedbackWidget';
 import { useUserDetails } from '@/hooks/useUser';
-import { getRoleFromUser, isSuperAdmin } from '@/utils/roleUtils';
+import { isSuperAdmin } from '@/utils/roleUtils';
 import { useAccountType } from '@/utils/accountTypeUtils';
 import { useNotifications, useMarkAllNotificationsRead, useMarkNotificationRead } from '@/hooks/useNotification';
-import { useWorkspaces } from '@/hooks/useWorkspace';
-import { useEmployees } from '@/hooks/useUser';
+import { useWorkspaces, useCreateRequirement } from '@/hooks/useWorkspace';
 import { searchEmployees } from '@/services/user';
 import { getRequirementsByWorkspaceId } from '@/services/workspace';
-import { RequirementDropdownItem } from '@/types/dto/requirement.dto';
+import { RequirementDropdownItem, CreateRequirementRequestDto } from '@/types/dto/requirement.dto';
 import { useCreateTask } from '@/hooks/useTask';
-import { useCreateRequirement } from '@/hooks/useWorkspace';
 import { useCreateNote } from '@/hooks/useNotes';
 import { useLogout } from '@/hooks/useAuth';
 import { formatDistanceToNow } from 'date-fns';
 import { NoteComposerModal } from './NoteComposerModal';
 import { AIAssistantDrawer } from '../features/ai/AIAssistantDrawer';
-import { Sparkle24Filled, CalendarAdd24Filled } from '@fluentui/react-icons';
 import { MeetingCreateModal } from '../modals/MeetingCreateModal';
 import { LeaveApplyModal } from '../modals/LeaveApplyModal';
 
-const { TextArea } = Input;
-const { Text } = Typography;
-const { Option } = Select;
-
 import { CreateTaskRequestDto } from '@/types/dto/task.dto';
-import { CreateRequirementRequestDto } from '@/types/dto/requirement.dto';
 
 type UserRole = import('@/utils/roleUtils').UserRole;
 
@@ -70,14 +63,14 @@ const getGreeting = (): string => {
   return 'Evening';
 };
 
-export function Header({ userRole = 'Admin', roleColor, setUserRole }: HeaderProps) {
+export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
   const router = useRouter();
   const handleLogout = useLogout();
   const { message } = App.useApp();
   const { isIndividual } = useAccountType();
 
   // Fetch user details
-  const { data: userDetailsData, error: userDetailsError, isLoading: isLoadingUserDetails } = useUserDetails();
+  const { data: userDetailsData, isLoading: isLoadingUserDetails } = useUserDetails();
 
   // Fetch notifications
   const { data: notificationsData, isLoading: isLoadingNotifications } = useNotifications();
@@ -87,7 +80,6 @@ export function Header({ userRole = 'Admin', roleColor, setUserRole }: HeaderPro
   // Fetch data for dialogs
   const { data: workspacesData } = useWorkspaces();
 
-  const { data: employeesData } = useEmployees();
   const [usersDropdown, setUsersDropdown] = useState<Array<{ id: number; name: string }>>([]);
   const [requirementsDropdown, setRequirementsDropdown] = useState<RequirementDropdownItem[]>([]);
 
@@ -215,9 +207,6 @@ export function Header({ userRole = 'Admin', roleColor, setUserRole }: HeaderPro
   }, [workspacesData, message]);
 
   // Handle Calendar Success
-  const handleCalendarSuccess = () => {
-    // Optionally refetch global dashboard data if needed, but usually calendar data is local to calendar page
-  };
 
   // Transform notifications
   const notifications = useMemo(() => {
@@ -364,10 +353,6 @@ export function Header({ userRole = 'Admin', roleColor, setUserRole }: HeaderPro
 
   // Account type is now handled by useAccountType hook above
 
-  const isAdmin = useMemo(() => {
-    const userData = userDetailsData?.result || {};
-    return getRoleFromUser(userData) === 'Admin';
-  }, [userDetailsData]);
 
   const isDeveloper = useMemo(() => {
     const userData = userDetailsData?.result || {};

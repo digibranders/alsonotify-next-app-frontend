@@ -718,7 +718,6 @@ export function TasksPage() {
     // Stats usually come as metadata or first item. Using TaskDto to access potential extra fields
     const firstTask = statsData?.result?.[0] as unknown as { status_counts?: Record<string, number> };
     const backendCounts = firstTask?.status_counts || {};
-    const allTasks = (statsData?.result || []) as Task[];
 
     // Calculate total from counts if available
     const calculatedTotal = (backendCounts.All) ||

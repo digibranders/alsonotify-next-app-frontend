@@ -21,17 +21,6 @@ import { getRequirementReports, getTaskReports, getEmployeeReports, getMemberWor
 // Initialize dayjs plugins
 dayjs.extend(isBetween);
 
-// --- Types ---
-interface MemberRow {
-  id: string;
-  member: string;
-  department: string;
-  taskStats: { assigned: number; completed: number; inProgress: number; delayed: number };
-  totalWorkingHrs: number;
-  actualEngagedHrs: number;
-  costPerHour: number;
-  billablePerHour: number;
-}
 
 
 // --- Helper Components ---
@@ -132,7 +121,6 @@ export function ReportsPage() {
   ];
 
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
-  const [selectedTaskStatus, setSelectedTaskStatus] = useState<string>('All');
   const [isDownloading, setIsDownloading] = useState(false);
   const [isDownloadingIndividual, setIsDownloadingIndividual] = useState(false);
 
@@ -227,7 +215,7 @@ export function ReportsPage() {
   // placeholderData keeps previous data visible while refetching (prevents flicker)
 
   // Requirements Query
-  const { data: requirementData, isLoading: isLoadingRequirements, isPlaceholderData: isReqPlaceholder } = useQuery({
+  const { data: requirementData, isLoading: isLoadingRequirements } = useQuery({
     queryKey: ['requirement-reports', filters, searchQuery, dateRange],
     queryFn: () => getRequirementReports({
       search: searchQuery,
@@ -245,7 +233,7 @@ export function ReportsPage() {
 
 
   // Tasks Query
-  const { data: taskData, isLoading: isLoadingTasks, isPlaceholderData: isTaskPlaceholder } = useQuery({
+  const { data: taskData, isLoading: isLoadingTasks } = useQuery({
     queryKey: ['task-reports', filters, searchQuery, dateRange],
     queryFn: () => getTaskReports({
       search: searchQuery,
@@ -260,7 +248,7 @@ export function ReportsPage() {
   });
 
   // Employees Query
-  const { data: employeeData, isLoading: isLoadingEmployees, isPlaceholderData: isEmpPlaceholder } = useQuery({
+  const { data: employeeData, isLoading: isLoadingEmployees } = useQuery({
     queryKey: ['employee-reports', filters, searchQuery, dateRange],
     queryFn: () => getEmployeeReports({
       search: searchQuery,
@@ -307,12 +295,6 @@ export function ReportsPage() {
 
   const employees = employeeData?.data || [];
   // Backend KPI (Still used for types or potential future comparison, but we override with calculated below)
-  const _employeeKPI: EmployeeKPI = employeeData?.kpi || {
-    totalInvestment: 0,
-    totalRevenue: 0,
-    netProfit: 0,
-    avgRatePerHr: 0
-  };
 
 
   // Client-side Sorting
@@ -418,7 +400,7 @@ export function ReportsPage() {
 
   // Placeholder task filtering for member drawer - Mock worklogs as we don't have an endpoint for user worklogs yet
   // Query Member Worklogs
-  const { data: memberWorklogs, isLoading: isLoadingWorklogs } = useQuery({
+  const { data: memberWorklogs } = useQuery({
       queryKey: ['member-worklogs', selectedMemberId, dateRange],
       queryFn: () => getMemberWorklogs(
           selectedMemberId!, 

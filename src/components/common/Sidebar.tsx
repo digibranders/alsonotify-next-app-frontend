@@ -130,7 +130,6 @@ const NAV_ITEMS: NavItemConfig[] = [
 ];
 
 import { useSidebar } from '@/context/SidebarContext';
-import { useCurrentUserCompany } from '@/hooks/useUser';
 import { useAccountType } from '@/utils/accountTypeUtils';
 
 // ... existing imports ...

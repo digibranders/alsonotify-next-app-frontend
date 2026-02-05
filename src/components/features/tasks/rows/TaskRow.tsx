@@ -33,7 +33,6 @@ const TaskRowComponent = memo(function TaskRow({
   onStatusChange,
   currentUserId,
   hideRequirements = false,
-  onRequestRevision,
   isAdmin = false
 }: TaskRowProps) {
   const router = useRouter();

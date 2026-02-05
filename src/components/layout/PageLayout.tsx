@@ -58,12 +58,11 @@ export function PageLayout({
   titleAction,
   secondaryActions,
   customFilters,
-  customTabRender,
   action,
   sideContent,
   titleExtra,
   className
-}: PageLayoutProps) {
+}: Readonly<PageLayoutProps>) {
   return (
     <div className={`w-full h-full bg-white rounded-[24px] border border-[#EEEEEE] flex overflow-hidden ${className || ''}`}>
       <div className="flex-1 p-6 md:p-6 flex flex-col overflow-hidden">

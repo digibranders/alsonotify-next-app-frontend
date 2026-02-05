@@ -1,5 +1,4 @@
-import React, { forwardRef } from 'react';
-import Image from 'next/image';
+import { forwardRef } from 'react';
 import dayjs from 'dayjs';
 import FynixLogo from '@/assets/images/fynix-logo.png';
 import BrandLogo from '@/assets/images/logo.png';

@@ -1,34 +1,22 @@
 import svgPaths from "../../constants/iconPaths";
-import { ChevronLeft, ChevronRight, Video, Calendar as CalendarIcon, Clock, Plus, ExternalLink, X } from "lucide-react";
-import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
-import { Modal, Input, Button, Select, DatePicker, Spin, Tag, Popover, App } from 'antd';
+import { Video, Clock, Plus } from "lucide-react";
+import { useState, useMemo, useEffect } from 'react';
+import { Button, Popover } from 'antd';
 import { Skeleton } from '../ui/Skeleton';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
-import { useEmployees, useCurrentUserCompany } from '@/hooks/useUser';
+import { useCurrentUserCompany } from '@/hooks/useUser';
 import { useTeamsConnectionStatus, useCalendarEvents } from '../../hooks/useCalendar';
-import { MicrosoftUserOAuth, GraphEvent } from '../../services/calendar';
-import { useQueryClient } from '@tanstack/react-query';
-import { queryKeys } from '../../lib/queryKeys';
+import { GraphEvent } from '../../services/calendar';
 import { MeetingCreateModal } from '../modals/MeetingCreateModal';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
-const { TextArea } = Input;
-const { Option } = Select;
-
-interface Attendee {
-  email: string;
-  name?: string;
-}
 
 export function MeetingsWidget({ onNavigate }: { onNavigate?: (page: string) => void }) {
-  const { message } = App.useApp();
-  const queryClient = useQueryClient();
   const [showDialog, setShowDialog] = useState(false);
-  const [connecting, setConnecting] = useState(false);
 
   const { data: teamsStatus, refetch: refetchTeamsStatus } = useTeamsConnectionStatus();
   const isConnected = teamsStatus?.result?.connected ?? false;
@@ -38,21 +26,8 @@ export function MeetingsWidget({ onNavigate }: { onNavigate?: (page: string) => 
 
   const startISO = dayjs().startOf("day").toISOString();
   const endISO = dayjs().add(7, "day").endOf("day").toISOString();
-  const { data: eventsData, isLoading, error, isError, refetch: refetchCalendarEvents } = useCalendarEvents(startISO, endISO);
+  const { data: eventsData, isLoading, isError, refetch: refetchCalendarEvents } = useCalendarEvents(startISO, endISO);
 
-  const connectToTeams = useCallback(async () => {
-    try {
-      setConnecting(true);
-      const response = await MicrosoftUserOAuth();
-      if (response?.result) {
-        window.location.href = response.result;
-      }
-    } catch (error) {
-      message.error("Failed to connect to Microsoft Teams");
-    } finally {
-      setConnecting(false);
-    }
-  }, [message]);
 
   useEffect(() => {
     refetchTeamsStatus();
@@ -278,7 +253,6 @@ export function MeetingsWidget({ onNavigate }: { onNavigate?: (page: string) => 
 function MeetingItem({
   title,
   time,
-  duration,
   date,
   attendees,
   totalAttendees,
@@ -286,7 +260,6 @@ function MeetingItem({
   organizer,
   joinUrl,
   allAttendees = [],
-  description,
   startDateTime,
   endDateTime,
   onJoin
@@ -309,17 +282,6 @@ function MeetingItem({
   const [showDetails, setShowDetails] = useState(false);
 
   // Strip HTML tags from description - using DOMParser for XSS safety
-  const stripHtml = (html: string | null): string => {
-    if (!html) return '';
-    if (typeof document === 'undefined') {
-      // SSR fallback - simple regex strip
-      return html.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
-    }
-    // Use DOMParser instead of innerHTML for XSS protection
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
-    return doc.body.textContent || '';
-  };
 
   const handleJoinClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -420,7 +382,7 @@ function MeetingItem({
                   <span className="text-[11px] font-['Manrope:Medium',sans-serif] text-[#999999] uppercase tracking-wide min-w-[45px] pt-0.5">With</span>
                   <div className="flex-1">
                     <div className="text-[12px] font-['Manrope:Regular',sans-serif] text-[#111111] leading-relaxed">
-                      {allAttendees.slice(0, 3).map((a, i) => a.name).join(', ')}
+                      {allAttendees.slice(0, 3).map((a) => a.name).join(', ')}
                       {allAttendees.length > 3 && (
                         <span className="text-[#999999]"> +{allAttendees.length - 3} more</span>
                       )}

@@ -7,7 +7,6 @@ import {
 import { queryKeys } from "../lib/queryKeys";
 
 
-
 export const useRequirementActivities = (requirementId: number) => {
 
   const query = useQuery({

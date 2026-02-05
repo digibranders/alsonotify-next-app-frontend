@@ -2,17 +2,13 @@ import { useState, useMemo, useEffect, useRef } from "react";
 import { Button, Input, Select, Divider, Upload, Switch, Progress, App } from "antd";
 import { useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/Skeleton";
-import { Camera, Pencil, Upload as UploadIcon, FileText, Bell, Shield, User } from "lucide-react";
+import { Camera, Pencil, FileText, Bell, Shield, User } from "lucide-react";
 import Image from "next/image";
 import { PageLayout } from "../../layout/PageLayout";
 import { useUserDetails, useUpdateProfile, useUpdatePassword } from "@/hooks/useUser";
 import { DocumentCard } from "@/components/ui/DocumentCard";
 import { DocumentPreviewModal } from "@/components/ui/DocumentPreviewModal";
-import { UserDocument, DocumentType } from "@/types/genericTypes";
-import {
-    DEFAULT_DOCUMENT_TYPES,
-    DOCUMENT_TYPES_STORAGE_KEY,
-} from "@/constants/documentTypes";
+import { UserDocument } from "@/types/genericTypes";
 import { useDocumentSettings } from "@/hooks/useDocumentSettings";
 import { getErrorMessage } from "@/types/api-utils";
 import { fileService } from "@/services/file.service";

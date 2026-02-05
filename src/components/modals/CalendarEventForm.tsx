@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, useCallback } from 'react';
-import { Modal, Input, Select, DatePicker, App, Button, Radio, Segmented } from 'antd';
+import { Modal, Input, Select, DatePicker, App, Radio, Segmented } from 'antd';
 import { Calendar as CalendarIcon, Clock, X } from 'lucide-react';
 import dayjs from 'dayjs';
 import { useApplyForLeave } from '@/hooks/useLeave';
@@ -39,7 +39,7 @@ export function CalendarEventForm({
   employeesData,
   availableLeaveTypes = ['Sick Leave', 'Casual Leave', 'Vacation'],
   companyTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',
-}: CalendarEventFormProps) {
+}: Readonly<CalendarEventFormProps>) {
   const { message } = App.useApp();
   const [eventType, setEventType] = useState<'event' | 'leave'>(initialType);
   const [submitting, setSubmitting] = useState(false);

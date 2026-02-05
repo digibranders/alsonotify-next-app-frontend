@@ -51,7 +51,7 @@ import { useUserDetails } from "@/hooks/useUser";
 import type { ContactOption } from "./EmailInput";
 
 const { Sider, Content } = Layout;
-const { Text, Title } = Typography;
+const { Text } = Typography;
 
 function formatFrom(m: any) {
   const from = m?.from?.emailAddress;

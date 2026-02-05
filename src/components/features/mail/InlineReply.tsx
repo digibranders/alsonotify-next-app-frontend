@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
+import { useState, useRef, forwardRef, useImperativeHandle } from 'react';
 import { Button, Avatar, Tooltip } from 'antd';
 import {
   Bold, Italic, Underline,
   List, ListOrdered,
   Paperclip, Image as ImageIcon, Smile,
   MoreVertical, Trash2, Send, Forward, X
+} from 'lucide-react';
 } from 'lucide-react';
 import { RichTextEditor, formatText } from '../../common/RichTextEditor';
 import dayjs from 'dayjs';
@@ -39,9 +40,6 @@ export const InlineReply = forwardRef<InlineReplyRef, InlineReplyProps>(({ origi
       } else {
         subject = `Re: ${originalMessage.subject}`;
       }
-
-      // We don't set Body here necessarily, as it resets. But we could.
-
       // Scroll into view
       setTimeout(() => {
         containerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });

@@ -74,7 +74,7 @@ export function FloatingTimerBar() {
     checkFormOpen();
 
     // Create observer
-    const observer = new MutationObserver((mutations) => {
+    const observer = new MutationObserver(() => {
       checkFormOpen();
     });
 
@@ -158,7 +158,6 @@ export function FloatingTimerBar() {
         const status = (t.status || '').toLowerCase();
 
         // Debugging Filter
-        const shouldHideReview = status === 'review' && !t.is_revision;
         // console.log(`Task ${t.name}: Status=${status}, IsRevision=${t.is_revision}, Hide=${shouldHideReview}`);
 
         // Visibility Logic:
@@ -235,7 +234,6 @@ export function FloatingTimerBar() {
     return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const currentTaskName = currentTask?.name || "Select Task";
 
   const handlePlayPause = async () => {
     if (!currentDisplayTaskId) {

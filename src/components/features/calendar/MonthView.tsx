@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import dayjs from 'dayjs';
-import { Popover, Spin } from 'antd';
+import { Popover } from 'antd';
 import { Skeleton } from '../../ui/Skeleton';
 import { CalendarEventPopup } from './CalendarEventPopup';
 import { CalendarEvent } from './types';
@@ -16,7 +16,6 @@ interface MonthViewProps {
 export function MonthView({ currentDate, events, isLoading, selectedDate, onSelectDate }: MonthViewProps) {
     const calendarDays = useMemo(() => {
         const startOfMonth = currentDate.startOf('month');
-        const endOfMonth = currentDate.endOf('month');
         const startDayOfWeek = startOfMonth.day(); // 0 (Sun) to 6 (Sat)
         const daysInMonth = currentDate.daysInMonth();
 

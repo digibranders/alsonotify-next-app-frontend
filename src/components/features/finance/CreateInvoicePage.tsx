@@ -3,17 +3,10 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
-    ArrowLeft,
     Download,
     Send,
-    FileText,
-    CreditCard,
-    Building2,
-    Mail,
     Plus,
     X,
-    CheckCircle,
-    Loader2,
     Save,
     ChevronDown,
     Settings,
@@ -21,25 +14,12 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import dayjs from 'dayjs';
-import Image from 'next/image';
-import BrandLogo from '@/assets/images/logo.png';
-import FynixLogo from '@/assets/images/fynix-logo.png';
-import { PageLayout } from '../../layout/PageLayout';
-import { MOCK_REQUIREMENTS, Requirement } from '../../../data/mockFinanceData';
+import { MOCK_REQUIREMENTS } from '../../../data/mockFinanceData';
 import { useCurrentUserCompany, usePartners } from '@/hooks/useUser';
-import { commonCountries } from '@/data/defaultData';
-import { Select } from 'antd';
 import { InvoicePreview } from './InvoicePreview';
 import { useInvoicePresets, InvoicePaymentPreset } from '@/hooks/useInvoicePresets';
 
-const { Option } = Select;
 
-// --- Types ---
-interface PaymentPreset {
-    id: string;
-    name: string;
-    content: string;
-}
 
 interface LineItem {
     id: string;
@@ -272,7 +252,6 @@ export function CreateInvoicePage() {
             });
 
             const imgWidth = 210; // A4 width in mm
-            const pageHeight = 297; // A4 height in mm
             const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
             pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);

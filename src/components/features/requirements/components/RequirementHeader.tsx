@@ -1,35 +1,30 @@
-import { Breadcrumb, Button, Modal, Select, Skeleton } from 'antd';
-import { X, FileText, ListTodo, BarChart2, Columns, TrendingUp, Paperclip } from 'lucide-react';
+import { Breadcrumb, Skeleton } from 'antd';
+import { FileText, ListTodo, BarChart2, Columns, TrendingUp, Paperclip } from 'lucide-react';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { TabButton } from './TabButton';
-
-const { Option } = Select;
 
 interface RequirementHeaderProps {
   workspace: any;
   requirement: any;
-  ctaConfig: any;
   requirementStatus: string;
   assignedTo: any[];
   router: any;
-  myWorkspacesData: any;
-  updateRequirement: any;
   activeTab: string;
   setActiveTab: (tab: 'details' | 'tasks' | 'gantt' | 'kanban' | 'pnl' | 'documents') => void;
+  ctaConfig?: any;
+  myWorkspacesData?: any;
+  updateRequirement?: any;
 }
 
 export function RequirementHeader({
   workspace,
   requirement,
-  ctaConfig,
   requirementStatus,
   assignedTo,
-  router,
-  myWorkspacesData,
-  updateRequirement,
+  router, 
   activeTab,
   setActiveTab
-}: RequirementHeaderProps) {
+}: Readonly<RequirementHeaderProps>) {
   return (
     <div className="px-6 pt-6 pb-0">
       <div className="flex items-center justify-between mb-2">

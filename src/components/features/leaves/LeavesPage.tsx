@@ -1,7 +1,7 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { PageLayout } from '../../layout/PageLayout';
 import { FilterBar, FilterOption } from '../../ui/FilterBar';
-import { Spin, Modal, Form, DatePicker, Select, Input, Button, App, Checkbox } from 'antd';
+import { Modal, Form, DatePicker, Select, Input, Button, Checkbox } from 'antd';
 import { Skeleton } from '../../ui/Skeleton';
 import { useCompanyLeaves, useUpdateLeaveStatus, useApplyForLeave } from '../../../hooks/useLeave';
 import { LeaveType } from '../../../services/leave';
@@ -16,7 +16,6 @@ const { Option } = Select;
 type LeaveTab = 'all' | 'pending' | 'approved' | 'rejected';
 
 export function LeavesPage() {
-  const { message } = App.useApp();
   // Use standardized tab sync hook for consistent URL handling
   const [activeTab, setActiveTab] = useTabSync<LeaveTab>({
     defaultTab: 'all',
@@ -55,7 +54,7 @@ export function LeavesPage() {
   const processedLeaves: Leave[] = useMemo(() => {
     if (!leavesData?.result) return [];
     return leavesData.result.map((leave: LeaveType) => {
-      const daysValue = typeof leave.days === 'number' ? leave.days : (parseFloat(leave.days as any) || leave.days_count || 0);
+      const daysValue = typeof leave.days === 'number' ? leave.days : (Number.parseFloat(leave.days as any) || leave.days_count || 0);
       return {
         id: String(leave.id),
         employeeName: leave.user?.name || 'Unknown Employee',
@@ -108,26 +107,22 @@ export function LeavesPage() {
     if (!leavesData?.result) return ['Sick Leave', 'Casual Leave', 'Vacation'];
     const types = new Set(leavesData.result.map((leave: LeaveType) => leave.leave_type));
     return Array.from(types).filter(Boolean).length > 0
-      ? Array.from(types).filter(Boolean) as string[]
+      ? Array.from(types).filter(Boolean)
       : ['Sick Leave', 'Casual Leave', 'Vacation'];
   }, [leavesData]);
 
-  const DAY_TYPES = ['Full Day', 'First Half', 'Second Half'];
 
   const handleApprove = async (leaveId: number) => {
-    try {
-      await updateStatusMutation.mutateAsync({ id: leaveId, status: 'APPROVED' });
-    } catch (error) { /* empty */ }
+    await updateStatusMutation.mutateAsync({ id: leaveId, status: 'APPROVED' });
+    
   };
 
   const handleReject = async (leaveId: number) => {
-    try {
-      await updateStatusMutation.mutateAsync({ id: leaveId, status: 'REJECTED' });
-    } catch (error) { /* empty */ }
+    await updateStatusMutation.mutateAsync({ id: leaveId, status: 'REJECTED' });
+    
   };
 
   const handleApplyLeave = async (values: ApplyLeaveFormValues) => {
-    try {
       await applyLeaveMutation.mutateAsync({
         start_date: values.start_date.format('YYYY-MM-DD'),
         end_date: values.end_date.format('YYYY-MM-DD'),
@@ -137,7 +132,6 @@ export function LeavesPage() {
       });
       form.resetFields();
       setIsApplyLeaveModalOpen(false);
-    } catch (error) { /* empty */ }
   };
 
   // Filter options

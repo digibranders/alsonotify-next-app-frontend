@@ -16,7 +16,7 @@ import svgPaths from "../../constants/iconPaths";
 import { NoteComposerModal } from "../common/NoteComposerModal";
 import { NoteViewModal } from "../common/NoteViewModal";
 
-export function NotesWidget({ onNavigate }: { onNavigate?: (page: string) => void }) {
+export function NotesWidget() {
     const queryClient = useQueryClient();
     const { message: messageApi, modal } = App.useApp();
     const [showDialog, setShowDialog] = useState(false);
@@ -221,7 +221,7 @@ function NoteCard({ note, onArchive, onDelete, onClick }: {
             {/* Main Note Button */}
             <button
                 aria-labelledby={titleId}
-                onClick={(e) => {
+                onClick={() => {
                     // We don't need to check for action buttons here anymore as they are outside
                     onClick?.(note);
                 }}

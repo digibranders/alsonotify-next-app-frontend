@@ -12,25 +12,23 @@ import {
 } from 'lucide-react';
 
 import { PaginationBar } from '../../ui/PaginationBar';
-import { Modal, Button, Input, Select, Tooltip, Popover, Checkbox, App } from 'antd';
+import { Modal, Select, Tooltip, Popover, Checkbox, App } from 'antd';
 import { useWorkspaces, useCreateRequirement, useUpdateRequirement, useDeleteRequirement, useApproveRequirement, useCollaborativeRequirements } from '@/hooks/useWorkspace';
 import { useEmployees, useUserDetails } from '@/hooks/useUser';
 import { Skeleton } from '../../ui/Skeleton';
 import { getRequirementsByWorkspaceId } from '@/services/workspace';
 import { fileService } from '@/services/file.service';
-import { useQueries, useQueryClient } from '@tanstack/react-query';
-import { format, isPast, isToday, differenceInDays } from 'date-fns';
+import { useQueries } from '@tanstack/react-query';
+import { format } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import { useTabSync } from '@/hooks/useTabSync';
-import dayjs, { Dayjs } from 'dayjs';
+import { Dayjs } from 'dayjs';
 import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
 
 
-const { TextArea } = Input;
 const { Option } = Select;
 
 import { RequirementsForm } from '../../modals/RequirementsForm';
-import { WorkspaceForm } from '../../modals/WorkspaceForm';
 import { RequirementCard } from './components/RequirementCard';
 import { QuotationDialog, RejectDialog, InternalMappingModal } from './components/dialogs';
 
@@ -48,7 +46,6 @@ import {
 export function RequirementsPage() {
   const { message: messageApi, modal: modalApi } = App.useApp();
   const router = useRouter();
-  const queryClient = useQueryClient();
   const createRequirementMutation = useCreateRequirement();
   const updateRequirementMutation = useUpdateRequirement();
   const deleteRequirementMutation = useDeleteRequirement();
@@ -74,7 +71,7 @@ export function RequirementsPage() {
   });
 
   // Fetch collaborative requirements (where my company is receiver)
-  const { data: collaborativeData, isLoading: isLoadingCollaborative } = useCollaborativeRequirements();
+  const { data: collaborativeData } = useCollaborativeRequirements();
   const { data: userData } = useUserDetails();
   // userData.result is the Employee/User object directly
   // We need company_id for role detection
@@ -573,7 +570,7 @@ export function RequirementsPage() {
     });
   };
 
-  const handleUpdateRequirement = (data: CreateRequirementRequestDto, files?: File[]) => {
+  const handleUpdateRequirement = (data: CreateRequirementRequestDto) => {
     if (!editingReq) return;
 
     // We need to construct UpdateRequirementRequestDto which includes id.
@@ -827,14 +824,6 @@ export function RequirementsPage() {
     setCurrentPage(1);
   };
 
-  const getSortIcon = (column: string) => {
-    if (sortColumn !== column) return null;
-    return sortDirection === 'asc' ? (
-      <ArrowUp className="w-3 h-3 inline ml-1" />
-    ) : (
-      <ArrowDown className="w-3 h-3 inline ml-1" />
-    );
-  };
 
   // Get unique partners for filter options
   const allPartners = useMemo(() => {
@@ -1436,7 +1425,6 @@ export function RequirementsPage() {
                           approvalStatus: requirement.approvalStatus,
                         };
                         const tab = getRequirementTab(status, type, role, tabContext);
-                        const isActive = tab === 'active' || tab === 'completed' || tab === 'delayed';
                         const isArchived = tab === 'archived';
                         const canDelete = tab === 'draft' || tab === 'pending' || isArchived;
 

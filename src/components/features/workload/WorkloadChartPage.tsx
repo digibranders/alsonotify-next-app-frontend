@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
 import { useTabSync } from '@/hooks/useTabSync';
 import { Users, TrendingUp, Clock, AlertCircle } from 'lucide-react';
 import { PageLayout } from '../../layout/PageLayout';

@@ -194,7 +194,6 @@ export function NoteViewModal({ open, note, onClose }: NoteViewModalProps) {
   if (!note) return null;
 
   const isTextNote = noteType === 'TEXT_NOTE';
-  const isChecklistNote = noteType === 'CHECKLIST_NOTE';
 
   return (
     <Modal

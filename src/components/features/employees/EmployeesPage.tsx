@@ -1,6 +1,6 @@
 import { PageLayout } from '../../layout/PageLayout';
 
-import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { useFloatingMenu } from '../../../context/FloatingMenuContext';
 import { FilterBar, FilterOption } from '../../ui/FilterBar';
 
@@ -22,19 +22,15 @@ import {
 import { Skeleton } from '../../ui/Skeleton';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { CompanyDepartmentType } from '../../../services/user';
-import { useRouter, useSearchParams } from 'next/navigation';
 import { useTabSync } from '@/hooks/useTabSync';
 import { Employee } from '@/types/domain';
-import { Plus, Search, Filter, X, ChevronDown, Check, ChevronsRight, ChevronLeft, ChevronRight } from "lucide-react";
-import { Button, Input, Select, Drawer, Form, message, Modal, Checkbox, Dropdown, App, Tooltip } from "antd";
+import { Modal, Checkbox, App, Tooltip } from "antd";
 import { UserDto, CreateEmployeeRequestDto, UpdateEmployeeRequestDto } from '@/types/dto/user.dto';
 import { useQueryClient } from '@tanstack/react-query';
-import { getRoleFromUser } from '@/utils/roleUtils';
 import { queryKeys } from "../../../lib/queryKeys";
 import { getErrorMessage } from '@/types/api-utils';
 
 export function EmployeesPage() {
-  const router = useRouter();
   const queryClient = useQueryClient();
   const { modal, message } = App.useApp();
 
@@ -80,8 +76,7 @@ export function EmployeesPage() {
   const { data: employeesData, isLoading } = useEmployees(queryParams);
   const { data: departmentsData } = useCompanyDepartments();
   const { user: currentUser } = useCurrentUser();
-  const { data: currentUserData } = useUserDetails();
-  const { data: companyData } = useCurrentUserCompany();
+  useUserDetails();
 
   // Transform backend data to UI format
   const employees = useMemo(() => {

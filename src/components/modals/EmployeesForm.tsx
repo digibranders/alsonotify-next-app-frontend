@@ -1,17 +1,16 @@
 import { useState, useEffect, useMemo } from "react";
-import { Button, Input, Select, DatePicker, TimePicker, App, Space } from "antd";
+import { Input, Select, DatePicker, TimePicker, App, Space } from "antd";
 import { ShieldCheck, Briefcase, User, Users, Calendar, User as UserIcon } from "lucide-react";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import PhoneNumberInput from "@/components/ui/PhoneNumberInput";
-import { useCurrentUserCompany, useRoles, useEmployees } from "@/hooks/useUser";
+import { useCurrentUserCompany, useRoles } from "@/hooks/useUser";
 import { currencies, getCurrencySymbol } from "@/utils/currencyUtils";
-import { Employee, Role } from '@/types/domain';
+import { Role } from '@/types/domain';
 import { FormLayout } from '@/components/common/FormLayout';
 
 dayjs.extend(customParseFormat);
 
-const { TextArea } = Input;
 const { Option } = Select;
 
 export interface EmployeeFormData {
@@ -19,7 +18,7 @@ export interface EmployeeFormData {
   lastName: string;
 
   role: string;
-  email: string;
+  email: string;  
   phone: string;
   countryCode: string;
   department: string;
@@ -85,11 +84,10 @@ export function EmployeeForm({
   onCancel,
   isEditing = false,
   departments = [],
-}: EmployeeFormProps) {
+}: Readonly<EmployeeFormProps>) {
   const [formData, setFormData] = useState<EmployeeFormData>(defaultFormData);
-  const { data: companyData, isLoading: isLoadingCompany } = useCurrentUserCompany();
+  const { data: companyData } = useCurrentUserCompany();
   const { data: rolesData, isLoading: isLoadingRoles } = useRoles();
-  const { data: employeesData } = useEmployees("is_active=true&limit=1000"); // Fetch all active employees for manager list
   const { message } = App.useApp();
 
   const fetchedRoles = useMemo((): Role[] => {
@@ -271,8 +269,6 @@ export function EmployeeForm({
     return { icon: User, color: "#12B76A", bgColor: "#ECFDF3" };
   };
 
-  const accessConfig = getAccessLevelConfig(formData.access);
-  const AccessIcon = accessConfig.icon;
 
   const currencySymbol = getCurrencySymbol(formData.currency);
 

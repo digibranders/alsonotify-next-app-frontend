@@ -1,8 +1,8 @@
 'use client';
 
-import { useMemo, useEffect, useRef, useState } from 'react';
+import { useMemo, useEffect, useRef } from 'react';
 import dayjs from 'dayjs';
-import { Popover, Spin } from 'antd';
+import { Popover } from 'antd';
 import { Skeleton } from '../../ui/Skeleton';
 import { CalendarEventPopup } from './CalendarEventPopup';
 import { CalendarEvent } from './types';

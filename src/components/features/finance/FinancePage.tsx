@@ -1,17 +1,13 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo , useRef, useEffect } from 'react';
 import {
   CheckCircle,
-  FileText,
   ChevronDown,
   ChevronRight,
   Download,
-  Check,
-  X,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { Modal, Button } from 'antd';
 import { useRouter } from 'next/navigation';
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
@@ -26,13 +22,11 @@ dayjs.extend(isBetween);
 import {
   Requirement,
   Invoice,
-  InvoiceItem,
   MOCK_REQUIREMENTS,
   MOCK_INVOICES
 } from '../../../data/mockFinanceData';
 import { useCurrentUserCompany, usePartners } from '@/hooks/useUser';
 import { InvoicePreview } from './InvoicePreview';
-import { useRef, useEffect } from 'react';
 
 // --- Main Component ---
 
@@ -166,7 +160,7 @@ export function FinancePage() {
       if (statusFilter !== 'All' && inv.status !== statusFilter) return false;
 
       // Date Range (using Invoice Date)
-      if (dateRange && dateRange[0] && dateRange[1]) {
+      if (dateRange?.[0] && dateRange[1]) {
         const invDate = dayjs(inv.date);
         if (!invDate.isBetween(dateRange[0], dateRange[1], 'day', '[]')) {
           return false;
@@ -220,18 +214,6 @@ export function FinancePage() {
     router.push(`/dashboard/finance/create?${queryParams.toString()}`);
   };
 
-  const handleMarkAsPaid = (invoiceId: string) => {
-    // Update invoice
-    setInvoices(prev => prev.map(inv => inv.id === invoiceId ? { ...inv, status: 'paid' as const } : inv));
-
-    // Find invoice items and update requirements
-    const invoice = invoices.find(inv => inv.id === invoiceId);
-    if (invoice) {
-      setRequirements(prev => prev.map(req => req.invoiceId === invoiceId ? { ...req, invoiceStatus: 'paid' as const } : req));
-    }
-
-    toast.success("Invoice marked as paid");
-  };
 
   const handleDownloadHistoryPDF = async (invoice: Invoice) => {
     try {
@@ -309,7 +291,6 @@ export function FinancePage() {
           });
 
           const imgWidth = 210;
-          const pageHeight = 297;
           const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
           pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);

@@ -5,7 +5,6 @@ import { MessageSquare, Paperclip, X, Send, Loader2 } from 'lucide-react';
 import { App } from 'antd';
 import { format } from 'date-fns';
 import { useTaskActivities, useCreateTaskActivity } from '@/hooks/useTaskActivity';
-import { useAuth } from '@/hooks/useAuth';
 import { fileService } from '@/services/file.service';
 
 interface TaskChatPanelProps {
@@ -13,7 +12,6 @@ interface TaskChatPanelProps {
 }
 
 export function TaskChatPanel({ taskId }: TaskChatPanelProps) {
-  const { user } = useAuth();
   const { data: activitiesData, isLoading: isLoadingActivities } = useTaskActivities(taskId);
   const { mutate: createActivity, isPending: isSending } = useCreateTaskActivity();
 

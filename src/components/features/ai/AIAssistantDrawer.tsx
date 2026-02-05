@@ -1,14 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
-import { Drawer, Button, Input } from 'antd';
+import { Drawer, Button } from 'antd';
 import { 
   Sparkle24Filled, 
-  Dismiss24Filled, 
   Send24Filled, 
   Mic24Filled, 
   Document24Filled, 
-  Person24Filled,
-  CheckmarkCircle24Filled 
-} from '@fluentui/react-icons';
+  Person24Filled} from '@fluentui/react-icons';
 import { generateAgentResponse } from '@/services/assistant';
 import { useMutation } from '@tanstack/react-query';
 import { QUICK_ACTIONS } from '@/config/assistantConfig';

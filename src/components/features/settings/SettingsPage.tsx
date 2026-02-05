@@ -6,12 +6,11 @@ import { Button, Input, App, Modal, DatePicker } from "antd";
 import { useUpdateCompany, useCurrentUserCompany, useRoles, useRolePermissions, useUpsertRole, useUpdateRolePermissions, useUserDetails } from '@/hooks/useUser';
 import { usePublicHolidays, useCreateHoliday, useUpdateHoliday, useDeleteHoliday } from '@/hooks/useHoliday';
 import { getErrorMessage } from '@/types/api-utils';
-import { DEFAULT_DOCUMENT_TYPES, DOCUMENT_TYPES_STORAGE_KEY } from '@/constants/documentTypes';
 import { useDocumentSettings } from '@/hooks/useDocumentSettings';
 import { getRoleFromUser } from '@/utils/roleUtils';
 import { useAccountType } from '@/utils/accountTypeUtils';
 import dayjs from 'dayjs';
-import { Department, Holiday, Role } from '@/types/domain';
+import { Department, Holiday } from '@/types/domain';
 import { CompanyUpdateInput } from '@/types/genericTypes';
 import { CompanyLeaveSetting } from '@/types/auth';
 import { CompanyDetailsTab } from './tabs/CompanyDetailsTab';
@@ -53,10 +52,8 @@ export function SettingsPage() {
   const [isEditing, setIsEditing] = useState(false);
 
   // State for new tabs
-  const [bankDetails, setBankDetails] = useState({ accountName: '', bankName: '', accountNumber: '', ifscCode: '' });
   const [notifications, setNotifications] = useState({ email: true, push: false, reports: true });
   const [security, setSecurity] = useState({ currentPassword: '', newPassword: '', confirmPassword: '', twoFactor: false });
-  const [showPassword, setShowPassword] = useState({ current: false, new: false, confirm: false });
   const updateCompanyMutation = useUpdateCompany();
   const { data: companyData } = useCurrentUserCompany();
   const { data: userDetails } = useUserDetails();
@@ -409,7 +406,6 @@ export function SettingsPage() {
   const canViewAccessManagement = isAdmin || permissions['VIEW_ACCESS_MANAGEMENT'];
   const canEditAccessManagement = isAdmin || permissions['EDIT_ACCESS_MANAGEMENT'];
   const canViewIntegrations = isAdmin || permissions['VIEW_INTEGRATIONS'];
-  const canEditIntegrations = isAdmin || permissions['EDIT_INTEGRATIONS'];
 
   /* Helper to determine tab visibility */
   const showTab = (tabId: string) => {

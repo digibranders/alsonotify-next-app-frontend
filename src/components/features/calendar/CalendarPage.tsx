@@ -1,12 +1,11 @@
 'use client';
 
-import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useTabSync } from '@/hooks/useTabSync';
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Clock, MapPin, Video, X, Plus, LogOut } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Clock, MapPin, Video, Plus, LogOut } from 'lucide-react';
 import { Skeleton } from '../../ui/Skeleton';
 import { PageLayout } from '../../layout/PageLayout';
-import { Popover, Spin, Tag, Button, Modal, Input, Select, DatePicker, App, Avatar, Tooltip, Segmented, Radio, Popconfirm } from 'antd';
+import { Popover, Button, Select, App, Popconfirm } from 'antd';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
@@ -21,16 +20,15 @@ dayjs.extend(customParseFormat);
 
 import { useTasks } from '@/hooks/useTask';
 import { useMeetings } from '@/hooks/useMeeting';
-import { useLeaves, useApplyForLeave, useCompanyLeaves } from '@/hooks/useLeave';
+import { useLeaves, useCompanyLeaves } from '@/hooks/useLeave';
 import { useTeamsConnectionStatus, useCalendarEvents, useDisconnectTeams } from '@/hooks/useCalendar';
 import { usePublicHolidays } from '@/hooks/useHoliday';
-import { MicrosoftUserOAuth, createCalendarEvent, CreateEventPayload, GraphEvent } from '@/services/calendar';
+import { MicrosoftUserOAuth, GraphEvent } from '@/services/calendar';
 import { useEmployees, useCurrentUserCompany, useUserDetails } from '@/hooks/useUser';
 // import { TaskType } from '@/services/task'; // Removed to avoid confusion
 import { MeetingType } from '@/services/meeting';
 import { LeaveType } from '@/services/leave';
-import { Holiday, Task, Employee } from '@/types/domain';
-import { getErrorMessage } from '@/types/api-utils';
+import { Holiday, Task } from '@/types/domain';
 
 import { CalendarEventForm } from '../../modals/CalendarEventForm';
 import { CalendarEvent } from './types';
@@ -39,16 +37,8 @@ import { WeekView } from './WeekView';
 import { DayView } from './DayView';
 import { CalendarEventPopup } from './CalendarEventPopup';
 
-const { Option } = Select;
-
-interface Attendee {
-  email: string;
-  name?: string;
-}
-
 export function CalendarPage() {
   const { message } = App.useApp();
-  const router = useRouter();
   
   const [currentDate, setCurrentDate] = useState(dayjs());
   // Use standardized tab sync hook for consistent URL handling
@@ -84,7 +74,6 @@ export function CalendarPage() {
   const { data: teamsStatus, isLoading: isLoadingTeamsStatus, refetch: refetchTeamsStatus } = useTeamsConnectionStatus();
   const { mutate: disconnectTeams, isPending: isDisconnecting } = useDisconnectTeams();
   const { data: leavesData } = useCompanyLeaves();
-  const applyLeaveMutation = useApplyForLeave();
 
   const isLoading = isLoadingTasks || isLoadingMeetings || isLoadingLeaves || isLoadingHolidays;
   const isConnected = teamsStatus?.result?.connected ?? false;

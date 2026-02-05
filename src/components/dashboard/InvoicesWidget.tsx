@@ -34,7 +34,7 @@ export function InvoicesWidget() {
   );
 }
 
-function InvoiceItem({ id, client, amount, status, date }: { id: string; client: string; amount: string; status: string; date: string }) {
+function InvoiceItem({ id, client, amount, status}: { id: string; client: string; amount: string; status: string; date: string }) {
   const getStatusColor = () => {
     switch (status) {
       case 'Paid':

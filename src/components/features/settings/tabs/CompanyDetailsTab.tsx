@@ -1,5 +1,5 @@
 import { Plus, Edit, Trash2, Pencil, Building2 } from 'lucide-react';
-import { Button, Input, Select, Switch, Divider, message, Upload, App } from "antd";
+import { Button, Input, Select, Switch, Divider, message, Upload } from "antd";
 import { commonCountries } from '@/data/defaultData';
 import { fileService } from '@/services/file.service';
 import { getTimezones } from '@/utils/timezones';

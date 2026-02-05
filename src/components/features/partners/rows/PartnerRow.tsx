@@ -1,7 +1,6 @@
-import { Checkbox, Dropdown, MenuProps, Avatar, Tag } from "antd";
-import { MoreVertical, Edit, Trash2, Mail, Phone, Globe, User, Briefcase, Building, Eye as EyeIcon } from "lucide-react";
+import { Checkbox, Dropdown, MenuProps, Tag } from "antd";
+import { MoreVertical, Trash2, Mail, Globe, User, Building } from "lucide-react";
 import { EyeOutlined } from '@ant-design/icons';
-import Link from "next/link";
 
 export type PartnerStatus = 'active' | 'inactive' | 'pending';
 
