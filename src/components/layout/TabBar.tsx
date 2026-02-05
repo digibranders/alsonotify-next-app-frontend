@@ -18,19 +18,17 @@ export function TabBar({ tabs, activeTab, onTabChange }: TabBarProps) {
           <button
             key={tab.id}
             onClick={() => onTabChange(tab.id)}
-            className={`pb-3 px-1 relative font-['Manrope:SemiBold',sans-serif] text-[14px] transition-colors flex items-center gap-2 ${
-              activeTab === tab.id
+            className={`pb-3 px-1 relative font-['Manrope:SemiBold',sans-serif] text-[14px] transition-colors flex items-center gap-2 ${activeTab === tab.id
                 ? 'text-[#ff3b3b]'
                 : 'text-[#666666] hover:text-[#111111]'
-            }`}
+              }`}
           >
             {tab.label}
-            {tab.count !== undefined && (
-              <span className={`px-2 py-0.5 rounded-full text-[11px] ${
-                activeTab === tab.id
+            {tab.count !== undefined && tab.count > 0 && (
+              <span className={`px-2 py-0.5 rounded-full text-[11px] ${activeTab === tab.id
                   ? 'bg-[#ff3b3b] text-white'
                   : 'bg-[#F7F7F7] text-[#666666]'
-              }`}>
+                }`}>
                 {tab.count}
               </span>
             )}
