@@ -55,11 +55,12 @@ export const getMailMessages = async (
   folder: string,
   top = 25,
   unreadOnly = false,
-  nextLink?: string
+  nextLink?: string,
+  search?: string
 ): Promise<ApiResponse<{ items: MailMessage[]; nextLink?: string }>> => {
   const { data } = await axiosApi.get<ApiResponse<{ items: MailMessage[]; nextLink?: string }>>(
     "/mail/messages",
-    { params: { folder, top, unreadOnly, nextLink } }
+    { params: { folder, top, unreadOnly, nextLink, search } }
   );
   return data;
 };
