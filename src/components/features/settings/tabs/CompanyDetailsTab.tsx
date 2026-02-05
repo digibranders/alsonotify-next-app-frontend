@@ -8,13 +8,16 @@ import { DocumentType } from '@/types/genericTypes';
 
 const { TextArea } = Input;
 const { Option } = Select;
+import { TAX_ID_TYPES, getTaxIdTypesForCountry } from '@/data/taxIdTypes';
+import { useEffect, useMemo, useState } from 'react';
+import { getValidatorForType } from '@/lib/validators/taxIdValidators';
 
 interface CompanyDetailsTabProps {
   isIndividual: boolean;
   isAdmin: boolean;
   canEditCompany: boolean;
   isEditing: boolean;
-  
+
   // Company Data
   companyName: string;
   setCompanyName: (val: string) => void;
@@ -22,6 +25,8 @@ interface CompanyDetailsTabProps {
   setCompanyLogo: (val: string) => void;
   taxId: string;
   setTaxId: (val: string) => void;
+  taxIdType: string;
+  setTaxIdType: (val: string) => void;
   timeZone: string;
   setTimeZone: (val: string) => void;
   currency: string;
@@ -64,6 +69,8 @@ export function CompanyDetailsTab({
   setCompanyLogo,
   taxId,
   setTaxId,
+  taxIdType,
+  setTaxIdType,
   timeZone,
   setTimeZone,
   currency,
@@ -97,6 +104,43 @@ export function CompanyDetailsTab({
   // The parent passes props, so side effects like upload use generic handlers or we keep logic here.
   // The logic for upload was inline in SettingsPage.
 
+  // Auto-select first tax ID type when country changes if current type is invalid for that country
+  const [taxIdError, setTaxIdError] = useState<string | null>(null);
+
+  // Auto-select first tax ID type when country changes if current type is invalid for that country
+  useEffect(() => {
+    if (isEditing && country) {
+      const options = getTaxIdTypesForCountry(country);
+      const currentIsValid = options.some(opt => opt.value === taxIdType);
+
+      if (!currentIsValid && options.length > 0) {
+        setTaxIdType(options[0].value);
+        setTaxIdError(null); // Clear error on auto-switch
+      }
+    }
+  }, [country, isEditing]); // We depend on country change
+
+  // Validate Tax ID
+  const validateTaxId = (id: string, type: string) => {
+    if (!id) {
+      setTaxIdError(null);
+      return true;
+    }
+    const validator = getValidatorForType(type);
+    const result = validator.safeParse(id);
+    if (!result.success) {
+      setTaxIdError(result.error.issues[0].message);
+      return false;
+    }
+    setTaxIdError(null);
+    return true;
+  };
+
+  useEffect(() => {
+    // Clear error when editing restarts or stops
+    if (!isEditing) setTaxIdError(null);
+  }, [isEditing]);
+
   return (
     <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
       <section className="mb-10">
@@ -104,7 +148,7 @@ export function CompanyDetailsTab({
           {/* Left Column: Header & Logo */}
           <div className="flex-none w-48 flex flex-col justify-between">
             <h2 className="text-[16px] font-['Manrope:SemiBold',sans-serif] text-[#111111]">Company Information</h2>
-            
+
             <div className="relative group self-start">
               <div className="w-32 h-32 rounded-full border border-[#EEEEEE] bg-[#FAFAFA] flex items-center justify-center overflow-hidden">
                 {companyLogo ? (
@@ -122,7 +166,7 @@ export function CompanyDetailsTab({
                       try {
                         message.loading({ content: 'Uploading logo...', key: 'logo-upload' });
                         const fileObj = file as File;
-                        
+
                         // Safety check on company ID
                         const companyId = companyData?.result?.id;
                         if (!companyId) {
@@ -131,10 +175,10 @@ export function CompanyDetailsTab({
 
                         const result = await fileService.uploadFile(
                           fileObj,
-                          'COMPANY_LOGO', 
+                          'COMPANY_LOGO',
                           companyId
                         );
-                        
+
                         if (result.download_url) {
                           setCompanyLogo(result.download_url);
                           onSuccess?.(result);
@@ -162,8 +206,8 @@ export function CompanyDetailsTab({
                       return true;
                     }}
                   >
-                    <Button 
-                      icon={<Pencil className="w-3.5 h-3.5" />} 
+                    <Button
+                      icon={<Pencil className="w-3.5 h-3.5" />}
                       className="flex items-center justify-center w-8 h-8 rounded-full bg-[#111111] text-white border-white border-2 hover:bg-black hover:text-white p-0 shadow-sm"
                     />
                   </Upload>
@@ -191,16 +235,14 @@ export function CompanyDetailsTab({
                   value={country || undefined}
                   onChange={(v) => setCountry(String(v))}
                   disabled={!isEditing}
+                  virtual={false}
+                  showSearch
+                  optionFilterProp="children"
+                  filterOption={(input, option) =>
+                    (option?.children as unknown as string).toLowerCase().includes(input.toLowerCase())
+                  }
                   className="w-full h-11"
-                  showSearch={{
-                    filterOption: (input, option) => {
-                      const searchText = input.toLowerCase().trim();
-                      const label = String(option?.children ?? '').toLowerCase();
-                      return label.includes(searchText);
-                    }
-                  }}
                   placeholder="Select country"
-                  optionFilterProp="label"
                 >
                   {commonCountries.map((c) => (
                     <Option key={c.code} value={c.name} label={c.name}>
@@ -286,17 +328,46 @@ export function CompanyDetailsTab({
           )}
         </div>
 
-        {/* Full Width: Tax ID */}
+        {/* Full Width: Tax ID with Type */}
         <div className="mb-6">
           <div className="space-y-2">
             <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">Tax ID</span>
-            <Input
-              value={taxId}
-              onChange={(e) => setTaxId(e.target.value)}
-              placeholder="Enter Tax ID"
-              disabled={!isEditing}
-              className={`h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-['Manrope:Medium',sans-serif] text-[13px] ${!isEditing ? 'bg-[#FAFAFA] text-[#666666]' : 'bg-white'}`}
-            />
+            <div className="flex gap-4">
+              <div className="w-[180px] flex-none">
+                <Select
+                  value={taxIdType || undefined}
+                  onChange={(v) => setTaxIdType(String(v))}
+                  placeholder="Type"
+                  disabled={!isEditing}
+                  className="w-full h-11"
+                  showSearch
+                >
+                  {getTaxIdTypesForCountry(country).map((type) => (
+                    <Option key={type.value} value={type.value}>
+                      {type.label}
+                    </Option>
+                  ))}
+                </Select>
+              </div>
+              <div className="flex-1">
+                <Input
+                  value={taxId}
+                  onChange={(e) => {
+                    setTaxId(e.target.value);
+                    if (taxIdError) validateTaxId(e.target.value, taxIdType); // Clear error as they type if valid
+                  }}
+                  onBlur={() => validateTaxId(taxId, taxIdType)}
+                  placeholder={
+                    getTaxIdTypesForCountry(country).find(t => t.value === taxIdType)?.placeholder ||
+                    "Enter Tax ID"
+                  }
+                  disabled={!isEditing}
+                  status={taxIdError ? 'error' : ''}
+                  className={`h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-['Manrope:Medium',sans-serif] text-[13px] ${!isEditing ? 'bg-[#FAFAFA] text-[#666666]' : 'bg-white'}`}
+                />
+                {taxIdError && <div className="text-red-500 text-xs mt-1">{taxIdError}</div>}
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -340,15 +411,15 @@ export function CompanyDetailsTab({
                         <span className="text-[11px] text-[#666666] font-['Manrope:Bold',sans-serif]">
                           Active
                         </span>
-                          <Switch
-                            checked={dept.active !== false} // Handle legacy or undefined as true if needed, or stick to type
-                            onChange={() => toggleDepartmentStatus(String(dept.id))}
-                            disabled={!canEditCompany}
-                            className="bg-gray-200 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                            style={{
-                              backgroundColor: (dept.active !== false) ? "#ff3b3b" : undefined,
-                            }}
-                          />
+                        <Switch
+                          checked={dept.active !== false} // Handle legacy or undefined as true if needed, or stick to type
+                          onChange={() => toggleDepartmentStatus(String(dept.id))}
+                          disabled={!canEditCompany}
+                          className="bg-gray-200 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                          style={{
+                            backgroundColor: (dept.active !== false) ? "#ff3b3b" : undefined,
+                          }}
+                        />
                       </div>
                       {canEditCompany && (
                         <>

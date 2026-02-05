@@ -56,14 +56,16 @@ export const inviteUser = async (email: string, requestSentFor: string) => {
 };
 
 // Search partners dropdown
-export const searchPartners = async (): Promise<ApiResponse<{ label: string; value: number }[]>> => {
-  const { data } = await axiosApi.get<ApiResponse<{ label: string; value: number }[]>>(`/user/partners/dropdown`);
+export const searchPartners = async (search?: string): Promise<ApiResponse<{ label: string; value: number }[]>> => {
+  const params = search ? { search } : {};
+  const { data } = await axiosApi.get<ApiResponse<{ label: string; value: number }[]>>(`/user/partners/dropdown`, { params });
   return data;
 };
 
 // Search employees dropdown
-export const searchEmployees = async (): Promise<ApiResponse<{ label: string; value: number }[]>> => {
-  const { data } = await axiosApi.get<ApiResponse<{ label: string; value: number }[]>>(`/user/user-dropdown`);
+export const searchEmployees = async (search?: string): Promise<ApiResponse<{ label: string; value: number }[]>> => {
+  const params = search ? { search } : {};
+  const { data } = await axiosApi.get<ApiResponse<{ label: string; value: number }[]>>(`/user/user-dropdown`, { params });
   return data;
 };
 

@@ -28,8 +28,8 @@ export const fileService = {
    * 3. Confirm with Backend
    */
   uploadFile: async (
-    file: File, 
-    contextType: FileContextType, 
+    file: File,
+    contextType: FileContextType,
     contextId?: number,
     onProgress?: (percent: number) => void
   ): Promise<FileAttachmentDto> => {
@@ -38,7 +38,7 @@ export const fileService = {
       const { data: urlResponse } = await axiosApi.post<ApiResponse<UploadUrlResponse>>('/files/upload-url', {
         file_name: file.name,
         file_size: file.size,
-        file_type: file.type, 
+        file_type: file.type,
         context_type: contextType,
         context_id: contextId || null
       });
@@ -51,17 +51,32 @@ export const fileService = {
 
       // 2. Upload to S3
       // Note: We use raw axios here to avoid the base URL and interceptors of axiosApi
-      await axios.put(upload_url, file, {
-        headers: {
-          'Content-Type': file.type,
-        },
-        onUploadProgress: (progressEvent) => {
-          if (onProgress && progressEvent.total) {
-            const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-            onProgress(percent);
-          }
-        },
-      });
+      try {
+        await axios.put(upload_url, file, {
+          headers: {
+            'Content-Type': file.type,
+          },
+          onUploadProgress: (progressEvent) => {
+            if (onProgress && progressEvent.total) {
+              const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+              onProgress(percent);
+            }
+          },
+        });
+      } catch (uploadError: any) {
+        console.error('S3 Upload Error Details:', {
+          message: uploadError.message,
+          code: uploadError.code,
+          name: uploadError.name,
+          response: uploadError.response
+        });
+
+        if (uploadError.message === 'Network Error') {
+          throw new Error('Upload blocked by browser or network. Please check: 1. CORS is configured on S3 bucket. 2. No ad-blockers/extensions are blocking the request.');
+        }
+
+        throw new Error(`S3 Upload Failed: ${uploadError.message}`);
+      }
 
       // 3. Confirm with Backend
       const { data: confirmResponse } = await axiosApi.post<ApiResponse<FileAttachmentDto>>('/files/confirm', {
@@ -123,11 +138,25 @@ export const fileService = {
       const { upload_url, file_key } = urlResponse.result;
 
       // 2. Upload to S3
-      await axios.put(upload_url, file, {
-        headers: {
-          'Content-Type': file.type,
+      try {
+        await axios.put(upload_url, file, {
+          headers: {
+            'Content-Type': file.type,
+          }
+        });
+      } catch (uploadError: any) {
+        console.error('S3 Employee Upload Error Details:', {
+          message: uploadError.message,
+          code: uploadError.code,
+          name: uploadError.name,
+          response: uploadError.response
+        });
+
+        if (uploadError.message === 'Network Error') {
+          throw new Error('Upload blocked by browser or network. Check S3 CORS config.');
         }
-      });
+        throw uploadError;
+      }
 
       // 3. Confirm with Backend via Employee Document Endpoint
       const { data: confirmResponse } = await axiosApi.post('/files/employee-documents/upload', {

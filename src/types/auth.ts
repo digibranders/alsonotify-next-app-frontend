@@ -34,6 +34,7 @@ export interface CompanyProfile {
   industry?: string;
   size?: string;
   tax_id?: string;
+  tax_id_type?: string;
   timezone?: string;
   currency?: string;
   country?: string;

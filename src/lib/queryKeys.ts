@@ -5,9 +5,9 @@ export const queryKeys = {
   },
   users: {
     all: () => ['users'] as const,
-    employees: (options: string = "") => ['users', 'employees', options] as const,
+    employees: (options: string = "", search?: string) => ['users', 'employees', options, { search }] as const,
     employeesRoot: () => ['users', 'employees'] as const,
-    partners: (options: string = "") => ['users', 'partners', options] as const,
+    partners: (options: string = "", search?: string) => ['users', 'partners', options, { search }] as const,
     partnersRoot: () => ['users', 'partners'] as const,
     clients: () => ['users', 'clients'] as const,
     detail: (id: number | string) => ['users', 'detail', id] as const,

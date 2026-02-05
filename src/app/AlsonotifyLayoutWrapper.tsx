@@ -133,7 +133,7 @@ function AlsonotifyLayoutContent({ children }: Readonly<AlsonotifyLayoutWrapperP
 
   return (
     <TimerProvider>
-      <div className="w-full h-screen bg-[#F7F7F7] p-5 flex overflow-hidden">
+      <div className="w-full h-screen bg-[#F7F7F7] p-5 flex overflow-hidden outline-none" tabIndex={-1}>
         {/* Main Layout - Visible on all screens */}
         <div className="flex gap-5 w-full h-full overflow-hidden">
           {/* Left Sidebar - Hidden on mobile, visible on lg+ */}

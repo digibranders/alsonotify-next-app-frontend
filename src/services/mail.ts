@@ -1,3 +1,4 @@
+// src/services/mail.ts
 import axiosApi from "../config/axios";
 import { ApiResponse } from "../constants/constants";
 
@@ -38,6 +39,13 @@ export type MailAttachment = {
   "@odata.type"?: string;
 };
 
+// Outgoing attachment from UI
+export type OutgoingAttachment = File;
+
+/* -------------------------------------------
+   Base APIs
+-------------------------------------------- */
+
 export const getMailFolders = async (): Promise<ApiResponse<MailFolder[]>> => {
   const { data } = await axiosApi.get<ApiResponse<MailFolder[]>>("/mail/folders");
   return data;
@@ -56,10 +64,6 @@ export const getMailMessages = async (
   return data;
 };
 
-/**
- * ✅ Query-safe message detail endpoint
- * Backend: GET /mail/message?id=...
- */
 export const getMailMessage = async (
   id: string,
   bodyType?: "text" | "html"
@@ -70,10 +74,6 @@ export const getMailMessage = async (
   return data;
 };
 
-/**
- * ✅ Query-safe attachments list endpoint
- * Backend: GET /mail/attachments?id=...
- */
 export const getMailAttachments = async (id: string): Promise<ApiResponse<MailAttachment[]>> => {
   const { data } = await axiosApi.get<ApiResponse<MailAttachment[]>>("/mail/attachments", {
     params: { id },
@@ -81,10 +81,6 @@ export const getMailAttachments = async (id: string): Promise<ApiResponse<MailAt
   return data;
 };
 
-/**
- * ✅ Query-safe download endpoint
- * Backend: GET /mail/attachment/download?id=...&attId=...
- */
 export const downloadAttachment = async (messageId: string, attId: string) => {
   const res = await axiosApi.get("/mail/attachment/download", {
     params: { id: messageId, attId },
@@ -93,46 +89,97 @@ export const downloadAttachment = async (messageId: string, attId: string) => {
   return res.data as Blob;
 };
 
-export const sendMail = async (payload: {
+/* -------------------------------------------
+   Multipart helpers
+-------------------------------------------- */
+
+function buildMailMultipart(payload: unknown, files?: File[]) {
+  const fd = new FormData();
+  fd.append("payload", JSON.stringify(payload));
+  (files || []).forEach((f) => fd.append("files", f, f.name));
+  return fd;
+}
+
+async function postSmart<T = any>(
+  url: string,
+  payload: unknown,
+  files?: File[],
+  axiosConfig?: any
+) {
+  if (!files || files.length === 0) {
+    return axiosApi.post<T>(url, payload, axiosConfig);
+  }
+  const fd = buildMailMultipart(payload, files);
+  // Don't set Content-Type manually; browser adds boundary.
+  return axiosApi.post<T>(url, fd, axiosConfig);
+}
+
+/* -------------------------------------------
+   Send / Reply / Forward (UPDATED)
+-------------------------------------------- */
+
+export type SendMailPayload = {
   to: string[];
   cc?: string[];
   bcc?: string[];
   subject: string;
   body: string;
   bodyType?: "HTML" | "Text";
-}) => {
-  const { data } = await axiosApi.post("/mail/send", payload);
-  return data;
+  attachments?: OutgoingAttachment[]; // NEW
 };
 
-/**
- * ✅ Query-safe actions
- * Backend:
- *  POST /mail/message/reply?id=...
- *  POST /mail/message/replyAll?id=...
- *  POST /mail/message/forward?id=...
- */
-export const replyMail = async (id: string, comment: string) => {
-  const { data } = await axiosApi.post("/mail/message/reply", { comment }, { params: { id } });
-  return data;
+export const sendMail = async (payload: SendMailPayload) => {
+  const { attachments, ...rest } = payload;
+  const res = await postSmart("/mail/send", rest, attachments);
+  return res.data;
 };
 
-export const replyAllMail = async (id: string, comment: string) => {
-  const { data } = await axiosApi.post("/mail/message/replyAll", { comment }, { params: { id } });
-  return data;
+export type ReplyPayload = {
+  comment: string;
+  bodyType?: "HTML" | "Text";
+  attachments?: OutgoingAttachment[]; // NEW
 };
 
-export const forwardMail = async (id: string, payload: { to: string[]; comment?: string }) => {
-  const { data } = await axiosApi.post("/mail/message/forward", payload, { params: { id } });
-  return data;
+// Backward compatible: replyMail(id, "text") OR replyMail(id, {comment, attachments})
+function normalizeReplyPayload(input: string | ReplyPayload): ReplyPayload {
+  if (typeof input === "string") return { comment: input };
+  return input;
+}
+
+export const replyMail = async (id: string, payload: string | ReplyPayload) => {
+  const p = normalizeReplyPayload(payload);
+  const { attachments, ...rest } = p;
+
+  const res = await postSmart("/mail/message/reply", rest, attachments, { params: { id } });
+  return res.data;
 };
 
-/**
- * ✅ Query-safe patch/delete
- * Backend:
- *  PATCH /mail/message?id=...
- *  DELETE /mail/message?id=...
- */
+export const replyAllMail = async (id: string, payload: string | ReplyPayload) => {
+  const p = normalizeReplyPayload(payload);
+  const { attachments, ...rest } = p;
+
+  const res = await postSmart("/mail/message/replyAll", rest, attachments, { params: { id } });
+  return res.data;
+};
+
+export type ForwardPayload = {
+  to: string[];
+  comment?: string;
+  bodyType?: "HTML" | "Text";
+  attachments?: OutgoingAttachment[]; // NEW
+};
+
+export const forwardMail = async (id: string, payload: ForwardPayload) => {
+  const { attachments, ...rest } = payload;
+
+  const res = await postSmart("/mail/message/forward", rest, attachments, { params: { id } });
+  return res.data;
+};
+
+/* -------------------------------------------
+   Patch / Delete
+-------------------------------------------- */
+
 export const patchMail = async (id: string, updates: any) => {
   const { data } = await axiosApi.patch("/mail/message", updates, { params: { id } });
   return data;

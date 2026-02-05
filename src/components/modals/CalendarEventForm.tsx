@@ -9,6 +9,7 @@ import { createCalendarEvent, CreateEventPayload } from '@/services/calendar';
 import { getErrorMessage } from '@/types/api-utils';
 import { Employee } from '@/types/domain';
 import { FormLayout } from '@/components/common/FormLayout';
+import { useDebounce } from '@/hooks/useDebounce';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -59,82 +60,82 @@ export function CalendarEventForm({
   // Reset form when type changes or on open
   useMemo(() => {
     if (open) {
-        setEventType(initialType);
-        setFormData({
-            title: '',
-            startDateTime: initialDate,
-            endDateTime: initialDate,
-            duration: '1 hour',
-            customTime: '',
-            attendees: [],
-            description: '',
-            leaveType: undefined,
-            dayType: 'Full Day'
-        });
+      setEventType(initialType);
+      setFormData({
+        title: '',
+        startDateTime: initialDate,
+        endDateTime: initialDate,
+        duration: '1 hour',
+        customTime: '',
+        attendees: [],
+        description: '',
+        leaveType: undefined,
+        dayType: 'Full Day'
+      });
     }
   }, [open, initialType, initialDate]);
 
   const handleCreate = useCallback(async () => {
     if (eventType === 'event') {
-        if (!formData.title.trim()) { message.error("Title is required"); return; }
-        if (!formData.startDateTime) { message.error("Start Date & Time is required"); return; }
-        if (!formData.duration && !formData.customTime) { message.error("Please select a duration or enter custom time"); return; }
-        
-        try {
-            setSubmitting(true);
-            let endTime: dayjs.Dayjs;
-            if (formData.customTime) {
-              const [hours, minutes] = formData.customTime.split(':').map(Number);
-              endTime = formData.startDateTime.hour(hours).minute(minutes || 0);
-            } else {
-              const durationMap: Record<string, number> = {
-                '30 mins': 30, '45 mins': 45, '1 hour': 60, '1.5 hours': 90, '2 hours': 120,
-              };
-              const minutes = durationMap[formData.duration] || 60;
-              endTime = formData.startDateTime.add(minutes, 'minute');
-            }
+      if (!formData.title.trim()) { message.error("Title is required"); return; }
+      if (!formData.startDateTime) { message.error("Start Date & Time is required"); return; }
+      if (!formData.duration && !formData.customTime) { message.error("Please select a duration or enter custom time"); return; }
 
-            const payload: CreateEventPayload = {
-              subject: formData.title.trim(),
-              start: { dateTime: formData.startDateTime.toISOString(), timeZone: companyTimeZone },
-              end: { dateTime: endTime.toISOString(), timeZone: companyTimeZone },
-              body: { contentType: "HTML", content: formData.description?.trim() ? formData.description : "<p>Microsoft Teams meeting</p>" },
-              attendees: formData.attendees.filter((a) => !!a.email).map((a) => ({ emailAddress: { address: a.email, name: a.name }, type: "required" as const })),
-              isOnlineMeeting: true,
-              onlineMeetingProvider: "teamsForBusiness",
-            };
-
-            await createCalendarEvent(payload);
-            message.success("Event created successfully!");
-            onSuccess?.();
-        } catch (error: unknown) {
-            const errorMessage = getErrorMessage(error, "Failed to create event");
-            message.error(errorMessage);
-        } finally {
-            setSubmitting(false);
+      try {
+        setSubmitting(true);
+        let endTime: dayjs.Dayjs;
+        if (formData.customTime) {
+          const [hours, minutes] = formData.customTime.split(':').map(Number);
+          endTime = formData.startDateTime.hour(hours).minute(minutes || 0);
+        } else {
+          const durationMap: Record<string, number> = {
+            '30 mins': 30, '45 mins': 45, '1 hour': 60, '1.5 hours': 90, '2 hours': 120,
+          };
+          const minutes = durationMap[formData.duration] || 60;
+          endTime = formData.startDateTime.add(minutes, 'minute');
         }
+
+        const payload: CreateEventPayload = {
+          subject: formData.title.trim(),
+          start: { dateTime: formData.startDateTime.toISOString(), timeZone: companyTimeZone },
+          end: { dateTime: endTime.toISOString(), timeZone: companyTimeZone },
+          body: { contentType: "HTML", content: formData.description?.trim() ? formData.description : "<p>Microsoft Teams meeting</p>" },
+          attendees: formData.attendees.filter((a) => !!a.email).map((a) => ({ emailAddress: { address: a.email, name: a.name }, type: "required" as const })),
+          isOnlineMeeting: true,
+          onlineMeetingProvider: "teamsForBusiness",
+        };
+
+        await createCalendarEvent(payload);
+        message.success("Event created successfully!");
+        onSuccess?.();
+      } catch (error: unknown) {
+        const errorMessage = getErrorMessage(error, "Failed to create event");
+        message.error(errorMessage);
+      } finally {
+        setSubmitting(false);
+      }
     } else {
-        if (!formData.leaveType) { message.error("Leave Type is required"); return; }
-        if (!formData.startDateTime) { message.error("Start Date is required"); return; }
-        if (!formData.endDateTime) { message.error("End Date is required"); return; }
-        if (!formData.description) { message.error("Reason is required"); return; }
+      if (!formData.leaveType) { message.error("Leave Type is required"); return; }
+      if (!formData.startDateTime) { message.error("Start Date is required"); return; }
+      if (!formData.endDateTime) { message.error("End Date is required"); return; }
+      if (!formData.description) { message.error("Reason is required"); return; }
 
-        try {
-            setSubmitting(true);
-            await applyLeaveMutation.mutateAsync({
-                start_date: formData.startDateTime.format('YYYY-MM-DD'),
-                end_date: formData.endDateTime.format('YYYY-MM-DD'),
-                day_type: formData.dayType,
-                leave_type: formData.leaveType,
-                reason: formData.description
-            });
-            message.success("Leave applied successfully!");
-            onSuccess?.();
-        } catch (error: unknown) {
-             // Error already handled generally
-        } finally {
-            setSubmitting(false);
-        }
+      try {
+        setSubmitting(true);
+        await applyLeaveMutation.mutateAsync({
+          start_date: formData.startDateTime.format('YYYY-MM-DD'),
+          end_date: formData.endDateTime.format('YYYY-MM-DD'),
+          day_type: formData.dayType,
+          leave_type: formData.leaveType,
+          reason: formData.description
+        });
+        message.success("Leave applied successfully!");
+        onSuccess?.();
+      } catch (error: unknown) {
+        // Error already handled generally
+      } finally {
+        setSubmitting(false);
+      }
     }
   }, [formData, eventType, companyTimeZone, message, onSuccess, applyLeaveMutation]);
 
@@ -148,21 +149,21 @@ export function CalendarEventForm({
       centered
       className="rounded-[16px] overflow-hidden"
       closeIcon={<X className="w-5 h-5 text-[#666666]" />}
-      styles={{ 
-        body: { 
+      styles={{
+        body: {
           padding: 0,
           maxHeight: '80vh',
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden'
-        } 
+        }
       }}
     >
       <FormLayout
         title={eventType === 'event' ? 'Create Event' : 'Apply Leave'}
-        subtitle={eventType === 'event' 
-            ? 'Schedule a new meeting or event with your team.' 
-            : 'Apply for leave request to your manager.'}
+        subtitle={eventType === 'event'
+          ? 'Schedule a new meeting or event with your team.'
+          : 'Apply for leave request to your manager.'}
         icon={CalendarIcon}
         onCancel={onCancel}
         onSubmit={handleCreate}
@@ -268,14 +269,16 @@ export function CalendarEventForm({
 
 function AttendeesField({ attendees, onAddAttendee, onRemoveAttendee, employeesData }: { attendees: Attendee[]; onAddAttendee: (attendee: Attendee) => void; onRemoveAttendee: (index: number) => void; employeesData: { result?: Employee[] } | undefined; }) {
   const [searchValue, setSearchValue] = useState('');
-  
+  // Use debounced value for filtering logic
+  const debouncedSearchValue = useDebounce(searchValue, 300);
+
   const filteredEmployees = useMemo(() => {
-    if (!searchValue || !employeesData?.result) return [];
-    return employeesData.result.filter((emp: Employee) => 
-      emp.name.toLowerCase().includes(searchValue.toLowerCase()) || 
-      emp.email.toLowerCase().includes(searchValue.toLowerCase())
+    if (!debouncedSearchValue || !employeesData?.result) return [];
+    return employeesData.result.filter((emp: Employee) =>
+      emp.name.toLowerCase().includes(debouncedSearchValue.toLowerCase()) ||
+      emp.email.toLowerCase().includes(debouncedSearchValue.toLowerCase())
     ).slice(0, 5);
-  }, [searchValue, employeesData]);
+  }, [debouncedSearchValue, employeesData]);
 
   return (
     <div className="space-y-2">
@@ -291,17 +294,17 @@ function AttendeesField({ attendees, onAddAttendee, onRemoveAttendee, employeesD
         ))}
       </div>
       <div className="relative">
-        <Input 
-          placeholder="Add attendees by email" 
-          className="h-11 rounded-lg border border-[#EEEEEE] focus:border-[#EEEEEE] font-['Manrope:Medium',sans-serif] bg-[#F9FAFB]" 
+        <Input
+          placeholder="Add attendees by email"
+          className="h-11 rounded-lg border border-[#EEEEEE] focus:border-[#EEEEEE] font-['Manrope:Medium',sans-serif] bg-[#F9FAFB]"
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === 'Enter' && searchValue) {
               e.preventDefault();
               if (searchValue.includes('@')) {
-                  onAddAttendee({ email: searchValue, name: searchValue.split('@')[0] });
-                  setSearchValue('');
+                onAddAttendee({ email: searchValue, name: searchValue.split('@')[0] });
+                setSearchValue('');
               }
             }
           }}
@@ -309,8 +312,8 @@ function AttendeesField({ attendees, onAddAttendee, onRemoveAttendee, employeesD
         {searchValue && filteredEmployees.length > 0 && (
           <div className="absolute top-full left-0 w-full bg-white border border-[#EEEEEE] rounded-lg shadow-lg mt-1 z-50">
             {filteredEmployees.map((emp: Employee) => (
-              <div 
-                key={emp.id} 
+              <div
+                key={emp.id}
                 className="px-4 py-2 hover:bg-[#F7F7F7] cursor-pointer flex items-center gap-2"
                 onClick={() => {
                   onAddAttendee({ email: emp.email, name: emp.name });

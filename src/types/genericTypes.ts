@@ -133,5 +133,7 @@ export interface CompanyUpdateInput {
   address?: string;
   website?: string;
   logo?: string;
+  tax_id?: string;
+  tax_id_type?: string;
   [key: string]: unknown;
 }

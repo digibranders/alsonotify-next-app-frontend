@@ -1,5 +1,3 @@
-// C:\Users\SaiKumarGandhi\Desktop\NodeJS - Alsonotify\alsonotify_jan\alsonotify-new-ui-test\src\components\features\mail\MailPage.tsx
-
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -18,9 +16,7 @@ import {
   Tag,
   Typography,
   Tooltip,
-  Upload,
 } from "antd";
-import type { UploadFile } from "antd/es/upload/interface";
 import {
   Eye,
   EyeOff,
@@ -39,8 +35,6 @@ import dayjs from "dayjs";
 import DOMPurify from "dompurify";
 
 import { PageLayout } from "../../layout/PageLayout";
-import { DocumentPreviewModal } from "../../ui/DocumentPreviewModal";
-import { UserDocument } from "@/types/genericTypes";
 import { useMailAttachments, useMailFolders, useMailMessage, useMailMessages } from "@/hooks/useMail";
 import {
   deleteMail,
@@ -139,18 +133,6 @@ function collapseList(text: string, max = 90) {
   return { head: text.slice(0, max).trimEnd(), tail: text.slice(max).trimStart(), isLong: true };
 }
 
-function filesFromUploadList(list: UploadFile[]) {
-  return list.map((f) => f.originFileObj).filter(Boolean) as File[];
-}
-
-function safeFilename(name?: string) {
-  return (name || "attachment").replace(/[^\w.\-() ]+/g, "_");
-}
-
-function isUnderMB(file: File, mb: number) {
-  return file.size <= mb * 1024 * 1024;
-}
-
 // -------------------- component --------------------
 
 export function MailPage() {
@@ -174,17 +156,12 @@ export function MailPage() {
   const [composeSubject, setComposeSubject] = useState("");
   const [composeBody, setComposeBody] = useState("");
   const [sendingCompose, setSendingCompose] = useState(false);
-  const [composeFiles, setComposeFiles] = useState<UploadFile[]>([]);
 
   // quick reply
   const [replyOpen, setReplyOpen] = useState<"reply" | "replyAll" | "forward" | null>(null);
   const [replyText, setReplyText] = useState("");
   const [forwardTo, setForwardTo] = useState<string[]>([]);
   const [sendingQuick, setSendingQuick] = useState(false);
-  const [quickFiles, setQuickFiles] = useState<UploadFile[]>([]);
-
-  // preview
-  const [previewDoc, setPreviewDoc] = useState<UserDocument | null>(null);
 
   // keyboard nav for list
   const [focusIndex, setFocusIndex] = useState(0);
@@ -255,22 +232,6 @@ export function MailPage() {
     setFocusIndex(0);
   }, [folder, unreadOnly]);
 
-  // reset quick modal state when open changes
-  useEffect(() => {
-    if (!replyOpen) {
-      setReplyText("");
-      setForwardTo([]);
-      setQuickFiles([]);
-    }
-  }, [replyOpen]);
-
-  // reset compose state when close
-  useEffect(() => {
-    if (!composeOpen) {
-      setComposeFiles([]);
-    }
-  }, [composeOpen]);
-
   const onSelect = async (id: string, isRead?: boolean) => {
     setSelectedId(id);
 
@@ -293,16 +254,6 @@ export function MailPage() {
       await attsQ.refetch();
     }
   };
-
-  useEffect(() => {
-    const id = window.setInterval(() => {
-      refresh();
-    }, 60_000); // 1 min
-
-    return () => window.clearInterval(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedId, folder, unreadOnly]);
-
 
   const confirmDelete = () => {
     if (!selectedId) return;
@@ -328,69 +279,9 @@ export function MailPage() {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = safeFilename(name);
+    a.download = name || "attachment";
     a.click();
     window.URL.revokeObjectURL(url);
-  };
-
-  const doPreview = async (attId: string, name: string, contentType: string, size: number) => {
-    if (!selectedId) return;
-    try {
-      const blob = await downloadAttachment(selectedId, attId);
-      const url = window.URL.createObjectURL(blob);
-
-      let fileType: UserDocument["fileType"] = "text";
-      const ct = (contentType || "").toLowerCase();
-      const nameLower = (name || "").toLowerCase();
-
-      if (ct.startsWith("image/")) {
-        fileType = "image";
-      } else if (ct === "application/pdf") {
-        fileType = "pdf";
-      } else if (
-        ct.includes("word") ||
-        nameLower.endsWith(".doc") ||
-        nameLower.endsWith(".docx")
-      ) {
-        fileType = "docx";
-      } else if (
-        ct.includes("csv") ||
-        nameLower.endsWith(".csv")
-      ) {
-        fileType = "csv";
-      } else if (
-        ct.includes("excel") ||
-        ct.includes("sheet") ||
-        nameLower.endsWith(".xls") ||
-        nameLower.endsWith(".xlsx")
-      ) {
-        fileType = "excel";
-      } else if (
-        ct.includes("text/") ||
-        ct.includes("json") ||
-        ct.includes("javascript") ||
-        nameLower.endsWith(".txt") ||
-        nameLower.endsWith(".log") ||
-        nameLower.endsWith(".json") ||
-        nameLower.endsWith(".md")
-      ) {
-        fileType = "text";
-      }
-
-      setPreviewDoc({
-        id: attId,
-        documentTypeId: "mail-attachment",
-        documentTypeName: "Mail Attachment",
-        fileName: name,
-        fileSize: size,
-        fileUrl: url,
-        uploadedDate: new Date().toISOString(),
-        fileType,
-        isRequired: false,
-      });
-    } catch (err) {
-      message.error("Failed to load preview");
-    }
   };
 
   // ---- validations ----
@@ -409,16 +300,6 @@ export function MailPage() {
       ? forwardToValid.length > 0 && !forwardToHasInvalid && replyText.trim().length > 0
       : replyText.trim().length > 0);
 
-  // ---- Upload config ----
-  const MAX_MB = 20; // you can change
-  const commonBeforeUpload = (file: File) => {
-    if (!isUnderMB(file, MAX_MB)) {
-      message.error(`File too large: ${file.name} (max ${MAX_MB} MB)`);
-      return Upload.LIST_IGNORE;
-    }
-    return false; // prevent auto upload
-  };
-
   const doSend = async () => {
     if (!canSendCompose) return;
 
@@ -431,7 +312,6 @@ export function MailPage() {
         subject: composeSubject || "(no subject)",
         body: composeBody || "",
         bodyType: "Text",
-        attachments: filesFromUploadList(composeFiles),
       });
 
       message.success("Mail sent");
@@ -442,7 +322,6 @@ export function MailPage() {
       setComposeSubject("");
       setComposeBody("");
       setShowComposeCc(false);
-      setComposeFiles([]);
 
       await messagesQ.refetch();
       await foldersQ.refetch();
@@ -458,24 +337,20 @@ export function MailPage() {
 
     setSendingQuick(true);
     try {
-      const attachments = filesFromUploadList(quickFiles);
-
       if (replyOpen === "reply") {
-        await replyMail(selectedId!, { comment: replyText, bodyType: "Text", attachments });
+        await replyMail(selectedId!, replyText);
         message.success("Replied");
       } else if (replyOpen === "replyAll") {
-        await replyAllMail(selectedId!, { comment: replyText, bodyType: "Text", attachments });
+        await replyAllMail(selectedId!, replyText);
         message.success("Replied all");
       } else if (replyOpen === "forward") {
-        await forwardMail(selectedId!, { to: forwardToValid, comment: replyText, bodyType: "Text", attachments });
+        await forwardMail(selectedId!, { to: forwardToValid, comment: replyText });
         message.success("Forwarded");
       }
 
       setReplyOpen(null);
       setReplyText("");
       setForwardTo([]);
-      setQuickFiles([]);
-
       await messagesQ.refetch();
       await foldersQ.refetch();
     } catch (e: any) {
@@ -647,7 +522,10 @@ export function MailPage() {
             {/* HTML controls */}
             <div className="flex items-center justify-between gap-2 mb-3">
               <Space>
-                <Button size="small" onClick={() => setShowTextFallback((s) => !s)}>
+                <Button
+                  size="small"
+                  onClick={() => setShowTextFallback((s) => !s)}
+                >
                   {showTextFallback ? "View HTML" : "View as text"}
                 </Button>
 
@@ -713,10 +591,7 @@ export function MailPage() {
                       {a.contentType || "file"} • {formatBytes(a.size || 0)}
                     </div>
                   </div>
-                  <Space>
-                    <Button onClick={() => doPreview(a.id, a.name, a.contentType, a.size)}>Preview</Button>
-                    <Button onClick={() => doDownload(a.id, a.name)}>Download</Button>
-                  </Space>
+                  <Button onClick={() => doDownload(a.id, a.name)}>Download</Button>
                 </div>
               ))}
             </div>
@@ -747,15 +622,6 @@ export function MailPage() {
               padding-left: 0;
             }
           `}</style>
-
-          <DocumentPreviewModal
-            open={!!previewDoc}
-            document={previewDoc}
-            onClose={() => {
-              if (previewDoc?.fileUrl) URL.revokeObjectURL(previewDoc.fileUrl);
-              setPreviewDoc(null);
-            }}
-          />
         </>
       )}
     </div>
@@ -766,13 +632,13 @@ export function MailPage() {
       title="Mail"
       tabs={[]}
       activeTab=""
-      onTabChange={() => { }}
+      onTabChange={() => {}}
       titleAction={{
         label: "Compose",
         icon: <Send className="w-4 h-4" />,
         onClick: () => setComposeOpen(true),
       }}
-      titleExtra={
+      action={
         <Space>
           <Segmented
             options={[
@@ -782,19 +648,15 @@ export function MailPage() {
             value={unreadOnly ? "unread" : "all"}
             onChange={(v) => setUnreadOnly(v === "unread")}
           />
-          {/* <Button icon={<RefreshCcw className="w-4 h-4" />} onClick={refresh}>
+          <Button icon={<RefreshCcw className="w-4 h-4" />} onClick={refresh}>
             Refresh
-          </Button> */}
+          </Button>
         </Space>
       }
     >
       <Layout style={{ height: "100%", background: "transparent" }}>
         {/* FOLDERS */}
-        <Sider
-          width={260}
-          style={{ background: "transparent", paddingRight: 12 }}
-          className={isNarrow ? "hidden md:block" : ""}
-        >
+        <Sider width={260} style={{ background: "transparent", paddingRight: 12 }} className={isNarrow ? "hidden md:block" : ""}>
           <div className="bg-[#F7F7F7] rounded-[16px] p-4 h-full overflow-auto">
             <div className="flex items-center gap-2 mb-3">
               <Mail className="w-4 h-4" />
@@ -876,18 +738,12 @@ export function MailPage() {
                         <div className="w-full">
                           <div className="flex items-center justify-between gap-2">
                             <div className="flex items-center gap-2 min-w-0">
-                              {!m.isRead ? (
-                                <span className="w-2 h-2 rounded-full bg-blue-500" />
-                              ) : (
-                                <span className="w-2 h-2" />
-                              )}
+                              {!m.isRead ? <span className="w-2 h-2 rounded-full bg-blue-500" /> : <span className="w-2 h-2" />}
                               <span className={["truncate", !m.isRead ? "font-semibold" : ""].join(" ")}>
                                 {formatFrom(m)}
                               </span>
                               {m.importance === "high" ? (
-                                <Tag color="red" className="m-0">
-                                  High
-                                </Tag>
+                                <Tag color="red" className="m-0">High</Tag>
                               ) : null}
                             </div>
                             <span className="text-[12px] text-[#777] whitespace-nowrap">
@@ -931,7 +787,7 @@ export function MailPage() {
               open={!!selectedId}
               onClose={() => setSelectedId(undefined)}
               placement="right"
-              size="large"
+              size="large" // ✅ width is deprecated → use size
               styles={{
                 body: { padding: 0, background: "transparent" },
               }}
@@ -952,7 +808,7 @@ export function MailPage() {
         open={composeOpen}
         onCancel={() => setComposeOpen(false)}
         width={680}
-        destroyOnHidden
+        destroyOnHidden // ✅ destroyOnClose deprecated
         centered
         styles={{
           body: { padding: 16 },
@@ -961,9 +817,7 @@ export function MailPage() {
         <div className="flex flex-col">
           {/* header */}
           <div className="flex items-center justify-between mb-4">
-            <Title level={4} style={{ margin: 0 }}>
-              New Message
-            </Title>
+            <Title level={4} style={{ margin: 0 }}>New Message</Title>
             <Button type="text" icon={<X className="w-5 h-5 text-gray-500" />} onClick={() => setComposeOpen(false)} />
           </div>
 
@@ -973,7 +827,7 @@ export function MailPage() {
             <div className="flex-1">
               <Select
                 mode="tags"
-                open={false}
+                open={false} // ✅ avoids dropdownRender usage
                 className="ant-select-seamless w-full"
                 placeholder="Recipients"
                 value={composeTo}
@@ -982,7 +836,9 @@ export function MailPage() {
                 tokenSeparators={[",", " "]}
               />
               {composeToHasInvalid ? (
-                <div className="text-[12px] text-red-500 mt-1">One or more recipients look invalid.</div>
+                <div className="text-[12px] text-red-500 mt-1">
+                  One or more recipients look invalid.
+                </div>
               ) : null}
             </div>
 
@@ -1050,32 +906,9 @@ export function MailPage() {
             style={{ lineHeight: 1.6 }}
           />
 
-          {/* attachments */}
-          <div className="mt-3">
-            <Upload
-              multiple
-              fileList={composeFiles}
-              beforeUpload={commonBeforeUpload as any}
-              onChange={({ fileList }) => setComposeFiles(fileList)}
-              showUploadList={{ showRemoveIcon: true, showPreviewIcon: false }}
-            >
-              <Button icon={<Paperclip className="w-4 h-4" />}>
-                Attach files {composeFiles.length ? `(${composeFiles.length})` : ""}
-              </Button>
-            </Upload>
-            <div className="text-[12px] text-[#777] mt-2">
-              Max file size: {MAX_MB} MB each
-            </div>
-          </div>
-
           {/* footer */}
           <div className="flex justify-between items-center pt-4 mt-2">
-            <Button
-              type="text"
-              onClick={() => {
-                setComposeOpen(false);
-              }}
-            >
+            <Button type="text" onClick={() => setComposeOpen(false)}>
               Discard
             </Button>
 
@@ -1131,7 +964,9 @@ export function MailPage() {
                 {replyOpen === "forward" ? "Forward" : replyOpen === "replyAll" ? "Reply All" : "Reply"}
               </span>
               {current ? (
-                <span className="text-gray-400 font-normal text-sm ml-1">to {formatFrom(current)}</span>
+                <span className="text-gray-400 font-normal text-sm ml-1">
+                  to {formatFrom(current)}
+                </span>
               ) : null}
             </div>
 
@@ -1159,7 +994,9 @@ export function MailPage() {
                   tokenSeparators={[",", " "]}
                 />
                 {forwardToHasInvalid ? (
-                  <div className="text-[12px] text-red-500 mt-1">One or more recipients look invalid.</div>
+                  <div className="text-[12px] text-red-500 mt-1">
+                    One or more recipients look invalid.
+                  </div>
                 ) : null}
               </div>
             </div>
@@ -1174,24 +1011,6 @@ export function MailPage() {
             className="px-0 text-[14px] resize-none"
             style={{ lineHeight: 1.6 }}
           />
-
-          {/* attachments */}
-          <div className="mt-2">
-            <Upload
-              multiple
-              fileList={quickFiles}
-              beforeUpload={commonBeforeUpload as any}
-              onChange={({ fileList }) => setQuickFiles(fileList)}
-              showUploadList={{ showRemoveIcon: true, showPreviewIcon: false }}
-            >
-              <Button icon={<Paperclip className="w-4 h-4" />}>
-                Attach files {quickFiles.length ? `(${quickFiles.length})` : ""}
-              </Button>
-            </Upload>
-            <div className="text-[12px] text-[#777] mt-2">
-              Max file size: {MAX_MB} MB each
-            </div>
-          </div>
 
           <div className="flex justify-end gap-3 pt-4">
             <Button onClick={() => setReplyOpen(null)}>Cancel</Button>

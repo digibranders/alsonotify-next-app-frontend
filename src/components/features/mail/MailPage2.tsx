@@ -31,6 +31,8 @@ import {
 } from "lucide-react";
 import dayjs from "dayjs";
 import { PageLayout } from "../../layout/PageLayout";
+import { DocumentPreviewModal } from "../../ui/DocumentPreviewModal";
+import { UserDocument } from "@/types/genericTypes";
 import { useMailAttachments, useMailFolders, useMailMessage, useMailMessages } from "@/hooks/useMail";
 import {
   deleteMail,
@@ -131,6 +133,9 @@ export function MailPage() {
   // view controls
   const [bodyView, setBodyView] = useState<"html" | "text">("html");
   const [loadImages, setLoadImages] = useState(false);
+
+  // preview
+  const [previewDoc, setPreviewDoc] = useState<UserDocument | null>(null);
 
   // compose
   const [composeOpen, setComposeOpen] = useState(false);
@@ -249,7 +254,56 @@ export function MailPage() {
     a.href = url;
     a.download = name || "attachment";
     a.click();
+    a.click();
     window.URL.revokeObjectURL(url);
+  };
+
+  const doPreview = async (attId: string, name: string, contentType: string, size: number) => {
+    if (!selectedId) return;
+    try {
+      const blob = await downloadAttachment(selectedId, attId);
+      const url = window.URL.createObjectURL(blob);
+
+      let fileType: UserDocument["fileType"] = "text";
+      const ct = (contentType || "").toLowerCase();
+      const nameLower = (name || "").toLowerCase();
+
+      if (ct.startsWith("image/")) {
+        fileType = "image";
+      } else if (ct === "application/pdf") {
+        fileType = "pdf";
+      } else if (ct.includes("word") || nameLower.endsWith(".doc") || nameLower.endsWith(".docx")) {
+        fileType = "docx";
+      } else if (ct.includes("csv") || nameLower.endsWith(".csv")) {
+        fileType = "csv";
+      } else if (ct.includes("excel") || ct.includes("sheet") || nameLower.endsWith(".xls") || nameLower.endsWith(".xlsx")) {
+        fileType = "excel";
+      } else if (
+        ct.includes("text/") ||
+        ct.includes("json") ||
+        ct.includes("javascript") ||
+        nameLower.endsWith(".txt") ||
+        nameLower.endsWith(".log") ||
+        nameLower.endsWith(".json") ||
+        nameLower.endsWith(".md")
+      ) {
+        fileType = "text";
+      }
+
+      setPreviewDoc({
+        id: attId,
+        documentTypeId: "mail-attachment",
+        documentTypeName: "Mail Attachment",
+        fileName: name,
+        fileSize: size,
+        fileUrl: url,
+        uploadedDate: new Date().toISOString(),
+        fileType,
+        isRequired: false,
+      });
+    } catch (err) {
+      message.error("Failed to load preview");
+    }
   };
 
   const doSend = async () => {
@@ -315,7 +369,7 @@ export function MailPage() {
       title="Mail"
       tabs={[]}
       activeTab=""
-      onTabChange={() => {}}
+      onTabChange={() => { }}
       titleAction={{
         label: "Compose",
         icon: <Send className="w-4 h-4" />,
@@ -582,7 +636,10 @@ export function MailPage() {
                             </div>
                           </div>
 
-                          <Button onClick={() => doDownload(a.id, a.name)}>Download</Button>
+                          <Space>
+                            <Button onClick={() => doPreview(a.id, a.name, a.contentType, a.size)}>Preview</Button>
+                            <Button onClick={() => doDownload(a.id, a.name)}>Download</Button>
+                          </Space>
                         </div>
                       ))}
                     </div>
@@ -660,6 +717,15 @@ export function MailPage() {
         )}
         <Input.TextArea value={replyText} onChange={(e) => setReplyText(e.target.value)} rows={6} placeholder="Message" />
       </Modal>
+
+      <DocumentPreviewModal
+        open={!!previewDoc}
+        document={previewDoc}
+        onClose={() => {
+          if (previewDoc?.fileUrl) URL.revokeObjectURL(previewDoc.fileUrl);
+          setPreviewDoc(null);
+        }}
+      />
     </PageLayout>
   );
 }

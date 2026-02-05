@@ -1,5 +1,7 @@
 import { Tooltip, Avatar, Checkbox } from "antd";
 import { Calendar, Clock, MessageSquare, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
+import { useUserDetails } from "../../../../hooks/useUser";
+import { getRoleFromUser } from "../../../../utils/roleUtils";
 
 export interface Leave {
   id: string;
@@ -30,6 +32,9 @@ export function LeaveRow({
   onReject,
   isActionLoading
 }: LeaveRowProps) {
+  const { data: userData } = useUserDetails();
+  const userRole = getRoleFromUser(userData?.result);
+  const canApprove = ['Admin', 'HR', 'Manager'].includes(userRole);
   const getInitials = (name: string): string => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
   };
@@ -57,7 +62,7 @@ export function LeaveRow({
   const StatusIcon = statusConfig[leave.status].icon;
 
   return (
-    <div 
+    <div
       className={`
         group bg-white border rounded-[16px] px-4 py-3 transition-all duration-300 cursor-pointer relative
         ${selected
@@ -81,12 +86,12 @@ export function LeaveRow({
 
         {/* Avatar */}
         <div className="flex justify-center">
-            <Avatar 
-              size={40} 
-              className="bg-gradient-to-br from-[#ff3b3b] to-[#ff6b6b] text-[14px] font-['Manrope:Bold',sans-serif]"
-            >
-              {getInitials(leave.employeeName)}
-            </Avatar>
+          <Avatar
+            size={40}
+            className="bg-gradient-to-br from-[#ff3b3b] to-[#ff6b6b] text-[14px] font-['Manrope:Bold',sans-serif]"
+          >
+            {getInitials(leave.employeeName)}
+          </Avatar>
         </div>
 
         {/* Employee */}
@@ -124,17 +129,17 @@ export function LeaveRow({
 
         {/* Status Badge */}
         <div className="flex justify-center">
-           <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full ${statusConfig[leave.status].bgColor} ${statusConfig[leave.status].color}`}>
-              <StatusIcon className="w-3.5 h-3.5" />
-              <span className="text-[11px] font-['Manrope:Bold',sans-serif] uppercase tracking-wider">
-                {statusConfig[leave.status].label}
-              </span>
-           </div>
+          <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full ${statusConfig[leave.status].bgColor} ${statusConfig[leave.status].color}`}>
+            <StatusIcon className="w-3.5 h-3.5" />
+            <span className="text-[11px] font-['Manrope:Bold',sans-serif] uppercase tracking-wider">
+              {statusConfig[leave.status].label}
+            </span>
+          </div>
         </div>
 
         {/* Actions (Approve/Reject) */}
         <div className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
-          {leave.status === 'pending' && (
+          {leave.status === 'pending' && canApprove && (
             <>
               <Tooltip title="Approve">
                 <button
@@ -160,15 +165,17 @@ export function LeaveRow({
 
         {/* Reason Popover/Tooltip */}
         <div className="flex justify-end">
-          <Tooltip 
-            title={leave.reason} 
+          <Tooltip
+            title={leave.reason}
             placement="top"
-            overlayClassName="max-w-[250px]"
-            overlayInnerStyle={{ 
-                borderRadius: '8px', 
+            classNames={{ root: "max-w-[250px]" }}
+            styles={{
+              container: {
+                borderRadius: '8px',
                 padding: '12px',
                 fontSize: '12px',
                 fontFamily: 'Manrope:Regular, sans-serif'
+              }
             }}
           >
             <button className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#F7F7F7] transition-colors group/reason">
