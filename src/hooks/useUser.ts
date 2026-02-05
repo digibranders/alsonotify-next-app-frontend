@@ -50,23 +50,23 @@ const selectEmployee = (data: ApiResponse<UserDto>): ApiResponse<Employee> => ({
 });
 
 // Search partners dropdown
-export const useSearchPartners = () => {
+export const useSearchPartners = (search?: string) => {
   return useQuery({
-    queryKey: ['users', 'partners', 'dropdown'],
-    queryFn: () => getPartners(""), // Using getPartners as searchPartners wasn't imported or didn't exist in previous view
+    queryKey: ['users', 'partners', 'dropdown', { search }],
+    queryFn: () => getPartners(search || ""),
     staleTime: 5 * 60 * 1000,
     select: (data) => data.result?.map(u => ({ label: u.name, value: u.id })) || []
   });
 };
 
-export const useEmployeesDropdown = () => {
+export const useEmployeesDropdown = (search?: string) => {
   return useQuery({
-    queryKey: queryKeys.users.employees('dropdown'),
+    queryKey: queryKeys.users.employees('dropdown', search),
     queryFn: async () => {
-      // We import searchEmployees dynamically or assume it's available. 
+      // We import searchEmployees dynamically or assume it's available.
       // Based on file read, searchEmployees IS in services/user.ts
       const { searchEmployees } = await import('../services/user');
-      return searchEmployees();
+      return searchEmployees(search);
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
     select: (data) => (data.result || []).map((item: any) => ({
