@@ -15,8 +15,8 @@ export const useDocumentSettings = () => {
       if (stored) {
         try {
           const parsed = JSON.parse(stored);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            return parsed.map((doc: any, index: number) => ({
+          if (Array.isArray(parsed)) {
+            return parsed.map((doc: { id?: string | number; name?: string; required?: boolean }, index: number) => ({
               id: String(doc.id ?? index + 1),
               name: String(doc.name ?? ''),
               required: Boolean(doc.required),
@@ -38,7 +38,7 @@ export const useDocumentSettings = () => {
   };
 
   const resetToDefaults = () => {
-    setDocumentTypes(DEFAULT_DOCUMENT_TYPES);
+    setDocumentTypes(DEFAULT_DOCUMENT_TYPES); // empty list
     if (typeof window !== 'undefined') {
       localStorage.removeItem(DOCUMENT_TYPES_STORAGE_KEY);
     }
