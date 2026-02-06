@@ -1,4 +1,4 @@
-import { Plus, Edit, Trash2, Pencil, Building2 } from 'lucide-react';
+import { Plus, Trash2, Pencil, Building2 } from 'lucide-react';
 import { Button, Input, Select, Switch, Divider, message, Upload } from "antd";
 import { commonCountries } from '@/data/defaultData';
 import { fileService } from '@/services/file.service';
@@ -383,7 +383,7 @@ export function CompanyDetailsTab({
                 <h2 className="text-[16px] font-['Manrope:SemiBold',sans-serif] text-[#111111]">
                   Departments
                 </h2>
-                {!isAddingDept && canEditCompany && (
+                {!isAddingDept && isEditing && canEditCompany && (
                   <button
                     onClick={() => setIsAddingDept(true)}
                     className="hover:scale-110 active:scale-95 transition-transform"
@@ -397,42 +397,40 @@ export function CompanyDetailsTab({
                 {departments.map((dept) => (
                   <div key={dept.id} className="flex items-end gap-6 group">
                     <div className="space-y-2 flex-1">
-                      <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">
+                      <span className={`text-[13px] font-['Manrope:Bold',sans-serif] ${!isEditing ? 'text-[#666666]' : 'text-[#111111]'}`}>
                         Department Name
                       </span>
                       <Input
                         value={dept.name}
                         readOnly
-                        className="h-11 rounded-lg border-[#EEEEEE] bg-[#FAFAFA] text-[#666666] font-['Manrope:Medium',sans-serif] text-[13px]"
+                        disabled={!isEditing}
+                        className={`h-11 rounded-lg border-[#EEEEEE] font-['Manrope:Medium',sans-serif] text-[13px] ${!isEditing ? '!bg-[#F7F7F7] !text-[#666666] cursor-not-allowed opacity-100' : 'bg-white'}`}
+                        style={!isEditing ? { backgroundColor: '#F7F7F7', color: '#666666' } : undefined}
                       />
                     </div>
                     <div className="flex items-center gap-4 pb-3 h-11">
                       <div className="flex flex-col items-center gap-1">
-                        <span className="text-[11px] text-[#666666] font-['Manrope:Bold',sans-serif]">
+                        <span className={`text-[11px] font-['Manrope:Bold',sans-serif] ${!isEditing ? 'text-[#999999]' : 'text-[#666666]'}`}>
                           Active
                         </span>
                         <Switch
-                          checked={dept.active !== false} // Handle legacy or undefined as true if needed, or stick to type
+                          checked={dept.active !== false}
                           onChange={() => toggleDepartmentStatus(String(dept.id))}
-                          disabled={!canEditCompany}
+                          disabled={!isEditing || !canEditCompany}
                           className="bg-gray-200 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
                           style={{
                             backgroundColor: (dept.active !== false) ? "#ff3b3b" : undefined,
                           }}
                         />
                       </div>
-                      {canEditCompany && (
-                        <>
-                          <button className="p-2 hover:bg-[#F7F7F7] rounded-full transition-colors text-[#666666] hover:text-[#111111]">
-                            <Edit className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteDepartment(String(dept.id))}
-                            className="p-2 hover:bg-[#F7F7F7] rounded-full transition-colors text-[#ff3b3b]"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </>
+                      {isEditing && canEditCompany && (
+                        <button
+                          onClick={() => handleDeleteDepartment(String(dept.id))}
+                          className="p-2 hover:bg-[#F7F7F7] rounded-full transition-colors text-[#ff3b3b]"
+                          aria-label="Delete department"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       )}
                     </div>
                   </div>
@@ -479,7 +477,7 @@ export function CompanyDetailsTab({
                 <h2 className="text-[16px] font-['Manrope:SemiBold',sans-serif] text-[#111111]">
                   Required Documents
                 </h2>
-                {!isAddingDoc && canEditCompany && (
+                {!isAddingDoc && isEditing && canEditCompany && (
                   <button
                     onClick={() => setIsAddingDoc(true)}
                     className="hover:scale-110 active:scale-95 transition-transform"
@@ -493,42 +491,40 @@ export function CompanyDetailsTab({
                 {requiredDocuments.map((doc) => (
                   <div key={doc.id} className="flex items-end gap-6 group">
                     <div className="space-y-2 flex-1">
-                      <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">
+                      <span className={`text-[13px] font-['Manrope:Bold',sans-serif] ${!isEditing ? 'text-[#666666]' : 'text-[#111111]'}`}>
                         Document Name
                       </span>
                       <Input
                         value={doc.name}
                         readOnly
-                        className="h-11 rounded-lg border-[#EEEEEE] bg-[#FAFAFA] text-[#666666] font-['Manrope:Medium',sans-serif] text-[13px]"
+                        disabled={!isEditing}
+                        className={`h-11 rounded-lg border-[#EEEEEE] font-['Manrope:Medium',sans-serif] text-[13px] ${!isEditing ? '!bg-[#F7F7F7] !text-[#666666] cursor-not-allowed opacity-100' : 'bg-white'}`}
+                        style={!isEditing ? { backgroundColor: '#F7F7F7', color: '#666666' } : undefined}
                       />
                     </div>
                     <div className="flex items-center gap-4 pb-3 h-11">
                       <div className="flex flex-col items-center gap-1">
-                        <span className="text-[11px] text-[#666666] font-['Manrope:Bold',sans-serif]">
+                        <span className={`text-[11px] font-['Manrope:Bold',sans-serif] ${!isEditing ? 'text-[#999999]' : 'text-[#666666]'}`}>
                           Required
                         </span>
                         <Switch
                           checked={doc.required}
                           onChange={() => toggleDocumentRequired(doc.id)}
-                          disabled={!canEditCompany}
+                          disabled={!isEditing || !canEditCompany}
                           className="bg-gray-200 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
                           style={{
                             backgroundColor: doc.required ? "#ff3b3b" : undefined,
                           }}
                         />
                       </div>
-                      {canEditCompany && (
-                        <>
-                          <button className="p-2 hover:bg-[#F7F7F7] rounded-full transition-colors text-[#666666] hover:text-[#111111]">
-                            <Edit className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteDocument(doc.id)}
-                            className="p-2 hover:bg-[#F7F7F7] rounded-full transition-colors text-[#ff3b3b]"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </>
+                      {isEditing && canEditCompany && (
+                        <button
+                          onClick={() => handleDeleteDocument(doc.id)}
+                          className="p-2 hover:bg-[#F7F7F7] rounded-full transition-colors text-[#ff3b3b]"
+                          aria-label="Delete document type"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       )}
                     </div>
                   </div>

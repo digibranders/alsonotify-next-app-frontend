@@ -226,6 +226,7 @@ export const useUpdateCompany = () => {
     mutationFn: (params: CompanyUpdateInput) => updateCurrentUserCompany(params),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.users.company() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.company.departments() });
       queryClient.invalidateQueries({ queryKey: queryKeys.users.me() });
     },
   });

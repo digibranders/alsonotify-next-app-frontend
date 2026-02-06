@@ -83,15 +83,13 @@ export function SettingsContent({
     // Sync departments from company API when company data loads (no pre-seeded defaults)
     useEffect(() => {
         const apiDepts = (companyData?.result as { departments?: Array<{ id: number; name: string; is_active?: boolean }> })?.departments;
-        if (Array.isArray(apiDepts)) {
-            setDepartments(
-                apiDepts.map((d) => ({
-                    id: d.id,
-                    name: d.name,
-                    active: d.is_active !== false,
-                }))
-            );
-        }
+        if (!Array.isArray(apiDepts)) return;
+        const next = apiDepts.map((d) => ({
+            id: d.id,
+            name: d.name,
+            active: d.is_active !== false,
+        }));
+        queueMicrotask(() => setDepartments(next));
     }, [companyData?.result]);
     const [newDeptName, setNewDeptName] = useState('');
 
@@ -262,7 +260,7 @@ export function SettingsContent({
 
     const handleSaveChanges = useCallback(async () => {
         try {
-            const payload: Record<string, any> = getCompanyDetailsPayload();
+            const payload: CompanyUpdateInput & { departments?: { id?: number; name: string; is_active: boolean }[] } = getCompanyDetailsPayload() as CompanyUpdateInput;
 
             if (activeTab === 'security' && isAdmin) {
                 payload.default_employee_password = defaultEmployeePassword;
@@ -282,18 +280,33 @@ export function SettingsContent({
                 };
             }
 
+            // Company-specific departments: saved for the authenticated user's company (backend uses JWT company_id)
+            if (activeTab === 'company') {
+                payload.departments = departments.map((d) => ({
+                    ...(typeof d.id === 'number' ? { id: d.id } : {}),
+                    name: d.name,
+                    is_active: d.active !== false
+                }));
+            }
+
             await updateCompanyMutation.mutateAsync(payload as CompanyUpdateInput);
             message.success('Settings saved successfully!');
             setIsEditing(false);
         } catch (error) {
             message.error(getErrorMessage(error, "Failed to update settings"));
         }
-    }, [activeTab, isAdmin, defaultEmployeePassword, leaves, localHolidays, workStartTime, workEndTime, workingDays, breakTime, updateCompanyMutation, getCompanyDetailsPayload, message]);
+    }, [activeTab, isAdmin, defaultEmployeePassword, leaves, localHolidays, workStartTime, workEndTime, workingDays, breakTime, departments, updateCompanyMutation, getCompanyDetailsPayload, message]);
 
     const handleCancelEdit = () => {
         setIsEditing(false);
         if (companyData?.result) {
-            if (activeTab === 'company') resetCompanyDetails();
+            if (activeTab === 'company') {
+                resetCompanyDetails();
+                const apiDepts = (companyData.result as { departments?: Array<{ id: number; name: string; is_active?: boolean }> }).departments;
+                if (Array.isArray(apiDepts)) {
+                    setDepartments(apiDepts.map((d) => ({ id: d.id, name: d.name, active: d.is_active !== false })));
+                }
+            }
             if (activeTab === 'leaves') {
                 if (companyData.result.leaves) setLeaves([...companyData.result.leaves]);
                 // Re-sync local holidays if needed
