@@ -16,6 +16,7 @@ export function RichTextEditor({ value, onChange, placeholder = "Note content...
 
   // Only run on client side
   useEffect(() => {
+
     setIsMounted(true);
   }, []);
 
@@ -146,14 +147,14 @@ export function RichTextEditor({ value, onChange, placeholder = "Note content...
 
   const handleInput = (e: React.FormEvent<HTMLDivElement>) => {
     if (editorRef.current) {
-        // Sanitize content before sending it up
-        // We generally trust the editor's output mainly for structure, but it's good practice 
-        // to sanitize here too, or at least rely on the consumer to sanitize on render.
-        // The requirement is to sanitize "Editor write path". 
-        // If we strictly sanitize on input (user typing), it might be aggressive.
-        // However, the prompt says "sanitize output at the boundary".
-        const cleanContent = sanitizeRichTextForEditor(editorRef.current.innerHTML);
-        onChange(cleanContent);
+      // Sanitize content before sending it up
+      // We generally trust the editor's output mainly for structure, but it's good practice 
+      // to sanitize here too, or at least rely on the consumer to sanitize on render.
+      // The requirement is to sanitize "Editor write path". 
+      // If we strictly sanitize on input (user typing), it might be aggressive.
+      // However, the prompt says "sanitize output at the boundary".
+      const cleanContent = sanitizeRichTextForEditor(editorRef.current.innerHTML);
+      onChange(cleanContent);
     }
   };
 

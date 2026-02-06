@@ -7,7 +7,7 @@ import { Button, Dropdown, Modal, Avatar, App } from 'antd';
 import type { MenuProps } from 'antd';
 import {
   Alert24Filled,
-  Add24Filled, 
+  Add24Filled,
   Sparkle24Filled
 } from '@fluentui/react-icons';
 import {
@@ -107,6 +107,7 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
   const [greeting, setGreeting] = useState('');
 
   useEffect(() => {
+
     setGreeting(getGreeting());
 
     // Periodically update greeting
@@ -154,6 +155,7 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
             id: item.value || item.id,
             name: item.label || item.name,
           }));
+
           setUsersDropdown(transformed);
         }
       } catch (error) {
@@ -197,6 +199,7 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
         const filteredRequirements = allRequirements.filter(req => {
           return activeStatuses.includes(req.status);
         });
+
 
         setRequirementsDropdown(filteredRequirements);
       } catch {
@@ -571,31 +574,13 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
         />
       </Modal>
 
-      {/* Requirement Modal */}
-      <Modal
+      <RequirementsForm
         open={showRequirementDialog}
+        onSubmit={handleCreateRequirement}
         onCancel={() => setShowRequirementDialog(false)}
-        footer={null}
-        width={600}
-        centered
-        className="rounded-[16px] overflow-hidden"
-        styles={{
-          body: {
-            padding: 0,
-            maxHeight: '80vh',
-            overflow: 'hidden',
-            display: 'flex',
-            flexDirection: 'column',
-          }
-        }}
-      >
-        <RequirementsForm
-          onSubmit={handleCreateRequirement}
-          onCancel={() => setShowRequirementDialog(false)}
-          workspaces={workspacesData?.result?.workspaces?.map((w: { id: number; name: string }) => ({ id: w.id, name: w.name })) || []}
-          isLoading={createRequirementMutation.isPending}
-        />
-      </Modal>
+        workspaces={workspacesData?.result?.workspaces?.map((w: { id: number; name: string }) => ({ id: w.id, name: w.name })) || []}
+        isLoading={createRequirementMutation.isPending}
+      />
 
       {/* Note Composer Modal */}
       <NoteComposerModal
