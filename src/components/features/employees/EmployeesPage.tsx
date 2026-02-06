@@ -1,6 +1,6 @@
 import { PageLayout } from '../../layout/PageLayout';
 
-import { useState, useMemo, useRef, useEffect } from 'react';
+import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { useFloatingMenu } from '../../../context/FloatingMenuContext';
 import { FilterBar, FilterOption } from '../../ui/FilterBar';
 
@@ -17,14 +17,13 @@ import {
   useUserDetails,
   useRoles,
   useCompanyDepartments,
-  useCurrentUserCompany
 } from '../../../hooks/useUser';
 import { Skeleton } from '../../ui/Skeleton';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { CompanyDepartmentType } from '../../../services/user';
 import { useTabSync } from '@/hooks/useTabSync';
 import { Employee } from '@/types/domain';
-import { Modal, Checkbox, App, Tooltip } from "antd";
+import { Checkbox, App, Tooltip } from "antd";
 import { UserDto, CreateEmployeeRequestDto, UpdateEmployeeRequestDto } from '@/types/dto/user.dto';
 import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from "../../../lib/queryKeys";
@@ -195,16 +194,16 @@ export function EmployeesPage() {
     }
   ];
 
-  const handleFilterChange = (filterId: string, value: string) => {
+  const handleFilterChange = useCallback((filterId: string, value: string) => {
     setFilters(prev => ({ ...prev, [filterId]: value }));
     setCurrentPage(1);
-  };
+  }, []);
 
-  const clearFilters = () => {
+  const clearFilters = useCallback(() => {
     setFilters({ role: 'All', department: 'All', access: 'All', employmentType: 'All' });
     setSearchQuery('');
     setCurrentPage(1);
-  };
+  }, []);
 
   const handleOpenDialog = (employee?: Employee) => {
     setEditingEmployee(employee || null);
@@ -288,7 +287,7 @@ export function EmployeesPage() {
         if (!isNaN(date.getTime())) {
           dateOfJoining = date.toISOString();
         }
-      } catch (e) {
+      } catch {
         // Invalid date format
       }
     }
@@ -408,27 +407,16 @@ export function EmployeesPage() {
 
 
   // Get current user ID to prevent self-deactivation
-  const currentUserId = useMemo(() => {
-    if (currentUser?.id) {
-      return Number(currentUser.id);
-    }
-    // Fallback if ID is in a different structure
-    if (currentUser?.user_id) {
-      return Number(currentUser.user_id);
-    }
-    return null;
-  }, [currentUser]);
+  // Get current user ID to prevent self-deactivation
+  const currentUserId = currentUser?.id
+    ? Number(currentUser.id)
+    : (currentUser?.user_id ? Number(currentUser.user_id) : null);
 
   // Robustly get current user email (API -> LocalStorage)
-  const currentUserEmail = useMemo(() => {
-    if (currentUser?.email) {
-      return currentUser.email;
-    }
-    return null;
-  }, [currentUser]);
+  const currentUserEmail = currentUser?.email || null;
 
   // Bulk update access level
-  const handleBulkUpdateAccess = async (access: string) => { // access is role name
+  const handleBulkUpdateAccess = useCallback(async (access: string) => { // access is role name
     if (selectedEmployees.length === 0) {
       message.warning('Please select at least one employee');
       return;
@@ -491,7 +479,7 @@ export function EmployeesPage() {
               }
             }
           }
-        } catch (e) {
+        } catch {
           // Error parsing date
         }
       }
@@ -502,7 +490,7 @@ export function EmployeesPage() {
           if (!isNaN(date.getTime())) {
             dateOfJoining = date.toISOString();
           }
-        } catch (e) {
+        } catch {
           // Error parsing raw date
         }
       }
@@ -542,10 +530,10 @@ export function EmployeesPage() {
       };
 
       // Create promise for this update using mutateAsync
-      const updatePromise = updateEmployeeMutation.mutateAsync(updatePayload).catch((error: any) => {
-        const errorMsg = error?.response?.data?.message || 'Update failed';
+      const updatePromise = updateEmployeeMutation.mutateAsync(updatePayload).catch((error: unknown) => {
+        const errorMsg = getErrorMessage(error, 'Update failed');
         failedEmployees.push({ id: empId, name: employee.name, reason: errorMsg });
-        throw error; // Re-throw to mark as failed in Promise.allSettled
+        throw error;
       });
 
       updatePromises.push(updatePromise);
@@ -580,10 +568,10 @@ export function EmployeesPage() {
     } catch (error) {
       message.error('An error occurred during bulk update');
     }
-  };
+  }, [selectedEmployees, rolesData, employees, queryClient, queryParams, updateEmployeeMutation, message, currentUserId]);
 
   // Bulk update department
-  const handleBulkUpdateDepartment = async (departmentName: string) => {
+  const handleBulkUpdateDepartment = useCallback(async (departmentName: string) => {
     if (selectedEmployees.length === 0) {
       message.warning('Please select at least one employee');
       return;
@@ -645,7 +633,7 @@ export function EmployeesPage() {
               }
             }
           }
-        } catch (e) {
+        } catch {
           // Error parsing date
         }
       }
@@ -656,7 +644,7 @@ export function EmployeesPage() {
           if (!isNaN(date.getTime())) {
             dateOfJoining = date.toISOString();
           }
-        } catch (e) {
+        } catch {
           // Error parsing raw date
         }
       }
@@ -722,8 +710,8 @@ export function EmployeesPage() {
       };
 
       // Create promise for this update using mutateAsync
-      const updatePromise = updateEmployeeMutation.mutateAsync(updatePayload).catch((error: any) => {
-        const errorMsg = error?.response?.data?.message || 'Update failed';
+      const updatePromise = updateEmployeeMutation.mutateAsync(updatePayload).catch((error: unknown) => {
+        const errorMsg = getErrorMessage(error, 'Update failed');
         failedEmployees.push({ id: empId, name: employee.name, reason: errorMsg });
         throw error; // Re-throw to mark as failed in Promise.allSettled
       });
@@ -756,10 +744,10 @@ export function EmployeesPage() {
     } catch (error) {
       message.error('An error occurred during bulk update');
     }
-  };
+  }, [selectedEmployees, departmentsData, employees, queryClient, queryParams, rolesData, updateEmployeeMutation, message]);
 
   // Export to CSV
-  const handleExportToCSV = () => {
+  const handleExportToCSV = useCallback(() => {
     if (selectedEmployees.length === 0) {
       message.warning('Please select at least one employee');
       return;
@@ -818,13 +806,61 @@ export function EmployeesPage() {
       URL.revokeObjectURL(url); // Clean up the URL
 
       message.success(`Exported ${selectedEmployeesData.length} employee(s) to CSV`);
-    } catch (error) {
+    } catch {
       message.error('Failed to export employees to CSV');
     }
-  };
+  }, [selectedEmployees, employees, message]);
+
+  const performBulkDeactivation = useCallback(async (idsToDeactivate: number[]) => {
+    // Prepare all deactivation promises
+    const deactivatePromises: Promise<unknown>[] = [];
+    const failedEmployees: { id: number; name: string; reason: string }[] = [];
+
+    for (const empId of idsToDeactivate) {
+      // Get employee name for error reporting
+      const employee = employees.find(e => e.id === empId);
+      const employeeName = employee?.name || 'Unknown';
+
+      // Create promise for this deactivation using mutateAsync
+      const deactivatePromise = updateEmployeeStatusMutation.mutateAsync({
+        user_id: empId,
+        is_active: false,
+      }).catch((error: unknown) => {
+        const errorMsg = getErrorMessage(error, 'Deactivation failed');
+        failedEmployees.push({ id: empId, name: employeeName, reason: errorMsg });
+        throw error;
+      });
+
+      deactivatePromises.push(deactivatePromise);
+    }
+
+    // Execute all deactivations and wait for completion
+    try {
+      const results = await Promise.allSettled(deactivatePromises);
+
+      // Count successful deactivations
+      const successfulDeactivations = results.filter(r => r.status === 'fulfilled').length;
+      const totalFailed = failedEmployees.length;
+      const totalToDeactivate = idsToDeactivate.length;
+
+      if (totalFailed === 0 && successfulDeactivations === totalToDeactivate) {
+        message.success(`Deactivated ${totalToDeactivate} employee(s)`);
+        setSelectedEmployees([]);
+        // Query invalidation is handled in the hook's onSuccess
+      } else if (successfulDeactivations > 0) {
+        message.warning(`Deactivated ${successfulDeactivations} employee(s), ${totalFailed} failed`);
+        // Failed employees logged
+      } else {
+        message.error(`Failed to deactivate all ${totalToDeactivate} employee(s)`);
+        // Failed employees logged
+      }
+    } catch {
+      message.error('An error occurred during bulk deactivation');
+    }
+  }, [updateEmployeeStatusMutation, employees, message]);
 
   // Bulk delete/deactivate
-  const handleBulkDelete = () => {
+  const handleBulkDelete = useCallback(() => {
     if (selectedEmployees.length === 0) {
       message.warning('Please select at least one employee');
       return;
@@ -834,7 +870,7 @@ export function EmployeesPage() {
     const isSelfSelected = selectedEmployees.some(empId => {
       if (currentUserId && empId === currentUserId) return true;
       // Fallback check by email if ID match fails (rare but safe)
-      const emp = employees.find(e => e.id === empId);
+      const emp = employees.find((e: Employee) => e.id === empId);
       return emp?.email && currentUserEmail && emp.email.toLowerCase() === currentUserEmail.toLowerCase();
     });
 
@@ -883,55 +919,7 @@ export function EmployeesPage() {
       cancelText: 'Cancel',
       onOk: () => performBulkDeactivation(employeesToDeactivate),
     });
-  };
-
-  const performBulkDeactivation = async (idsToDeactivate: number[]) => {
-    // Prepare all deactivation promises
-    const deactivatePromises: Promise<any>[] = [];
-    const failedEmployees: { id: number; name: string; reason: string }[] = [];
-
-    for (const empId of idsToDeactivate) {
-      // Get employee name for error reporting
-      const employee = employees.find(e => e.id === empId);
-      const employeeName = employee?.name || 'Unknown';
-
-      // Create promise for this deactivation using mutateAsync
-      const deactivatePromise = updateEmployeeStatusMutation.mutateAsync({
-        user_id: empId,
-        is_active: false,
-      }).catch((error: any) => {
-        const errorMsg = error?.response?.data?.message || 'Deactivation failed';
-        failedEmployees.push({ id: empId, name: employeeName, reason: errorMsg });
-        throw error; // Re-throw to mark as failed in Promise.allSettled
-      });
-
-      deactivatePromises.push(deactivatePromise);
-    }
-
-    // Execute all deactivations and wait for completion
-    try {
-      const results = await Promise.allSettled(deactivatePromises);
-
-      // Count successful deactivations
-      const successfulDeactivations = results.filter(r => r.status === 'fulfilled').length;
-      const totalFailed = failedEmployees.length;
-      const totalToDeactivate = idsToDeactivate.length;
-
-      if (totalFailed === 0 && successfulDeactivations === totalToDeactivate) {
-        message.success(`Deactivated ${totalToDeactivate} employee(s)`);
-        setSelectedEmployees([]);
-        // Query invalidation is handled in the hook's onSuccess
-      } else if (successfulDeactivations > 0) {
-        message.warning(`Deactivated ${successfulDeactivations} employee(s), ${totalFailed} failed`);
-        // Failed employees logged
-      } else {
-        message.error(`Failed to deactivate all ${totalToDeactivate} employee(s)`);
-        // Failed employees logged
-      }
-    } catch (error) {
-      message.error('An error occurred during bulk deactivation');
-    }
-  };
+  }, [selectedEmployees, currentUserId, currentUserEmail, employees, modal, message, performBulkDeactivation]);
 
 
 
@@ -1079,7 +1067,7 @@ export function EmployeesPage() {
     return () => {
       setExpandedContent(null);
     };
-  }, [selectedEmployees, showAccessDropdown, showDepartmentDropdown, uniqueDepts]);
+  }, [selectedEmployees, showAccessDropdown, showDepartmentDropdown, uniqueDepts, handleBulkDelete, handleBulkUpdateAccess, handleBulkUpdateDepartment, handleExportToCSV, setExpandedContent]);
 
   return (
     <PageLayout
@@ -1194,70 +1182,17 @@ export function EmployeesPage() {
 
       </div>
 
-      <Modal
+      <EmployeeForm
         open={isDialogOpen}
-        onCancel={() => setIsDialogOpen(false)}
-        footer={null}
-        width={700}
-        centered
-        className="rounded-[16px] overflow-hidden"
-        styles={{
-          body: {
-            padding: 0,
-            maxHeight: '80vh',
-            overflow: 'hidden',
-            display: 'flex',
-            flexDirection: 'column',
-          },
+        onCancel={() => {
+          setIsDialogOpen(false);
+          setEditingEmployee(null);
         }}
-      >
-        <EmployeeForm
-          departments={departmentsData?.result?.filter((dept: any) => dept.is_active !== false).map((dept: any) => dept.name) || []}
-          initialData={editingEmployee ? {
-            name: editingEmployee.name,
-            role: editingEmployee.role,
-            email: editingEmployee.email,
-            phone: editingEmployee.phone,
-            department: editingEmployee.department,
-            hourlyRate: editingEmployee.hourlyRate,
-            dateOfJoining: editingEmployee.dateOfJoining && editingEmployee.dateOfJoining !== 'N/A'
-              ? (() => {
-                try {
-                  // Parse date string like "01 Jan 2024"
-                  const dateParts = editingEmployee.dateOfJoining.split(' ');
-                  if (dateParts.length === 3) {
-                    const day = dateParts[0].padStart(2, '0');
-                    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-                    const month = String(monthNames.indexOf(dateParts[1]) + 1).padStart(2, '0');
-                    const year = dateParts[2];
-                    return `${year}-${month}-${day}`;
-                  }
-                  // Try parsing as ISO string
-                  const date = new Date(editingEmployee.dateOfJoining);
-                  if (!isNaN(date.getTime())) {
-                    return date.toISOString().split('T')[0];
-                  }
-                } catch (e) {
-                  // Error parsing date
-                }
-                return '';
-              })()
-              : '',
-            experience: editingEmployee.experience.toString(),
-            skillsets: editingEmployee.skillsets,
-            access: editingEmployee.access,
-            salary: editingEmployee.salary.toString(),
-            currency: editingEmployee.currency,
-            workingHours: editingEmployee.rawWorkingHours,
-            leaves: editingEmployee.leaves.toString(),
-            role_id: editingEmployee.roleId,
-            employmentType: editingEmployee.employmentType
-          } : null}
-          onSubmit={handleSaveEmployee}
-          onCancel={() => setIsDialogOpen(false)}
-          isEditing={!!editingEmployee}
-        />
-      </Modal>
+        isEditing={!!editingEmployee}
+        initialData={editingEmployee}
+        onSubmit={handleSaveEmployee}
+        departments={uniqueDepts.filter(d => d !== 'All')}
+      />
 
       {/* Employee Details Modal */}
       <EmployeeDetailsModal
@@ -1266,13 +1201,13 @@ export function EmployeesPage() {
           setIsDetailsModalOpen(false);
           setSelectedEmployeeForDetails(null);
         }}
-        employee={selectedEmployeeForDetails as any}
+        employee={selectedEmployeeForDetails || null}
         onEdit={() => {
           setIsDetailsModalOpen(false);
           setSelectedEmployeeForDetails(null);
           handleOpenDialog(selectedEmployeeForDetails || undefined);
         }}
       />
-    </PageLayout>
+    </PageLayout >
   );
 }
