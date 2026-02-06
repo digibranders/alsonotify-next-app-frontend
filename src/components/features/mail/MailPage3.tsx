@@ -277,6 +277,7 @@ export function MailPage() {
     }, 60_000); // 1 min
 
     return () => window.clearInterval(id);
+    // Omit refresh/other deps to avoid refetch loop; selectedId/folder/unreadOnly drive polling.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedId, folder, unreadOnly]);
 

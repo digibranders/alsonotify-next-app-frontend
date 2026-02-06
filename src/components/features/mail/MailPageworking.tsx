@@ -632,7 +632,7 @@ export function MailPage() {
       title="Mail"
       tabs={[]}
       activeTab=""
-      onTabChange={() => {}}
+      onTabChange={() => { }}
       titleAction={{
         label: "Compose",
         icon: <Send className="w-4 h-4" />,
@@ -808,7 +808,7 @@ export function MailPage() {
         open={composeOpen}
         onCancel={() => setComposeOpen(false)}
         width={680}
-        destroyOnHidden // ✅ destroyOnClose deprecated
+        destroyOnHidden // Ensures content is unmounted on close, resetting state
         centered
         styles={{
           body: { padding: 16 },
