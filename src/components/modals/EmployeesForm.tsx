@@ -149,12 +149,14 @@ function EmployeeFormContent({
       let start = "";
       let end = "";
 
-      if (initialData.workingHours && typeof initialData.workingHours === 'object') {
-        start = initialData.workingHours.start_time || "";
-        end = initialData.workingHours.end_time || "";
-      } else if (initialData.workingHoursStart) {
+      const wh = initialData.working_hours ?? initialData.rawWorkingHours ?? initialData.workingHours;
+      if (wh && typeof wh === "object" && !Array.isArray(wh)) {
+        start = (wh as { start_time?: string }).start_time ?? start;
+        end = (wh as { end_time?: string }).end_time ?? end;
+      }
+      if (!start && initialData.workingHoursStart) {
         start = initialData.workingHoursStart;
-        end = initialData.workingHoursEnd;
+        end = initialData.workingHoursEnd ?? end;
       }
 
       let phone = initialData.phone || "";
@@ -188,8 +190,8 @@ function EmployeeFormContent({
         phone,
         countryCode,
         salary: String(initialData.salary || ""),
-        hourlyRate: String(initialData.hourlyRate || "").replace("/Hr", "").replace("N/A", ""),
-        leaves: String(initialData.leaves || ""),
+        hourlyRate: String(initialData.hourly_rates ?? initialData.hourlyRate ?? "").replace("/Hr", "").replace("N/A", ""),
+        leaves: String(initialData.no_of_leaves ?? initialData.leaves ?? ""),
         experience: String(initialData.experience || ""),
         currency: initialData.currency || "INR",
         access: initialData.access || "Employee",
@@ -207,23 +209,42 @@ function EmployeeFormContent({
   const resolvedFormData = useMemo(() => {
     const updated = { ...formData };
 
-    if (!isEditing && companyData?.result) {
+    if (companyData?.result) {
       const company = companyData.result;
-      if (updated.currency === defaultFormData.currency && company.currency) {
-        updated.currency = company.currency;
+
+      if (!isEditing) {
+        if (updated.currency === defaultFormData.currency && company.currency) {
+          updated.currency = company.currency;
+        }
+        if (updated.leaves === defaultFormData.leaves && company.leaves) {
+          const companyLeaves = company.leaves;
+          const totalLeaves = Array.isArray(companyLeaves) && companyLeaves.length > 0
+            ? companyLeaves.reduce((sum: number, leave: any) => sum + (Number(leave.count) || 0), 0)
+            : 15;
+          updated.leaves = totalLeaves.toString();
+        }
+        if (updated.workingHoursStart === defaultFormData.workingHoursStart && company.working_hours?.start_time) {
+          updated.workingHoursStart = formatTimeForState(company.working_hours.start_time);
+        }
+        if (updated.workingHoursEnd === defaultFormData.workingHoursEnd && company.working_hours?.end_time) {
+          updated.workingHoursEnd = formatTimeForState(company.working_hours.end_time);
+        }
       }
-      if (updated.leaves === defaultFormData.leaves && company.leaves) {
-        const companyLeaves = company.leaves;
-        const totalLeaves = Array.isArray(companyLeaves) && companyLeaves.length > 0
-          ? companyLeaves.reduce((sum: number, leave: any) => sum + (Number(leave.count) || 0), 0)
-          : 15;
-        updated.leaves = totalLeaves.toString();
-      }
-      if (updated.workingHoursStart === defaultFormData.workingHoursStart && company.working_hours?.start_time) {
-        updated.workingHoursStart = formatTimeForState(company.working_hours.start_time);
-      }
-      if (updated.workingHoursEnd === defaultFormData.workingHoursEnd && company.working_hours?.end_time) {
-        updated.workingHoursEnd = formatTimeForState(company.working_hours.end_time);
+
+      if (isEditing) {
+        if ((updated.leaves === "" || updated.leaves === "0") && company.leaves) {
+          const companyLeaves = company.leaves;
+          const totalLeaves = Array.isArray(companyLeaves) && companyLeaves.length > 0
+            ? companyLeaves.reduce((sum: number, leave: any) => sum + (Number(leave.count) || 0), 0)
+            : 15;
+          updated.leaves = totalLeaves.toString();
+        }
+        if (updated.workingHoursStart === "" && company.working_hours?.start_time) {
+          updated.workingHoursStart = formatTimeForState(company.working_hours.start_time);
+        }
+        if (updated.workingHoursEnd === "" && company.working_hours?.end_time) {
+          updated.workingHoursEnd = formatTimeForState(company.working_hours.end_time);
+        }
       }
     }
 
@@ -273,6 +294,13 @@ function EmployeeFormContent({
     }
     return "";
   }, [resolvedFormData.salary, resolvedFormData.workingHoursStart, resolvedFormData.workingHoursEnd, companyData]);
+
+  const displayHourlyCost = useMemo(() => {
+    if (calculatedHourlyRate) return `${calculatedHourlyRate}/Hr`;
+    const existing = (resolvedFormData.hourlyRate || "").trim();
+    if (!existing) return "";
+    return `${existing}/Hr`;
+  }, [calculatedHourlyRate, resolvedFormData.hourlyRate]);
 
   const handleSubmit = () => {
     if (!resolvedFormData.firstName) {
@@ -529,7 +557,7 @@ function EmployeeFormContent({
             placeholder="e.g. 25/Hr"
             readOnly
             className={`h-11 rounded-lg border border-[#EEEEEE] bg-[#F9FAFB] text-[#666666] font-['Manrope:Medium',sans-serif] cursor-not-allowed`}
-            value={calculatedHourlyRate ? `${calculatedHourlyRate}/Hr` : ""}
+            value={displayHourlyCost}
             prefix={<span className="text-gray-400 mr-1">{currencySymbol}</span>}
           />
         </div>

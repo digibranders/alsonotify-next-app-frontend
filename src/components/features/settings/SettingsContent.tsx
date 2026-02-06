@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { Pencil } from 'lucide-react';
 import { Button, Input, App, Modal, DatePicker } from "antd";
 import dayjs from 'dayjs';
@@ -77,12 +77,22 @@ export function SettingsContent({
         getCompanyDetailsPayload
     } = useCompanyDetails({ initialData: companyData?.result });
 
-    const [departments, setDepartments] = useState<Department[]>(() => [
-        { id: '1', name: 'Design', active: true },
-        { id: '2', name: 'Development', active: true },
-        { id: '3', name: 'SEO', active: true },
-    ]);
+    const [departments, setDepartments] = useState<Department[]>(() => []);
     const [isAddingDept, setIsAddingDept] = useState(false);
+
+    // Sync departments from company API when company data loads (no pre-seeded defaults)
+    useEffect(() => {
+        const apiDepts = (companyData?.result as { departments?: Array<{ id: number; name: string; is_active?: boolean }> })?.departments;
+        if (Array.isArray(apiDepts)) {
+            setDepartments(
+                apiDepts.map((d) => ({
+                    id: d.id,
+                    name: d.name,
+                    active: d.is_active !== false,
+                }))
+            );
+        }
+    }, [companyData?.result]);
     const [newDeptName, setNewDeptName] = useState('');
 
     const { documentTypes: requiredDocuments, updateDocumentTypes: setRequiredDocuments } = useDocumentSettings();
