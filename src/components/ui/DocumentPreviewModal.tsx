@@ -1,8 +1,8 @@
 import { Modal, Skeleton, Segmented } from 'antd';
-import { X, FileText, Code, Eye } from 'lucide-react';
+import { X, Code, Eye } from 'lucide-react';
 import { UserDocument } from '@/types/genericTypes';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 
 type PreviewMode = 'rendered' | 'source';
 
@@ -13,34 +13,51 @@ interface DocumentPreviewModalProps {
 }
 
 export function DocumentPreviewModal({ open, onClose, document }: DocumentPreviewModalProps) {
-  const [textContent, setTextContent] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [previewMode, setPreviewMode] = useState<'rendered' | 'source'>('rendered');
+  return (
+    <Modal
+      open={open}
+      onCancel={onClose}
+      footer={null}
+      width={1100}
+      centered
+      className="rounded-[12px] overflow-hidden"
+      closeIcon={<X className="w-5 h-5 text-[#666666]" />}
+      styles={{
+        body: {
+          padding: 0,
+        },
+      }}
+      destroyOnHidden
+    >
+      {document && (
+        <DocumentPreviewContent document={document} />
+      )}
+    </Modal>
+  );
+}
 
-  const isHtmlMsg = document?.fileName.toLowerCase().endsWith('.html') || document?.fileType === 'text' && document?.fileName.toLowerCase().endsWith('.html');
+function DocumentPreviewContent({ document }: { document: UserDocument }) {
+  const [textContent, setTextContent] = useState<string | null>(null);
+  const [loading, setLoading] = useState(() => {
+    const textExtensions = ['.txt', '.log', '.json', '.js', '.ts', '.css', '.html', '.md'];
+    const isActuallyText = ['text', 'csv'].includes(document.fileType) ||
+      textExtensions.some(ext => document.fileName.toLowerCase().endsWith(ext));
+    return !!(isActuallyText && document.fileUrl);
+  });
+  const [previewMode, setPreviewMode] = useState<PreviewMode>('rendered');
+
+  const isHtmlMsg = useMemo(() => {
+    const name = document.fileName.toLowerCase();
+    return name.endsWith('.html') || (document.fileType === 'text' && name.endsWith('.html'));
+  }, [document]);
 
   useEffect(() => {
-    if (!open || !document) {
-      setTextContent(null);
-      setPreviewMode('rendered');
-      return;
-    }
-
-    const isTextBased = ['text', 'csv', 'docx', 'excel'].includes(document.fileType) ||
-      document.fileName.endsWith('.log') ||
-      document.fileName.endsWith('.txt') ||
-      document.fileName.endsWith('.json');
-
-    // We only fetch if it's likely text-based and NOT a heavy binary like docx/excel 
-    // (though docx/excel mapping in types might be misleading, usually they are binary)
-    // For now let's focus on actual text types
-    const actualTextTypes = ['text', 'csv'];
     const textExtensions = ['.txt', '.log', '.json', '.js', '.ts', '.css', '.html', '.md'];
-    const isActuallyText = actualTextTypes.includes(document.fileType) ||
+    const isActuallyText = ['text', 'csv'].includes(document.fileType) ||
       textExtensions.some(ext => document.fileName.toLowerCase().endsWith(ext));
 
     if (isActuallyText && document.fileUrl) {
-      setLoading(true);
+      // setLoading(true); // Handled by initializer for initial mount
       fetch(document.fileUrl)
         .then(res => res.text())
         .then(text => {
@@ -52,9 +69,7 @@ export function DocumentPreviewModal({ open, onClose, document }: DocumentPrevie
           setLoading(false);
         });
     }
-  }, [open, document]);
-
-  if (!document) return null;
+  }, [document.fileUrl, document.fileName, document.fileType]);
 
   const renderPreview = () => {
     if (document.fileType === 'image') {
@@ -110,7 +125,6 @@ export function DocumentPreviewModal({ open, onClose, document }: DocumentPrevie
       );
     }
 
-    // For other file types (docx, text, csv, excel), show a message
     return (
       <div className="w-full h-full flex flex-col items-center justify-center bg-[#F9FAFB] rounded-lg p-8">
         <div className="text-center">
@@ -133,65 +147,46 @@ export function DocumentPreviewModal({ open, onClose, document }: DocumentPrevie
   };
 
   return (
-    <Modal
-      open={open}
-      onCancel={onClose}
-      footer={null}
-      width={1100}
-      centered
-      className="rounded-[12px] overflow-hidden"
-      closeIcon={<X className="w-5 h-5 text-[#666666]" />}
-      styles={{
-        body: {
-          padding: 0,
-        },
-      }}
-    >
-      <div className="bg-white p-2 md:p-3">
-        <div className="mb-2 px-2 flex items-center justify-between">
-          <div>
-            <h3 className="text-[15px] font-bold text-[#111111] mb-0">
-              {document.fileName}
-            </h3>
-            <p className="text-[11px] text-[#666666] font-medium uppercase tracking-wider">
-              {document.documentTypeName}
-            </p>
-          </div>
-
-          {isHtmlMsg && textContent !== null && (
-            <Segmented<PreviewMode>
-              options={[
-                {
-                  label: (
-                    <div className="flex items-center gap-2">
-                      <Eye size={14} />
-                      <span>Rendered</span>
-                    </div>
-                  ),
-                  value: 'rendered',
-                },
-                {
-                  label: (
-                    <div className="flex items-center gap-2">
-                      <Code size={14} />
-                      <span>Source</span>
-                    </div>
-                  ),
-                  value: 'source',
-                },
-              ]}
-              value={previewMode}
-              onChange={(v) => setPreviewMode(v)}
-              className="bg-[#F3F4F6]"
-            />
-          )}
+    <div className="bg-white p-2 md:p-3">
+      <div className="mb-2 px-2 flex items-center justify-between">
+        <div>
+          <h3 className="text-[15px] font-bold text-[#111111] mb-0">
+            {document.fileName}
+          </h3>
+          <p className="text-[11px] text-[#666666] font-medium uppercase tracking-wider">
+            {document.documentTypeName}
+          </p>
         </div>
-        {renderPreview()}
+
+        {isHtmlMsg && textContent !== null && (
+          <Segmented<PreviewMode>
+            options={[
+              {
+                label: (
+                  <div className="flex items-center gap-2">
+                    <Eye size={14} />
+                    <span>Rendered</span>
+                  </div>
+                ),
+                value: 'rendered',
+              },
+              {
+                label: (
+                  <div className="flex items-center gap-2">
+                    <Code size={14} />
+                    <span>Source</span>
+                  </div>
+                ),
+                value: 'source',
+              },
+            ]}
+            value={previewMode}
+            onChange={(v) => setPreviewMode(v)}
+            className="bg-[#F3F4F6]"
+          />
+        )}
       </div>
-    </Modal>
+      {renderPreview()}
+    </div>
   );
 }
-
-
-
-
