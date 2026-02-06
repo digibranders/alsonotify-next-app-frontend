@@ -300,7 +300,6 @@ export function MailPage() {
     }, 60_000); // 1 min
 
     return () => window.clearInterval(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedId, folder, unreadOnly]);
 
 

@@ -6,7 +6,6 @@ import {
   Paperclip, Image as ImageIcon, Smile,
   MoreVertical, Trash2, Send, Forward, X
 } from 'lucide-react';
-} from 'lucide-react';
 import { RichTextEditor, formatText } from '../../common/RichTextEditor';
 import dayjs from 'dayjs';
 
