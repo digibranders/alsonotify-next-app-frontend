@@ -20,10 +20,8 @@ export function ChecklistEditor({ items, onChange, placeholder = "List", classNa
       // Ensure all items are in ChecklistItem format
       const convertedItems: ChecklistItem[] = items.map((item: Partial<ChecklistItem> & { checked?: boolean }, index: number): ChecklistItem => {
         if (item.id && typeof item.isChecked === 'boolean' && item.order !== undefined) {
-          // Already in ChecklistItem format
           return item as ChecklistItem;
         } else {
-          // Convert from {text, checked} format
           return {
             id: item.id || `item-${Date.now()}-${index}`,
             text: item.text || '',
@@ -36,10 +34,32 @@ export function ChecklistEditor({ items, onChange, placeholder = "List", classNa
           };
         }
       });
-      setLocalItems(convertedItems);
+
+      // Optimization: Only update if content is different logic to prevent loops
+      // We check for length, IDs, text, checked status, order, and indent
+      const isDifferent = convertedItems.length !== localItems.length ||
+        convertedItems.some((cItem, i) => {
+          const lItem = localItems[i];
+          return cItem.id !== lItem.id ||
+            cItem.text !== lItem.text ||
+            cItem.isChecked !== lItem.isChecked ||
+            cItem.order !== lItem.order ||
+            cItem.indentLevel !== lItem.indentLevel;
+        });
+
+      if (isDifferent) {
+        setLocalItems(convertedItems);
+      }
     } else if (localItems.length === 0) {
+      // Only set empty if we are supposedly empty but have 0 items (which shouldn't happen if we default to 1)
+      // Actually we default to 1 empty item.
+      // If items prop is [], we might want to respect that? Or default to 1?
+      // Existing logic enforced 1 item.
+      // We just keep existing logic but wrapped in check
       setLocalItems([createEmptyChecklistItem(0)]);
     }
+    // Deps intentionally [items] only; including localItems would cause sync loop with parent.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items]);
 
   // Notify parent of changes (debounced to avoid excessive updates)
@@ -51,7 +71,7 @@ export function ChecklistEditor({ items, onChange, placeholder = "List", classNa
   }, [localItems, onChange]);
 
   const updateItem = (id: string, updates: Partial<ChecklistItem>) => {
-    setLocalItems(prev => prev.map(item => 
+    setLocalItems(prev => prev.map(item =>
       item.id === id ? { ...item, ...updates, updatedAt: new Date().toISOString() } : item
     ));
   };
@@ -59,7 +79,7 @@ export function ChecklistEditor({ items, onChange, placeholder = "List", classNa
   const addItem = (afterIndex: number, text: string = '') => {
     const newItem = createEmptyChecklistItem(afterIndex + 1, 0);
     newItem.text = text;
-    
+
     setLocalItems(prev => {
       const newItems = [...prev];
       // Update order of items after insertion point
@@ -71,7 +91,7 @@ export function ChecklistEditor({ items, onChange, placeholder = "List", classNa
       newItems.splice(afterIndex + 1, 0, newItem);
       return newItems;
     });
-    
+
     // Focus the new item
     setTimeout(() => {
       const input = inputRefs.current[newItem.id];
@@ -122,7 +142,7 @@ export function ChecklistEditor({ items, onChange, placeholder = "List", classNa
 
     if (e.key === 'Enter') {
       e.preventDefault();
-      
+
       if (cursorPos === 0 && input.value.trim() === '') {
         // Enter on empty item: remove if not only item
         if (localItems.length > 1) {
@@ -135,7 +155,7 @@ export function ChecklistEditor({ items, onChange, placeholder = "List", classNa
         // Split item at cursor
         const beforeText = input.value.substring(0, cursorPos);
         const afterText = input.value.substring(cursorPos);
-        
+
         updateItem(item.id, { text: beforeText });
         addItem(index, afterText);
       } else {
@@ -147,7 +167,7 @@ export function ChecklistEditor({ items, onChange, placeholder = "List", classNa
     } else if (e.key === 'Backspace') {
       if (cursorPos === 0 && input.value === '') {
         e.preventDefault();
-        
+
         if (item.indentLevel > 0) {
           // Dedent instead of delete
           updateItem(item.id, { indentLevel: Math.max(0, item.indentLevel - 1) });
@@ -158,7 +178,7 @@ export function ChecklistEditor({ items, onChange, placeholder = "List", classNa
       }
     } else if (e.key === 'Tab') {
       e.preventDefault();
-      
+
       if (e.shiftKey) {
         // Shift+Tab: dedent
         if (item.indentLevel > 0) {
@@ -188,10 +208,10 @@ export function ChecklistEditor({ items, onChange, placeholder = "List", classNa
   const checkedItems = localItems.filter(item => item.isChecked).sort((a, b) => a.order - b.order);
 
   return (
-    <div 
-      ref={containerRef} 
-      className={`checklist-editor ${className}`} 
-      style={{ 
+    <div
+      ref={containerRef}
+      className={`checklist-editor ${className}`}
+      style={{
         minHeight: '200px',
         width: '100%',
         boxSizing: 'border-box'

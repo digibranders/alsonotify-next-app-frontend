@@ -4,11 +4,10 @@ import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useTabSync } from '@/hooks/useTabSync';
 import {
-  FileText, ListTodo, Calendar, Clock, CheckCircle2,
-  Loader2, AlertCircle, Briefcase, FolderOpen,
-  ArrowRight, Plus, Send, Paperclip, X, MessageSquare
-} from 'lucide-react';
-import { Breadcrumb, Checkbox, Tooltip, App, Modal, Input } from 'antd';
+  FileText, ListTodo, Calendar, Clock, 
+  AlertCircle, Briefcase, FolderOpen,
+  ArrowRight, Plus} from 'lucide-react';
+import { Breadcrumb, Checkbox, App, Modal, Input } from 'antd';
 import { TaskStatusBadge, TaskChatPanel, StepRow } from './components';
 import { TaskMembersList } from './components/TaskMembersList';
 
@@ -53,54 +52,12 @@ export function TaskDetailsPage() {
   const [completeSubmitting, setCompleteSubmitting] = useState(false);
 
   const queryClient = useQueryClient();
-  const { mutate: updateMemberStatus, mutateAsync: updateMemberStatusAsync, isPending: isUpdatingStatus } = useUpdateMemberStatus();
-  const { startTimer, stopTimer } = useTimer();
+  const { mutateAsync: updateMemberStatusAsync } = useUpdateMemberStatus();
+  const { stopTimer } = useTimer();
 
   // Start: member-status first, then startTimer on success; do not start timer if member-status denies (403/409)
-  const handleStart = () => {
-    if (!task) return;
-    updateMemberStatus(
-      { taskId: Number(task.id), status: 'In_Progress' },
-      {
-        onSuccess: async () => {
-          try {
-            const taskWithProject = task as {
-              task_workspace?: { name?: string };
-              task_project?: { company?: { name?: string } };
-              project?: string;
-            };
-            const projectName =
-              taskWithProject.task_workspace?.name ||
-              taskWithProject.task_project?.company?.name ||
-              taskWithProject.project ||
-              'Unknown';
-            await startTimer(Number(task.id), task.name || 'Untitled Task', projectName);
-            message.success('Work started! Timer is active.');
-          } catch (err) {
-            message.error(err instanceof Error ? err.message : 'Failed to start timer');
-            queryClient.invalidateQueries({ queryKey: queryKeys.tasks.detail(taskId) });
-            queryClient.invalidateQueries({ queryKey: queryKeys.tasks.timer(taskId) });
-          }
-        },
-        onError: (err: Error & { response?: { status?: number } }) => {
-          const status = err.response?.status ?? 0;
-          message.error(err.message || 'Failed to update status');
-          queryClient.invalidateQueries({ queryKey: queryKeys.tasks.detail(taskId) });
-          queryClient.invalidateQueries({ queryKey: queryKeys.tasks.timer(taskId) });
-          if (status === 403 || status === 409) {
-            queryClient.invalidateQueries({ queryKey: queryKeys.tasks.listRoot() });
-            queryClient.invalidateQueries({ queryKey: queryKeys.tasks.assigned() });
-          }
-        },
-      }
-    );
-  };
 
   // Complete: open modal first; on submit stopTimer(description) then updateMemberStatus(Completed)
-  const handleCompleteRequest = () => {
-    setCompleteDescription('');
-    setShowCompleteModal(true);
-  };
 
   const handleCompleteSubmit = async () => {
     if (!task) return;
@@ -229,7 +186,6 @@ export function TaskDetailsPage() {
     );
   }
 
-  const assignee = task?.member_user || (task?.task_members?.[0]?.user);
   const leader = task?.leader_user;
   const taskProject = task?.taskProject?.company;
   const workspace = taskProject ? { name: taskProject.name, id: task.workspace_id } : undefined;
@@ -246,8 +202,6 @@ export function TaskDetailsPage() {
   const steps = task.steps || [];
 
   // Enable Start only when current member has provided estimate (align with FloatingTimerBar)
-  const currentMember = task.task_members?.find((tm: { user_id?: number }) => tm.user_id === currentUser?.id);
-  const canStart = currentMember != null && currentMember.estimated_time != null;
 
   return (
     <PageLayout

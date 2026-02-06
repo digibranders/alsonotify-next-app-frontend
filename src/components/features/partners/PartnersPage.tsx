@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import {
-    Button,
     Input,
     Select,
     Modal,
@@ -17,18 +16,12 @@ import { useFloatingMenu } from '../../../context/FloatingMenuContext';
 import { UserOutlined, MailOutlined, PhoneOutlined } from '@ant-design/icons';
 import { PageLayout } from '../../layout/PageLayout';
 import {
-    Plus,
     Trash2,
     Users,
     Download,
-    ChevronLeft,
-    ChevronRight,
-    Loader2,
     Globe,
     Mail,
     MoreVertical,
-    Building,
-    User,
     Check,
     X
 } from 'lucide-react';
@@ -59,8 +52,6 @@ interface ReceivedInvite {
 }
 
 // Mock Data
-const { Option } = Select;
-
 const countryCodes = [
     { code: "+1", country: "US" },
     { code: "+91", country: "IN" },
@@ -386,10 +377,6 @@ export function PartnersPageContent() {
             return p.country;
         }
     })))];
-    const filterOptions: FilterOption[] = [
-        { id: 'type', label: 'Type', options: ['All', 'Individual', 'Organization'], defaultValue: 'All' },
-        { id: 'country', label: 'Country', options: countries, defaultValue: 'All' }
-    ];
 
     const handleFilterChange = (filterId: string, value: string) => {
         setFilters(prev => ({ ...prev, [filterId]: value }));

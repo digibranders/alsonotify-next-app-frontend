@@ -51,7 +51,7 @@ import { useUserDetails } from "@/hooks/useUser";
 import type { ContactOption } from "./EmailInput";
 
 const { Sider, Content } = Layout;
-const { Text, Title } = Typography;
+const { Text } = Typography;
 
 function formatFrom(m: any) {
   const from = m?.from?.emailAddress;
@@ -277,6 +277,7 @@ export function MailPage() {
     }, 60_000); // 1 min
 
     return () => window.clearInterval(id);
+    // Omit refresh/other deps to avoid refetch loop; selectedId/folder/unreadOnly drive polling.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedId, folder, unreadOnly]);
 

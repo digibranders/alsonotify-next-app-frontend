@@ -39,6 +39,7 @@ export function TaskMembersList({ taskId, members, executionMode, currentUser, i
   const [items, setItems] = useState(members || []);
 
   useEffect(() => {
+
     setItems(members || []);
   }, [members]);
 

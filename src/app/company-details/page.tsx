@@ -15,7 +15,7 @@ import AuthLayout from "@/components/auth/AuthLayout";
 import PhoneNumberInput from "@/components/ui/PhoneNumberInput";
 import { fileService } from "@/services/file.service";
 import { useUpdateProfile, useUpdateCompany } from "@/hooks/useUser";
-import { getErrorMessage } from "@/types/api-utils"; 
+import { getErrorMessage } from "@/types/api-utils";
 // Assuming useUpdateCompany exists, checking file next.
 
 const { Option } = Select;
@@ -56,12 +56,19 @@ function CompanyDetailsForm() {
   useEffect(() => {
     if (isIndividual && userData?.success && userData.result) {
       const userName = userData.result.name || "My Account";
-      setCompanyData((prev) => ({
-        ...prev,
-        companyName: userName, // Use user's name instead of "My Workspace"
-        industry: "other",
-        companySize: "1-10",
-      }));
+      // Omit prev from deps; equality check inside updater prevents unnecessary updates.
+      // eslint-disable-next-line
+      setCompanyData((prev) => {
+        if (prev.companyName === userName && prev.industry === "other" && prev.companySize === "1-10") {
+          return prev;
+        }
+        return {
+          ...prev,
+          companyName: userName, // Use user's name instead of "My Workspace"
+          industry: "other",
+          companySize: "1-10",
+        };
+      });
     }
   }, [isIndividual, userData]);
 
@@ -74,10 +81,10 @@ function CompanyDetailsForm() {
         try {
           // Use default values for individual accounts
           const businessType = 21; // Default to "Others"
-          
+
           // For individual accounts, use user's name as the "company" name (required by backend structure)
           const userName = userData.result.name || "My Account";
-          
+
           await completeSignupMutation.mutateAsync({
             registerToken: token,
             companyName: userName,
@@ -86,7 +93,7 @@ function CompanyDetailsForm() {
             country: "", // Default country for individual accounts
             timezone: "", // Default timezone for individual accounts
           });
-          
+
           message.success("Account activated successfully!");
           router.push("/dashboard");
         } catch (error: unknown) {
@@ -105,11 +112,21 @@ function CompanyDetailsForm() {
       const { name } = userData.result;
       if (name) {
         const parts = name.split(" ");
-        setAdminData((prev) => ({
-          ...prev,
-          firstName: parts[0] || "",
-          lastName: parts.slice(1).join(" ") || "",
-        }));
+        const newFirstName = parts[0] || "";
+        const newLastName = parts.slice(1).join(" ") || "";
+
+        // Omit prev from deps; equality check inside updater prevents unnecessary updates.
+        // eslint-disable-next-line
+        setAdminData((prev) => {
+          if (prev.firstName === newFirstName && prev.lastName === newLastName) {
+            return prev;
+          }
+          return {
+            ...prev,
+            firstName: newFirstName,
+            lastName: newLastName,
+          };
+        });
       }
     }
   }, [userData]);
@@ -157,12 +174,11 @@ function CompanyDetailsForm() {
           country: companyData.country,
           timezone: companyData.timezone,
         });
-        
+
         // Redirect manually since we removed it from the hook
         router.push("/dashboard");
-      } catch (error: any) {
-        const errorMessage =
-          error?.response?.data?.message || "Failed to complete signup. Please try again.";
+      } catch (error: unknown) {
+        const errorMessage = getErrorMessage(error, "Failed to complete signup. Please try again.");
         message.error(errorMessage);
       }
     } else {
@@ -207,44 +223,44 @@ function CompanyDetailsForm() {
         // Upload Company Logo if exists
         if (companyData.logo && companyId) {
           try {
-             message.loading({ content: 'Uploading company logo...', key: 'logo-upload' });
-             const logoResult = await fileService.uploadFile(
-                companyData.logo,
-                'COMPANY_LOGO',
-                companyId
-             );
-             if (logoResult.download_url) {
-                await updateCompanyMutation.mutateAsync({
-                   name: companyData.companyName,
-                   logo: logoResult.download_url
-                });
-                message.success({ content: 'Company logo uploaded!', key: 'logo-upload' });
-             }
+            message.loading({ content: 'Uploading company logo...', key: 'logo-upload' });
+            const logoResult = await fileService.uploadFile(
+              companyData.logo,
+              'COMPANY_LOGO',
+              companyId
+            );
+            if (logoResult.download_url) {
+              await updateCompanyMutation.mutateAsync({
+                name: companyData.companyName,
+                logo: logoResult.download_url
+              });
+              message.success({ content: 'Company logo uploaded!', key: 'logo-upload' });
+            }
           } catch (err) {
-             console.error("Logo upload failed", err);
-             message.error({ content: 'Failed to upload logo', key: 'logo-upload' });
+            console.error("Logo upload failed", err);
+            message.error({ content: 'Failed to upload logo', key: 'logo-upload' });
           }
         }
 
         // Upload Admin Photo if exists
         if (adminData.photo && userId) {
           try {
-             message.loading({ content: 'Uploading profile photo...', key: 'photo-upload' });
-             const photoResult = await fileService.uploadFile(
-                adminData.photo,
-                'USER_PROFILE_PICTURE',
-                userId
-             );
-             if (photoResult.download_url) {
-                await updateProfileMutation.mutateAsync({
-                   name: user.name,
-                   profile_pic: photoResult.download_url
-                });
-                message.success({ content: 'Profile photo uploaded!', key: 'photo-upload' });
-             }
+            message.loading({ content: 'Uploading profile photo...', key: 'photo-upload' });
+            const photoResult = await fileService.uploadFile(
+              adminData.photo,
+              'USER_PROFILE_PICTURE',
+              userId
+            );
+            if (photoResult.download_url) {
+              await updateProfileMutation.mutateAsync({
+                name: user.name,
+                profile_pic: photoResult.download_url
+              });
+              message.success({ content: 'Profile photo uploaded!', key: 'photo-upload' });
+            }
           } catch (err) {
-             console.error("Photo upload failed", err);
-             message.error({ content: 'Failed to upload photo', key: 'photo-upload' });
+            console.error("Photo upload failed", err);
+            message.error({ content: 'Failed to upload photo', key: 'photo-upload' });
           }
         }
 
@@ -253,9 +269,8 @@ function CompanyDetailsForm() {
       } else {
         console.error("Signup response indicated failure or missing data:", response);
       }
-    } catch (error: any) {
-      const errorMessage =
-        error?.response?.data?.message || "Failed to complete signup. Please try again.";
+    } catch (error: unknown) {
+      const errorMessage = getErrorMessage(error, "Failed to complete signup. Please try again.");
       message.error(errorMessage);
     }
   };

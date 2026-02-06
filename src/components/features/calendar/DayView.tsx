@@ -1,8 +1,8 @@
 'use client';
 
-import { useMemo, useEffect, useRef, useState } from 'react';
+import { useMemo, useEffect, useRef } from 'react';
 import dayjs from 'dayjs';
-import { Popover, Spin } from 'antd';
+import { Popover } from 'antd';
 import { Skeleton } from '../../ui/Skeleton';
 import { CalendarEventPopup } from './CalendarEventPopup';
 import { CalendarEvent } from './types';
@@ -13,6 +13,43 @@ interface DayViewProps {
     isLoading?: boolean;
     onTimeSlotClick?: (date: dayjs.Dayjs) => void;
 }
+
+// Helper to get minutes from start of day
+const getMinutesFromStart = (event: CalendarEvent) => {
+    if (event.time === 'All Day' || event.type === 'holiday' || event.type === 'leave') {
+        return -1;
+    }
+
+    // Use the pre-calculated timezone-aware startDateTime if available
+    if (event.startDateTime) {
+        return event.startDateTime.hour() * 60 + event.startDateTime.minute();
+    }
+
+    if (event.time && event.date) {
+        const dateTimeStr = `${event.date} ${event.time}`;
+        const parsed = dayjs(dateTimeStr, 'YYYY-MM-DD h:mm A');
+        if (parsed.isValid()) {
+            return parsed.hour() * 60 + parsed.minute();
+        }
+    }
+
+    return 9 * 60; // Default if parsing fails
+};
+
+const processEvents = (dayEvents: CalendarEvent[]) => {
+    const allDayEvents: CalendarEvent[] = [];
+    const timeEvents: CalendarEvent[] = [];
+
+    dayEvents.forEach(e => {
+        if (e.time === 'All Day' || e.type === 'holiday' || e.type === 'leave') {
+            allDayEvents.push(e);
+        } else {
+            timeEvents.push(e);
+        }
+    });
+
+    return { allDayEvents, timeEvents };
+};
 
 export function DayView({ currentDate, events, isLoading, onTimeSlotClick }: DayViewProps) {
     const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -28,49 +65,9 @@ export function DayView({ currentDate, events, isLoading, onTimeSlotClick }: Day
     // Use 24 hours
     const hours = Array.from({ length: 24 }).map((_, i) => i);
 
-    const getEventsForDay = (date: dayjs.Dayjs) => {
-        return events.filter(e => dayjs(e.date).isSame(date, 'day'));
-    };
-    
-    // Helper to get minutes from start of day
-    const getMinutesFromStart = (event: CalendarEvent) => {
-        if (event.time === 'All Day' || event.type === 'holiday' || event.type === 'leave') {
-             return -1; 
-        }
-        
-        // Use the pre-calculated timezone-aware startDateTime if available
-        if (event.startDateTime) {
-            return event.startDateTime.hour() * 60 + event.startDateTime.minute();
-        }
-
-        if (event.time && event.date) {
-             const dateTimeStr = `${event.date} ${event.time}`;
-             const parsed = dayjs(dateTimeStr, 'YYYY-MM-DD h:mm A');
-             if (parsed.isValid()) {
-                return parsed.hour() * 60 + parsed.minute();
-             }
-        }
-
-        return 9 * 60; // Default if parsing fails
-    };
-
-    const processEvents = (dayEvents: CalendarEvent[]) => {
-        const allDayEvents: CalendarEvent[] = [];
-        const timeEvents: CalendarEvent[] = [];
-
-        dayEvents.forEach(e => {
-            if (e.time === 'All Day' || e.type === 'holiday' || e.type === 'leave') {
-                allDayEvents.push(e);
-            } else {
-                timeEvents.push(e);
-            }
-        });
-
-        return { allDayEvents, timeEvents };
-    };
-
     const { allDayEvents, timeEvents } = useMemo(() => {
-        return processEvents(getEventsForDay(currentDate));
+        const dayEvents = events.filter(e => dayjs(e.date).isSame(currentDate, 'day'));
+        return processEvents(dayEvents);
     }, [currentDate, events]);
 
     const isToday = currentDate.isSame(dayjs(), 'day');
@@ -102,16 +99,16 @@ export function DayView({ currentDate, events, isLoading, onTimeSlotClick }: Day
 
     return (
         <div className="flex flex-col h-full bg-white border border-[#EEEEEE] rounded-[16px] overflow-hidden">
-             
-             {/* Scrollable Grid containing Header (sticky) and Body */}
-             {/* Scrollable Grid containing Header (sticky) and Body */}
-             <div ref={scrollContainerRef} className="flex-1 overflow-y-auto relative bg-white scrollbar-hide">
-                
+
+            {/* Scrollable Grid containing Header (sticky) and Body */}
+            {/* Scrollable Grid containing Header (sticky) and Body */}
+            <div ref={scrollContainerRef} className="flex-1 overflow-y-auto relative bg-white scrollbar-hide">
+
                 {/* Header (Moved inside) */}
                 <div className="flex border-b border-[#EEEEEE] sticky top-0 bg-white z-40">
                     <div className="w-16 flex-shrink-0 border-r border-[#EEEEEE] bg-white"></div>
                     <div className="flex-1 px-4 py-2 bg-white flex justify-center border-l-0">
-                         <div className="text-center">
+                        <div className="text-center">
                             <div className={`text-[11px] font-['Manrope:SemiBold',sans-serif] mb-0.5 ${isToday ? 'text-[#ff3b3b]' : 'text-[#666666]'}`}>
                                 {currentDate.format('dddd').toUpperCase()}
                             </div>
@@ -120,7 +117,7 @@ export function DayView({ currentDate, events, isLoading, onTimeSlotClick }: Day
                                     {currentDate.format('D')}
                                 </div>
                             </div>
-                         </div>
+                        </div>
                     </div>
                 </div>
 
@@ -134,27 +131,27 @@ export function DayView({ currentDate, events, isLoading, onTimeSlotClick }: Day
                    For now, let's just let it scroll.
                 */}
                 {allDayEvents.length > 0 && (
-                     <div className="border-b border-[#EEEEEE] flex">
-                         <div className="w-16 flex-shrink-0 border-r border-[#EEEEEE] bg-white flex items-center justify-center">
-                             <span className="text-[10px] text-[#666666] font-['Manrope:Medium',sans-serif]">All day</span>
-                         </div>
-                         <div className="flex-1 p-2 space-y-1">
-                             {allDayEvents.map(event => (
-                                 <Popover key={event.id} content={<CalendarEventPopup event={event} />} trigger="click">
-                                     <div 
+                    <div className="border-b border-[#EEEEEE] flex">
+                        <div className="w-16 flex-shrink-0 border-r border-[#EEEEEE] bg-white flex items-center justify-center">
+                            <span className="text-[10px] text-[#666666] font-['Manrope:Medium',sans-serif]">All day</span>
+                        </div>
+                        <div className="flex-1 p-2 space-y-1">
+                            {allDayEvents.map(event => (
+                                <Popover key={event.id} content={<CalendarEventPopup event={event} />} trigger="click">
+                                    <div
                                         className="px-3 py-1.5 rounded-[6px] text-white text-[13px] font-['Manrope:Medium',sans-serif] cursor-pointer inline-block mr-2 mb-1"
                                         style={{ backgroundColor: event.color }}
-                                     >
+                                    >
                                         {event.title}
-                                     </div>
-                                 </Popover>
-                             ))}
-                         </div>
-                     </div>
-                 )}
+                                    </div>
+                                </Popover>
+                            ))}
+                        </div>
+                    </div>
+                )}
 
                 <div className="flex relative min-h-[1440px] z-0"> {/* 24 hours * 60px */}
-                    
+
                     {/* Time Scale */}
                     <div className="w-16 flex-shrink-0 border-r border-[#EEEEEE] bg-white sticky left-0 z-30 select-none">
                         {hours.map(hour => (
@@ -166,27 +163,27 @@ export function DayView({ currentDate, events, isLoading, onTimeSlotClick }: Day
                         ))}
 
                         {/* Current Time Indicator on Left Axis */}
-                        <div 
+                        <div
                             className="absolute right-0 w-full h-[2px] z-30 pointer-events-none flex items-center justify-end pr-1"
                             style={{ top: dayjs().hour() * 60 + dayjs().minute() }}
                         >
-                             <div className="text-[10px] font-['Manrope:Bold',sans-serif] text-white bg-[#ff3b3b] px-1.5 py-0.5 rounded-[4px] relative -top-[1px]">
+                            <div className="text-[10px] font-['Manrope:Bold',sans-serif] text-white bg-[#ff3b3b] px-1.5 py-0.5 rounded-[4px] relative -top-[1px]">
                                 {dayjs().format('h:mm')}
                             </div>
                         </div>
                     </div>
 
                     {/* Day Column */}
-                    <div 
+                    <div
                         className="flex-1 min-h-[1440px] relative group hover:bg-gray-50 transition-colors z-[1]"
                     >
-                         {/* Grid Lines */}
-                         {hours.map(h => (
-                             <div key={h} className="absolute w-full border-b border-[#EEEEEE] h-[60px] pointer-events-none" style={{ top: h * 60 }}></div>
-                         ))}
+                        {/* Grid Lines */}
+                        {hours.map(h => (
+                            <div key={h} className="absolute w-full border-b border-[#EEEEEE] h-[60px] pointer-events-none" style={{ top: h * 60 }}></div>
+                        ))}
 
-                         {/* Click Overlay - FINAL FIX */}
-                         <div 
+                        {/* Click Overlay - FINAL FIX */}
+                        <div
                             className="absolute inset-0 z-[10] cursor-pointer"
                             style={{ height: '1440px' }} // Force height match
                             onClick={(e) => {
@@ -195,65 +192,65 @@ export function DayView({ currentDate, events, isLoading, onTimeSlotClick }: Day
                                 const rect = e.currentTarget.getBoundingClientRect();
                                 const relativeY = e.clientY - rect.top;
                                 const safeY = Math.max(0, relativeY);
-                                
-                                const minutes = safeY; 
+
+                                const minutes = safeY;
                                 const roundedMinutes = Math.round(minutes / 15) * 15;
                                 const dayStart = dayjs(currentDate).startOf('day');
                                 const eventTime = dayStart.add(roundedMinutes, 'minute');
-                                
+
                                 onTimeSlotClick?.(eventTime);
                             }}
-                         />
+                        />
 
-                         {/* Time Events */}
-                         {timeEvents.map(event => {
-                             const startMinutes = getMinutesFromStart(event);
-                             const duration = 60; // Mock duration
-                             
-                             return (
+                        {/* Time Events */}
+                        {timeEvents.map(event => {
+                            const startMinutes = getMinutesFromStart(event);
+                            const duration = 60; // Mock duration
+
+                            return (
                                 <Popover key={event.id} content={<CalendarEventPopup event={event} />} trigger="click">
-                                 <div
-                                     className="absolute w-[95%] left-[2.5%] rounded-[4px] px-4 py-3 cursor-pointer border-l-[3px] hover:shadow-md transition-shadow overflow-hidden z-10"
-                                     style={{
-                                         top: `${startMinutes}px`,
-                                         height: `${duration}px`,
-                                         backgroundColor: event.color + '20', // transparent bg
-                                         borderLeftColor: event.color
-                                     }}
-                                      onClick={(e) => e.stopPropagation()}
-                                 >
-                                     <div className="flex items-start justify-between">
-                                         <div>
-                                             <div className="text-[14px] font-['Manrope:Bold',sans-serif] text-[#111111]">
-                                                 {event.title}
-                                             </div>
-                                             <div className="text-[13px] font-['Manrope:Regular',sans-serif] text-[#666666] mt-1">
-                                                 {event.time} {event.location ? ` | ${event.location}` : ''}
-                                             </div>
-                                         </div>
-                                     </div>
-                                     {event.description && (
-                                         <div className="mt-2 text-[12px] text-[#666666] line-clamp-2">
-                                             {event.description}
-                                         </div>
-                                     )}
-                                 </div>
+                                    <div
+                                        className="absolute w-[95%] left-[2.5%] rounded-[4px] px-4 py-3 cursor-pointer border-l-[3px] hover:shadow-md transition-shadow overflow-hidden z-10"
+                                        style={{
+                                            top: `${startMinutes}px`,
+                                            height: `${duration}px`,
+                                            backgroundColor: event.color + '20', // transparent bg
+                                            borderLeftColor: event.color
+                                        }}
+                                        onClick={(e) => e.stopPropagation()}
+                                    >
+                                        <div className="flex items-start justify-between">
+                                            <div>
+                                                <div className="text-[14px] font-['Manrope:Bold',sans-serif] text-[#111111]">
+                                                    {event.title}
+                                                </div>
+                                                <div className="text-[13px] font-['Manrope:Regular',sans-serif] text-[#666666] mt-1">
+                                                    {event.time} {event.location ? ` | ${event.location}` : ''}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {event.description && (
+                                            <div className="mt-2 text-[12px] text-[#666666] line-clamp-2">
+                                                {event.description}
+                                            </div>
+                                        )}
+                                    </div>
                                 </Popover>
-                             );
-                         })}
-                         
-                         {/* Current Time Indicator for Today */}
-                         {isToday && (
-                             <div 
+                            );
+                        })}
+
+                        {/* Current Time Indicator for Today */}
+                        {isToday && (
+                            <div
                                 className="absolute w-full h-[2px] bg-[#ff3b3b] z-30 pointer-events-none flex items-center"
                                 style={{ top: dayjs().hour() * 60 + dayjs().minute() }}
-                             >
+                            >
                                 <div className="w-2.5 h-2.5 rounded-full bg-[#ff3b3b] -ml-[5px] ring-2 ring-white"></div>
-                             </div>
-                         )}
+                            </div>
+                        )}
                     </div>
                 </div>
-             </div>
+            </div>
         </div>
     );
 }

@@ -1,0 +1,490 @@
+import { useState, useMemo, useCallback } from 'react';
+import { Pencil } from 'lucide-react';
+import { Button, Input, App, Modal, DatePicker } from "antd";
+import dayjs from 'dayjs';
+
+// Types
+import { RoleDto } from '@/types/dto/user.dto';
+import { SettingsTab } from './SettingsPage';
+import { ApiResponse } from '@/types/api';
+import { Role, Department, Holiday, Employee } from '@/types/domain';
+import { CompanyProfile, CompanyLeaveSetting } from '@/types/auth';
+import { UseMutateAsyncFunction, UseMutateFunction } from '@tanstack/react-query';
+import { CompanyUpdateInput } from '@/types/genericTypes';
+
+// Components & Tabs
+import { CompanyDetailsTab } from './tabs/CompanyDetailsTab';
+import { SecurityTab } from './tabs/SecurityTab';
+import { NotificationsTab } from './tabs/NotificationsTab';
+import { LeavesTab } from './tabs/LeavesTab';
+import { WorkingHoursTab } from './tabs/WorkingHoursTab';
+import { AccessManagementTab } from './tabs/AccessManagementTab';
+import { IntegrationsTab } from './tabs/IntegrationsTab';
+
+// Hooks
+import { useCompanyDetails } from '@/hooks/useCompanyDetails';
+import { getErrorMessage } from '@/types/api-utils';
+import { useDocumentSettings } from '@/hooks/useDocumentSettings';
+import { useRolePermissions } from '@/hooks/useUser';
+
+interface SettingsContentProps {
+    activeTab: SettingsTab;
+    setActiveTab: (tab: SettingsTab) => void;
+    isIndividual: boolean;
+    isAdmin: boolean;
+    companyData: ApiResponse<CompanyProfile> | undefined;
+    holidaysData: ApiResponse<Holiday[]> | undefined;
+    rolesData: ApiResponse<RoleDto[]> | undefined;
+    userDetails: ApiResponse<Employee> | undefined;
+    updateCompanyMutation: { mutateAsync: UseMutateAsyncFunction<ApiResponse<CompanyProfile>, unknown, CompanyUpdateInput, unknown>; isPending: boolean };
+    upsertRoleMutation: { mutate: UseMutateFunction<ApiResponse<RoleDto>, unknown, Partial<RoleDto>, unknown>; isPending: boolean };
+    updatePermissionsMutation: { mutate: UseMutateFunction<ApiResponse<unknown>, unknown, { roleId: number; actions: number[] }, unknown>; isPending: boolean };
+    createHolidayMutation: { isPending: boolean };
+    updateHolidayMutation: { isPending: boolean };
+    permissions: Record<string, boolean>;
+}
+
+export function SettingsContent({
+    activeTab,
+    setActiveTab,
+    isIndividual,
+    isAdmin,
+    companyData,
+    holidaysData,
+    rolesData,
+    updateCompanyMutation,
+    upsertRoleMutation,
+    updatePermissionsMutation,
+    permissions
+}: SettingsContentProps) {
+    const { message } = App.useApp();
+    const [isEditing, setIsEditing] = useState(false);
+    const [notifications, setNotifications] = useState({ email: true, push: false, reports: true });
+    const [security, setSecurity] = useState({ currentPassword: '', newPassword: '', confirmPassword: '', twoFactor: false });
+
+    // Company Details State
+    const {
+        companyName, setCompanyName,
+        companyLogo, setCompanyLogo,
+        taxId, setTaxId,
+        taxIdType, setTaxIdType,
+        timeZone, setTimeZone,
+        currency, setCurrency,
+        country, setCountry,
+        address, setAddress,
+        defaultEmployeePassword, setDefaultEmployeePassword,
+        resetCompanyDetails,
+        getCompanyDetailsPayload
+    } = useCompanyDetails({ initialData: companyData?.result });
+
+    const [departments, setDepartments] = useState<Department[]>(() => [
+        { id: '1', name: 'Design', active: true },
+        { id: '2', name: 'Development', active: true },
+        { id: '3', name: 'SEO', active: true },
+    ]);
+    const [isAddingDept, setIsAddingDept] = useState(false);
+    const [newDeptName, setNewDeptName] = useState('');
+
+    const { documentTypes: requiredDocuments, updateDocumentTypes: setRequiredDocuments } = useDocumentSettings();
+    const [isAddingDoc, setIsAddingDoc] = useState(false);
+    const [newDocName, setNewDocName] = useState('');
+
+    // Leaves State
+    const [leaves, setLeaves] = useState<CompanyLeaveSetting[]>(() =>
+        companyData?.result?.leaves || [
+            { id: '1', name: 'Sick Leave', count: 10 },
+            { id: '2', name: 'Casual Leave', count: 5 }
+        ]
+    );
+
+    // Holidays State
+    const [localHolidays, setLocalHolidays] = useState<Holiday[]>(() => {
+        if (holidaysData?.result) {
+            return holidaysData.result
+                .filter((h: Holiday) => !h.is_deleted)
+                .map((h: Holiday) => ({
+                    id: h.id,
+                    name: h.name,
+                    date: h.date,
+                    is_api: h.is_api
+                }));
+        }
+        return [];
+    });
+
+    const [isHolidayModalOpen, setIsHolidayModalOpen] = useState(false);
+    const [editingHoliday, setEditingHoliday] = useState<Holiday | null>(null);
+    const [holidayForm, setHolidayForm] = useState({ name: '', date: null as dayjs.Dayjs | null });
+
+    const publicHolidays = useMemo((): Holiday[] => {
+        return localHolidays.filter(h => !h.is_deleted);
+    }, [localHolidays]);
+
+    // Working Hours State
+    const [workingDays, setWorkingDays] = useState<string[]>(() => companyData?.result?.working_hours?.working_days || ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']);
+    const [workStartTime, setWorkStartTime] = useState(() => companyData?.result?.working_hours?.start_time || '09:00');
+    const [workEndTime, setWorkEndTime] = useState(() => companyData?.result?.working_hours?.end_time || '18:00');
+    const [breakTime, setBreakTime] = useState(() => String(companyData?.result?.working_hours?.break_time || '60'));
+
+    // Role & Permissions State
+    const [selectedRoleId, setSelectedRoleId] = useState<number | null>(null);
+    const { data: rolePermissions, isLoading: isLoadingPermissions } = useRolePermissions(selectedRoleId);
+    const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
+    const [roleFormName, setRoleFormName] = useState('');
+    const [roleFormColor, setRoleFormColor] = useState('#BBBBBB');
+    const [editingRole, setEditingRole] = useState<Role | null>(null);
+
+    // Handlers
+    const handleTabChange = useCallback((tab: string) => {
+        setActiveTab(tab as SettingsTab);
+        setIsEditing(false);
+    }, [setActiveTab]);
+
+    const handleAddDepartment = () => {
+        if (!newDeptName.trim()) return;
+        setDepartments([...departments, { id: Date.now().toString(), name: newDeptName, active: true }]);
+        setNewDeptName('');
+        setIsAddingDept(false);
+    };
+
+    const handleDeleteDepartment = (id: string | number) => {
+        setDepartments(departments.filter(d => d.id !== id));
+    };
+
+    const toggleDepartmentStatus = (id: string | number) => {
+        setDepartments(departments.map(d => d.id === id ? { ...d, active: !d.active } : d));
+    };
+
+    const handleAddDocument = () => {
+        if (!newDocName.trim()) return;
+        setRequiredDocuments([...requiredDocuments, { id: Date.now().toString(), name: newDocName, required: true }]);
+        setNewDocName('');
+        setIsAddingDoc(false);
+    };
+
+    const handleDeleteDocument = (id: string) => {
+        setRequiredDocuments(requiredDocuments.filter(d => d.id !== id));
+    };
+
+    const toggleDocumentRequired = (id: string) => {
+        setRequiredDocuments(requiredDocuments.map(d => d.id === id ? { ...d, required: !d.required } : d));
+    };
+
+    const toggleWorkingDay = (day: string) => {
+        if (workingDays.includes(day)) {
+            setWorkingDays(workingDays.filter(d => d !== day));
+        } else {
+            setWorkingDays([...workingDays, day]);
+        }
+    };
+
+    const handleAddHoliday = () => {
+        setEditingHoliday(null);
+        setHolidayForm({ name: '', date: null });
+        setIsHolidayModalOpen(true);
+    };
+
+    const handleEditHoliday = (holiday: Holiday) => {
+        setEditingHoliday(holiday);
+        setHolidayForm({
+            name: holiday.name,
+            date: dayjs(holiday.date)
+        });
+        setIsHolidayModalOpen(true);
+    };
+
+    const handleDeleteHoliday = (id: number | string) => {
+        setLocalHolidays(prev => prev.map(h => h.id === id ? { ...h, is_deleted: true } : h));
+    };
+
+    const handleSaveHoliday = () => {
+        if (!holidayForm.name.trim() || !holidayForm.date) {
+            message.error('Name and date are required');
+            return;
+        }
+
+        if (editingHoliday) {
+            setLocalHolidays(prev => prev.map(h =>
+                h.id === editingHoliday.id
+                    ? { ...h, name: holidayForm.name.trim(), date: holidayForm.date!.format('YYYY-MM-DD') }
+                    : h
+            ));
+        } else {
+            const newHoliday: Holiday = {
+                id: `temp-${Date.now()}`,
+                name: holidayForm.name.trim(),
+                date: holidayForm.date.format('YYYY-MM-DD'),
+                is_api: false
+            };
+            setLocalHolidays(prev => [...prev, newHoliday]);
+        }
+
+        setIsHolidayModalOpen(false);
+    };
+
+    const handleSaveRole = () => {
+        if (!roleFormName.trim()) {
+            message.error('Role name is required');
+            return;
+        }
+
+        const payload = {
+            id: editingRole?.id,
+            name: roleFormName.trim(),
+            color: roleFormColor,
+        };
+
+        upsertRoleMutation.mutate(payload, {
+            onSuccess: () => {
+                message.success(`Role ${editingRole ? 'updated' : 'added'} successfully`);
+                setIsRoleModalOpen(false);
+                setEditingRole(null);
+            },
+            onError: (error) => {
+                message.error(getErrorMessage(error, `Failed to save role`));
+            },
+        });
+    };
+
+    const handleUpdateLeaveCount = (id: string | number, count: string) => {
+        setLeaves(leaves.map(l => l.id === id ? { ...l, count: parseInt(count) || 0 } : l));
+    };
+
+    const handleSaveChanges = useCallback(async () => {
+        try {
+            const payload: Record<string, any> = getCompanyDetailsPayload();
+
+            if (activeTab === 'security' && isAdmin) {
+                payload.default_employee_password = defaultEmployeePassword;
+            }
+
+            if (activeTab === 'leaves') {
+                payload.leaves = leaves;
+                payload.public_holidays = localHolidays;
+            }
+
+            if (activeTab === 'working-hours') {
+                payload.working_hours = {
+                    start_time: workStartTime,
+                    end_time: workEndTime,
+                    working_days: workingDays,
+                    break_time: breakTime
+                };
+            }
+
+            await updateCompanyMutation.mutateAsync(payload as CompanyUpdateInput);
+            message.success('Settings saved successfully!');
+            setIsEditing(false);
+        } catch (error) {
+            message.error(getErrorMessage(error, "Failed to update settings"));
+        }
+    }, [activeTab, isAdmin, defaultEmployeePassword, leaves, localHolidays, workStartTime, workEndTime, workingDays, breakTime, updateCompanyMutation, getCompanyDetailsPayload, message]);
+
+    const handleCancelEdit = () => {
+        setIsEditing(false);
+        if (companyData?.result) {
+            if (activeTab === 'company') resetCompanyDetails();
+            if (activeTab === 'leaves') {
+                if (companyData.result.leaves) setLeaves([...companyData.result.leaves]);
+                // Re-sync local holidays if needed
+            }
+            if (activeTab === 'working-hours' && companyData.result.working_hours) {
+                setWorkStartTime(companyData.result.working_hours.start_time || '09:00');
+                setWorkEndTime(companyData.result.working_hours.end_time || '18:00');
+                setWorkingDays(companyData.result.working_hours.working_days || []);
+                setBreakTime(String(companyData.result.working_hours.break_time || '60'));
+            }
+        }
+    };
+
+    const handleEdit = () => setIsEditing(true);
+
+    // Derived Visibility
+    const canEditCompany = isAdmin || permissions['EDIT_COMPANY_DETAILS'];
+    const canEditSecurity = isAdmin || permissions['EDIT_SECURITY'];
+    const canEditLeaves = isAdmin || permissions['EDIT_LEAVES'];
+    const canEditWorkingHours = isAdmin || permissions['EDIT_WORKING_HOURS'];
+
+    const showTab = (tabId: string) => {
+        if (isIndividual) return ['company', 'notifications', 'security', 'integrations'].includes(tabId);
+        const viewPermMap: Record<string, string> = {
+            company: 'VIEW_COMPANY_DETAILS',
+            leaves: 'VIEW_LEAVES',
+            'working-hours': 'VIEW_WORKING_HOURS',
+            notifications: 'VIEW_NOTIFICATIONS',
+            security: 'VIEW_SECURITY',
+            'access-management': 'VIEW_ACCESS_MANAGEMENT',
+            integrations: 'VIEW_INTEGRATIONS'
+        };
+        return isAdmin || permissions[viewPermMap[tabId]];
+    };
+
+    const isEditableTab = ['company', 'security', 'leaves', 'working-hours'].includes(activeTab);
+    const hasEditPermission = (activeTab === 'company' && canEditCompany) ||
+        (activeTab === 'security' && canEditSecurity) ||
+        (activeTab === 'leaves' && canEditLeaves) ||
+        (activeTab === 'working-hours' && canEditWorkingHours);
+
+    return (
+        <div className="w-full h-full bg-white rounded-[24px] border border-[#EEEEEE] p-8 flex flex-col overflow-hidden relative font-['Manrope',sans-serif]">
+            {/* Header */}
+            <div className="flex-none mb-6">
+                <div className="flex items-center justify-between mb-6">
+                    <h1 className="text-[20px] font-['Manrope:SemiBold',sans-serif] text-[#111111]">
+                        {isIndividual ? 'Settings' : 'Company Settings'}
+                    </h1>
+                    {isEditableTab && hasEditPermission && (
+                        !isEditing ? (
+                            <Button onClick={handleEdit} className="bg-[#111111] hover:bg-[#000000]/90 text-white px-6 h-10 rounded-full flex items-center gap-2">
+                                <Pencil className="w-4 h-4" /> Edit
+                            </Button>
+                        ) : (
+                            <div className="flex items-center gap-3">
+                                <Button onClick={handleCancelEdit} type="text">Cancel</Button>
+                                <Button onClick={handleSaveChanges} loading={updateCompanyMutation.isPending} className="bg-[#ff3b3b] text-white px-8 h-10 rounded-full">Save Changes</Button>
+                            </div>
+                        )
+                    )}
+                </div>
+
+                <div className="flex items-center gap-8 border-b border-[#EEEEEE] overflow-x-auto no-scrollbar">
+                    {['company', 'notifications', 'security', 'leaves', 'working-hours', 'access-management', 'integrations']
+                        .filter(showTab)
+                        .map(tab => (
+                            <button
+                                key={tab}
+                                onClick={() => handleTabChange(tab)}
+                                className={`pb-3 px-1 relative font-['Manrope:SemiBold',sans-serif] text-[14px] transition-colors whitespace-nowrap ${activeTab === tab ? 'text-[#ff3b3b]' : 'text-[#666666] hover:text-[#111111]'}`}
+                            >
+                                {tab.charAt(0).toUpperCase() + tab.slice(1).replace('-', ' ')}
+                                {activeTab === tab && <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#ff3b3b]" />}
+                            </button>
+                        ))}
+                </div>
+            </div>
+
+            {/* Content Area */}
+            <div className="flex-1 overflow-y-auto pr-2 pb-10 custom-scrollbar">
+                <div style={{ display: activeTab === 'company' ? 'block' : 'none' }}>
+                    <CompanyDetailsTab
+                        isIndividual={isIndividual} isAdmin={isAdmin} canEditCompany={canEditCompany} isEditing={isEditing}
+                        companyName={companyName} setCompanyName={setCompanyName} companyLogo={companyLogo} setCompanyLogo={setCompanyLogo}
+                        taxId={taxId} setTaxId={setTaxId} taxIdType={taxIdType} setTaxIdType={setTaxIdType}
+                        timeZone={timeZone} setTimeZone={setTimeZone} currency={currency} setCurrency={setCurrency}
+                        country={country} setCountry={setCountry} address={address} setAddress={setAddress}
+                        companyData={companyData} departments={departments} isAddingDept={isAddingDept} setIsAddingDept={setIsAddingDept}
+                        newDeptName={newDeptName} setNewDeptName={setNewDeptName} handleAddDepartment={handleAddDepartment}
+                        handleDeleteDepartment={handleDeleteDepartment} toggleDepartmentStatus={toggleDepartmentStatus}
+                        requiredDocuments={requiredDocuments} isAddingDoc={isAddingDoc} setIsAddingDoc={setIsAddingDoc}
+                        newDocName={newDocName} setNewDocName={setNewDocName} handleAddDocument={handleAddDocument}
+                        handleDeleteDocument={handleDeleteDocument} toggleDocumentRequired={toggleDocumentRequired}
+                    />
+                </div>
+                <div style={{ display: activeTab === 'notifications' ? 'block' : 'none' }}><NotificationsTab notifications={notifications} setNotifications={setNotifications} /></div>
+                <div style={{ display: activeTab === 'security' ? 'block' : 'none' }}>
+                    <SecurityTab
+                        security={security}
+                        setSecurity={setSecurity}
+                        isAdmin={isAdmin}
+                        isEditing={isEditing}
+                        defaultEmployeePassword={defaultEmployeePassword}
+                        setDefaultEmployeePassword={setDefaultEmployeePassword}
+                        canEditSecurity={canEditSecurity}
+                    />
+                </div>
+                <div style={{ display: activeTab === 'leaves' ? 'block' : 'none' }}>
+                    <LeavesTab
+                        isEditing={isEditing}
+                        leaves={leaves}
+                        handleUpdateLeaveCount={handleUpdateLeaveCount}
+                        publicHolidays={publicHolidays}
+                        canEditLeaves={canEditLeaves}
+                        onEdit={handleEdit}
+                        onSave={handleSaveChanges}
+                        isSaving={updateCompanyMutation.isPending}
+                        isLoadingHolidays={false}
+                        handleAddHoliday={handleAddHoliday}
+                        handleEditHoliday={handleEditHoliday}
+                        handleDeleteHoliday={handleDeleteHoliday}
+                    />
+                </div>
+                <div style={{ display: activeTab === 'working-hours' ? 'block' : 'none' }}>
+                    <WorkingHoursTab
+                        workingDays={workingDays}
+                        toggleWorkingDay={toggleWorkingDay}
+                        canEditWorkingHours={canEditWorkingHours}
+                        isEditing={isEditing}
+                        onEdit={handleEdit}
+                        onSave={handleSaveChanges}
+                        isSaving={updateCompanyMutation.isPending}
+                        workStartTime={workStartTime}
+                        setWorkStartTime={setWorkStartTime}
+                        workEndTime={workEndTime}
+                        setWorkEndTime={setWorkEndTime}
+                        breakTime={breakTime}
+                        setBreakTime={setBreakTime}
+                    />
+                </div>
+                <div style={{ display: activeTab === 'access-management' ? 'block' : 'none' }}>
+                    <AccessManagementTab
+                        key={selectedRoleId || 'new'}
+                        canEditAccessManagement={isAdmin || !!permissions['EDIT_ACCESS_MANAGEMENT']}
+                        rolesData={rolesData}
+                        isLoadingRoles={false}
+                        selectedRoleId={selectedRoleId}
+                        setSelectedRoleId={setSelectedRoleId}
+                        setIsRoleModalOpen={setIsRoleModalOpen}
+                        setRoleFormName={setRoleFormName}
+                        setRoleFormColor={setRoleFormColor}
+                        setEditingRole={setEditingRole}
+                        rolePermissions={rolePermissions}
+                        isLoadingPermissions={isLoadingPermissions}
+                        updatePermissionsMutation={updatePermissionsMutation}
+                        initialSelectedPermissionIds={useMemo(() => {
+                            const initial = new Set<number>();
+                            if (rolePermissions?.result) {
+                                (rolePermissions.result as { actions: { id: number; assigned: boolean }[] }[]).forEach((mod) => {
+                                    mod.actions.forEach((act) => {
+                                        if (act.assigned) initial.add(act.id);
+                                    });
+                                });
+                            }
+                            return initial;
+                        }, [rolePermissions])}
+                    />
+                </div>
+                <div style={{ display: activeTab === 'integrations' ? 'block' : 'none' }}><IntegrationsTab /></div>
+            </div>
+
+            {/* Modals */}
+            <Modal open={isHolidayModalOpen} onCancel={() => setIsHolidayModalOpen(false)} footer={null} centered>
+                <div className="p-4">
+                    <h3 className="text-lg font-bold mb-4">{editingHoliday ? 'Edit' : 'Add'} Holiday</h3>
+                    <div className="space-y-4">
+                        <Input placeholder="Holiday Name" value={holidayForm.name} onChange={e => setHolidayForm({ ...holidayForm, name: e.target.value })} />
+                        <DatePicker className="w-full" value={holidayForm.date} onChange={date => setHolidayForm({ ...holidayForm, date })} />
+                        <div className="flex justify-end gap-2">
+                            <Button onClick={() => setIsHolidayModalOpen(false)}>Cancel</Button>
+                            <Button type="primary" onClick={handleSaveHoliday}>Save</Button>
+                        </div>
+                    </div>
+                </div>
+            </Modal>
+
+            <Modal open={isRoleModalOpen} onCancel={() => setIsRoleModalOpen(false)} footer={null} centered>
+                <div className="p-4">
+                    <h3 className="text-lg font-bold mb-4">{editingRole ? 'Edit' : 'Add'} Role</h3>
+                    <div className="space-y-4">
+                        <Input placeholder="Role Name" value={roleFormName} onChange={e => setRoleFormName(e.target.value)} />
+                        {/* Simplified color picker for brevity in this refactor */}
+                        <Input type="color" value={roleFormColor} onChange={e => setRoleFormColor(e.target.value)} className="h-10 p-0 overflow-hidden" />
+                        <div className="flex justify-end gap-2">
+                            <Button onClick={() => setIsRoleModalOpen(false)}>Cancel</Button>
+                            <Button type="primary" onClick={handleSaveRole}>Save</Button>
+                        </div>
+                    </div>
+                </div>
+            </Modal>
+        </div>
+    );
+}

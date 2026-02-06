@@ -1,6 +1,6 @@
 import { Modal, Input, Button, Upload, App } from "antd";
 import { useState } from "react";
-import { Upload as UploadIcon, X } from "lucide-react";
+import { Upload as UploadIcon } from "lucide-react";
 import type { UploadFile } from "antd/es/upload/interface";
 import { fileService } from "../../services/file.service";
 import { requestRevision } from "../../services/task";

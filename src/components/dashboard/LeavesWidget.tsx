@@ -1,17 +1,12 @@
 import svgPaths from "../../constants/iconPaths";
 import { Plus } from 'lucide-react';
 import { useState, useMemo } from 'react';
-import { Modal, Input, Button, Select, Form, DatePicker } from 'antd';
 import { Skeleton } from '../ui/Skeleton';
 import Image from "next/image";
 import dayjs from "dayjs";
-import type { Dayjs } from 'dayjs';
 import { useCompanyLeaves } from "../../hooks/useLeave";
 import { LeaveType } from "../../services/leave";
 import { LeaveApplyModal } from "../modals/LeaveApplyModal";
-
-const { Option } = Select;
-const { TextArea } = Input;
 
 // Helper function to get initials from name
 const getInitials = (name: string | null | undefined): string => {
@@ -54,10 +49,6 @@ const formatDuration = (days: number): string => {
   return `${days} Days`;
 };
 
-interface ApplyLeaveFormValues {
-  start_date: Dayjs;
-  end_date: Dayjs;
-}
 
 export function LeavesWidget({ onNavigate }: { onNavigate?: (page: string) => void }) {
   const [showDialog, setShowDialog] = useState(false);

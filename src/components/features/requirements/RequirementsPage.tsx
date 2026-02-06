@@ -6,31 +6,29 @@ import { FilterBar, FilterOption } from '../../ui/FilterBar';
 import { DateRangeSelector } from '../../common/DateRangeSelector';
 import { useFloatingMenu } from '../../../context/FloatingMenuContext';
 import {
-  X, Calendar as CalendarIcon, Clock, CheckCircle, CheckSquare, Users, Trash2,
-  FilePlus, Play, XCircle, RotateCcw,
-  ArrowDown, ArrowUp, Archive
+  CheckCircle, CheckSquare, Users, Trash2,
+  Play, XCircle, RotateCcw,
+  Archive
 } from 'lucide-react';
 
 import { PaginationBar } from '../../ui/PaginationBar';
-import { Modal, Button, Input, Select, Tooltip, Popover, Checkbox, App } from 'antd';
+import { Select, Tooltip, Popover, Checkbox, App } from 'antd';
 import { useWorkspaces, useCreateRequirement, useUpdateRequirement, useDeleteRequirement, useApproveRequirement, useCollaborativeRequirements } from '@/hooks/useWorkspace';
 import { useEmployees, useUserDetails } from '@/hooks/useUser';
 import { Skeleton } from '../../ui/Skeleton';
 import { getRequirementsByWorkspaceId } from '@/services/workspace';
 import { fileService } from '@/services/file.service';
-import { useQueries, useQueryClient } from '@tanstack/react-query';
-import { format, isPast, isToday, differenceInDays } from 'date-fns';
+import { useQueries } from '@tanstack/react-query';
+import { format } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import { useTabSync } from '@/hooks/useTabSync';
-import dayjs, { Dayjs } from 'dayjs';
+import { Dayjs } from 'dayjs';
 import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
 
 
-const { TextArea } = Input;
 const { Option } = Select;
 
 import { RequirementsForm } from '../../modals/RequirementsForm';
-import { WorkspaceForm } from '../../modals/WorkspaceForm';
 import { RequirementCard } from './components/RequirementCard';
 import { QuotationDialog, RejectDialog, InternalMappingModal } from './components/dialogs';
 
@@ -48,7 +46,6 @@ import {
 export function RequirementsPage() {
   const { message: messageApi, modal: modalApi } = App.useApp();
   const router = useRouter();
-  const queryClient = useQueryClient();
   const createRequirementMutation = useCreateRequirement();
   const updateRequirementMutation = useUpdateRequirement();
   const deleteRequirementMutation = useDeleteRequirement();
@@ -74,7 +71,7 @@ export function RequirementsPage() {
   });
 
   // Fetch collaborative requirements (where my company is receiver)
-  const { data: collaborativeData, isLoading: isLoadingCollaborative } = useCollaborativeRequirements();
+  const { data: collaborativeData } = useCollaborativeRequirements();
   const { data: userData } = useUserDetails();
   // userData.result is the Employee/User object directly
   // We need company_id for role detection
@@ -400,13 +397,15 @@ export function RequirementsPage() {
     });
     return mappedData;
 
-  }, [allRequirements, workspaceMap, currentUser]);
+  }, [allRequirements, workspaceMap, currentUser, stripHtmlTags]);
 
   // FIX: Create a ref to hold the latest requirements list
   // This allows us to access the latest data in event handlers without adding 'requirements'
   // to their dependency array, preventing an infinite update loop in FloatingMenuContext.
   const requirementsRef = useRef(requirements);
-  requirementsRef.current = requirements;
+  useEffect(() => {
+    requirementsRef.current = requirements;
+  }, [requirements]);
 
   // Use standardized tab sync hook for consistent URL handling
   type RequirementTab = 'draft' | 'pending' | 'active' | 'completed' | 'delayed' | 'archived';
@@ -463,7 +462,7 @@ export function RequirementsPage() {
     // Set editingReq to undefined so it creates a new requirement instead of updating
     setEditingReq({
       ...req,
-      id: undefined as any, // Remove ID so it creates new
+      id: undefined as unknown as number, // Remove ID so it creates new
       title: `${req.title} (Copy)`, // Add (Copy) suffix to title
     });
     setIsDialogOpen(true);
@@ -535,72 +534,11 @@ export function RequirementsPage() {
     });
   };
 
-  const handleCreateRequirement = (data: CreateRequirementRequestDto, files?: File[]) => {
-    if (!data.title && !data.name) {
-      messageApi.error("Requirement title is required");
-      return;
-    }
-    if (!data.workspace_id) {
-      messageApi.error("Please select a workspace");
-      return;
-    }
 
-    createRequirementMutation.mutate(data, {
-      onSuccess: async (response: any) => {
-        messageApi.success("Requirement created successfully");
-        setIsDialogOpen(false);
 
-        // Handle file uploads if any
-        if (files && files.length > 0 && response?.result?.id) {
-          const reqId = response.result.id;
-          messageApi.loading({ content: 'Uploading documents...', key: 'req-upload' });
-          try {
-            // Upload files sequentially or parallel
-            const uploadPromises = files.map(file =>
-              fileService.uploadFile(file, 'REQUIREMENT', reqId)
-            );
-            await Promise.all(uploadPromises);
-            messageApi.success({ content: 'Documents uploaded successfully', key: 'req-upload' });
-          } catch (err) {
-            console.error(err);
-            messageApi.error({ content: 'Failed to upload documents', key: 'req-upload' });
-          }
-        }
-      },
-      onError: (error: unknown) => {
-        messageApi.error(getErrorMessage(error, "Failed to create requirement"));
-      }
-    });
-  };
 
-  const handleUpdateRequirement = (data: CreateRequirementRequestDto, files?: File[]) => {
-    if (!editingReq) return;
 
-    // We need to construct UpdateRequirementRequestDto which includes id.
-    // The incoming data is CreateRequirementRequestDto (from form).
-    const updatePayload: UpdateRequirementRequestDto = {
-      ...data,
-      id: editingReq.id,
-    };
-
-    // INTELLIGENT WORKFLOW: If editing a Rejected Outsourced Requirement, treat it as "Resending" -> Move to Waiting
-    // This triggers the backend logic to clear old quotes and rejection reasons
-    if (editingReq.type === 'outsourced' && editingReq.rawStatus === 'Rejected') {
-      updatePayload.status = 'Waiting';
-    }
-
-    updateRequirementMutation.mutate(updatePayload, {
-      onSuccess: () => {
-        messageApi.success("Requirement updated successfully");
-        setIsDialogOpen(false);
-        setEditingReq(undefined);
-      },
-      onError: (error: unknown) => {
-        messageApi.error(getErrorMessage(error, "Failed to update requirement"));
-      }
-    });
-  };
-
+  /** Create and update flows are handled exclusively by handleSaveDraft and handleSendRequirement. */
   /** Save as draft: create → backend sets Draft; edit → update fields, keep status Draft */
   const handleSaveDraft = (data: CreateRequirementRequestDto, files?: File[]) => {
     if (editingReq) {
@@ -700,7 +638,7 @@ export function RequirementsPage() {
   // Filter Logic:
   // 1. First apply all filters EXCEPT the Status Tab
   const { setExpandedContent } = useFloatingMenu();
-  const baseFilteredReqs = requirements.filter(req => {
+  const baseFilteredReqs = useMemo(() => requirements.filter(req => {
     // Type
     const typeMatch = filters.type === 'All' ||
       (filters.type === 'In-house' && req.type === 'inhouse') ||
@@ -755,10 +693,10 @@ export function RequirementsPage() {
     }
 
     return typeMatch && billingMatch && priorityMatch && clientMatch && searchMatch && dateMatch && categoryMatch && assigneeMatch;
-  });
+  }), [requirements, filters, searchQuery, dateRange]);
 
   // 2. Apply Status Tab filter
-  const finalFilteredReqs = baseFilteredReqs.filter(req => {
+  const finalFilteredReqs = useMemo(() => baseFilteredReqs.filter(req => {
     const status = mapRequirementToStatus(req);
     const type = mapRequirementToType(req);
     const role = mapRequirementToRole(req);
@@ -770,7 +708,7 @@ export function RequirementsPage() {
     };
     const reqTab = getRequirementTab(status, type, role, tabContext);
     return reqTab === activeStatusTab;
-  });
+  }), [baseFilteredReqs, activeStatusTab]);
 
   // 3. Apply Sorting
   const sortedRequirements = useMemo(() => {
@@ -778,8 +716,8 @@ export function RequirementsPage() {
 
     if (sortColumn) {
       sorted.sort((a, b) => {
-        let aVal: any;
-        let bVal: any;
+        let aVal: string | number = '';
+        let bVal: string | number = '';
 
         switch (sortColumn) {
           case 'title':
@@ -804,7 +742,10 @@ export function RequirementsPage() {
             bVal = b.status || '';
             break;
           default:
+            // Sort key not in typed union; narrow when requirement DTO is extended.
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             aVal = (a as any)[sortColumn];
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             bVal = (b as any)[sortColumn];
         }
 
@@ -827,14 +768,6 @@ export function RequirementsPage() {
     setCurrentPage(1);
   };
 
-  const getSortIcon = (column: string) => {
-    if (sortColumn !== column) return null;
-    return sortDirection === 'asc' ? (
-      <ArrowUp className="w-3 h-3 inline ml-1" />
-    ) : (
-      <ArrowDown className="w-3 h-3 inline ml-1" />
-    );
-  };
 
   // Get unique partners for filter options
   const allPartners = useMemo(() => {
@@ -879,12 +812,12 @@ export function RequirementsPage() {
     ...(activeStatusTab === 'completed' ? [{ id: 'billing', label: 'Billing', options: ['All', 'Ready to Bill', 'Invoiced', 'Paid'], placeholder: 'Billing Status' }] : [])
   ];
 
-  const handleFilterChange = (filterId: string, value: string) => {
+  const handleFilterChange = useCallback((filterId: string, value: string) => {
     setFilters(prev => ({ ...prev, [filterId]: value }));
     setCurrentPage(1);
-  };
+  }, []);
 
-  const clearFilters = () => {
+  const clearFilters = useCallback(() => {
     setFilters({
       type: 'All',
       billing: 'All',
@@ -897,7 +830,7 @@ export function RequirementsPage() {
     setSearchQuery('');
     setDateRange(null);
     setCurrentPage(1);
-  };
+  }, []);
 
   const toggleSelect = (id: number) => {
     setSelectedReqs(prev => {
@@ -933,7 +866,7 @@ export function RequirementsPage() {
           id,
           workspace_id: req.workspaceId,
           status: 'Completed',
-        } as any);
+        });
       });
       await Promise.all(updatePromises);
       messageApi.success(`Marked ${selectedReqs.length} requirement(s) as completed`);
@@ -978,7 +911,7 @@ export function RequirementsPage() {
           id,
           workspace_id: req.workspaceId,
           status: 'Assigned',
-        } as any);
+        });
       });
       await Promise.all(updatePromises);
       messageApi.success(`Submitted ${selectedReqs.length} requirement(s) for approval`);
@@ -997,7 +930,7 @@ export function RequirementsPage() {
           id,
           workspace_id: req.workspaceId,
           status: 'Assigned',
-        } as any);
+        });
       });
       await Promise.all(updatePromises);
       messageApi.success(`Reopened ${selectedReqs.length} requirement(s)`);
@@ -1020,7 +953,7 @@ export function RequirementsPage() {
           id,
           workspace_id: req.workspaceId,
           leader_id: leaderId,
-        } as any);
+        });
       });
       await Promise.all(updatePromises);
       messageApi.success(`Assigned ${employee?.name || 'selected user'} to ${selectedReqs.length} requirement(s)`);
@@ -1424,7 +1357,7 @@ export function RequirementsPage() {
                       }}
                       onEdit={() => handleEditDraft({
                         ...requirement,
-                      } as any)}
+                      })}
                       onDelete={() => {
                         const status = mapRequirementToStatus(requirement);
                         const type = mapRequirementToType(requirement);
@@ -1436,7 +1369,6 @@ export function RequirementsPage() {
                           approvalStatus: requirement.approvalStatus,
                         };
                         const tab = getRequirementTab(status, type, role, tabContext);
-                        const isActive = tab === 'active' || tab === 'completed' || tab === 'delayed';
                         const isArchived = tab === 'archived';
                         const canDelete = tab === 'draft' || tab === 'pending' || isArchived;
 
@@ -1453,7 +1385,7 @@ export function RequirementsPage() {
                                 id: requirement.id,
                                 workspace_id: requirement.workspaceId || 0,
                                 is_archived: true
-                              } as any, {
+                              }, {
                                 onSuccess: () => messageApi.success("Requirement archived")
                               });
                             },
@@ -1512,51 +1444,31 @@ export function RequirementsPage() {
       </div>
 
       {/* Create/Edit Requirement Modal - Using existing modal structure */}
-      <Modal
+      <RequirementsForm
         open={isDialogOpen}
-        destroyOnHidden={true}
         onCancel={() => {
           setIsDialogOpen(false);
           setEditingReq(undefined);
         }}
-        footer={null}
-        width={700}
-        centered
-        className="rounded-[16px] overflow-hidden"
-        styles={{
-          body: {
-            padding: 0,
-            maxHeight: '80vh',
-            display: 'flex',
-            flexDirection: 'column',
-          },
-        }}
-      >
-        <RequirementsForm
-          isEditing={!!editingReq}
-          initialData={editingReq ? {
-            title: editingReq.title,
-            workspace: String(editingReq.workspaceId),
-            type: editingReq.type === 'client' ? 'inhouse' : (editingReq.type || 'inhouse') as 'inhouse' | 'outsourced',
-            description: editingReq.description || '',
-            dueDate: editingReq.dueDate || '',
-            is_high_priority: editingReq.is_high_priority,
-            contactPerson: editingReq.contactPerson,
-            contact_person_id: editingReq.contact_person_id || editingReq.clientId || undefined,
-            budget: String(editingReq.budget || ''),
-            quoted_price: String(editingReq.quotedPrice || ''),
-            currency: editingReq.currency || 'USD',
-          } : undefined}
-          onSubmit={handleSaveDraft}
-          onSubmitAndSend={handleSendRequirement}
-          onCancel={() => {
-            setIsDialogOpen(false);
-            setEditingReq(undefined);
-          }}
-          workspaces={workspacesData?.result?.workspaces?.map((w: { id: number; name: string }) => ({ id: w.id, name: w.name })) || []}
-          isLoading={createRequirementMutation.isPending || updateRequirementMutation.isPending}
-        />
-      </Modal>
+        isEditing={!!editingReq}
+        initialData={editingReq ? {
+          title: editingReq.title,
+          workspace: String(editingReq.workspaceId),
+          type: editingReq.type === 'client' ? 'inhouse' : (editingReq.type || 'inhouse') as 'inhouse' | 'outsourced',
+          description: editingReq.description || '',
+          dueDate: editingReq.dueDate || '',
+          is_high_priority: editingReq.is_high_priority,
+          contactPerson: editingReq.contactPerson,
+          contact_person_id: editingReq.contact_person_id || editingReq.clientId || undefined,
+          budget: String(editingReq.budget || ''),
+          quoted_price: String(editingReq.quotedPrice || ''),
+          currency: editingReq.currency || 'USD',
+        } : undefined}
+        onSubmit={handleSaveDraft}
+        onSubmitAndSend={handleSendRequirement}
+        workspaces={workspacesData?.result?.workspaces?.map((w: { id: number; name: string }) => ({ id: w.id, name: w.name })) || []}
+        isLoading={createRequirementMutation.isPending || updateRequirementMutation.isPending}
+      />
 
       <QuotationDialog
         open={isQuotationOpen}
@@ -1579,7 +1491,7 @@ export function RequirementsPage() {
             workspace_id: allRequirements.find(r => r.id === pendingReqId)?.workspaceId || 0, // Required field
             receiver_workspace_id: workspaceId,
             status: 'In_Progress'
-          } as any, {
+          }, {
             onSuccess: () => {
               messageApi.success("Requirement mapped and activated!");
               setIsMappingOpen(false);

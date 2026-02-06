@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import { Columns, Clock } from 'lucide-react';
+import { Clock } from 'lucide-react';
 import { format } from 'date-fns';
 import { Task } from '@/types/domain';
 

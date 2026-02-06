@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useMemo } from 'react';
-import { BarChart2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useMemo } from 'react';
+import { BarChart2 } from 'lucide-react';
 import { Button, Tooltip } from 'antd';
 import { format } from 'date-fns';
 import { Task } from '@/types/domain';

@@ -1,7 +1,7 @@
 import { PageLayout } from '../../layout/PageLayout';
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { useTabSync } from '@/hooks/useTabSync';
-import { useQueryClient, useMutation } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { useNotes, useCreateNote, useUpdateNote, useDeleteNote, useArchiveNote, useUnarchiveNote } from '../../../hooks/useNotes';
 import { sanitizeRichText } from '../../../utils/sanitizeHtml';
 import { Plus, Archive, Trash2, FileText, ArchiveRestore } from 'lucide-react';
@@ -9,14 +9,8 @@ import { Checkbox, App } from 'antd';
 import { Skeleton } from '../../ui/Skeleton';
 import { NoteComposerModal } from '../../common/NoteComposerModal';
 import { NoteViewModal } from '../../common/NoteViewModal';
-// Removed direct services as we use hooks now, or keep them for types if needed? 
-// Actually line 11 imports createNote service... but we use useCreateNote hook which uses service internally.
-// line 11 import { createNote... } from '...services/notes' is arguably unused if we use hooks? 
-// No, hooks might be wrappers. But let's check validation.
-// NoteType is in DTO. ChecklistItem is in Domain.
 import { Note, ChecklistItem } from '../../../types/domain';
 import { NoteTypeDto as NoteType } from '../../../types/dto/note.dto';
-import { ApiError, getErrorMessage } from '../../../types/errors';
 import { DEFAULT_NOTE_COLOR } from '../../../utils/colorUtils';
 import { isArray } from '../../../utils/validation';
 import { normalizeNoteType } from '../../../utils/noteUtils';
@@ -32,8 +26,7 @@ interface NoteSaveData {
 }
 
 export function NotesPage() {
-  const queryClient = useQueryClient();
-  const { message: messageApi, modal } = App.useApp();
+  const { modal } = App.useApp();
   /* Manual router/params removed */
   const [activeTab, setActiveTab] = useTabSync<TabType>({
     defaultTab: 'all',
@@ -103,19 +96,6 @@ export function NotesPage() {
   */
 
 
-  /**
-   * Convert ChecklistItem[] to backend format
-   */
-  const convertItemsToBackendFormat = (items: ChecklistItem[] | undefined) => {
-    if (!items || items.length === 0) {
-      return undefined;
-    }
-
-    return items.map(item => ({
-      text: item.text,
-      checked: item.isChecked,
-    }));
-  };
 
   /**
    * Handle saving a note (create or update)
@@ -233,10 +213,6 @@ export function NotesPage() {
    * Calculate tab counts - memoized for performance
    */
   const tabs = useMemo(() => {
-    const nonArchived = notesList.filter(n => !n.is_archived);
-    const textNotes = nonArchived.filter(n => normalizeNoteTypeForFilter(n.type) === 'text');
-    const checklistNotes = nonArchived.filter(n => normalizeNoteTypeForFilter(n.type) === 'checklist');
-    const archived = notesList.filter(n => n.is_archived);
 
     return [
       { id: 'all' as TabType, label: 'All Notes' },
@@ -282,9 +258,9 @@ export function NotesPage() {
     let resizeObserver: ResizeObserver | null = null;
     if (scrollContainerRef.current) {
       resizeObserver = new ResizeObserver((entries) => {
-        for (const entry of entries) {
+        entries.forEach(() => {
           calculateCardHeight();
-        }
+        });
       });
       resizeObserver.observe(scrollContainerRef.current);
     }
@@ -377,7 +353,7 @@ export function NotesPage() {
             <div
               className="grid grid-cols-4 gap-6 pb-6"
               style={{ gridAutoRows: `${cardHeight}px` }}
-              ref={(el) => {
+              ref={() => {
                 // Grid container ref
               }}
             >
@@ -466,7 +442,7 @@ interface NoteCardProps {
   onClick: (note: Note) => void;
 }
 
-function NoteCard({ note, onArchive, onUnarchive, onDelete, onEdit, onClick }: NoteCardProps) {
+function NoteCard({ note, onArchive, onUnarchive, onDelete, onClick }: NoteCardProps) {
   const noteColor = note.color || DEFAULT_NOTE_COLOR;
   const borderColorNormal = '#EEEEEE';
   const borderColorHover = noteColor;
@@ -474,7 +450,7 @@ function NoteCard({ note, onArchive, onUnarchive, onDelete, onEdit, onClick }: N
   return (
     <div
       className="relative group w-full h-full"
-      ref={(el) => {
+      ref={() => {
         // NoteCard ref
       }}
     >

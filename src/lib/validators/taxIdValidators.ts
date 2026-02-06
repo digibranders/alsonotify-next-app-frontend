@@ -14,8 +14,8 @@ export const TaxIdSchemas = {
     UTR: z.string().regex(/^\d{10}$/, "Invalid UTR format (10 digits)"),
 
     // Brazil
-    CNPJ: z.string().regex(/^\d{2}\.\d{3}\.\d{3}\/\d{4}\-\d{2}$/, "Invalid CNPJ format (XX.XXX.XXX/YYYY-ZZ)"),
-    CPF: z.string().regex(/^\d{3}\.\d{3}\.\d{3}\-\d{2}$/, "Invalid CPF format (XXX.XXX.XXX-XX)"),
+    CNPJ: z.string().regex(/^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/, "Invalid CNPJ format (XX.XXX.XXX/YYYY-ZZ)"),
+    CPF: z.string().regex(/^\d{3}\.\d{3}\.\d{3}-\d{2}$/, "Invalid CPF format (XXX.XXX.XXX-XX)"),
 
     // Australia
     ABN: z.string().regex(/^\d{11}$/, "Invalid ABN (11 digits)"),
@@ -24,7 +24,7 @@ export const TaxIdSchemas = {
     // Generic / Lenient
     // Allow alphanumeric, spaces, dots, dashes, slashes. Min 5 chars generally.
     Generic: z.string().min(3, "Tax ID must be at least 3 characters").max(30, "Tax ID must be at most 30 characters"),
-    LenientAlphaNum: z.string().regex(/^[A-Za-z0-9\s\.\-\/]+$/, "Contains invalid characters"),
+    LenientAlphaNum: z.string().regex(/^[A-Za-z0-9\s.\-/]+$/, "Contains invalid characters"),
 };
 
 export const getValidatorForType = (type: string) => {

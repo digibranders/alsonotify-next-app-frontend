@@ -1,8 +1,8 @@
 'use client';
 
-import { useMemo, useEffect, useRef, useState } from 'react';
+import { useMemo, useEffect, useRef } from 'react';
 import dayjs from 'dayjs';
-import { Popover, Spin } from 'antd';
+import { Popover } from 'antd';
 import { Skeleton } from '../../ui/Skeleton';
 import { CalendarEventPopup } from './CalendarEventPopup';
 import { CalendarEvent } from './types';
@@ -40,36 +40,6 @@ export function WeekView({ currentDate, events, isLoading, onTimeSlotClick }: We
 
     // Use 24 hours
     const hours = Array.from({ length: 24 }).map((_, i) => i);
-
-    const getEventStyle = (event: CalendarEvent) => {
-        let startTime = dayjs(event.date); // Default to start of day
-        if (event.time && event.time !== 'All Day') {
-             // Try to parse standard formats
-             const parsed = dayjs(`${event.date} ${event.time}`);
-             if (parsed.isValid()) {
-                startTime = parsed;
-             }
-        }
-        
-        const startHour = startTime.hour();
-        const startMinute = startTime.minute();
-        
-        // Calculate duration
-        let durationMinutes = 60; // Default 1 hour
-        if (event.endDate) {
-           durationMinutes = dayjs(event.endDate).diff(startTime, 'minute');
-        }
-
-        const top = (startHour * 60) + startMinute;
-        const height = Math.max(durationMinutes, 30); // Min height 30 mins
-
-        return {
-            top: `${top}px`,
-            height: `${height}px`,
-            backgroundColor: event.color
-        };
-    };
-
 
 
     const getEventsForDay = (date: dayjs.Dayjs) => {

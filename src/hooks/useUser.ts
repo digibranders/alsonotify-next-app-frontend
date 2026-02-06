@@ -19,8 +19,8 @@ import {
   updateRolePermissions,
   // updatePassword,
 } from "../services/user";
-import { UserDto, RoleDto, ModuleActionGroupDto, CreateEmployeeRequestDto, UpdateEmployeeRequestDto, UpdateUserProfileRequestDto } from "../types/dto/user.dto";
-import { ProfileUpdateInput, CompanyUpdateInput } from "../types/genericTypes";
+import { UserDto, RoleDto, CreateEmployeeRequestDto, UpdateEmployeeRequestDto, UpdateUserProfileRequestDto } from "../types/dto/user.dto";
+import { CompanyUpdateInput } from "../types/genericTypes";
 
 import { ApiResponse } from "../types/api";
 import { Employee, UserPermissions } from "../types/domain";

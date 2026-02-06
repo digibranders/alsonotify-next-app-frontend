@@ -7,11 +7,9 @@ import {
   Receipt,
   Clock,
   FilePlus,
-  Loader2,
   Trash2
 } from 'lucide-react';
 import React, { useMemo, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { format, differenceInDays, isPast, isToday } from 'date-fns';
 import {
   getRequirementCTAConfig,
@@ -60,8 +58,7 @@ export function RequirementCard({
   deleteLabel,
   deleteIcon,
   currentUserId,
-}: RequirementCardProps) {
-  const router = useRouter();
+}: Readonly<RequirementCardProps>) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   // Determine state using workflow module
@@ -90,9 +87,6 @@ export function RequirementCard({
 
   const isPending = ctaConfig.isPending;
   const displayStatus = ctaConfig.displayStatus;
-  const role = mapRequirementToRole(requirement);
-  const isSender = role === 'sender';
-  const isReceiver = role === 'receiver';
 
   const getUnifiedStatusConfig = () => {
     // 1. Billing / Financial Status (Highest Priority)

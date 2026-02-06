@@ -18,14 +18,13 @@ const compat = new FlatCompat({
 const eslintConfig = [
   js.configs.recommended,
   ...compat.config({
-      extends: ["plugin:@typescript-eslint/recommended"],
+    extends: ["plugin:@typescript-eslint/recommended", "plugin:react-hooks/recommended"],
   }),
   {
-      rules: {
-         // Placeholder for restoring next rules once the upstream issue is resolved or deeply debugged
-         "@typescript-eslint/no-explicit-any": "warn",
-         "@typescript-eslint/no-unused-vars": "warn"
-      }
+    rules: {
+      "@typescript-eslint/no-explicit-any": "warn",
+      "@typescript-eslint/no-unused-vars": "warn"
+    }
   }
 ];
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, ReactNode, useMemo } from 'react';
+import { useEffect, ReactNode, useMemo } from 'react';
 import { Sidebar } from '../components/common/Sidebar';
 import { Header } from '../components/common/Topbar';
 import { ProfileCompletionBanner } from '../components/common/ProfileCompletionBanner';
@@ -39,36 +39,19 @@ export function AlsonotifyLayoutWrapper({ children }: Readonly<AlsonotifyLayoutW
 }
 
 function AlsonotifyLayoutContent({ children }: Readonly<AlsonotifyLayoutWrapperProps>) {
-  const { data: userDetailsData } = useUserDetails();
-  const [isMounted, setIsMounted] = useState(false);
   const { isCollapsed } = useSidebar();
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  // Derive role and color using shared utility
+  const { data: userDetailsData } = useUserDetails();
+  // Derive role and color using shared utility.
+  // Role/badge are derived from userDetailsData only. If flicker is observed on first load, add a client-only mounted guard.
   const { userRole, userRoleColor } = useMemo<{ userRole: UserRole; userRoleColor: string | undefined }>(() => {
-    // During SSR or before mounting, return server-safe defaults
-    if (!isMounted) {
-      return { userRole: 'Employee', userRoleColor: undefined };
-    }
-
-    // Handle different API response structures or localStorage fallback if needed
     // useUserDetails now maps to a flattened Employee object, so use result directly.
     const user = userDetailsData?.result;
-
-    // Fallback to localStorage removed for security (PII protection)
-    // We rely on React Query hydration. If not ready, we default to Employee/undefined which is safe.
-    if (!user) {
-      // user = JSON.parse(localStorage.getItem("user") || "{}"); // Removed
-    }
 
     return {
       userRole: getRoleFromUser(user),
       userRoleColor: user?.roleColor
     };
-  }, [userDetailsData, isMounted]);
+  }, [userDetailsData]);
 
   // Extract permissions
   const permissions = useMemo(() => userDetailsData?.result?.permissions || {}, [userDetailsData]);

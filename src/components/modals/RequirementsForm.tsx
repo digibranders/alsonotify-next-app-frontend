@@ -1,8 +1,6 @@
-'use client';
-
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import dayjs from 'dayjs';
-import { Input, Select, DatePicker, Checkbox, App, Button } from 'antd';
+import { Input, Select, DatePicker, Checkbox, App, Button, Modal } from 'antd';
 import { Upload as UploadIcon, FileText, ChevronDown } from 'lucide-react';
 import { useOutsourcePartners, useEmployees } from '@/hooks/useUser';
 import { FormLayout } from '@/components/common/FormLayout';
@@ -38,9 +36,54 @@ interface RequirementsFormProps {
     workspaces: { id: number | string; name: string }[];
     isLoading?: boolean;
     isEditing?: boolean;
+    open?: boolean; // Added for Modal support
 }
 
-export function RequirementsForm({
+const defaultFormData: RequirementFormData = {
+    title: '',
+    workspace: undefined,
+    type: 'inhouse',
+    contactPerson: undefined,
+    dueDate: '',
+    budget: '',
+    is_high_priority: false,
+    description: '',
+};
+
+export function RequirementsForm(props: Readonly<RequirementsFormProps>) {
+    const { open, onCancel } = props;
+
+    // Use Modal wrapper pattern if 'open' prop is provided, otherwise render content directly
+    // (Legacy support for components that wrap it in a Modal themselves)
+    if (open !== undefined) {
+        return (
+            <Modal
+                open={open}
+                onCancel={onCancel}
+                footer={null}
+                title={null}
+                width={700}
+                centered
+                destroyOnHidden={true}
+                className="rounded-[16px] overflow-hidden"
+                styles={{
+                    body: {
+                        padding: 0,
+                        maxHeight: '80vh',
+                        display: 'flex',
+                        flexDirection: 'column',
+                    },
+                }}
+            >
+                <RequirementsFormContent {...props} />
+            </Modal>
+        );
+    }
+
+    return <RequirementsFormContent {...props} />;
+}
+
+function RequirementsFormContent({
     initialData,
     onSubmit,
     onSubmitAndSend,
@@ -49,34 +92,26 @@ export function RequirementsForm({
     isLoading = false,
     isEditing = false,
 }: Readonly<RequirementsFormProps>) {
-    const { data: partnersData, isLoading: isLoadingPartners, refetch: refetchPartners } = useOutsourcePartners();
+    const { data: partnersData, isLoading: isLoadingPartners } = useOutsourcePartners();
     const { data: employeesData, isLoading: isLoadingEmployees } = useEmployees();
     const { message } = App.useApp();
 
-
-    // Refetch partners when form opens to ensure fresh data (especially after status changes)
-    useEffect(() => {
-        refetchPartners();
-    }, [refetchPartners]);
-
     // Process partners - filter for active and ensure unique IDs
-    const partners = (partnersData?.result || [])
-        // Relaxed filter: Allow if status is ACCEPTED OR if is_active is explicitly true (handling potential missing status in legacy data)
+    const partners = useMemo(() => (partnersData?.result || [])
         .filter((item: any) => (item.status === 'ACCEPTED' || item.is_active === true) && item.is_active !== false)
         .map((item: any) => {
-            // Fix: Backend returns client_id/outsource_id/association_id/invite_id, not user_... prefixes
             const id = item.id ?? item.user_id ?? item.partner_user_id ?? item.client_id ?? item.outsource_id ?? item.association_id ?? item.invite_id;
             return {
                 id: (typeof id === 'number' ? id : undefined) as number | undefined,
                 name: (item.partner_user?.name || item.name || item.partner_user?.company || item.company || 'Unknown Partner') as string,
                 company: (item.partner_user?.company || item.company) as string | undefined,
-                company_id: item.company_id as number | undefined // Preserve company_id for receiver_company_id logic
+                company_id: item.company_id as number | undefined
             };
         })
-        .filter((p: { id?: number }) => p.id !== undefined);
+        .filter((p: { id?: number }) => p.id !== undefined), [partnersData]);
 
     // Process employees
-    const employees = (employeesData?.result || [])
+    const employees = useMemo(() => (employeesData?.result || [])
         .filter((item: any) => item.user_employee?.is_active !== false)
         .map((item: any) => {
             const id = item.user_id ?? item.id;
@@ -86,49 +121,28 @@ export function RequirementsForm({
                 designation: item.designation as string | undefined
             };
         })
-        .filter((e: { id?: number }) => e.id !== undefined);
+        .filter((e: { id?: number }) => e.id !== undefined), [employeesData]);
 
-    const defaultFormData: RequirementFormData = {
-        title: '',
-        workspace: undefined,
-        type: 'inhouse',
-        contactPerson: undefined,
-        dueDate: '',
-        budget: '',
-        is_high_priority: false,
-        description: '',
-    };
-
-    const [formData, setFormData] = useState<RequirementFormData>({
-        ...defaultFormData,
-        ...initialData,
-    });
-
-    const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-
-    // Reset form when initialData changes (for editing mode switching or new creation)
-    useEffect(() => {
+    // Initialize state directly (runs once on mount)
+    const [formData, setFormData] = useState<RequirementFormData>(() => {
         if (initialData) {
-            setFormData((prev) => ({
-                ...prev,
+            return {
+                ...defaultFormData,
                 ...initialData,
                 contact_person_id: initialData.contact_person_id ?? undefined,
                 workspace: initialData.workspace ?? undefined
-            }));
-            setSelectedFiles([]); // Reset files on edit mode change or reopen
-        } else {
-            // Explicitly reset to defaults when no initialData is provided (New Requirement mode)
-            setFormData(defaultFormData);
-            setSelectedFiles([]);
+            };
         }
-    }, [initialData]);
+        return defaultFormData;
+    });
+
+    const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
             const files = Array.from(e.target.files);
             const maxSize = 50 * 1024 * 1024; // 50MB
 
-            // Validate file sizes
             const oversizedFiles = files.filter(file => file.size > maxSize);
             if (oversizedFiles.length > 0) {
                 message.error(`File size must be less than 50MB. ${oversizedFiles.length} file(s) exceeded the limit.`);
@@ -139,7 +153,6 @@ export function RequirementsForm({
         }
     };
 
-    /** Build typed payload once; does not set status (backend sets Draft on create; parent sets status on send). */
     const buildPayload = useCallback((): CreateRequirementRequestDto | null => {
         const title = (formData.title || '').trim();
         const workspaceId = formData.workspace ? Number(formData.workspace) : 0;
@@ -194,7 +207,6 @@ export function RequirementsForm({
         }
     }, [buildPayload, onSubmit, onSubmitAndSend, selectedFiles, message]);
 
-    /** Send button label: "Send to partner" (outsourced), "Submit for work" (inhouse), or "Send requirement" */
     const sendButtonLabel = formData.type === 'outsourced' ? 'Send to Partner' : formData.type === 'inhouse' ? 'Submit for Work' : 'Send Requirement';
 
     const footer = (
@@ -238,7 +250,6 @@ export function RequirementsForm({
             submitLabel={sendButtonLabel}
             footer={footer}
         >
-            {/* Row 1: Title & Workspace */}
             <div className="grid grid-cols-2 gap-x-6 gap-y-4 mb-4">
                 <div className="space-y-1.5">
                     <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">Requirement Title</span>
@@ -279,7 +290,6 @@ export function RequirementsForm({
                 </div>
             </div>
 
-            {/* Row 2: Requirement Type & Contact Person */}
             <div className="grid grid-cols-2 gap-x-6 gap-y-4 mb-4">
                 <div className="space-y-1.5">
                     <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">Requirement Type</span>
@@ -292,7 +302,6 @@ export function RequirementsForm({
                             type: v,
                             contact_person_id: undefined,
                             contactPerson: undefined,
-                            // Keep workspace even if outsourced
                             workspace: formData.workspace
                         })}
                         suffixIcon={<ChevronDown className="w-4 h-4 text-gray-400" />}
@@ -342,7 +351,7 @@ export function RequirementsForm({
                     </Select>
                 </div>
             </div>
-            {/* Row 3: Standard Fields (Due Date & Priority) */}
+
             <div className="grid grid-cols-2 gap-x-6 gap-y-4 mb-4">
                 <div className="space-y-1.5">
                     <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">Due Date</span>
@@ -366,9 +375,6 @@ export function RequirementsForm({
                 </div>
             </div>
 
-
-
-            {/* Description */}
             <div className="space-y-1.5 mb-4">
                 <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">Description</span>
                 <TextArea
@@ -380,7 +386,6 @@ export function RequirementsForm({
                 />
             </div>
 
-            {/* Upload Documents */}
             <div className="space-y-1.5">
                 <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">Upload Documents</span>
                 <label

@@ -4,25 +4,26 @@ import { X, ArrowRight } from 'lucide-react';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 
 export function ProfileCompletionBanner() {
-  const [isVisible, setIsVisible] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
   const { user: currentUser } = useCurrentUser();
 
-  // Handle visibility and session-based persistence
-  useEffect(() => {
+  const [isVisible, setIsVisible] = useState(() => {
     if (typeof window !== 'undefined') {
       const isPersistentDismissed = localStorage.getItem('profileCompletionBannerDismissed') === 'true';
       const isSessionSeen = sessionStorage.getItem('profileCompletionBannerSeen') === 'true';
-      
-      // If not permanently dismissed and not seen in this session yet
-      if (!isPersistentDismissed && !isSessionSeen) {
-        setIsVisible(true);
-        // Mark as seen immediately so it won't show on next interaction/reload
-        sessionStorage.setItem('profileCompletionBannerSeen', 'true');
-      }
+      return !isPersistentDismissed && !isSessionSeen;
     }
-  }, []);
+    return false;
+  });
+
+  // Handle session-based persistence
+  useEffect(() => {
+    if (isVisible && typeof window !== 'undefined') {
+      // Mark as seen immediately so it won't show on next interaction/reload
+      sessionStorage.setItem('profileCompletionBannerSeen', 'true');
+    }
+  }, [isVisible]);
 
   // Get user data from localStorage or backend
   const user = useMemo(() => {

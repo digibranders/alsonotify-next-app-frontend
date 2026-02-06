@@ -18,14 +18,13 @@ interface SecurityTabProps {
 }
 
 export function SecurityTab({
-  isAdmin,
   canEditSecurity,
   isEditing,
   security,
   setSecurity,
   defaultEmployeePassword,
   setDefaultEmployeePassword,
-}: SecurityTabProps) {
+}: Readonly<SecurityTabProps>) {
   return (
     <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 max-w-2xl">
       <h2 className="text-[16px] font-['Manrope:SemiBold',sans-serif] text-[#111111] mb-6">Security Settings</h2>

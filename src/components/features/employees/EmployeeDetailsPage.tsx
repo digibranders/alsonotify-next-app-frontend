@@ -8,7 +8,7 @@ import { fileService } from '@/services/file.service';
 import { queryKeys } from '@/lib/queryKeys';
 import { PageLayout } from '../../layout/PageLayout';
 import { AccessBadge } from '../../ui/AccessBadge';
-import { Button, Tag, Divider, Modal, App } from 'antd';
+import { Button, Tag, Divider, App } from 'antd';
 import { Mail, Phone, Calendar, Briefcase, DollarSign, ArrowLeft, Edit, FileText } from 'lucide-react';
 import { EmployeeForm, EmployeeFormData } from '../../modals/EmployeesForm';
 import { DocumentCard } from '@/components/ui/DocumentCard';
@@ -65,6 +65,11 @@ export function EmployeeDetailsPage() {
   const { data: employeeData, isLoading } = useEmployee(parseInt(employeeId || '0'));
   const { data: departmentsData } = useCompanyDepartments();
   const updateEmployeeMutation = useUpdateEmployee();
+
+  // Moved hooks to top level to comply with Rules of Hooks
+  const queryClient = useQueryClient();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadingDocType, setUploadingDocType] = useState<string | null>(null);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<UserDocument | null>(null);
@@ -199,9 +204,7 @@ export function EmployeeDetailsPage() {
     }
   };
 
-  const queryClient = useQueryClient();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [uploadingDocType, setUploadingDocType] = useState<string | null>(null);
+  /* Hooks moved to top level */
 
   const handleDocumentUpload = (documentTypeId: string) => {
     setUploadingDocType(documentTypeId);
@@ -422,59 +425,14 @@ export function EmployeeDetailsPage() {
         document={selectedDocument}
       />
 
-      <Modal
+      <EmployeeForm
         open={isDialogOpen}
         onCancel={() => setIsDialogOpen(false)}
-        footer={null}
-        width={700}
-        centered
-        className="rounded-[16px] overflow-hidden"
-        styles={{
-          body: {
-            padding: 0,
-            maxHeight: '80vh',
-            overflow: 'hidden',
-            display: 'flex',
-            flexDirection: 'column',
-          },
-        }}
-      >
-        <div className="h-full flex flex-col">
-
-
-          <EmployeeForm
-            departments={departmentsData?.result?.filter((dept: { is_active?: boolean; name?: string }) => dept.is_active !== false).map((dept) => dept.name) || []}
-            initialData={{
-              firstName: employee.name.split(" ")[0] || "",
-              lastName: employee.name.split(" ").slice(1).join(" ") || "",
-              role: employee.role,
-              email: employee.email,
-              phone: employee.phone,
-              department: employee.department,
-              hourlyRate: employee.hourlyRate,
-              dateOfJoining: backendEmp?.date_of_joining ? new Date(backendEmp.date_of_joining).toISOString().split('T')[0] : '',
-              experience: employee.experience.toString(),
-              skillsets: employee.skillsets,
-              access: employee.access,
-              salary: employee.salary.toString(),
-              currency: employee.currency,
-              workingHours: employee.workingHours.toString(),
-              leaves: employee.leaves.toString(),
-              role_id: employee.roleId,
-              employmentType: (() => {
-                const type = employee.employmentType;
-                if (type === 'In-house') return 'Full-time';
-                if (type === 'Freelancer' || type === 'Agency') return 'Contract';
-                if (type === 'Full-time' || type === 'Contract' || type === 'Part-time') return type;
-                return 'Full-time' as 'Full-time' | 'Contract' | 'Part-time';
-              })()
-            }}
-            onSubmit={handleUpdateEmployee}
-            onCancel={() => setIsDialogOpen(false)}
-            isEditing={true}
-          />
-        </div>
-      </Modal>
+        isEditing={true}
+        initialData={backendEmp}
+        onSubmit={handleUpdateEmployee}
+        departments={departmentsData?.result?.filter((dept: { is_active?: boolean; name?: string }) => dept.is_active !== false).map((dept) => dept.name) || []}
+      />
       <input
         type="file"
         ref={fileInputRef}

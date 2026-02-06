@@ -16,7 +16,6 @@ import { getRequirementsByWorkspaceId } from '@/services/workspace';
 
 import { Workspace } from '@/types/domain';
 export function WorkspacePage() {
-  const { message } = App.useApp();
 
   const { data: partnersData } = usePartners();
   const { data: companyData } = useCurrentUserCompany();

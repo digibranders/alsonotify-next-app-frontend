@@ -1,6 +1,6 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useTabSync } from '@/hooks/useTabSync';
-import { ChevronLeft, ChevronRight, Plus, Calendar as CalendarIcon, Clock, MapPin, Loader2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Clock, MapPin, Loader2 } from 'lucide-react';
 import { PageLayout } from '../../layout/PageLayout';
 import { usePublicHolidays } from '@/hooks/useHoliday';
 import dayjs from 'dayjs';

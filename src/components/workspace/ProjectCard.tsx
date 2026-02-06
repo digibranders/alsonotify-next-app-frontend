@@ -2,9 +2,9 @@
 
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { Calendar as CalendarIcon, Clock, CheckCircle2, AlertCircle, Plus, MoreHorizontal, Paperclip, ChevronRight, LayoutGrid, List, UserPlus, ChevronDown, Check, FolderOpen, MoreVertical, Edit, Trash2 } from 'lucide-react';
+import { Calendar as CalendarIcon, Clock, CheckCircle2, Plus, MoreHorizontal, Paperclip, ChevronRight, LayoutGrid, List, UserPlus, FolderOpen, MoreVertical, Edit, Trash2 } from 'lucide-react';
 import { FilterBar, FilterOption } from '../ui/FilterBar';
-import { Button, Input, Select, Checkbox, Dropdown, MenuProps, Breadcrumb, DatePicker, Avatar, Tooltip, Progress, Tabs, App, Modal } from 'antd';
+import { Button, Input, Select, Checkbox, Dropdown, Breadcrumb, DatePicker, Tooltip, Progress, Tabs, App, Modal } from 'antd';
 import { useWorkspaces, useWorkspaceTasks } from '@/hooks/useWorkspace';
 import { useCreateTask, useDeleteTask } from '@/hooks/useTask';
 import { useEmployees } from '@/hooks/useUser';
@@ -12,7 +12,7 @@ import { format } from 'date-fns';
 
 import dayjs from 'dayjs';
 import { Workspace, Task as DomainTask } from '@/types/domain';
-import { TaskDto, CreateTaskRequestDto } from '@/types/dto/task.dto';
+import { CreateTaskRequestDto } from '@/types/dto/task.dto';
 import { getErrorMessage } from '@/types/api-utils';
 
 

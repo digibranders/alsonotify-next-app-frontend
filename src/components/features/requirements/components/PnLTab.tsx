@@ -2,18 +2,7 @@
 
 import React, { useMemo } from 'react';
 import { TrendingUp, TrendingDown, DollarSign, Clock, Users, AlertTriangle } from 'lucide-react';
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip as RechartsTooltip,
-  ResponsiveContainer,
-  Legend,
-} from 'recharts';
 import { Tooltip } from 'antd';
-import { format } from 'date-fns';
 import { Task, Requirement } from '@/types/domain';
 
 interface PnLTabProps {
@@ -45,8 +34,6 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
       const assigneeName = assignee?.name || 'Unassigned';
       
       // Get hourly rate from task member or use default
-      const taskMember = task.task_members?.[0];
-      // Note: hourly_rates would need to come from user data - using default for now
       const hourlyRate = 25; // Default rate, should come from employee data
       
       // Calculate hours
@@ -83,7 +70,6 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
     const totalEstimatedHours = pnlData.reduce((sum, t) => sum + t.estimatedHours, 0);
     const totalActualHours = pnlData.reduce((sum, t) => sum + t.actualHours, 0);
     const totalResourceCost = pnlData.reduce((sum, t) => sum + t.resourceCost, 0);
-    const totalProfitLoss = pnlData.reduce((sum, t) => sum + t.profitLoss, 0);
     const totalExtraHours = pnlData.reduce((sum, t) => sum + t.extraHours, 0);
     
     const quotedPrice = Number(requirement.quoted_price) || 0;
@@ -102,30 +88,6 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
       overBudgetTasks: pnlData.filter(t => t.profitLoss < 0).length
     };
   }, [pnlData, requirement]);
-
-  // Chart data for burn-down visualization
-  const chartData = useMemo(() => {
-    const sortedTasks = [...pnlData].sort((a, b) => {
-      // Sort by status progression
-      const statusOrder: Record<string, number> = { 'Completed': 1, 'Done': 1, 'In_Progress': 2, 'Assigned': 3, 'Pending': 4 };
-      return (statusOrder[a.status] || 5) - (statusOrder[b.status] || 5);
-    });
-
-    let cumulativeBudget = summary.quotedPrice;
-    let cumulativeCost = 0;
-
-    return sortedTasks.map((task, idx) => {
-      cumulativeCost += task.resourceCost;
-      cumulativeBudget -= (task.estimatedHours * task.hourlyRate);
-      
-      return {
-        name: task.name.length > 15 ? task.name.substring(0, 15) + '...' : task.name,
-        budget: Math.max(0, cumulativeBudget),
-        cost: cumulativeCost,
-        index: idx + 1
-      };
-    });
-  }, [pnlData, summary.quotedPrice]);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-US', {

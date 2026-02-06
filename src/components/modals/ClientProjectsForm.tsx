@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Button, Input, Select, App } from "antd";
+import { useState, useMemo } from "react";
+import { Input, Select, App, Modal } from "antd";
 import { Briefcase } from "lucide-react";
 import { FormLayout } from "../common/FormLayout";
 
@@ -22,6 +22,7 @@ interface ClientFormProps {
   onSubmit: (data: ClientFormData) => void;
   onCancel: () => void;
   isEditing?: boolean;
+  open?: boolean; // For Modal support
 }
 
 const defaultFormData: ClientFormData = {
@@ -42,23 +43,55 @@ const defaultFormData: ClientFormData = {
     .replace(/ /g, "-"),
 };
 
-export function ClientForm({
+export function ClientForm(props: ClientFormProps) {
+  const { open, onCancel } = props;
+
+  // Use Modal wrapper pattern if 'open' prop is provided. destroyOnHidden is correct for antd@6 (destroyOnClose deprecated).
+  if (open !== undefined) {
+    return (
+      <Modal
+        open={open}
+        onCancel={onCancel}
+        footer={null}
+        title={null}
+        width={600}
+        centered
+        destroyOnHidden={true}
+        className="rounded-[16px] overflow-hidden"
+        styles={{
+          body: {
+            padding: 0,
+            maxHeight: '80vh',
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+          }
+        }}
+      >
+        <ClientFormContent {...props} />
+      </Modal>
+    );
+  }
+
+  return <ClientFormContent {...props} />;
+}
+
+function ClientFormContent({
   initialData,
   onSubmit,
   onCancel,
   isEditing = false,
 }: ClientFormProps) {
   const { message } = App.useApp();
-  const [formData, setFormData] = useState<ClientFormData>(defaultFormData);
 
-  useEffect(() => {
+  // Initialize state directly (runs once on mount)
+  const [formData, setFormData] = useState<ClientFormData>(() => {
     if (initialData) {
       const nameParts = ((initialData as any).name || "").split(" ");
       let phone = initialData.phone || "";
       let countryCode = initialData.countryCode || "+91";
 
       if (phone && phone.startsWith("+")) {
-        // Try to match 
         const codes = ["+91", "+1", "+44", "+61", "+971"];
         const matched = codes.find(c => phone.startsWith(c));
         if (matched) {
@@ -67,18 +100,17 @@ export function ClientForm({
         }
       }
 
-      setFormData({
+      return {
         ...defaultFormData,
         ...initialData,
         firstName: initialData.firstName || nameParts[0] || "",
         lastName: initialData.lastName || nameParts.slice(1).join(" ") || "",
         phone,
         countryCode
-      });
-    } else {
-      setFormData(defaultFormData);
+      };
     }
-  }, [initialData]);
+    return defaultFormData;
+  });
 
   // Email regex for validation
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -88,19 +120,16 @@ export function ClientForm({
     const trimmedEmail = formData.email.trim();
     const trimmedFirstName = formData.firstName.trim();
 
-    // Email is always required
     if (!trimmedEmail) {
       message.error("Email address is required");
       return false;
     }
 
-    // Validate email format
     if (!emailRegex.test(trimmedEmail)) {
       message.error("Please enter a valid email address");
       return false;
     }
 
-    // First name is required when editing
     if (isEditing && !trimmedFirstName) {
       message.error("First name is required");
       return false;
@@ -110,30 +139,26 @@ export function ClientForm({
   };
 
   // Check if form is valid (for button disabled state)
-  const isFormValid = (): boolean => {
+  const isFormValid = useMemo(() => {
     const trimmedEmail = formData.email.trim();
     const trimmedFirstName = formData.firstName.trim();
 
-    // Email must be present and valid
     if (!trimmedEmail || !emailRegex.test(trimmedEmail)) {
       return false;
     }
 
-    // First name required when editing
     if (isEditing && !trimmedFirstName) {
       return false;
     }
 
     return true;
-  };
+  }, [formData.email, formData.firstName, isEditing]);
 
   const handleSubmit = () => {
-    // Validate form before submitting
     if (!validateForm()) {
       return;
     }
 
-    // Trim values before submitting
     const trimmedData: ClientFormData = {
       ...formData,
       firstName: formData.firstName.trim(),
@@ -155,15 +180,12 @@ export function ClientForm({
       onCancel={onCancel}
       onSubmit={handleSubmit}
       submitLabel={isEditing ? "Update Client" : "Send Invitation"}
-      submitDisabled={!isFormValid()}
+      submitDisabled={!isFormValid}
     >
       {!isEditing ? (
-        // Simplified Add Flow: Only Email
         <div className="space-y-4">
           <div className="space-y-1.5">
-            <label
-              className="text-[12px] font-bold text-[#111111] block"
-            >
+            <label className="text-[12px] font-bold text-[#111111] block">
               Client Email Address <span className="text-[#ff3b3b]">*</span>
             </label>
             <Input
@@ -177,9 +199,7 @@ export function ClientForm({
           </div>
         </div>
       ) : (
-        // Full Edit Flow
         <>
-          {/* Row 1 */}
           <div className="grid grid-cols-2 gap-6 mb-6">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
@@ -206,9 +226,7 @@ export function ClientForm({
               </div>
             </div>
             <div className="space-y-1.5">
-              <label
-                className="text-[12px] font-bold text-[#111111] block"
-              >
+              <label className="text-[12px] font-bold text-[#111111] block">
                 Business Name
               </label>
               <Select
@@ -226,12 +244,9 @@ export function ClientForm({
             </div>
           </div>
 
-          {/* Row 2 */}
           <div className="grid grid-cols-2 gap-6 mb-6">
             <div className="space-y-1.5">
-              <label
-                className="text-[12px] font-bold text-[#111111] block"
-              >
+              <label className="text-[12px] font-bold text-[#111111] block">
                 Email <span className="text-[#ff3b3b]">*</span>
               </label>
               <Input
@@ -244,9 +259,7 @@ export function ClientForm({
               />
             </div>
             <div className="space-y-1.5">
-              <label
-                className="text-[12px] font-bold text-[#111111] block"
-              >
+              <label className="text-[12px] font-bold text-[#111111] block">
                 Contact (Phone)
               </label>
               <div className="flex gap-2">
@@ -275,12 +288,9 @@ export function ClientForm({
             </div>
           </div>
 
-          {/* Row 3 */}
           <div className="grid grid-cols-2 gap-6 mb-6">
             <div className="space-y-1.5">
-              <label
-                className="text-[12px] font-bold text-[#111111] block"
-              >
+              <label className="text-[12px] font-bold text-[#111111] block">
                 Country
               </label>
               <Select
@@ -297,9 +307,7 @@ export function ClientForm({
               </Select>
             </div>
             <div className="space-y-1.5">
-              <label
-                className="text-[12px] font-bold text-[#111111] block"
-              >
+              <label className="text-[12px] font-bold text-[#111111] block">
                 Onboarding Date
               </label>
               <Input
@@ -313,11 +321,8 @@ export function ClientForm({
             </div>
           </div>
 
-          {/* Row 4 */}
           <div className="space-y-1.5 mb-6">
-            <label
-              className="text-[12px] font-bold text-[#111111] block"
-            >
+            <label className="text-[12px] font-bold text-[#111111] block">
               Requirements (Count)
             </label>
             <Input

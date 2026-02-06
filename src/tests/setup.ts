@@ -8,6 +8,7 @@ afterEach(() => {
 });
 
 // Polyfills for basic Browser APIs missing in jsdom
+// Test env: global is intentionally any for ResizeObserver polyfill.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 (global as any).ResizeObserver = class ResizeObserver {
     observe() { }

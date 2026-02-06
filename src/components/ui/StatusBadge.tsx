@@ -1,7 +1,12 @@
 import { Tooltip } from 'antd';
 import { Clock, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 
-export function StatusBadge({ status, showLabel }: { status: string; showLabel?: boolean }) {
+interface StatusBadgeProps {
+  status: string;
+  showLabel?: boolean;
+}
+
+export function StatusBadge({ status, showLabel = false }: StatusBadgeProps) {
   let color = "bg-[#F7F7F7] text-[#666666]";
   let icon = <Clock className="w-3.5 h-3.5" />;
   let label = status;
@@ -35,6 +40,17 @@ export function StatusBadge({ status, showLabel }: { status: string; showLabel?:
       icon = <AlertCircle className="w-3.5 h-3.5" />;
       label = "Impediment";
       break;
+  }
+
+  if (showLabel) {
+    return (
+      <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${color} border border-current/10`}>
+        {icon}
+        <span className="text-[11px] font-['Manrope:SemiBold',sans-serif] uppercase tracking-wide italic lowercase first-letter:uppercase">
+          {label}
+        </span>
+      </div>
+    );
   }
 
   return (

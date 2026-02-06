@@ -1,10 +1,9 @@
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useTabSync } from '@/hooks/useTabSync';
 import {
-  ListTodo, BarChart2, Columns,
+  ListTodo, 
   Plus, RotateCcw,
-  Paperclip, TrendingUp,
 } from 'lucide-react';
 import { Checkbox, Button, App, Input, Modal, Select } from 'antd';
 import { Skeleton } from '../../ui/Skeleton';
@@ -13,7 +12,7 @@ import { useTasks, useRequestRevision, useCreateTask } from '@/hooks/useTask';
 import { TaskForm } from '../../modals/TaskForm';
 import { CreateTaskRequestDto } from '@/types/dto/task.dto';
 import { getErrorMessage } from '@/types/api-utils';
-import { useEmployees, useUserDetails, usePartners } from '@/hooks/useUser';
+import { useEmployees, usePartners } from '@/hooks/useUser';
 import { useRequirementActivities } from '@/hooks/useRequirementActivity';
 import { useAuth } from '@/hooks/useAuth';
 import { format } from 'date-fns';
@@ -39,7 +38,6 @@ import { SubTaskRow } from './components/SubTaskRow';
 
 const { Option } = Select;
 
-
 export function RequirementDetailsPage() {
   const { message } = App.useApp();
   const params = useParams();
@@ -55,10 +53,8 @@ export function RequirementDetailsPage() {
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
 
 
-  const { data: userData } = useUserDetails();
   const { data: employeesData } = useEmployees();
   const { user } = useAuth();
-  const scrollRef = useRef<HTMLDivElement>(null);
 
 
 
@@ -69,10 +65,7 @@ export function RequirementDetailsPage() {
     validTabs: ['details', 'tasks', 'gantt', 'kanban', 'pnl', 'documents']
   });
   const [selectedTasks, setSelectedTasks] = useState<string[]>([]);
-  const [messageText, setMessageText] = useState('');
-  const [attachments, setAttachments] = useState<File[]>([]);
   const [ganttView, setGanttView] = useState<'day' | 'week' | 'month'>('week');
-  const [activeMentionOptions, setActiveMentionOptions] = useState<{ value: string; label: string; key: string }[]>([]);
 
   const { mutate: updateRequirement } = useUpdateRequirement();
   const { data: myWorkspacesData } = useWorkspaces();
@@ -159,7 +152,6 @@ export function RequirementDetailsPage() {
     return getRequirementCTAConfig(status as RequirementStatus, role, context, type);
   }, [requirement, user?.id]);
 
-  const isPending = ctaConfig.isPending;
   const displayStatus = ctaConfig.displayStatus;
 
 

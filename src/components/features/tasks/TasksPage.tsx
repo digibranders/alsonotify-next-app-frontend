@@ -1,6 +1,6 @@
 
 import { useState, useMemo, useEffect, useCallback } from 'react';
-import { Plus, CheckSquare, Trash2, Users, ChevronDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { ArrowUp, ArrowDown, CheckSquare, Trash2 } from 'lucide-react';
 import { PageLayout } from '../../layout/PageLayout';
 import { PaginationBar } from '../../ui/PaginationBar';
 import { FilterBar, FilterOption } from '../../ui/FilterBar';
@@ -32,8 +32,12 @@ dayjs.extend(isSameOrAfter);
 
 import { Task, TaskStatus } from '@/types/domain';
 import { TaskDto, CreateTaskRequestDto, UpdateTaskRequestDto } from '@/types/dto/task.dto';
-import { getErrorMessage } from '@/types/api-utils';
 import { toQueryParams } from '@/utils/queryParams';
+import { User, Employee } from '@/types/domain';
+import { ApiResponse } from '@/types/api';
+import { CompanyProfile } from '@/types/auth';
+import { CurrentUser } from '@/hooks/useCurrentUser';
+import { getErrorMessage } from '@/types/api-utils';
 
 // Local alias if needed to avoid massive rename, or just use Task
 // transforming UITask -> Task in the code
@@ -42,7 +46,52 @@ type ITaskStatus = TaskStatus;
 
 type StatusTab = 'all' | 'In_Progress' | 'Completed' | 'Delayed';
 
+// Container component to handle data fetching before rendering main content
 export function TasksPage() {
+  const { user: currentUser, isLoading: isLoadingCurrentUser } = useCurrentUser();
+  const { data: userDetailsData, isLoading: isLoadingUserDetails } = useUserDetails();
+  const { data: usersDropdownData, isLoading: isLoadingDropdown } = useEmployeesDropdown();
+  const { data: companyData, isLoading: isLoadingCompany } = useCurrentUserCompany();
+
+  // Show skeleton loader while critical user data is loading
+  if (isLoadingCurrentUser || isLoadingUserDetails || isLoadingDropdown || isLoadingCompany) {
+    return (
+      <PageLayout title="Tasks">
+        <div className="space-y-4 p-6">
+          <Skeleton className="h-8 w-1/3" />
+          <div className="flex gap-4 mb-6">
+            <Skeleton className="h-10 w-24 rounded-full" />
+            <Skeleton className="h-10 w-24 rounded-full" />
+            <Skeleton className="h-10 w-24 rounded-full" />
+          </div>
+          <div className="space-y-4">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="bg-white border border-[#EEEEEE] rounded-[16px] h-20 w-full" />
+            ))}
+          </div>
+        </div>
+      </PageLayout>
+    );
+  }
+
+  return (
+    <TasksPageContent
+      currentUser={currentUser}
+      userDetailsData={userDetailsData}
+      usersDropdownData={usersDropdownData}
+      companyData={companyData}
+    />
+  );
+}
+
+interface TasksPageContentProps {
+  currentUser: CurrentUser | null;
+  userDetailsData: ApiResponse<Employee> | undefined;
+  usersDropdownData: { id: number; name: string }[] | undefined;
+  companyData: ApiResponse<CompanyProfile> | undefined;
+}
+
+function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, companyData }: TasksPageContentProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { message, modal } = App.useApp();
@@ -52,17 +101,14 @@ export function TasksPage() {
   const updateTaskStatusMutation = useUpdateTaskStatus();
   const { data: workspacesData } = useWorkspaces();
 
-  // Use new centralized hooks for dropdowns
-  const { data: usersDropdownData } = useEmployeesDropdown();
+  // Use new centralized hooks for dropdowns (already passed via props but using hook for consistency/updates?)
+  // Actually, strictly we should use the props to avoid re-suspend issues, 
+  // but react-query handles this fine. To be safe/clean, let's use the props.
+  // Transforming props to memoized data:
+  const usersDropdown = useMemo(() => usersDropdownData || [], [usersDropdownData]);
+
   const { data: requirementsDropdownData } = useWorkspaceRequirementsDropdown();
-
-  const usersDropdown = usersDropdownData || [];
-  const requirementsDropdown = requirementsDropdownData || [];
-
-  const { user: currentUser } = useCurrentUser();
-
-  const { data: userDetailsData } = useUserDetails(); // Keep for legacy/edge cases if needed, but prefer currentUser
-  const { data: companyData } = useCurrentUserCompany();
+  const requirementsDropdown = useMemo(() => requirementsDropdownData || [], [requirementsDropdownData]);
 
   // Get current user's company name as fallback for in-house tasks
   const currentUserCompanyName = useMemo(() => {
@@ -89,25 +135,34 @@ export function TasksPage() {
   }, [currentUser]);
 
   // Use standardized tab sync hook for consistent URL handling
-  const [activeTab, setActiveTab] = useTabSync<StatusTab>({
+  const [activeTab, setActiveTabInternal] = useTabSync<StatusTab>({
     defaultTab: 'all',
     validTabs: ['all', 'In_Progress', 'Completed', 'Delayed']
   });
   const [searchQuery, setSearchQuery] = useState('');
 
-  const [filters, setFilters] = useState<Record<string, string>>({
+  // Determine initial filters synchronously
+  const apiUser = userDetailsData?.result || {};
+  const userRole = getRoleFromUser(apiUser);
+  const isAdmin = userRole?.toLowerCase() === 'admin';
+
+  const initialFilters = {
     user: 'All',
     company: 'All',
     workspace: 'All',
     status: 'All',
     requirement: 'All'
-  });
+  };
+
+  // Only auto-apply user filter for non-admin users
+  if (!isAdmin && currentUserName) {
+    initialFilters.user = currentUserName;
+  }
+
+  const [filters, setFilters] = useState<Record<string, string>>(initialFilters);
 
   const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
-
-  // Track if filter has been initialized to avoid resetting user's manual changes
-  const [filterInitialized, setFilterInitialized] = useState(false);
 
   const [selectedTasks, setSelectedTasks] = useState<string[]>([]);
 
@@ -125,31 +180,9 @@ export function TasksPage() {
   // Modal State
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  // Set initial filter to current user when page loads (only once)
-  // Skip auto-filter for Admin users - they should see all tasks by default
-  useEffect(() => {
-    // Wait for user details to be sure about the role
-    if (!filterInitialized && currentUserName && usersDropdown.length > 0 && userDetailsData) {
-      // Check if current user is Admin
-      const apiUser = userDetailsData?.result || {};
-      const userRole = getRoleFromUser(apiUser);
-      const isAdmin = userRole?.toLowerCase() === 'admin';
+  // DELETED: useEffect for initial filter setup - now handled in useState initializer
 
-      if (!isAdmin) {
-        // Only auto-apply user filter for non-admin users
-        setFilters(prev => ({ ...prev, user: currentUserName }));
-      }
-      setFilterInitialized(true);
-    }
-  }, [currentUserName, filterInitialized, usersDropdown, userDetailsData]);
-
-  // Determine if current user is Admin
-  // Use useMemo so it's stable and accessible for rendering
-  const isAdmin = useMemo(() => {
-    const apiUser = userDetailsData?.result || {};
-    const role = getRoleFromUser(apiUser);
-    return role?.toLowerCase() === 'admin';
-  }, [userDetailsData]);
+  // Determine if current user is Admin (re-calculated for usage, already calc above)
 
   // Build query params for API call
   const queryParams = useMemo(() => {
@@ -201,7 +234,7 @@ export function TasksPage() {
 
 
     return toQueryParams(params);
-  }, [pagination.limit, pagination.skip, filters, searchQuery, dateRange, workspacesData]);
+  }, [pagination.limit, pagination.skip, filters, searchQuery, dateRange, workspacesData, usersDropdown, requirementsDropdown]);
 
   // Build query params for STATS (without status filter to get global counts)
   const statsQueryParams = useMemo(() => {
@@ -239,7 +272,7 @@ export function TasksPage() {
     }
 
     return toQueryParams(params);
-  }, [filters.workspace, searchQuery, dateRange, workspacesData]);
+  }, [filters.workspace, filters.user, filters.requirement, searchQuery, dateRange, workspacesData, usersDropdown, requirementsDropdown]);
 
   // Fetch tasks with query params
   const { data: tasksData, isLoading } = useTasks(queryParams);
@@ -464,18 +497,22 @@ export function TasksPage() {
     { id: 'status', label: 'Status', options: statuses, placeholder: 'Status' }
   ];
 
-  const handleFilterChange = (filterId: string, value: string) => {
+  const handleFilterChange = useCallback((filterId: string, value: string) => {
     setFilters(prev => ({ ...prev, [filterId]: value }));
-    // Reset to first page when filters change
     setPagination(prev => ({ ...prev, current: 1, skip: 0 }));
-  };
+  }, []);
 
-  // Reset pagination when search query or active tab changes
-  useEffect(() => {
+  const handleSearchChange = useCallback((value: string) => {
+    setSearchQuery(value);
     setPagination(prev => ({ ...prev, current: 1, skip: 0 }));
-  }, [searchQuery, activeTab]);
+  }, []);
 
-  const clearFilters = () => {
+  const handleTabChange = useCallback((tabId: StatusTab) => {
+    setActiveTabInternal(tabId);
+    setPagination(prev => ({ ...prev, current: 1, skip: 0 }));
+  }, [setActiveTabInternal]);
+
+  const clearFilters = useCallback(() => {
     setFilters({
       user: 'All',
       company: 'All',
@@ -484,9 +521,8 @@ export function TasksPage() {
       requirement: 'All'
     });
     setSearchQuery('');
-    // Reset to first page when clearing filters
     setPagination(prev => ({ ...prev, current: 1, skip: 0 }));
-  };
+  }, []);
 
   // Handle pagination change
   const handlePaginationChange = (page: number, pageSize: number) => {
@@ -556,8 +592,7 @@ export function TasksPage() {
             message.success("Task deleted successfully!");
           },
           onError: (error: Error) => {
-            const errorMessage = getErrorMessage(error, "Failed to delete task");
-            message.error(errorMessage);
+            message.error(getErrorMessage(error, "Failed to delete task"));
           },
         });
       },
@@ -568,7 +603,7 @@ export function TasksPage() {
    * Handles bulk deletion of selected tasks.
    * Shows a confirmation modal before proceeding with concurrent deletion requests.
    */
-  const handleBulkDelete = () => {
+  const handleBulkDelete = useCallback(() => {
     Modal.confirm({
       title: 'Delete Tasks',
       content: `Are you sure you want to delete ${selectedTasks.length} tasks?`,
@@ -585,13 +620,13 @@ export function TasksPage() {
         }
       },
     });
-  };
+  }, [selectedTasks, deleteTaskMutation, message]);
 
   /**
    * Handles bulk completion of selected tasks.
    * Updates status to 'Completed' for all selected items concurrently.
    */
-  const handleBulkComplete = async () => {
+  const handleBulkComplete = useCallback(async () => {
     try {
       await Promise.all(
         selectedTasks.map(id =>
@@ -603,7 +638,7 @@ export function TasksPage() {
     } catch (error) {
       message.error('Failed to complete some tasks');
     }
-  };
+  }, [selectedTasks, updateTaskStatusMutation, message]);
 
   // Get total count from API response
   const totalTasks = useMemo(() => {
@@ -695,7 +730,10 @@ export function TasksPage() {
             bVal = (b.status || '').toLowerCase();
             break;
           default:
+            // Sort key not in typed union; narrow when task DTO is extended.
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             aVal = (a as any)[sortColumn];
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             bVal = (b as any)[sortColumn];
         }
 
@@ -718,7 +756,6 @@ export function TasksPage() {
     // Stats usually come as metadata or first item. Using TaskDto to access potential extra fields
     const firstTask = statsData?.result?.[0] as unknown as { status_counts?: Record<string, number> };
     const backendCounts = firstTask?.status_counts || {};
-    const allTasks = (statsData?.result || []) as Task[];
 
     // Calculate total from counts if available
     const calculatedTotal = (backendCounts.All) ||
@@ -766,6 +803,7 @@ export function TasksPage() {
   // Update floating menu with bulk actions
   useEffect(() => {
     if (selectedTasks.length > 0) {
+
       setExpandedContent(
         <>
           <div className="flex items-center gap-2 border-r border-white/20 pr-6">
@@ -813,15 +851,15 @@ export function TasksPage() {
     return () => {
       setExpandedContent(null);
     };
-  }, [selectedTasks]);
+  }, [selectedTasks, handleBulkComplete, handleBulkDelete, setExpandedContent]);
 
-  const toggleSelect = (id: string) => {
+  const toggleSelect = useCallback((id: string) => {
     if (selectedTasks.includes(id)) {
-      setSelectedTasks(selectedTasks.filter(taskId => taskId !== id));
+      setSelectedTasks(prev => prev.filter(taskId => taskId !== id));
     } else {
-      setSelectedTasks([...selectedTasks, id]);
+      setSelectedTasks(prev => [...prev, id]);
     }
-  };
+  }, [selectedTasks]);
 
   const DateFilter = (
     <DateRangeSelector
@@ -848,16 +886,7 @@ export function TasksPage() {
         { id: 'Delayed', label: 'Delayed', count: stats.Delayed },
       ]}
       activeTab={activeTab}
-      onTabChange={(tabId) => {
-        setActiveTab(tabId as StatusTab);
-        const params = new URLSearchParams(searchParams.toString());
-        if (tabId === 'all') {
-          params.delete('tab');
-        } else {
-          params.set('tab', tabId);
-        }
-        router.push(`?${params.toString()}`);
-      }}
+      onTabChange={(tabId) => handleTabChange(tabId as StatusTab)}
 
       customFilters={DateFilter}
     >
@@ -911,16 +940,14 @@ export function TasksPage() {
                   setEditingTask(null);
                 },
                 onError: (error: Error) => {
-                  const errorMessage =
-                    (error as any)?.response?.data?.message || (error as any)?.message || "Failed to update task";
-                  message.error(errorMessage);
+                  message.error(getErrorMessage(error));
                 },
               });
             } else {
               // Create task
               handleCreateTask(data);
               // Switch to 'All Tasks' tab to ensure visibility of the new 'Assigned' task
-              setActiveTab('all');
+              setActiveTabInternal('all');
               const params = new URLSearchParams(searchParams.toString());
               params.delete('tab');
               router.push(`?${params.toString()}`);
@@ -940,8 +967,6 @@ export function TasksPage() {
       </Modal>
 
       {/* Filters Bar */}
-
-      {/* Filters Bar */}
       <div className="mb-6">
         <div className="flex items-center gap-3">
           <div className="flex-1">
@@ -952,7 +977,7 @@ export function TasksPage() {
               onClearFilters={clearFilters}
               searchPlaceholder="Search"
               searchValue={searchQuery}
-              onSearchChange={setSearchQuery}
+              onSearchChange={handleSearchChange}
             />
           </div>
         </div>

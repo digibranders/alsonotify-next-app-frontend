@@ -1,8 +1,7 @@
-import { useState, useEffect, useMemo } from "react";
-import { Button, Input, Select, Checkbox, DatePicker, App, Radio, Tooltip, Avatar } from 'antd';
+import { useState, useMemo } from "react";
+import { Button, Input, Select, Checkbox, DatePicker, App, Avatar } from 'antd';
 import { CheckSquare, Calendar, Users, ArrowRight, Layers, UserPlus, X } from 'lucide-react';
 import dayjs from 'dayjs';
-import { useUserDetails } from '@/hooks/useUser';
 import { FormLayout } from '@/components/common/FormLayout';
 
 const { TextArea } = Input;
@@ -67,10 +66,9 @@ export function TaskForm({
   requirements = [],
   workspaces = [],
   disabledFields = {},
-}: TaskFormProps) {
+}: Readonly<TaskFormProps>) {
   const { message } = App.useApp();
   const { user: currentUser } = useCurrentUser();
-  const [formData, setFormData] = useState<TaskFormData>(defaultFormData);
 
   // Get current logged-in user ID
   const currentUserId = useMemo(() => {
@@ -78,31 +76,35 @@ export function TaskForm({
     return '';
   }, [currentUser]);
 
-  useEffect(() => {
-    if (initialData) {
-      setFormData({
-        ...initialData,
-        leader_id: currentUserId || initialData.leader_id, // Auto-set leader to current user
-        assigned_members: initialData.assigned_members || (initialData.member_id ? [parseInt(initialData.member_id)] : []),
-        execution_mode: initialData.execution_mode || "parallel",
-      });
-    } else {
-      setFormData({
-        ...defaultFormData,
-        leader_id: currentUserId, // Auto-set leader to current user
-      });
-    }
-  }, [initialData, currentUserId]);
+  // Compute initial state once on mount (or when key changes)
+  const [formData, setFormData] = useState<TaskFormData>(() => {
+    // 1. Resolve base data (Initial or Default)
+    const base = initialData || defaultFormData;
 
-  // Auto-select first workspace if no workspace is set and workspaces are available
-  useEffect(() => {
-    if (!formData.workspace_id && workspaces.length > 0) {
-      setFormData(prev => ({
-        ...prev,
-        workspace_id: String(workspaces[0].id)
-      }));
+    // 2. Resolve Workspace ID (Preserve existing, or auto-pick first available)
+    let workspaceId = base.workspace_id;
+    if (!workspaceId && workspaces.length > 0) {
+      workspaceId = String(workspaces[0].id);
     }
-  }, [workspaces, formData.workspace_id]);
+
+    // 3. Resolve Leader ID (Current user or preserved)
+    // Note: handleSubmit overrides this with currentUserId anyway
+    const leaderId = currentUserId || base.leader_id;
+
+    // 4. Resolve Assigned Members
+    // If editing: use existing assigned_members or fallback to member_id
+    // If new: empty or derived
+    const assignedMembers = base.assigned_members ||
+      (base.member_id ? [parseInt(base.member_id)] : []);
+
+    return {
+      ...base,
+      workspace_id: workspaceId,
+      leader_id: leaderId,
+      assigned_members: assignedMembers,
+      execution_mode: base.execution_mode || "parallel",
+    };
+  });
 
   const handleSubmit = async () => {
     // Validate required fields

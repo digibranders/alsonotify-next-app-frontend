@@ -7,7 +7,6 @@ import {
   CheckCircle,
   ChevronDown,
   Loader2,
-  WifiOff,
   Clock
 } from "lucide-react";
 import { useFloatingMenu } from '../../context/FloatingMenuContext';
@@ -42,6 +41,8 @@ export function FloatingTimerBar() {
 
   // Network Status listener
   useEffect(() => {
+    // Initial sync; event listeners below handle subsequent updates.
+    // eslint-disable-next-line
     setIsOnline(navigator.onLine);
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
@@ -74,7 +75,7 @@ export function FloatingTimerBar() {
     checkFormOpen();
 
     // Create observer
-    const observer = new MutationObserver((mutations) => {
+    const observer = new MutationObserver(() => {
       checkFormOpen();
     });
 
@@ -135,10 +136,12 @@ export function FloatingTimerBar() {
   // Or strictly follow the running timer.
   // We'll initialize it, and keep it in sync if the timer starts from elsewhere.
   useEffect(() => {
-    if (timerState.taskId) {
+    if (timerState.taskId && selectedTaskId !== timerState.taskId) {
+      // Sync from timer state; omit selectedTaskId from deps to avoid feedback loop.
+      // eslint-disable-next-line
       setSelectedTaskId(timerState.taskId);
     }
-  }, [timerState.taskId]);
+  }, [timerState.taskId, selectedTaskId]);
 
 
   const { data: userDetailsData } = useUserDetails();
@@ -158,7 +161,6 @@ export function FloatingTimerBar() {
         const status = (t.status || '').toLowerCase();
 
         // Debugging Filter
-        const shouldHideReview = status === 'review' && !t.is_revision;
         // console.log(`Task ${t.name}: Status=${status}, IsRevision=${t.is_revision}, Hide=${shouldHideReview}`);
 
         // Visibility Logic:
@@ -235,7 +237,6 @@ export function FloatingTimerBar() {
     return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const currentTaskName = currentTask?.name || "Select Task";
 
   const handlePlayPause = async () => {
     if (!currentDisplayTaskId) {

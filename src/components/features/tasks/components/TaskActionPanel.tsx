@@ -1,4 +1,4 @@
-import { Button, Tooltip } from 'antd';
+import { Button } from 'antd';
 import { PlayCircle, CheckCircle2, Lock, ArrowRight } from 'lucide-react';
 
 interface TaskMember {

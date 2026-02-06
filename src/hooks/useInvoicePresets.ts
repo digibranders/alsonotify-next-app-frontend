@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 const PRESETS_STORAGE_KEY = 'invoice_payment_presets';
 
@@ -10,38 +10,35 @@ export interface InvoicePaymentPreset {
 }
 
 const DEFAULT_PRESETS: InvoicePaymentPreset[] = [
-  { 
-    id: 'bank_transfer', 
-    name: 'Bank Transfer', 
-    content: "Bank: HDFC Bank\nA/C Name: Fynix Digital Pvt Ltd\nA/C No: 50200012345678\nIFSC: HDFC0001234\nBranch: Mumbai" 
+  {
+    id: 'bank_transfer',
+    name: 'Bank Transfer',
+    content: "Bank: HDFC Bank\nA/C Name: Fynix Digital Pvt Ltd\nA/C No: 50200012345678\nIFSC: HDFC0001234\nBranch: Mumbai"
   },
-  { 
-    id: 'upi', 
-    name: 'UPI', 
-    content: "UPI ID: fynix@hdfcbank\nGPay/PhonePe: 9876543210" 
+  {
+    id: 'upi',
+    name: 'UPI',
+    content: "UPI ID: fynix@hdfcbank\nGPay/PhonePe: 9876543210"
   }
 ];
 
 export const useInvoicePresets = () => {
-  const [presets, setPresets] = useState<InvoicePaymentPreset[]>(DEFAULT_PRESETS);
-  const [isLoaded, setIsLoaded] = useState(false);
-
-  useEffect(() => {
+  const [presets, setPresets] = useState<InvoicePaymentPreset[]>(() => {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem(PRESETS_STORAGE_KEY);
       if (stored) {
         try {
           const parsed = JSON.parse(stored);
           if (Array.isArray(parsed) && parsed.length > 0) {
-            setPresets(parsed);
+            return parsed;
           }
         } catch (e) {
           console.error("Failed to parse invoice presets", e);
         }
       }
-      setIsLoaded(true);
     }
-  }, []);
+    return DEFAULT_PRESETS;
+  });
 
   const savePresets = (newPresets: InvoicePaymentPreset[]) => {
     setPresets(newPresets);
@@ -65,6 +62,6 @@ export const useInvoicePresets = () => {
     savePresets,
     addPreset,
     deletePreset,
-    isLoaded
+    isLoaded: true
   };
 };

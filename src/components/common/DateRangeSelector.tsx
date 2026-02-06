@@ -42,12 +42,20 @@ export function DateRangeSelector({
     // Sync internal state with props when value changes externally (and not in custom mode)
     useEffect(() => {
         if (value && value[0]) {
-            // If we are not in custom mode, we might want to infer range type or just keep as is
-            // For now, just sync start/end dates for calendar
-            setStartDate(value[0]);
-            setEndDate(value[1]);
-            setCurrentMonth(value[0]);
+            const hasStartChanged = !startDate?.isSame(value[0]);
+            const hasEndChanged = !endDate?.isSame(value[1]);
+
+            if (hasStartChanged || hasEndChanged) {
+                setStartDate(value[0]);
+                setEndDate(value[1]);
+                // Only update month if new start date is in a different month
+                if (!currentMonth.isSame(value[0], 'month')) {
+                    setCurrentMonth(value[0]);
+                }
+            }
         }
+        // Deps intentionally [value] only; including startDate/endDate/currentMonth would cause update loop.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [value]);
 
     // Handle Range Type Selection
