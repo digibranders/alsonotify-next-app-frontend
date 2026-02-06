@@ -26,7 +26,7 @@ export interface EmployeeFormData {
   dateOfJoining: string;
   experience: string;
   skillsets: string;
-  access: string;
+  access: string | "Employee"; // Employee is the default access level
   salary: string;
   currency: string;
   workingHoursStart: string;

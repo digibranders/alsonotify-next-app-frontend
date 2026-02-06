@@ -719,7 +719,7 @@ export function ProfilePage() {
                             {/* Employment Details */}
                             <section className="mb-10">
                                 <h2 className="text-[16px] font-['Manrope:SemiBold',sans-serif] text-[#111111] mb-6">
-                                    Employment Details
+                                    Employment Details(Admin or HR can edit this details from Employees Page)
                                 </h2>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                                     {/* Employment Type - Read Only */}
