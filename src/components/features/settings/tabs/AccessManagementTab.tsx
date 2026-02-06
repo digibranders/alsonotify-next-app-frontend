@@ -1,6 +1,8 @@
 import { Plus, Edit, Lock, Check, Shield, ChevronRight } from 'lucide-react';
 import { Button, Checkbox, Collapse } from "antd";
 import { Role } from '@/types/domain';
+import { RoleDto } from '@/types/dto/user.dto';
+import { useState, useEffect } from 'react';
 
 interface AccessManagementTabProps {
   canEditAccessManagement: boolean;
@@ -15,8 +17,7 @@ interface AccessManagementTabProps {
   updatePermissionsMutation: any;
   isLoadingPermissions: boolean;
   rolePermissions: any;
-  selectedPermissionIds: Set<any>;
-  setSelectedPermissionIds: (ids: Set<any>) => void;
+  initialSelectedPermissionIds: Set<number>;
 }
 
 export function AccessManagementTab({
@@ -32,9 +33,15 @@ export function AccessManagementTab({
   updatePermissionsMutation,
   isLoadingPermissions,
   rolePermissions,
-  selectedPermissionIds,
-  setSelectedPermissionIds,
+  initialSelectedPermissionIds,
 }: AccessManagementTabProps) {
+  const [selectedPermissionIds, setSelectedPermissionIds] = useState<Set<number>>(initialSelectedPermissionIds);
+
+  // Sync local state when parent passes new permissions (e.g. after role change or rolePermissions load).
+  useEffect(() => {
+    setSelectedPermissionIds(new Set(initialSelectedPermissionIds));
+  }, [initialSelectedPermissionIds]);
+
   return (
     <div className="bg-white rounded-[24px] p-8 border border-[#EEEEEE] mb-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
       <div className="flex items-center justify-between mb-10">
