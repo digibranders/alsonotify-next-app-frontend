@@ -1,51 +1,50 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { CompanyProfile } from '@/types/auth'; // Adjust import based on actual location
 import { CompanyUpdateInput } from '@/types/genericTypes';
 
 interface UseCompanyDetailsProps {
-    companyData?: { result?: CompanyProfile };
+    initialData?: CompanyProfile | null;
 }
 
-export const useCompanyDetails = ({ companyData }: UseCompanyDetailsProps) => {
-    const [companyName, setCompanyName] = useState('');
-    const [companyLogo, setCompanyLogo] = useState('');
-    const [taxId, setTaxId] = useState('');
-    const [taxIdType, setTaxIdType] = useState('');
-    const [timeZone, setTimeZone] = useState('Asia/Kolkata');
-    const [currency, setCurrency] = useState('USD');
-    const [country, setCountry] = useState('');
-    const [address, setAddress] = useState('');
+export const useCompanyDetails = ({ initialData }: UseCompanyDetailsProps) => {
+    const [companyName, setCompanyName] = useState(initialData?.name || '');
+    const [companyLogo, setCompanyLogo] = useState(initialData?.logo || '');
+    const [taxId, setTaxId] = useState(initialData?.tax_id || '');
+    const [taxIdType, setTaxIdType] = useState(initialData?.tax_id_type || '');
+    const [timeZone, setTimeZone] = useState(initialData?.timezone || 'Asia/Kolkata');
+    const [currency, setCurrency] = useState(initialData?.currency || 'USD');
+    const [country, setCountry] = useState(initialData?.country || '');
+    const [address, setAddress] = useState(initialData?.address || '');
 
-    const [defaultEmployeePassword, setDefaultEmployeePassword] = useState('Pass@123');
+    const [defaultEmployeePassword, setDefaultEmployeePassword] = useState(initialData?.default_employee_password || 'Pass@123');
 
-    // Sync with backend data
+    // Sync state when initialData becomes available after mount (e.g. companyData loads asynchronously).
     useEffect(() => {
-        if (companyData?.result) {
-            setCompanyName(companyData.result.name || '');
-            setCompanyLogo(companyData.result.logo || '');
-            setTaxId(companyData.result.tax_id || '');
-            setTaxIdType(companyData.result.tax_id_type || '');
-            setTimeZone(companyData.result.timezone || 'Asia/Kolkata');
-            setCurrency(companyData.result.currency || 'USD');
-            setCountry(companyData.result.country || '');
-            setAddress(companyData.result.address || '');
-            setDefaultEmployeePassword(companyData.result.default_employee_password || 'Pass@123');
-        }
-    }, [companyData]);
+        if (!initialData) return;
+        setCompanyName(initialData.name || '');
+        setCompanyLogo(initialData.logo || '');
+        setTaxId(initialData.tax_id || '');
+        setTaxIdType(initialData.tax_id_type || '');
+        setTimeZone(initialData.timezone || 'Asia/Kolkata');
+        setCurrency(initialData.currency || 'USD');
+        setCountry(initialData.country || '');
+        setAddress(initialData.address || '');
+        setDefaultEmployeePassword(initialData.default_employee_password || 'Pass@123');
+    }, [initialData]);
 
     const resetCompanyDetails = useCallback(() => {
-        if (companyData?.result) {
-            setCompanyName(companyData.result.name || '');
-            setCompanyLogo(companyData.result.logo || '');
-            setTaxId(companyData.result.tax_id || '');
-            setTaxIdType(companyData.result.tax_id_type || '');
-            setTimeZone(companyData.result.timezone || 'Asia/Kolkata');
-            setCurrency(companyData.result.currency || 'USD');
-            setCountry(companyData.result.country || '');
-            setAddress(companyData.result.address || '');
-            setDefaultEmployeePassword(companyData.result.default_employee_password || 'Pass@123');
+        if (initialData) {
+            setCompanyName(initialData.name || '');
+            setCompanyLogo(initialData.logo || '');
+            setTaxId(initialData.tax_id || '');
+            setTaxIdType(initialData.tax_id_type || '');
+            setTimeZone(initialData.timezone || 'Asia/Kolkata');
+            setCurrency(initialData.currency || 'USD');
+            setCountry(initialData.country || '');
+            setAddress(initialData.address || '');
+            setDefaultEmployeePassword(initialData.default_employee_password || 'Pass@123');
         }
-    }, [companyData]);
+    }, [initialData]);
 
     const getCompanyDetailsPayload = useCallback((): Partial<CompanyUpdateInput> => {
         return {
