@@ -38,11 +38,12 @@ export function NoteViewModal({ open, note, onClose }: NoteViewModalProps) {
   // Initialize from note
   useEffect(() => {
     if (note) {
-      setTitle(note.title || '');
-      setContent(note.content || '');
+      // Omit title/content from deps to avoid overwrite loop when syncing from note.
+      if (note.title !== title) setTitle(note.title || '');
+      if (note.content !== content) setContent(note.content || '');
       // Normalize type: backend might return 'text'/'checklist', but we use 'TEXT_NOTE'/'CHECKLIST_NOTE'
       const normalizedType = (note.type === 'TEXT_NOTE' || (note.type as any) === 'text') ? 'TEXT_NOTE' : 'CHECKLIST_NOTE';
-      setNoteType(normalizedType);
+      if (normalizedType !== noteType) setNoteType(normalizedType);
       setColor(note.color || '#ff3b3b');
 
       // Convert items to ChecklistItem format
@@ -63,7 +64,15 @@ export function NoteViewModal({ open, note, onClose }: NoteViewModalProps) {
             };
           }
         });
-        setItems(convertedItems);
+        setItems(prevItems => {
+          // Check for differences
+          const isDifferent = convertedItems.length !== prevItems.length ||
+            convertedItems.some((c, i) => {
+              const p = prevItems[i];
+              return c.id !== p.id || c.text !== p.text || c.isChecked !== p.isChecked;
+            });
+          return isDifferent ? convertedItems : prevItems;
+        });
       } else {
         setItems([createEmptyChecklistItem(0)]);
       }
@@ -76,6 +85,8 @@ export function NoteViewModal({ open, note, onClose }: NoteViewModalProps) {
         }
       }, 100);
     }
+    // Run only when note/open change; omit title/content/color/noteType/items to prevent overwrite loop.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [note, open]);
 
   const updateMutation = useMutation({

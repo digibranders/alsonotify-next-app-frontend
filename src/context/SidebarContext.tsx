@@ -12,19 +12,21 @@ const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
 
 export function SidebarProvider({ children }: { children: ReactNode }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [isInitialized, setIsInitialized] = useState(false);
 
-  // Initialize from localStorage on client-side only
+  // Run once on mount to hydrate from localStorage; toggle/setCollapsed are source of truth afterward.
   useEffect(() => {
     try {
       const saved = localStorage.getItem('sidebar_collapsed');
-      if (saved) {
-        setIsCollapsed(JSON.parse(saved));
+      if (saved !== null) {
+        const isActuallyCollapsed = JSON.parse(saved);
+        const timer = setTimeout(() => {
+          setIsCollapsed(isActuallyCollapsed);
+        }, 0);
+        return () => clearTimeout(timer);
       }
-    } catch (e) {
-      console.error('Failed to parse sidebar preference', e);
+    } catch {
+      // Ignore
     }
-    setIsInitialized(true);
   }, []);
 
   const toggleSidebar = () => {
@@ -32,18 +34,18 @@ export function SidebarProvider({ children }: { children: ReactNode }) {
     setIsCollapsed(newState);
     try {
       localStorage.setItem('sidebar_collapsed', JSON.stringify(newState));
-    } catch (e) {
-       // Ignore storage errors
+    } catch {
+      // Ignore storage errors
     }
   };
 
   const setCollapsed = (collapsed: boolean) => {
-      setIsCollapsed(collapsed);
-      try {
-        localStorage.setItem('sidebar_collapsed', JSON.stringify(collapsed));
-      } catch (e) {
-         // Ignore
-      }
+    setIsCollapsed(collapsed);
+    try {
+      localStorage.setItem('sidebar_collapsed', JSON.stringify(collapsed));
+    } catch {
+      // Ignore
+    }
   };
 
   // Prevent hydration mismatch by returning null or a consistent state until initialized?
@@ -51,7 +53,7 @@ export function SidebarProvider({ children }: { children: ReactNode }) {
   // or use 'useLayoutEffect' if possible, but Next.js SSR prefers useEffect.
   // We'll proceed with rendering children immediately to avoid layout thrashing visibility, 
   // although there might be a split-second jump if preference is 'collapsed'.
-  
+
   return (
     <SidebarContext.Provider value={{ isCollapsed, toggleSidebar, setCollapsed }}>
       {children}
