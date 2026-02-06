@@ -26,7 +26,7 @@ export interface EmployeeFormData {
   dateOfJoining: string;
   experience: string;
   skillsets: string;
-  access: string | "Employee"; // Employee is the default access level
+  access: string; // Employee is the default access level
   salary: string;
   currency: string;
   workingHoursStart: string;
@@ -61,9 +61,9 @@ const defaultFormData: EmployeeFormData = {
   dateOfJoining: "",
   experience: "",
   skillsets: "",
-  access: "",
+  access: "Employee",
   salary: "",
-  currency: "INR",
+  currency: "USD",
   workingHoursStart: "",
   workingHoursEnd: "",
   leaves: "",
@@ -232,6 +232,9 @@ function EmployeeFormContent({
       }
 
       if (isEditing) {
+        if (company.currency && !initialData?.currency) {
+          updated.currency = company.currency;
+        }
         if ((updated.leaves === "" || updated.leaves === "0") && company.leaves) {
           const companyLeaves = company.leaves;
           const totalLeaves = Array.isArray(companyLeaves) && companyLeaves.length > 0
@@ -257,7 +260,7 @@ function EmployeeFormContent({
     }
 
     return updated;
-  }, [formData, companyData, isEditing, fetchedRoles, initialData?.role_id]);
+  }, [formData, companyData, isEditing, fetchedRoles, initialData?.role_id, initialData?.currency]);
 
   // Derive hourly rate instead of using an effect
   const calculatedHourlyRate = useMemo(() => {
