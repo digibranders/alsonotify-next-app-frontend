@@ -213,21 +213,24 @@ function EmployeeFormContent({
       const company = companyData.result;
 
       if (!isEditing) {
+
         if (updated.currency === defaultFormData.currency && company.currency) {
           updated.currency = company.currency;
         }
-        if (updated.leaves === defaultFormData.leaves && company.leaves) {
+        if (updated.leaves === defaultFormData.leaves) {
           const companyLeaves = company.leaves;
-          const totalLeaves = Array.isArray(companyLeaves) && companyLeaves.length > 0
+          const totalLeaves = Array.isArray(companyLeaves)
             ? companyLeaves.reduce((sum: number, leave: any) => sum + (Number(leave.count) || 0), 0)
             : 15;
           updated.leaves = totalLeaves.toString();
         }
-        if (updated.workingHoursStart === defaultFormData.workingHoursStart && company.working_hours?.start_time) {
-          updated.workingHoursStart = formatTimeForState(company.working_hours.start_time);
+        if (updated.workingHoursStart === defaultFormData.workingHoursStart) {
+          const startTime = company.working_hours?.start_time || "09:00";
+          updated.workingHoursStart = formatTimeForState(startTime);
         }
-        if (updated.workingHoursEnd === defaultFormData.workingHoursEnd && company.working_hours?.end_time) {
-          updated.workingHoursEnd = formatTimeForState(company.working_hours.end_time);
+        if (updated.workingHoursEnd === defaultFormData.workingHoursEnd) {
+          const endTime = company.working_hours?.end_time || "18:00";
+          updated.workingHoursEnd = formatTimeForState(endTime);
         }
       }
 
@@ -235,9 +238,9 @@ function EmployeeFormContent({
         if (company.currency && !initialData?.currency) {
           updated.currency = company.currency;
         }
-        if ((updated.leaves === "" || updated.leaves === "0") && company.leaves) {
+        if ((updated.leaves === "" || updated.leaves === "0")) {
           const companyLeaves = company.leaves;
-          const totalLeaves = Array.isArray(companyLeaves) && companyLeaves.length > 0
+          const totalLeaves = Array.isArray(companyLeaves)
             ? companyLeaves.reduce((sum: number, leave: any) => sum + (Number(leave.count) || 0), 0)
             : 15;
           updated.leaves = totalLeaves.toString();
