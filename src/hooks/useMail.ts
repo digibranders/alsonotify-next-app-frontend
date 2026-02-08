@@ -15,11 +15,14 @@ export const useMailMessages = (
   unreadOnly: boolean,
   top = 25,
   search?: string,
-  refetchInterval = 60000
+  refetchInterval = 60000,
+  receivedAfter?: string,
+  receivedBefore?: string
 ) =>
   useInfiniteQuery({
-    queryKey: ["mail", "messages", folder, unreadOnly, top, search],
-    queryFn: ({ pageParam }) => getMailMessages(folder, top, unreadOnly, pageParam, search),
+    queryKey: ["mail", "messages", folder, unreadOnly, top, search, receivedAfter, receivedBefore],
+    queryFn: ({ pageParam }) =>
+      getMailMessages(folder, top, unreadOnly, pageParam, search, receivedAfter, receivedBefore),
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (lastPage) => lastPage?.result?.nextLink,
     refetchInterval,
