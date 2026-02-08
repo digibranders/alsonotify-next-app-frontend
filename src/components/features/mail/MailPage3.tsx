@@ -270,16 +270,8 @@ export function MailPage() {
     setFocusIndex(0);
   }, [folder, unreadOnly]);
 
-  // Auto-refresh polling
-  useEffect(() => {
-    const id = window.setInterval(() => {
-      refresh();
-    }, 60_000); // 1 min
 
-    return () => window.clearInterval(id);
-    // Omit refresh/other deps to avoid refetch loop; selectedId/folder/unreadOnly drive polling.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedId, folder, unreadOnly]);
+
 
   /* 
    * Logic Update: Sync unread count immediately when reading 
