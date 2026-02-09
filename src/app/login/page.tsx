@@ -60,11 +60,11 @@ function LoginForm() {
       <motion.div
         initial="hidden"
         animate="visible"
-        className="w-full max-w-[420px] space-y-8"
+        className="w-full max-w-[420px] space-y-6 md:space-y-8"
       >
         {/* Header */}
         <motion.div variants={itemVariants} className="space-y-2">
-          <h2 className="text-3xl font-bold text-[#111111] tracking-tight">
+          <h2 className="text-2xl md:text-3xl font-bold text-[#111111] tracking-tight">
             Welcome Back
           </h2>
           <p className="text-[#666666]">
@@ -93,8 +93,8 @@ function LoginForm() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <label className="text-[11px] font-bold text-[#999999] uppercase tracking-widest">Password</label>
-                <Link 
-                  href="/forgot-password" 
+                <Link
+                  href="/forgot-password"
                   className="text-[12px] font-semibold text-[#ff3b3b] hover:text-[#E63535]"
                   tabIndex={4}
                 >

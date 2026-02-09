@@ -77,9 +77,9 @@ export function LeavesWidget({ onNavigate }: { onNavigate?: (page: string) => vo
       // Calculate total duration: from start date (inclusive) to end date (inclusive)
       const startDate = dayjs(leave.start_date).startOf("day");
       const endDate = dayjs(leave.end_date).startOf("day");
-      
+
       const totalDuration = Math.max(1, endDate.diff(startDate, "day") + 1);
-      
+
       return {
         id: leave.id,
         name: leave.user?.name || "Unknown Employee",
@@ -102,16 +102,16 @@ export function LeavesWidget({ onNavigate }: { onNavigate?: (page: string) => vo
 
   return (
     <>
-      <div className="bg-white rounded-[24px] p-5 w-full h-full flex flex-col">
+      <div className="bg-white rounded-[24px] border border-gray-100 p-4 w-full h-full min-h-0 flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between mb-1.5">
+        <div className="flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2">
-            <h3 className="font-['Manrope:SemiBold',sans-serif] text-[20px] text-[#111111]">Leaves</h3>
+            <h3 className="font-['Manrope:SemiBold',sans-serif] text-lg sm:text-[20px] text-[#111111]">Leaves</h3>
             <button onClick={() => setShowDialog(true)} className="hover:scale-110 active:scale-95 transition-transform">
               <Plus className="size-5 text-[#FF4500]" strokeWidth={2} />
             </button>
           </div>
-          <button className="flex items-center gap-1 text-[#666666] text-[14px] font-['Manrope:SemiBold',sans-serif] hover:text-[#111111] transition-colors" onClick={() => onNavigate && onNavigate('leaves')}>
+          <button className="flex items-center gap-1 text-[#666666] text-[13px] sm:text-[14px] font-['Manrope:SemiBold',sans-serif] hover:text-[#111111] transition-colors" onClick={() => onNavigate && onNavigate('leaves')}>
             <span>View All</span>
             <svg className="size-[17px]" fill="none" viewBox="0 0 17 17">
               <path d={svgPaths.p3ac7a560} stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
@@ -119,10 +119,10 @@ export function LeavesWidget({ onNavigate }: { onNavigate?: (page: string) => vo
           </button>
         </div>
 
-        {/* Leaves List */}
-        <div className="flex flex-col gap-2.5 flex-1 mt-2 overflow-y-auto scrollbar-hide">
+        {/* Leaves list — contained inside widget */}
+        <div className="flex flex-col gap-3 flex-1 min-h-0 overflow-y-auto scrollbar-hide mt-3">
           {isLoading ? (
-            <div className="flex flex-col gap-2.5">
+            <div className="flex flex-col gap-3">
               {[1, 2, 3].map((i) => (
                 <div key={i} className="p-3 rounded-xl border border-[#EEEEEE]">
                   <div className="flex items-center gap-2.5">
@@ -147,13 +147,13 @@ export function LeavesWidget({ onNavigate }: { onNavigate?: (page: string) => vo
             </div>
           ) : error ? (
             <div className="flex items-center justify-center py-8">
-              <p className="text-[14px] font-['Manrope:Regular',sans-serif] text-[#666666]">
+              <p className="text-[13px] sm:text-[14px] font-['Manrope:Regular',sans-serif] text-[#666666]">
                 Unable to load leaves at the moment. Please try again later.
               </p>
             </div>
           ) : processedLeaves.length === 0 ? (
-            <div className="bg-white rounded-[10px] border border-dashed border-[#CCCCCC] py-4 flex items-center justify-center">
-              <p className="text-[14px] font-['Manrope:Regular',sans-serif] text-[#666666]">No leaves to display at the moment</p>
+            <div className="bg-white rounded-[10px] border border-dashed border-[#CCCCCC] py-4 px-3 flex items-center">
+              <p className="text-[13px] sm:text-[14px] font-['Manrope:Regular',sans-serif] text-[#666666] text-left w-full">No leaves to display at the moment</p>
             </div>
           ) : (
             <>
@@ -197,12 +197,12 @@ function LeaveItem({ name, dateRange, duration, avatar, initials }: { name: stri
         {/* Leave Details + Duration */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2">
-            {/* Name + Date stacked on the left */}
-            <div className="flex flex-col min-w-0">
-              <h4 className="font-['Manrope:SemiBold',sans-serif] text-[13px] text-[#111111] line-clamp-1">
+            {/* Name + Date stacked on the left - min-w-0 and truncate prevent mid-word clipping */}
+            <div className="flex flex-col min-w-0 flex-1 overflow-hidden">
+              <h4 className="font-['Manrope:SemiBold',sans-serif] text-[12px] sm:text-[13px] text-[#111111] truncate">
                 {name}
               </h4>
-              <span className="text-[#666666] text-[11px] font-['Manrope:Regular',sans-serif] mt-0.5">
+              <span className="text-[#666666] text-[10px] sm:text-[11px] font-['Manrope:Regular',sans-serif] mt-0.5 truncate block">
                 {dateRange}
               </span>
             </div>

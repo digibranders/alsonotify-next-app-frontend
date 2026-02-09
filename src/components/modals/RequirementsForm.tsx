@@ -5,6 +5,7 @@ import { Upload as UploadIcon, FileText, ChevronDown } from 'lucide-react';
 import { useOutsourcePartners, useEmployees } from '@/hooks/useUser';
 import { FormLayout } from '@/components/common/FormLayout';
 import { trimStr } from '@/utils/trim';
+import { WorkspaceForm } from '@/components/modals/WorkspaceForm';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -33,6 +34,10 @@ interface RequirementsFormProps {
     onSubmit: (data: CreateRequirementRequestDto, files?: File[]) => void;
     /** Send requirement: create then set Waiting/Assigned; edit Draft → set Waiting/Assigned */
     onSubmitAndSend?: (data: CreateRequirementRequestDto, files?: File[]) => void;
+    /** When editing an active (non-draft) requirement: single Update action; omit to show draft/submit buttons */
+    onUpdate?: (data: CreateRequirementRequestDto, files?: File[]) => void;
+    /** True when editing a requirement that is already submitted (not draft). Shows Update instead of Save draft / Submit */
+    isActiveRequirement?: boolean;
     onCancel: () => void;
     workspaces: { id: number | string; name: string }[];
     isLoading?: boolean;
@@ -88,6 +93,8 @@ function RequirementsFormContent({
     initialData,
     onSubmit,
     onSubmitAndSend,
+    onUpdate,
+    isActiveRequirement = false,
     onCancel,
     workspaces,
     isLoading = false,
@@ -138,6 +145,15 @@ function RequirementsFormContent({
     });
 
     const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+    const [isCreateWorkspaceOpen, setIsCreateWorkspaceOpen] = useState(false);
+    const [extraWorkspaces, setExtraWorkspaces] = useState<{ id: number | string; name: string }[]>([]);
+
+    const allWorkspaces = useMemo(() => {
+        const fromProps = workspaces || [];
+        const ids = new Set(fromProps.map((w) => String(w.id)));
+        const extra = extraWorkspaces.filter((w) => !ids.has(String(w.id)));
+        return [...fromProps, ...extra];
+    }, [workspaces, extraWorkspaces]);
 
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
@@ -208,7 +224,19 @@ function RequirementsFormContent({
         }
     }, [buildPayload, onSubmit, onSubmitAndSend, selectedFiles, message]);
 
+    const onUpdateRequirement = useCallback(() => {
+        const payload = buildPayload();
+        if (!payload || !onUpdate) return;
+        try {
+            onUpdate(payload, selectedFiles);
+        } catch (err) {
+            message.error('Failed to update requirement');
+        }
+    }, [buildPayload, onUpdate, selectedFiles, message]);
+
     const sendButtonLabel = formData.type === 'outsourced' ? 'Send to Partner' : formData.type === 'inhouse' ? 'Submit for Work' : 'Send Requirement';
+
+    const showUpdateOnly = isEditing && isActiveRequirement && onUpdate;
 
     const footer = (
         <>
@@ -219,36 +247,51 @@ function RequirementsFormContent({
             >
                 Cancel
             </Button>
-            <Button
-                type="default"
-                onClick={onSaveDraft}
-                loading={isLoading}
-                disabled={isLoading}
-                className="h-11 px-6 text-[14px] font-['Manrope:SemiBold',sans-serif] rounded-xl border border-[#EEEEEE] hover:border-[#111111] hover:text-[#111111] transition-all"
-            >
-                Save draft
-            </Button>
-            <Button
-                type="primary"
-                onClick={onSendRequirement}
-                loading={isLoading}
-                disabled={isLoading}
-                className="h-11 px-8 rounded-xl bg-[#111111] hover:bg-[#000000] text-white text-[14px] font-['Manrope:SemiBold',sans-serif] border-none shadow-none transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-                {sendButtonLabel}
-            </Button>
+            {showUpdateOnly ? (
+                <Button
+                    type="primary"
+                    onClick={onUpdateRequirement}
+                    loading={isLoading}
+                    disabled={isLoading}
+                    className="h-11 px-8 rounded-xl bg-[#111111] hover:bg-[#000000] text-white text-[14px] font-['Manrope:SemiBold',sans-serif] border-none shadow-none transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    Update
+                </Button>
+            ) : (
+                <>
+                    <Button
+                        type="default"
+                        onClick={onSaveDraft}
+                        loading={isLoading}
+                        disabled={isLoading}
+                        className="h-11 px-6 text-[14px] font-['Manrope:SemiBold',sans-serif] rounded-xl border border-[#EEEEEE] hover:border-[#111111] hover:text-[#111111] transition-all"
+                    >
+                        Save draft
+                    </Button>
+                    <Button
+                        type="primary"
+                        onClick={onSendRequirement}
+                        loading={isLoading}
+                        disabled={isLoading}
+                        className="h-11 px-8 rounded-xl bg-[#111111] hover:bg-[#000000] text-white text-[14px] font-['Manrope:SemiBold',sans-serif] border-none shadow-none transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        {sendButtonLabel}
+                    </Button>
+                </>
+            )}
         </>
     );
 
     return (
+        <>
         <FormLayout
             title={isEditing ? 'Edit Requirement' : 'New Requirement'}
             subtitle="Define a new requirement and send it for approval/processing."
             icon={FileText}
             onCancel={onCancel}
-            onSubmit={onSaveDraft}
+            onSubmit={showUpdateOnly ? onUpdateRequirement : onSaveDraft}
             isLoading={isLoading}
-            submitLabel={sendButtonLabel}
+            submitLabel={showUpdateOnly ? 'Update' : sendButtonLabel}
             footer={footer}
         >
             <div className="grid grid-cols-2 gap-x-6 gap-y-4 mb-4">
@@ -265,19 +308,31 @@ function RequirementsFormContent({
                     <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">Workspace</span>
                     <Select
                         showSearch={{
-                            filterOption: (input, option) =>
-                                (option?.children as unknown as string).toLowerCase().includes(input.toLowerCase())
+                            filterOption: (input, option) => {
+                                const optVal = option?.value as string;
+                                if (optVal === 'create_new') return true;
+                                return (option?.children as unknown as string).toLowerCase().includes(input.toLowerCase());
+                            }
                         }}
                         className="w-full h-11"
                         placeholder="Select workspace"
                         value={formData.workspace ? String(formData.workspace) : undefined}
-                        onChange={(v) => setFormData({ ...formData, workspace: v })}
+                        onChange={(v) => {
+                            if (v === 'create_new') {
+                                setIsCreateWorkspaceOpen(true);
+                            } else {
+                                setFormData({ ...formData, workspace: v });
+                            }
+                        }}
                         popupStyle={{ zIndex: 2000 }}
                         suffixIcon={<ChevronDown className="w-4 h-4 text-gray-400" />}
                         disabled={false}
                     >
-                        {workspaces && workspaces.length > 0 ? (
-                            workspaces.map((w) => (
+                        <Option key="create_new" value="create_new" className="text-[#ff3b3b] font-medium border-b border-gray-100 pb-2 mb-2">
+                            + Create New Workspace
+                        </Option>
+                        {allWorkspaces.length > 0 ? (
+                            allWorkspaces.map((w) => (
                                 <Option key={String(w.id)} value={String(w.id)}>
                                     {w.name}
                                 </Option>
@@ -424,5 +479,21 @@ function RequirementsFormContent({
                 </label>
             </div>
         </FormLayout>
+
+        <WorkspaceForm
+            open={isCreateWorkspaceOpen}
+            onCancel={() => setIsCreateWorkspaceOpen(false)}
+            onSuccess={(data: unknown) => {
+                const typed = data as { result?: { id: number; name: string }; id?: number; name?: string };
+                const newId = typed?.result?.id ?? typed?.id;
+                const newName = typed?.result?.name ?? typed?.name ?? 'New Workspace';
+                if (newId != null) {
+                    setExtraWorkspaces((prev) => [...prev, { id: newId, name: newName }]);
+                    setFormData((prev) => ({ ...prev, workspace: newId }));
+                }
+                setIsCreateWorkspaceOpen(false);
+            }}
+        />
+        </>
     );
 }

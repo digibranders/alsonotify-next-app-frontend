@@ -123,46 +123,176 @@ const TaskRowComponent = memo(function TaskRow({
           }
       `}
       >
-        <div className={`grid gap-4 items-center ${hideRequirements ? 'grid-cols-[40px_2.5fr_1.1fr_1fr_0.8fr_1.5fr_0.6fr_40px]' : 'grid-cols-[40px_2.5fr_1.2fr_1.1fr_1fr_0.8fr_1.5fr_0.6fr_40px]'}`}>
-          {/* Checkbox */}
-          <div className="flex justify-center" onClick={(e) => e.stopPropagation()}>
-            <Checkbox
-              checked={selected}
-              onChange={(e) => {
-                e.stopPropagation();
-                onSelect();
-              }}
-              className="red-checkbox"
-            />
+        <div className={`flex flex-col gap-3 md:grid gap-4 items-center ${hideRequirements ? 'md:grid-cols-[40px_2.5fr_1.1fr_1fr_0.8fr_1.5fr_0.6fr_40px]' : 'md:grid-cols-[40px_2.5fr_1.2fr_1.1fr_1fr_0.8fr_1.5fr_0.6fr_40px]'}`}>
+
+          {/* Mobile Top Row: Checkbox + Name + Menu */}
+          <div className="flex items-center justify-between md:contents">
+            <div className="flex items-center gap-3 w-full md:w-auto">
+              <div onClick={(e) => e.stopPropagation()}>
+                <Checkbox
+                  checked={selected}
+                  onChange={(e) => {
+                    e.stopPropagation();
+                    onSelect();
+                  }}
+                  className="red-checkbox"
+                />
+              </div>
+
+              {/* Mobile Name */}
+              <div className="md:hidden flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="font-['Manrope:Bold',sans-serif] text-[14px] !text-[#111111] truncate block">
+                    {task.name}
+                  </span>
+                  {task.is_high_priority && (
+                    <div className="w-1.5 h-1.5 bg-[#ff3b3b] rounded-full shadow-sm blink-animation flex-shrink-0" />
+                  )}
+                </div>
+              </div>
+
+              {/* Mobile Menu Trigger */}
+              <div className="md:hidden" onClick={(e) => e.stopPropagation()}>
+                <Dropdown
+                  menu={{
+                    items: (() => {
+                      const isLeader = task.leader_id === currentUserId || task.leaderUser?.id === currentUserId;
+                      const isReview = task.status === 'Review';
+
+                      if (isReview && isLeader) {
+                        return [
+                          {
+                            key: 'approve',
+                            label: 'Approve & Complete',
+                            icon: <CheckCircle className="w-3.5 h-3.5" />,
+                            onClick: () => onStatusChange?.('Completed'),
+                            className: "text-[13px] font-['Manrope:Medium',sans-serif] text-[#16a34a]"
+                          },
+                          {
+                            key: 'revision',
+                            label: 'Request Revision',
+                            icon: <RotateCcw className="w-3.5 h-3.5" />,
+                            onClick: () => setRevisionModalOpen(true),
+                            className: "text-[13px] font-['Manrope:Medium',sans-serif] text-[#ff3b3b]"
+                          }
+                        ];
+                      }
+
+                      const actions: MenuProps['items'] = [];
+                      if (isAdmin) {
+                        actions.push({
+                          key: 'edit',
+                          label: 'Edit',
+                          icon: <Edit className="w-3.5 h-3.5" />,
+                          onClick: () => onEdit?.(),
+                          disabled: task.status === 'Completed',
+                          className: "text-[13px] font-['Manrope:Medium',sans-serif]"
+                        });
+                        if (task.status !== 'In_Progress') {
+                          actions.push({
+                            key: 'delete',
+                            label: 'Delete',
+                            icon: <Trash2 className="w-3.5 h-3.5" />,
+                            onClick: () => onDelete?.(),
+                            danger: true,
+                            className: "text-[13px] font-['Manrope:Medium',sans-serif]"
+                          });
+                        }
+                      }
+                      return actions;
+                    })() as MenuProps['items']
+                  }}
+                  trigger={['click']}
+                  placement="bottomRight"
+                >
+                  <button className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#F7F7F7] transition-colors">
+                    <MoreVertical className="w-4 h-4 text-[#666666]" />
+                  </button>
+                </Dropdown>
+              </div>
+            </div>
           </div>
 
-          {/* Task Info */}
-          <div className="flex flex-col gap-0.5">
-            <div className="flex items-center gap-2">
+          {/* Desktop Checkbox Placeholder (Needs to match grid column) */}
+          {/* Since we wrapped Checkbox in a div above for mobile flexibility, 
+              we need to be careful. The Grid expects direct children.
+              
+              Solution:
+              Use `md:contents` on the mobile wrapper? Yes, I did that.
+              
+              Wrapper: `flex items-center justify-between md:contents`
+              
+              Child 1: Mobile Checkbox Wrapper -> `flex ... w-full md:w-auto`
+                 Inside: Checkbox -> This checkbox is creating the first column on desktop?
+                 No, the "Mobile Top Row" div becomes `contents`.
+                 So its children become grid items.
+                 
+                 Child 1 (Checkbox+Name+Menu Wrapper): 
+                 This wrapper contains everything. It will be the FIRST grid item.
+                 But desktop grid expects:
+                 Col 1: Checkbox container
+                 Col 2: Task Info
+                 ...
+                 
+                 If I use `md:contents` on the wrapper, ALL its children become grid items.
+                 Children of wrapper:
+                 1. Checkbox + Mobile Name Wrapper -> This will be Grid Item 1. 
+                    - On Desktop, this needs to be JUST the checkbox centered.
+                    - Hide Mobile Name/Menu inside it.
+                 2. (Empty? No other children in 'contents' div)
+                 
+                 Wait, structure:
+                 <div className="flex ... md:contents">
+                    <div className="flex ..."> 
+                       <Checkbox />
+                       <MobileName />
+                       <MobileMenu />
+                    </div>
+                 </div>
+                 
+                 This means the whole inner div is Grid Item 1.
+                 Grid Item 1 width is 40px. 
+                 The inner div has `flex`. 
+                 If I hide MobileName and MobileMenu on desktop, only Checkbox remains.
+                 It might work if I center it.
+          */}
+
+          {/* Task Info (Desktop) & Mobile Sub-details */}
+          <div className="flex flex-col gap-0.5 md:block">
+            {/* Desktop Name */}
+            <div className="hidden md:flex items-center gap-2">
               <span className="font-['Manrope:Bold',sans-serif] text-[14px] !text-[#111111] group-hover:text-[#ff3b3b] transition-colors">
                 {task.name}
               </span>
             </div>
-            <div className="flex items-center gap-2">
-              {/* <span className="text-[11px] text-[#999999] font-['Manrope:Regular',sans-serif]">
-                #{task.taskId}
-              </span> */}
+
+            {/* Project/Client Info - Combined for Mobile */}
+            <div className="flex items-center gap-2 flex-wrap">
               <span
                 className="text-[11px] !text-[#111111] font-['Manrope:Medium',sans-serif]"
               >
                 {task.client}
               </span>
+
+              {/* Mobile Separator & Project */}
+              <span className="md:hidden text-[#DDDDDD] text-[10px]">|</span>
+              <div className="md:hidden">
+                <span className="text-[11px] text-[#666666] truncate">
+                  {task.project}
+                </span>
+              </div>
+
               {task.is_high_priority && (
                 <Tooltip title="High Priority">
-                  <div className="w-1.5 h-1.5 bg-[#ff3b3b] rounded-full shadow-sm blink-animation flex-shrink-0" />
+                  <div className="hidden md:block w-1.5 h-1.5 bg-[#ff3b3b] rounded-full shadow-sm blink-animation flex-shrink-0" />
                 </Tooltip>
               )}
             </div>
           </div>
 
-          {/* Project (Mapped to Requirements Header) */}
+          {/* Project (Desktop Column) */}
           {!hideRequirements && (
-            <div>
+            <div className="hidden md:block">
               <Link
                 href="/dashboard/workspace"
                 onClick={(e) => e.stopPropagation()}
@@ -174,7 +304,7 @@ const TaskRowComponent = memo(function TaskRow({
           )}
 
           {/* Timeline */}
-          <div className="flex flex-col gap-0.5">
+          <div className="flex flex-row md:flex-col gap-2 md:gap-0.5 items-center md:items-start justify-between md:justify-start">
             <span className="text-[13px] font-['Manrope:Medium',sans-serif] text-[#111111]">
               {task.timelineDate}
             </span>
@@ -191,7 +321,8 @@ const TaskRowComponent = memo(function TaskRow({
           </div>
 
           {/* Assigned To (Avatar Stack) */}
-          <div className="flex items-center">
+          <div className="flex items-center justify-between md:justify-start">
+            <span className="md:hidden text-[11px] text-[#999999] mr-2">Assigned:</span>
             <Avatar.Group max={{ count: 3, style: { color: '#666666', backgroundColor: '#EEEEEE' } }}>
               {task.task_members && task.task_members.length > 0 ? (
                 task.task_members.map((member) => (
@@ -215,17 +346,24 @@ const TaskRowComponent = memo(function TaskRow({
                 </Tooltip>
               )}
             </Avatar.Group>
+
+            {/* Mobile Duration moved here */}
+            <div className="md:hidden flex items-center ml-auto">
+              <span className={`text-[11px] font-['Manrope:Medium',sans-serif] ${textColor}`}>
+                {formatHours(totalHours)}h / {formatDuration(task.estTime)}h
+              </span>
+            </div>
           </div>
 
-          {/* Duration Text */}
-          <div className="flex justify-center items-center">
+          {/* Duration Text (Desktop) */}
+          <div className="hidden md:flex justify-center items-center">
             <span className={`text-[11px] font-['Manrope:Medium',sans-serif] ${textColor}`}>
               {formatHours(totalHours)}h / {formatDuration(task.estTime)}h
             </span>
           </div>
 
           {/* Progress Bar - Always Show */}
-          <div className="flex flex-col gap-1 w-full justify-center">
+          <div className="flex flex-col gap-1 w-full justify-center mt-2 md:mt-0">
             <div className="flex flex-col gap-0.5">
               <div className="flex justify-end">
                 <span className={`text-[10px] font-bold ${textColor}`}>
@@ -247,7 +385,8 @@ const TaskRowComponent = memo(function TaskRow({
           </div>
 
           {/* Status (Aggregated) or Estimate Button */}
-          <div className="flex items-center" onClick={(e) => e.stopPropagation()}>
+          <div className="flex items-center justify-between md:justify-start mt-2 md:mt-0" onClick={(e) => e.stopPropagation()}>
+            <span className="md:hidden text-[11px] text-[#999999]">Status:</span>
             {isPendingEstimate ? (
               // ESTIMATE Button when pending
               <Popover
@@ -277,7 +416,7 @@ const TaskRowComponent = memo(function TaskRow({
                           message.success("Estimate submitted");
                           setEstimateOpen(false);
                           window.location.reload();
-                        } catch (err) {
+                        } catch {
                           message.error("Failed");
                         } finally {
                           setSubmissionLoading(false);
@@ -300,8 +439,8 @@ const TaskRowComponent = memo(function TaskRow({
             )}
           </div>
 
-          {/* Actions */}
-          <div className="flex justify-end" onClick={(e) => e.stopPropagation()}>
+          {/* Actions (Desktop) */}
+          <div className="hidden md:flex justify-end" onClick={(e) => e.stopPropagation()}>
             <Dropdown
               menu={{
                 items: (() => {
@@ -326,8 +465,6 @@ const TaskRowComponent = memo(function TaskRow({
                       }
                     ];
                   }
-
-
 
                   const actions: MenuProps['items'] = [];
 

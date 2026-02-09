@@ -40,6 +40,12 @@
     --sidebar-accent-foreground: oklch(0.205 0 0);
     --sidebar-border: oklch(0.922 0 0);
     --sidebar-ring: oklch(0.708 0 0);
+
+    /* Safe Area Variables */
+    --sat: env(safe-area-inset-top);
+    --sab: env(safe-area-inset-bottom);
+    --sal: env(safe-area-inset-left);
+    --sar: env(safe-area-inset-right);
 }
 
 .dark {
@@ -103,6 +109,29 @@ area,
 /* Target standard interactive classes often used */
 .cursor-pointer {
     cursor: pointer !important;
+    -webkit-tap-highlight-color: transparent;
+    /* Remove gray highlight on tap for mobile */
+}
+
+/* Base Mobile Optimization */
+@media (max-width: 640px) {
+
+    html,
+    body {
+        /* Prevent horizontal scroll on mobile */
+        overflow-x: hidden;
+        width: 100%;
+        height: 100%;
+        /* Native-like scrolling */
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Prevent auto-zoom on inputs */
+    input,
+    select,
+    textarea {
+        font-size: 16px !important;
+    }
 }
 
 /* Exception for disabled states */
@@ -154,8 +183,7 @@ select:disabled,
     border-color: #bbbbbb !important;
 }
 
-.custom-checkbox-wrapper
-    .ant-checkbox-checked:hover:not(.ant-checkbox-disabled) {
+.custom-checkbox-wrapper .ant-checkbox-checked:hover:not(.ant-checkbox-disabled) {
     border-color: #030213 !important;
     background-color: #030213 !important;
 }
@@ -205,16 +233,12 @@ select:disabled,
     border-color: #ffffff !important;
 }
 
-.red-checkbox
-    .ant-checkbox:hover:not(.ant-checkbox-disabled)
-    .ant-checkbox-inner {
+.red-checkbox .ant-checkbox:hover:not(.ant-checkbox-disabled) .ant-checkbox-inner {
     border-color: #ff3b3b !important;
 }
 
 .red-checkbox .ant-checkbox-checked:hover:not(.ant-checkbox-disabled),
-.red-checkbox
-    .ant-checkbox-checked:hover:not(.ant-checkbox-disabled)
-    .ant-checkbox-inner {
+.red-checkbox .ant-checkbox-checked:hover:not(.ant-checkbox-disabled) .ant-checkbox-inner {
     background-color: #ff3b3b !important;
     border-color: #ff3b3b !important;
 }
@@ -593,9 +617,7 @@ select:disabled,
 
 /* Native :has() for modern browsers that support it */
 @supports selector(:has(*)) {
-    .ant-picker-content
-        tbody
-        tr:nth-child(6):not(:has(.ant-picker-cell-in-view)) {
+    .ant-picker-content tbody tr:nth-child(6):not(:has(.ant-picker-cell-in-view)) {
         display: none !important;
     }
 }
@@ -634,7 +656,8 @@ select:disabled,
     background: transparent !important;
     background-color: transparent !important;
     z-index: 2 !important;
-    padding: 12px !important; /* Single source of truth for padding */
+    padding: 12px !important;
+    /* Single source of truth for padding */
     line-height: inherit !important;
     font-family: inherit !important;
     font-size: inherit !important;
@@ -651,8 +674,9 @@ select:disabled,
     color: #2F80ED !important;
     background-color: transparent !important;
     border-radius: 0 !important;
-    padding: 0 !important;  
-    font-weight: 400 !important; /* Normal weight */
+    padding: 0 !important;
+    font-weight: 400 !important;
+    /* Normal weight */
     display: inline-block !important;
     box-decoration-break: clone !important;
     -webkit-box-decoration-break: clone !important;
@@ -664,6 +688,7 @@ input[type="number"]::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
 }
+
 input[type="number"] {
     -moz-appearance: textfield;
     appearance: textfield;

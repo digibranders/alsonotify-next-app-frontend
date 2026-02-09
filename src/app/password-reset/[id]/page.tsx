@@ -79,12 +79,12 @@ export default function PasswordResetPage() {
       <motion.div
         initial="hidden"
         animate="visible"
-        className="w-full max-w-[420px] space-y-8"
+        className="w-full max-w-[420px] space-y-6 md:space-y-8"
       >
         {isSubmitted ? (
           <motion.div variants={itemVariants} className="text-center space-y-4">
             <CheckCircle2 className="w-16 h-16 text-[#28a745] mx-auto" />
-            <h2 className="text-3xl font-bold text-[#111111] tracking-tight">
+            <h2 className="text-2xl md:text-3xl font-bold text-[#111111] tracking-tight">
               Password Reset!
             </h2>
             <p className="text-[#666666]">
@@ -103,7 +103,7 @@ export default function PasswordResetPage() {
           <>
             {/* Header */}
             <motion.div variants={itemVariants} className="space-y-2">
-              <h2 className="text-3xl font-bold text-[#111111] tracking-tight">
+              <h2 className="text-2xl md:text-3xl font-bold text-[#111111] tracking-tight">
                 Reset Password
               </h2>
               <p className="text-[#666666]">

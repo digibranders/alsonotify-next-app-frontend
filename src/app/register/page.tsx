@@ -103,10 +103,10 @@ function RegisterForm() {
       <motion.div
         initial="hidden"
         animate="visible"
-        className="w-full max-w-[420px] space-y-8"
+        className="w-full max-w-[420px] space-y-6 md:space-y-8"
       >
         <motion.div variants={itemVariants} className="space-y-2">
-          <h2 className="text-3xl font-bold text-[#111111] tracking-tight">
+          <h2 className="text-2xl md:text-3xl font-bold text-[#111111] tracking-tight">
             Create Account
           </h2>
         </motion.div>
@@ -141,7 +141,7 @@ function RegisterForm() {
           </motion.div>
 
           <motion.div variants={itemVariants} className="space-y-5">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className="text-[11px] font-bold text-[#999999] uppercase tracking-widest">First Name</label>
                 <input

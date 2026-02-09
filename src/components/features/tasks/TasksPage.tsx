@@ -33,7 +33,7 @@ dayjs.extend(isSameOrAfter);
 import { Task, TaskStatus } from '@/types/domain';
 import { TaskDto, CreateTaskRequestDto, UpdateTaskRequestDto } from '@/types/dto/task.dto';
 import { toQueryParams } from '@/utils/queryParams';
-import { User, Employee } from '@/types/domain';
+import { Employee } from '@/types/domain';
 import { ApiResponse } from '@/types/api';
 import { CompanyProfile } from '@/types/auth';
 import { CurrentUser } from '@/hooks/useCurrentUser';
@@ -615,7 +615,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
           await Promise.all(selectedTasks.map(id => deleteTaskMutation.mutateAsync(parseInt(id))));
           message.success(`${selectedTasks.length} tasks deleted`);
           setSelectedTasks([]);
-        } catch (error) {
+        } catch {
           message.error('Failed to delete some tasks');
         }
       },
@@ -635,7 +635,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
       );
       message.success(`${selectedTasks.length} tasks marked as completed`);
       setSelectedTasks([]);
-    } catch (error) {
+    } catch {
       message.error('Failed to complete some tasks');
     }
   }, [selectedTasks, updateTaskStatusMutation, message]);
@@ -699,8 +699,8 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
 
     if (sortColumn) {
       sorted.sort((a, b) => {
-        let aVal: any;
-        let bVal: any;
+        let aVal: string | number | null = null;
+        let bVal: string | number | null = null;
 
         switch (sortColumn) {
           case 'name':
@@ -716,7 +716,8 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
             bVal = b.dueDateValue || 0;
             break;
           case 'assignedTo': {
-            const getAssigneeName = (val: any) => typeof val === 'string' ? val : (val?.name || '');
+            const getAssigneeName = (val: string | { name: string; id?: number } | null | undefined) =>
+              !val ? '' : typeof val === 'string' ? val : (val.name || '');
             aVal = getAssigneeName(a.assignedTo).toLowerCase();
             bVal = getAssigneeName(b.assignedTo).toLowerCase();
             break;
@@ -730,11 +731,9 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
             bVal = (b.status || '').toLowerCase();
             break;
           default:
-            // Sort key not in typed union; narrow when task DTO is extended.
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            aVal = (a as any)[sortColumn];
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            bVal = (b as any)[sortColumn];
+            // Generic fallback for other columns
+            aVal = String((a as unknown as Record<string, string | number>)[sortColumn] || '');
+            bVal = String((b as unknown as Record<string, string | number>)[sortColumn] || '');
         }
 
         if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
@@ -986,7 +985,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
       {/* Tasks List */}
       <div className="flex-1 overflow-y-auto relative">
         {/* Table Header */}
-        <div className="sticky top-0 z-20 bg-white grid grid-cols-[40px_2.5fr_1.2fr_1.1fr_1fr_0.8fr_1.5fr_0.6fr_40px] gap-4 px-4 py-3 mb-2 items-center">
+        <div className="hidden md:grid sticky top-0 z-20 bg-white grid-cols-[40px_2.5fr_1.2fr_1.1fr_1fr_0.8fr_1.5fr_0.6fr_40px] gap-4 px-4 py-3 mb-2 items-center">
           <div className="flex justify-center">
             <Checkbox
               checked={sortedTasks.length > 0 && selectedTasks.length === sortedTasks.length}
@@ -1115,14 +1114,16 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
 
       {/* Pagination - Fixed at bottom */}
       {!isLoading && (
-        <PaginationBar
-          currentPage={pagination.current}
-          totalItems={totalTasks}
-          pageSize={pagination.pageSize}
-          onPageChange={(page) => handlePaginationChange(page, pagination.pageSize)}
-          onPageSizeChange={(size) => handlePaginationChange(1, size)}
-          itemLabel="tasks"
-        />
+        <div className="flex-none z-10 bg-white">
+          <PaginationBar
+            currentPage={pagination.current}
+            totalItems={totalTasks}
+            pageSize={pagination.pageSize}
+            onPageChange={(page) => handlePaginationChange(page, pagination.pageSize)}
+            onPageSizeChange={(size) => handlePaginationChange(1, size)}
+            itemLabel="tasks"
+          />
+        </div>
       )}
     </PageLayout>
   );

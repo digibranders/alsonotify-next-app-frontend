@@ -163,17 +163,17 @@ export function MeetingsWidget({ onNavigate }: { onNavigate?: (page: string) => 
 
   return (
     <>
-      <div className="bg-white rounded-[24px] p-5 w-full h-full flex flex-col">
+      <div className="bg-white rounded-[24px] border border-gray-100 p-4 w-full h-full min-h-0 flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between mb-1.5">
+        <div className="flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2">
-            <h3 className="font-['Manrope:SemiBold',sans-serif] text-[20px] text-[#111111]">Meetings</h3>
+            <h3 className="font-['Manrope:SemiBold',sans-serif] text-lg sm:text-[20px] text-[#111111]">Meetings</h3>
             <button onClick={() => setShowDialog(true)} className="hover:scale-110 active:scale-95 transition-transform">
               <Plus className="size-5 text-[#ff3b3b]" strokeWidth={2} />
             </button>
           </div>
           <div className="flex items-center gap-2">
-            <button className="flex items-center gap-1 text-[#666666] text-[14px] font-['Manrope:SemiBold',sans-serif] hover:text-[#111111] transition-colors" onClick={() => onNavigate && onNavigate('calendar')}>
+            <button className="flex items-center gap-1 text-[#666666] text-[13px] sm:text-[14px] font-['Manrope:SemiBold',sans-serif] hover:text-[#111111] transition-colors" onClick={() => onNavigate && onNavigate('calendar')}>
               <span>View All</span>
               <svg className="size-[17px]" fill="none" viewBox="0 0 17 17">
                 <path d={svgPaths.p3ac7a560} stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
@@ -182,19 +182,19 @@ export function MeetingsWidget({ onNavigate }: { onNavigate?: (page: string) => 
           </div>
         </div>
 
-        {/* Meetings List */}
-        <div className="flex flex-col gap-2.5 flex-1 mt-2 overflow-hidden">
+        {/* Meetings list — contained inside widget */}
+        <div className="flex flex-col gap-3 flex-1 min-h-0 overflow-hidden mt-3">
           {isLoading ? (
-            <div className="flex flex-col gap-2.5">
+            <div className="flex flex-col gap-3">
               {[1, 2, 3].map((i) => (
                 <div key={i} className="flex flex-col p-3 rounded-[16px] border border-gray-100 bg-white">
                   <div className="flex justify-between items-start mb-3">
                     <div className="flex flex-col gap-2">
-                       <Skeleton className="h-4 w-32 rounded-md" />
-                       <div className="flex items-center gap-2">
-                         <Skeleton className="h-3 w-16 rounded-md" />
-                         <Skeleton className="h-3 w-12 rounded-md" />
-                       </div>
+                      <Skeleton className="h-4 w-32 rounded-md" />
+                      <div className="flex items-center gap-2">
+                        <Skeleton className="h-3 w-16 rounded-md" />
+                        <Skeleton className="h-3 w-12 rounded-md" />
+                      </div>
                     </div>
                     <Skeleton className="w-8 h-8 rounded-full" />
                   </div>
@@ -211,16 +211,16 @@ export function MeetingsWidget({ onNavigate }: { onNavigate?: (page: string) => 
             </div>
           ) : isError && !eventsData ? (
             <div className="flex items-center justify-center py-8">
-              <p className="text-[14px] font-['Manrope:Regular',sans-serif] text-[#666666]">
+              <p className="text-[13px] sm:text-[14px] font-['Manrope:Regular',sans-serif] text-[#666666]">
                 Unable to load meetings at the moment. Please connect to Teams.
               </p>
             </div>
           ) : processedMeetings.length === 0 ? (
-            <div className="bg-white rounded-[10px] border border-dashed border-[#CCCCCC] py-4 flex items-center justify-center">
-              <p className="text-[14px] font-['Manrope:Regular',sans-serif] text-[#888888]">No upcoming meetings</p>
+            <div className="bg-white rounded-[10px] border border-dashed border-[#CCCCCC] py-4 px-3 flex items-center">
+              <p className="text-[13px] sm:text-[14px] font-['Manrope:Regular',sans-serif] text-[#888888] text-left w-full">No upcoming meetings</p>
             </div>
           ) : (
-            <div className="flex flex-col gap-2.5">
+            <div className="flex flex-col gap-3">
               {processedMeetings.map((meeting) => (
                 <MeetingItem
                   key={meeting.id}

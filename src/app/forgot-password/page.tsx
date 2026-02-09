@@ -54,11 +54,11 @@ export default function ForgotPasswordPage() {
             <motion.div
                 initial="hidden"
                 animate="visible"
-                className="w-full max-w-[420px] space-y-8"
+                className="w-full max-w-[420px] space-y-6 md:space-y-8"
             >
                 {/* Header */}
                 <motion.div variants={itemVariants} className="space-y-2">
-                    <h2 className="text-3xl font-bold text-[#111111] tracking-tight">
+                    <h2 className="text-2xl md:text-3xl font-bold text-[#111111] tracking-tight">
                         {isSubmitted ? "Check your inbox" : "Forgot Password?"}
                     </h2>
                     <p className="text-[#666666]">

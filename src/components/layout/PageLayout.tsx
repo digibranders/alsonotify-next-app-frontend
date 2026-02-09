@@ -65,11 +65,11 @@ export function PageLayout({
 }: Readonly<PageLayoutProps>) {
   return (
     <div className={`w-full h-full bg-white rounded-[24px] border border-[#EEEEEE] flex overflow-hidden ${className || ''}`}>
-      <div className="flex-1 p-4 md:p-6 flex flex-col overflow-hidden">
+      <div className="flex-1 min-h-0 p-4 md:p-6 flex flex-col overflow-hidden">
         {/* Header Section */}
         <div className={(tabs && tabs.length > 0) || onSearchChange || showFilter || customFilters || secondaryActions || showExport || action ? "mb-5" : "mb-3"}>
           {/* Title Row */}
-          <div className={`flex items-center justify-between ${(tabs && tabs.length > 0) || onSearchChange || showFilter || customFilters || secondaryActions || showExport || action ? "mb-4" : "mb-1"}`}>
+          <div className={`flex flex-col gap-4 md:flex-row md:items-center md:justify-between ${(tabs && tabs.length > 0) || onSearchChange || showFilter || customFilters || secondaryActions || showExport || action ? "mb-4" : "mb-1"}`}>
             <div className="flex items-center gap-2">
               <h2 className="font-['Manrope:SemiBold',sans-serif] text-[20px] text-[#111111]">
                 {title}
@@ -85,7 +85,12 @@ export function PageLayout({
                 </button>
               )}
             </div>
-            {titleExtra}
+            {/* Title Extra - e.g. Date Picker */}
+            {titleExtra && (
+              <div className="w-full md:w-auto">
+                {titleExtra}
+              </div>
+            )}
           </div>
 
           {/* Tabs and Search Bar Row - stacks on small screens */}
@@ -191,7 +196,7 @@ export function PageLayout({
         </div>
 
         {/* Content Area */}
-        <div className="flex-1 overflow-hidden relative flex flex-col">
+        <div className="flex-1 min-h-0 overflow-hidden relative flex flex-col">
           {children}
         </div>
       </div>

@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import BrandLogo from "@/assets/images/logo-white.png";
+import BrandLogoDark from "@/assets/images/logo.png";
 import { useRouter } from "next/navigation";
 
 // SVG Path for the Star
@@ -102,6 +103,17 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
 
             {/* RIGHT SIDE - Form (50% Width) */}
             <div className="flex-1 flex flex-col justify-center items-center p-8 lg:p-16 bg-white relative overflow-y-auto">
+                <div className="absolute top-8 left-8 lg:hidden cursor-pointer" onClick={() => router.push('/')}>
+                    <Image
+                        src={BrandLogoDark}
+                        alt="Alsonotify"
+                        width={120}
+                        height={29}
+                        className="h-[28px] w-auto object-contain"
+                        draggable={false}
+                        priority
+                    />
+                </div>
                 {children}
             </div>
         </div>
