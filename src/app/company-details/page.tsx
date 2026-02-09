@@ -10,6 +10,7 @@ import {
   App,
 } from "antd";
 import { useCompleteSignup, useVerifyToken } from "@/hooks/useAuth";
+import { trimStr } from "@/utils/trim";
 import { industryToBusinessType, commonCountries, commonTimezones } from "@/data/defaultData";
 import AuthLayout from "@/components/auth/AuthLayout";
 import PhoneNumberInput from "@/components/ui/PhoneNumberInput";
@@ -149,30 +150,24 @@ function CompanyDetailsForm() {
 
   const handleCompanyNext = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Validation
-    if (
-      !companyData.companyName ||
-      !companyData.industry ||
-      !companyData.country ||
-      !companyData.timezone
-    ) {
+    const companyName = trimStr(companyData.companyName);
+    const country = trimStr(companyData.country);
+    const timezone = trimStr(companyData.timezone);
+    if (!companyName || !companyData.industry || !country || !timezone) {
       message.error("Please fill in all required fields");
       return;
     }
 
-    // For organization, move to next step. For individual, complete signup.
     if (isIndividual) {
-      // Map industry to businessType
-      const businessType = industryToBusinessType[companyData.industry] || 21; // Default to "Others"
-
+      const businessType = industryToBusinessType[companyData.industry] || 21;
       try {
         await completeSignupMutation.mutateAsync({
           registerToken: token,
-          companyName: companyData.companyName,
+          companyName,
           businessType: String(businessType),
           accountType: "INDIVIDUAL",
-          country: companyData.country,
-          timezone: companyData.timezone,
+          country,
+          timezone,
         });
 
         // Redirect manually since we removed it from the hook
@@ -191,25 +186,30 @@ function CompanyDetailsForm() {
 
   const handleComplete = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!adminData.firstName || !adminData.lastName) {
+    const companyName = trimStr(companyData.companyName);
+    const country = trimStr(companyData.country);
+    const timezone = trimStr(companyData.timezone);
+    const firstName = trimStr(adminData.firstName);
+    const lastName = trimStr(adminData.lastName);
+    const phone = trimStr(adminData.phone);
+    if (!firstName || !lastName) {
       message.error("Please fill in required admin fields");
       return;
     }
 
     const businessType = industryToBusinessType[companyData.industry] || 21;
-
     try {
       console.log("Submitting complete signup mutation...");
       const response = await completeSignupMutation.mutateAsync({
         registerToken: token,
-        companyName: companyData.companyName,
+        companyName,
         businessType: String(businessType),
         accountType: "ORGANIZATION",
-        country: companyData.country,
-        timezone: companyData.timezone,
-        firstName: adminData.firstName,
-        lastName: adminData.lastName,
-        phone: adminData.phone,
+        country,
+        timezone,
+        firstName,
+        lastName,
+        phone,
       });
 
       console.log("Complete Signup Response:", response);
@@ -231,7 +231,7 @@ function CompanyDetailsForm() {
             );
             if (logoResult.download_url) {
               await updateCompanyMutation.mutateAsync({
-                name: companyData.companyName,
+                name: companyName,
                 logo: logoResult.download_url
               });
               message.success({ content: 'Company logo uploaded!', key: 'logo-upload' });

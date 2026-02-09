@@ -4,6 +4,7 @@ import { Input, Select, DatePicker, Checkbox, App, Button, Modal } from 'antd';
 import { Upload as UploadIcon, FileText, ChevronDown } from 'lucide-react';
 import { useOutsourcePartners, useEmployees } from '@/hooks/useUser';
 import { FormLayout } from '@/components/common/FormLayout';
+import { trimStr } from '@/utils/trim';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -173,7 +174,7 @@ function RequirementsFormContent({
             type: formData.type,
             is_high_priority: formData.is_high_priority,
             contact_person_id: formData.contact_person_id,
-            contact_person: formData.contactPerson,
+            contact_person: formData.contactPerson != null ? trimStr(String(formData.contactPerson)) : undefined,
             receiver_company_id: selectedPartner?.company_id,
             budget: Number(formData.budget) || 0,
             quoted_price: Number(formData.quoted_price) || undefined,

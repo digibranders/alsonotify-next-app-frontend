@@ -13,6 +13,7 @@ import { useDocumentSettings } from "@/hooks/useDocumentSettings";
 import { getErrorMessage } from "@/types/api-utils";
 import { fileService } from "@/services/file.service";
 import { UpdateUserProfileRequestDto } from "@/types/dto/user.dto";
+import { trimStr } from "@/utils/trim";
 
 interface DocumentTypeLocal {
     id: string;
@@ -333,31 +334,30 @@ export function ProfilePage() {
 
     const handleSaveChanges = async () => {
         try {
-            // Prepare user profile payload
-            const fullMobileNumber = `${profile.countryCode || "+91"} ${profile.phone}`.trim();
+            const fullMobileNumber = `${trimStr(profile.countryCode) || "+91"} ${trimStr(profile.phone)}`.trim();
             const userProfilePayload: UpdateUserProfileRequestDto = {
-                name: `${profile.firstName} ${profile.lastName}`.trim(),
-                email: profile.email,
-                first_name: profile.firstName,
-                middle_name: profile.middleName || undefined,
-                last_name: profile.lastName,
+                name: `${trimStr(profile.firstName)} ${trimStr(profile.lastName)}`.trim(),
+                email: trimStr(profile.email),
+                first_name: trimStr(profile.firstName),
+                middle_name: trimStr(profile.middleName) || undefined,
+                last_name: trimStr(profile.lastName),
                 mobile_number: fullMobileNumber,
-                designation: profile.designation,
+                designation: trimStr(profile.designation) || undefined,
                 date_of_birth: profile.dob
                     ? new Date(profile.dob).toISOString()
                     : null,
-                gender: profile.gender,
-                employee_id: profile.employeeId,
-                address_line_1: profile.addressLine1,
-                address_line_2: profile.addressLine2,
-                city: profile.city,
-                state: profile.state,
-                zipcode: profile.zipCode,
-                country: profile.country,
+                gender: trimStr(profile.gender) || undefined,
+                employee_id: trimStr(profile.employeeId) || undefined,
+                address_line_1: trimStr(profile.addressLine1) || undefined,
+                address_line_2: trimStr(profile.addressLine2) || undefined,
+                city: trimStr(profile.city) || undefined,
+                state: trimStr(profile.state) || undefined,
+                zipcode: trimStr(profile.zipCode) || undefined,
+                country: trimStr(profile.country) || undefined,
                 emergency_contact: {
-                    name: profile.emergencyContactName,
-                    relationship: profile.emergencyRelationship,
-                    phone: profile.emergencyContactNumber,
+                    name: trimStr(profile.emergencyContactName),
+                    relationship: trimStr(profile.emergencyRelationship),
+                    phone: trimStr(profile.emergencyContactNumber),
                 },
             };
 

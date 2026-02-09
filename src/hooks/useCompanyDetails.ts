@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
-import { CompanyProfile } from '@/types/auth'; // Adjust import based on actual location
+import { CompanyProfile } from '@/types/auth';
 import { CompanyUpdateInput } from '@/types/genericTypes';
+import { trimStr } from '@/utils/trim';
 
 interface UseCompanyDetailsProps {
     initialData?: CompanyProfile | null;
@@ -48,15 +49,15 @@ export const useCompanyDetails = ({ initialData }: UseCompanyDetailsProps) => {
 
     const getCompanyDetailsPayload = useCallback((): Partial<CompanyUpdateInput> => {
         return {
-            name: companyName,
-            logo: companyLogo,
-            tax_id: taxId,
-            tax_id_type: taxIdType,
-            timezone: timeZone,
-            currency: currency,
-            country: country,
-            address: address,
-            default_employee_password: defaultEmployeePassword,
+            name: trimStr(companyName),
+            logo: trimStr(companyLogo) || undefined,
+            tax_id: trimStr(taxId) || undefined,
+            tax_id_type: trimStr(taxIdType) || undefined,
+            timezone: trimStr(timeZone),
+            currency: trimStr(currency),
+            country: trimStr(country) || undefined,
+            address: trimStr(address) || undefined,
+            default_employee_password: trimStr(defaultEmployeePassword) || undefined,
         };
     }, [companyName, companyLogo, taxId, taxIdType, timeZone, currency, country, address, defaultEmployeePassword]);
 

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { App } from "antd";
 import { Mail, ArrowRight, Loader2, ArrowLeft } from "lucide-react";
 import { useForgotPassword } from "@/hooks/useAuth";
+import { trimStr } from "@/utils/trim";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import AuthLayout from "@/components/auth/AuthLayout";
@@ -17,12 +18,13 @@ export default function ForgotPasswordPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!email) {
+        const trimmedEmail = trimStr(email);
+        if (!trimmedEmail) {
             message.error("Please enter your email address");
             return;
         }
 
-        forgotPasswordMutation.mutate(email, {
+        forgotPasswordMutation.mutate(trimmedEmail, {
             onSuccess: (data) => {
                 if (data.success) {
                     setIsSubmitted(true);

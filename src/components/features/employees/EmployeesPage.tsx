@@ -28,6 +28,7 @@ import { UserDto, CreateEmployeeRequestDto, UpdateEmployeeRequestDto } from '@/t
 import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from "../../../lib/queryKeys";
 import { getErrorMessage } from '@/types/api-utils';
+import { trimStr } from '@/utils/trim';
 
 export function EmployeesPage() {
   const queryClient = useQueryClient();
@@ -248,16 +249,19 @@ export function EmployeesPage() {
   };
 
   const handleSaveEmployee = async (data: EmployeeFormData) => {
-    if (!data.firstName) {
+    const firstName = trimStr(data.firstName);
+    const lastName = trimStr(data.lastName);
+    const email = trimStr(data.email);
+    const designation = trimStr(data.role);
+    if (!firstName) {
       message.error("First name is required");
       return;
     }
 
-    const fullName = `${data.firstName} ${data.lastName}`.trim();
+    const fullName = `${firstName} ${lastName}`.trim();
 
-    // Find department ID from name
     const selectedDepartment = departmentsData?.result?.find(
-      (dept: CompanyDepartmentType) => dept.name === data.department
+      (dept: CompanyDepartmentType) => dept.name === trimStr(data.department)
     );
     const departmentId = selectedDepartment?.id || null;
 
@@ -298,10 +302,8 @@ export function EmployeesPage() {
       end_time: data.workingHoursEnd || "05:00 PM"
     };
 
-    // Construct full mobile number with country code
-    const countryCode = data.countryCode || "+91";
-    // Ensure phone number doesn't already have the code if user typed it
-    let phoneNumber = data.phone;
+    const countryCode = trimStr(data.countryCode) || "+91";
+    let phoneNumber = trimStr(data.phone);
     if (phoneNumber.startsWith(countryCode)) {
       phoneNumber = phoneNumber.replace(countryCode, "").trim();
     }
@@ -311,11 +313,11 @@ export function EmployeesPage() {
       const updatePayload: UpdateEmployeeRequestDto = {
         id: editingEmployee.id,
         name: fullName,
-        first_name: data.firstName,
-        last_name: data.lastName,
-        email: data.email,
+        first_name: firstName,
+        last_name: lastName,
+        email,
         mobile_number: fullMobileNumber,
-        designation: data.role,
+        designation,
         department_id: departmentId || undefined,
         role_id: roleId,
         experience: Number.parseInt(data.experience) || 0,
@@ -352,11 +354,11 @@ export function EmployeesPage() {
 
       const createPayload: CreateEmployeeRequestDto = {
         name: fullName,
-        first_name: data.firstName,
-        last_name: data.lastName,
-        email: data.email,
+        first_name: firstName,
+        last_name: lastName,
+        email,
         mobile_number: fullMobileNumber,
-        designation: data.role,
+        designation,
         department_id: departmentId || undefined,
         role_id: roleId,
         experience: Number.parseInt(data.experience) || 0,

@@ -4,6 +4,7 @@ import { FolderOpen } from 'lucide-react';
 import { useCreateWorkspace, useUpdateWorkspace } from '@/hooks/useWorkspace';
 import { usePartners, useCurrentUserCompany } from '@/hooks/useUser';
 import { FormLayout } from '@/components/common/FormLayout';
+import { trimStr } from '@/utils/trim';
 
 import { getErrorMessage } from '@/types/api-utils';
 import { CreateWorkspaceRequestDto, UpdateWorkspaceRequestDto } from '@/types/dto/workspace.dto';
@@ -88,7 +89,9 @@ function WorkspaceFormContent({ onCancel, onSuccess, initialData }: WorkspaceFor
     });
 
     const handleAction = async () => {
-        if (!newWorkspace.name) {
+        const name = trimStr(newWorkspace.name);
+        const description = trimStr(newWorkspace.description) || '';
+        if (!name) {
             message.error("Workspace name is required");
             return;
         }
@@ -96,8 +99,8 @@ function WorkspaceFormContent({ onCancel, onSuccess, initialData }: WorkspaceFor
         if (initialData?.id) {
             const updatePayload: UpdateWorkspaceRequestDto = {
                 id: initialData.id,
-                name: newWorkspace.name,
-                description: newWorkspace.description || '',
+                name,
+                description,
                 partner_id: newWorkspace.inHouse ? undefined : (newWorkspace.partner_id || undefined),
                 in_house: newWorkspace.inHouse,
             };
@@ -113,8 +116,8 @@ function WorkspaceFormContent({ onCancel, onSuccess, initialData }: WorkspaceFor
             });
         } else {
             const createPayload: CreateWorkspaceRequestDto = {
-                name: newWorkspace.name,
-                description: newWorkspace.description || '',
+                name,
+                description,
                 partner_id: newWorkspace.inHouse ? undefined : (newWorkspace.partner_id || undefined),
                 in_house: newWorkspace.inHouse,
             };

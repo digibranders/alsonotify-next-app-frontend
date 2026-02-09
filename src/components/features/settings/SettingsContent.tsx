@@ -24,6 +24,7 @@ import { IntegrationsTab } from './tabs/IntegrationsTab';
 // Hooks
 import { useCompanyDetails } from '@/hooks/useCompanyDetails';
 import { getErrorMessage } from '@/types/api-utils';
+import { trimStr } from '@/utils/trim';
 import { useDocumentSettings } from '@/hooks/useDocumentSettings';
 import { useRolePermissions } from '@/hooks/useUser';
 
@@ -149,8 +150,9 @@ export function SettingsContent({
     }, [setActiveTab]);
 
     const handleAddDepartment = () => {
-        if (!newDeptName.trim()) return;
-        setDepartments([...departments, { id: Date.now().toString(), name: newDeptName, active: true }]);
+        const name = newDeptName.trim();
+        if (!name) return;
+        setDepartments([...departments, { id: Date.now().toString(), name, active: true }]);
         setNewDeptName('');
         setIsAddingDept(false);
     };
@@ -164,8 +166,9 @@ export function SettingsContent({
     };
 
     const handleAddDocument = () => {
-        if (!newDocName.trim()) return;
-        setRequiredDocuments([...requiredDocuments, { id: Date.now().toString(), name: newDocName, required: true }]);
+        const name = newDocName.trim();
+        if (!name) return;
+        setRequiredDocuments([...requiredDocuments, { id: Date.now().toString(), name, required: true }]);
         setNewDocName('');
         setIsAddingDoc(false);
     };
@@ -263,7 +266,7 @@ export function SettingsContent({
             const payload: CompanyUpdateInput & { departments?: { id?: number; name: string; is_active: boolean }[] } = getCompanyDetailsPayload() as CompanyUpdateInput;
 
             if (activeTab === 'security' && isAdmin) {
-                payload.default_employee_password = defaultEmployeePassword;
+                payload.default_employee_password = trimStr(defaultEmployeePassword) || undefined;
             }
 
             if (activeTab === 'leaves') {
@@ -284,7 +287,7 @@ export function SettingsContent({
             if (activeTab === 'company') {
                 payload.departments = departments.map((d) => ({
                     ...(typeof d.id === 'number' ? { id: d.id } : {}),
-                    name: d.name,
+                    name: (d.name ?? '').trim(),
                     is_active: d.active !== false
                 }));
             }

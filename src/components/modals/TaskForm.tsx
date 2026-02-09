@@ -3,6 +3,7 @@ import { Button, Input, Select, Checkbox, DatePicker, App, Avatar } from 'antd';
 import { CheckSquare, Calendar, Users, ArrowRight, Layers, UserPlus, X } from 'lucide-react';
 import dayjs from 'dayjs';
 import { FormLayout } from '@/components/common/FormLayout';
+import { trimStr } from '@/utils/trim';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -131,20 +132,19 @@ export function TaskForm({
       return;
     }
 
-    // Transform form data to backend format
     const backendData: CreateTaskRequestDto = {
-      name: formData.name,
+      name: trimStr(formData.name),
       workspace_id: formData.workspace_id ? parseInt(formData.workspace_id) : undefined,
       requirement_id: formData.requirement_id ? parseInt(formData.requirement_id) : undefined,
-      leader_id: parseInt(currentUserId), // STRICTLY current user
-      end_date: formData.end_date ? dayjs(formData.end_date).toISOString() : undefined, // Map to end_date with ISO format
-      start_date: formData.start_date || new Date().toISOString(), // Preserve existing start_date or default to now
+      leader_id: parseInt(currentUserId),
+      end_date: formData.end_date ? dayjs(formData.end_date).toISOString() : undefined,
+      start_date: formData.start_date || new Date().toISOString(),
       estimated_time: (formData.estimated_time && isCurrentUserAssigned) ? parseFloat(formData.estimated_time) : 0,
       is_high_priority: formData.is_high_priority,
-      description: formData.description || "",
+      description: trimStr(formData.description) || "",
       execution_mode: formData.execution_mode,
       assigned_members: formData.assigned_members,
-      member_id: formData.assigned_members.length > 0 ? formData.assigned_members[0] : undefined // Legacy fallback
+      member_id: formData.assigned_members.length > 0 ? formData.assigned_members[0] : undefined
     };
 
     try {

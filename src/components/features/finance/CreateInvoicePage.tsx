@@ -18,6 +18,7 @@ import { MOCK_REQUIREMENTS } from '../../../data/mockFinanceData';
 import { useCurrentUserCompany, usePartners } from '@/hooks/useUser';
 import { InvoicePreview } from './InvoicePreview';
 import { useInvoicePresets, InvoicePaymentPreset } from '@/hooks/useInvoicePresets';
+import { trimStr } from '@/utils/trim';
 
 
 
@@ -255,7 +256,7 @@ export function CreateInvoicePage() {
             const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
             pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-            pdf.save(`${invoiceId}.pdf`);
+            pdf.save(`${trimStr(invoiceId) || 'invoice'}.pdf`);
             toast.success("Invoice downloaded successfully!");
         } catch (error) {
             console.error("PDF Download Error:", error);
@@ -265,27 +266,26 @@ export function CreateInvoicePage() {
         }
     };
 
-    // Prepare data for shared preview component
-    const invoiceData = {
-        invoiceId,
+    const invoiceData = useMemo(() => ({
+        invoiceId: trimStr(invoiceId),
         issueDate,
         dueDate,
-        currencyCode,
-        senderName,
-        senderAddress,
-        senderEmail,
-        senderTaxId,
-        clientName,
-        clientAddress,
-        clientEmail,
-        clientPhone,
-        clientTaxId,
-        items,
+        currencyCode: trimStr(currencyCode),
+        senderName: trimStr(senderName),
+        senderAddress: trimStr(senderAddress),
+        senderEmail: trimStr(senderEmail),
+        senderTaxId: trimStr(senderTaxId),
+        clientName: trimStr(clientName),
+        clientAddress: trimStr(clientAddress),
+        clientEmail: trimStr(clientEmail),
+        clientPhone: trimStr(clientPhone),
+        clientTaxId: trimStr(clientTaxId),
+        items: items.map((i) => ({ ...i, description: trimStr(i.description) })),
         totals,
         taxConfig,
-        memo,
-        footer
-    };
+        memo: trimStr(memo),
+        footer: trimStr(footer)
+    }), [invoiceId, issueDate, dueDate, currencyCode, senderName, senderAddress, senderEmail, senderTaxId, clientName, clientAddress, clientEmail, clientPhone, clientTaxId, items, totals, taxConfig, memo, footer]);
 
     return (
         <div className="h-full bg-[#F9FAFB] flex flex-col rounded-[24px] overflow-hidden">
