@@ -11,18 +11,17 @@ import { TimerProvider } from '../context/TimerContext';
 import { usePathname } from 'next/navigation';
 import { navPermissionMap } from '@/utils/navUtils';
 import { Shield24Regular } from '@fluentui/react-icons';
-import { Button } from 'antd';
+import { Button, Drawer } from 'antd';
 import Link from 'next/link';
 import { InvitationPopup } from '../components/common/InvitationPopup';
 import { FloatingMenuProvider } from '../context/FloatingMenuContext';
 import { FloatingTimerBar } from '../components/common/FloatingTimerBar';
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
+import { SidebarProvider, useSidebar } from '../context/SidebarContext';
 
 interface AlsonotifyLayoutWrapperProps {
   children: ReactNode;
 }
-
-import { SidebarProvider, useSidebar } from '../context/SidebarContext';
 
 export function AlsonotifyLayoutWrapper({ children }: Readonly<AlsonotifyLayoutWrapperProps>) {
   return (
@@ -39,7 +38,7 @@ export function AlsonotifyLayoutWrapper({ children }: Readonly<AlsonotifyLayoutW
 }
 
 function AlsonotifyLayoutContent({ children }: Readonly<AlsonotifyLayoutWrapperProps>) {
-  const { isCollapsed } = useSidebar();
+  const { isCollapsed, mobileOpen, closeMobileSidebar } = useSidebar();
   const { data: userDetailsData } = useUserDetails();
   // Derive role and color using shared utility.
   // Role/badge are derived from userDetailsData only. If flicker is observed on first load, add a client-only mounted guard.
@@ -57,6 +56,13 @@ function AlsonotifyLayoutContent({ children }: Readonly<AlsonotifyLayoutWrapperP
   const permissions = useMemo(() => userDetailsData?.result?.permissions || {}, [userDetailsData]);
 
   const pathname = usePathname();
+
+  // Close mobile sidebar when route changes (e.g. after clicking a nav link)
+  useEffect(() => {
+    if (mobileOpen) {
+      closeMobileSidebar();
+    }
+  }, [pathname]); // eslint-disable-line react-hooks/exhaustive-deps -- only close on route change
 
   // URL Access Protection Logic
   const accessState = useMemo(() => {
@@ -144,6 +150,22 @@ function AlsonotifyLayoutContent({ children }: Readonly<AlsonotifyLayoutWrapperP
       {/* FloatingProductivityWidget removed - FloatingTimerBar handles all timer functionality */}
       {!pathname?.startsWith('/dashboard/mail') && <FloatingTimerBar />}
       <InvitationPopup />
+
+      {/* Mobile sidebar drawer - same content as desktop sidebar; collapse button closes drawer */}
+      <Drawer
+        open={mobileOpen}
+        onClose={closeMobileSidebar}
+        placement="left"
+        width={220}
+        closable={false}
+        className="lg:hidden"
+        styles={{ body: { padding: 0, height: '100%' } }}
+        rootStyle={{ zIndex: 1100 }}
+      >
+        <div className="h-full overflow-y-auto">
+          <Sidebar userRole={userRole} permissions={permissions} onCloseDrawer={closeMobileSidebar} />
+        </div>
+      </Drawer>
     </TimerProvider>
   );
 }

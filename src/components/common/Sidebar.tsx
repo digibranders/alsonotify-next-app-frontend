@@ -27,6 +27,8 @@ interface SidebarProps {
   userRole: UserRole;
   permissions?: { Navigation?: Record<string, boolean> };
   collapsed?: boolean;
+  /** When provided (e.g. in mobile drawer), the collapse button closes the drawer instead of toggling collapse. */
+  onCloseDrawer?: () => void;
 }
 
 type NavItemConfig = {
@@ -134,10 +136,20 @@ import { useAccountType } from '@/utils/accountTypeUtils';
 
 // ... existing imports ...
 
-export const Sidebar = React.memo(function Sidebar({ userRole, permissions }: SidebarProps) {
+export const Sidebar = React.memo(function Sidebar({ userRole, permissions, collapsed: collapsedProp, onCloseDrawer }: SidebarProps) {
   const pathname = usePathname();
-  const { isCollapsed, toggleSidebar } = useSidebar();
+  const { isCollapsed: contextCollapsed, toggleSidebar } = useSidebar();
+  const isInDrawer = typeof onCloseDrawer === 'function';
+  const isCollapsed = isInDrawer ? false : (collapsedProp ?? contextCollapsed);
   const { isIndividual } = useAccountType();
+
+  const handleToggleOrClose = () => {
+    if (isInDrawer) {
+      onCloseDrawer?.();
+    } else {
+      toggleSidebar();
+    }
+  };
 
   const filteredNavItems = React.useMemo(() => NAV_ITEMS.filter(item => {
     // Filter out items for individual accounts
@@ -181,20 +193,20 @@ export const Sidebar = React.memo(function Sidebar({ userRole, permissions }: Si
   return (
     <div 
       className={`bg-white rounded-[24px] ${isCollapsed ? 'px-2' : 'px-6'} py-6 w-full flex flex-col transition-all duration-300 relative group/sidebar`} 
-      style={{ height: 'calc(100vh - 40px)' }}
+      style={isInDrawer ? { height: '100%' } : { height: 'calc(100vh - 40px)' }}
     >
-      {/* Toggle Button - Visible on hover or always? Let's make it subtle */}
+      {/* Toggle Button - collapse on desktop; close drawer when in drawer */}
       <button
-          onClick={toggleSidebar}
+          onClick={handleToggleOrClose}
           className={`
             absolute top-6 
             ${isCollapsed ? 'left-1/2 -translate-x-1/2 mt-10' : 'right-4'} 
             w-8 h-8 flex items-center justify-center 
             text-[#999999] hover:text-[#111111] hover:bg-[#F7F7F7] 
             rounded-full transition-all z-10
-            ${!isCollapsed && 'opacity-0 group-hover/sidebar:opacity-100'}
+            ${isInDrawer ? 'opacity-100' : !isCollapsed ? 'opacity-0 group-hover/sidebar:opacity-100' : ''}
           `}
-          title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+          title={isInDrawer ? "Close menu" : isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
       >
           {isCollapsed ? <ChevronsRight size={20} /> : <ChevronsLeft size={20} />}
       </button>
@@ -230,7 +242,7 @@ export const Sidebar = React.memo(function Sidebar({ userRole, permissions }: Si
       <div className="h-px bg-[#EEEEEE] mb-6" />
 
       {/* Navigation */}
-      <nav className="flex flex-col gap-2 flex-1 overflow-y-auto scrollbar-hide items-center w-full">
+      <nav className="flex flex-col gap-1 flex-1 overflow-y-auto scrollbar-hide items-center w-full">
         {filteredNavItems.map((item) => (
           <NavItem
             key={item.id}
@@ -267,12 +279,12 @@ const NavItem = React.memo(function NavItem({ href, icon, label, active = false,
     <Link
       href={href}
       className={`  
-        relative h-[40px] rounded-full transition-all group shrink-0
+        relative h-[32px] rounded-full transition-all group shrink-0
         flex items-center 
-        ${collapsed ? 'justify-center w-[40px] px-0' : 'w-full gap-4 px-6'}
+        ${collapsed ? 'justify-center w-[32px] px-0' : 'w-full gap-4 px-6'}
         ${active
-          ? 'bg-[#FEF3F2] border-2 border-[#ff3b3b]'
-          : 'bg-white hover:bg-[#F7F7F7] border-2 border-transparent'
+          ? 'bg-[#FEF3F2] '
+          : 'bg-white hover:bg-[#F7F7F7] '
         }
         cursor-pointer outline-none
         no-underline

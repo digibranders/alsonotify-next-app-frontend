@@ -46,6 +46,9 @@ import { MeetingCreateModal } from '../modals/MeetingCreateModal';
 import { LeaveApplyModal } from '../modals/LeaveApplyModal';
 
 import { CreateTaskRequestDto } from '@/types/dto/task.dto';
+import { useSidebar } from '@/context/SidebarContext';
+import { useIsNarrow } from '@/hooks/useBreakpoint';
+import { PanelLeft24Regular } from '@fluentui/react-icons';
 
 type UserRole = import('@/utils/roleUtils').UserRole;
 
@@ -68,6 +71,8 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
   const handleLogout = useLogout();
   const { message } = App.useApp();
   const { isIndividual } = useAccountType();
+  const isNarrow = useIsNarrow('lg');
+  const { openMobileSidebar } = useSidebar();
 
   // Fetch user details
   const { data: userDetailsData, isLoading: isLoadingUserDetails } = useUserDetails();
@@ -408,9 +413,20 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
     <>
       <div className="bg-white rounded-full px-4 py-2 w-full">
         <div className="flex flex-row items-center justify-between w-full">
-          {/* Left: Greeting text */}
+          {/* Left: Mobile menu button (below lg) + Greeting text */}
           <div className="flex flex-col font-['Manrope:Regular',sans-serif] font-normal justify-center not-italic text-[#111111] text-nowrap">
             <div className="flex items-center gap-3">
+              {isNarrow && (
+                <button
+                  type="button"
+                  onClick={openMobileSidebar}
+                  className="w-10 h-10 min-w-[40px] rounded-full bg-[#F7F7F7] hover:bg-[#EEEEEE] flex items-center justify-center transition-colors cursor-pointer shrink-0"
+                  title="Open menu"
+                  aria-label="Open menu"
+                >
+                  <PanelLeft24Regular className="w-5 h-5 text-[#111111]" />
+                </button>
+              )}
               {isLoadingUserDetails ? (
                 <>
                   <Skeleton className="h-7 w-48 rounded-lg" />
