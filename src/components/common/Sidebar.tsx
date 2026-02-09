@@ -68,7 +68,7 @@ const NAV_ITEMS: NavItemConfig[] = [
     path: '/dashboard/workspace',
     label: 'Workspace',
     icon: <Briefcase size={20} />,
-    allowedRoles: ['Admin', 'Manager', 'Head', 'Finance', 'HR', 'Employee']
+    allowedRoles: ['Admin', 'Manager', 'Head', 'Finance', 'HR']
   },
   {
     id: 'requirements',
@@ -151,6 +151,10 @@ export const Sidebar = React.memo(function Sidebar({ userRole, permissions }: Si
 
     // If granular permission is explicitly defined, respect it
     if (hasPermission !== undefined) {
+      // Force hide Workspace for Employees even if enabled in DB
+      if (item.id === 'workspace' && userRole === 'Employee') {
+        return false;
+      }
       return hasPermission;
     }
 
