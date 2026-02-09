@@ -42,6 +42,7 @@ import { PageLayout } from "../../layout/PageLayout";
 import { DocumentPreviewModal } from "../../ui/DocumentPreviewModal";
 import { UserDocument } from "@/types/genericTypes";
 import { useMailAttachments, useMailFolders, useMailMessage, useMailMessages } from "@/hooks/useMail";
+import { useIsNarrow } from "@/hooks/useBreakpoint";
 import { trimStr } from "@/utils/trim";
 import {
   deleteMail,
@@ -104,18 +105,6 @@ function sanitizeEmailHtml(html: string, allowImages: boolean) {
   }
 }
 
-function useIsNarrow(breakpointPx = 1024) {
-  const [narrow, setNarrow] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia(`(max-width: ${breakpointPx}px)`);
-    const onChange = () => setNarrow(mq.matches);
-    onChange();
-    mq.addEventListener?.("change", onChange);
-    return () => mq.removeEventListener?.("change", onChange);
-  }, [breakpointPx]);
-  return narrow;
-}
-
 // ---- Folder helpers ----
 const normalize = (s?: string) => (s || "").trim().toLowerCase();
 const WELL_KNOWN_DISPLAY: Record<string, string[]> = {
@@ -156,7 +145,7 @@ function isUnderMB(file: File, mb: number) {
 
 export function MailPage() {
   const { message, modal } = App.useApp();
-  const isNarrow = useIsNarrow(1024);
+  const isNarrow = useIsNarrow("lg");
 
   const [folder, setFolder] = useState<string>("inbox");
   const [unreadOnly, setUnreadOnly] = useState(false);

@@ -28,6 +28,8 @@ import {
   mapRequirementToContext,
   mapRequirementToType,
 } from './utils/requirementState.utils';
+import { getRoleFromUser } from '@/utils/roleUtils';
+
 
 // Extracted components
 import { GanttChartTab, PnLTab, DocumentsTab, KanbanBoardTab } from './components';
@@ -334,7 +336,9 @@ export function RequirementDetailsPage() {
                     <ListTodo className="w-5 h-5 text-[#ff3b3b]" />
                     Tasks Breakdown
                   </h3>
+                  {getRoleFromUser(user) !== 'Employee' && (
                   <Button
+
                     type="default"
                     size="small"
                     className="h-8 text-[12px] border-[#EEEEEE]"
@@ -342,6 +346,8 @@ export function RequirementDetailsPage() {
                   >
                     <Plus className="w-4 h-4 mr-2" /> Add Task
                   </Button>
+                  )}
+
                 </div>
 
                 {/* Table Header */}
@@ -405,10 +411,10 @@ export function RequirementDetailsPage() {
                           }}
                           onStatusChange={() => { }}
                           hideRequirements={true}
-                          onRequestRevision={() => {
+                          onRequestRevision={getRoleFromUser(user) !== 'Employee' ? () => {
                             setTargetTaskId(task.id as any);
                             setIsRevisionModalOpen(true);
-                          }}
+                          } : undefined}
                         />
                       );
                     })

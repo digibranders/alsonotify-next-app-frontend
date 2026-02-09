@@ -36,12 +36,14 @@ import { Requirement, Workspace } from '@/types/domain';
 import { RequirementDto, CreateRequirementRequestDto, UpdateRequirementRequestDto } from '@/types/dto/requirement.dto';
 import { getErrorMessage } from '@/types/api-utils';
 import { getRequirementTab, type TabContext } from '@/lib/workflow';
+
 import {
   mapRequirementToStatus,
   mapRequirementToRole,
   mapRequirementToContext,
   mapRequirementToType,
 } from './utils/requirementState.utils';
+import { getRoleFromUser } from '@/utils/roleUtils';
 
 export function RequirementsPage() {
   const { message: messageApi, modal: modalApi } = App.useApp();
@@ -1238,12 +1240,14 @@ export function RequirementsPage() {
     };
   }, [floatingMenuContent, setExpandedContent]);
 
+  const userRole = getRoleFromUser(currentUser);
+
   return (
     <PageLayout
       title="Requirements"
-      titleAction={{
+      titleAction={userRole !== 'Employee' ? {
         onClick: handleOpenCreate
-      }}
+      } : undefined}
       tabs={tabs}
       activeTab={activeStatusTab}
       onTabChange={(tabId) => {
@@ -1345,8 +1349,8 @@ export function RequirementsPage() {
                       currentUserId={currentUser?.id}
                       selected={selectedReqs.includes(requirement.id)}
                       onSelect={() => toggleSelect(requirement.id)}
-                      onAccept={() => handleReqAccept(requirement.id)}
-                      onReject={() => {
+                      onAccept={userRole !== 'Employee' ? () => handleReqAccept(requirement.id) : undefined}
+                      onReject={userRole !== 'Employee' ? () => {
                         const req = requirement;
                         if (req.type === 'outsourced') {
                           setPendingReqId(requirement.id);
@@ -1354,11 +1358,11 @@ export function RequirementsPage() {
                         } else {
                           handleReqReject(requirement.id);
                         }
-                      }}
-                      onEdit={() => handleEditDraft({
+                      } : undefined}
+                      onEdit={userRole !== 'Employee' ? () => handleEditDraft({
                         ...requirement,
-                      })}
-                      onDelete={() => {
+                      }) : undefined}
+                      onDelete={userRole !== 'Employee' ? () => {
                         const status = mapRequirementToStatus(requirement);
                         const type = mapRequirementToType(requirement);
                         const role = mapRequirementToRole(requirement);
@@ -1403,15 +1407,15 @@ export function RequirementsPage() {
                             },
                           });
                         }
-                      }}
+                      } : undefined}
                       deleteLabel={(activeStatusTab === 'active' || activeStatusTab === 'completed' || activeStatusTab === 'delayed') ? 'Archive' : 'Delete'}
                       deleteIcon={(activeStatusTab === 'active' || activeStatusTab === 'completed' || activeStatusTab === 'delayed') ? <Archive className="w-3.5 h-3.5" /> : undefined}
-                      onDuplicate={() => {
+                      onDuplicate={userRole !== 'Employee' ? () => {
                         handleDuplicateRequirement({
                           ...requirement,
                           workspaceId: requirement.workspaceId,
                         });
-                      }}
+                      } : undefined}
                       onNavigate={() =>
                         router.push(`/dashboard/workspace/${requirement.workspaceId}/requirements/${requirement.id}`)
                       }

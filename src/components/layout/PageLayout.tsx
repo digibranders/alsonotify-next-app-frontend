@@ -65,7 +65,7 @@ export function PageLayout({
 }: Readonly<PageLayoutProps>) {
   return (
     <div className={`w-full h-full bg-white rounded-[24px] border border-[#EEEEEE] flex overflow-hidden ${className || ''}`}>
-      <div className="flex-1 p-6 md:p-6 flex flex-col overflow-hidden">
+      <div className="flex-1 p-4 md:p-6 flex flex-col overflow-hidden">
         {/* Header Section */}
         <div className={(tabs && tabs.length > 0) || onSearchChange || showFilter || customFilters || secondaryActions || showExport || action ? "mb-5" : "mb-3"}>
           {/* Title Row */}
@@ -88,13 +88,13 @@ export function PageLayout({
             {titleExtra}
           </div>
 
-          {/* Tabs and Search Bar Row */}
+          {/* Tabs and Search Bar Row - stacks on small screens */}
           {(tabs || onSearchChange || showFilter || customFilters || secondaryActions || showExport || action) && (
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               {/* Left: Tabs */}
               {tabs && tabs.length > 0 ? (
-                <div className="flex items-center">
-                  <div className="flex items-center gap-8 border-b border-[#EEEEEE]">
+                <div className="flex items-center min-w-0">
+                  <div className="flex items-center gap-4 md:gap-8 border-b border-[#EEEEEE] overflow-x-auto scrollbar-hide">
                     {tabs.map((tab) => (
                       <button
                         key={tab.id}
@@ -125,17 +125,17 @@ export function PageLayout({
               )}
 
               {/* Right: Search and Action buttons */}
-              <div className="flex items-center gap-3">
-                {/* Search */}
+              <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                {/* Search - full width on mobile */}
                 {onSearchChange && (
-                  <div className="relative">
+                  <div className="relative w-full md:w-auto flex-1 min-w-0 md:flex-none">
                     <Search24Filled className="absolute left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[#999999]" />
                     <input
                       type="text"
                       value={searchValue}
                       onChange={(e) => onSearchChange(e.target.value)}
                       placeholder={searchPlaceholder}
-                      className="pl-10 pr-4 py-2.5 bg-white border border-[#EEEEEE] rounded-full text-[14px] font-['Manrope:Regular',sans-serif] text-[#111111] placeholder:text-[#999999] focus:outline-none focus:border-[#ff3b3b] w-[280px]"
+                      className="pl-10 pr-4 py-2.5 bg-white border border-[#EEEEEE] rounded-full text-[14px] font-['Manrope:Regular',sans-serif] text-[#111111] placeholder:text-[#999999] focus:outline-none focus:border-[#ff3b3b] w-full md:w-[280px]"
                     />
                   </div>
                 )}
