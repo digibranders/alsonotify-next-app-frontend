@@ -5,6 +5,7 @@ import {
   App,
   Button,
   Divider,
+  DatePicker,
   Input,
   Layout,
   Segmented,
@@ -14,6 +15,7 @@ import {
   Typography,
   Tooltip,
 } from "antd";
+import type { Dayjs } from "dayjs";
 import {
   Eye,
   EyeOff,
@@ -146,6 +148,15 @@ export function MailPage() {
   const debouncedSearch = useDebounce(searchTerm, 500);
   const querySearch = debouncedSearch.trim().length >= 3 ? debouncedSearch.trim() : undefined;
 
+  // Date range filter (clear when folder changes)
+  const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null] | null>(null);
+  const receivedAfter = dateRange?.[0]
+    ? `${dateRange[0].format("YYYY-MM-DD")}T00:00:00.000Z`
+    : undefined;
+  const receivedBefore = dateRange?.[1]
+    ? `${dateRange[1].format("YYYY-MM-DD")}T23:59:59.999Z`
+    : undefined;
+
   // view controls
   const [bodyView, setBodyView] = useState<"html" | "text">("html");
   const [loadImages, setLoadImages] = useState(false);
@@ -161,7 +172,15 @@ export function MailPage() {
   const [composeInitialData, setComposeInitialData] = useState<any>(undefined);
 
   const foldersQ = useMailFolders();
-  const messagesQ = useMailMessages(folder, unreadOnly, 25, querySearch);
+  const messagesQ = useMailMessages(
+    folder,
+    unreadOnly,
+    25,
+    querySearch,
+    60000,
+    receivedAfter,
+    receivedBefore
+  );
 
   const msgs = useMemo(() => {
     return (messagesQ.data?.pages || []).flatMap((p) => p.result?.items || []);
@@ -270,16 +289,8 @@ export function MailPage() {
     setFocusIndex(0);
   }, [folder, unreadOnly]);
 
-  // Auto-refresh polling
-  useEffect(() => {
-    const id = window.setInterval(() => {
-      refresh();
-    }, 60_000); // 1 min
 
-    return () => window.clearInterval(id);
-    // Omit refresh/other deps to avoid refetch loop; selectedId/folder/unreadOnly drive polling.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedId, folder, unreadOnly]);
+
 
   /* 
    * Logic Update: Sync unread count immediately when reading 
@@ -459,7 +470,26 @@ export function MailPage() {
         onClick: () => openCompose(),
       }}
       titleExtra={
-        <Space>
+        <Space wrap>
+          <DatePicker.RangePicker
+            aria-label="Filter by date"
+            format="MMM D, YYYY"
+            value={dateRange ?? undefined}
+            onChange={(dates) => setDateRange(dates ?? null)}
+            allowClear
+            className="rounded-lg border border-[#EEEEEE] bg-white"
+            placeholder={["Start date", "End date"]}
+          />
+          {dateRange && (
+            <Button
+              type="link"
+              size="small"
+              onClick={() => setDateRange(null)}
+              className="p-0 text-[#666]"
+            >
+              Clear dates
+            </Button>
+          )}
           <Segmented
             options={[
               { label: "All", value: "all" },
@@ -519,6 +549,7 @@ export function MailPage() {
                         onClick={() => {
                           setFolder(f.id);
                           setSelectedId(undefined);
+                          setDateRange(null);
                         }}
                       >
                         <Icon

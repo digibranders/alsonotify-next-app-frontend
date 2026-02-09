@@ -409,16 +409,19 @@ select:disabled,
     --ant-picker-today-color: #ff3b3b;
 }
 
-/* Dropdown Container */
+/* Dropdown Container – no extra wrapper bg; only the panel shows */
 .ant-picker-dropdown {
-    border-radius: 16px !important;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1) !important;
-    border: 1px solid #eeeeee !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
 }
 
-.ant-picker-panel-container {
+.ant-picker-dropdown .ant-picker-panel-container {
     border-radius: 16px !important;
     background: #ffffff !important;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1) !important;
+    border: 1px solid #eeeeee !important;
 }
 
 /* Header Styling */
@@ -653,4 +656,15 @@ select:disabled,
     display: inline-block !important;
     box-decoration-break: clone !important;
     -webkit-box-decoration-break: clone !important;
+}
+
+/* Number input: remove spin buttons (up/down arrows) */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
 }

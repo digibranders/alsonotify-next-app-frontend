@@ -42,6 +42,7 @@ import { PageLayout } from "../../layout/PageLayout";
 import { DocumentPreviewModal } from "../../ui/DocumentPreviewModal";
 import { UserDocument } from "@/types/genericTypes";
 import { useMailAttachments, useMailFolders, useMailMessage, useMailMessages } from "@/hooks/useMail";
+import { trimStr } from "@/utils/trim";
 import {
   deleteMail,
   downloadAttachment,
@@ -427,8 +428,8 @@ export function MailPage() {
         to: composeToValid,
         cc: composeCc.map((s) => s.trim()).filter(Boolean) || undefined,
         bcc: composeBcc.map((s) => s.trim()).filter(Boolean) || undefined,
-        subject: composeSubject || "(no subject)",
-        body: composeBody || "",
+        subject: trimStr(composeSubject) || "(no subject)",
+        body: trimStr(composeBody) || "",
         bodyType: "Text",
         attachments: filesFromUploadList(composeFiles),
       });
@@ -459,14 +460,15 @@ export function MailPage() {
     try {
       const attachments = filesFromUploadList(quickFiles);
 
+      const comment = trimStr(replyText);
       if (replyOpen === "reply") {
-        await replyMail(selectedId!, { comment: replyText, bodyType: "Text", attachments });
+        await replyMail(selectedId!, { comment, bodyType: "Text", attachments });
         message.success("Replied");
       } else if (replyOpen === "replyAll") {
-        await replyAllMail(selectedId!, { comment: replyText, bodyType: "Text", attachments });
+        await replyAllMail(selectedId!, { comment, bodyType: "Text", attachments });
         message.success("Replied all");
       } else if (replyOpen === "forward") {
-        await forwardMail(selectedId!, { to: forwardToValid, comment: replyText, bodyType: "Text", attachments });
+        await forwardMail(selectedId!, { to: forwardToValid, comment, bodyType: "Text", attachments });
         message.success("Forwarded");
       }
 

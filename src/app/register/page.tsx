@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { App } from "antd";
 import { Lock, Eye, EyeOff, Mail, User, Building2, CheckCircle2, ArrowRight, Loader2 } from "lucide-react";
 import { useRegister } from "@/hooks/useAuth";
+import { trimStr } from "@/utils/trim";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import AuthLayout from "@/components/auth/AuthLayout";
@@ -37,7 +38,10 @@ function RegisterForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.firstName || !formData.email || !formData.password) {
+    const firstName = trimStr(formData.firstName);
+    const lastName = trimStr(formData.lastName);
+    const email = trimStr(formData.email);
+    if (!firstName || !email || !formData.password) {
       message.error("Please fill in all required fields");
       return;
     }
@@ -49,9 +53,9 @@ function RegisterForm() {
 
     registerMutation.mutate(
       {
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
+        firstName,
+        lastName,
+        email,
         password: formData.password,
         token: inviteToken,
         accountType: formData.accountType.toUpperCase(),

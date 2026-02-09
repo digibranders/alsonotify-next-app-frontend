@@ -35,6 +35,7 @@ import { acceptInvitation, updatePartnerStatus, getReceivedInvites, acceptInvite
 import { Skeleton } from '../../ui/Skeleton';
 import { UserDto } from '@/types/dto/user.dto';
 import { getErrorMessage } from '@/types/api-utils';
+import { trimStr } from '@/utils/trim';
 
 interface ReceivedInvite {
     id: number;
@@ -350,9 +351,9 @@ export function PartnersPageContent() {
             const values = await form.validateFields();
 
             // Sending invitation
-            const fullName = [values.firstName, values.lastName].filter(Boolean).join(' ').trim();
+            const fullName = [values.firstName, values.lastName].map((s: string) => trimStr(s)).filter(Boolean).join(' ').trim();
             await axiosApi.post('/user/invite', {
-                email: values.email,
+                email: trimStr(values.email),
                 name: fullName,
                 requestSentFor: 'PARTNER'
             });

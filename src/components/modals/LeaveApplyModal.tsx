@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { Modal, Input, Select, Form, DatePicker, App } from 'antd';
 import { X, Calendar } from 'lucide-react';
 import { FormLayout } from '../common/FormLayout';
+import { trimStr } from '@/utils/trim';
 import dayjs from "dayjs";
 import type { Dayjs } from 'dayjs';
 import { useApplyForLeave } from "../../hooks/useLeave";
@@ -54,7 +55,7 @@ export function LeaveApplyModal({
         end_date: values.end_date.format('YYYY-MM-DD'),
         day_type: values.day_type,
         leave_type: values.leave_type,
-        reason: values.reason,
+        reason: trimStr(values.reason),
       });
       message.success("Leave applied successfully!");
       form.resetFields();

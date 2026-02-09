@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { App } from "antd";
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Loader2 } from "lucide-react";
 import { useLogin } from "@/hooks/useAuth";
+import { trimStr } from "@/utils/trim";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import AuthLayout from "@/components/auth/AuthLayout";
@@ -24,13 +25,14 @@ function LoginForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!email || !password) {
+    const trimmedEmail = trimStr(email);
+    if (!trimmedEmail || !password) {
       message.error("Please fill in all fields");
       return;
     }
 
     loginMutation.mutate(
-      { email, password, redirect },
+      { email: trimmedEmail, password, redirect },
       {
         onSuccess: () => {
           message.success("Login successful!");
