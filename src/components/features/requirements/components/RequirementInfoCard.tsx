@@ -1,14 +1,16 @@
 import { FileText, Briefcase } from 'lucide-react';
-import { format } from 'date-fns';
+import { formatDateForDisplay } from '@/utils/date';
 import { sanitizeRichText } from '@/utils/sanitizeHtml';
+import { Requirement, Workspace, Task } from '@/types/domain';
 
 interface RequirementInfoCardProps {
-  requirement: any;
-  workspace: any;
-  tasks: any[];
+  requirement: Requirement;
+  workspace: Workspace | null | undefined;
+  tasks: Task[];
+  timezone?: string;
 }
 
-export function RequirementInfoCard({ requirement, workspace, tasks }: RequirementInfoCardProps) {
+export function RequirementInfoCard({ requirement, workspace, tasks, timezone }: RequirementInfoCardProps) {
   return (
     <div className="max-w-5xl mx-auto space-y-8">
       {/* Description Section */}
@@ -126,7 +128,7 @@ export function RequirementInfoCard({ requirement, workspace, tasks }: Requireme
           <div>
             <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wider mb-2">Start Date</p>
             <p className="text-[14px] font-['Inter:Medium',sans-serif] text-[#111111]">
-              {requirement.start_date ? format(new Date(requirement.start_date), 'MMM d, yyyy') : 'Not set'}
+              {requirement.start_date ? formatDateForDisplay(requirement.start_date, timezone) : 'Not set'}
             </p>
           </div>
 
@@ -134,7 +136,7 @@ export function RequirementInfoCard({ requirement, workspace, tasks }: Requireme
           <div>
             <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wider mb-2">Due Date</p>
             <p className="text-[14px] font-['Inter:Medium',sans-serif] text-[#111111]">
-              {requirement.end_date ? format(new Date(requirement.end_date), 'MMM d, yyyy') : 'Not set'}
+              {requirement.end_date ? formatDateForDisplay(requirement.end_date, timezone) : 'Not set'}
             </p>
           </div>
 
