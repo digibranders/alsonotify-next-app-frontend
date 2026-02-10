@@ -1,4 +1,4 @@
-import { Checkbox, Popover } from 'antd';
+import { Popover } from 'antd';
 import {
   Calendar as CalendarIcon,
   CheckCircle,
@@ -24,8 +24,6 @@ import {
 
 interface RequirementCardProps {
   requirement: any; // Using any for compatibility with mapped data
-  selected: boolean;
-  onSelect: () => void;
   onAccept?: () => void;
   onReject?: () => void;
   onEdit?: () => void;
@@ -47,8 +45,6 @@ const CURRENCY_SYMBOLS: Record<string, string> = {
 
 export function RequirementCard({
   requirement,
-  selected,
-  onSelect,
   onAccept,
   onReject,
   onEdit,
@@ -202,25 +198,14 @@ export function RequirementCard({
     <div
       onClick={onNavigate}
       className={`group border rounded-[20px] p-5 hover:border-[#ff3b3b]/20 hover:shadow-lg transition-all duration-300 cursor-pointer flex flex-col relative w-full
-        ${selected
-          ? 'border-[#ff3b3b] shadow-[0_0_0_1px_#ff3b3b] bg-[#FFF5F5]'
-          : isPending
-            ? 'border-dashed border-[#E5E7EB] bg-[#F9FAFB]'
-            : 'border-[#EEEEEE] bg-white'
+        ${isPending
+          ? 'border-dashed border-[#E5E7EB] bg-[#F9FAFB]'
+          : 'border-[#EEEEEE] bg-white'
         }
       `}
     >
-      {/* Top Right Controls: Checkbox & More Options */}
+      {/* Top Right Controls: More Options */}
       <div className="absolute top-4 right-4 z-20 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-        {/* Checkbox */}
-        <div className={`transition-opacity duration-200 ${selected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
-          <Checkbox
-            checked={selected}
-            onChange={(e) => { e.stopPropagation(); onSelect(); }}
-            className="red-checkbox border-[#DDDDDD] bg-white hover:border-[#ff3b3b]"
-          />
-        </div>
-
         {/* More Options Menu */}
         <Popover
           open={isMenuOpen}
@@ -268,7 +253,7 @@ export function RequirementCard({
               e.stopPropagation();
               // Popover handles state
             }}
-            className={`h-6 w-6 flex items-center justify-center rounded-full hover:bg-[#F7F7F7] text-[#999999] hover:text-[#111111] transition-all ${selected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
+            className="h-6 w-6 flex items-center justify-center rounded-full hover:bg-[#F7F7F7] text-[#999999] hover:text-[#111111] transition-all opacity-0 group-hover:opacity-100"
           >
             <MoreHorizontal className="w-4 h-4" />
           </button>

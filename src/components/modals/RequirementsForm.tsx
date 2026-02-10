@@ -212,7 +212,7 @@ function RequirementsFormContent({
         }
     }, [buildPayload, onSubmit, onSubmitAndSend, selectedFiles, message]);
 
-    const sendButtonLabel = formData.type === 'outsourced' ? 'Send to Partner' : formData.type === 'inhouse' ? 'Submit for Work' : 'Send Requirement';
+    const sendButtonLabel = isEditing ? 'Update' : (formData.type === 'outsourced' ? 'Send to Partner' : formData.type === 'inhouse' ? 'Submit for Work' : 'Send Requirement');
 
     const footer = (
         <>
@@ -223,18 +223,20 @@ function RequirementsFormContent({
             >
                 Cancel
             </Button>
-            <Button
-                type="default"
-                onClick={onSaveDraft}
-                loading={isLoading}
-                disabled={isLoading}
-                className="h-11 px-6 text-[14px] font-['Manrope:SemiBold',sans-serif] rounded-xl border border-[#EEEEEE] hover:border-[#111111] hover:text-[#111111] transition-all"
-            >
-                Save draft
-            </Button>
+            {!isEditing && (
+                <Button
+                    type="default"
+                    onClick={onSaveDraft}
+                    loading={isLoading}
+                    disabled={isLoading}
+                    className="h-11 px-6 text-[14px] font-['Manrope:SemiBold',sans-serif] rounded-xl border border-[#EEEEEE] hover:border-[#111111] hover:text-[#111111] transition-all"
+                >
+                    Save draft
+                </Button>
+            )}
             <Button
                 type="primary"
-                onClick={onSendRequirement}
+                onClick={isEditing ? onSaveDraft : onSendRequirement}
                 loading={isLoading}
                 disabled={isLoading}
                 className="h-11 px-8 rounded-xl bg-[#111111] hover:bg-[#000000] text-white text-[14px] font-['Manrope:SemiBold',sans-serif] border-none shadow-none transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -247,7 +249,7 @@ function RequirementsFormContent({
     return (
         <FormLayout
             title={isEditing ? 'Edit Requirement' : 'New Requirement'}
-            subtitle="Define a new requirement and send it for approval/processing."
+            subtitle={isEditing ? 'Update the details of your requirement.' : 'Define a new requirement and send it for approval/processing.'}
             icon={FileText}
             onCancel={onCancel}
             onSubmit={onSaveDraft}

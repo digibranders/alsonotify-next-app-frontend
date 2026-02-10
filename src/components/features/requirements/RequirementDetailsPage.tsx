@@ -16,6 +16,7 @@ import { useEmployees, usePartners, useCurrentUserCompany } from '@/hooks/useUse
 import { useRequirementActivities } from '@/hooks/useRequirementActivity';
 import { useAuth } from '@/hooks/useAuth';
 import { format } from 'date-fns';
+import { getTodayForApi } from '@/utils/date';
 import { TaskRow } from '@/components/features/tasks/rows/TaskRow';
 import { Requirement, Task, Employee } from '@/types/domain';
 import {
@@ -88,16 +89,13 @@ export function RequirementDetailsPage() {
       date: format(new Date(act.created_at), 'MMM d, h:mm a'),
       message: act.message,
       isSystem: false,
-      attachments: (act.attachments || []).map((a: any) => a.file_name),
+      attachments: act.attachments || [], // Pass full attachment objects
     }));
   }, [activityResponse]);
 
   const [isRevisionModalOpen, setIsRevisionModalOpen] = useState(false);
   const [revisionNotes, setRevisionNotes] = useState('');
   const [targetTaskId, setTargetTaskId] = useState<number | null>(null);
-
-
-
 
   const workspace = useMemo(() => {
     if (!workspaceData?.result) return null;
@@ -108,8 +106,6 @@ export function RequirementDetailsPage() {
     if (!requirementsData?.result) return undefined;
     return requirementsData.result.find((r: Requirement) => r.id === reqId);
   }, [requirementsData, reqId]);
-
-
 
   const mapRequirementStatus = (status: string): 'in-progress' | 'completed' | 'delayed' => {
     const statusLower = status?.toLowerCase() || '';
@@ -574,7 +570,7 @@ export function RequirementDetailsPage() {
               name: data.name,
               workspace_id: data.workspace_id,
               requirement_id: data.requirement_id,
-              start_date: data.start_date || new Date().toISOString(),
+              start_date: data.start_date || getTodayForApi(),
               end_date: data.end_date,
               assigned_to: assignedMembers.length > 0 ? assignedMembers[0] : undefined,
               member_id: data.member_id ? Number(data.member_id) : undefined,

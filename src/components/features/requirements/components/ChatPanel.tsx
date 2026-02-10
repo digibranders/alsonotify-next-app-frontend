@@ -167,10 +167,10 @@ export function ChatPanel({
 
         <div className="relative border border-[#DDDDDD] rounded-[12px] bg-white">
           {/* Mirror Highlight Overlay */}
-          <div 
+          <div
             className="absolute inset-0 p-3 pointer-events-none whitespace-pre-wrap break-words overflow-hidden"
-            style={{ 
-              zIndex: 1, 
+            style={{
+              zIndex: 1,
               color: '#111111',
               fontFamily: "'Inter', sans-serif",
               fontSize: '13px',
@@ -183,31 +183,31 @@ export function ChatPanel({
               const val = messageText;
               const result: React.ReactNode[] = [];
               let lastIndex = 0;
-              
+
               const allUserNames = mentionOptions.map((o: MentionOption) => o.value).filter((n: string) => n && n.trim().length > 0);
               const allTaskNames = taskOptions.map((o: MentionOption) => o.value).filter((n: string) => n && n.trim().length > 0);
-              
+
               if (allUserNames.length === 0 && allTaskNames.length === 0) return val;
-              
+
               const escapedUserNames = allUserNames.map(escapeRegExp);
               const escapedTaskNames = allTaskNames.map(escapeRegExp);
-              
+
               // Combined regex for both @users and #tasks
               const regexPatterns = [];
               if (escapedUserNames.length > 0) regexPatterns.push(`(@(${escapedUserNames.join('|')}))`);
               if (escapedTaskNames.length > 0) regexPatterns.push(`(#(${escapedTaskNames.join('|')}))`);
-              
+
               const regex = new RegExp(regexPatterns.join('|'), 'g');
               let match;
               while ((match = regex.exec(val)) !== null) {
                 result.push(<span key={`text-${match.index}`}>{val.substring(lastIndex, match.index)}</span>);
-                
+
                 const matchedToken = match[0];
                 const isTask = matchedToken.startsWith('#');
-                
+
                 result.push(
-                  <span 
-                    key={`mention-${match.index}`} 
+                  <span
+                    key={`mention-${match.index}`}
                     className={isTask ? "task-token-highlight" : "mention-token-highlight"}
                     style={isTask ? {
                       color: '#2F80ED',
@@ -237,8 +237,8 @@ export function ChatPanel({
             onSearch={onMentionSearch}
             placeholder="Type a message... Use @ for people, # for tasks"
             className="w-full min-h-[80px] rounded-[12px] bg-transparent focus:outline-none resize-none relative z-[2] mentions-textarea-custom !text-transparent !border-none !shadow-none"
-            style={{ 
-              color: 'transparent', 
+            style={{
+              color: 'transparent',
               caretColor: '#111111',
               fontFamily: "'Inter', sans-serif",
               fontSize: '13px',
@@ -259,6 +259,7 @@ export function ChatPanel({
                 type="file"
                 multiple
                 className="hidden"
+                accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.odt,.ods,.odp,.rtf,.pages,.numbers,.key,.txt,.md,.json,.xml,.yaml,.yml,.csv,.log,.ini,.cfg,.conf,.js,.ts,.tsx,.jsx,.py,.java,.c,.cpp,.h,.hpp,.cs,.php,.rb,.go,.rs,.swift,.html,.css,.scss,.sass,.less,.vue,.svelte,.sh,.bash,.sql,.r,.m,.kt,.scala,.dart,.lua,.perl,.pl,.zip,.rar,.7z,.tar,.gz,.bz2,.xz,.tgz,.tbz2,.zipx,.jpg,.jpeg,.png,.gif,.webp,.svg,.bmp,.ico,.tiff,.tif,.avif,.heic,.heif,.jfif,.pjpeg,.pjp,.apng,.raw,.cr2,.nef,.arw,.dng,.mp3,.wav,.ogg,.flac,.aac,.m4a,.wma,.opus,.ape,.alac,.mp4,.webm,.avi,.mov,.wmv,.flv,.mkv,.m4v,.mpg,.mpeg,.3gp,.ogv,.obj,.fbx,.stl,.dae,.gltf,.glb,.blend,.3ds,.max,.dwg,.dxf,.step,.stp,.iges,.igs,.ttf,.otf,.woff,.woff2,.eot,.epub,.mobi,.azw,.azw3,.sketch,.fig,.xd,.ai,.psd,.eps,.indd,.db,.sqlite,.mdb,.accdb,.parquet,.ics,.vcf,.torrent"
                 onChange={onFileSelect}
               />
             </label>
