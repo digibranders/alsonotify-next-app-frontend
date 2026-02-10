@@ -79,6 +79,12 @@ function AlsonotifyLayoutContent({ children }: Readonly<AlsonotifyLayoutWrapperP
 
     if (protectedResource) {
       const [id, permissionKey] = protectedResource;
+
+      // Force block Workspace for Employees
+      if (id === 'workspace' && userRole === 'Employee') {
+        return { authorized: false, resource: 'Workspace' };
+      }
+
       const hasPermission = permissions?.Navigation?.[permissionKey];
 
       // If the permission is explicitly false, block access

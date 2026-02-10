@@ -302,13 +302,13 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
     }
   };
 
-  // Dropdown Items Configuration
-  const addMenuItems: MenuProps['items'] = [
-    {
-      key: 'create-new',
-      type: 'group',
-      label: <span className="text-[11px] text-[#999999] uppercase tracking-wider font-['Manrope:Medium',sans-serif]">Create New</span>,
-      children: [
+  // Dropdown Items Configuration - Filtered based on role
+  const addMenuItems = useMemo<MenuProps['items']>(() => {
+    const isEmployee = mappedRole === 'Employee';
+
+    const children = [
+      // Only show Requirement and Workspace if NOT an employee
+      ...(!isEmployee ? [
         {
           key: 'req',
           label: 'Requirement',
@@ -323,41 +323,46 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
           onClick: () => setShowWorkspaceDialog(true),
           className: "font-['Manrope:Medium',sans-serif]"
         },
-        {
-          key: 'task',
-          label: 'Task',
-          icon: <ListTodo className="w-4 h-4" />,
-          onClick: () => setShowTaskDialog(true),
-          className: "font-['Manrope:Medium',sans-serif]"
-        },
-        {
-          key: 'calendar',
-          label: 'Schedule Meeting',
-          icon: <CalendarDays className="w-4 h-4" />,
-          onClick: () => {
-            setShowMeetingDialog(true);
-          },
-          className: "font-['Manrope:Medium',sans-serif]"
-        },
-        {
-          key: 'leave',
-          label: 'Apply Leave',
-          icon: <CalendarOff className="w-4 h-4" />,
-          onClick: () => {
-            setShowLeaveDialog(true);
-          },
-          className: "font-['Manrope:Medium',sans-serif]"
-        },
-        {
-          key: 'notes',
-          label: 'Add Note',
-          icon: <NotebookPen className="w-4 h-4" />,
-          onClick: () => setShowNoteDialog(true),
-          className: "font-['Manrope:Medium',sans-serif]"
-        },
-      ],
-    }
-  ];
+      ] : []),
+      {
+        key: 'task',
+        label: 'Task',
+        icon: <ListTodo className="w-4 h-4" />,
+        onClick: () => setShowTaskDialog(true),
+        className: "font-['Manrope:Medium',sans-serif]"
+      },
+      {
+        key: 'calendar',
+        label: 'Schedule Meeting',
+        icon: <CalendarDays className="w-4 h-4" />,
+        onClick: () => setShowMeetingDialog(true),
+        className: "font-['Manrope:Medium',sans-serif]"
+      },
+      {
+        key: 'leave',
+        label: 'Apply Leave',
+        icon: <CalendarOff className="w-4 h-4" />,
+        onClick: () => setShowLeaveDialog(true),
+        className: "font-['Manrope:Medium',sans-serif]"
+      },
+      {
+        key: 'notes',
+        label: 'Add Note',
+        icon: <NotebookPen className="w-4 h-4" />,
+        onClick: () => setShowNoteDialog(true),
+        className: "font-['Manrope:Medium',sans-serif]"
+      },
+    ];
+
+    return [
+      {
+        key: 'create-new',
+        type: 'group',
+        label: <span className="text-[11px] text-[#999999] uppercase tracking-wider font-['Manrope:Medium',sans-serif]">Create New</span>,
+        children
+      }
+    ];
+  }, [mappedRole]);
 
   // Account type is now handled by useAccountType hook above
 
