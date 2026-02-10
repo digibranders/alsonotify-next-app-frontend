@@ -340,6 +340,7 @@ export interface Employee {
     experience?: number;
     hourly_rates?: number;
     no_of_leaves?: number;
+    profile_pic?: string;
   };
   user_profile?: {
     mobile_number?: string;

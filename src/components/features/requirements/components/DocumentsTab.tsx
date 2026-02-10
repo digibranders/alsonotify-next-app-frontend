@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Paperclip, FileText, Eye, Download, Loader2 } from 'lucide-react';
 import { App } from 'antd';
 import { DocumentPreviewModal } from '@/components/ui/DocumentPreviewModal';
@@ -47,6 +47,11 @@ interface DocumentsTabProps {
 
 export function DocumentsTab({ activityData }: DocumentsTabProps) {
   const { message } = App.useApp();
+  const messageRef = useRef(message);
+
+  useEffect(() => {
+    messageRef.current = message;
+  }, [message]);
   const [previewDoc, setPreviewDoc] = useState<UserDocument | null>(null);
   const [downloadingIds, setDownloadingIds] = useState<Set<number>>(new Set());
   const [previewingIds, setPreviewingIds] = useState<Set<number>>(new Set());
@@ -186,7 +191,7 @@ export function DocumentsTab({ activityData }: DocumentsTabProps) {
   // Preview handler - uses backend service to fetch file
   const handlePreview = useCallback(async (doc: DocumentItem) => {
     if (!doc.attachmentId) {
-      message.warning('Preview not available for this file');
+      messageRef.current.warning('Preview not available for this file');
       return;
     }
 
@@ -235,7 +240,7 @@ export function DocumentsTab({ activityData }: DocumentsTabProps) {
       const errorMessage = error instanceof Error
         ? error.message
         : 'Failed to open preview';
-      message.error(errorMessage);
+      messageRef.current.error(errorMessage);
     } finally {
       // Clear loading state
       setPreviewingIds(prev => {
@@ -244,12 +249,12 @@ export function DocumentsTab({ activityData }: DocumentsTabProps) {
         return next;
       });
     }
-  }, [determineFileType, message, previewingIds]);
+  }, [determineFileType, previewingIds]);
 
   // Download handler with backend service
   const handleDownload = useCallback(async (doc: DocumentItem) => {
     if (!doc.attachmentId) {
-      message.error('Download not available - missing attachment ID');
+      messageRef.current.error('Download not available - missing attachment ID');
       return;
     }
 
@@ -284,13 +289,13 @@ export function DocumentsTab({ activityData }: DocumentsTabProps) {
         document.body.removeChild(link);
       }, 100);
 
-      message.success(`Downloading ${doc.name}`);
+      messageRef.current.success(`Downloading ${doc.name}`);
     } catch (error) {
       console.error('Download error:', error);
       const errorMessage = error instanceof Error
         ? error.message
         : 'Failed to download file';
-      message.error(errorMessage);
+      messageRef.current.error(errorMessage);
     } finally {
       // Clear loading state
       setDownloadingIds(prev => {
@@ -299,7 +304,7 @@ export function DocumentsTab({ activityData }: DocumentsTabProps) {
         return next;
       });
     }
-  }, [downloadingIds, message]);
+  }, [downloadingIds]);
 
   if (allDocuments.length === 0) {
     return (

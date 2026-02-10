@@ -33,6 +33,13 @@ import { trimStr } from '@/utils/trim';
 export function EmployeesPage() {
   const queryClient = useQueryClient();
   const { modal, message } = App.useApp();
+  const messageRef = useRef(message);
+  const modalRef = useRef(modal);
+
+  useEffect(() => {
+    messageRef.current = message;
+    modalRef.current = modal;
+  }, [message, modal]);
 
   const [activeTab, setActiveTab] = useTabSync<'active' | 'inactive'>({
     defaultTab: 'active',
@@ -218,11 +225,11 @@ export function EmployeesPage() {
 
   const handleDeactivateEmployee = async (employeeId: number, isCurrentlyActive: boolean) => {
     if (employeeId === currentUserId && isCurrentlyActive) {
-      message.error("You cannot deactivate your own account.");
+      messageRef.current.error("You cannot deactivate your own account.");
       return;
     }
 
-    modal.confirm({
+    modalRef.current.confirm({
       title: isCurrentlyActive ? 'Deactivate Employee' : 'Activate Employee',
       content: `Are you sure you want to ${isCurrentlyActive ? 'deactivate' : 'activate'} this employee? ${isCurrentlyActive ? 'They will lose access to the system.' : ''}`,
       okText: isCurrentlyActive ? 'Deactivate' : 'Activate',
@@ -236,11 +243,11 @@ export function EmployeesPage() {
           },
           {
             onSuccess: () => {
-              message.success(`Employee ${isCurrentlyActive ? 'deactivated' : 'activated'} successfully!`);
+              messageRef.current.success(`Employee ${isCurrentlyActive ? 'deactivated' : 'activated'} successfully!`);
             },
             onError: (error: Error) => {
               const errorMessage = getErrorMessage(error, "Failed to update employee status");
-              message.error(errorMessage);
+              messageRef.current.error(errorMessage);
             },
           }
         );
@@ -254,7 +261,7 @@ export function EmployeesPage() {
     const email = trimStr(data.email);
     const designation = trimStr(data.role);
     if (!firstName) {
-      message.error("First name is required");
+      messageRef.current.error("First name is required");
       return;
     }
 
@@ -335,20 +342,20 @@ export function EmployeesPage() {
         updatePayload,
         {
           onSuccess: () => {
-            message.success("Employee updated successfully!");
+            messageRef.current.success("Employee updated successfully!");
             setIsDialogOpen(false);
             setEditingEmployee(null);
           },
           onError: (error: Error) => {
             const errorMessage = getErrorMessage(error, "Failed to update employee");
-            message.error(errorMessage);
+            messageRef.current.error(errorMessage);
           },
         }
       );
     } else {
       // Validate role is present
       if (!roleName || !roleId) {
-        message.error("Please select a valid access level");
+        messageRef.current.error("Please select a valid access level");
         return;
       }
 
@@ -376,12 +383,12 @@ export function EmployeesPage() {
         createPayload,
         {
           onSuccess: () => {
-            message.success("Employee created successfully!");
+            messageRef.current.success("Employee created successfully!");
             setIsDialogOpen(false);
           },
           onError: (error: Error) => {
             const errorMessage = getErrorMessage(error, "Failed to create employee");
-            message.error(errorMessage);
+            messageRef.current.error(errorMessage);
           },
         }
       );
@@ -410,6 +417,7 @@ export function EmployeesPage() {
 
   // Get current user ID to prevent self-deactivation
   // Get current user ID to prevent self-deactivation
+  // Memoize currentUserId for stable dependency tracking
   const currentUserId = currentUser?.id
     ? Number(currentUser.id)
     : (currentUser?.user_id ? Number(currentUser.user_id) : null);
@@ -420,7 +428,7 @@ export function EmployeesPage() {
   // Bulk update access level
   const handleBulkUpdateAccess = useCallback(async (access: string) => { // access is role name
     if (selectedEmployees.length === 0) {
-      message.warning('Please select at least one employee');
+      messageRef.current.warning('Please select at least one employee');
       return;
     }
 
@@ -431,7 +439,7 @@ export function EmployeesPage() {
     }
 
     if (!selectedRole) {
-      message.error(`Role "${access}" not found`);
+      messageRef.current.error(`Role "${access}" not found`);
       return;
     }
     const roleId = selectedRole.id;
@@ -551,7 +559,7 @@ export function EmployeesPage() {
       const totalSelected = selectedEmployees.length;
 
       if (totalFailed === 0 && successfulUpdates === totalSelected) {
-        message.success(`Updated access level to ${access} for ${totalSelected} employee(s)`);
+        messageRef.current.success(`Updated access level to ${access} for ${totalSelected} employee(s)`);
         setSelectedEmployees([]);
         setShowAccessDropdown(false);
         // Query invalidation is handled in the hook's onSuccess, but we can force refetch
@@ -561,21 +569,21 @@ export function EmployeesPage() {
           queryClient.invalidateQueries({ queryKey: queryKeys.users.me() });
         }
       } else if (successfulUpdates > 0) {
-        message.warning(`Updated ${successfulUpdates} employee(s), ${totalFailed} failed`);
+        messageRef.current.warning(`Updated ${successfulUpdates} employee(s), ${totalFailed} failed`);
         // Failed employees logged
       } else {
-        message.error(`Failed to update all ${totalSelected} employee(s)`);
+        messageRef.current.error(`Failed to update all ${totalSelected} employee(s)`);
         // Failed employees logged
       }
-    } catch (error) {
-      message.error('An error occurred during bulk update');
+    } catch {
+      messageRef.current.error('An error occurred during bulk update');
     }
-  }, [selectedEmployees, rolesData, employees, queryClient, queryParams, updateEmployeeMutation, message, currentUserId]);
+  }, [selectedEmployees, rolesData, employees, queryClient, queryParams, updateEmployeeMutation, currentUserId]);
 
   // Bulk update department
   const handleBulkUpdateDepartment = useCallback(async (departmentName: string) => {
     if (selectedEmployees.length === 0) {
-      message.warning('Please select at least one employee');
+      messageRef.current.warning('Please select at least one employee');
       return;
     }
 
@@ -584,7 +592,7 @@ export function EmployeesPage() {
     );
 
     if (!selectedDepartment || !selectedDepartment.id) {
-      message.error(`Department "${departmentName}" not found`);
+      messageRef.current.error(`Department "${departmentName}" not found`);
       return;
     }
 
@@ -731,27 +739,27 @@ export function EmployeesPage() {
       const totalSelected = selectedEmployees.length;
 
       if (totalFailed === 0 && successfulUpdates === totalSelected) {
-        message.success(`Updated department to ${departmentName} for ${totalSelected} employee(s)`);
+        messageRef.current.success(`Updated department to ${departmentName} for ${totalSelected} employee(s)`);
         setSelectedEmployees([]);
         setShowDepartmentDropdown(false);
         // Query invalidation is handled in the hook's onSuccess, but we can force refetch
         queryClient.invalidateQueries({ queryKey: queryKeys.users.employeesRoot() });
       } else if (successfulUpdates > 0) {
-        message.warning(`Updated ${successfulUpdates} employee(s), ${totalFailed} failed`);
+        messageRef.current.warning(`Updated ${successfulUpdates} employee(s), ${totalFailed} failed`);
         // Failed employees logged
       } else {
-        message.error(`Failed to update all ${totalSelected} employee(s)`);
+        messageRef.current.error(`Failed to update all ${totalSelected} employee(s)`);
         // Failed employees logged
       }
-    } catch (error) {
-      message.error('An error occurred during bulk update');
+    } catch {
+      messageRef.current.error('An error occurred during bulk update');
     }
-  }, [selectedEmployees, departmentsData, employees, queryClient, queryParams, rolesData, updateEmployeeMutation, message]);
+  }, [selectedEmployees, departmentsData, employees, queryClient, queryParams, rolesData, updateEmployeeMutation]);
 
   // Export to CSV
   const handleExportToCSV = useCallback(() => {
     if (selectedEmployees.length === 0) {
-      message.warning('Please select at least one employee');
+      messageRef.current.warning('Please select at least one employee');
       return;
     }
 
@@ -759,7 +767,7 @@ export function EmployeesPage() {
     const selectedEmployeesData = employees.filter(emp => selectedEmployees.includes(emp.id));
 
     if (selectedEmployeesData.length === 0) {
-      message.error('No employee data found for selected employees');
+      messageRef.current.error('No employee data found for selected employees');
       return;
     }
 
@@ -807,11 +815,11 @@ export function EmployeesPage() {
       document.body.removeChild(link);
       URL.revokeObjectURL(url); // Clean up the URL
 
-      message.success(`Exported ${selectedEmployeesData.length} employee(s) to CSV`);
+      messageRef.current.success(`Exported ${selectedEmployeesData.length} employee(s) to CSV`);
     } catch {
-      message.error('Failed to export employees to CSV');
+      messageRef.current.error('Failed to export employees to CSV');
     }
-  }, [selectedEmployees, employees, message]);
+  }, [selectedEmployees, employees]);
 
   const performBulkDeactivation = useCallback(async (idsToDeactivate: number[]) => {
     // Prepare all deactivation promises
@@ -846,25 +854,25 @@ export function EmployeesPage() {
       const totalToDeactivate = idsToDeactivate.length;
 
       if (totalFailed === 0 && successfulDeactivations === totalToDeactivate) {
-        message.success(`Deactivated ${totalToDeactivate} employee(s)`);
+        messageRef.current.success(`Deactivated ${totalToDeactivate} employee(s)`);
         setSelectedEmployees([]);
         // Query invalidation is handled in the hook's onSuccess
       } else if (successfulDeactivations > 0) {
-        message.warning(`Deactivated ${successfulDeactivations} employee(s), ${totalFailed} failed`);
+        messageRef.current.warning(`Deactivated ${successfulDeactivations} employee(s), ${totalFailed} failed`);
         // Failed employees logged
       } else {
-        message.error(`Failed to deactivate all ${totalToDeactivate} employee(s)`);
+        messageRef.current.error(`Failed to deactivate all ${totalToDeactivate} employee(s)`);
         // Failed employees logged
       }
     } catch {
-      message.error('An error occurred during bulk deactivation');
+      messageRef.current.error('An error occurred during bulk deactivation');
     }
-  }, [updateEmployeeStatusMutation, employees, message]);
+  }, [updateEmployeeStatusMutation, employees]);
 
   // Bulk delete/deactivate
   const handleBulkDelete = useCallback(() => {
     if (selectedEmployees.length === 0) {
-      message.warning('Please select at least one employee');
+      messageRef.current.warning('Please select at least one employee');
       return;
     }
 
@@ -885,7 +893,7 @@ export function EmployeesPage() {
 
     // Case 1: Attempting to deactivate ONLY self
     if (isSelfSelected && employeesToDeactivate.length === 0) {
-      modal.warning({
+      modalRef.current.warning({
         title: 'Cannot Deactivate Self',
         content: 'You cannot deactivate your own account. Please contact an administrator if you need assistance.',
         okText: 'OK',
@@ -895,7 +903,7 @@ export function EmployeesPage() {
 
     // Case 2: Self included with others
     if (isSelfSelected && employeesToDeactivate.length > 0) {
-      modal.confirm({
+      modalRef.current.confirm({
         title: 'Mixed Selection Warning',
         icon: <div className="text-[#ff9900] mr-2"><ShieldCheck size={24} /></div>, // Use icon or standard warning
         content: (
@@ -913,7 +921,7 @@ export function EmployeesPage() {
     }
 
     // Case 3: Normal deactivation (No self selected)
-    modal.confirm({
+    modalRef.current.confirm({
       title: 'Deactivate Employees',
       content: `Are you sure you want to deactivate ${employeesToDeactivate.length} employee(s)?`,
       okText: 'Yes, Deactivate',
@@ -921,7 +929,7 @@ export function EmployeesPage() {
       cancelText: 'Cancel',
       onOk: () => performBulkDeactivation(employeesToDeactivate),
     });
-  }, [selectedEmployees, currentUserId, currentUserEmail, employees, modal, message, performBulkDeactivation]);
+  }, [selectedEmployees, currentUserId, currentUserEmail, employees, performBulkDeactivation]);
 
 
 

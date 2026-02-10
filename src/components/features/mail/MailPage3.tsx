@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useRef } from "react";
+import { useMemo, useState, useRef } from "react";
 import {
   App,
   Button,
@@ -46,6 +46,10 @@ import {
   downloadAttachment,
   patchMail,
   sendMail,
+  MailMessage,
+  MailFolder,
+  MailAttachment,
+  MailMessageDetail
 } from "@/services/mail";
 import { EmailComposeModal } from "./EmailComposeModal";
 import { InlineReply, InlineReplyRef } from "./InlineReply";
@@ -55,12 +59,12 @@ import type { ContactOption } from "./EmailInput";
 const { Sider, Content } = Layout;
 const { Text } = Typography;
 
-function formatFrom(m: any) {
+function formatFrom(m?: MailMessage | MailMessageDetail) {
   const from = m?.from?.emailAddress;
   return from?.name || from?.address || "Unknown";
 }
 
-function formatRecipients(arr?: any[]) {
+function formatRecipients(arr?: Array<{ emailAddress?: { name?: string; address?: string } }>) {
   const list = (arr || [])
     .map((r) => r?.emailAddress?.name || r?.emailAddress?.address)
     .filter(Boolean);
@@ -101,7 +105,7 @@ function sanitizeEmailHtml(html: string, allowImages: boolean) {
 }
 
 // ---- Folder helpers for counts (frontend-only) ----
-const FOLDER_ICONS: Record<string, any> = {
+const FOLDER_ICONS: Record<string, typeof Mail> = {
   inbox: Inbox,
   sentitems: Send,
   drafts: FileText,
@@ -124,10 +128,10 @@ const WELL_KNOWN_DISPLAY: Record<string, string[]> = {
 
 const RESERVED_NAMES = new Set(Object.values(WELL_KNOWN_DISPLAY).flat());
 
-function findGraphFolderForWellKnownId(wellKnownId: string, graphFolders: any[]) {
+function findGraphFolderForWellKnownId(wellKnownId: string, graphFolders: MailFolder[]) {
   const names = WELL_KNOWN_DISPLAY[wellKnownId] || [];
   if (!names.length) return undefined;
-  return graphFolders.find((f: any) => names.includes(normalize(f?.displayName)));
+  return graphFolders.find((f: MailFolder) => names.includes(normalize(f?.displayName)));
 }
 
 export function MailPage() {
@@ -169,7 +173,7 @@ export function MailPage() {
   const [composeOpen, setComposeOpen] = useState(false);
 
   // Quick reply/forward state is now handled by passing data to the compose modal
-  const [composeInitialData, setComposeInitialData] = useState<any>(undefined);
+  const [composeInitialData, setComposeInitialData] = useState<MailMessage | undefined>(undefined);
 
   const foldersQ = useMailFolders();
   const messagesQ = useMailMessages(
@@ -183,26 +187,26 @@ export function MailPage() {
   );
 
   const msgs = useMemo(() => {
-    return (messagesQ.data?.pages || []).flatMap((p) => p.result?.items || []);
+    return (messagesQ.data?.pages || []).flatMap((p) => (p.result?.items || []) as MailMessage[]);
   }, [messagesQ.data]);
 
   // Harvest contacts from messages for autocomplete
   const autocompleteOptions = useMemo(() => {
     const contactsMap = new Map<string, ContactOption>();
 
-    msgs.forEach((m: any) => {
+    msgs.forEach((m: MailMessage) => {
       // From
       if (m.from?.emailAddress) {
         const { address, name } = m.from.emailAddress;
         if (address) contactsMap.set(address, { value: address, label: name || address, name, email: address });
       }
       // To
-      (m.toRecipients || []).forEach((r: any) => {
+      (m.toRecipients || []).forEach((r) => {
         const { address, name } = r.emailAddress || {};
         if (address) contactsMap.set(address, { value: address, label: name || address, name, email: address });
       });
       // Cc
-      (m.ccRecipients || []).forEach((r: any) => {
+      (m.ccRecipients || []).forEach((r) => {
         const { address, name } = r.emailAddress || {};
         if (address) contactsMap.set(address, { value: address, label: name || address, name, email: address });
       });
@@ -211,7 +215,7 @@ export function MailPage() {
     return Array.from(contactsMap.values());
   }, [msgs]);
 
-  const graphFolders = (foldersQ.data?.result || []) as any[];
+  const graphFolders = useMemo(() => (foldersQ.data?.result || []) as MailFolder[], [foldersQ.data?.result]);
 
   // Build folder list with unread counts for well-known folders too
   const folderItems = useMemo(() => {
@@ -231,7 +235,7 @@ export function MailPage() {
     });
 
     // Keep “custom folders” from Graph, but avoid duplicating the default display names
-    const others = graphFolders.filter((f: any) => !RESERVED_NAMES.has(normalize(f?.displayName)));
+    const others = graphFolders.filter((f: MailFolder) => !RESERVED_NAMES.has(normalize(f?.displayName)));
 
     return [...defaults, ...others];
   }, [graphFolders]);
@@ -266,9 +270,11 @@ export function MailPage() {
 
   const current = msgQ.data?.result;
 
-  useEffect(() => {
+  const [prevSelectedId, setPrevSelectedId] = useState(selectedId);
+  if (selectedId !== prevSelectedId) {
+    setPrevSelectedId(selectedId);
     setLoadImages(false);
-  }, [selectedId]);
+  }
 
 
 
@@ -285,9 +291,13 @@ export function MailPage() {
   };
 
   // reset focus on folder change
-  useEffect(() => {
+  const [prevFolder, setPrevFolder] = useState(folder);
+  const [prevUnreadOnly, setPrevUnreadOnly] = useState(unreadOnly);
+  if (folder !== prevFolder || unreadOnly !== prevUnreadOnly) {
+    setPrevFolder(folder);
+    setPrevUnreadOnly(unreadOnly);
     setFocusIndex(0);
-  }, [folder, unreadOnly]);
+  }
 
 
 
@@ -366,7 +376,7 @@ export function MailPage() {
     window.URL.revokeObjectURL(url);
   };
 
-  const doPreview = async (attId: string, name: string, contentType: string, size: number) => {
+  const doPreview = async (attId: string, name?: string, contentType?: string, size?: number) => {
     if (!selectedId) return;
     try {
       const blob = await downloadAttachment(selectedId, attId);
@@ -375,6 +385,8 @@ export function MailPage() {
       let fileType: UserDocument["fileType"] = "text";
       const ct = (contentType || "").toLowerCase();
       const nameLower = (name || "").toLowerCase();
+      const fileName = name || "Unnamed";
+      const fileSize = size || 0;
 
       if (ct.startsWith("image/")) {
         fileType = "image";
@@ -402,19 +414,19 @@ export function MailPage() {
         id: attId,
         documentTypeId: "mail-attachment",
         documentTypeName: "Mail Attachment",
-        fileName: name,
-        fileSize: size,
+        fileName,
+        fileSize,
         fileUrl: url,
         uploadedDate: new Date().toISOString(),
         fileType,
         isRequired: false,
       });
-    } catch (err) {
+    } catch {
       message.error("Failed to load preview");
     }
   };
 
-  const openCompose = (data?: any) => {
+  const openCompose = (data?: MailMessage) => {
     setComposeInitialData(data);
     setComposeOpen(true);
   };
@@ -535,7 +547,7 @@ export function MailPage() {
               <div className="flex justify-center py-4"><Spin size="small" /></div>
             ) : (
               <div className="space-y-1 overflow-auto flex-1">
-                {folderItems.map((f: any) => {
+                {folderItems.map((f) => {
                   const Icon = FOLDER_ICONS[f.id] || Mail;
                   return (
                     <Tooltip key={f.id} title={foldersCollapsed ? f.displayName : ""} placement="right">
@@ -600,7 +612,7 @@ export function MailPage() {
                   <div className="h-full flex items-center justify-center text-[#999]">No messages</div>
                 ) : (
                   <div className="space-y-2">
-                    {msgs.map((m: any, idx: number) => {
+                    {msgs.map((m: MailMessage, idx: number) => {
                       const isFocused = idx === focusIndex;
                       const isSelected = selectedId === m.id;
                       return (
@@ -828,7 +840,7 @@ export function MailPage() {
                         <div className="text-[13px] text-[#999999]">No attachments</div>
                       ) : (
                         <div className="space-y-2">
-                          {(attsQ.data?.result || []).map((a: any) => (
+                          {(attsQ.data?.result || []).map((a: MailAttachment) => (
                             <div
                               key={a.id}
                               className="rounded-[12px] bg-white px-3 py-2.5 ring-1 ring-black/5 flex items-center justify-between gap-3 shadow-sm hover:shadow-md transition-shadow"
@@ -838,7 +850,7 @@ export function MailPage() {
                                   <Paperclip size={16} />
                                 </div>
                                 <div className="min-w-0">
-                                  <div className="font-semibold text-[13px] text-[#111111] truncate">{a.name}</div>
+                                  <div className="font-semibold text-[13px] text-[#111111] truncate">{a.name || 'Unnamed'}</div>
                                   <div className="text-[11px] text-[#777]">
                                     {a.contentType || "file"} • {formatBytes(a.size || 0)}
                                   </div>

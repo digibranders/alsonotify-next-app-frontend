@@ -1,7 +1,6 @@
 import { PageLayout } from '../../layout/PageLayout';
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { useTabSync } from '@/hooks/useTabSync';
-import { useQueryClient } from "@tanstack/react-query";
 import { useNotes, useCreateNote, useUpdateNote, useDeleteNote, useArchiveNote, useUnarchiveNote } from '../../../hooks/useNotes';
 import { sanitizeRichText } from '../../../utils/sanitizeHtml';
 import { Plus, Archive, Trash2, FileText, ArchiveRestore } from 'lucide-react';
@@ -26,7 +25,14 @@ interface NoteSaveData {
 }
 
 export function NotesPage() {
-  const { modal } = App.useApp();
+  const { message, modal } = App.useApp();
+  const messageRef = useRef(message);
+  const modalRef = useRef(modal);
+
+  useEffect(() => {
+    messageRef.current = message;
+    modalRef.current = modal;
+  }, [message, modal]);
   /* Manual router/params removed */
   const [activeTab, setActiveTab] = useTabSync<TabType>({
     defaultTab: 'all',
@@ -34,7 +40,7 @@ export function NotesPage() {
   });
 
   // Sync activeTab with URL - handled by useTabSync
-  
+
   const [searchQuery, setSearchQuery] = useState('');
   const [showDialog, setShowDialog] = useState(false);
   const [editingNote, setEditingNote] = useState<Note | null>(null);
@@ -55,7 +61,7 @@ export function NotesPage() {
     const nonArchived = isArray<Note>(nonArchivedData?.result) ? nonArchivedData.result : [];
     const archived = isArray<Note>(archivedData?.result) ? archivedData.result : [];
     return [...nonArchived, ...archived];
-  }, [nonArchivedData?.result, archivedData?.result]);
+  }, [nonArchivedData, archivedData]);
 
   // Mutations with proper error handling
   const createMutation = useCreateNote();
@@ -71,7 +77,7 @@ export function NotesPage() {
   // The component logic had messageApi.success and setShowDialog(false).
   // I should pass options to my hooks or keep using useMutation directly if I want custom side effects 
   // OR update my hooks to accept options.
-  
+
   /* Retaining direct useMutation for now to preserve specific UI logic (message, state updates)
      OR I should refactor my hook to accept callbacks.
      Let's Update useUI logic to use the mutations returned by the hooks, 
@@ -129,7 +135,7 @@ export function NotesPage() {
    * Handle note deletion with confirmation
    */
   const handleDelete = useCallback((noteId: number) => {
-    modal.confirm({
+    modalRef.current.confirm({
       title: 'Delete Note',
       content: 'Are you sure you want to permanently delete this note? This action cannot be undone.',
       okText: 'Delete',
@@ -137,7 +143,7 @@ export function NotesPage() {
       cancelText: 'Cancel',
       onOk: () => deleteMutation.mutate(noteId)
     });
-  }, [deleteMutation, modal]);
+  }, [deleteMutation]);
 
   /**
    * Handle archiving a note
@@ -207,7 +213,7 @@ export function NotesPage() {
       // Search filter
       return matchesSearch(note, searchQuery);
     });
-  }, [notesList, activeTab, searchQuery, matchesSearch]);
+  }, [notesList, activeTab, searchQuery, matchesSearch, normalizeNoteTypeForFilter]);
 
   /**
    * Calculate tab counts - memoized for performance
@@ -220,7 +226,7 @@ export function NotesPage() {
       { id: 'checklist' as TabType, label: 'Checklists' },
       { id: 'archive' as TabType, label: 'Archived' },
     ];
-  }, [notesList, normalizeNoteTypeForFilter]);
+  }, []);
 
   // Calculate card height to fit exactly 2 rows without scrolling
   useEffect(() => {
