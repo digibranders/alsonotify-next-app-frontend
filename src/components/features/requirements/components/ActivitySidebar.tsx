@@ -5,11 +5,16 @@ import { useRequirementActivities, useCreateRequirementActivity } from '@/hooks/
 import { fileService } from '@/services/file.service';
 import { ChatPanel } from './ChatPanel';
 
+import { ApiResponse } from '@/types/api';
+import { Employee, Task } from '@/types/domain';
+import { UserDto } from '@/types/dto/user.dto';
+import { RequirementActivityDto } from '@/services/requirement-activity';
+
 interface ActivitySidebarProps {
   reqId: number;
-  employeesData: any;
-  partnersData: any;
-  tasks: any[];
+  employeesData: ApiResponse<Employee[]> | undefined;
+  partnersData: ApiResponse<UserDto[]> | undefined;
+  tasks: Task[];
 }
 
 export function ActivitySidebar({ reqId, employeesData, partnersData, tasks }: ActivitySidebarProps) {
@@ -34,7 +39,7 @@ export function ActivitySidebar({ reqId, employeesData, partnersData, tasks }: A
 
     // Internal Employees
     if (employeesData?.result) {
-      employeesData.result.forEach((emp: any) => {
+      employeesData.result.forEach((emp: Employee) => {
         options.push({
           value: emp.name,
           label: emp.name,
@@ -45,7 +50,7 @@ export function ActivitySidebar({ reqId, employeesData, partnersData, tasks }: A
 
     // Partners
     if (partnersData?.result) {
-      partnersData.result.forEach((partner: any) => {
+      partnersData.result.forEach((partner: UserDto) => {
         options.push({
           value: partner.name,
           label: partner.name,
@@ -124,7 +129,7 @@ export function ActivitySidebar({ reqId, employeesData, partnersData, tasks }: A
 
   const activityData = useMemo(() => {
     if (!activityResponse?.result) return [];
-    return activityResponse.result.map((act: any) => ({
+    return (activityResponse.result as RequirementActivityDto[]).map((act) => ({
       id: act.id,
       type: act.type.toLowerCase(),
       user: act.user.name,
@@ -132,7 +137,7 @@ export function ActivitySidebar({ reqId, employeesData, partnersData, tasks }: A
       date: format(new Date(act.created_at), 'MMM d, h:mm a'),
       message: formatActivityMessage(act.message),
       isSystem: act.type === 'SYSTEM',
-      attachments: act.attachments.map((a: any) => a.file_name),
+      attachments: act.attachments.map((a) => a.file_name),
       time: act.metadata && typeof act.metadata === 'object' && 'time' in act.metadata ? String((act.metadata as Record<string, unknown>).time) : undefined,
       category: act.metadata && typeof act.metadata === 'object' && 'category' in act.metadata ? String((act.metadata as Record<string, unknown>).category) : undefined,
       task: act.metadata && typeof act.metadata === 'object' && 'task' in act.metadata ? String((act.metadata as Record<string, unknown>).task) : undefined,
