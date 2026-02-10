@@ -53,7 +53,7 @@ export default function RegisterSuccess({ email }: RegisterSuccessProps) {
           <h2 className="text-3xl font-bold text-[#111111] tracking-tight">
             Verify your email
           </h2>
-          
+
           <p className="text-[15px] text-[#666666] leading-relaxed">
             We've sent a verification link to <span className="font-bold text-[#111111]">{email}</span>.
             <br />
@@ -62,16 +62,17 @@ export default function RegisterSuccess({ email }: RegisterSuccessProps) {
         </div>
 
         <div className="pt-4 flex flex-col gap-3">
-          <a 
+          <a
             href={email.includes("@gmail.com") ? "https://mail.google.com" : "https://outlook.live.com/mail/"}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex h-12 px-8 items-center justify-center !bg-[#ff3b3b] hover:!bg-[#E63535] !text-white rounded-[16px] font-bold text-[15px] shadow-lg shadow-[#ff3b3b]/25 transition-all hover:shadow-[#ff3b3b]/40 w-full"
           >
-            Open {email.includes("@gmail.com") ? "Gmail" : "Outlook"}
+            {/* Open {email.includes("@gmail.com") ? "Gmail" : "Outlook"} */}
+            Verify Email
           </a>
-          
-          <Link 
+
+          <Link
             href="/login"
             className="inline-flex h-12 px-8 items-center justify-center bg-transparent hover:bg-[#F5F5F5] text-[#666666] hover:text-[#111111] rounded-[16px] font-bold text-[15px] transition-all w-full"
           >

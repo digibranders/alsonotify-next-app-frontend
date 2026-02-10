@@ -341,7 +341,10 @@ function EmployeeFormContent({
 
     if (acc === "admin") return { icon: ShieldCheck, color: "#ff3b3b", bgColor: "#FFF5F5" };
     if (acc === "manager") return { icon: Briefcase, color: "#2E90FA", bgColor: "#EFF8FF" };
-    if (acc === "leader") return { icon: Users, color: "#7F56D9", bgColor: "#F9F5FF" };
+    if (acc === "coordinator") return { icon: Briefcase, color: "#F79009", bgColor: "#FFFAEB" };
+    if (acc === "hr") return { icon: ShieldCheck, color: "#0284C7", bgColor: "#F0F9FF" };
+    if (acc === "finance") return { icon: Briefcase, color: "#059669", bgColor: "#ECFDF5" };
+    if (acc === "leader" || acc === "head") return { icon: Users, color: "#7F56D9", bgColor: "#F9F5FF" };
     return { icon: User, color: "#12B76A", bgColor: "#ECFDF3" };
   };
 

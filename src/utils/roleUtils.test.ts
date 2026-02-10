@@ -28,8 +28,8 @@ describe('roleUtils', () => {
       });
 
       it('should return Head when role name contains "Head"', () => {
-          expect(getRoleFromUser({ role: { name: 'Head' } })).toBe('Head');
-          expect(getRoleFromUser({ role: { name: 'Head of Department' } })).toBe('Head');
+        expect(getRoleFromUser({ role: { name: 'Head' } })).toBe('Head');
+        expect(getRoleFromUser({ role: { name: 'Head of Department' } })).toBe('Head');
       });
 
       it('should return HR when role name is exactly "hr"', () => {
@@ -38,6 +38,11 @@ describe('roleUtils', () => {
 
       it('should return Finance when role name is exactly "finance"', () => {
         expect(getRoleFromUser({ role: { name: 'Finance' } })).toBe('Finance');
+      });
+
+      it('should return Coordinator when role name contains "coordinator"', () => {
+        expect(getRoleFromUser({ role: { name: 'Coordinator' } })).toBe('Coordinator');
+        expect(getRoleFromUser({ role: { name: 'Project Coordinator' } })).toBe('Coordinator');
       });
 
       it('should check admin before hr (HR Admin returns Admin)', () => {
@@ -89,6 +94,10 @@ describe('roleUtils', () => {
 
       it('should return Manager for role_id 7', () => {
         expect(getRoleFromUser({ role_id: 7 })).toBe('Manager');
+      });
+
+      it('should return Coordinator for role_id 8', () => {
+        expect(getRoleFromUser({ role_id: 8 })).toBe('Coordinator');
       });
 
       it('should use user_employee.role_id as fallback', () => {

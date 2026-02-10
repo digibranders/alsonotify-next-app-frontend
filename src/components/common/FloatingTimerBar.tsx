@@ -12,7 +12,7 @@ import {
 import { useFloatingMenu } from '../../context/FloatingMenuContext';
 import { useTimer } from '../../context/TimerContext';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { getAssignedTasks, updateTaskStatusById } from '../../services/task';
+import { getAssignedTasks, updateTaskMemberStatus } from '../../services/task';
 import { useUserDetails } from '../../hooks/useUser';
 import { App, Tooltip, Modal, Input } from 'antd';
 import { queryKeys } from '../../lib/queryKeys';
@@ -313,16 +313,24 @@ export function FloatingTimerBar() {
 
     // 2. Update Status to 'Review' (Submit for Review)
     try {
-      await updateTaskStatusById(taskIdToComplete, 'Review');
-      message.success("Task worklog saved and submitted for Review!");
+      // Use updateTaskMemberStatus to update ONLY the member's status
+      // This allows independent completion in Parallel mode and baton passing in Sequential mode
+      const response = await updateTaskMemberStatus(taskIdToComplete, 'Review');
+
+      if (response.result?.computedStatus === 'Review') {
+        message.success("Task submitted for Review! (All members completed)");
+      } else {
+        message.success("Your part is submitted for Review!");
+      }
+
       setSelectedTaskId(null);
     } catch (e: any) {
-      console.error("Failed to update status", e);
+      console.error("Failed to update member status", e);
       if (e.message?.includes('Review to Review')) {
         setSelectedTaskId(null);
         message.info("Task is already in Review.");
       } else {
-        message.warning("Worklog saved, but failed to update status.");
+        message.warning("Worklog saved, but failed to update status: " + (e.message || "Unknown error"));
       }
     }
 
