@@ -16,6 +16,7 @@ dayjs.extend(isSameOrAfter);
 import { useTasks } from '@/hooks/useTask';
 import { useWorkspaces } from '@/hooks/useWorkspace';
 import { useUserDetails } from '@/hooks/useUser';
+import { Task } from '@/types/domain';
 import { getRequirementsByWorkspaceId } from '@/services/workspace';
 import { DateRangeSelector } from '../common/DateRangeSelector';
 import { Skeleton } from '../ui/Skeleton';
@@ -175,25 +176,29 @@ export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => 
     }
 
     // 1. Calculate Allotted Hours (Sum of estimated time of fetched tasks ASSIGNED TO CURRENT USER)
-    const allotted = Math.round(tasksData.result.reduce((acc: number, task: any) => {
+    const allotted = Math.round(tasksData.result.reduce((acc: number, task: Task) => {
       // Filter: Check if task is assigned to current user
-      // API might return 'assignedTo' as object or string, or 'assignedToUser' object, or 'taskMembers' array
-      // We check widely to be safe
       let isAssigned = false;
 
-      // Direct assignment check
-      if (task.assignedTo?.id === currentUserId || task.assignedToUser?.id === currentUserId) isAssigned = true;
-
-      // Member list check (if available)
-      if (!isAssigned && Array.isArray(task.taskMembers)) {
-        isAssigned = task.taskMembers.some((m: any) => m.userId === currentUserId || m.user_id === currentUserId);
+      // Direct assignment check (assignedToUser is often preferred in latest API)
+      if (task.assignedToUser?.id === currentUserId) {
+        isAssigned = true;
       }
-      // Fallback: assignedTo might be string name, but we can't reliably match ID. 
-      // Assuming object existence for rigorous check as per "lggedin user" requirement.
+
+      // Handle assignedTo which can be object or string in various legacy/current paths
+      if (!isAssigned && typeof task.assignedTo === 'object' && task.assignedTo !== null) {
+        if (task.assignedTo.id === currentUserId) isAssigned = true;
+      }
+
+      // Member list check
+      if (!isAssigned && Array.isArray(task.taskMembers)) {
+        isAssigned = task.taskMembers.some((m) => m.userId === currentUserId || m.user_id === currentUserId);
+      }
 
       if (isAssigned) {
-        // Handle various property casing from API
-        const est = Number(task.estimatedTime || task.estimated_time || task.estTime || 0);
+        // Handle various property casing from API safely
+        const estValue = task.estimatedTime ?? task.estimated_time ?? task.estTime ?? 0;
+        const est = Number(estValue);
         return acc + (isNaN(est) ? 0 : est);
       }
       return acc;
@@ -218,14 +223,14 @@ export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => 
     const remaining = Math.max(0, total - allotted);
 
     return { allotted, total, percentage, remaining };
-  }, [tasksData, isLoadingTasks, dateRange, currentUserId]);
+  }, [tasksData, isLoadingTasks, dateRange, currentUserId, userDetailsData?.result?.workingHours, userDetailsData?.result?.breakTime]);
 
   const isLoading = isLoadingTasks || isLoadingWorkspaces || isLoadingRequirements;
 
   return (
-    <div className="bg-white rounded-[24px] p-5 w-full h-full flex flex-col">
+    <div className="bg-white rounded-[24px] p-5 w-full h-full flex flex-col overflow-hidden border border-[#EEEEEE]">
       {/* Header */}
-      <div className="flex items-center justify-between mb-1.5">
+      <div className="flex items-center justify-between mb-2 shrink-0">
         <h3 className="font-['Manrope:SemiBold',sans-serif] text-[20px] text-[#111111]">Progress</h3>
         {/* Date Range Selector */}
         <div className="relative z-20">
@@ -237,55 +242,59 @@ export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => 
         </div>
       </div>
 
-      {/* Sub-cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1 mt-2">
-        <ProgressCard
-          title="Requirements"
-          data={requirementsData}
-          isLoading={isLoading}
-          dateRangeLabel={getRangeLabel()}
-          onClick={() => onNavigate && onNavigate('requirements')}
-          onStatusClick={(status: string) => {
-            if (onNavigate) {
-              // Map status to requirements page tab
-              let tab = 'active'; // Default to active tab
-              if (status === 'Completed') {
-                tab = 'completed';
-              } else if (status === 'In Progress') {
-                tab = 'active';
-              } else if (status === 'Delayed') {
-                tab = 'delayed'; // Correctly map to delayed tab
+      {/* Main Content Area - contains cards and hours bar */}
+      <div className="flex-1 flex flex-col min-h-0 mt-1">
+        {/* Sub-cards Grid - Scrollable if content exceeds flexible height */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1 min-h-0 overflow-y-auto pr-1 scrollbar-hide py-1">
+          <ProgressCard
+            title="Requirements"
+            data={requirementsData}
+            isLoading={isLoading}
+            dateRangeLabel={getRangeLabel()}
+            onClick={() => onNavigate && onNavigate('requirements')}
+            onStatusClick={(status: string) => {
+              if (onNavigate) {
+                // Map status to requirements page tab
+                let tab = 'active'; // Default to active tab
+                if (status === 'Completed') {
+                  tab = 'completed';
+                } else if (status === 'In Progress') {
+                  tab = 'active';
+                } else if (status === 'Delayed') {
+                  tab = 'delayed'; // Correctly map to delayed tab
+                }
+                onNavigate(`requirements?tab=${tab}`);
               }
-              onNavigate(`requirements?tab=${tab}`);
-            }
-          }}
-        />
+            }}
+          />
 
-        <ProgressCard
-          title="Tasks"
-          data={taskData}
-          isLoading={isLoading}
-          dateRangeLabel={getRangeLabel()}
-          onClick={() => onNavigate && onNavigate('tasks')}
-          onStatusClick={(status: string) => {
-            if (onNavigate) {
-              // Map status to tasks page tab
-              let tab = 'all';
-              if (status === 'In Progress') {
-                tab = 'In_Progress';
-              } else if (status === 'Completed') {
-                tab = 'Completed';
-              } else if (status === 'Delayed') {
-                tab = 'Delayed';
+          <ProgressCard
+            title="Tasks"
+            data={taskData}
+            isLoading={isLoading}
+            dateRangeLabel={getRangeLabel()}
+            onClick={() => onNavigate && onNavigate('tasks')}
+            onStatusClick={(status: string) => {
+              if (onNavigate) {
+                // Map status to tasks page tab
+                let tab = 'all';
+                if (status === 'In Progress') {
+                  tab = 'In_Progress';
+                } else if (status === 'Completed') {
+                  tab = 'Completed';
+                } else if (status === 'Delayed') {
+                  tab = 'Delayed';
+                }
+                onNavigate(`tasks?tab=${tab}`);
               }
-              onNavigate(`tasks?tab=${tab}`);
-            }
-          }}
-        />
-      </div>
+            }}
+          />
+        </div>
 
-      <div className="shrink-0">
-        <HoursBar data={hoursData} onClick={() => onNavigate && onNavigate('tasks')} />
+        {/* Hours Bar - Locked at bottom */}
+        <div className="shrink-0 pt-2 border-t border-gray-50 mt-1">
+          <HoursBar data={hoursData} onClick={() => onNavigate && onNavigate('tasks')} />
+        </div>
       </div>
     </div>
   );
@@ -304,7 +313,7 @@ interface HoursBarProps {
 function HoursBar({ data, onClick }: HoursBarProps) {
   return (
     <div
-      className="group bg-white rounded-[14px] border border-gray-100 p-3 hover:shadow-lg hover:border-[#ff3b3b]/10 transition-all duration-300 cursor-pointer mt-4"
+      className="group bg-white rounded-[14px] border border-gray-50 p-3 hover:shadow-lg hover:border-[#ff3b3b]/10 transition-all duration-300 cursor-pointer"
       onClick={onClick}
     >
       <div className="flex items-center gap-3">
@@ -417,7 +426,7 @@ function ProgressCard({ title, data, isLoading = false, dateRangeLabel = 'this p
       </div>
 
       {/* Content Container - Side by Side Layout */}
-      <div className="flex-1 flex items-center gap-5 min-h-[140px] px-2">
+      <div className="flex-1 flex items-center gap-5 min-h-0 px-2 overflow-hidden">
         {/* Chart Section */}
         <div className="relative w-[130px] h-[130px] shrink-0">
           <ResponsiveContainer width="100%" height="100%">
