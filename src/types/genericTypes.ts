@@ -115,7 +115,7 @@ export interface UserDocument {
   fileSize: number; // in bytes
   fileUrl: string;
   uploadedDate: string;
-  fileType: 'image' | 'pdf' | 'docx' | 'text' | 'csv' | 'excel';
+  fileType: 'image' | 'pdf' | 'docx' | 'excel' | 'powerpoint' | 'csv' | 'text' | 'code' | 'archive' | 'audio' | 'video' | '3d' | 'font' | 'ebook' | 'design';
   isRequired: boolean;
 }
 
