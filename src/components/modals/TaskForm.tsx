@@ -128,6 +128,14 @@ export function TaskForm({
       missingFields.push('At least one squad member');
     }
 
+    console.log('🚀 Form submission validation:', {
+      formData,
+      missingFields,
+      workspace_id: formData.workspace_id,
+      workspace_id_type: typeof formData.workspace_id,
+      workspace_id_parsed: formData.workspace_id ? parseInt(formData.workspace_id) : undefined
+    });
+
     if (missingFields.length > 0) {
       message.error(`Please fill in required fields: ${missingFields.join(', ')}`);
       return;
@@ -147,6 +155,8 @@ export function TaskForm({
       assigned_members: formData.assigned_members,
       member_id: formData.assigned_members.length > 0 ? formData.assigned_members[0] : undefined
     };
+
+    console.log('📤 Sending to backend:', backendData);
 
     try {
       await onSubmit(backendData);
@@ -239,14 +249,34 @@ export function TaskForm({
               const reqId = parseInt(String(val));
               const selectedReq = requirements.find(r => r.id === reqId) as any;
 
-              // New Logic: Auto-infer workspace from requirement
+              console.log('🔍 Requirement selected:', {
+                reqId,
+                selectedReq,
+                hasWorkspaceId: !!selectedReq?.workspace_id,
+                hasReceiverWorkspaceId: !!selectedReq?.receiver_workspace_id,
+                workspace_id: selectedReq?.workspace_id,
+                receiver_workspace_id: selectedReq?.receiver_workspace_id
+              });
+
+              // Auto-infer workspace from requirement if available
               let targetWorkspaceId = formData.workspace_id;
 
               if (selectedReq) {
                 // If receiver_workspace_id is present (outsourced task where I am receiver), use it.
                 // Otherwise use workspace_id (in-house task or I am the owner).
-                targetWorkspaceId = String(selectedReq.receiver_workspace_id || selectedReq.workspace_id);
+                const inferredWorkspaceId = selectedReq.receiver_workspace_id || selectedReq.workspace_id;
+                if (inferredWorkspaceId) {
+                  targetWorkspaceId = String(inferredWorkspaceId);
+                  console.log('✅ Workspace auto-fetched from requirement:', targetWorkspaceId);
+                } else {
+                  console.warn('⚠️ No workspace_id found in requirement:', selectedReq);
+                }
               }
+
+              console.log('📝 Setting form data:', {
+                requirement_id: String(val),
+                workspace_id: targetWorkspaceId
+              });
 
               setFormData(prev => ({
                 ...prev,

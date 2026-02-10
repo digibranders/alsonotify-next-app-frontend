@@ -4,11 +4,12 @@ import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useTabSync } from '@/hooks/useTabSync';
 import {
-  FileText, ListTodo, Calendar, Clock, 
+  FileText, Calendar, Clock,
   AlertCircle, Briefcase, FolderOpen,
-  ArrowRight, Plus} from 'lucide-react';
-import { Breadcrumb, Checkbox, App, Modal, Input } from 'antd';
-import { TaskStatusBadge, TaskChatPanel, StepRow } from './components';
+  ArrowRight
+} from 'lucide-react';
+import { Breadcrumb, App, Modal, Input } from 'antd';
+import { TaskStatusBadge, TaskChatPanel } from './components';
 import { TaskMembersList } from './components/TaskMembersList';
 
 import { useTask, useTaskTimer, useUpdateMemberStatus } from '@/hooks/useTask';
@@ -41,12 +42,11 @@ export function TaskDetailsPage() {
     : (timer?.worked_time || 0);
 
   // Use standardized tab sync hook for consistent URL handling
-  type TaskDetailsTab = 'details' | 'steps';
+  type TaskDetailsTab = 'details';
   const [activeTab, setActiveTab] = useTabSync<TaskDetailsTab>({
     defaultTab: 'details',
-    validTabs: ['details', 'steps']
+    validTabs: ['details']
   });
-  const [selectedSteps, setSelectedSteps] = useState<string[]>([]);
   const [showCompleteModal, setShowCompleteModal] = useState(false);
   const [completeDescription, setCompleteDescription] = useState('');
   const [completeSubmitting, setCompleteSubmitting] = useState(false);
@@ -93,7 +93,7 @@ export function TaskDetailsPage() {
       <PageLayout
         title={<div className="flex items-center gap-2"><Skeleton className="h-4 w-12" /><span className="text-[#999999]">/</span><Skeleton className="h-6 w-48" /></div>}
         action={<div className="flex items-center gap-4"><Skeleton className="h-8 w-24 rounded-full" /><Skeleton className="h-8 w-16 rounded-full" /></div>}
-        tabs={[{ id: 'details', label: 'Details' }, { id: 'steps', label: 'Steps' }]}
+        tabs={[{ id: 'details', label: 'Details' }]}
         activeTab="details"
         sideContent={
           <div className="w-[400px] border-l border-[#EEEEEE] flex flex-col bg-white rounded-tr-[24px] rounded-br-[24px]">
@@ -199,8 +199,6 @@ export function TaskDetailsPage() {
     : 0;
   const formattedLogged = workedHours < 0.1 && workedHours > 0 ? '< 0.1' : workedHours.toFixed(1);
 
-  const steps = task.steps || [];
-
   // Enable Start only when current member has provided estimate (align with FloatingTimerBar)
 
   return (
@@ -240,8 +238,7 @@ export function TaskDetailsPage() {
         </div>
       }
       tabs={[
-        { id: 'details', label: 'Details' },
-        { id: 'steps', label: `Steps (${steps.length})` }
+        { id: 'details', label: 'Details' }
       ]}
       activeTab={activeTab}
       onTabChange={(id) => setActiveTab(id as TaskDetailsTab)}
@@ -272,7 +269,6 @@ export function TaskDetailsPage() {
               </div>
 
               {/* People & Context Grid */}
-              {/* People & Context Grid - Redesigned */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
                 {/* Left Col: Task Members (Span 2) */}
                 <div className="lg:col-span-2">
@@ -405,59 +401,7 @@ export function TaskDetailsPage() {
           </div>
         </div>
 
-        <div style={{ display: activeTab === 'steps' ? 'block' : 'none' }}>
-          <div className="space-y-8 p-8 max-w-5xl mx-auto">
-            <div className="bg-white rounded-[16px] p-8 border border-[#EEEEEE] shadow-sm">
-              <div className="flex items-center justify-between mb-8">
-                <h3 className="text-[16px] font-['Manrope:Bold',sans-serif] text-[#111111] flex items-center gap-2">
-                  <ListTodo className="w-5 h-5 text-[#ff3b3b]" />
-                  Internal Steps
-                </h3>
-                <button className="h-9 px-4 text-[13px] bg-[#111111] text-white font-['Manrope:Bold',sans-serif] rounded-lg hover:bg-[#333333] transition-colors flex items-center gap-2">
-                  <Plus className="w-4 h-4" /> Add Step
-                </button>
-              </div>
 
-              <div className="grid grid-cols-[40px_1fr_1.5fr_1fr_1fr] gap-4 px-4 pb-4 mb-2 border-b border-[#EEEEEE] items-center">
-                <div className="flex justify-center">
-                  <Checkbox
-                    checked={steps.length > 0 && selectedSteps.length === steps.length}
-                    onChange={(e) => setSelectedSteps(e.target.checked ? steps.map((s: any) => s.id) : [])}
-                    className="border-[#DDDDDD] [&.ant-checkbox-checked]:bg-[#ff3b3b] [&.ant-checkbox-checked]:border-[#ff3b3b]"
-                  />
-                </div>
-                <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide">Assignee</p>
-                <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide">Role</p>
-                <div className="flex justify-center">
-                  <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide">Estimate</p>
-                </div>
-                <div className="flex justify-center">
-                  <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide">Status</p>
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                {steps.length > 0 ? (
-                  steps.map((step: any) => (
-                    <StepRow
-                      key={step.id}
-                      step={step}
-                      selected={selectedSteps.includes(step.id)}
-                      onSelect={() => setSelectedSteps(prev =>
-                        prev.includes(step.id) ? prev.filter(id => id !== step.id) : [...prev, step.id]
-                      )}
-                    />
-                  ))
-                ) : (
-                  <div className="text-center py-16 text-[#999999] bg-[#FAFAFA] rounded-2xl border-2 border-dashed border-[#EEEEEE]">
-                    <ListTodo className="w-10 h-10 mx-auto mb-3 opacity-20" />
-                    <p className="text-[14px]">No internal steps defined for this task.</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
       {/* TaskActionPanel removed as per request */}
       <Modal
