@@ -39,23 +39,30 @@ export function AccessBadge({ role, color, className }: AccessBadgeProps) {
         bgColor = "#ECFDF3"; // Light green
         IconComponent = User;
         break;
-      case "Leader":
-        textColor = "#7F56D9"; // Purple
-        iconColor = "#7F56D9"; // Purple
-        bgColor = "#F9F5FF"; // Light lavender
-        IconComponent = Users; // Two persons icon
-        break;
       case "HR":
         textColor = "#0284C7"; // Cyan/Blue
         iconColor = "#0284C7";
         bgColor = "#F0F9FF";
         IconComponent = ShieldCheck;
         break;
+      case "Finance":
+        textColor = "#059669"; // Emerald/Green
+        iconColor = "#059669";
+        bgColor = "#ECFDF5";
+        IconComponent = Briefcase;
+        break;
       case "Coordinator":
         textColor = "#F79009"; // Amber/Orange
         iconColor = "#F79009";
-        bgColor = "#FFFAEB"; // Light amber
-        IconComponent = Briefcase; // Briefcase for project management feel
+        bgColor = "#FFFAEB";
+        IconComponent = Briefcase;
+        break;
+      case "Head":
+      case "Leader":
+        textColor = "#7F56D9"; // Purple
+        iconColor = "#7F56D9";
+        bgColor = "#F9F5FF";
+        IconComponent = Users;
         break;
       default:
         textColor = "#666666";
