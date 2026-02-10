@@ -33,13 +33,15 @@ import { isSuperAdmin } from '@/utils/roleUtils';
 import { useAccountType } from '@/utils/accountTypeUtils';
 import { useNotifications, useMarkAllNotificationsRead, useMarkNotificationRead } from '@/hooks/useNotification';
 import { useWorkspaces, useCreateRequirement } from '@/hooks/useWorkspace';
-import { searchEmployees } from '@/services/user';
-import { getRequirementsByWorkspaceId } from '@/services/workspace';
-import { RequirementDropdownItem, CreateRequirementRequestDto } from '@/types/dto/requirement.dto';
 import { useCreateTask } from '@/hooks/useTask';
 import { useCreateNote } from '@/hooks/useNotes';
 import { useLogout } from '@/hooks/useAuth';
 import { formatDistanceToNow } from 'date-fns';
+import { formatDateForApi, getTodayForApi } from '@/utils/date';
+import { useEmployees, usePartners, useCurrentUserCompany } from '@/hooks/useUser';
+import { searchEmployees } from '@/services/user';
+import { getRequirementsByWorkspaceId } from '@/services/workspace';
+import { RequirementDropdownItem, CreateRequirementRequestDto } from '@/types/dto/requirement.dto';
 import { NoteComposerModal } from './NoteComposerModal';
 import { AIAssistantDrawer } from '../features/ai/AIAssistantDrawer';
 import { MeetingCreateModal } from '../modals/MeetingCreateModal';
@@ -109,13 +111,10 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
 
 
   // Get greeting based on local time - client side only
-  const [greeting, setGreeting] = useState('');
+  const [greeting, setGreeting] = useState(() => getGreeting());
 
   useEffect(() => {
-
-    setGreeting(getGreeting());
-
-    // Periodically update greeting
+    // Already initialized in useState, but keep interval for updates
     const interval = setInterval(() => {
       setGreeting(getGreeting());
     }, 60000);
@@ -263,8 +262,8 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
       project_id: Number(data.workspace || data.workspace_id), // Backward compatibility
       name: data.title as string,
       description: (data.description || '') as string,
-      start_date: new Date().toISOString(),
-      end_date: data.dueDate ? new Date(data.dueDate).toISOString() : undefined,
+      start_date: getTodayForApi(),
+      end_date: data.dueDate ? formatDateForApi(data.dueDate) : undefined,
       status: 'Assigned',
       is_high_priority: data.priority === 'HIGH' || Boolean(data.is_high_priority) || false,
       type: data.type as string | undefined,
@@ -429,7 +428,7 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
                   title="Open menu"
                   aria-label="Open menu"
                 >
-                  <PanelLeft24Regular className="w-5 h-5 text-[#111111]" />
+                  <img src="/favicon.png" alt="Menu" className="w-5 h-5" />
                 </button>
               )}
               {isLoadingUserDetails ? (

@@ -71,7 +71,7 @@ function AlsonotifyLayoutContent({ children }: Readonly<AlsonotifyLayoutWrapperP
 
     // Find if the current path matches any protected resource in navPermissionMap
     const currentPath = pathname || '';
-    const protectedResource = Object.entries(navPermissionMap).find(([id, _perm]) => {
+    const protectedResource = Object.entries(navPermissionMap).find(([id]) => {
       // Check for exact match or child route match (e.g. /dashboard/tasks/1 matches /dashboard/tasks)
       const pathToCheck = `/dashboard/${id}`;
       return currentPath === pathToCheck || currentPath.startsWith(`${pathToCheck}/`);
@@ -162,10 +162,12 @@ function AlsonotifyLayoutContent({ children }: Readonly<AlsonotifyLayoutWrapperP
         open={mobileOpen}
         onClose={closeMobileSidebar}
         placement="left"
-        width={220}
         closable={false}
         className="lg:hidden"
-        styles={{ body: { padding: 0, height: '100%' } }}
+        styles={{
+          wrapper: { width: 220 },
+          body: { padding: 0, height: '100%' }
+        }}
         rootStyle={{ zIndex: 1100 }}
       >
         <div className="h-full overflow-y-auto">

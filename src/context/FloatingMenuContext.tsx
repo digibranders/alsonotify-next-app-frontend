@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode, useMemo } from 'react';
 
 interface FloatingMenuContextType {
   expandedContent: ReactNode | null;
@@ -10,8 +10,13 @@ const FloatingMenuContext = createContext<FloatingMenuContextType | undefined>(u
 export function FloatingMenuProvider({ children }: { children: ReactNode }) {
   const [expandedContent, setExpandedContent] = useState<ReactNode | null>(null);
 
+  const value = useMemo(() => ({
+    expandedContent,
+    setExpandedContent
+  }), [expandedContent]);
+
   return (
-    <FloatingMenuContext.Provider value={{ expandedContent, setExpandedContent }}>
+    <FloatingMenuContext.Provider value={value}>
       {children}
     </FloatingMenuContext.Provider>
   );
