@@ -167,8 +167,9 @@ export function FloatingTimerBar() {
         // 1. Hide if 'Completed'
         if (status.includes('completed')) return false;
 
-        // 2. Hide if 'Review' - ALL review tasks should be hidden as per user request
-        if (status === 'review') return false;
+        // 2. Hide if 'Review', UNLESS it is a Revision task
+        //    (Revisions should stay visible until explicitly completed/approved again)
+        if (status === 'review' && !t.is_revision) return false;
 
         if (t.disabled) return false;
 
@@ -335,12 +336,8 @@ export function FloatingTimerBar() {
 
   return (
     <div
-      className="fixed left-0 right-0 z-[9999] transition-all duration-300 ease-out flex flex-col items-center"
-      style={{
-        bottom: '30px',
-        paddingLeft: 'max(1rem, env(safe-area-inset-left, 1rem))',
-        paddingRight: 'max(1rem, env(safe-area-inset-right, 1rem))',
-      }}
+      className="fixed left-1/2 -translate-x-1/2 z-[9999] transition-all duration-300 ease-out flex flex-col items-center"
+      style={{ bottom: '30px' }}
     >
       {/* Dropdown Menu */}
       {showTaskSelector && (
@@ -413,12 +410,12 @@ export function FloatingTimerBar() {
         </>
       )}
 
-      {/* Main Bar (Pill) - max-width prevents horizontal clipping on narrow viewports */}
+      {/* Main Bar (Pill) */}
       <div
         className={`
-          max-w-[min(100%,calc(100vw-2rem))] bg-[#111111] text-white rounded-full shadow-2xl flex items-center border border-[#111111]
+          bg-[#111111] text-white rounded-full shadow-2xl flex items-center border border-[#111111]
           transition-all duration-300 ease-out h-[48px] relative overflow-hidden
-          ${expandedContent ? 'px-4 sm:px-6 gap-4' : 'px-4 sm:px-6 md:px-8 gap-4 sm:gap-6'}
+          ${expandedContent ? 'px-6 gap-4' : 'px-8 gap-6'}
         `}
       >
         {/* Progress Bar */}

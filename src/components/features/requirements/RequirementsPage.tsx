@@ -580,40 +580,7 @@ export function RequirementsPage() {
     });
   };
 
-  /** Update active requirement: save field changes without changing status */
-  const handleUpdateRequirement = (data: CreateRequirementRequestDto, files?: File[]) => {
-    if (!editingReq) return;
-    const { status: _status, ...rest } = data;
-    const updatePayload: UpdateRequirementRequestDto = {
-      ...rest,
-      id: editingReq.id,
-      workspace_id: data.workspace_id,
-    };
-    updateRequirementMutation.mutate(updatePayload, {
-      onSuccess: async () => {
-        messageApi.success("Requirement updated");
-        setIsDialogOpen(false);
-        setEditingReq(undefined);
-        const reqId = editingReq.id;
-        if (files && files.length > 0 && reqId) {
-          messageApi.loading({ content: 'Uploading documents...', key: 'req-upload' });
-          try {
-            const uploadPromises = files.map(file => fileService.uploadFile(file, 'REQUIREMENT', reqId));
-            await Promise.all(uploadPromises);
-            messageApi.success({ content: 'Documents uploaded successfully', key: 'req-upload' });
-          } catch (err) {
-            console.error(err);
-            messageApi.error({ content: 'Failed to upload documents', key: 'req-upload' });
-          }
-        }
-      },
-      onError: (error: unknown) => {
-        messageApi.error(getErrorMessage(error, "Failed to update requirement"));
-      },
-    });
-  };
-
-  /** Send requirement: create with status (Assigned/Waiting) so backend submits directly; edit Draft → update status */
+  /** Send requirement: create then set Waiting/Assigned; edit Draft → set Waiting/Assigned */
   const handleSendRequirement = (data: CreateRequirementRequestDto, files?: File[]) => {
     const targetStatus = data.type === 'outsourced' ? 'Waiting' : 'Assigned';
     if (editingReq) {
@@ -630,13 +597,27 @@ export function RequirementsPage() {
       });
       return;
     }
-    const createPayload: CreateRequirementRequestDto = { ...data, status: targetStatus };
-    createRequirementMutation.mutate(createPayload, {
+    createRequirementMutation.mutate(data, {
       onSuccess: async (response: { result?: { id?: number } }) => {
-        messageApi.success(data.type === 'outsourced' ? "Sent to partner" : "Submitted for work");
-        setIsDialogOpen(false);
-        const reqId = response?.result?.id;
-        if (files && files.length > 0 && reqId) {
+        if (!response?.result?.id) {
+          messageApi.success("Requirement created");
+          setIsDialogOpen(false);
+          return;
+        }
+        const reqId = response.result.id;
+        updateRequirementMutation.mutate(
+          { id: reqId, workspace_id: data.workspace_id, status: targetStatus } as UpdateRequirementRequestDto,
+          {
+            onSuccess: () => {
+              messageApi.success(data.type === 'outsourced' ? "Sent to partner" : "Submitted for work");
+              setIsDialogOpen(false);
+            },
+            onError: (error: unknown) => {
+              messageApi.error(getErrorMessage(error, "Failed to send requirement"));
+            },
+          }
+        );
+        if (files && files.length > 0) {
           messageApi.loading({ content: 'Uploading documents...', key: 'req-upload' });
           try {
             const uploadPromises = files.map(file => fileService.uploadFile(file, 'REQUIREMENT', reqId));
@@ -1296,7 +1277,7 @@ export function RequirementsPage() {
 
       <div className="flex-1 min-h-0 relative flex flex-col">
         <div className="flex-1 overflow-y-auto pb-6">
-          <div className="flex flex-wrap items-center justify-between mb-4 gap-4">
+          <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Checkbox
                 checked={sortedRequirements.length > 0 && selectedReqs.length === sortedRequirements.length}
@@ -1448,7 +1429,7 @@ export function RequirementsPage() {
         </div>
 
         {finalFilteredReqs.length > 0 && (
-          <div className="flex-none bg-white z-10">
+          <div className="bg-white">
             <PaginationBar
               currentPage={currentPage}
               totalItems={finalFilteredReqs.length}
@@ -1489,8 +1470,6 @@ export function RequirementsPage() {
         } : undefined}
         onSubmit={handleSaveDraft}
         onSubmitAndSend={handleSendRequirement}
-        onUpdate={handleUpdateRequirement}
-        isActiveRequirement={editingReq ? (editingReq.rawStatus !== 'Draft') : false}
         workspaces={workspacesData?.result?.workspaces?.map((w: { id: number; name: string }) => ({ id: w.id, name: w.name })) || []}
         isLoading={createRequirementMutation.isPending || updateRequirementMutation.isPending}
       />

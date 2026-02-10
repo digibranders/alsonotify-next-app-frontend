@@ -48,6 +48,7 @@ import { LeaveApplyModal } from '../modals/LeaveApplyModal';
 import { CreateTaskRequestDto } from '@/types/dto/task.dto';
 import { useSidebar } from '@/context/SidebarContext';
 import { useIsNarrow } from '@/hooks/useBreakpoint';
+import { PanelLeft24Regular } from '@fluentui/react-icons';
 
 type UserRole = import('@/utils/roleUtils').UserRole;
 
@@ -245,9 +246,9 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
 
 
 
-  // Handle requirement creation (save as draft)
-  const handleCreateRequirement = async (data: RequirementFormData | CreateRequirementRequestDto | any) => {
-    if (!data.title && !data.name) {
+  // Handle requirement creation
+  const handleCreateRequirement = async (data: RequirementFormData | any) => {
+    if (!data.title) {
       message.error("Requirement title is required");
       return;
     }
@@ -260,10 +261,11 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
     const requirementPayload: CreateRequirementRequestDto = {
       workspace_id: Number(data.workspace || data.workspace_id),
       project_id: Number(data.workspace || data.workspace_id), // Backward compatibility
-      name: (data.name || data.title) as string,
+      name: data.title as string,
       description: (data.description || '') as string,
-      start_date: data.start_date || new Date().toISOString(),
-      end_date: data.end_date || (data.dueDate ? new Date(data.dueDate).toISOString() : undefined),
+      start_date: new Date().toISOString(),
+      end_date: data.dueDate ? new Date(data.dueDate).toISOString() : undefined,
+      status: 'Assigned',
       is_high_priority: data.priority === 'HIGH' || Boolean(data.is_high_priority) || false,
       type: data.type as string | undefined,
       contact_person: data.contactPerson as string | undefined,
@@ -276,8 +278,9 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
       requirementPayload,
       {
         onSuccess: () => {
-          message.success("Draft saved");
+          message.success("Requirement created successfully!");
           setShowRequirementDialog(false);
+          // Reset form handled by component unmount/remount usually, but here we might need to reset state if we kept it
         },
         onError: (error: unknown) => {
           const errorMessage = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to create requirement";
@@ -285,24 +288,6 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
         },
       }
     );
-  };
-
-  // Handle requirement submit (Submit for Work / Send to Partner) – create with status so it is submitted directly
-  const handleSendRequirement = (data: CreateRequirementRequestDto, _files?: File[]) => {
-    const payload: CreateRequirementRequestDto = {
-      ...data,
-      status: data.type === 'outsourced' ? 'Waiting' : 'Assigned',
-    };
-    createRequirementMutation.mutate(payload, {
-      onSuccess: () => {
-        message.success(data.type === 'outsourced' ? "Sent to partner" : "Submitted for work");
-        setShowRequirementDialog(false);
-      },
-      onError: (error: unknown) => {
-        const errorMessage = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to send requirement";
-        message.error(errorMessage);
-      },
-    });
   };
 
   // Handle Note Creation
@@ -317,65 +302,60 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
     }
   };
 
-  // Dropdown Items Configuration - hide Requirement and Workspace for Employee role
-  const createNewChildren: MenuProps['items'] = [
-    {
-      key: 'req',
-      label: 'Requirement',
-      icon: <ScrollText className="w-4 h-4" />,
-      onClick: () => setShowRequirementDialog(true),
-      className: "font-['Manrope:Medium',sans-serif]"
-    },
-    {
-      key: 'workspace',
-      label: 'Workspace',
-      icon: <Briefcase className="w-4 h-4" />,
-      onClick: () => setShowWorkspaceDialog(true),
-      className: "font-['Manrope:Medium',sans-serif]"
-    },
-    {
-      key: 'task',
-      label: 'Task',
-      icon: <ListTodo className="w-4 h-4" />,
-      onClick: () => setShowTaskDialog(true),
-      className: "font-['Manrope:Medium',sans-serif]"
-    },
-    {
-      key: 'calendar',
-      label: 'Schedule Meeting',
-      icon: <CalendarDays className="w-4 h-4" />,
-      onClick: () => {
-        setShowMeetingDialog(true);
-      },
-      className: "font-['Manrope:Medium',sans-serif]"
-    },
-    {
-      key: 'leave',
-      label: 'Apply Leave',
-      icon: <CalendarOff className="w-4 h-4" />,
-      onClick: () => {
-        setShowLeaveDialog(true);
-      },
-      className: "font-['Manrope:Medium',sans-serif]"
-    },
-    {
-      key: 'notes',
-      label: 'Add Note',
-      icon: <NotebookPen className="w-4 h-4" />,
-      onClick: () => setShowNoteDialog(true),
-      className: "font-['Manrope:Medium',sans-serif]"
-    },
-  ];
+  // Dropdown Items Configuration
   const addMenuItems: MenuProps['items'] = [
     {
       key: 'create-new',
       type: 'group',
       label: <span className="text-[11px] text-[#999999] uppercase tracking-wider font-['Manrope:Medium',sans-serif]">Create New</span>,
-      children: createNewChildren.filter((item) => {
-        if (userRole !== 'Employee') return true;
-        const key = item?.key;
-        return key !== 'req' && key !== 'workspace';
-      }),
+      children: [
+        {
+          key: 'req',
+          label: 'Requirement',
+          icon: <ScrollText className="w-4 h-4" />,
+          onClick: () => setShowRequirementDialog(true),
+          className: "font-['Manrope:Medium',sans-serif]"
+        },
+        {
+          key: 'workspace',
+          label: 'Workspace',
+          icon: <Briefcase className="w-4 h-4" />,
+          onClick: () => setShowWorkspaceDialog(true),
+          className: "font-['Manrope:Medium',sans-serif]"
+        },
+        {
+          key: 'task',
+          label: 'Task',
+          icon: <ListTodo className="w-4 h-4" />,
+          onClick: () => setShowTaskDialog(true),
+          className: "font-['Manrope:Medium',sans-serif]"
+        },
+        {
+          key: 'calendar',
+          label: 'Schedule Meeting',
+          icon: <CalendarDays className="w-4 h-4" />,
+          onClick: () => {
+            setShowMeetingDialog(true);
+          },
+          className: "font-['Manrope:Medium',sans-serif]"
+        },
+        {
+          key: 'leave',
+          label: 'Apply Leave',
+          icon: <CalendarOff className="w-4 h-4" />,
+          onClick: () => {
+            setShowLeaveDialog(true);
+          },
+          className: "font-['Manrope:Medium',sans-serif]"
+        },
+        {
+          key: 'notes',
+          label: 'Add Note',
+          icon: <NotebookPen className="w-4 h-4" />,
+          onClick: () => setShowNoteDialog(true),
+          className: "font-['Manrope:Medium',sans-serif]"
+        },
+      ],
     }
   ];
 
@@ -431,8 +411,8 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
 
   return (
     <>
-      <div className="bg-white rounded-full px-4 py-2 w-full overflow-visible min-w-0">
-        <div className="flex flex-row items-center justify-between w-full min-w-0">
+      <div className="bg-white rounded-full px-4 py-2 w-full">
+        <div className="flex flex-row items-center justify-between w-full">
           {/* Left: Mobile menu button (below lg) + Greeting text */}
           <div className="flex flex-col font-['Manrope:Regular',sans-serif] font-normal justify-center not-italic text-[#111111] text-nowrap">
             <div className="flex items-center gap-3">
@@ -440,11 +420,11 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
                 <button
                   type="button"
                   onClick={openMobileSidebar}
-                  className="w-8 h-8 min-w-[32px] sm:w-9 sm:h-9 sm:min-w-[36px] rounded-full bg-[#F7F7F7] hover:bg-[#EEEEEE] flex items-center justify-center transition-colors cursor-pointer shrink-0 overflow-hidden"
+                  className="w-10 h-10 min-w-[40px] rounded-full bg-[#F7F7F7] hover:bg-[#EEEEEE] flex items-center justify-center transition-colors cursor-pointer shrink-0"
                   title="Open menu"
                   aria-label="Open menu"
                 >
-                  <img src="/favicon.png" alt="Alsonotify" className="w-5 h-5 object-contain" />
+                  <PanelLeft24Regular className="w-5 h-5 text-[#111111]" />
                 </button>
               )}
               {isLoadingUserDetails ? (
@@ -454,25 +434,22 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
                 </>
               ) : (
                 <>
-                  <p className="leading-[normal] text-[20px] whitespace-pre hidden sm:block">
+                  <p className="leading-[normal] text-[20px] whitespace-pre">
                     <span className="font-['Manrope:Regular',sans-serif]">{`👋 ${greeting}! `}</span>
                     <span className="font-['Manrope:Bold',sans-serif]">{firstName}</span>
                   </p>
-                  <div className="hidden sm:block">
-                    <AccessBadge role={mappedRole || userRole} color={roleColor} />
-                  </div>
-                  {/* Mobile-only compact branding or title could go here if needed, or just keep it clean */}
+                  <AccessBadge role={mappedRole || userRole} color={roleColor} />
                 </>
               )}
             </div>
           </div>
 
-          {/* Right: CTAs, icons & profile section - min-w-0 allows flex shrink; responsive gap prevents clipping on narrow viewports */}
-          <div className="flex flex-row gap-2 sm:gap-4 md:gap-6 items-center min-w-0">
+          {/* Right: CTAs, icons & profile section */}
+          <div className="flex flex-row gap-6 items-center">
             {/* Add Button with Dropdown */}
             <Dropdown menu={{ items: addMenuItems }} placement="bottomRight" trigger={['click']}>
               <Button
-                className="!w-8 !h-8 sm:!w-9 sm:!h-9 !min-w-[32px] sm:!min-w-[36px] rounded-full !bg-[#ff3b3b] hover:!bg-[#ff6b6b] !flex !items-center !justify-center !p-0 !border-none !shadow-none active:scale-95 transition-transform"
+                className="!w-9 !h-9 !min-w-[36px] rounded-full !bg-[#ff3b3b] hover:!bg-[#ff6b6b] !flex !items-center !justify-center !p-0 !border-none !shadow-none"
                 type="primary"
                 shape="circle"
               >
@@ -483,7 +460,7 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
             {/* AI Assistant Toggle */}
             <button
               onClick={() => setAiDrawerOpen(true)}
-              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-br from-[#ff3b3b] to-[#cc2f2f] hover:shadow-lg flex items-center justify-center transition-all cursor-pointer border border-transparent hover:scale-105 active:scale-95"
+              className="w-9 h-9 rounded-full bg-gradient-to-br from-[#ff3b3b] to-[#cc2f2f] hover:shadow-lg flex items-center justify-center transition-all cursor-pointer border border-transparent hover:scale-105 active:scale-95"
               title="AI Assistant"
             >
               <Sparkle24Filled className="w-5 h-5 text-white" />
@@ -492,7 +469,7 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
             {/* Feedback Toggle */}
             <button
               onClick={() => setShowFeedbackDialog(true)}
-              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#F7F7F7] hover:bg-[#EEEEEE] flex items-center justify-center transition-colors cursor-pointer active:bg-[#e0e0e0]"
+              className="w-9 h-9 rounded-full bg-[#F7F7F7] hover:bg-[#EEEEEE] flex items-center justify-center transition-colors cursor-pointer"
               title="Give Feedback"
             >
               <svg
@@ -506,17 +483,17 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
               </svg>
             </button>
 
-            {/* Notification icon - overflow-visible keeps badge from clipping on narrow screens */}
+            {/* Notification icon */}
             <>
               <button
                 onClick={() => setNotificationDrawerOpen(true)}
-                className="relative overflow-visible w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#F7F7F7] hover:bg-[#EEEEEE] flex items-center justify-center transition-colors cursor-pointer active:bg-[#e0e0e0] shrink-0"
+                className="relative w-9 h-9 rounded-full bg-[#F7F7F7] hover:bg-[#EEEEEE] flex items-center justify-center transition-colors cursor-pointer"
                 title="Notifications"
               >
                 <Alert24Filled className="w-5 h-5 text-[#111111]" />
-                {/* Notification Badge - slight inward offset on small screens to avoid viewport clip */}
+                {/* Notification Badge */}
                 {unreadCount > 0 && (
-                  <span className="absolute top-0 right-0 w-3.5 h-3.5 bg-[#ff3b3b] rounded-full border-[1.5px] border-white flex items-center justify-center translate-x-0.5 -translate-y-1 sm:translate-x-1">
+                  <span className="absolute top-0 right-0 w-3.5 h-3.5 bg-[#ff3b3b] rounded-full border-[1.5px] border-white flex items-center justify-center translate-x-1 -translate-y-1">
                     <span className="text-[8px] font-['Inter:Bold',sans-serif] text-white leading-none">{unreadCount}</span>
                   </span>
                 )}
@@ -616,7 +593,6 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
       <RequirementsForm
         open={showRequirementDialog}
         onSubmit={handleCreateRequirement}
-        onSubmitAndSend={handleSendRequirement}
         onCancel={() => setShowRequirementDialog(false)}
         workspaces={workspacesData?.result?.workspaces?.map((w: { id: number; name: string }) => ({ id: w.id, name: w.name })) || []}
         isLoading={createRequirementMutation.isPending}

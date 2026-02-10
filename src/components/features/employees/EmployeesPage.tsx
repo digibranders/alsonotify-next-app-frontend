@@ -1104,9 +1104,9 @@ export function EmployeesPage() {
           />
         </div>
 
-        <div className="flex-1 overflow-y-auto pb-4">
+        <div className="flex-1 overflow-y-auto pb-24">
           {/* Table Header */}
-          <div className="hidden md:grid sticky top-0 z-20 bg-white grid-cols-[40px_2fr_1.8fr_1.2fr_1fr_1fr_1.2fr_40px] gap-4 px-4 py-3 mb-2 items-center shadow-sm">
+          <div className="sticky top-0 z-20 bg-white grid grid-cols-[40px_2fr_1.8fr_1.2fr_1fr_1fr_1.2fr_40px] gap-4 px-4 py-3 mb-2 items-center">
             <div className="flex justify-center">
               <Checkbox
                 checked={paginatedEmployees.length > 0 &&
@@ -1167,7 +1167,7 @@ export function EmployeesPage() {
           )}
         </div>
 
-        <div className="flex-none bg-white z-10">
+        <div className="bg-white">
           <PaginationBar
             currentPage={currentPage}
             totalItems={filteredEmployees.length}

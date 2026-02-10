@@ -71,7 +71,7 @@ function AlsonotifyLayoutContent({ children }: Readonly<AlsonotifyLayoutWrapperP
 
     // Find if the current path matches any protected resource in navPermissionMap
     const currentPath = pathname || '';
-    const protectedResource = Object.entries(navPermissionMap).find(([id]) => {
+    const protectedResource = Object.entries(navPermissionMap).find(([id, _perm]) => {
       // Check for exact match or child route match (e.g. /dashboard/tasks/1 matches /dashboard/tasks)
       const pathToCheck = `/dashboard/${id}`;
       return currentPath === pathToCheck || currentPath.startsWith(`${pathToCheck}/`);
@@ -122,12 +122,9 @@ function AlsonotifyLayoutContent({ children }: Readonly<AlsonotifyLayoutWrapperP
 
   return (
     <TimerProvider>
-      <div
-        className="w-full h-[100dvh] bg-[#F7F7F7] p-2 sm:p-5 flex overflow-hidden outline-none"
-        tabIndex={-1}
-      >
+      <div className="w-full h-screen bg-[#F7F7F7] p-5 flex overflow-hidden outline-none" tabIndex={-1}>
         {/* Main Layout - Visible on all screens */}
-        <div className="flex gap-0 sm:gap-5 w-full h-full overflow-hidden relative">
+        <div className="flex gap-5 w-full h-full overflow-hidden">
           {/* Left Sidebar - Hidden on mobile, visible on lg+ */}
           <div
             className={`hidden lg:block shrink-0 h-full overflow-y-auto transition-all duration-300 ${isCollapsed ? 'w-[80px]' : 'w-[240px]'}`}
@@ -136,27 +133,17 @@ function AlsonotifyLayoutContent({ children }: Readonly<AlsonotifyLayoutWrapperP
           </div>
 
           {/* Main Content Area */}
-          <div className="flex-1 min-h-0 flex flex-col gap-[10px] h-full overflow-hidden bg-transparent">
-            {/* Header/Taskbar - Fixed Height; safe-area insets prevent clipping on notched devices */}
-            <div
-              className="shrink-0 px-4 sm:px-0 pt-3 sm:pt-0"
-              style={{
-                paddingLeft: 'max(1rem, env(safe-area-inset-left, 0px))',
-                paddingRight: 'max(1rem, env(safe-area-inset-right, 0px))',
-              }}
-            >
+          <div className="flex-1 flex flex-col gap-5 h-full overflow-hidden">
+            {/* Header/Taskbar - Fixed Height */}
+            <div className="shrink-0">
               <Header userRole={userRole} roleColor={userRoleColor} />
             </div>
 
-            {/* Profile Completion Banner - Add margin for mobile */}
-            <div className="px-4 sm:px-0">
-              <ProfileCompletionBanner />
-            </div>
+            {/* Profile Completion Banner */}
+            <ProfileCompletionBanner />
 
-            {/* Page Content - horizontal padding on mobile to match header and prevent card clipping */}
-            <div className="flex-1 overflow-hidden relative flex flex-col px-4 sm:px-0">
-              {renderContent()}
-            </div>
+            {/* Page Content */}
+            {renderContent()}
           </div>
         </div>
       </div>
@@ -169,9 +156,10 @@ function AlsonotifyLayoutContent({ children }: Readonly<AlsonotifyLayoutWrapperP
         open={mobileOpen}
         onClose={closeMobileSidebar}
         placement="left"
+        width={220}
         closable={false}
         className="lg:hidden"
-        styles={{ body: { padding: 0, height: '100%' }, wrapper: { width: 220 } }}
+        styles={{ body: { padding: 0, height: '100%' } }}
         rootStyle={{ zIndex: 1100 }}
       >
         <div className="h-full overflow-y-auto">

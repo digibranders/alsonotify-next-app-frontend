@@ -191,50 +191,50 @@ export const Sidebar = React.memo(function Sidebar({ userRole, permissions, coll
   }, [pathname]);
 
   return (
-    <div
-      className={`bg-white rounded-[24px] ${isCollapsed ? 'px-2' : 'px-4 sm:px-6'} py-6 w-full flex flex-col transition-all duration-300 relative group/sidebar`}
-      style={isInDrawer ? { height: '100%', borderRadius: 0 } : { height: '100%' }}
+    <div 
+      className={`bg-white rounded-[24px] ${isCollapsed ? 'px-2' : 'px-6'} py-6 w-full flex flex-col transition-all duration-300 relative group/sidebar`} 
+      style={isInDrawer ? { height: '100%' } : { height: 'calc(100vh - 40px)' }}
     >
       {/* Toggle Button - collapse on desktop; close drawer when in drawer */}
       <button
-        onClick={handleToggleOrClose}
-        className={`
-            absolute
-            ${isCollapsed ? 'left-1/2 -translate-x-1/2 top-20' : 'right-4 top-6'} 
+          onClick={handleToggleOrClose}
+          className={`
+            absolute top-6 
+            ${isCollapsed ? 'left-1/2 -translate-x-1/2 mt-10' : 'right-4'} 
             w-8 h-8 flex items-center justify-center 
             text-[#999999] hover:text-[#111111] hover:bg-[#F7F7F7] 
             rounded-full transition-all z-10
             ${isInDrawer ? 'opacity-100' : !isCollapsed ? 'opacity-0 group-hover/sidebar:opacity-100' : ''}
           `}
-        title={isInDrawer ? "Close menu" : isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+          title={isInDrawer ? "Close menu" : isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
       >
-        {isCollapsed ? <ChevronsRight size={20} /> : <ChevronsLeft size={20} />}
+          {isCollapsed ? <ChevronsRight size={20} /> : <ChevronsLeft size={20} />}
       </button>
 
       {/* Logo */}
       <div className={`flex items-center justify-center mb-6 h-8 overflow-hidden transition-all duration-300`}>
         {isCollapsed ? (
-          <img
-            src="/favicon.png"
-            alt="Alsonotify"
-            width={32}
-            height={32}
-            className="w-8 h-8 object-contain"
-            onError={(e) => {
-              // Fallback if favicon doesn't load
-              const target = e.target as HTMLImageElement;
-              target.style.display = 'none';
-            }}
-          />
+             <img
+                src="/favicon.png"
+                alt="Alsonotify"
+                width={32}
+                height={32}
+                className="w-8 h-8 object-contain"
+                onError={(e) => {
+                  // Fallback if favicon doesn't load
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                }}
+             />
         ) : (
-          <Image
+            <Image
             src={BrandLogo}
             alt="Alsonotify"
             width={120}
             height={29}
             className="h-[29px] w-auto object-contain"
             priority
-          />
+            />
         )}
       </div>
 
@@ -257,33 +257,31 @@ export const Sidebar = React.memo(function Sidebar({ userRole, permissions, coll
 
 
       {/* Premium Card at bottom - Hide when collapsed */}
-      {
-        !isCollapsed && (
+      {!isCollapsed && (
           <div className="mt-6">
             <PremiumCard />
           </div>
-        )
-      }
-    </div >
+      )}
+    </div>
   );
 });
 
 const NavItem = React.memo(function NavItem({ href, icon, label, active = false, collapsed = false }: { href: string; icon: React.ReactNode; label: string; active?: boolean; collapsed?: boolean }) {
   const iconColor = active ? '#ff3b3b' : '#434343';
   const iconWithColor = React.isValidElement(icon)
-    ? React.cloneElement(icon as React.ReactElement<any>, {
-      color: iconColor,
-      fill: 'none'
-    })
+    ? React.cloneElement(icon as React.ReactElement<any>, { 
+        color: iconColor,
+        fill: 'none'
+      })
     : icon;
 
   return (
     <Link
       href={href}
       className={`  
-        relative h-[40px] sm:h-[32px] rounded-full transition-all group shrink-0
+        relative h-[32px] rounded-full transition-all group shrink-0
         flex items-center 
-        ${collapsed ? 'justify-center w-[40px] sm:w-[32px] px-0' : 'w-full gap-4 px-4 sm:px-6'}
+        ${collapsed ? 'justify-center w-[32px] px-0' : 'w-full gap-4 px-6'}
         ${active
           ? 'bg-[#FEF3F2] '
           : 'bg-white hover:bg-[#F7F7F7] '
@@ -304,7 +302,7 @@ const NavItem = React.memo(function NavItem({ href, icon, label, active = false,
             font-['Manrope:SemiBold',sans-serif] text-[14px] leading-normal whitespace-nowrap
             ${active ? 'text-[#ff3b3b]' : 'text-[#434343]'}
         `}>
-          {label}
+            {label}
         </span>
       )}
     </Link>
@@ -320,3 +318,4 @@ function PremiumCard() {
     </div>
   );
 }
+    

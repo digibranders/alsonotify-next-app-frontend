@@ -19,7 +19,6 @@ import { useUserDetails } from '@/hooks/useUser';
 import { getRequirementsByWorkspaceId } from '@/services/workspace';
 import { DateRangeSelector } from '../common/DateRangeSelector';
 import { Skeleton } from '../ui/Skeleton';
-import { useBreakpoint } from '@/hooks/useBreakpoint';
 import { ApiResponse } from '@/types/api';
 import { RequirementDto } from '@/types/dto/requirement.dto';
 
@@ -219,15 +218,16 @@ export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => 
     const remaining = Math.max(0, total - allotted);
 
     return { allotted, total, percentage, remaining };
-  }, [tasksData, isLoadingTasks, dateRange, currentUserId, userDetailsData?.result?.workingHours, userDetailsData?.result?.breakTime]);
+  }, [tasksData, isLoadingTasks, dateRange, currentUserId]);
 
   const isLoading = isLoadingTasks || isLoadingWorkspaces || isLoadingRequirements;
 
   return (
-    <div className="bg-white rounded-[24px] border border-gray-100 p-4 w-full min-h-0 flex flex-col overflow-hidden shrink-0">
+    <div className="bg-white rounded-[24px] p-5 w-full h-full flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between shrink-0">
-        <h3 className="font-['Manrope:SemiBold',sans-serif] text-base sm:text-[20px] text-[#111111]">Progress</h3>
+      <div className="flex items-center justify-between mb-1.5">
+        <h3 className="font-['Manrope:SemiBold',sans-serif] text-[20px] text-[#111111]">Progress</h3>
+        {/* Date Range Selector */}
         <div className="relative z-20">
           <DateRangeSelector
             value={dateRange}
@@ -237,10 +237,9 @@ export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => 
         </div>
       </div>
 
-      {/* Card group: Requirements, Tasks, Hours Capacity — always contained inside this widget */}
-      <div className="flex flex-col gap-3 flex-1 min-h-0 overflow-hidden mt-3">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 min-h-0">
-          <ProgressCard
+      {/* Sub-cards Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1 mt-2">
+        <ProgressCard
           title="Requirements"
           data={requirementsData}
           isLoading={isLoading}
@@ -283,10 +282,10 @@ export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => 
             }
           }}
         />
-        </div>
-        <div className="shrink-0">
-          <HoursBar data={hoursData} onClick={() => onNavigate && onNavigate('tasks')} />
-        </div>
+      </div>
+
+      <div className="shrink-0">
+        <HoursBar data={hoursData} onClick={() => onNavigate && onNavigate('tasks')} />
       </div>
     </div>
   );
@@ -305,44 +304,41 @@ interface HoursBarProps {
 function HoursBar({ data, onClick }: HoursBarProps) {
   return (
     <div
-      className="group relative bg-white rounded-[14px] border border-gray-100 p-2.5 sm:p-3 hover:shadow-lg hover:border-[#ff3b3b]/10 transition-all duration-300 cursor-pointer"
+      className="group bg-white rounded-[14px] border border-gray-100 p-3 hover:shadow-lg hover:border-[#ff3b3b]/10 transition-all duration-300 cursor-pointer mt-4"
       onClick={onClick}
     >
-      <div className="flex flex-wrap sm:flex-nowrap items-center gap-y-2 gap-x-3 sm:gap-4 pr-10 sm:pr-0 min-w-0">
-        {/* Label Section - Order 1 - min-w-0 allows truncation on very narrow screens */}
-        <div className="flex items-center gap-2 sm:min-w-[110px] order-1 min-w-0">
-          <h4 className="font-['Manrope',sans-serif] font-semibold text-[11px] sm:text-[12px] text-[#111111] truncate">Hours Capacity</h4>
+      <div className="flex items-center gap-3">
+        {/* Label Section */}
+        <div className="flex items-center gap-2 min-w-[110px]">
+          <h4 className="font-['Manrope',sans-serif] font-semibold text-[12px] text-[#111111]">Hours Capacity</h4>
         </div>
 
-        {/* Stats Section - Order 2 on Mobile, Order 3 on Desktop - min-w-0 allows truncation when needed */}
-        <div className="flex items-center gap-3 sm:gap-4 sm:min-w-[170px] order-2 sm:order-3 ml-0 sm:ml-0 min-w-0">
+        {/* Progress Bar Section */}
+        <div className="flex-1 flex items-center gap-2">
+          <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-[#7ccf00] to-[#6ab800] transition-all duration-500 rounded-full"
+              style={{ width: `${Math.min(data.percentage, 100)}%` }}
+            />
+          </div>
+        </div>
+
+        {/* Stats Section */}
+        <div className="flex items-center gap-4 min-w-[170px]">
           <div className="flex items-center gap-1.5">
             <span className="text-[10px] text-[#666666] font-medium font-['Inter',sans-serif]">Balance:</span>
-            <span className="text-[11px] sm:text-[12px] font-bold text-[#111111] font-['Manrope',sans-serif]">{data.remaining}h</span>
+            <span className="text-[12px] font-bold text-[#111111] font-['Manrope',sans-serif]">{data.remaining}h</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="text-[10px] text-[#666666] font-medium font-['Inter',sans-serif]">Total:</span>
-            <span className="text-[11px] sm:text-[12px] font-bold text-[#111111] font-['Manrope',sans-serif]">{data.total}h</span>
+            <span className="text-[12px] font-bold text-[#111111] font-['Manrope',sans-serif]">{data.total}h</span>
           </div>
         </div>
 
-        {/* Progress Bar Section - Order 3 on Mobile (New Line), Order 2 on Desktop */}
-        <div className="w-full sm:flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden order-3 sm:order-2 basis-full sm:basis-auto mt-1 sm:mt-0">
-          <div
-            className="h-full bg-gradient-to-r from-[#7ccf00] to-[#6ab800] transition-all duration-500 rounded-full"
-            style={{ width: `${Math.min(data.percentage, 100)}%` }}
-          />
-        </div>
-
-        {/* Arrow Icon - Desktop Only - Order 4 */}
-        <div className="hidden sm:flex w-6 h-6 rounded-full bg-gray-50 items-center justify-center group-hover:bg-[#ff3b3b] transition-colors duration-300 shrink-0 order-4">
+        {/* Arrow Icon */}
+        <div className="w-6 h-6 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-[#ff3b3b] transition-colors duration-300 shrink-0">
           <ArrowRight className="w-3 h-3 text-gray-400 group-hover:text-white transition-colors duration-300" />
         </div>
-      </div>
-
-      {/* Arrow Icon - Mobile Only (Absolute) */}
-      <div className="absolute top-3 right-3 flex sm:hidden w-6 h-6 rounded-full bg-gray-50 items-center justify-center pointer-events-none">
-        <ArrowRight className="w-3 h-3 text-gray-400" />
       </div>
     </div>
   );
@@ -364,12 +360,6 @@ interface ProgressCardProps {
 }
 
 function ProgressCard({ title, data, isLoading = false, dateRangeLabel = 'this period', onClick, onStatusClick }: ProgressCardProps) {
-  const isSm = useBreakpoint('sm');
-  const isMd = useBreakpoint('md');
-  const chartSize = isMd ? 130 : isSm ? 110 : 88;
-  const innerRadius = isMd ? 45 : isSm ? 42 : 34;
-  const outerRadius = isMd ? 60 : isSm ? 52 : 40;
-
   const chartData = [
     { name: 'Completed', value: data.completed, color: '#0F9D58' },   // Green - matches reference
     { name: 'In Progress', value: data.inProgress, color: '#2F80ED' }, // Blue - matches reference
@@ -386,25 +376,25 @@ function ProgressCard({ title, data, isLoading = false, dateRangeLabel = 'this p
 
   if (isLoading) {
     return (
-      <div className="group relative flex flex-col bg-white rounded-[20px] border border-gray-100 p-3 sm:p-4 h-full overflow-hidden">
+      <div className="group relative flex flex-col bg-white rounded-[20px] border border-gray-100 p-4 h-full overflow-hidden">
         {/* Header Skeleton */}
         <div className="flex items-center justify-between mb-3 z-10 shrink-0">
-          <Skeleton className="h-5 sm:h-6 w-20 sm:w-24 rounded-md" />
-          <Skeleton className="w-7 h-7 sm:w-8 sm:h-8 rounded-full" />
+          <Skeleton className="h-6 w-24 rounded-md" />
+          <Skeleton className="w-8 h-8 rounded-full" />
         </div>
         {/* Content Skeleton */}
-        <div className="flex-1 flex items-center gap-3 sm:gap-5 min-h-[100px] sm:min-h-[120px] md:min-h-[140px] px-3 sm:px-4">
-          {/* Chart Skeleton - responsive size */}
-          <Skeleton className="w-[88px] h-[88px] sm:w-[110px] sm:h-[110px] md:w-[130px] md:h-[130px] rounded-full shrink-0" />
+        <div className="flex-1 flex items-center gap-5 min-h-[140px] px-2">
+          {/* Chart Skeleton */}
+          <Skeleton className="w-[130px] h-[130px] rounded-full shrink-0" />
           {/* Legend Skeleton */}
           <div className="flex-1 flex flex-col justify-center gap-2">
             {[1, 2, 3].map((i) => (
               <div key={i} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
                 <div className="flex items-center gap-3">
                   <Skeleton className="w-2 h-2 rounded-full" />
-                  <Skeleton className="h-3 sm:h-4 w-16 sm:w-20 rounded-md" />
+                  <Skeleton className="h-4 w-20 rounded-md" />
                 </div>
-                <Skeleton className="h-4 sm:h-5 w-6 sm:w-8 rounded-md" />
+                <Skeleton className="h-5 w-8 rounded-md" />
               </div>
             ))}
           </div>
@@ -415,29 +405,29 @@ function ProgressCard({ title, data, isLoading = false, dateRangeLabel = 'this p
 
   return (
     <div
-      className="group relative flex flex-col bg-white rounded-[20px] border border-gray-100 p-3 sm:p-4 hover:shadow-lg hover:border-[#ff3b3b]/10 transition-all duration-300 cursor-pointer h-full"
+      className="group relative flex flex-col bg-white rounded-[20px] border border-gray-100 p-4 hover:shadow-lg hover:border-[#ff3b3b]/10 transition-all duration-300 cursor-pointer h-full"
       onClick={onClick}
     >
       {/* Card Header */}
       <div className="flex items-center justify-between mb-3 z-10 shrink-0">
-        <h4 className="font-['Manrope',sans-serif] font-semibold text-[14px] sm:text-[16px] text-[#111111]">{title}</h4>
-        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-[#ff3b3b] transition-colors duration-300">
-          <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-400 group-hover:text-white transition-colors duration-300" />
+        <h4 className="font-['Manrope',sans-serif] font-semibold text-[16px] text-[#111111]">{title}</h4>
+        <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-[#ff3b3b] transition-colors duration-300">
+          <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-white transition-colors duration-300" />
         </div>
       </div>
 
-      {/* Content Container - Side by Side Layout; px-3 sm:px-4 for consistent legend spacing from card edge */}
-      <div className="flex-1 flex items-center gap-3 sm:gap-5 min-h-[100px] sm:min-h-[120px] md:min-h-[140px] px-3 sm:px-4">
-        {/* Chart Section - responsive size */}
-        <div className="relative w-[88px] h-[88px] sm:w-[110px] sm:h-[110px] md:w-[130px] md:h-[130px] shrink-0">
+      {/* Content Container - Side by Side Layout */}
+      <div className="flex-1 flex items-center gap-5 min-h-[140px] px-2">
+        {/* Chart Section */}
+        <div className="relative w-[130px] h-[130px] shrink-0">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
               <Pie
                 data={renderData}
                 cx="50%"
                 cy="50%"
-                innerRadius={innerRadius}
-                outerRadius={outerRadius}
+                innerRadius={45}
+                outerRadius={60}
                 paddingAngle={data.total === 0 ? 0 : 4}
                 cornerRadius={data.total === 0 ? 0 : 4}
                 dataKey="value"
@@ -485,8 +475,7 @@ function ProgressCard({ title, data, isLoading = false, dateRangeLabel = 'this p
                         );
                       }
 
-                      // Otherwise show the total number (responsive: smaller on mobile)
-                      const dy = chartSize <= 88 ? 14 : 20;
+                      // Otherwise show the total number
                       return (
                         <text
                           x={viewBox.cx}
@@ -497,14 +486,14 @@ function ProgressCard({ title, data, isLoading = false, dateRangeLabel = 'this p
                           <tspan
                             x={viewBox.cx}
                             y={viewBox.cy}
-                            className="fill-[#111111] text-2xl sm:text-3xl font-extrabold font-['Manrope',sans-serif] tracking-tight"
+                            className="fill-[#111111] text-3xl font-extrabold font-['Manrope',sans-serif] tracking-tight"
                           >
                             {data.total || 0}
                           </tspan>
                           <tspan
                             x={viewBox.cx}
-                            y={(viewBox.cy || 0) + dy}
-                            className="fill-[#999999] text-[10px] sm:text-[11px] font-semibold font-['Manrope',sans-serif] uppercase tracking-wider"
+                            y={(viewBox.cy || 0) + 20}
+                            className="fill-[#999999] text-[11px] font-semibold font-['Manrope',sans-serif] uppercase tracking-wider"
                           >
                             Total
                           </tspan>
@@ -519,8 +508,8 @@ function ProgressCard({ title, data, isLoading = false, dateRangeLabel = 'this p
           </ResponsiveContainer>
         </div>
 
-        {/* Legend / Stats Section - min-w-0 so legend can shrink; gap between label and number via justify-between */}
-        <div className="flex-1 flex flex-col justify-center min-w-0">
+        {/* Legend / Stats Section */}
+        <div className="flex-1 flex flex-col justify-center">
           {chartData.map((item) => (
             <div
               key={item.name}
@@ -530,19 +519,19 @@ function ProgressCard({ title, data, isLoading = false, dateRangeLabel = 'this p
                   onStatusClick(item.name);
                 }
               }}
-              className={`flex items-center justify-between w-full py-2 border-b border-gray-50 last:border-0 group/item transition-colors rounded-lg pl-2 pr-1 ${onStatusClick
+              className={`flex items-center justify-between w-full py-2 border-b border-gray-50 last:border-0 group/item transition-colors rounded-lg px-2 -mx-2 ${onStatusClick
                 ? 'hover:bg-gray-50/50 cursor-pointer'
                 : 'cursor-default'
                 } ${item.value === 0 ? 'opacity-60' : ''}`}
             >
               <div className="flex items-center gap-3">
                 <div className="w-2 h-2 rounded-full shrink-0 ring-2 ring-white shadow-sm" style={{ backgroundColor: item.color }} />
-                <span className={`text-[12px] sm:text-[13px] font-medium font-['Manrope',sans-serif] whitespace-nowrap group-hover/item:text-[#111111] transition-colors ${item.value > 0 ? 'text-[#111111]' : 'text-[#666666]'
+                <span className={`text-[13px] font-medium font-['Manrope',sans-serif] whitespace-nowrap group-hover/item:text-[#111111] transition-colors ${item.value > 0 ? 'text-[#111111]' : 'text-[#666666]'
                   }`}>
                   {item.name === 'In Progress' ? 'In Progress' : item.name}
                 </span>
               </div>
-              <span className={`text-[14px] sm:text-[16px] font-bold font-['Manrope',sans-serif] ${item.value > 0 ? 'text-[#111111]' : 'text-[#666666]'
+              <span className={`text-[16px] font-bold font-['Manrope',sans-serif] ${item.value > 0 ? 'text-[#111111]' : 'text-[#666666]'
                 }`}>
                 {item.value || 0}
               </span>

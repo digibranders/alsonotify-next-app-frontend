@@ -114,11 +114,11 @@ export function NotesWidget() {
         );
     } else if (notesList.length === 0) {
         notesContent = (
-            <div className="col-span-4 flex flex-col items-start justify-center h-full text-left py-4 px-3 text-[#999999] text-[13px]">
+            <div className="col-span-4 flex flex-col items-center justify-center h-full text-center text-[#999999] text-[13px]">
                 <p>No notes yet</p>
                 <button
                     onClick={() => setShowDialog(true)}
-                    className="text-[#ff3b3b] hover:underline mt-1 text-left"
+                    className="text-[#ff3b3b] hover:underline mt-1"
                 >
                     Create one
                 </button>
@@ -150,11 +150,11 @@ export function NotesWidget() {
 
     return (
         <>
-            <div className="bg-white rounded-[24px] border border-gray-100 p-4 w-full h-full min-h-0 flex flex-col overflow-hidden">
+            <div className="bg-white rounded-[24px] p-5 w-full h-full flex flex-col border border-[#EEEEEE]">
                 {/* Header */}
-                <div className="flex items-center justify-between shrink-0 h-[32px]">
+                <div className="flex items-center justify-between mb-1.5 h-[32px]">
                     <div className="flex items-center gap-2">
-                        <h3 className="font-['Manrope:SemiBold',sans-serif] text-lg sm:text-[20px] text-[#111111]">Notes</h3>
+                        <h3 className="font-['Manrope:SemiBold',sans-serif] text-[20px] text-[#111111]">Notes</h3>
                         <button
                             onClick={() => setShowDialog(true)}
                             className="hover:scale-110 active:scale-95 transition-transform flex items-center justify-center p-0.5"
@@ -164,7 +164,7 @@ export function NotesWidget() {
                     </div>
                     <Link
                         href="/dashboard/notes"
-                        className="flex items-center gap-1 text-[#666666] hover:text-[#ff3b3b] text-[13px] sm:text-[14px] font-['Manrope:SemiBold',sans-serif] transition-colors no-underline [&>span]:text-current [&>svg]:text-current"
+                        className="flex items-center gap-1 text-[#666666] hover:text-[#ff3b3b] text-[14px] font-['Manrope:SemiBold',sans-serif] transition-colors no-underline [&>span]:text-current [&>svg]:text-current"
                         style={{ color: '#666666' }}
                     >
                         <span>View All</span>
@@ -174,8 +174,8 @@ export function NotesWidget() {
                     </Link>
                 </div>
 
-                {/* Notes grid — contained inside widget */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 flex-1 min-h-0 overflow-y-auto mt-3 pr-1">
+                {/* Notes Grid - 4 columns */}
+                <div className="grid grid-cols-4 gap-3 flex-1 mt-2 overflow-y-auto pr-1">
                     {notesContent}
                 </div>
             </div>
@@ -225,7 +225,7 @@ function NoteCard({ note, onArchive, onDelete, onClick }: {
                     // We don't need to check for action buttons here anymore as they are outside
                     onClick?.(note);
                 }}
-                className="relative h-full w-full bg-white rounded-xl border transition-all duration-300 cursor-pointer p-3 sm:p-4 flex flex-col hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#ff3b3b] focus:ring-opacity-50 text-left"
+                className="relative h-full w-full bg-white rounded-xl border transition-all duration-300 cursor-pointer p-4 flex flex-col hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#ff3b3b] focus:ring-opacity-50 text-left"
                 style={{
                     borderColor: borderColorNormal,
                     borderWidth: '1px'
@@ -238,9 +238,9 @@ function NoteCard({ note, onArchive, onDelete, onClick }: {
                 }}
             >
                 <div className="flex items-start justify-between mb-2 gap-2 flex-shrink-0 w-full pointer-events-none">
-                    <h4
+                    <h4 
                         id={titleId}
-                        className="font-['Manrope:SemiBold',sans-serif] text-[13px] sm:text-[14px] text-[#111111] flex-1 line-clamp-2"
+                        className="font-['Manrope:SemiBold',sans-serif] text-[14px] text-[#111111] flex-1 line-clamp-2"
                     >
                         {note.title}
                     </h4>
