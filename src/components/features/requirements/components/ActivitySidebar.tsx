@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { App } from 'antd';
 import { format } from 'date-fns';
 import { useRequirementActivities, useCreateRequirementActivity } from '@/hooks/useRequirementActivity';
@@ -19,7 +19,7 @@ export function ActivitySidebar({ reqId, employeesData, partnersData, tasks }: A
 
   const [messageText, setMessageText] = useState('');
   const [attachments, setAttachments] = useState<File[]>([]);
-  const [activeMentionOptions, setActiveMentionOptions] = useState<{ value: string; label: string; key: string }[]>([]);
+  const [mentionSearch, setMentionSearch] = useState({ text: '', prefix: '' });
 
   const taskOptions = useMemo(() => {
     return tasks.map(t => ({
@@ -63,16 +63,23 @@ export function ActivitySidebar({ reqId, employeesData, partnersData, tasks }: A
     });
   }, [employeesData, partnersData]);
 
-  // Initialize active options when mentionOptions are ready
-  useEffect(() => {
-    if (mentionOptions.length > 0 && activeMentionOptions.length === 0) {
-      setActiveMentionOptions(mentionOptions);
+  const activeMentionOptions = useMemo(() => {
+    const { text, prefix } = mentionSearch;
+    if (prefix === '@') {
+      return mentionOptions.filter(opt =>
+        opt.value.toLowerCase().includes(text.toLowerCase())
+      );
+    } else if (prefix === '#') {
+      return taskOptions.filter(opt =>
+        opt.value.toLowerCase().includes(text.toLowerCase())
+      );
     }
-  }, [mentionOptions]);
+    return [];
+  }, [mentionOptions, taskOptions, mentionSearch]);
 
   const escapeRegExp = (string: string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-  const formatActivityMessage = (msg: string) => {
+  const formatActivityMessage = useCallback((msg: string) => {
     if (!msg) return '';
     const allNames = mentionOptions.map(o => o.value);
     const taskNames = taskOptions.map(o => o.value);
@@ -113,7 +120,7 @@ export function ActivitySidebar({ reqId, employeesData, partnersData, tasks }: A
     }
 
     return parts;
-  };
+  }, [mentionOptions, taskOptions]);
 
   const activityData = useMemo(() => {
     if (!activityResponse?.result) return [];
@@ -131,18 +138,10 @@ export function ActivitySidebar({ reqId, employeesData, partnersData, tasks }: A
       task: act.metadata && typeof act.metadata === 'object' && 'task' in act.metadata ? String((act.metadata as Record<string, unknown>).task) : undefined,
       raw: act
     }));
-  }, [activityResponse, mentionOptions, taskOptions]);
+  }, [activityResponse, formatActivityMessage]);
 
   const handleMentionSearch = (text: string, prefix: string) => {
-    if (prefix === '@') {
-      setActiveMentionOptions(mentionOptions.filter(opt =>
-        opt.value.toLowerCase().includes(text.toLowerCase())
-      ));
-    } else if (prefix === '#') {
-      setActiveMentionOptions(taskOptions.filter(opt =>
-        opt.value.toLowerCase().includes(text.toLowerCase())
-      ));
-    }
+    setMentionSearch({ text, prefix });
   };
 
   const handleSendMessage = async () => {
@@ -184,12 +183,12 @@ export function ActivitySidebar({ reqId, employeesData, partnersData, tasks }: A
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files);
-      const maxSize = 25 * 1024 * 1024; // 25MB
+      const maxSize = 50 * 1024 * 1024; // 50MB
 
       // Validate file sizes
       const oversizedFiles = files.filter(file => file.size > maxSize);
       if (oversizedFiles.length > 0) {
-        message.error(`File size must be less than 25MB. ${oversizedFiles.length} file(s) exceeded the limit.`);
+        message.error(`Some files exceed 50MB limit: ${oversizedFiles.map(f => f.name).join(', ')}`);
         return;
       }
 

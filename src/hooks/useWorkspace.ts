@@ -24,13 +24,16 @@ import { mapWorkspaceDtoToDomain } from "../utils/mappers/workspace";
 import { queryKeys } from "../lib/queryKeys";
 
 // Workspaces
-const selectWorkspaces = (data: ApiResponse<{ workspaces: WorkspaceDto[] }>): ApiResponse<{ workspaces: Workspace[] }> => ({
-  ...data,
-  result: {
-    ...data.result,
-    workspaces: data.result && data.result.workspaces ? data.result.workspaces.map(mapWorkspaceDtoToDomain) : []
-  }
-});
+const selectWorkspaces = (data: ApiResponse<{ workspaces: WorkspaceDto[] }>): ApiResponse<{ workspaces: Workspace[] }> => {
+  if (!data) return data as any;
+  return {
+    ...data,
+    result: {
+      ...data.result,
+      workspaces: data.result && data.result.workspaces ? data.result.workspaces.map(mapWorkspaceDtoToDomain) : []
+    }
+  };
+};
 
 export const useWorkspaces = (options: string = "") => {
   return useQuery({
@@ -106,10 +109,13 @@ export const useDeleteWorkspace = () => {
 
 import { mapRequirementDtoToDomain } from "../utils/mappers/requirement";
 
-const selectRequirements = (data: ApiResponse<RequirementDto[]>): ApiResponse<Requirement[]> => ({
-  ...data,
-  result: data.result ? data.result.map(mapRequirementDtoToDomain) : []
-});
+const selectRequirements = (data: ApiResponse<RequirementDto[]>): ApiResponse<Requirement[]> => {
+  if (!data) return data as any;
+  return {
+    ...data,
+    result: data.result ? data.result.map(mapRequirementDtoToDomain) : []
+  };
+};
 
 
 
@@ -154,7 +160,7 @@ export const useWorkspaceRequirementsDropdown = (workspaceId?: number) => {
 
       const results = await Promise.all(reqPromises);
       const allRequirements: RequirementDropdownItem[] = results.flat();
-      
+
       return allRequirements;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes

@@ -1,10 +1,12 @@
 import { useState, useMemo, useCallback } from 'react';
-import dayjs from 'dayjs';
-import { Input, Select, DatePicker, Checkbox, App, Button, Modal } from 'antd';
+import dayjs from '@/utils/dayjs';
+import { formatDateForApi, getTodayForApi } from '@/utils/date';
+import { Input, DatePicker, Checkbox, App, Button, Modal, Select } from 'antd';
 import { Upload as UploadIcon, FileText, ChevronDown } from 'lucide-react';
 import { useOutsourcePartners, useEmployees } from '@/hooks/useUser';
 import { FormLayout } from '@/components/common/FormLayout';
 import { trimStr } from '@/utils/trim';
+import { WorkspaceForm } from './WorkspaceForm';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -137,7 +139,9 @@ function RequirementsFormContent({
         return defaultFormData;
     });
 
+
     const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+    const [isWorkspaceCreateOpen, setIsWorkspaceCreateOpen] = useState(false);
 
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
@@ -179,8 +183,8 @@ function RequirementsFormContent({
             budget: Number(formData.budget) || 0,
             quoted_price: Number(formData.quoted_price) || undefined,
             currency: formData.currency || 'USD',
-            end_date: formData.dueDate ? dayjs(formData.dueDate).toISOString() : undefined,
-            start_date: new Date().toISOString(),
+            end_date: formData.dueDate ? formatDateForApi(formData.dueDate) : undefined,
+            start_date: getTodayForApi(),
         };
     }, [formData, partners, message]);
 
@@ -208,7 +212,7 @@ function RequirementsFormContent({
         }
     }, [buildPayload, onSubmit, onSubmitAndSend, selectedFiles, message]);
 
-    const sendButtonLabel = formData.type === 'outsourced' ? 'Send to Partner' : formData.type === 'inhouse' ? 'Submit for Work' : 'Send Requirement';
+    const sendButtonLabel = isEditing ? 'Update' : (formData.type === 'outsourced' ? 'Send to Partner' : formData.type === 'inhouse' ? 'Submit for Work' : 'Send Requirement');
 
     const footer = (
         <>
@@ -219,18 +223,20 @@ function RequirementsFormContent({
             >
                 Cancel
             </Button>
-            <Button
-                type="default"
-                onClick={onSaveDraft}
-                loading={isLoading}
-                disabled={isLoading}
-                className="h-11 px-6 text-[14px] font-['Manrope:SemiBold',sans-serif] rounded-xl border border-[#EEEEEE] hover:border-[#111111] hover:text-[#111111] transition-all"
-            >
-                Save draft
-            </Button>
+            {!isEditing && (
+                <Button
+                    type="default"
+                    onClick={onSaveDraft}
+                    loading={isLoading}
+                    disabled={isLoading}
+                    className="h-11 px-6 text-[14px] font-['Manrope:SemiBold',sans-serif] rounded-xl border border-[#EEEEEE] hover:border-[#111111] hover:text-[#111111] transition-all"
+                >
+                    Save draft
+                </Button>
+            )}
             <Button
                 type="primary"
-                onClick={onSendRequirement}
+                onClick={isEditing ? onSaveDraft : onSendRequirement}
                 loading={isLoading}
                 disabled={isLoading}
                 className="h-11 px-8 rounded-xl bg-[#111111] hover:bg-[#000000] text-white text-[14px] font-['Manrope:SemiBold',sans-serif] border-none shadow-none transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -243,7 +249,7 @@ function RequirementsFormContent({
     return (
         <FormLayout
             title={isEditing ? 'Edit Requirement' : 'New Requirement'}
-            subtitle="Define a new requirement and send it for approval/processing."
+            subtitle={isEditing ? 'Update the details of your requirement.' : 'Define a new requirement and send it for approval/processing.'}
             icon={FileText}
             onCancel={onCancel}
             onSubmit={onSaveDraft}
@@ -271,21 +277,37 @@ function RequirementsFormContent({
                         className="w-full h-11"
                         placeholder="Select workspace"
                         value={formData.workspace ? String(formData.workspace) : undefined}
-                        onChange={(v) => setFormData({ ...formData, workspace: v })}
+                        onChange={(v) => {
+                            if (v === 'create_new') {
+                                setIsWorkspaceCreateOpen(true);
+                            } else {
+                                setFormData({ ...formData, workspace: v });
+                            }
+                        }}
                         popupStyle={{ zIndex: 2000 }}
                         suffixIcon={<ChevronDown className="w-4 h-4 text-gray-400" />}
                         disabled={false}
                     >
                         {workspaces && workspaces.length > 0 ? (
-                            workspaces.map((w) => (
-                                <Option key={String(w.id)} value={String(w.id)}>
-                                    {w.name}
+                            <>
+                                <Option key="create_new" value="create_new" className="text-[#ff3b3b] font-medium border-b border-gray-100 pb-2 mb-2">
+                                    + Create New Workspace
                                 </Option>
-                            ))
+                                {workspaces.map((w) => (
+                                    <Option key={String(w.id)} value={String(w.id)}>
+                                        {w.name}
+                                    </Option>
+                                ))}
+                            </>
                         ) : (
-                            <Option value="none" disabled>
-                                No workspaces available
-                            </Option>
+                            <>
+                                <Option key="create_new" value="create_new" className="text-[#ff3b3b] font-medium border-b border-gray-100 pb-2 mb-2">
+                                    + Create New Workspace
+                                </Option>
+                                <Option value="none" disabled>
+                                    No workspaces available
+                                </Option>
+                            </>
                         )}
                     </Select>
                 </div>
@@ -423,6 +445,18 @@ function RequirementsFormContent({
                     )}
                 </label>
             </div>
+
+            <WorkspaceForm
+                open={isWorkspaceCreateOpen}
+                onCancel={() => setIsWorkspaceCreateOpen(false)}
+                onSuccess={(data: any) => {
+                    const newWorkspaceId = data?.result?.id || data?.id;
+                    if (newWorkspaceId) {
+                        setFormData(prev => ({ ...prev, workspace: String(newWorkspaceId) }));
+                    }
+                    setIsWorkspaceCreateOpen(false);
+                }}
+            />
         </FormLayout>
     );
 }

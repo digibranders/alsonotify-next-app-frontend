@@ -1,7 +1,8 @@
 import { useState, useMemo } from "react";
 import { Button, Input, Select, Checkbox, DatePicker, App, Avatar } from 'antd';
 import { CheckSquare, Calendar, Users, ArrowRight, Layers, UserPlus, X } from 'lucide-react';
-import dayjs from 'dayjs';
+import dayjs from '@/utils/dayjs';
+import { formatDateForApi, getTodayForApi } from '@/utils/date';
 import { FormLayout } from '@/components/common/FormLayout';
 import { trimStr } from '@/utils/trim';
 
@@ -127,6 +128,14 @@ export function TaskForm({
       missingFields.push('At least one squad member');
     }
 
+    console.log('🚀 Form submission validation:', {
+      formData,
+      missingFields,
+      workspace_id: formData.workspace_id,
+      workspace_id_type: typeof formData.workspace_id,
+      workspace_id_parsed: formData.workspace_id ? parseInt(formData.workspace_id) : undefined
+    });
+
     if (missingFields.length > 0) {
       message.error(`Please fill in required fields: ${missingFields.join(', ')}`);
       return;
@@ -137,8 +146,8 @@ export function TaskForm({
       workspace_id: formData.workspace_id ? parseInt(formData.workspace_id) : undefined,
       requirement_id: formData.requirement_id ? parseInt(formData.requirement_id) : undefined,
       leader_id: parseInt(currentUserId),
-      end_date: formData.end_date ? dayjs(formData.end_date).toISOString() : undefined,
-      start_date: formData.start_date || new Date().toISOString(),
+      end_date: formData.end_date ? formatDateForApi(formData.end_date) : undefined,
+      start_date: formData.start_date ? formatDateForApi(formData.start_date) : getTodayForApi(),
       estimated_time: (formData.estimated_time && isCurrentUserAssigned) ? parseFloat(formData.estimated_time) : 0,
       is_high_priority: formData.is_high_priority,
       description: trimStr(formData.description) || "",
@@ -146,6 +155,8 @@ export function TaskForm({
       assigned_members: formData.assigned_members,
       member_id: formData.assigned_members.length > 0 ? formData.assigned_members[0] : undefined
     };
+
+    console.log('📤 Sending to backend:', backendData);
 
     try {
       await onSubmit(backendData);
@@ -238,14 +249,34 @@ export function TaskForm({
               const reqId = parseInt(String(val));
               const selectedReq = requirements.find(r => r.id === reqId) as any;
 
-              // New Logic: Auto-infer workspace from requirement
+              console.log('🔍 Requirement selected:', {
+                reqId,
+                selectedReq,
+                hasWorkspaceId: !!selectedReq?.workspace_id,
+                hasReceiverWorkspaceId: !!selectedReq?.receiver_workspace_id,
+                workspace_id: selectedReq?.workspace_id,
+                receiver_workspace_id: selectedReq?.receiver_workspace_id
+              });
+
+              // Auto-infer workspace from requirement if available
               let targetWorkspaceId = formData.workspace_id;
 
               if (selectedReq) {
                 // If receiver_workspace_id is present (outsourced task where I am receiver), use it.
                 // Otherwise use workspace_id (in-house task or I am the owner).
-                targetWorkspaceId = String(selectedReq.receiver_workspace_id || selectedReq.workspace_id);
+                const inferredWorkspaceId = selectedReq.receiver_workspace_id || selectedReq.workspace_id;
+                if (inferredWorkspaceId) {
+                  targetWorkspaceId = String(inferredWorkspaceId);
+                  console.log('✅ Workspace auto-fetched from requirement:', targetWorkspaceId);
+                } else {
+                  console.warn('⚠️ No workspace_id found in requirement:', selectedReq);
+                }
               }
+
+              console.log('📝 Setting form data:', {
+                requirement_id: String(val),
+                workspace_id: targetWorkspaceId
+              });
 
               setFormData(prev => ({
                 ...prev,
@@ -287,41 +318,6 @@ export function TaskForm({
             }}
             suffixIcon={<Calendar className="w-4 h-4 text-[#999999]" />}
             disabledDate={(current) => current && current < dayjs().startOf('day')}
-          />
-        </div>
-
-        {/* Priority: Col Span 6 */}
-        <div className="col-span-12 sm:col-span-6 space-y-1.5">
-          <span className="text-[12px] font-bold text-[#111111]">Priority</span>
-          <div
-            className={`w-full h-11 rounded-lg border flex items-center px-3 cursor-pointer transition-colors ${formData.is_high_priority ? 'border-red-200 bg-red-50/50' : 'border-[#EEEEEE] hover:border-gray-300'}`}
-            onClick={() => setFormData({ ...formData, is_high_priority: !formData.is_high_priority })}
-          >
-            <Checkbox
-              checked={formData.is_high_priority}
-              className="font-medium text-sm w-full pointer-events-none"
-            >
-              <span className={formData.is_high_priority ? 'text-red-600' : 'text-[#111111]'}>High Priority</span>
-            </Checkbox>
-          </div>
-        </div>
-
-        {/* My Hours: Col Span 6 */}
-        <div className="col-span-12 sm:col-span-6 space-y-1.5">
-          <span className={`text-[12px] font-bold ${formData.assigned_members.includes(parseInt(currentUserId)) ? 'text-[#111111]' : 'text-gray-400'}`}>
-            My Hours <span className={`${formData.assigned_members.includes(parseInt(currentUserId)) ? 'text-red-500' : 'hidden'}`}>*</span>
-          </span>
-          <Input
-            type="number"
-            step="0.1"
-            min="0"
-            placeholder={formData.assigned_members.includes(parseInt(currentUserId)) ? "0" : "-"}
-            className="w-full h-11 rounded-lg border border-[#EEEEEE] text-sm"
-            value={formData.estimated_time}
-            onChange={(e) => {
-              setFormData({ ...formData, estimated_time: e.target.value });
-            }}
-            disabled={!formData.assigned_members.includes(parseInt(currentUserId))}
           />
         </div>
 
@@ -419,6 +415,44 @@ export function TaskForm({
               </div>
             )}
           </div>
+        </div>
+      </div>
+
+      {/* Priority & My Hours Grid */}
+      <div className="grid grid-cols-12 gap-x-4 gap-y-4 mb-5">
+        {/* Priority: Col Span 6 */}
+        <div className="col-span-12 sm:col-span-6 space-y-1.5">
+          <span className="text-[12px] font-bold text-[#111111]">Priority</span>
+          <div
+            className={`w-full h-11 rounded-lg border flex items-center px-3 cursor-pointer transition-colors ${formData.is_high_priority ? 'border-red-200 bg-red-50/50' : 'border-[#EEEEEE] hover:border-gray-300'}`}
+            onClick={() => setFormData({ ...formData, is_high_priority: !formData.is_high_priority })}
+          >
+            <Checkbox
+              checked={formData.is_high_priority}
+              className="font-medium text-sm w-full pointer-events-none"
+            >
+              <span className={formData.is_high_priority ? 'text-red-600' : 'text-[#111111]'}>High Priority</span>
+            </Checkbox>
+          </div>
+        </div>
+
+        {/* My Hours: Col Span 6 */}
+        <div className="col-span-12 sm:col-span-6 space-y-1.5">
+          <span className={`text-[12px] font-bold ${formData.assigned_members.includes(parseInt(currentUserId)) ? 'text-[#111111]' : 'text-gray-400'}`}>
+            My Hours <span className={`${formData.assigned_members.includes(parseInt(currentUserId)) ? 'text-red-500' : 'hidden'}`}>*</span>
+          </span>
+          <Input
+            type="number"
+            step="0.1"
+            min="0"
+            placeholder={formData.assigned_members.includes(parseInt(currentUserId)) ? "0" : "-"}
+            className="w-full h-11 rounded-lg border border-[#EEEEEE] text-sm"
+            value={formData.estimated_time}
+            onChange={(e) => {
+              setFormData({ ...formData, estimated_time: e.target.value });
+            }}
+            disabled={!formData.assigned_members.includes(parseInt(currentUserId))}
+          />
         </div>
       </div>
 

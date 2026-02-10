@@ -4,18 +4,12 @@ import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { PageLayout } from '../../layout/PageLayout';
 import { FilterBar, FilterOption } from '../../ui/FilterBar';
 import { DateRangeSelector } from '../../common/DateRangeSelector';
-import { useFloatingMenu } from '../../../context/FloatingMenuContext';
-import {
-  CheckCircle, CheckSquare, Users, Trash2,
-  Play, XCircle, RotateCcw,
-  Archive
-} from 'lucide-react';
+
 
 import { PaginationBar } from '../../ui/PaginationBar';
-import { Select, Tooltip, Popover, Checkbox, App } from 'antd';
-import { useWorkspaces, useCreateRequirement, useUpdateRequirement, useDeleteRequirement, useApproveRequirement, useCollaborativeRequirements } from '@/hooks/useWorkspace';
-import { useEmployees, useUserDetails } from '@/hooks/useUser';
-import { Skeleton } from '../../ui/Skeleton';
+import { Select, App } from 'antd';
+import { useWorkspaces, useCreateRequirement, useUpdateRequirement, useDeleteRequirement, useCollaborativeRequirements } from '@/hooks/useWorkspace';
+import { useUserDetails } from '@/hooks/useUser';
 import { getRequirementsByWorkspaceId } from '@/services/workspace';
 import { fileService } from '@/services/file.service';
 import { useQueries } from '@tanstack/react-query';
@@ -23,14 +17,14 @@ import { format } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import { useTabSync } from '@/hooks/useTabSync';
 import { Dayjs } from 'dayjs';
-import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
+
 
 
 const { Option } = Select;
 
 import { RequirementsForm } from '../../modals/RequirementsForm';
-import { RequirementCard } from './components/RequirementCard';
 import { QuotationDialog, RejectDialog, InternalMappingModal } from './components/dialogs';
+import { RequirementsList } from './components/RequirementsList';
 
 import { Requirement, Workspace } from '@/types/domain';
 import { RequirementDto, CreateRequirementRequestDto, UpdateRequirementRequestDto } from '@/types/dto/requirement.dto';
@@ -48,14 +42,16 @@ import { getRoleFromUser } from '@/utils/roleUtils';
 export function RequirementsPage() {
   const { message: messageApi, modal: modalApi } = App.useApp();
   const router = useRouter();
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsMounted(true), 0);
+    return () => clearTimeout(timer);
+  }, []);
   const createRequirementMutation = useCreateRequirement();
   const updateRequirementMutation = useUpdateRequirement();
-  const deleteRequirementMutation = useDeleteRequirement();
-  const approveRequirementMutation = useApproveRequirement();
 
-  // Fetch all workspaces first to get requirements for each
   const { data: workspacesData, isLoading: isLoadingWorkspaces } = useWorkspaces();
-  const { data: employeesData } = useEmployees();
 
   // Get all workspace IDs
   const workspaceIds = useMemo(() => {
@@ -416,7 +412,6 @@ export function RequirementsPage() {
     validTabs: ['draft', 'pending', 'active', 'completed', 'delayed', 'archived']
   });
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedReqs, setSelectedReqs] = useState<number[]>([]);
 
   // Date Picker State
   const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null] | null>(null);
@@ -544,15 +539,20 @@ export function RequirementsPage() {
   /** Save as draft: create → backend sets Draft; edit → update fields, keep status Draft */
   const handleSaveDraft = (data: CreateRequirementRequestDto, files?: File[]) => {
     if (editingReq) {
-      const updatePayload: UpdateRequirementRequestDto = { ...data, id: editingReq.id, status: 'Draft' };
+      // In edit mode, we use handleSaveDraft for the "Update" action.
+      // To avoid "Invalid status transition" errors, we omit the status field.
+      // The backend will update other fields while preserving the current status.
+      const updatePayload: UpdateRequirementRequestDto = { ...data, id: editingReq.id };
+      delete updatePayload.status;
+
       updateRequirementMutation.mutate(updatePayload, {
         onSuccess: () => {
-          messageApi.success("Draft saved");
+          messageApi.success("Requirement updated");
           setIsDialogOpen(false);
           setEditingReq(undefined);
         },
         onError: (error: unknown) => {
-          messageApi.error(getErrorMessage(error, "Failed to save draft"));
+          messageApi.error(getErrorMessage(error, "Failed to update requirement"));
         },
       });
       return;
@@ -639,7 +639,6 @@ export function RequirementsPage() {
 
   // Filter Logic:
   // 1. First apply all filters EXCEPT the Status Tab
-  const { setExpandedContent } = useFloatingMenu();
   const baseFilteredReqs = useMemo(() => requirements.filter(req => {
     // Type
     const typeMatch = filters.type === 'All' ||
@@ -834,137 +833,6 @@ export function RequirementsPage() {
     setCurrentPage(1);
   }, []);
 
-  const toggleSelect = (id: number) => {
-    setSelectedReqs(prev => {
-      if (prev.includes(id)) {
-        return prev.filter(reqId => reqId !== id);
-      } else {
-        return [...prev, id];
-      }
-    });
-  };
-
-  const handleBulkDelete = useCallback(async () => {
-    try {
-      const deletePromises = selectedReqs.map(id => {
-        const req = requirementsRef.current.find(r => r.id === id); // Use ref
-        if (!req) return Promise.resolve();
-        return deleteRequirementMutation.mutateAsync({ id, workspace_id: req.workspaceId || 0 });
-      });
-      await Promise.all(deletePromises);
-      messageApi.success(`Deleted ${selectedReqs.length} requirement(s)`);
-      setSelectedReqs([]);
-    } catch (error: unknown) {
-      messageApi.error(getErrorMessage(error, "Failed to delete requirements"));
-    }
-  }, [selectedReqs, deleteRequirementMutation, messageApi]); // Removed 'requirements'
-
-  const handleBulkComplete = useCallback(async () => {
-    try {
-      const updatePromises = selectedReqs.map(id => {
-        const req = requirementsRef.current.find(r => r.id === id); // Use ref
-        if (!req) return Promise.resolve();
-        return updateRequirementMutation.mutateAsync({
-          id,
-          workspace_id: req.workspaceId,
-          status: 'Completed',
-        });
-      });
-      await Promise.all(updatePromises);
-      messageApi.success(`Marked ${selectedReqs.length} requirement(s) as completed`);
-      setSelectedReqs([]);
-    } catch (error: unknown) {
-      messageApi.error(getErrorMessage(error, "Failed to update requirements"));
-    }
-  }, [selectedReqs, updateRequirementMutation, messageApi]); // Removed 'requirements'
-
-  const handleBulkApprove = useCallback(async () => {
-    try {
-      const approvePromises = selectedReqs.map(id =>
-        approveRequirementMutation.mutateAsync({ requirement_id: id, status: "Assigned" })
-      );
-      await Promise.all(approvePromises);
-      messageApi.success(`Approved ${selectedReqs.length} requirement(s)`);
-      setSelectedReqs([]);
-    } catch (error: unknown) {
-      messageApi.error(getErrorMessage(error, "Failed to approve requirements"));
-    }
-  }, [selectedReqs, approveRequirementMutation, messageApi]);
-
-  const handleBulkReject = useCallback(async () => {
-    try {
-      const rejectPromises = selectedReqs.map(id =>
-        approveRequirementMutation.mutateAsync({ requirement_id: id, status: "Rejected" })
-      );
-      await Promise.all(rejectPromises);
-      messageApi.success(`Rejected ${selectedReqs.length} requirement(s)`);
-      setSelectedReqs([]);
-    } catch (error: unknown) {
-      messageApi.error(getErrorMessage(error, "Failed to reject requirements"));
-    }
-  }, [selectedReqs, approveRequirementMutation, messageApi]);
-
-  const handleBulkSubmit = useCallback(async () => {
-    try {
-      const updatePromises = selectedReqs.map(id => {
-        const req = requirementsRef.current.find(r => r.id === id); // Use ref
-        if (!req) return Promise.resolve();
-        return updateRequirementMutation.mutateAsync({
-          id,
-          workspace_id: req.workspaceId,
-          status: 'Assigned',
-        });
-      });
-      await Promise.all(updatePromises);
-      messageApi.success(`Submitted ${selectedReqs.length} requirement(s) for approval`);
-      setSelectedReqs([]);
-    } catch (error: unknown) {
-      messageApi.error(getErrorMessage(error, "Failed to submit requirements"));
-    }
-  }, [selectedReqs, updateRequirementMutation, messageApi]); // Removed 'requirements'
-
-  const handleBulkReopen = useCallback(async () => {
-    try {
-      const updatePromises = selectedReqs.map(id => {
-        const req = requirementsRef.current.find(r => r.id === id); // Use ref
-        if (!req) return Promise.resolve();
-        return updateRequirementMutation.mutateAsync({
-          id,
-          workspace_id: req.workspaceId,
-          status: 'Assigned',
-        });
-      });
-      await Promise.all(updatePromises);
-      messageApi.success(`Reopened ${selectedReqs.length} requirement(s)`);
-      setSelectedReqs([]);
-    } catch (error: unknown) {
-      messageApi.error(getErrorMessage(error, "Failed to reopen requirements"));
-    }
-  }, [selectedReqs, updateRequirementMutation, messageApi]); // Removed 'requirements'
-
-  const handleBulkAssign = useCallback(async (employee: { user_id?: number; id?: number; name?: string }) => {
-    try {
-      const updatePromises = selectedReqs.map(id => {
-        const req = requirementsRef.current.find(r => r.id === id); // Use ref
-        if (!req) return Promise.resolve();
-
-        const leaderId = employee?.user_id || employee?.id;
-        if (!leaderId) return Promise.resolve();
-
-        return updateRequirementMutation.mutateAsync({
-          id,
-          workspace_id: req.workspaceId,
-          leader_id: leaderId,
-        });
-      });
-      await Promise.all(updatePromises);
-      messageApi.success(`Assigned ${employee?.name || 'selected user'} to ${selectedReqs.length} requirement(s)`);
-      setSelectedReqs([]);
-    } catch (error: unknown) {
-      messageApi.error(getErrorMessage(error, "Failed to assign requirements"));
-    }
-  }, [selectedReqs, updateRequirementMutation, messageApi]); // Removed 'requirements'
-
   const handleReqAccept = (id: number) => {
     const req = requirements.find(r => r.id === id);
     if (!req) {
@@ -1133,119 +1001,61 @@ export function RequirementsPage() {
 
 
 
-  const floatingMenuContent = useMemo(() => {
-    if (selectedReqs.length === 0) return null;
-
-    return (
-      <>
-        <div className="flex items-center gap-2 border-r border-white/20 pr-6">
-          <div className="bg-[#ff3b3b] text-white text-[12px] font-bold px-2 py-0.5 rounded-full">
-            {selectedReqs.length}
-          </div>
-          <span className="text-[14px] font-['Manrope:SemiBold',sans-serif]">Selected</span>
-        </div>
-
-        <div className="flex items-center gap-2">
-          {/* Context Aware Actions */}
-          {activeStatusTab === 'draft' && (
-            <Tooltip title="Submit for Approval">
-              <button onClick={handleBulkSubmit} className="p-2 hover:bg-white/10 rounded-full transition-colors text-[#4CAF50]">
-                <Play className="w-4 h-4" />
-              </button>
-            </Tooltip>
-          )}
-
-          {activeStatusTab === 'pending' && (
-            <>
-              <Tooltip title="Approve">
-                <button onClick={handleBulkApprove} className="p-2 hover:bg-white/10 rounded-full transition-colors text-[#4CAF50]">
-                  <CheckCircle className="w-4 h-4" />
-                </button>
-              </Tooltip>
-              <Tooltip title="Reject">
-                <button onClick={handleBulkReject} className="p-2 hover:bg-white/10 rounded-full transition-colors text-[#ff3b3b]">
-                  <XCircle className="w-4 h-4" />
-                </button>
-              </Tooltip>
-            </>
-          )}
-
-          {activeStatusTab === 'active' && (
-            <Tooltip title="Mark as Completed">
-              <button onClick={handleBulkComplete} className="p-2 hover:bg-white/10 rounded-full transition-colors text-[#4CAF50]">
-                <CheckSquare className="w-4 h-4" />
-              </button>
-            </Tooltip>
-          )}
-
-          {activeStatusTab === 'completed' && (
-            <Tooltip title="Reopen">
-              <button onClick={handleBulkReopen} className="p-2 hover:bg-white/10 rounded-full transition-colors">
-                <RotateCcw className="w-4 h-4" />
-              </button>
-            </Tooltip>
-          )}
-
-          {/* Common Actions */}
-          <Popover
-            content={
-              <div className="w-48">
-                {employeesData?.result && employeesData.result.length > 0 ? (
-                  employeesData.result.map((emp: { user_id?: number; id?: number; name?: string }) => (
-                    <button
-                      key={String(emp.user_id || emp.id || '')}
-                      onClick={() => handleBulkAssign(emp)}
-                      className="w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded"
-                    >
-                      {emp.name}
-                    </button>
-                  ))
-                ) : (
-                  <div className="px-3 py-2 text-[13px] text-[#999999]">
-                    No employees available
-                  </div>
-                )}
-              </div>
-            }
-            trigger="click"
-            placement="top"
-          >
-            <Tooltip title="Assign To">
-              <button className="p-2 hover:bg-white/10 rounded-full transition-colors">
-                <Users className="w-4 h-4" />
-              </button>
-            </Tooltip>
-          </Popover>
-
-          <Tooltip title="Delete Requirements">
-            <button onClick={handleBulkDelete} className="p-2 hover:bg-white/10 rounded-full transition-colors text-[#ff3b3b]">
-              <Trash2 className="w-4 h-4" />
-            </button>
-          </Tooltip>
-
-          <button onClick={() => setSelectedReqs([])} className="ml-2 text-[12px] text-[#999999] hover:text-white transition-colors">
-            Cancel
-          </button>
-        </div>
-      </>
-    );
-  }, [selectedReqs, activeStatusTab, employeesData, handleBulkSubmit, handleBulkApprove, handleBulkReject, handleBulkComplete, handleBulkReopen, handleBulkAssign, handleBulkDelete]);
-
-  // Update floating menu with bulk actions
-  useEffect(() => {
-    setExpandedContent(floatingMenuContent);
-
-    return () => {
-      setExpandedContent(null);
-    };
-  }, [floatingMenuContent, setExpandedContent]);
-
   const userRole = getRoleFromUser(currentUser);
+  const isEmployee = userRole === 'Employee';
+
+  // Handle requirement deletion/archiving logic
+  const handleDelete = useCallback((requirement: Requirement) => {
+    const status = mapRequirementToStatus(requirement);
+    const type = mapRequirementToType(requirement);
+    const role = mapRequirementToRole(requirement);
+    const baseContext = mapRequirementToContext(requirement, undefined, role);
+    const tabContext: TabContext = {
+      ...baseContext,
+      isArchived: !!requirement.is_archived,
+      approvalStatus: requirement.approvalStatus,
+    };
+    const tab = getRequirementTab(status, type, role, tabContext);
+    const isArchived = tab === 'archived';
+    const canDelete = tab === 'draft' || tab === 'pending' || isArchived;
+
+    if (!canDelete) {
+      // Archive Action
+      modalApi.confirm({
+        title: 'Archive Requirement',
+        content: 'This requirement is active and cannot be permanently deleted. Do you want to archive it instead?',
+        okText: 'Archive',
+        cancelText: 'Cancel',
+        okButtonProps: { className: 'bg-[#F59E0B] hover:bg-[#D97706]' },
+        onOk: () => {
+          updateRequirementMutation.mutate({
+            id: requirement.id,
+            workspace_id: requirement.workspaceId || 0,
+            is_archived: true
+          }, {
+            onSuccess: () => messageApi.success("Requirement archived")
+          });
+        },
+      });
+    } else {
+      // Delete Action
+      modalApi.confirm({
+        title: 'Delete Requirement',
+        content: 'Are you sure you want to permanently delete this requirement? This action cannot be undone.',
+        okText: 'Delete',
+        cancelText: 'Cancel',
+        okButtonProps: { danger: true },
+        onOk: () => {
+          deleteRequirement({ id: requirement.id, workspace_id: requirement.workspaceId });
+        },
+      });
+    }
+  }, [modalApi, updateRequirementMutation, messageApi, deleteRequirement]);
 
   return (
     <PageLayout
       title="Requirements"
-      titleAction={userRole !== 'Employee' ? {
+      titleAction={isMounted && !isEmployee ? {
         onClick: handleOpenCreate
       } : undefined}
       tabs={tabs}
@@ -1278,21 +1088,6 @@ export function RequirementsPage() {
       <div className="flex-1 min-h-0 relative flex flex-col">
         <div className="flex-1 overflow-y-auto pb-6">
           <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <Checkbox
-                checked={sortedRequirements.length > 0 && selectedReqs.length === sortedRequirements.length}
-                onChange={(e) => {
-                  if (e.target.checked) {
-                    setSelectedReqs(sortedRequirements.map(r => r.id));
-                  } else {
-                    setSelectedReqs([]);
-                  }
-                }}
-                className="red-checkbox"
-              />
-              <span className="text-[13px] text-[#666666] font-['Manrope:Medium',sans-serif]">Select All</span>
-            </div>
-
             <div className="flex items-center gap-4">
               <span className="text-[12px] text-[#999999] font-['Manrope:Medium',sans-serif]">Sort by:</span>
               <Select
@@ -1311,120 +1106,23 @@ export function RequirementsPage() {
             </div>
           </div>
 
-          {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="bg-white border border-[#EEEEEE] rounded-[24px] p-6 animate-pulse">
-                  <div className="flex justify-between mb-4">
-                    <Skeleton className="h-4 w-24" />
-                    <Skeleton className="h-4 w-4" />
-                  </div>
-                  <Skeleton className="h-6 w-3/4 mb-4" />
-                  <Skeleton className="h-4 w-full mb-2" />
-                  <Skeleton className="h-4 w-2/3 mb-6" />
-                  <div className="h-2 w-full bg-[#F0F0F0] rounded-full mb-6" />
-                  <div className="flex justify-between">
-                    <Skeleton className="h-8 w-8 rounded-full" />
-                    <Skeleton className="h-8 w-24 rounded-lg" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : sortedRequirements.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-[#999999] font-['Inter:Regular',sans-serif]">
-                No requirements found
-              </p>
-            </div>
-          ) : (
-            <div className="pb-6">
-              <ResponsiveMasonry
-                columnsCountBreakPoints={{ 350: 1, 750: 2, 1200: 3 }}
-              >
-                <Masonry gutter="16px">
-                  {sortedRequirements.slice((currentPage - 1) * pageSize, (currentPage - 1) * pageSize + pageSize).map((requirement) => (
-                    <RequirementCard
-                      key={requirement.id}
-                      requirement={requirement}
-                      currentUserId={currentUser?.id}
-                      selected={selectedReqs.includes(requirement.id)}
-                      onSelect={() => toggleSelect(requirement.id)}
-                      onAccept={userRole !== 'Employee' ? () => handleReqAccept(requirement.id) : undefined}
-                      onReject={userRole !== 'Employee' ? () => {
-                        const req = requirement;
-                        if (req.type === 'outsourced') {
-                          setPendingReqId(requirement.id);
-                          setIsRejectOpen(true);
-                        } else {
-                          handleReqReject(requirement.id);
-                        }
-                      } : undefined}
-                      onEdit={userRole !== 'Employee' ? () => handleEditDraft({
-                        ...requirement,
-                      }) : undefined}
-                      onDelete={userRole !== 'Employee' ? () => {
-                        const status = mapRequirementToStatus(requirement);
-                        const type = mapRequirementToType(requirement);
-                        const role = mapRequirementToRole(requirement);
-                        const baseContext = mapRequirementToContext(requirement, undefined, role);
-                        const tabContext: TabContext = {
-                          ...baseContext,
-                          isArchived: !!requirement.is_archived,
-                          approvalStatus: requirement.approvalStatus,
-                        };
-                        const tab = getRequirementTab(status, type, role, tabContext);
-                        const isArchived = tab === 'archived';
-                        const canDelete = tab === 'draft' || tab === 'pending' || isArchived;
-
-                        if (!canDelete) {
-                          // Archive Action
-                          modalApi.confirm({
-                            title: 'Archive Requirement',
-                            content: 'This requirement is active and cannot be permanently deleted. Do you want to archive it instead?',
-                            okText: 'Archive',
-                            cancelText: 'Cancel',
-                            okButtonProps: { className: 'bg-[#F59E0B] hover:bg-[#D97706]' },
-                            onOk: () => {
-                              updateRequirementMutation.mutate({
-                                id: requirement.id,
-                                workspace_id: requirement.workspaceId || 0,
-                                is_archived: true
-                              }, {
-                                onSuccess: () => messageApi.success("Requirement archived")
-                              });
-                            },
-                          });
-                        } else {
-                          // Delete Action
-                          modalApi.confirm({
-                            title: 'Delete Requirement',
-                            content: 'Are you sure you want to permanently delete this requirement? This action cannot be undone.',
-                            okText: 'Delete',
-                            cancelText: 'Cancel',
-                            okButtonProps: { danger: true },
-                            onOk: () => {
-                              deleteRequirement({ id: requirement.id, workspace_id: requirement.workspaceId });
-                            },
-                          });
-                        }
-                      } : undefined}
-                      deleteLabel={(activeStatusTab === 'active' || activeStatusTab === 'completed' || activeStatusTab === 'delayed') ? 'Archive' : 'Delete'}
-                      deleteIcon={(activeStatusTab === 'active' || activeStatusTab === 'completed' || activeStatusTab === 'delayed') ? <Archive className="w-3.5 h-3.5" /> : undefined}
-                      onDuplicate={userRole !== 'Employee' ? () => {
-                        handleDuplicateRequirement({
-                          ...requirement,
-                          workspaceId: requirement.workspaceId,
-                        });
-                      } : undefined}
-                      onNavigate={() =>
-                        router.push(`/dashboard/workspace/${requirement.workspaceId}/requirements/${requirement.id}`)
-                      }
-                    />
-                  ))}
-                </Masonry>
-              </ResponsiveMasonry>
-            </div>
-          )}
+          <RequirementsList
+            isLoading={isLoading}
+            requirements={sortedRequirements}
+            currentUser={currentUser}
+            userRole={userRole}
+            activeStatusTab={activeStatusTab}
+            currentPage={currentPage}
+            pageSize={pageSize}
+            handleReqAccept={handleReqAccept}
+            handleReqReject={handleReqReject}
+            handleEditDraft={handleEditDraft}
+            handleDelete={handleDelete}
+            handleDuplicateRequirement={handleDuplicateRequirement}
+            onNavigate={(workspaceId, reqId) =>
+              router.push(`/dashboard/workspace/${workspaceId}/requirements/${reqId}`)
+            }
+          />
 
         </div>
 

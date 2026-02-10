@@ -2,20 +2,21 @@ import { useState, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useTabSync } from '@/hooks/useTabSync';
 import {
-  ListTodo, 
+  ListTodo,
   Plus, RotateCcw,
 } from 'lucide-react';
-import { Checkbox, Button, App, Input, Modal, Select } from 'antd';
+import { Checkbox, Button, App, Input, Modal } from 'antd';
 import { Skeleton } from '../../ui/Skeleton';
 import { useWorkspace, useRequirements, useUpdateRequirement, useWorkspaces } from '@/hooks/useWorkspace';
 import { useTasks, useRequestRevision, useCreateTask } from '@/hooks/useTask';
 import { TaskForm } from '../../modals/TaskForm';
 import { CreateTaskRequestDto } from '@/types/dto/task.dto';
 import { getErrorMessage } from '@/types/api-utils';
-import { useEmployees, usePartners } from '@/hooks/useUser';
+import { useEmployees, usePartners, useCurrentUserCompany } from '@/hooks/useUser';
 import { useRequirementActivities } from '@/hooks/useRequirementActivity';
 import { useAuth } from '@/hooks/useAuth';
 import { format } from 'date-fns';
+import { getTodayForApi } from '@/utils/date';
 import { TaskRow } from '@/components/features/tasks/rows/TaskRow';
 import { Requirement, Task, Employee } from '@/types/domain';
 import {
@@ -38,7 +39,7 @@ import { RequirementInfoCard } from './components/RequirementInfoCard';
 import { ActivitySidebar } from './components/ActivitySidebar';
 import { SubTaskRow } from './components/SubTaskRow';
 
-const { Option } = Select;
+
 
 export function RequirementDetailsPage() {
   const { message } = App.useApp();
@@ -56,7 +57,10 @@ export function RequirementDetailsPage() {
 
 
   const { data: employeesData } = useEmployees();
+  const { data: companyData } = useCurrentUserCompany();
   const { user } = useAuth();
+
+  const timezone = useMemo(() => companyData?.result?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Kolkata', [companyData]);
 
 
 
@@ -77,24 +81,21 @@ export function RequirementDetailsPage() {
   const { data: activityResponse } = useRequirementActivities(reqId);
   const documentsActivityData = useMemo(() => {
     if (!activityResponse?.result) return [];
-    return activityResponse.result.map((act: any) => ({
+    return (activityResponse.result as any[]).map((act) => ({
       id: act.id,
       type: act.type,
-      user: act.user.name,
+      user: act.user?.name || 'Unknown',
       avatar: '',
       date: format(new Date(act.created_at), 'MMM d, h:mm a'),
       message: act.message,
       isSystem: false,
-      attachments: act.attachments.map((a: any) => a.file_name),
+      attachments: act.attachments || [], // Pass full attachment objects
     }));
   }, [activityResponse]);
 
   const [isRevisionModalOpen, setIsRevisionModalOpen] = useState(false);
   const [revisionNotes, setRevisionNotes] = useState('');
   const [targetTaskId, setTargetTaskId] = useState<number | null>(null);
-
-
-
 
   const workspace = useMemo(() => {
     if (!workspaceData?.result) return null;
@@ -105,8 +106,6 @@ export function RequirementDetailsPage() {
     if (!requirementsData?.result) return undefined;
     return requirementsData.result.find((r: Requirement) => r.id === reqId);
   }, [requirementsData, reqId]);
-
-
 
   const mapRequirementStatus = (status: string): 'in-progress' | 'completed' | 'delayed' => {
     const statusLower = status?.toLowerCase() || '';
@@ -324,7 +323,7 @@ export function RequirementDetailsPage() {
         {/* Content Area - Using CSS visibility to prevent DOM unmounting and flickering */}
         <div className="flex-1 overflow-y-auto p-8 bg-[#FAFAFA]">
           <div style={{ display: activeTab === 'details' ? 'block' : 'none' }}>
-            <RequirementInfoCard requirement={requirement} workspace={workspace} tasks={tasks} />
+            <RequirementInfoCard requirement={requirement} workspace={workspace} tasks={tasks} timezone={timezone} />
           </div>
 
           <div style={{ display: activeTab === 'tasks' ? 'block' : 'none' }}>
@@ -337,15 +336,15 @@ export function RequirementDetailsPage() {
                     Tasks Breakdown
                   </h3>
                   {getRoleFromUser(user) !== 'Employee' && (
-                  <Button
+                    <Button
 
-                    type="default"
-                    size="small"
-                    className="h-8 text-[12px] border-[#EEEEEE]"
-                    onClick={() => setIsTaskModalOpen(true)}
-                  >
-                    <Plus className="w-4 h-4 mr-2" /> Add Task
-                  </Button>
+                      type="default"
+                      size="small"
+                      className="h-8 text-[12px] border-[#EEEEEE]"
+                      onClick={() => setIsTaskModalOpen(true)}
+                    >
+                      <Plus className="w-4 h-4 mr-2" /> Add Task
+                    </Button>
                   )}
 
                 </div>
@@ -571,7 +570,7 @@ export function RequirementDetailsPage() {
               name: data.name,
               workspace_id: data.workspace_id,
               requirement_id: data.requirement_id,
-              start_date: data.start_date || new Date().toISOString(),
+              start_date: data.start_date || getTodayForApi(),
               end_date: data.end_date,
               assigned_to: assignedMembers.length > 0 ? assignedMembers[0] : undefined,
               member_id: data.member_id ? Number(data.member_id) : undefined,

@@ -5,18 +5,9 @@ import { useTabSync } from '@/hooks/useTabSync';
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Clock, MapPin, Video, Plus, LogOut } from 'lucide-react';
 import { Skeleton } from '../../ui/Skeleton';
 import { PageLayout } from '../../layout/PageLayout';
-import { Popover, Button, Select, App, Popconfirm } from 'antd';
-import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
-import timezone from 'dayjs/plugin/timezone';
-import weekOfYear from 'dayjs/plugin/weekOfYear';
-import customParseFormat from 'dayjs/plugin/customParseFormat';
-
-dayjs.extend(utc);
-dayjs.extend(timezone);
-dayjs.extend(timezone);
-dayjs.extend(weekOfYear);
-dayjs.extend(customParseFormat);
+import { Popover, Button, App, Popconfirm } from 'antd';
+import dayjs from '@/utils/dayjs';
+import { formatDateForApi, formatDateForDisplay } from '@/utils/date';
 
 import { useTasks } from '@/hooks/useTask';
 import { useMeetings } from '@/hooks/useMeeting';
@@ -39,7 +30,7 @@ import { CalendarEventPopup } from './CalendarEventPopup';
 
 export function CalendarPage() {
   const { message } = App.useApp();
-  
+
   const [currentDate, setCurrentDate] = useState(dayjs());
   // Use standardized tab sync hook for consistent URL handling
   type CalendarView = 'month' | 'week' | 'day';
@@ -64,7 +55,7 @@ export function CalendarPage() {
   // Fetch calendar events
   const startISO = currentDate.startOf('month').subtract(7, 'day').toISOString();
   const endISO = currentDate.endOf('month').add(7, 'day').toISOString();
-  
+
   const { data: calendarEventsData, refetch: refetchCalendarEvents } = useCalendarEvents(startISO, endISO);
 
   const { data: tasks, isLoading: isLoadingTasks } = useTasks();
@@ -106,8 +97,8 @@ export function CalendarPage() {
   }, [refetchTeamsStatus]);
 
   const handleCancel = () => {
-      setShowEventDialog(false);
-      setEventType('event');
+    setShowEventDialog(false);
+    setEventType('event');
   };
 
   const handleTimeSlotClick = useCallback((dateTime: dayjs.Dayjs) => {
@@ -123,17 +114,17 @@ export function CalendarPage() {
     if (tasks?.result) {
       tasks.result.forEach((task: Task) => {
         if (task.dueDate) {
-            allEvents.push({
-                id: `task-${task.id}`,
-                title: task.title || task.name || 'Untitled',
-                date: dayjs(task.dueDate).format('YYYY-MM-DD'),
-                time: 'Deadline',
-                type: 'deadline',
-                description: task.description,
-                status: task.status,
-                color: '#ff3b3b',
-                raw: task
-            });
+          allEvents.push({
+            id: `task-${task.id}`,
+            title: task.title || task.name || 'Untitled',
+            date: formatDateForApi(task.dueDate),
+            time: 'Deadline',
+            type: 'deadline',
+            description: task.description,
+            status: task.status,
+            color: '#ff3b3b',
+            raw: task
+          });
         }
       });
     }
@@ -145,7 +136,7 @@ export function CalendarPage() {
         allEvents.push({
           id: `calendar-event-${event.id}`,
           title: event.subject || 'Untitled Meeting',
-          date: startTime.format('YYYY-MM-DD'),
+          date: formatDateForApi(startTime),
           time: startTime.format('h:mm A'),
           type: 'meeting',
           location: event.isOnlineMeeting ? 'Microsoft Teams' : undefined,
@@ -167,7 +158,7 @@ export function CalendarPage() {
         allEvents.push({
           id: `meeting-${meeting.id}`,
           title: meeting.title,
-          date: dayjs(meeting.start_time).format('YYYY-MM-DD'),
+          date: formatDateForApi(meeting.start_time),
           time: dayjs(meeting.start_time).format('h:mm A'),
           type: 'meeting',
           location: meeting.platform || meeting.meeting_link,
@@ -176,7 +167,7 @@ export function CalendarPage() {
           participants: meeting.participants?.map((p) => {
             const part = p as { name?: string; avatar?: string };
             return { name: part.name || 'Unknown', avatar: part.avatar };
-          }), 
+          }),
           // We can try to cast p as {name: string, avatar: string} if we trust backend
           color: '#3B82F6',
           raw: meeting
@@ -190,7 +181,7 @@ export function CalendarPage() {
         const end = dayjs(leave.end_date);
         const diff = end.diff(start, 'day');
         for (let i = 0; i <= diff; i++) {
-          const date = start.add(i, 'day').format('YYYY-MM-DD');
+          const date = formatDateForApi(start.add(i, 'day'));
           allEvents.push({
             id: `leave-${leave.id}-${i}`,
             title: `${leave.user?.name || 'Employee'} - ${leave.leave_type} Leave`,
@@ -212,7 +203,7 @@ export function CalendarPage() {
         allEvents.push({
           id: `holiday-${holiday.id}`,
           title: holiday.name,
-          date: dayjs(holiday.date).format('YYYY-MM-DD'),
+          date: formatDateForApi(holiday.date),
           time: 'All Day',
           type: 'holiday',
           description: `Public Holiday: ${holiday.name}`,
@@ -227,44 +218,44 @@ export function CalendarPage() {
   }, [tasks, meetings, leaves, calendarEventsData, holidays, companyTimeZone]);
 
   const handlePrev = () => {
-      if (activeView === 'month') setCurrentDate(currentDate.subtract(1, 'month'));
-      else if (activeView === 'week') setCurrentDate(currentDate.subtract(1, 'week'));
-      else setCurrentDate(currentDate.subtract(1, 'day'));
+    if (activeView === 'month') setCurrentDate(currentDate.subtract(1, 'month'));
+    else if (activeView === 'week') setCurrentDate(currentDate.subtract(1, 'week'));
+    else setCurrentDate(currentDate.subtract(1, 'day'));
   };
 
   const handleNext = () => {
-      if (activeView === 'month') setCurrentDate(currentDate.add(1, 'month'));
-      else if (activeView === 'week') setCurrentDate(currentDate.add(1, 'week'));
-      else setCurrentDate(currentDate.add(1, 'day'));
+    if (activeView === 'month') setCurrentDate(currentDate.add(1, 'month'));
+    else if (activeView === 'week') setCurrentDate(currentDate.add(1, 'week'));
+    else setCurrentDate(currentDate.add(1, 'day'));
   };
 
   const handleToday = () => {
     setCurrentDate(dayjs());
-    setSelectedDate(dayjs().format('YYYY-MM-DD'));
+    setSelectedDate(formatDateForApi(dayjs()));
   };
 
   const dateLabel = useMemo(() => {
-      if (activeView === 'month') return currentDate.format('MMMM YYYY');
-      if (activeView === 'week') {
-          const start = currentDate.startOf('week');
-          const end = currentDate.endOf('week');
-          if (start.month() === end.month()) {
-              return `${start.format('MMM D')} - ${end.format('D, YYYY')}`;
-          } else {
-              if (start.year() === end.year()) {
-                  return `${start.format('MMM D')} - ${end.format('MMM D, YYYY')}`;
-              }
-              return `${start.format('MMM D, YYYY')} - ${end.format('MMM D, YYYY')}`;
-          }
+    if (activeView === 'month') return currentDate.format('MMMM YYYY');
+    if (activeView === 'week') {
+      const start = currentDate.startOf('week');
+      const end = currentDate.endOf('week');
+      if (start.month() === end.month()) {
+        return `${start.format('MMM D')} - ${end.format('D, YYYY')}`;
+      } else {
+        if (start.year() === end.year()) {
+          return `${start.format('MMM D')} - ${end.format('MMM D, YYYY')}`;
+        }
+        return `${start.format('MMM D, YYYY')} - ${end.format('MMM D, YYYY')}`;
       }
-      return currentDate.format('MMMM D, YYYY');
+    }
+    return currentDate.format('MMMM D, YYYY');
   }, [currentDate, activeView]);
 
   // Fetch current user details for leave filtering
   const { data: userDetails } = useUserDetails();
   const currentUserId = userDetails?.result?.id;
 
-  const todayEvents = events.filter(e => e.date === dayjs().format('YYYY-MM-DD'));
+  const todayEvents = events.filter(e => e.date === formatDateForApi(dayjs()));
   const upcomingEvents = useMemo(() => {
     return events
       .filter(e => {
@@ -278,7 +269,7 @@ export function CalendarPage() {
           const now = dayjs();
           return eventDate.month() === now.month() && eventDate.year() === now.year();
         }
-        
+
         // Exclude others (tasks/deadlines) based on request "only show..."
         return false;
       })
@@ -307,8 +298,8 @@ export function CalendarPage() {
       action={
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
-            <button 
-              onClick={handleToday} 
+            <button
+              onClick={handleToday}
               className="h-9 px-4 rounded-[8px] border border-[#EEEEEE] flex items-center justify-center hover:bg-[#F7F7F7] transition-colors font-['Manrope:SemiBold',sans-serif] text-[13px] text-[#111111] focus:ring-2 focus:ring-[#111111] focus:outline-none"
             >
               Today
@@ -345,8 +336,8 @@ export function CalendarPage() {
                   cancelText="No"
                   okButtonProps={{ loading: isDisconnecting, danger: true }}
                 >
-                  <Button 
-                    type="default" 
+                  <Button
+                    type="default"
                     className="h-9 px-4 text-[13px] font-['Manrope:SemiBold',sans-serif] text-[#111111] border-[#EEEEEE] hover:text-red-500 hover:border-red-200 flex items-center gap-2 group transition-all"
                   >
                     <span className="w-2 h-2 rounded-full bg-green-500 group-hover:bg-red-500 transition-colors" />
@@ -362,36 +353,36 @@ export function CalendarPage() {
         </div>
       }
     >
-      <div className="flex flex-col h-full"> 
+      <div className="flex flex-col h-full">
         <div className="flex-1 grid grid-cols-[1fr_280px] gap-6 overflow-hidden min-h-0">
-          
+
           {/* Using CSS visibility to prevent DOM unmounting and flickering */}
           <div className="overflow-hidden h-full flex flex-col">
-              <div style={{ display: activeView === 'month' ? 'flex' : 'none', flexDirection: 'column', height: '100%' }}>
-                  <MonthView
-                      currentDate={currentDate}
-                      events={events}
-                      isLoading={isLoading}
-                      selectedDate={selectedDate}
-                      onSelectDate={setSelectedDate}
-                  />
-              </div>
-              <div style={{ display: activeView === 'week' ? 'flex' : 'none', flexDirection: 'column', height: '100%' }}>
-                  <WeekView 
-                      currentDate={currentDate}
-                      events={events}
-                      isLoading={isLoading}
-                      onTimeSlotClick={handleTimeSlotClick}
-                  />
-              </div>
-              <div style={{ display: activeView === 'day' ? 'flex' : 'none', flexDirection: 'column', height: '100%' }}>
-                  <DayView
-                      currentDate={currentDate}
-                      events={events}
-                      isLoading={isLoading}
-                      onTimeSlotClick={handleTimeSlotClick}
-                  />
-              </div>
+            <div style={{ display: activeView === 'month' ? 'flex' : 'none', flexDirection: 'column', height: '100%' }}>
+              <MonthView
+                currentDate={currentDate}
+                events={events}
+                isLoading={isLoading}
+                selectedDate={selectedDate}
+                onSelectDate={setSelectedDate}
+              />
+            </div>
+            <div style={{ display: activeView === 'week' ? 'flex' : 'none', flexDirection: 'column', height: '100%' }}>
+              <WeekView
+                currentDate={currentDate}
+                events={events}
+                isLoading={isLoading}
+                onTimeSlotClick={handleTimeSlotClick}
+              />
+            </div>
+            <div style={{ display: activeView === 'day' ? 'flex' : 'none', flexDirection: 'column', height: '100%' }}>
+              <DayView
+                currentDate={currentDate}
+                events={events}
+                isLoading={isLoading}
+                onTimeSlotClick={handleTimeSlotClick}
+              />
+            </div>
           </div>
 
           <div className="flex flex-col gap-4 overflow-y-auto scrollbar-hide">
@@ -461,7 +452,7 @@ export function CalendarPage() {
                     </div>
                   ))
                 ) : upcomingEvents.length > 0 ? (upcomingEvents.map((event) => (
-                   <Popover key={event.id} content={<CalendarEventPopup event={event} />} title="" trigger="click" placement="left">
+                  <Popover key={event.id} content={<CalendarEventPopup event={event} />} title="" trigger="click" placement="left">
                     <div key={event.id} className="bg-white rounded-[12px] p-4 border border-[#EEEEEE] cursor-pointer hover:shadow-md transition-shadow">
                       <div className="flex items-start gap-3">
                         <div className="w-1 h-full rounded-full mt-1" style={{ backgroundColor: event.color }} />
@@ -494,9 +485,9 @@ export function CalendarPage() {
         open={showEventDialog}
         onCancel={handleCancel}
         onSuccess={async () => {
-            handleCancel();
-            await refetchCalendarEvents();
-        } }
+          handleCancel();
+          await refetchCalendarEvents();
+        }}
         initialType={eventType}
         initialDate={initialSelectedDate}
         employeesData={employeesData}

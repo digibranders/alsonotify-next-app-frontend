@@ -10,12 +10,16 @@ import { Skeleton } from '../../ui/Skeleton';
 import { WorkspaceForm } from '@/components/modals/WorkspaceForm';
 
 import { useWorkspaces, useDeleteWorkspace, useReactivateWorkspace } from '@/hooks/useWorkspace';
-import { usePartners, useCurrentUserCompany } from '@/hooks/useUser';
+import { usePartners, useCurrentUserCompany, useUserDetails } from '@/hooks/useUser';
 import { useQueries } from '@tanstack/react-query';
 import { getRequirementsByWorkspaceId } from '@/services/workspace';
 
 import { Workspace } from '@/types/domain';
+import { getRoleFromUser } from '@/utils/roleUtils';
+
 export function WorkspacePage() {
+  const { data: userData } = useUserDetails();
+  const userRole = getRoleFromUser(userData?.result);
 
   const { data: partnersData } = usePartners();
   const { data: companyData } = useCurrentUserCompany();
@@ -37,7 +41,7 @@ export function WorkspacePage() {
   // Build query string for API
   const queryParams = useMemo(() => {
     const params = new URLSearchParams();
-    
+
     // Pagination (Backend expects skip/limit, frontend uses page/pageSize)
     const skip = (currentPage - 1) * pageSize;
     params.append('skip', skip.toString());
@@ -57,18 +61,18 @@ export function WorkspacePage() {
 
     // Filters
     if (filters.organization && filters.organization !== 'All') {
-       const selfLabel = `${companyData?.result?.name || 'Current Company'} (Self)`;
-       if (filters.organization === selfLabel || filters.organization === 'Self') {
-         params.append('in_house', 'true');
-       } else {
-         const partner = partnersData?.result?.find((p: any) => (p.name || p.partner_company?.name || p.email) === filters.organization);
-         if (partner) params.append('partner_id', partner.id.toString());
-       }
+      const selfLabel = `${companyData?.result?.name || 'Current Company'} (Self)`;
+      if (filters.organization === selfLabel || filters.organization === 'Self') {
+        params.append('in_house', 'true');
+      } else {
+        const partner = partnersData?.result?.find((p: any) => (p.name || p.partner_company?.name || p.email) === filters.organization);
+        if (partner) params.append('partner_id', partner.id.toString());
+      }
     }
 
 
     return params.toString();
-  }, [activeTab, currentPage, pageSize, searchQuery, filters, partnersData]);
+  }, [activeTab, currentPage, pageSize, searchQuery, filters, partnersData, companyData?.result?.name]);
 
 
   const { data: workspacesData, isLoading, refetch } = useWorkspaces(queryParams);
@@ -132,7 +136,7 @@ export function WorkspacePage() {
         delayedRequirements,
         // Use exact status from backend
         status: w.status || 'Assigned',
-        isActive: w.is_active ?? true, 
+        isActive: w.is_active ?? true,
         description: w.description || '',
         partner_id: w.partner_id,
         in_house: w.in_house,
@@ -196,9 +200,11 @@ export function WorkspacePage() {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <h2 className="font-['Manrope:SemiBold',sans-serif] text-[20px] text-[#111111]">Workspace</h2>
-            <button onClick={() => { setSelectedWorkspaceForEdit(null); setIsDialogOpen(true); }} className="hover:scale-110 active:scale-95 transition-transform">
-              <Plus className="size-5 text-[#ff3b3b]" strokeWidth={2} />
-            </button>
+            {userRole !== 'Employee' && (
+              <button onClick={() => { setSelectedWorkspaceForEdit(null); setIsDialogOpen(true); }} className="hover:scale-110 active:scale-95 transition-transform">
+                <Plus className="size-5 text-[#ff3b3b]" strokeWidth={2} />
+              </button>
+            )}
             <WorkspaceForm
               open={isDialogOpen}
               initialData={selectedWorkspaceForEdit || undefined}
@@ -332,6 +338,7 @@ export function WorkspacePage() {
                 <WorkspaceCard
                   key={workspace.id}
                   workspace={workspace}
+                  userRole={userRole}
                   onClick={() => handleSelectWorkspace(workspace)}
                 />
               ))}
@@ -373,6 +380,7 @@ export function WorkspacePage() {
                 <WorkspaceListItem
                   key={workspace.id}
                   workspace={workspace}
+                  userRole={userRole}
                   selected={selectedWorkspaces.includes(workspace.id)}
                   onToggleSelect={() => toggleSelectWorkspaceRow(workspace.id)}
                   onClick={() => handleSelectWorkspace(workspace)}
@@ -440,7 +448,7 @@ function WorkspaceRequirementsSummary({
   );
 }
 
-function WorkspaceCard({ workspace, onClick }: { workspace: Workspace; onClick?: () => void }) {
+function WorkspaceCard({ workspace, userRole, onClick }: { workspace: Workspace; userRole: string; onClick?: () => void }) {
   const { message } = App.useApp();
   const deleteMutation = useDeleteWorkspace();
   const reactivateMutation = useReactivateWorkspace();
@@ -484,15 +492,15 @@ function WorkspaceCard({ workspace, onClick }: { workspace: Workspace; onClick?:
     }
   };
 
-  const items: MenuProps['items'] = workspace.isActive 
+  const items: MenuProps['items'] = workspace.isActive
     ? [
-        { key: 'edit', label: 'Edit Details', icon: <Edit className="w-4 h-4" /> },
-        { key: 'delete', label: 'Delete', icon: <Trash2 className="w-4 h-4" />, danger: true }
-      ]
+      { key: 'edit', label: 'Edit Details', icon: <Edit className="w-4 h-4" /> },
+      { key: 'delete', label: 'Delete', icon: <Trash2 className="w-4 h-4" />, danger: true }
+    ]
     : [
-        { key: 'edit', label: 'Edit Details', icon: <Edit className="w-4 h-4" /> },
-        { key: 'restore', label: 'Restore', icon: <RotateCcw className="w-4 h-4" /> }
-      ];
+      { key: 'edit', label: 'Edit Details', icon: <Edit className="w-4 h-4" /> },
+      { key: 'restore', label: 'Restore', icon: <RotateCcw className="w-4 h-4" /> }
+    ];
 
   return (
     <>
@@ -512,13 +520,15 @@ function WorkspaceCard({ workspace, onClick }: { workspace: Workspace; onClick?:
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#ff3b3b] to-[#ff6b6b] opacity-0 group-hover:opacity-100 transition-opacity" />
 
         {/* Action Menu - Absolute Positioned */}
-        <div className="absolute top-3 right-3 z-20" onClick={(e) => e.stopPropagation()}>
-          <Dropdown menu={{ items, onClick: ({ key }) => handleAction(key) }} trigger={['click']} placement="bottomRight">
-            <button className="w-8 h-8 rounded-lg hover:bg-[#F7F7F7] flex items-center justify-center transition-colors opacity-0 group-hover:opacity-100">
-              <MoreVertical className="w-5 h-5 text-[#666666]" />
-            </button>
-          </Dropdown>
-        </div>
+        {userRole !== 'Employee' && (
+          <div className="absolute top-3 right-3 z-20" onClick={(e) => e.stopPropagation()}>
+            <Dropdown menu={{ items, onClick: ({ key }) => handleAction(key) }} trigger={['click']} placement="bottomRight">
+              <button className="w-8 h-8 rounded-lg hover:bg-[#F7F7F7] flex items-center justify-center transition-colors opacity-0 group-hover:opacity-100">
+                <MoreVertical className="w-5 h-5 text-[#666666]" />
+              </button>
+            </Dropdown>
+          </div>
+        )}
 
         <div className="flex flex-col h-full">
           {/* Header: Icon + Details Side-by-Side */}
@@ -561,11 +571,13 @@ function WorkspaceCard({ workspace, onClick }: { workspace: Workspace; onClick?:
 
 function WorkspaceListItem({
   workspace,
+  userRole,
   selected,
   onToggleSelect,
   onClick,
 }: {
   workspace: Workspace;
+  userRole: string;
   selected: boolean;
   onToggleSelect: () => void;
   onClick?: () => void;
@@ -613,15 +625,15 @@ function WorkspaceListItem({
     }
   };
 
-  const items: MenuProps['items'] = workspace.isActive 
+  const items: MenuProps['items'] = workspace.isActive
     ? [
-        { key: 'edit', label: 'Edit Details', icon: <Edit className="w-4 h-4" /> },
-        { key: 'delete', label: 'Delete', icon: <Trash2 className="w-4 h-4" />, danger: true }
-      ]
+      { key: 'edit', label: 'Edit Details', icon: <Edit className="w-4 h-4" /> },
+      { key: 'delete', label: 'Delete', icon: <Trash2 className="w-4 h-4" />, danger: true }
+    ]
     : [
-        { key: 'edit', label: 'Edit Details', icon: <Edit className="w-4 h-4" /> },
-        { key: 'restore', label: 'Restore', icon: <RotateCcw className="w-4 h-4" /> }
-      ];
+      { key: 'edit', label: 'Edit Details', icon: <Edit className="w-4 h-4" /> },
+      { key: 'restore', label: 'Restore', icon: <RotateCcw className="w-4 h-4" /> }
+    ];
 
 
 
@@ -698,10 +710,9 @@ function WorkspaceListItem({
         {/* Status */}
         <div className="flex items-center">
           <span
-            className={`inline-flex items-center px-3 py-1 rounded-full text-[12px] font-['Manrope:SemiBold',sans-serif] whitespace-nowrap ${
-              workspace.isActive
-                ? 'bg-[#ECFDF3] text-[#16A34A]'
-                : 'bg-[#F3F4F6] text-[#6B7280]'
+            className={`inline-flex items-center px-3 py-1 rounded-full text-[12px] font-['Manrope:SemiBold',sans-serif] whitespace-nowrap ${workspace.isActive
+              ? 'bg-[#ECFDF3] text-[#16A34A]'
+              : 'bg-[#F3F4F6] text-[#6B7280]'
               }`}
           >
             {workspace.status.replace(/_/g, ' ')}
@@ -710,14 +721,16 @@ function WorkspaceListItem({
 
         {/* Action */}
         <div className="flex justify-end">
-          <Dropdown menu={{ items, onClick: ({ key }) => handleAction(key) }} trigger={['click']} placement="bottomRight">
-            <button
-              onClick={(e) => e.stopPropagation()}
-              className="w-8 h-8 rounded-lg hover:bg-[#F7F7F7] flex items-center justify-center transition-colors opacity-0 group-hover:opacity-100"
-            >
-              <MoreVertical className="w-5 h-5 text-[#666666]" />
-            </button>
-          </Dropdown>
+          {userRole !== 'Employee' && (
+            <Dropdown menu={{ items, onClick: ({ key }) => handleAction(key) }} trigger={['click']} placement="bottomRight">
+              <button
+                onClick={(e) => e.stopPropagation()}
+                className="w-8 h-8 rounded-lg hover:bg-[#F7F7F7] flex items-center justify-center transition-colors opacity-0 group-hover:opacity-100"
+              >
+                <MoreVertical className="w-5 h-5 text-[#666666]" />
+              </button>
+            </Dropdown>
+          )}
         </div>
       </div>
       <WorkspaceForm
