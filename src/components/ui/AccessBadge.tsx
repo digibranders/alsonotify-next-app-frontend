@@ -1,7 +1,7 @@
 import { ShieldCheck, Briefcase, User, Users } from "lucide-react";
 
 interface AccessBadgeProps {
-  role: string | "Admin" | "Manager" | "Leader" | "Employee";
+  role: string | "Admin" | "Manager" | "Leader" | "Employee" | "Coordinator";
   color?: string;
   className?: string; // Support className for custom styling overrides
 }
@@ -50,6 +50,12 @@ export function AccessBadge({ role, color, className }: AccessBadgeProps) {
         iconColor = "#0284C7";
         bgColor = "#F0F9FF";
         IconComponent = ShieldCheck;
+        break;
+      case "Coordinator":
+        textColor = "#F79009"; // Amber/Orange
+        iconColor = "#F79009";
+        bgColor = "#FFFAEB"; // Light amber
+        IconComponent = Briefcase; // Briefcase for project management feel
         break;
       default:
         textColor = "#666666";

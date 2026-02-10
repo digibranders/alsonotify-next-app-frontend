@@ -49,42 +49,42 @@ const NAV_ITEMS: NavItemConfig[] = [
     path: '/dashboard',
     label: 'Dashboard',
     icon: <LayoutDashboard size={20} />,
-    allowedRoles: ['Admin', 'Manager', 'Head', 'Finance', 'HR', 'Employee']
+    allowedRoles: ['Admin', 'Manager', 'Head', 'Finance', 'HR', 'Employee', 'Coordinator']
   },
   {
     id: 'employees',
     path: '/dashboard/employees',
     label: 'Employees',
     icon: <Users size={20} />,
-    allowedRoles: ['Admin', 'Manager', 'Head', 'Finance', 'HR'] // Employee excluded
+    allowedRoles: ['Admin', 'Manager', 'Head', 'Finance', 'HR'] // Employee & Coordinator excluded
   },
   {
     id: 'partners',
     path: '/dashboard/partners',
     label: 'Partners',
     icon: <Handshake size={20} />,
-    allowedRoles: ['Admin', 'Manager', 'Head', 'Finance']
+    allowedRoles: ['Admin', 'Manager', 'Head', 'Finance', 'Coordinator']
   },
   {
     id: 'workspace',
     path: '/dashboard/workspace',
     label: 'Workspace',
     icon: <Briefcase size={20} />,
-    allowedRoles: ['Admin', 'Manager', 'Head', 'Finance', 'HR']
+    allowedRoles: ['Admin', 'Manager', 'Head', 'Finance', 'HR', 'Coordinator']
   },
   {
     id: 'requirements',
     path: '/dashboard/requirements',
     label: 'Requirements',
     icon: <ScrollText size={20} />,
-    allowedRoles: ['Admin', 'Manager', 'Head', 'Finance', 'HR', 'Employee']
+    allowedRoles: ['Admin', 'Manager', 'Head', 'Finance', 'HR', 'Employee', 'Coordinator']
   },
   {
     id: 'tasks',
     path: '/dashboard/tasks',
     label: 'Tasks',
     icon: <ListTodo size={20} />,
-    allowedRoles: ['Admin', 'Manager', 'Head', 'Finance', 'HR', 'Employee']
+    allowedRoles: ['Admin', 'Manager', 'Head', 'Finance', 'HR', 'Employee', 'Coordinator']
   },
   {
     id: 'reports',
@@ -99,14 +99,14 @@ const NAV_ITEMS: NavItemConfig[] = [
     path: '/dashboard/calendar',
     label: 'Calendar',
     icon: <CalendarDays size={20} />,
-    allowedRoles: ['Admin', 'Manager', 'Head', 'Finance', 'HR', 'Employee']
+    allowedRoles: ['Admin', 'Manager', 'Head', 'Finance', 'HR', 'Employee', 'Coordinator']
   },
   {
     id: 'leaves',
     path: '/dashboard/leaves',
     label: 'Leaves',
     icon: <CalendarOff size={20} />,
-    allowedRoles: ['Admin', 'Manager', 'Head', 'Finance', 'HR', 'Employee']
+    allowedRoles: ['Admin', 'Manager', 'Head', 'Finance', 'HR', 'Employee', 'Coordinator']
   },
   {
     id: 'finance',
@@ -120,14 +120,14 @@ const NAV_ITEMS: NavItemConfig[] = [
     path: '/dashboard/mail',
     label: 'Mail',
     icon: <Mail size={20} />,
-    allowedRoles: ['Admin', 'Manager', 'Head', 'Finance', 'HR', 'Employee']
+    allowedRoles: ['Admin', 'Manager', 'Head', 'Finance', 'HR', 'Employee', 'Coordinator']
   },
   {
     id: 'notes',
     path: '/dashboard/notes',
     label: 'Notes',
     icon: <NotebookPen size={20} />,
-    allowedRoles: ['Admin', 'Manager', 'Head', 'Finance', 'HR', 'Employee']
+    allowedRoles: ['Admin', 'Manager', 'Head', 'Finance', 'HR', 'Employee', 'Coordinator']
   },
 ];
 
@@ -191,14 +191,14 @@ export const Sidebar = React.memo(function Sidebar({ userRole, permissions, coll
   }, [pathname]);
 
   return (
-    <div 
-      className={`bg-white rounded-[24px] ${isCollapsed ? 'px-2' : 'px-6'} py-6 w-full flex flex-col transition-all duration-300 relative group/sidebar`} 
+    <div
+      className={`bg-white rounded-[24px] ${isCollapsed ? 'px-2' : 'px-6'} py-6 w-full flex flex-col transition-all duration-300 relative group/sidebar`}
       style={isInDrawer ? { height: '100%' } : { height: 'calc(100vh - 40px)' }}
     >
       {/* Toggle Button - collapse on desktop; close drawer when in drawer */}
       <button
-          onClick={handleToggleOrClose}
-          className={`
+        onClick={handleToggleOrClose}
+        className={`
             absolute top-6 
             ${isCollapsed ? 'left-1/2 -translate-x-1/2 mt-10' : 'right-4'} 
             w-8 h-8 flex items-center justify-center 
@@ -206,35 +206,35 @@ export const Sidebar = React.memo(function Sidebar({ userRole, permissions, coll
             rounded-full transition-all z-10
             ${isInDrawer ? 'opacity-100' : !isCollapsed ? 'opacity-0 group-hover/sidebar:opacity-100' : ''}
           `}
-          title={isInDrawer ? "Close menu" : isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+        title={isInDrawer ? "Close menu" : isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
       >
-          {isCollapsed ? <ChevronsRight size={20} /> : <ChevronsLeft size={20} />}
+        {isCollapsed ? <ChevronsRight size={20} /> : <ChevronsLeft size={20} />}
       </button>
 
       {/* Logo */}
       <div className={`flex items-center justify-center mb-6 h-8 overflow-hidden transition-all duration-300`}>
         {isCollapsed ? (
-             <img
-                src="/favicon.png"
-                alt="Alsonotify"
-                width={32}
-                height={32}
-                className="w-8 h-8 object-contain"
-                onError={(e) => {
-                  // Fallback if favicon doesn't load
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = 'none';
-                }}
-             />
+          <img
+            src="/favicon.png"
+            alt="Alsonotify"
+            width={32}
+            height={32}
+            className="w-8 h-8 object-contain"
+            onError={(e) => {
+              // Fallback if favicon doesn't load
+              const target = e.target as HTMLImageElement;
+              target.style.display = 'none';
+            }}
+          />
         ) : (
-            <Image
+          <Image
             src={BrandLogo}
             alt="Alsonotify"
             width={120}
             height={29}
             className="h-[29px] w-auto object-contain"
             priority
-            />
+          />
         )}
       </div>
 
@@ -258,9 +258,9 @@ export const Sidebar = React.memo(function Sidebar({ userRole, permissions, coll
 
       {/* Premium Card at bottom - Hide when collapsed */}
       {!isCollapsed && (
-          <div className="mt-6">
-            <PremiumCard />
-          </div>
+        <div className="mt-6">
+          <PremiumCard />
+        </div>
       )}
     </div>
   );
@@ -269,10 +269,10 @@ export const Sidebar = React.memo(function Sidebar({ userRole, permissions, coll
 const NavItem = React.memo(function NavItem({ href, icon, label, active = false, collapsed = false }: { href: string; icon: React.ReactNode; label: string; active?: boolean; collapsed?: boolean }) {
   const iconColor = active ? '#ff3b3b' : '#434343';
   const iconWithColor = React.isValidElement(icon)
-    ? React.cloneElement(icon as React.ReactElement<any>, { 
-        color: iconColor,
-        fill: 'none'
-      })
+    ? React.cloneElement(icon as React.ReactElement<{ color: string; fill: string }>, {
+      color: iconColor,
+      fill: 'none'
+    })
     : icon;
 
   return (
@@ -302,7 +302,7 @@ const NavItem = React.memo(function NavItem({ href, icon, label, active = false,
             font-['Manrope:SemiBold',sans-serif] text-[14px] leading-normal whitespace-nowrap
             ${active ? 'text-[#ff3b3b]' : 'text-[#434343]'}
         `}>
-            {label}
+          {label}
         </span>
       )}
     </Link>
@@ -318,4 +318,3 @@ function PremiumCard() {
     </div>
   );
 }
-    

@@ -8,7 +8,7 @@ import { useUserDetails } from '@/hooks/useUser';
 import { getRoleFromUser, UserRole } from '@/utils/roleUtils';
 import { TimerProvider } from '../context/TimerContext';
 // FloatingProductivityWidget removed - using FloatingTimerBar as the sole floating timer
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { navPermissionMap } from '@/utils/navUtils';
 import { Shield24Regular } from '@fluentui/react-icons';
 import { Button, Drawer } from 'antd';
@@ -39,7 +39,15 @@ export function AlsonotifyLayoutWrapper({ children }: Readonly<AlsonotifyLayoutW
 
 function AlsonotifyLayoutContent({ children }: Readonly<AlsonotifyLayoutWrapperProps>) {
   const { isCollapsed, mobileOpen, closeMobileSidebar } = useSidebar();
-  const { data: userDetailsData } = useUserDetails();
+  const { data: userDetailsData, isLoading, isError } = useUserDetails();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoading && (isError || !userDetailsData?.result)) {
+      router.push('/login');
+    }
+  }, [isLoading, isError, userDetailsData, router]);
+
   // Derive role and color using shared utility.
   // Role/badge are derived from userDetailsData only. If flicker is observed on first load, add a client-only mounted guard.
   const { userRole, userRoleColor } = useMemo<{ userRole: UserRole; userRoleColor: string | undefined }>(() => {
@@ -124,6 +132,19 @@ function AlsonotifyLayoutContent({ children }: Readonly<AlsonotifyLayoutWrapperP
     return children;
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-[#F7F7F7]">
+        {/* You can use a specific loader component or just a spinner */}
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
+      </div>
+    );
+  }
+
+  // Prevent flash of unauthenticated content while redirecting
+  if (isError || !userDetailsData?.result) {
+    return null;
+  }
 
 
   return (

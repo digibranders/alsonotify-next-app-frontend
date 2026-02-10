@@ -1,21 +1,21 @@
-export type UserRole = 'Admin' | 'Head' | 'Finance' | 'HR' | 'Manager' | 'Employee';
+export type UserRole = 'Admin' | 'Head' | 'Finance' | 'HR' | 'Manager' | 'Employee' | 'Coordinator';
 
 /**
  * Minimal type for user objects passed to getRoleFromUser.
  * Only includes properties that the function actually accesses.
  */
 interface RoleLike {
-  id?: number;
-  name?: string;
+    id?: number;
+    name?: string;
 }
 
 interface UserLike {
-  role?: RoleLike | string | null;
-  role_id?: number | null;
-  user_employee?: {
     role?: RoleLike | string | null;
     role_id?: number | null;
-  } | null;
+    user_employee?: {
+        role?: RoleLike | string | null;
+        role_id?: number | null;
+    } | null;
 }
 
 export const getRoleFromUser = (user: UserLike | null | undefined): UserRole => {
@@ -24,7 +24,7 @@ export const getRoleFromUser = (user: UserLike | null | undefined): UserRole => 
     // 1. Try Role Name (Most reliable)
     const roleVal = user?.role || user?.user_employee?.role;
     const roleName = typeof roleVal === 'string' ? roleVal : (roleVal as RoleLike)?.name;
-    
+
     if (roleName) {
         const roleLower = roleName.toLowerCase().trim();
         if (roleLower === 'admin') return 'Admin';
@@ -33,13 +33,15 @@ export const getRoleFromUser = (user: UserLike | null | undefined): UserRole => 
         if (roleLower === 'hr') return 'HR';
         if (roleLower === 'manager') return 'Manager';
         if (roleLower === 'employee') return 'Employee';
-        
+        if (roleLower === 'coordinator') return 'Coordinator';
+
         // Fallback fuzzy matching if exact match fails
         if (roleLower.includes('admin')) return 'Admin';
         if (roleLower.includes('manager')) return 'Manager';
         if (roleLower.includes('finance')) return 'Finance';
         if (roleLower.includes('hr')) return 'HR';
         if (roleLower.includes('department') || roleLower.includes('head')) return 'Head';
+        if (roleLower.includes('coordinator')) return 'Coordinator';
     }
 
     // 2. Try Role ID (Fallback / Legacy)
@@ -54,9 +56,10 @@ export const getRoleFromUser = (user: UserLike | null | undefined): UserRole => 
             2: 'Employee',
             3: 'HR',       // Updated from legacy mapping
             4: 'Admin',
-            5: 'Head', 
+            5: 'Head',
             6: 'Finance',  // Updated from legacy mapping
             7: 'Manager',
+            8: 'Coordinator',
         };
         if (roleIdMapping[roleId]) {
             return roleIdMapping[roleId];
@@ -73,7 +76,7 @@ export const getRoleFromUser = (user: UserLike | null | undefined): UserRole => 
  */
 export const isSuperAdmin = (user: UserLike | null | undefined): boolean => {
     if (!user) return false;
-    
+
     const role = getRoleFromUser(user);
     if (role !== 'Admin') return false;
 
