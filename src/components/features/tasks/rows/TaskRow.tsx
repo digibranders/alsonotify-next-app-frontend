@@ -331,8 +331,8 @@ const TaskRowComponent = memo(function TaskRow({
 
                   const actions: MenuProps['items'] = [];
 
-                  // Admin-only Edit
-                  if (isAdmin) {
+                  // Admin or Leader Actions
+                  if (isAdmin || isLeader) {
                     actions.push({
                       key: 'edit',
                       label: 'Edit',
@@ -342,7 +342,7 @@ const TaskRowComponent = memo(function TaskRow({
                       className: "text-[13px] font-['Manrope:Medium',sans-serif]"
                     });
 
-                    // Admin-only Delete (Hidden if In_Progress)
+                    // Admin/Leader Delete (Hidden if In_Progress)
                     if (task.status !== 'In_Progress') {
                       actions.push({
                         key: 'delete',
