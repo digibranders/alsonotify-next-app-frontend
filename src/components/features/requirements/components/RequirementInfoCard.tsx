@@ -10,7 +10,7 @@ interface RequirementInfoCardProps {
   timezone?: string;
 }
 
-export function RequirementInfoCard({ requirement, tasks, timezone }: Omit<RequirementInfoCardProps, 'workspace'>) {
+export function RequirementInfoCard({ requirement, tasks, timezone }: RequirementInfoCardProps) {
   return (
     <div className="max-w-5xl mx-auto space-y-8">
       {/* Description Section */}

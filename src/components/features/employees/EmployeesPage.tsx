@@ -416,16 +416,18 @@ export function EmployeesPage() {
 
 
   // Get current user ID to prevent self-deactivation
-  // Memoize currentUserId for stable dependency tracking
+  // React Compiler will automatically memoize this derived value
   const currentUserId = currentUser?.id
     ? Number(currentUser.id)
     : (currentUser?.user_id ? Number(currentUser.user_id) : null);
 
   // Robustly get current user email (API -> LocalStorage)
+  // React Compiler will automatically memoize this derived value
   const currentUserEmail = currentUser?.email || null;
 
   // Bulk update access level
-  const handleBulkUpdateAccess = useCallback(async (access: string) => { // access is role name
+  // React Compiler will automatically memoize this function
+  const handleBulkUpdateAccess = async (access: string) => { // access is role name
     if (selectedEmployees.length === 0) {
       messageRef.current.warning('Please select at least one employee');
       return;
@@ -561,10 +563,11 @@ export function EmployeesPage() {
     } catch {
       messageRef.current.error('An error occurred during bulk update');
     }
-  }, [selectedEmployees, rolesData, employees, queryClient, queryParams, updateEmployeeMutation, currentUserId]);
+  };
 
   // Bulk update department
-  const handleBulkUpdateDepartment = useCallback(async (departmentName: string) => {
+  // React Compiler will automatically memoize this function
+  const handleBulkUpdateDepartment = async (departmentName: string) => {
     if (selectedEmployees.length === 0) {
       messageRef.current.warning('Please select at least one employee');
       return;
@@ -721,7 +724,7 @@ export function EmployeesPage() {
     } catch {
       messageRef.current.error('An error occurred during bulk update');
     }
-  }, [selectedEmployees, departmentsData, employees, queryClient, queryParams, rolesData, updateEmployeeMutation]);
+  };
 
   // Export to CSV
   const handleExportToCSV = useCallback(() => {
@@ -837,7 +840,8 @@ export function EmployeesPage() {
   }, [updateEmployeeStatusMutation, employees]);
 
   // Bulk delete/deactivate
-  const handleBulkDelete = useCallback(() => {
+  // React Compiler will automatically memoize this function
+  const handleBulkDelete = () => {
     if (selectedEmployees.length === 0) {
       messageRef.current.warning('Please select at least one employee');
       return;
@@ -896,7 +900,7 @@ export function EmployeesPage() {
       cancelText: 'Cancel',
       onOk: () => performBulkDeactivation(employeesToDeactivate),
     });
-  }, [selectedEmployees, currentUserId, currentUserEmail, employees, performBulkDeactivation]);
+  };
 
 
 
@@ -1044,7 +1048,7 @@ export function EmployeesPage() {
     return () => {
       setExpandedContent(null);
     };
-  }, [selectedEmployees, showAccessDropdown, showDepartmentDropdown, uniqueDepts, handleBulkDelete, handleBulkUpdateAccess, handleBulkUpdateDepartment, handleExportToCSV, setExpandedContent]);
+  }, [selectedEmployees, showAccessDropdown, showDepartmentDropdown, uniqueDepts, handleExportToCSV, setExpandedContent]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <PageLayout
