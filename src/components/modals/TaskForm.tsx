@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { Button, Input, Select, Checkbox, DatePicker, App, Avatar } from 'antd';
-import { CheckSquare, Calendar, Users, ArrowRight, Layers, UserPlus, X, Building2 } from 'lucide-react';
+import { CheckSquare, Calendar, Users, ArrowRight, Layers, UserPlus, X, Building2, GripVertical } from 'lucide-react';
+import { Reorder } from "framer-motion";
 import dayjs from '@/utils/dayjs';
 import { formatDateForApi, getTodayForApi } from '@/utils/date';
 import { FormLayout } from '@/components/common/FormLayout';
@@ -191,6 +192,13 @@ export function TaskForm({
     }));
   };
 
+  // Helper to reorder members
+  const handleReorder = (newOrder: number[]) => {
+    if (formData.execution_mode === 'sequential') {
+      setFormData(prev => ({ ...prev, assigned_members: newOrder }));
+    }
+  };
+
   // Helper to add member
   const addMember = (id: number) => {
     if (formData.assigned_members.includes(id)) return;
@@ -229,19 +237,36 @@ export function TaskForm({
       {/* Compact Grid Layout */}
       <div className="grid grid-cols-12 gap-x-4 gap-y-4 mb-5">
 
-        {/* Task Title: Col Span 12 (Full Row) */}
-        <div className="col-span-12 space-y-1.5">
-          <span className="text-[12px] font-bold text-[#111111]">
-            Task Title <span className="text-red-500">*</span>
-          </span>
-          <Input
-            placeholder="e.g. Implement Payment Gateway"
-            className="w-full h-11 rounded-lg border-[#EEEEEE] text-sm"
-            value={formData.name}
-            onChange={(e) => {
-              setFormData({ ...formData, name: e.target.value });
-            }}
-          />
+        {/* Task Title and Priority Row */}
+        <div className="col-span-12 flex gap-4 items-start">
+          <div className="flex-1 space-y-1.5">
+            <span className="text-[12px] font-bold text-[#111111]">
+              Task Title <span className="text-red-500">*</span>
+            </span>
+            <Input
+              placeholder="e.g. Implement Payment Gateway"
+              className="w-full h-11 rounded-lg border-[#EEEEEE] text-sm"
+              value={formData.name}
+              onChange={(e) => {
+                setFormData({ ...formData, name: e.target.value });
+              }}
+            />
+          </div>
+
+          <div className="w-[102px] space-y-1.5 flex-none">
+            <span className="text-[12px] font-bold text-[#111111]">Priority</span>
+            <div
+              className={`h-11 rounded-lg border flex items-center justify-center px-3 cursor-pointer transition-colors ${formData.is_high_priority ? 'border-red-200 bg-red-50/50' : 'border-[#EEEEEE] hover:border-gray-300 bg-white'}`}
+              onClick={() => setFormData({ ...formData, is_high_priority: !formData.is_high_priority })}
+            >
+              <Checkbox
+                checked={formData.is_high_priority}
+                className="font-medium text-xs pointer-events-none"
+              >
+                <span className={formData.is_high_priority ? 'text-red-600' : 'text-[#666666]'}>High</span>
+              </Checkbox>
+            </div>
+          </div>
         </div>
 
         {/* Workspace: Col Span 6 */}
@@ -318,22 +343,6 @@ export function TaskForm({
           </Select>
         </div>
 
-        {/* Due Date: Col Span 6 */}
-        <div className="col-span-12 sm:col-span-6 space-y-1.5">
-          <span className="text-[12px] font-bold text-[#111111]">
-            Due Date <span className="text-red-500">*</span>
-          </span>
-          <DatePicker
-            className="w-full h-11 rounded-lg"
-            value={formData.end_date ? dayjs(formData.end_date) : null}
-            onChange={(date) => {
-              setFormData({ ...formData, end_date: date ? date.toISOString() : '' });
-            }}
-            suffixIcon={<Calendar className="w-4 h-4 text-[#999999]" />}
-            disabledDate={(current) => current && current < dayjs().startOf('day')}
-          />
-        </div>
-
       </div>
 
       {/* --- SQUAD BUILDER SECTION (Compact) --- */}
@@ -396,32 +405,42 @@ export function TaskForm({
 
           {/* Selected Squad List */}
           <div className="space-y-2">
-            {formData.assigned_members.map((memberId, index) => {
-              const user = users.find(u => u.id === memberId);
-              if (!user) return null;
-              return (
-                <div key={memberId} className="flex items-center justify-between bg-white p-2 px-3 rounded-lg border border-[#E5E7EB] shadow-sm">
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center justify-center w-5 h-5 rounded-full bg-gray-100 text-[9px] font-bold text-gray-500">
-                      {formData.execution_mode === 'sequential' ? index + 1 : '•'}
+            <Reorder.Group axis="y" values={formData.assigned_members} onReorder={handleReorder}>
+              {formData.assigned_members.map((memberId, index) => {
+                const user = users.find(u => u.id === memberId);
+                if (!user) return null;
+                const isSequential = formData.execution_mode === 'sequential';
+
+                return (
+                  <Reorder.Item key={memberId} value={memberId} dragListener={isSequential} className="mb-2">
+                    <div className="flex items-center justify-between bg-white p-2 px-3 rounded-lg border border-[#E5E7EB] shadow-sm">
+                      <div className="flex items-center gap-3">
+                        {/* Drag Handle (Only for Sequential) */}
+                        {isSequential && <GripVertical className="w-4 h-4 text-gray-400 cursor-grab active:cursor-grabbing" />}
+
+                        <div className="flex items-center justify-center w-5 h-5 rounded-full bg-gray-100 text-[9px] font-bold text-gray-500">
+                          {isSequential ? index + 1 : '•'}
+                        </div>
+                        <Avatar size="small" shape="circle" className="w-6 h-6 text-[10px]" src={user.profile_pic}>{user.name.charAt(0)}</Avatar>
+                        <span className="text-[13px] font-semibold text-gray-800">{user.name}</span>
+                        {String(user.id) !== currentUserId && (
+                          <span className="xs:inline hidden text-[9px] text-amber-500 bg-amber-50 px-1.5 py-0.5 rounded-full border border-amber-100">
+                            Estimate Pending
+                          </span>
+                        )}
+                      </div>
+                      <button
+                        onPointerDown={(e) => e.stopPropagation()} // Prevent drag conflict
+                        onClick={() => removeMember(memberId)}
+                        className="p-1 px-2 text-gray-400 hover:text-red-500 transition-colors"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
                     </div>
-                    <Avatar size="small" shape="circle" className="w-6 h-6 text-[10px]" src={user.profile_pic}>{user.name.charAt(0)}</Avatar>
-                    <span className="text-[13px] font-semibold text-gray-800">{user.name}</span>
-                    {String(user.id) !== currentUserId && (
-                      <span className="xs:inline hidden text-[9px] text-amber-500 bg-amber-50 px-1.5 py-0.5 rounded-full border border-amber-100">
-                        Estimate Pending
-                      </span>
-                    )}
-                  </div>
-                  <button
-                    onClick={() => removeMember(memberId)}
-                    className="p-1 px-2 text-gray-400 hover:text-red-500 transition-colors"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              )
-            })}
+                  </Reorder.Item>
+                )
+              })}
+            </Reorder.Group>
             {formData.assigned_members.length === 0 && (
               <div className="text-center py-4 text-gray-400 text-[12px] border border-dashed border-gray-300 rounded-lg">
                 No active agents assigned.
@@ -431,22 +450,22 @@ export function TaskForm({
         </div>
       </div>
 
-      {/* Priority & My Hours Grid */}
+      {/* Due Date and Hours Grid (Below Squad) */}
       <div className="grid grid-cols-12 gap-x-4 gap-y-4 mb-5">
-        {/* Priority: Col Span 6 */}
+        {/* Due Date: Col Span 6 */}
         <div className="col-span-12 sm:col-span-6 space-y-1.5">
-          <span className="text-[12px] font-bold text-[#111111]">Priority</span>
-          <div
-            className={`w-full h-11 rounded-lg border flex items-center px-3 cursor-pointer transition-colors ${formData.is_high_priority ? 'border-red-200 bg-red-50/50' : 'border-[#EEEEEE] hover:border-gray-300'}`}
-            onClick={() => setFormData({ ...formData, is_high_priority: !formData.is_high_priority })}
-          >
-            <Checkbox
-              checked={formData.is_high_priority}
-              className="font-medium text-sm w-full pointer-events-none"
-            >
-              <span className={formData.is_high_priority ? 'text-red-600' : 'text-[#111111]'}>High Priority</span>
-            </Checkbox>
-          </div>
+          <span className="text-[12px] font-bold text-[#111111]">
+            Due Date <span className="text-red-500">*</span>
+          </span>
+          <DatePicker
+            className="w-full h-11 rounded-lg"
+            value={formData.end_date ? dayjs(formData.end_date) : null}
+            onChange={(date) => {
+              setFormData({ ...formData, end_date: date ? date.toISOString() : '' });
+            }}
+            suffixIcon={<Calendar className="w-4 h-4 text-[#999999]" />}
+            disabledDate={(current) => current && current < dayjs().startOf('day')}
+          />
         </div>
 
         {/* My Hours: Col Span 6 */}
