@@ -18,7 +18,7 @@ export interface Requirement {
   startDate?: string;
   isHighPriority?: boolean;
   is_high_priority: boolean;
-  type: 'inhouse' | 'outsourced' | 'client';
+  type: 'inhouse' | 'outsourced' | 'client' | 'Client work' | 'Client Work';
   status: 'in-progress' | 'completed' | 'delayed' | 'draft' | 'Waiting' | 'archived' | 'Archived' | 'Submitted' | 'Rejected' | 'Revision' | 'On_Hold' | 'Assigned' | 'Review' | 'Impediment' | 'Stuck' | 'Pending';
   category: string;
   departments?: string[];

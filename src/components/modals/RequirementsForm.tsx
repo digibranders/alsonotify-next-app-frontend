@@ -16,7 +16,7 @@ import { CreateRequirementRequestDto } from '@/types/dto/requirement.dto';
 export interface RequirementFormData {
     title: string;
     workspace: string | number | undefined;
-    type: 'inhouse' | 'outsourced';
+    type: 'inhouse' | 'outsourced' | 'client' | 'Client work' | 'Client Work';
     contactPerson?: string;
     contact_person_id?: number;
     dueDate: string;
@@ -175,11 +175,12 @@ function RequirementsFormContent({
             title,
             workspace_id: workspaceId,
             description: formData.description?.trim() ?? '',
-            type: formData.type,
+            type: (formData.type === 'client' || formData.type === 'Client work' || formData.type === 'Client Work') ? 'client' : formData.type as 'inhouse' | 'outsourced',
             is_high_priority: formData.is_high_priority,
             contact_person_id: formData.contact_person_id,
             contact_person: formData.contactPerson != null ? trimStr(String(formData.contactPerson)) : undefined,
-            receiver_company_id: selectedPartner?.company_id,
+            receiver_company_id: (formData.type === 'client' || formData.type === 'Client work' || formData.type === 'Client Work') ? undefined : selectedPartner?.company_id,
+            sender_company_id: (formData.type === 'client' || formData.type === 'Client work' || formData.type === 'Client Work') ? selectedPartner?.company_id : undefined,
             budget: Number(formData.budget) || 0,
             quoted_price: Number(formData.quoted_price) || undefined,
             currency: formData.currency || 'USD',
@@ -212,7 +213,7 @@ function RequirementsFormContent({
         }
     }, [buildPayload, onSubmit, onSubmitAndSend, selectedFiles, message]);
 
-    const sendButtonLabel = isEditing ? 'Update' : (formData.type === 'outsourced' ? 'Send to Partner' : formData.type === 'inhouse' ? 'Submit for Work' : 'Send Requirement');
+    const sendButtonLabel = isEditing ? 'Update' : (formData.type === 'outsourced' ? 'Send to Partner' : (formData.type === 'client' || formData.type === 'Client work' || formData.type === 'Client Work') ? 'Log Client Work' : formData.type === 'inhouse' ? 'Submit for Work' : 'Send Requirement');
 
     const footer = (
         <>
@@ -329,8 +330,9 @@ function RequirementsFormContent({
                         })}
                         suffixIcon={<ChevronDown className="w-4 h-4 text-gray-400" />}
                     >
-                        <Option value="inhouse">In-house</Option>
+                        <Option value="inhouse">In-house (Internal)</Option>
                         <Option value="outsourced">Partner (Outsourced)</Option>
+                        <Option value="client">Client Work (Received)</Option>
                     </Select>
                 </div>
 
@@ -342,7 +344,7 @@ function RequirementsFormContent({
                                 (String(option?.label ?? '')).toLowerCase().includes(input.toLowerCase())
                         }}
                         className="w-full h-11"
-                        placeholder={`Select ${formData.type === 'inhouse' ? 'employee' : 'partner'}`}
+                        placeholder={`Select ${formData.type === 'inhouse' ? 'employee' : (formData.type === 'client' || formData.type === 'Client work' || formData.type === 'Client Work' ? 'client/partner' : 'partner')}`}
                         value={typeof formData.contact_person_id === 'number' ? formData.contact_person_id : undefined}
                         onChange={(v, option: any) => setFormData({
                             ...formData,
