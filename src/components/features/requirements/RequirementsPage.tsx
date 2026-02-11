@@ -1171,7 +1171,7 @@ export function RequirementsPage() {
         } : undefined}
         onSubmit={handleSaveDraft}
         onSubmitAndSend={handleSendRequirement}
-        workspaces={workspacesData?.result?.workspaces?.map((w: { id: number; name: string }) => ({ id: w.id, name: w.name })) || []}
+        workspaces={workspacesData?.result?.workspaces?.map((w) => ({ id: w.id, name: w.name, company_name: w.company_name || w.client?.name || undefined })) || []}
         isLoading={createRequirementMutation.isPending || updateRequirementMutation.isPending}
       />
 
