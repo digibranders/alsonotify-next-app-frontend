@@ -49,12 +49,7 @@ export function RequirementsPage() {
     modalRef.current = modalApi;
   }, [messageApi, modalApi]);
   const router = useRouter();
-  const [isMounted, setIsMounted] = useState(false);
 
-  useEffect(() => {
-    const timer = setTimeout(() => setIsMounted(true), 0);
-    return () => clearTimeout(timer);
-  }, []);
   const createRequirementMutation = useCreateRequirement();
   const updateRequirementMutation = useUpdateRequirement();
 
@@ -1009,7 +1004,7 @@ export function RequirementsPage() {
 
 
   const userRole = getRoleFromUser(currentUser);
-  const isEmployee = userRole === 'Employee';
+
 
   // Handle requirement deletion/archiving logic
   const handleDelete = useCallback((requirement: Requirement) => {
@@ -1062,8 +1057,9 @@ export function RequirementsPage() {
   return (
     <PageLayout
       title="Requirements"
-      titleAction={isMounted && !isEmployee ? {
-        onClick: handleOpenCreate
+      titleAction={getRoleFromUser(currentUser) !== 'Employee' ? {
+        onClick: () => handleOpenCreate(),
+        label: "Add Requirement"
       } : undefined}
       tabs={tabs}
       activeTab={activeStatusTab}

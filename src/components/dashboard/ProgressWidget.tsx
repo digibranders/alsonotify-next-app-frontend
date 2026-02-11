@@ -8,26 +8,36 @@ import isoWeek from 'dayjs/plugin/isoWeek';
 import quarterOfYear from 'dayjs/plugin/quarterOfYear';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
 
 dayjs.extend(isoWeek);
 dayjs.extend(quarterOfYear);
 dayjs.extend(isSameOrBefore);
 dayjs.extend(isSameOrAfter);
+dayjs.extend(customParseFormat);
 import { useTasks } from '@/hooks/useTask';
 import { useWorkspaces } from '@/hooks/useWorkspace';
-import { useUserDetails } from '@/hooks/useUser';
+import { useUserDetails, useCurrentUserCompany } from '@/hooks/useUser';
 import { Task } from '@/types/domain';
 import { getRequirementsByWorkspaceId } from '@/services/workspace';
 import { DateRangeSelector } from '../common/DateRangeSelector';
 import { Skeleton } from '../ui/Skeleton';
 import { ApiResponse } from '@/types/api';
 import { RequirementDto } from '@/types/dto/requirement.dto';
+import { useAccountType } from '@/utils/accountTypeUtils';
+import { getWorkingDaysCount } from '@/utils/date';
 
 export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => void }) {
   const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null] | null>(() => {
     const now = dayjs();
     return [now.startOf('month'), now.endOf('month')];
   });
+
+  // Check account type to conditionally show Hours Capacity widget
+  const { isIndividual } = useAccountType();
+
+  // Fetch company settings for working hours
+  const { data: companyData } = useCurrentUserCompany();
 
   // Construct query string for tasks based on date range
   const taskQueryString = useMemo(() => {
@@ -204,18 +214,42 @@ export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => 
       return acc;
     }, 0));
 
-    // 2. Calculate Total Capacity based on Date Range
+    // 2. Calculate Total Capacity
     let total = 160; // Default fallback
-    if (dateRange && dateRange[0] && dateRange[1]) {
-      const days = dateRange[1].diff(dateRange[0], 'day') + 1;
-      // Use user's working hours or default to 8
-      const dailyHours = Number(userDetailsData?.result?.workingHours) || 8;
-      // Subtract break time (in minutes) converted to hours
-      const breakTimeMinutes = Number(userDetailsData?.result?.breakTime) || 0;
-      const netDailyHours = Math.max(0, dailyHours - (breakTimeMinutes / 60));
 
-      // Assume 5 working days per week
-      const workDays = Math.max(1, Math.round(days * (5 / 7)));
+    // Strategy: Prefer User Profile Hours -> Company Settings -> Default (8h)
+
+    // a) Try User Profile Specific Hours
+    let dailyHours = 0;
+    let breakTimeMinutes = 0;
+
+    const userProfileHours = (userDetailsData?.result?.userProfile as { working_hours?: { start_time?: string; end_time?: string; break_time?: number } } | undefined)?.working_hours;
+
+    if (userProfileHours?.start_time && userProfileHours?.end_time) {
+      const start = dayjs(userProfileHours.start_time, ['h:mm a', 'h:mm A', 'HH:mm']);
+      const end = dayjs(userProfileHours.end_time, ['h:mm a', 'h:mm A', 'HH:mm']);
+
+      if (start.isValid() && end.isValid()) {
+        // Calculate duration in hours
+        const durationMinutes = end.diff(start, 'minute');
+        dailyHours = durationMinutes / 60;
+        // User profile break time might be in the same object or parent
+        breakTimeMinutes = Number(userProfileHours.break_time) || 0;
+      }
+    }
+
+    // b) Fallback to Company Settings if user hours not found
+    if (dailyHours === 0) {
+      const companyWorkingHours = companyData?.result?.working_hours as { daily_hours?: number; hours?: number; break_time?: number } | undefined;
+      dailyHours = companyWorkingHours?.daily_hours || companyWorkingHours?.hours || 8;
+      breakTimeMinutes = companyWorkingHours?.break_time || 0;
+    }
+
+    const netDailyHours = Math.max(0, dailyHours - (breakTimeMinutes / 60));
+
+    if (dateRange && dateRange[0] && dateRange[1]) {
+      // Calculate precise working days (Mon-Fri) in the range
+      const workDays = getWorkingDaysCount(dateRange[0], dateRange[1]);
       total = Math.round(workDays * netDailyHours);
     }
 
@@ -223,7 +257,7 @@ export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => 
     const remaining = Math.max(0, total - allotted);
 
     return { allotted, total, percentage, remaining };
-  }, [tasksData, isLoadingTasks, dateRange, currentUserId, userDetailsData?.result?.workingHours, userDetailsData?.result?.breakTime]);
+  }, [tasksData, isLoadingTasks, dateRange, currentUserId, companyData?.result?.working_hours, userDetailsData?.result]);
 
   const isLoading = isLoadingTasks || isLoadingWorkspaces || isLoadingRequirements;
 
@@ -291,10 +325,12 @@ export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => 
           />
         </div>
 
-        {/* Hours Bar - Locked at bottom */}
-        <div className="shrink-0 pt-2 border-t border-gray-50 mt-1">
-          <HoursBar data={hoursData} onClick={() => onNavigate && onNavigate('tasks')} />
-        </div>
+        {/* Hours Bar - Only show for ORGANIZATION accounts */}
+        {!isIndividual && (
+          <div className="shrink-0 pt-2 border-t border-gray-50 mt-1">
+            <HoursBar data={hoursData} onClick={() => onNavigate && onNavigate('tasks')} />
+          </div>
+        )}
       </div>
     </div>
   );

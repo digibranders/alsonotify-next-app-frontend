@@ -35,9 +35,28 @@ export const formatDateForApi = (date: string | Date | dayjs.Dayjs): string => {
     return d.isValid() ? d.format(DATE_FORMAT_API) : '';
 };
 
-/**
- * Returns today's date in YYYY-MM-DD format.
- */
 export const getTodayForApi = (): string => {
     return dayjs().format(DATE_FORMAT_API);
+};
+
+/**
+ * Calculates the number of working days (Mon-Fri) between two dates, inclusive.
+ */
+export const getWorkingDaysCount = (start: dayjs.Dayjs, end: dayjs.Dayjs): number => {
+    let count = 0;
+    let current = dayjs(start);
+    const last = dayjs(end);
+
+    // Ensure we don't calculate if start is after end
+    if (current.isAfter(last)) return 0;
+
+    // Iterate through each day
+    while (current.isBefore(last) || current.isSame(last, 'day')) {
+        const dayOfWeek = current.day(); // 0 is Sunday, 6 is Saturday
+        if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+            count++;
+        }
+        current = current.add(1, 'day');
+    }
+    return count;
 };

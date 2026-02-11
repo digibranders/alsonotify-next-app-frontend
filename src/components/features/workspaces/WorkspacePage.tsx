@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { FolderOpen, Plus, LayoutGrid, List, MoreVertical, Edit, Trash2, RotateCcw } from 'lucide-react';
 import { PaginationBar } from '../../ui/PaginationBar';
 import { FilterBar, FilterOption } from '../../ui/FilterBar';
@@ -24,8 +24,9 @@ export function WorkspacePage() {
   const { data: partnersData } = usePartners();
   const { data: companyData } = useCurrentUserCompany();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const [activeTab, setActiveTab] = useState<'active' | 'archived'>('active');
+  const activeTab = (searchParams.get('tab') as 'active' | 'archived') || 'active';
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -37,6 +38,13 @@ export function WorkspacePage() {
   const [selectedWorkspaceForEdit, setSelectedWorkspaceForEdit] = useState<Workspace | null>(null);
 
   const [pageSize, setPageSize] = useState(10);
+
+  const handleTabChange = (tab: 'active' | 'archived') => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('tab', tab);
+    setCurrentPage(1);
+    router.push(`?${params.toString()}`);
+  };
 
   // Build query string for API
   const queryParams = useMemo(() => {
@@ -238,7 +246,7 @@ export function WorkspacePage() {
         <div className="flex items-center">
           <div className="flex items-center gap-8 border-b border-[#EEEEEE]">
             <button
-              onClick={() => { setActiveTab('active'); setCurrentPage(1); }}
+              onClick={() => handleTabChange('active')}
               className={`pb-3 px-1 relative font-['Manrope:SemiBold',sans-serif] text-[14px] transition-colors ${activeTab === 'active'
                 ? 'text-[#ff3b3b]'
                 : 'text-[#666666] hover:text-[#111111]'
@@ -250,7 +258,7 @@ export function WorkspacePage() {
               )}
             </button>
             <button
-              onClick={() => { setActiveTab('archived'); setCurrentPage(1); }}
+              onClick={() => handleTabChange('archived')}
               className={`pb-3 px-1 relative font-['Manrope:SemiBold',sans-serif] text-[14px] transition-colors ${activeTab === 'archived'
                 ? 'text-[#ff3b3b]'
                 : 'text-[#666666] hover:text-[#111111]'

@@ -1,34 +1,22 @@
 'use client';
 
-import { Suspense, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/hooks/useAuth';
-import { getRoleFromUser } from '@/utils/roleUtils';
+import { Suspense } from 'react';
 
 import { WorkspacePage } from '../../../components/features/workspaces/WorkspacePage';
 
 export default function WorkspacesPageRoute() {
-  const { user } = useAuth();
-  const router = useRouter();
-  const role = getRoleFromUser(user);
+  // Removed employee redirect as per new requirements
 
-  useEffect(() => {
-    if (role === 'Employee') {
-      router.push('/dashboard/requirements');
-    }
-  }, [role, router]);
+  // Removed employee redirect as per new requirements
 
-  if (role === 'Employee') {
-    return null;
-  }
 
   return (
 
-      <div className="flex-1 overflow-hidden">
-        <Suspense fallback={<div>Loading workspaces...</div>}>
-          <WorkspacePage />
-        </Suspense>
-      </div>
+    <div className="flex-1 overflow-hidden">
+      <Suspense fallback={<div>Loading workspaces...</div>}>
+        <WorkspacePage />
+      </Suspense>
+    </div>
 
   );
 }

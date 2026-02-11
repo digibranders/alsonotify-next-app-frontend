@@ -83,10 +83,12 @@ export function TaskDetailsPage() {
 
   // Access Control
   const isAdmin = currentUser?.role?.toLowerCase() === 'admin';
-  const isMember = task?.task_members?.some((tm: any) => tm.user_id === currentUser?.id);
+  const isMember = task?.task_members?.some((tm: { user_id: number }) => tm.user_id === currentUser?.id);
   const isLeader = task?.leader_id === currentUser?.id;
   const isAssignee = task?.member_id === currentUser?.id;
-  const hasAccess = isAdmin || isMember || isLeader || isAssignee;
+  // Allow explicit Employee access (Read-Only)
+  const isEmployee = currentUser?.role === 'Employee';
+  const hasAccess = isAdmin || isMember || isLeader || isAssignee || isEmployee;
 
   if (isLoading) {
     return (
