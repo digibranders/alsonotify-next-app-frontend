@@ -1,22 +1,22 @@
 import { Plus, Edit, Lock, Check, Shield, ChevronRight } from 'lucide-react';
 import { Button, Checkbox, Collapse } from "antd";
-import { Role } from '@/types/domain';
+import { useState } from 'react';
+import { ApiResponse } from '@/types/api';
 import { RoleDto } from '@/types/dto/user.dto';
-import { useState, useEffect } from 'react';
 
 interface AccessManagementTabProps {
   canEditAccessManagement: boolean;
-  rolesData: any;
+  rolesData?: ApiResponse<RoleDto[]>;
   isLoadingRoles: boolean;
   selectedRoleId: number | null;
   setSelectedRoleId: (id: number | null) => void;
-  setEditingRole: (role: Role | null) => void;
+  setEditingRole: (role: RoleDto | null) => void;
   setRoleFormName: (name: string) => void;
   setRoleFormColor: (color: string) => void;
   setIsRoleModalOpen: (val: boolean) => void;
   updatePermissionsMutation: any;
   isLoadingPermissions: boolean;
-  rolePermissions: any;
+  rolePermissions?: ApiResponse<any[]>;
   initialSelectedPermissionIds: Set<number>;
 }
 
@@ -37,10 +37,11 @@ export function AccessManagementTab({
 }: AccessManagementTabProps) {
   const [selectedPermissionIds, setSelectedPermissionIds] = useState<Set<number>>(initialSelectedPermissionIds);
 
-  // Sync local state when parent passes new permissions (e.g. after role change or rolePermissions load).
-  useEffect(() => {
+  const [prevInitialIds, setPrevInitialIds] = useState(initialSelectedPermissionIds);
+  if (initialSelectedPermissionIds !== prevInitialIds) {
+    setPrevInitialIds(initialSelectedPermissionIds);
     setSelectedPermissionIds(new Set(initialSelectedPermissionIds));
-  }, [initialSelectedPermissionIds]);
+  }
 
   return (
     <div className="bg-white rounded-[24px] p-8 border border-[#EEEEEE] mb-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
@@ -77,8 +78,8 @@ export function AccessManagementTab({
           <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
             <div className="space-y-1">
               {rolesData?.result
-                ?.filter((role: Role) => role.name !== 'Super Admin')
-                ?.sort((a: Role, b: Role) => {
+                ?.filter((role: RoleDto) => role.name !== 'Super Admin')
+                ?.sort((a: RoleDto, b: RoleDto) => {
                   const order = ['Admin', 'Head', 'Finance', 'HR', 'Manager', 'Employee'];
                   const aIdx = order.indexOf(a.name);
                   const bIdx = order.indexOf(b.name);
@@ -87,10 +88,10 @@ export function AccessManagementTab({
                   if (bIdx !== -1) return 1;
                   return a.name.localeCompare(b.name);
                 })
-                ?.map((role: Role) => (
+                ?.map((role: RoleDto) => (
                   <div
                     key={role.id}
-                    onClick={() => setSelectedRoleId(role.id)}
+                    onClick={() => setSelectedRoleId(role.id ?? null)}
                     className={`group flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all ${selectedRoleId === role.id
                       ? 'bg-[#111111] text-white shadow-lg'
                       : 'hover:bg-[#F7F7F7] text-[#111111]'
@@ -131,7 +132,7 @@ export function AccessManagementTab({
             <div className="flex flex-col h-full">
               <div className="flex items-center justify-between h-10 mb-2 px-1">
                 <span className="text-[12px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wider">
-                  Permissions for {rolesData?.result?.find((r: Role) => r.id === selectedRoleId)?.name}
+                  Permissions for {rolesData?.result?.find((r: RoleDto) => r.id === selectedRoleId)?.name}
                 </span>
                 {canEditAccessManagement && (
                   <Button

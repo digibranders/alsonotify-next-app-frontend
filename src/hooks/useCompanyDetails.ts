@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { CompanyProfile } from '@/types/auth';
 import { CompanyUpdateInput } from '@/types/genericTypes';
 import { trimStr } from '@/utils/trim';
@@ -8,69 +8,82 @@ interface UseCompanyDetailsProps {
 }
 
 export const useCompanyDetails = ({ initialData }: UseCompanyDetailsProps) => {
-    const [companyName, setCompanyName] = useState(initialData?.name || '');
-    const [companyLogo, setCompanyLogo] = useState(initialData?.logo || '');
-    const [taxId, setTaxId] = useState(initialData?.tax_id || '');
-    const [taxIdType, setTaxIdType] = useState(initialData?.tax_id_type || '');
-    const [timeZone, setTimeZone] = useState(initialData?.timezone || 'Asia/Kolkata');
-    const [currency, setCurrency] = useState(initialData?.currency || 'USD');
-    const [country, setCountry] = useState(initialData?.country || '');
-    const [address, setAddress] = useState(initialData?.address || '');
+    const [formData, setFormData] = useState({
+        companyName: initialData?.name || '',
+        companyLogo: initialData?.logo || '',
+        taxId: initialData?.tax_id || '',
+        taxIdType: initialData?.tax_id_type || '',
+        timeZone: initialData?.timezone || 'Asia/Kolkata',
+        currency: initialData?.currency || 'USD',
+        country: initialData?.country || '',
+        address: initialData?.address || '',
+        defaultEmployeePassword: initialData?.default_employee_password || 'Pass@123'
+    });
 
-    const [defaultEmployeePassword, setDefaultEmployeePassword] = useState(initialData?.default_employee_password || 'Pass@123');
+    const [prevInitialData, setPrevInitialData] = useState(initialData);
 
-    // Sync state when initialData becomes available after mount (e.g. companyData loads asynchronously).
-    useEffect(() => {
-        if (!initialData) return;
-        setCompanyName(initialData.name || '');
-        setCompanyLogo(initialData.logo || '');
-        setTaxId(initialData.tax_id || '');
-        setTaxIdType(initialData.tax_id_type || '');
-        setTimeZone(initialData.timezone || 'Asia/Kolkata');
-        setCurrency(initialData.currency || 'USD');
-        setCountry(initialData.country || '');
-        setAddress(initialData.address || '');
-        setDefaultEmployeePassword(initialData.default_employee_password || 'Pass@123');
-    }, [initialData]);
+    // Adjust state during render when initialData changes. 
+    // This is the recommended pattern to avoid useEffect cascading renders.
+    if (initialData !== prevInitialData) {
+        setPrevInitialData(initialData);
+        setFormData({
+            companyName: initialData?.name || '',
+            companyLogo: initialData?.logo || '',
+            taxId: initialData?.tax_id || '',
+            taxIdType: initialData?.tax_id_type || '',
+            timeZone: initialData?.timezone || 'Asia/Kolkata',
+            currency: initialData?.currency || 'USD',
+            country: initialData?.country || '',
+            address: initialData?.address || '',
+            defaultEmployeePassword: initialData?.default_employee_password || 'Pass@123'
+        });
+    }
 
     const resetCompanyDetails = useCallback(() => {
         if (initialData) {
-            setCompanyName(initialData.name || '');
-            setCompanyLogo(initialData.logo || '');
-            setTaxId(initialData.tax_id || '');
-            setTaxIdType(initialData.tax_id_type || '');
-            setTimeZone(initialData.timezone || 'Asia/Kolkata');
-            setCurrency(initialData.currency || 'USD');
-            setCountry(initialData.country || '');
-            setAddress(initialData.address || '');
-            setDefaultEmployeePassword(initialData.default_employee_password || 'Pass@123');
+            setFormData({
+                companyName: initialData.name || '',
+                companyLogo: initialData.logo || '',
+                taxId: initialData.tax_id || '',
+                taxIdType: initialData.tax_id_type || '',
+                timeZone: initialData.timezone || 'Asia/Kolkata',
+                currency: initialData.currency || 'USD',
+                country: initialData.country || '',
+                address: initialData.address || '',
+                defaultEmployeePassword: initialData.default_employee_password || 'Pass@123'
+            });
         }
     }, [initialData]);
 
     const getCompanyDetailsPayload = useCallback((): Partial<CompanyUpdateInput> => {
         return {
-            name: trimStr(companyName),
-            logo: trimStr(companyLogo) || undefined,
-            tax_id: trimStr(taxId) || undefined,
-            tax_id_type: trimStr(taxIdType) || undefined,
-            timezone: trimStr(timeZone),
-            currency: trimStr(currency),
-            country: trimStr(country) || undefined,
-            address: trimStr(address) || undefined,
-            default_employee_password: trimStr(defaultEmployeePassword) || undefined,
+            name: trimStr(formData.companyName),
+            logo: trimStr(formData.companyLogo) || undefined,
+            tax_id: trimStr(formData.taxId) || undefined,
+            tax_id_type: trimStr(formData.taxIdType) || undefined,
+            timezone: trimStr(formData.timeZone),
+            currency: trimStr(formData.currency),
+            country: trimStr(formData.country) || undefined,
+            address: trimStr(formData.address) || undefined,
+            default_employee_password: trimStr(formData.defaultEmployeePassword) || undefined,
         };
-    }, [companyName, companyLogo, taxId, taxIdType, timeZone, currency, country, address, defaultEmployeePassword]);
+    }, [formData]);
+
+    const updateField = useCallback((field: keyof typeof formData, value: string) => {
+        setFormData(prev => ({ ...prev, [field]: value }));
+    }, []);
 
     return {
-        companyName, setCompanyName,
-        companyLogo, setCompanyLogo,
-        taxId, setTaxId,
-        taxIdType, setTaxIdType,
-        timeZone, setTimeZone,
-        currency, setCurrency,
-        country, setCountry,
-        address, setAddress,
-        defaultEmployeePassword, setDefaultEmployeePassword,
+        ...formData,
+        setCompanyName: (val: string) => updateField('companyName', val),
+        setCompanyLogo: (val: string) => updateField('companyLogo', val),
+        setTaxId: (val: string) => updateField('taxId', val),
+        setTaxIdType: (val: string) => updateField('taxIdType', val),
+        setTimeZone: (val: string) => updateField('timeZone', val),
+        setCurrency: (val: string) => updateField('currency', val),
+        setCountry: (val: string) => updateField('country', val),
+        setAddress: (val: string) => updateField('address', val),
+        setDefaultEmployeePassword: (val: string) => updateField('defaultEmployeePassword', val),
         resetCompanyDetails,
         getCompanyDetailsPayload
     };

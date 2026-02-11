@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { Pencil } from 'lucide-react';
 import { Button, Input, App, Modal, DatePicker } from "antd";
 import dayjs from 'dayjs';
@@ -59,6 +59,11 @@ export function SettingsContent({
     permissions
 }: SettingsContentProps) {
     const { message } = App.useApp();
+    const messageRef = useRef(message);
+
+    useEffect(() => {
+        messageRef.current = message;
+    }, [message]);
     const [isEditing, setIsEditing] = useState(false);
     const [notifications, setNotifications] = useState({ email: true, push: false, reports: true });
     const [security, setSecurity] = useState({ currentPassword: '', newPassword: '', confirmPassword: '', twoFactor: false });
@@ -141,7 +146,7 @@ export function SettingsContent({
     const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
     const [roleFormName, setRoleFormName] = useState('');
     const [roleFormColor, setRoleFormColor] = useState('#BBBBBB');
-    const [editingRole, setEditingRole] = useState<Role | null>(null);
+    const [editingRole, setEditingRole] = useState<RoleDto | null>(null);
 
     // Handlers
     const handleTabChange = useCallback((tab: string) => {
@@ -210,7 +215,7 @@ export function SettingsContent({
 
     const handleSaveHoliday = () => {
         if (!holidayForm.name.trim() || !holidayForm.date) {
-            message.error('Name and date are required');
+            messageRef.current.error('Name and date are required');
             return;
         }
 
@@ -235,7 +240,7 @@ export function SettingsContent({
 
     const handleSaveRole = () => {
         if (!roleFormName.trim()) {
-            message.error('Role name is required');
+            messageRef.current.error('Role name is required');
             return;
         }
 
@@ -247,12 +252,12 @@ export function SettingsContent({
 
         upsertRoleMutation.mutate(payload, {
             onSuccess: () => {
-                message.success(`Role ${editingRole ? 'updated' : 'added'} successfully`);
+                messageRef.current.success(`Role ${editingRole ? 'updated' : 'added'} successfully`);
                 setIsRoleModalOpen(false);
                 setEditingRole(null);
             },
             onError: (error) => {
-                message.error(getErrorMessage(error, `Failed to save role`));
+                messageRef.current.error(getErrorMessage(error, `Failed to save role`));
             },
         });
     };
@@ -293,12 +298,12 @@ export function SettingsContent({
             }
 
             await updateCompanyMutation.mutateAsync(payload as CompanyUpdateInput);
-            message.success('Settings saved successfully!');
+            messageRef.current.success('Settings saved successfully!');
             setIsEditing(false);
         } catch (error) {
-            message.error(getErrorMessage(error, "Failed to update settings"));
+            messageRef.current.error(getErrorMessage(error, "Failed to update settings"));
         }
-    }, [activeTab, isAdmin, defaultEmployeePassword, leaves, localHolidays, workStartTime, workEndTime, workingDays, breakTime, departments, updateCompanyMutation, getCompanyDetailsPayload, message]);
+    }, [activeTab, isAdmin, defaultEmployeePassword, leaves, localHolidays, workStartTime, workEndTime, workingDays, breakTime, departments, updateCompanyMutation, getCompanyDetailsPayload]);
 
     const handleCancelEdit = () => {
         setIsEditing(false);

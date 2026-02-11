@@ -25,15 +25,15 @@ interface AlsonotifyLayoutWrapperProps {
 
 export function AlsonotifyLayoutWrapper({ children }: Readonly<AlsonotifyLayoutWrapperProps>) {
   return (
-    <SidebarProvider>
-      <FloatingMenuProvider>
-        <AlsonotifyLayoutContent>
-          <ErrorBoundary>
+    <ErrorBoundary>
+      <SidebarProvider>
+        <FloatingMenuProvider>
+          <AlsonotifyLayoutContent>
             {children}
-          </ErrorBoundary>
-        </AlsonotifyLayoutContent>
-      </FloatingMenuProvider>
-    </SidebarProvider>
+          </AlsonotifyLayoutContent>
+        </FloatingMenuProvider>
+      </SidebarProvider>
+    </ErrorBoundary>
   );
 }
 
@@ -142,8 +142,11 @@ function AlsonotifyLayoutContent({ children }: Readonly<AlsonotifyLayoutWrapperP
   }
 
   // Prevent flash of unauthenticated content while redirecting
+  // But DO NOT return null here as it causes a total white screen if useUserDetails blips.
+  // The layout below handles its own loading/missing states.
   if (isError || !userDetailsData?.result) {
-    return null;
+    // We still render the basic layout structure to avoid WSOD.
+    // The useEffect(router.push('/login')) above will handle the actual redirect.
   }
 
 

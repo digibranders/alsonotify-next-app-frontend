@@ -28,14 +28,16 @@ export function QuotationDialog({
   const [hours, setHours] = useState('');
   const [currency, setCurrency] = useState('USD');
 
-  useEffect(() => {
-    if (open) {
-      setAmount('');
-      setRate('');
-      setHours('');
-      setCurrency('USD');
-    }
-  }, [open]);
+  const [prevOpen, setPrevOpen] = useState(open);
+  if (open && !prevOpen) {
+    setPrevOpen(open);
+    setAmount('');
+    setRate('');
+    setHours('');
+    setCurrency('USD');
+  } else if (!open && prevOpen) {
+    setPrevOpen(open);
+  }
 
   const handleConfirm = () => {
     if (pricingModel === 'hourly') {
@@ -54,7 +56,7 @@ export function QuotationDialog({
         messageApi.error("Please enter an amount");
         return;
       }
-      onConfirm({ 
+      onConfirm({
         cost: parseFloat(amount),
         currency
       });

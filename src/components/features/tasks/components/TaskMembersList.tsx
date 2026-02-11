@@ -1,12 +1,11 @@
 import { Avatar, Tooltip, App, Button } from 'antd';
-import { ArrowRight, CheckCircle2, Clock, Hourglass, HandMetal, History, GripVertical } from 'lucide-react';
+import { CheckCircle2, Clock, Hourglass, HandMetal, History, GripVertical } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { format } from 'date-fns';
 import { useQueryClient } from '@tanstack/react-query';
 import { overrideBaton, reclaimBaton, reorderTaskMembers } from '@/services/task';
 import { queryKeys } from '@/lib/queryKeys';
-import { Reorder, useDragControls } from 'framer-motion';
-import { useState, useEffect } from 'react';
+import { Reorder } from 'framer-motion';
+import { useState } from 'react';
 
 interface TaskMember {
   id: number;
@@ -38,10 +37,11 @@ export function TaskMembersList({ taskId, members, executionMode, currentUser, i
   const queryClient = useQueryClient();
   const [items, setItems] = useState(members || []);
 
-  useEffect(() => {
-
+  const [prevMembers, setPrevMembers] = useState(members);
+  if (members !== prevMembers) {
+    setPrevMembers(members);
     setItems(members || []);
-  }, [members]);
+  }
 
   // Sort by queue_order for initial display
   const sortedMembers = [...items].sort((a, b) => (a.queue_order || 0) - (b.queue_order || 0));
@@ -78,7 +78,6 @@ export function TaskMembersList({ taskId, members, executionMode, currentUser, i
     }
   };
 
-  const currentTurnMember = members?.find(m => m.is_current_turn);
   const myMemberRecord = members?.find(m => m.user_id === currentUser?.id);
 
   // Can reclaim if: 

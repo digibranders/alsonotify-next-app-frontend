@@ -31,14 +31,13 @@ import { FeedbackWidget } from './FeedbackWidget';
 import { useUserDetails } from '@/hooks/useUser';
 import { isSuperAdmin } from '@/utils/roleUtils';
 import { useAccountType } from '@/utils/accountTypeUtils';
-import { useNotifications, useMarkAllNotificationsRead, useMarkNotificationRead } from '@/hooks/useNotification';
-import { useWorkspaces, useCreateRequirement } from '@/hooks/useWorkspace';
+import { useNotifications, useMarkAllNotificationsRead, useMarkNotificationRead } from '../../hooks/useNotification';
+import { useWorkspaces, useCreateRequirement } from '../../hooks/useWorkspace';
 import { useCreateTask } from '@/hooks/useTask';
 import { useCreateNote } from '@/hooks/useNotes';
 import { useLogout } from '@/hooks/useAuth';
 import { formatDistanceToNow } from 'date-fns';
 import { formatDateForApi, getTodayForApi } from '@/utils/date';
-import { useEmployees, usePartners, useCurrentUserCompany } from '@/hooks/useUser';
 import { searchEmployees } from '@/services/user';
 import { getRequirementsByWorkspaceId } from '@/services/workspace';
 import { RequirementDropdownItem, CreateRequirementRequestDto } from '@/types/dto/requirement.dto';
@@ -46,11 +45,11 @@ import { NoteComposerModal } from './NoteComposerModal';
 import { AIAssistantDrawer } from '../features/ai/AIAssistantDrawer';
 import { MeetingCreateModal } from '../modals/MeetingCreateModal';
 import { LeaveApplyModal } from '../modals/LeaveApplyModal';
+import { Employee } from '@/types/domain';
 
 import { CreateTaskRequestDto } from '@/types/dto/task.dto';
 import { useSidebar } from '@/context/SidebarContext';
 import { useIsNarrow } from '@/hooks/useBreakpoint';
-import { PanelLeft24Regular } from '@fluentui/react-icons';
 
 type UserRole = import('@/utils/roleUtils').UserRole;
 
@@ -127,19 +126,17 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
 
   const user = useMemo(() => {
     // Return API data directly
-    const apiUser = userDetailsData?.result || {} as any;
+    const apiUser = userDetailsData?.result || {} as Employee;
     return apiUser;
   }, [userDetailsData]);
 
   // Extract first name from user data
   const firstName = useMemo(() => {
-    const userProfile = user?.user_profile;
+    const userProfile = user?.userProfile;
     if (userProfile?.first_name) {
       return userProfile.first_name;
     }
-    if (user?.first_name) {
-      return user.first_name;
-    }
+    // Employee interface doesn't have first_name directly, use name fallback
     if (user?.name) {
       return user.name.split(' ')[0] || user.name;
     }
@@ -163,25 +160,27 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
           setUsersDropdown(transformed);
         }
       } catch (error) {
-        message.error('Failed to fetch users');
+        console.error('Failed to fetch users:', error);
       }
     };
     fetchUsers();
-  }, [message]);
+  }, []); // Only fetch on mount
 
   useEffect(() => {
     const fetchRequirements = async () => {
+      if (!workspacesData?.result?.workspaces?.length) return;
+
       try {
-        if (!workspacesData?.result?.workspaces) return;
         const allRequirements: RequirementDropdownItem[] = [];
 
         for (const workspace of workspacesData.result.workspaces) {
           try {
-            // Use full fetch to ensure we get 'type' and 'status'
-            const response = await getRequirementsByWorkspaceId(workspace.id);
+            const workspaceId = Number(workspace.id);
+            if (isNaN(workspaceId)) continue;
+
+            const response = await getRequirementsByWorkspaceId(workspaceId);
             if (response.success && response.result) {
-              // Map RequirementDto to RequirementDropdownItem
-              const mapped: RequirementDropdownItem[] = response.result.map((r) => ({
+              const mapped: RequirementDropdownItem[] = response.result.map((r: any) => ({
                 id: r.id,
                 name: r.name || r.title || '',
                 type: r.type || 'inhouse',
@@ -206,31 +205,43 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
 
 
         setRequirementsDropdown(filteredRequirements);
-      } catch {
-        message.error('Failed to fetch requirements');
+      } catch (error) {
+        console.error('Failed to fetch requirements:', error);
       }
     };
     fetchRequirements();
-  }, [workspacesData, message]);
+  }, [workspacesData]); // Only refetch when workspaces change
 
   // Handle Calendar Success
 
   // Transform notifications
   const notifications = useMemo(() => {
     if (!notificationsData?.result) return [];
-    return notificationsData.result.map((n) => ({
-      id: n.id,
-      title: n.metadata?.title || n.title || n.message || 'Notification',
-      message: n.message || n.title || '',
-      time: n.created_at
-        ? formatDistanceToNow(new Date(n.created_at), { addSuffix: true })
-        : 'Just now',
-      unread: !n.is_read,
-      type: (n.type || 'general') as NotificationItem['type'],
-      icon: n.icon || undefined,
-      actionLink: n.link || undefined,
-      metadata: n.metadata || undefined,
-    }));
+    return notificationsData.result.map((n) => {
+      let relativeTime = 'Just now';
+      try {
+        if (n.created_at) {
+          const date = new Date(n.created_at);
+          if (!isNaN(date.getTime())) {
+            relativeTime = formatDistanceToNow(date, { addSuffix: true });
+          }
+        }
+      } catch {
+        console.warn("Invalid notification date:", n.created_at);
+      }
+
+      return {
+        id: n.id,
+        title: n.metadata?.title || n.title || n.message || 'Notification',
+        message: n.message || n.title || '',
+        time: relativeTime,
+        unread: !n.is_read,
+        type: (n.type || 'general') as NotificationItem['type'],
+        icon: n.icon || undefined,
+        actionLink: n.link || undefined,
+        metadata: n.metadata || undefined,
+      };
+    });
   }, [notificationsData]);
 
   const unreadCount = notifications.filter((n) => n.unread).length;
@@ -520,10 +531,10 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
                 ) : (
                   <Avatar
                     size={32}
-                    src={user?.user_profile?.profile_pic || user?.profile_pic}
+                    src={user?.userProfile?.profile_pic || user?.profile_pic}
                     alt={user?.name || 'User'}
                   >
-                    {!user?.user_profile?.profile_pic && !user?.profile_pic && (user?.name?.[0] || 'U')}
+                    {!user?.userProfile?.profile_pic && !user?.profile_pic && (user?.name?.[0] || 'U')}
                   </Avatar>
                 )}
               </div>

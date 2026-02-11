@@ -41,6 +41,13 @@ import { getRoleFromUser } from '@/utils/roleUtils';
 
 export function RequirementsPage() {
   const { message: messageApi, modal: modalApi } = App.useApp();
+  const messageRef = useRef(messageApi);
+  const modalRef = useRef(modalApi);
+
+  useEffect(() => {
+    messageRef.current = messageApi;
+    modalRef.current = modalApi;
+  }, [messageApi, modalApi]);
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
 
@@ -498,12 +505,12 @@ export function RequirementsPage() {
       estimated_hours: hours // Adding it here, assuming backend supports it even if DTO missing
     } as UpdateRequirementRequestDto, {
       onSuccess: () => {
-        messageApi.success("Quotation submitted successfully");
+        messageRef.current.success("Quotation submitted successfully");
         setIsQuotationOpen(false);
         setPendingReqId(null);
       },
       onError: (err: Error) => {
-        messageApi.error(getErrorMessage(err, "Failed to submit quotation"));
+        messageRef.current.error(getErrorMessage(err, "Failed to submit quotation"));
       }
     });
   };
@@ -524,7 +531,7 @@ export function RequirementsPage() {
       rejection_reason: reason
     } as UpdateRequirementRequestDto, {
       onSuccess: () => {
-        messageApi.success("Requirement rejected");
+        messageRef.current.success("Requirement rejected");
         setIsRejectOpen(false);
         setPendingReqId(null);
       }
@@ -547,12 +554,12 @@ export function RequirementsPage() {
 
       updateRequirementMutation.mutate(updatePayload, {
         onSuccess: () => {
-          messageApi.success("Requirement updated");
+          messageRef.current.success("Requirement updated");
           setIsDialogOpen(false);
           setEditingReq(undefined);
         },
         onError: (error: unknown) => {
-          messageApi.error(getErrorMessage(error, "Failed to update requirement"));
+          messageRef.current.error(getErrorMessage(error, "Failed to update requirement"));
         },
       });
       return;
@@ -1021,7 +1028,7 @@ export function RequirementsPage() {
 
     if (!canDelete) {
       // Archive Action
-      modalApi.confirm({
+      modalRef.current.confirm({
         title: 'Archive Requirement',
         content: 'This requirement is active and cannot be permanently deleted. Do you want to archive it instead?',
         okText: 'Archive',
@@ -1033,13 +1040,13 @@ export function RequirementsPage() {
             workspace_id: requirement.workspaceId || 0,
             is_archived: true
           }, {
-            onSuccess: () => messageApi.success("Requirement archived")
+            onSuccess: () => messageRef.current.success("Requirement archived")
           });
         },
       });
     } else {
       // Delete Action
-      modalApi.confirm({
+      modalRef.current.confirm({
         title: 'Delete Requirement',
         content: 'Are you sure you want to permanently delete this requirement? This action cannot be undone.',
         okText: 'Delete',
@@ -1050,7 +1057,7 @@ export function RequirementsPage() {
         },
       });
     }
-  }, [modalApi, updateRequirementMutation, messageApi, deleteRequirement]);
+  }, [updateRequirementMutation, deleteRequirement]);
 
   return (
     <PageLayout

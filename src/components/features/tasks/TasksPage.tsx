@@ -1,5 +1,5 @@
 
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { ArrowUp, ArrowDown, CheckSquare, Trash2 } from 'lucide-react';
 import { PageLayout } from '../../layout/PageLayout';
 import { PaginationBar } from '../../ui/PaginationBar';
@@ -95,6 +95,13 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
   const router = useRouter();
   const searchParams = useSearchParams();
   const { message, modal } = App.useApp();
+  const messageRef = useRef(message);
+  const modalRef = useRef(modal);
+
+  useEffect(() => {
+    messageRef.current = message;
+    modalRef.current = modal;
+  }, [message, modal]);
   const createTaskMutation = useCreateTask();
   const deleteTaskMutation = useDeleteTask();
   const updateTaskMutation = useUpdateTask();
@@ -538,7 +545,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
     // `TaskForm` already validates all required fields, but we keep a
     // defensive check here to avoid sending an incomplete payload.
     if (!data?.start_date) {
-      message.error("Start Date is required");
+      messageRef.current.error("Start Date is required");
       return;
     }
 
@@ -561,12 +568,12 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
 
     return createTaskMutation.mutateAsync(payload, {
       onSuccess: () => {
-        message.success("Task created successfully!");
+        messageRef.current.success("Task created successfully!");
         setIsDialogOpen(false);
       },
       onError: (error: Error) => {
         const errorMessage = getErrorMessage(error, "Failed to create task");
-        message.error(errorMessage);
+        messageRef.current.error(errorMessage);
       },
     });
   };
@@ -580,7 +587,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
 
   // Handle delete task
   const handleDeleteTask = (taskId: string) => {
-    modal.confirm({
+    modalRef.current.confirm({
       title: 'Delete Task',
       content: 'Are you sure you want to delete this task? This action cannot be undone.',
       okText: 'Delete',
@@ -589,10 +596,10 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
       onOk: () => {
         deleteTaskMutation.mutate(parseInt(taskId), {
           onSuccess: () => {
-            message.success("Task deleted successfully!");
+            messageRef.current.success("Task deleted successfully!");
           },
           onError: (error: Error) => {
-            message.error(getErrorMessage(error, "Failed to delete task"));
+            messageRef.current.error(getErrorMessage(error, "Failed to delete task"));
           },
         });
       },
@@ -604,7 +611,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
    * Shows a confirmation modal before proceeding with concurrent deletion requests.
    */
   const handleBulkDelete = useCallback(() => {
-    Modal.confirm({
+    modalRef.current.confirm({
       title: 'Delete Tasks',
       content: `Are you sure you want to delete ${selectedTasks.length} tasks?`,
       okText: 'Delete',
@@ -613,14 +620,14 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
       onOk: async () => {
         try {
           await Promise.all(selectedTasks.map(id => deleteTaskMutation.mutateAsync(parseInt(id))));
-          message.success(`${selectedTasks.length} tasks deleted`);
+          messageRef.current.success(`${selectedTasks.length} tasks deleted`);
           setSelectedTasks([]);
         } catch (error) {
-          message.error('Failed to delete some tasks');
+          messageRef.current.error('Failed to delete some tasks');
         }
       },
     });
-  }, [selectedTasks, deleteTaskMutation, message]);
+  }, [selectedTasks, deleteTaskMutation]);
 
   /**
    * Handles bulk completion of selected tasks.
@@ -633,12 +640,12 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
           updateTaskStatusMutation.mutateAsync({ id: parseInt(id), status: 'Completed' })
         )
       );
-      message.success(`${selectedTasks.length} tasks marked as completed`);
+      messageRef.current.success(`${selectedTasks.length} tasks marked as completed`);
       setSelectedTasks([]);
     } catch (error) {
-      message.error('Failed to complete some tasks');
+      messageRef.current.error('Failed to complete some tasks');
     }
-  }, [selectedTasks, updateTaskStatusMutation, message]);
+  }, [selectedTasks, updateTaskStatusMutation]);
 
   // Get total count from API response
   const totalTasks = useMemo(() => {

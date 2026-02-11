@@ -21,6 +21,8 @@ export type MailMessage = {
   hasAttachments?: boolean;
   importance?: "low" | "normal" | "high";
   webLink?: string;
+  toRecipients?: Array<{ emailAddress?: { name?: string; address?: string } }>;
+  ccRecipients?: Array<{ emailAddress?: { name?: string; address?: string } }>;
 };
 
 export type MailMessageDetail = MailMessage & {

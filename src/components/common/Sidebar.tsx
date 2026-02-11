@@ -91,7 +91,7 @@ const NAV_ITEMS: NavItemConfig[] = [
     path: '/dashboard/reports',
     label: 'Reports',
     icon: <BarChart3 size={20} />,
-    allowedRoles: ['Admin', 'Manager', 'Head', 'Finance', 'HR']
+    allowedRoles: ['Admin', 'Manager', 'Head', 'Finance', 'HR', 'Coordinator']
   },
 
   {

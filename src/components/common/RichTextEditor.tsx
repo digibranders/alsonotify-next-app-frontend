@@ -16,8 +16,7 @@ export function RichTextEditor({ value, onChange, placeholder = "Note content...
 
   // Only run on client side
   useEffect(() => {
-
-    setIsMounted(true);
+    Promise.resolve().then(() => setIsMounted(true));
   }, []);
 
   // Add CSS for placeholder and fix layout - only on client side

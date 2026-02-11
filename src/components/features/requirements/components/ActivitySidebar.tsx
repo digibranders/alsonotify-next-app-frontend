@@ -129,20 +129,32 @@ export function ActivitySidebar({ reqId, employeesData, partnersData, tasks }: A
 
   const activityData = useMemo(() => {
     if (!activityResponse?.result) return [];
-    return (activityResponse.result as RequirementActivityDto[]).map((act) => ({
-      id: act.id,
-      type: act.type.toLowerCase(),
-      user: act.user.name,
-      avatar: act.user.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().substring(0, 2),
-      date: format(new Date(act.created_at), 'MMM d, h:mm a'),
-      message: formatActivityMessage(act.message),
-      isSystem: act.type === 'SYSTEM',
-      attachments: act.attachments.map((a) => a.file_name),
-      time: act.metadata && typeof act.metadata === 'object' && 'time' in act.metadata ? String((act.metadata as Record<string, unknown>).time) : undefined,
-      category: act.metadata && typeof act.metadata === 'object' && 'category' in act.metadata ? String((act.metadata as Record<string, unknown>).category) : undefined,
-      task: act.metadata && typeof act.metadata === 'object' && 'task' in act.metadata ? String((act.metadata as Record<string, unknown>).task) : undefined,
-      raw: act
-    }));
+    return (activityResponse.result as RequirementActivityDto[]).map((act) => {
+      let formattedDate = '-';
+      try {
+        const date = new Date(act.created_at);
+        if (!isNaN(date.getTime())) {
+          formattedDate = format(date, 'MMM d, h:mm a');
+        }
+      } catch {
+        console.warn("Invalid activity date:", act.created_at);
+      }
+
+      return {
+        id: act.id,
+        type: act.type.toLowerCase(),
+        user: act.user.name,
+        avatar: act.user.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().substring(0, 2),
+        date: formattedDate,
+        message: formatActivityMessage(act.message),
+        isSystem: act.type === 'SYSTEM',
+        attachments: act.attachments.map((a) => a.file_name),
+        time: act.metadata && typeof act.metadata === 'object' && 'time' in act.metadata ? String((act.metadata as Record<string, unknown>).time) : undefined,
+        category: act.metadata && typeof act.metadata === 'object' && 'category' in act.metadata ? String((act.metadata as Record<string, unknown>).category) : undefined,
+        task: act.metadata && typeof act.metadata === 'object' && 'task' in act.metadata ? String((act.metadata as Record<string, unknown>).task) : undefined,
+        raw: act
+      };
+    });
   }, [activityResponse, formatActivityMessage]);
 
   const handleMentionSearch = (text: string, prefix: string) => {
