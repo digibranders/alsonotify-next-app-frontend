@@ -1,5 +1,6 @@
 import { UserDto } from '../../types/dto/user.dto';
 import { Employee, UserPermissions } from '../../types/domain';
+import dayjs from 'dayjs';
 
 export const mapUserDtoToEmployee = (dto: UserDto, permissions?: UserPermissions): Employee => {
   // Strict ID Normalization:
@@ -32,7 +33,9 @@ export const mapUserDtoToEmployee = (dto: UserDto, permissions?: UserPermissions
   const phone = dto.mobile_number || dto.phone || dto.user_profile?.mobile_number || dto.user_profile?.phone || dto.user?.mobile_number || '';
 
   // Dates
-  const dateOfJoining = dto.date_of_joining ? new Date(dto.date_of_joining).toLocaleDateString('en-GB') : 'N/A';
+  const dateOfJoining = dto.date_of_joining && dayjs(dto.date_of_joining).isValid()
+    ? dayjs(dto.date_of_joining).format('DD/MM/YYYY')
+    : 'N/A';
 
   return {
     id: normalizedId,
