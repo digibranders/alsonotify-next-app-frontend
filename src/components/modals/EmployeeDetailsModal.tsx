@@ -2,7 +2,8 @@ import { useState, useMemo } from 'react';
 import { Modal, Button, App } from 'antd';
 import { Briefcase, Mail, Phone, Calendar, DollarSign, Clock, CalendarDays, X, FileText, Users, Globe, ShieldAlert, Linkedin, Github } from 'lucide-react';
 import { AccessBadge } from '../ui/AccessBadge';
-import { Employee, UserDocument } from '@/types/genericTypes';
+import { UserDocument } from '@/types/genericTypes';
+import { Employee } from '@/types/domain';
 import { DocumentCard } from '@/components/ui/DocumentCard';
 import { DocumentPreviewModal } from '@/components/ui/DocumentPreviewModal';
 
@@ -31,27 +32,7 @@ export function EmployeeDetailsModal({
 
   if (!employee) return null;
 
-  // Format date of joining
-  const formatDate = (dateString: string) => {
-    if (!dateString || dateString === 'N/A') return 'N/A';
-    try {
-      const parts = dateString.split('-');
-      if (parts.length === 3) {
-        return dateString;
-      }
-      const date = new Date(dateString);
-      if (!isNaN(date.getTime())) {
-        const day = date.getDate().toString().padStart(2, '0');
-        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        const month = monthNames[date.getMonth()];
-        const year = date.getFullYear();
-        return `${day}-${month}-${year}`;
-      }
-    } catch (e) {
-      // Error formatting date
-    }
-    return dateString;
-  };
+
 
   // Parse skillsets
   const skills = employee.skillsets && employee.skillsets !== 'None'
@@ -230,7 +211,7 @@ export function EmployeeDetailsModal({
               <StatCard label="Working Hours" value={workingHours} icon={<Clock className="w-4 h-4 text-gray-400" />} />
             </div>
             <div className="grid grid-cols-2 gap-y-5 gap-x-12 pl-3">
-              <DetailItem label="Date of Joining" value={formatDate(employee.dateOfJoining)} icon={<Calendar className="w-3.5 h-3.5" />} />
+              <DetailItem label="Date of Joining" value={employee.formattedDateOfJoining || 'N/A'} icon={<Calendar className="w-3.5 h-3.5" />} />
               <DetailItem label="Annual Salary" value={employee.salary ? `${employee.currency || '$'} ${Number(employee.salary).toLocaleString()}` : 'N/A'} icon={<DollarSign className="w-3.5 h-3.5" />} />
               <DetailItem label="Hourly Cost" value={hourlyRate} icon={<DollarSign className="w-3.5 h-3.5" />} />
               <DetailItem label="Employment Type" value={employee.employmentType || "Full-time"} icon={<Briefcase className="w-3.5 h-3.5" />} />

@@ -36,14 +36,16 @@ export const useCurrentUser = () => {
     if (userDetailsData?.result && !userDetailsData.result.user) {
       return userDetailsData.result; // Handle flattened response
     }
-    
+
     return null;
   }, [userDetailsData]);
 
-  return {
+  const result = useMemo(() => ({
     user: user as CurrentUser | null,
     isLoading: isLoading && !user,
     isAuthenticated: !!user,
     error
-  };
+  }), [user, isLoading, error]);
+
+  return result;
 };

@@ -18,7 +18,7 @@ export interface Requirement {
   startDate?: string;
   isHighPriority?: boolean;
   is_high_priority: boolean;
-  type: 'inhouse' | 'outsourced' | 'client';
+  type: 'inhouse' | 'outsourced' | 'client' | 'Client work' | 'Client Work';
   status: 'in-progress' | 'completed' | 'delayed' | 'draft' | 'Waiting' | 'archived' | 'Archived' | 'Submitted' | 'Rejected' | 'Revision' | 'On_Hold' | 'Assigned' | 'Review' | 'Impediment' | 'Stuck' | 'Pending';
   category: string;
   departments?: string[];
@@ -353,6 +353,7 @@ export interface Employee {
   hourly_rates?: number;
   // dateOfJoining defined above
   date_of_joining?: string;
+  formattedDateOfJoining?: string;
   skills?: string[];
   userEmployee?: { isActive?: boolean; is_active?: boolean };
   employeeType?: string;

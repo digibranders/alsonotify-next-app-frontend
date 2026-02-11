@@ -96,6 +96,7 @@ export interface CreateRequirementRequestDto {
   currency?: string;
   leader_id?: number;
   receiver_workspace_id?: number;
+  sender_company_id?: number;
 }
 
 export interface UpdateRequirementRequestDto extends Partial<CreateRequirementRequestDto> {

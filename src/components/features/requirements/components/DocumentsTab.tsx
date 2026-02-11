@@ -180,7 +180,7 @@ export function DocumentsTab({ activityData }: DocumentsTabProps) {
         uploadedBy: activity.user,
         date: activity.date,
         size: sizeInKB ? `${sizeInKB} KB` : 'Unknown',
-        type: attachment.file_type?.toUpperCase() || fileExtension,
+        type: (attachment.file_type?.split('/').pop() || fileExtension).toUpperCase(),
         activityId: activity.id,
         url: attachment.file_url || attachment.s3_url || '',
         attachmentId: attachment.id
@@ -331,88 +331,90 @@ export function DocumentsTab({ activityData }: DocumentsTabProps) {
   return (
     <>
       <div className="max-w-5xl mx-auto space-y-8">
-        <div className="bg-white rounded-[16px] p-8 border border-[#EEEEEE] shadow-sm">
-          <h3 className="text-[16px] font-['Manrope:Bold',sans-serif] text-[#111111] mb-6 flex items-center gap-2">
-            <Paperclip className="w-5 h-5 text-[#ff3b3b]" />
+        <div className="bg-white rounded-[16px] p-4 md:p-8 border border-[#EEEEEE] shadow-sm">
+          <h3 className="text-[14px] md:text-[16px] font-['Manrope:Bold',sans-serif] text-[#111111] mb-4 md:mb-6 flex items-center gap-2">
+            <Paperclip className="w-4 h-4 md:w-5 md:h-5 text-[#ff3b3b]" />
             Documents
-            <span className="text-[12px] font-['Inter:Regular',sans-serif] text-[#999999] ml-1">
+            <span className="text-[11px] md:text-[12px] font-['Inter:Regular',sans-serif] text-[#999999] ml-1">
               ({allDocuments.length})
             </span>
           </h3>
 
           <div className="overflow-hidden rounded-[12px] border border-[#EEEEEE] bg-white">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-[#F7F7F7] border-b border-[#EEEEEE]">
-                  <th className="py-3 px-4 text-[12px] font-['Manrope:Bold',sans-serif] text-[#666666] uppercase tracking-wider w-[40%]">File Name</th>
-                  <th className="py-3 px-4 text-[12px] font-['Manrope:Bold',sans-serif] text-[#666666] uppercase tracking-wider">Sender</th>
-                  <th className="py-3 px-4 text-[12px] font-['Manrope:Bold',sans-serif] text-[#666666] uppercase tracking-wider">Size</th>
-                  <th className="py-3 px-4 text-[12px] font-['Manrope:Bold',sans-serif] text-[#666666] uppercase tracking-wider">Date</th>
-                  <th className="py-3 px-4 text-[12px] font-['Manrope:Bold',sans-serif] text-[#666666] uppercase tracking-wider">Type</th>
-                  <th className="py-3 px-4 text-[12px] font-['Manrope:Bold',sans-serif] text-[#666666] uppercase tracking-wider text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {allDocuments.map((doc, idx) => (
-                  <tr key={`${doc.activityId}-${idx}`} className="group hover:bg-[#FFF5F5]/50 transition-colors border-b border-[#EEEEEE] last:border-b-0">
-                    <td className="py-3 px-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded bg-[#FFF5F5] flex items-center justify-center text-[#ff3b3b] shrink-0">
-                          <FileText className="w-4 h-4" />
-                        </div>
-                        <span className="text-[13px] font-['Manrope:SemiBold',sans-serif] text-[#111111] truncate max-w-[200px]" title={doc.name}>
-                          {doc.name}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="py-3 px-4">
-                      <span className="text-[13px] font-['Manrope:Medium',sans-serif] text-[#444444]">{doc.uploadedBy}</span>
-                    </td>
-                    <td className="py-3 px-4">
-                      <span className="text-[13px] font-['Inter:Regular',sans-serif] text-[#666666]">{doc.size}</span>
-                    </td>
-                    <td className="py-3 px-4">
-                      <span className="text-[13px] font-['Inter:Regular',sans-serif] text-[#666666]">{doc.date}</span>
-                    </td>
-                    <td className="py-3 px-4">
-                      <span className="text-[11px] font-['Manrope:Bold',sans-serif] px-2 py-1 bg-[#F7F7F7] rounded text-[#666666] uppercase inline-block">
-                        {doc.type}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4 text-right">
-                      <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button
-                          className="p-1.5 rounded hover:bg-[#F0F0F0] text-[#666666] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
-                          onClick={() => handlePreview(doc)}
-                          disabled={!doc.attachmentId || previewingIds.has(doc.attachmentId)}
-                          title={!doc.attachmentId ? "Preview not available" : previewingIds.has(doc.attachmentId) ? "Loading preview..." : "Preview"}
-                          type="button"
-                        >
-                          {previewingIds.has(doc.attachmentId) ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : (
-                            <Eye className="w-4 h-4" />
-                          )}
-                        </button>
-                        <button
-                          className="p-1.5 rounded hover:bg-[#FFF0F0] text-[#ff3b3b] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
-                          onClick={() => handleDownload(doc)}
-                          disabled={!doc.attachmentId || downloadingIds.has(doc.attachmentId)}
-                          title={!doc.attachmentId ? "Download not available" : downloadingIds.has(doc.attachmentId) ? "Downloading..." : "Download"}
-                          type="button"
-                        >
-                          {downloadingIds.has(doc.attachmentId) ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : (
-                            <Download className="w-4 h-4" />
-                          )}
-                        </button>
-                      </div>
-                    </td>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse min-w-[600px]">
+                <thead>
+                  <tr className="bg-[#F7F7F7] border-b border-[#EEEEEE]">
+                    <th className="py-2 px-3 md:py-3 md:px-4 text-[10px] md:text-[12px] font-['Manrope:Bold',sans-serif] text-[#666666] uppercase tracking-wider w-[40%] whitespace-nowrap">File Name</th>
+                    <th className="py-2 px-3 md:py-3 md:px-4 text-[10px] md:text-[12px] font-['Manrope:Bold',sans-serif] text-[#666666] uppercase tracking-wider whitespace-nowrap">Sender</th>
+                    <th className="py-2 px-3 md:py-3 md:px-4 text-[10px] md:text-[12px] font-['Manrope:Bold',sans-serif] text-[#666666] uppercase tracking-wider whitespace-nowrap">Size</th>
+                    <th className="py-2 px-3 md:py-3 md:px-4 text-[10px] md:text-[12px] font-['Manrope:Bold',sans-serif] text-[#666666] uppercase tracking-wider whitespace-nowrap">Date</th>
+                    <th className="py-2 px-3 md:py-3 md:px-4 text-[10px] md:text-[12px] font-['Manrope:Bold',sans-serif] text-[#666666] uppercase tracking-wider whitespace-nowrap">Type</th>
+                    <th className="py-2 px-3 md:py-3 md:px-4 text-[10px] md:text-[12px] font-['Manrope:Bold',sans-serif] text-[#666666] uppercase tracking-wider text-right whitespace-nowrap">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {allDocuments.map((doc, idx) => (
+                    <tr key={`${doc.activityId}-${idx}`} className="group hover:bg-[#FFF5F5]/50 transition-colors border-b border-[#EEEEEE] last:border-b-0">
+                      <td className="py-2 px-3 md:py-3 md:px-4">
+                        <div className="flex items-center gap-2 md:gap-3">
+                          <div className="w-6 h-6 md:w-8 md:h-8 rounded bg-[#FFF5F5] flex items-center justify-center text-[#ff3b3b] shrink-0">
+                            <FileText className="w-3 h-3 md:w-4 md:h-4" />
+                          </div>
+                          <span className="text-[11px] md:text-[13px] font-['Manrope:SemiBold',sans-serif] text-[#111111] truncate max-w-[150px] md:max-w-[200px]" title={doc.name}>
+                            {doc.name}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="py-2 px-3 md:py-3 md:px-4">
+                        <span className="text-[11px] md:text-[13px] font-['Manrope:Medium',sans-serif] text-[#444444] whitespace-nowrap">{doc.uploadedBy}</span>
+                      </td>
+                      <td className="py-2 px-3 md:py-3 md:px-4">
+                        <span className="text-[11px] md:text-[13px] font-['Inter:Regular',sans-serif] text-[#666666] whitespace-nowrap">{doc.size}</span>
+                      </td>
+                      <td className="py-2 px-3 md:py-3 md:px-4">
+                        <span className="text-[11px] md:text-[13px] font-['Inter:Regular',sans-serif] text-[#666666] whitespace-nowrap">{doc.date}</span>
+                      </td>
+                      <td className="py-2 px-3 md:py-3 md:px-4">
+                        <span className="text-[9px] md:text-[11px] font-['Manrope:Bold',sans-serif] px-1.5 py-0.5 md:px-2 md:py-1 bg-[#F7F7F7] rounded text-[#666666] uppercase inline-block whitespace-nowrap">
+                          {doc.type}
+                        </span>
+                      </td>
+                      <td className="py-2 px-3 md:py-3 md:px-4 text-right">
+                        <div className="flex items-center justify-end gap-1 md:gap-2">
+                          <button
+                            className="p-1 md:p-1.5 rounded hover:bg-[#F0F0F0] text-[#666666] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+                            onClick={() => handlePreview(doc)}
+                            disabled={!doc.attachmentId || previewingIds.has(doc.attachmentId)}
+                            title={!doc.attachmentId ? "Preview not available" : previewingIds.has(doc.attachmentId) ? "Loading preview..." : "Preview"}
+                            type="button"
+                          >
+                            {previewingIds.has(doc.attachmentId) ? (
+                              <Loader2 className="w-3 h-3 md:w-4 md:h-4 animate-spin" />
+                            ) : (
+                              <Eye className="w-3 h-3 md:w-4 md:h-4" />
+                            )}
+                          </button>
+                          <button
+                            className="p-1 md:p-1.5 rounded hover:bg-[#FFF0F0] text-[#ff3b3b] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+                            onClick={() => handleDownload(doc)}
+                            disabled={!doc.attachmentId || downloadingIds.has(doc.attachmentId)}
+                            title={!doc.attachmentId ? "Download not available" : downloadingIds.has(doc.attachmentId) ? "Downloading..." : "Download"}
+                            type="button"
+                          >
+                            {downloadingIds.has(doc.attachmentId) ? (
+                              <Loader2 className="w-3 h-3 md:w-4 md:h-4 animate-spin" />
+                            ) : (
+                              <Download className="w-3 h-3 md:w-4 md:h-4" />
+                            )}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>

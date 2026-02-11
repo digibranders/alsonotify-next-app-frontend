@@ -291,7 +291,7 @@ export function EmployeesPage() {
     const hourlyRate = parseFloat(data.hourlyRate.replace(/[^0-9.]/g, '')) || 0;
 
     // Parse date of joining
-    let dateOfJoining = new Date().toISOString();
+    let dateOfJoining: string | undefined = undefined;
     if (data.dateOfJoining) {
       try {
         const date = new Date(data.dateOfJoining);
@@ -416,17 +416,18 @@ export function EmployeesPage() {
 
 
   // Get current user ID to prevent self-deactivation
-  // Get current user ID to prevent self-deactivation
-  // Memoize currentUserId for stable dependency tracking
+  // React Compiler will automatically memoize this derived value
   const currentUserId = currentUser?.id
     ? Number(currentUser.id)
     : (currentUser?.user_id ? Number(currentUser.user_id) : null);
 
   // Robustly get current user email (API -> LocalStorage)
+  // React Compiler will automatically memoize this derived value
   const currentUserEmail = currentUser?.email || null;
 
   // Bulk update access level
-  const handleBulkUpdateAccess = useCallback(async (access: string) => { // access is role name
+  // React Compiler will automatically memoize this function
+  const handleBulkUpdateAccess = async (access: string) => { // access is role name
     if (selectedEmployees.length === 0) {
       messageRef.current.warning('Please select at least one employee');
       return;
@@ -473,35 +474,19 @@ export function EmployeesPage() {
         ? parseFloat(employee.hourlyRate.replace(/[^0-9.]/g, ''))
         : (rawEmployee.hourly_rates || null);
 
-      // Parse date of joining - try multiple formats
+      // Parse date of joining
       let dateOfJoining = null;
       if (employee.dateOfJoining && employee.dateOfJoining !== 'N/A') {
-        try {
-          // Parse from format "DD-MMM-YYYY" (e.g., "17-Dec-2007")
-          const dateParts = employee.dateOfJoining.split('-');
-          if (dateParts.length === 3) {
-            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            const monthIndex = monthNames.indexOf(dateParts[1]);
-            if (monthIndex !== -1) {
-              const date = new Date(parseInt(dateParts[2]), monthIndex, parseInt(dateParts[0]));
-              if (!isNaN(date.getTime())) {
-                dateOfJoining = date.toISOString();
-              }
-            }
-          }
-        } catch {
-          // Error parsing date
+        const d = new Date(employee.dateOfJoining);
+        if (!isNaN(d.getTime())) {
+          dateOfJoining = d.toISOString();
         }
       }
       // Fallback to raw employee date
       if (!dateOfJoining && rawEmployee.date_of_joining) {
-        try {
-          const date = new Date(rawEmployee.date_of_joining || '');
-          if (!isNaN(date.getTime())) {
-            dateOfJoining = date.toISOString();
-          }
-        } catch {
-          // Error parsing raw date
+        const d = new Date(rawEmployee.date_of_joining);
+        if (!isNaN(d.getTime())) {
+          dateOfJoining = d.toISOString();
         }
       }
 
@@ -578,10 +563,11 @@ export function EmployeesPage() {
     } catch {
       messageRef.current.error('An error occurred during bulk update');
     }
-  }, [selectedEmployees, rolesData, employees, queryClient, queryParams, updateEmployeeMutation, currentUserId]);
+  };
 
   // Bulk update department
-  const handleBulkUpdateDepartment = useCallback(async (departmentName: string) => {
+  // React Compiler will automatically memoize this function
+  const handleBulkUpdateDepartment = async (departmentName: string) => {
     if (selectedEmployees.length === 0) {
       messageRef.current.warning('Please select at least one employee');
       return;
@@ -627,35 +613,19 @@ export function EmployeesPage() {
         ? parseFloat(employee.hourlyRate.replace(/[^0-9.]/g, ''))
         : (rawEmployee.hourly_rates || null);
 
-      // Parse date of joining - try multiple formats
+      // Parse date of joining
       let dateOfJoining = null;
       if (employee.dateOfJoining && employee.dateOfJoining !== 'N/A') {
-        try {
-          // Parse from format "DD-MMM-YYYY" (e.g., "17-Dec-2007")
-          const dateParts = employee.dateOfJoining.split('-');
-          if (dateParts.length === 3) {
-            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            const monthIndex = monthNames.indexOf(dateParts[1]);
-            if (monthIndex !== -1) {
-              const date = new Date(parseInt(dateParts[2]), monthIndex, parseInt(dateParts[0]));
-              if (!isNaN(date.getTime())) {
-                dateOfJoining = date.toISOString();
-              }
-            }
-          }
-        } catch {
-          // Error parsing date
+        const d = new Date(employee.dateOfJoining);
+        if (!isNaN(d.getTime())) {
+          dateOfJoining = d.toISOString();
         }
       }
       // Fallback to raw employee date
       if (!dateOfJoining && rawEmployee.date_of_joining) {
-        try {
-          const date = new Date(rawEmployee.date_of_joining);
-          if (!isNaN(date.getTime())) {
-            dateOfJoining = date.toISOString();
-          }
-        } catch {
-          // Error parsing raw date
+        const d = new Date(rawEmployee.date_of_joining);
+        if (!isNaN(d.getTime())) {
+          dateOfJoining = d.toISOString();
         }
       }
 
@@ -754,7 +724,7 @@ export function EmployeesPage() {
     } catch {
       messageRef.current.error('An error occurred during bulk update');
     }
-  }, [selectedEmployees, departmentsData, employees, queryClient, queryParams, rolesData, updateEmployeeMutation]);
+  };
 
   // Export to CSV
   const handleExportToCSV = useCallback(() => {
@@ -870,7 +840,8 @@ export function EmployeesPage() {
   }, [updateEmployeeStatusMutation, employees]);
 
   // Bulk delete/deactivate
-  const handleBulkDelete = useCallback(() => {
+  // React Compiler will automatically memoize this function
+  const handleBulkDelete = () => {
     if (selectedEmployees.length === 0) {
       messageRef.current.warning('Please select at least one employee');
       return;
@@ -929,7 +900,7 @@ export function EmployeesPage() {
       cancelText: 'Cancel',
       onOk: () => performBulkDeactivation(employeesToDeactivate),
     });
-  }, [selectedEmployees, currentUserId, currentUserEmail, employees, performBulkDeactivation]);
+  };
 
 
 
@@ -1077,7 +1048,7 @@ export function EmployeesPage() {
     return () => {
       setExpandedContent(null);
     };
-  }, [selectedEmployees, showAccessDropdown, showDepartmentDropdown, uniqueDepts, handleBulkDelete, handleBulkUpdateAccess, handleBulkUpdateDepartment, handleExportToCSV, setExpandedContent]);
+  }, [selectedEmployees, showAccessDropdown, showDepartmentDropdown, uniqueDepts, handleExportToCSV, setExpandedContent]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <PageLayout

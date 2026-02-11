@@ -267,8 +267,8 @@ export function RequirementCard({
           {/* Type Badge: For outsourced reqs, receiver sees INHOUSE, sender sees OUTSOURCED */}
           <span className="px-1.5 py-0.5 rounded text-[9px] font-['Inter:Medium',sans-serif] bg-[#F5F5F5] text-[#666666] uppercase border border-[#EEEEEE] tracking-wide whitespace-nowrap">
             {requirement.type === 'outsourced'
-              ? (requirement.isReceiver ? 'inhouse' : 'outsourced')
-              : (requirement.type || 'inhouse')}
+              ? (requirement.isReceiver ? 'client work' : 'outsourced')
+              : (['client', 'Client work', 'Client Work'].includes(requirement.type) ? 'client work' : 'inhouse')}
           </span>
 
           {/* Contact Person Name - only show if available */}

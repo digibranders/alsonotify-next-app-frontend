@@ -27,8 +27,8 @@ export function EmployeeRow({
 }: EmployeeRowProps) {
 
   // Robust check for current user (ID or Email match)
-  const isCurrentUser = (currentUserId && Number(employee.id) === Number(currentUserId)) || 
-                        (currentUserEmail && employee.email && employee.email.toLowerCase() === currentUserEmail.toLowerCase());
+  const isCurrentUser = (currentUserId && Number(employee.id) === Number(currentUserId)) ||
+    (currentUserEmail && employee.email && employee.email.toLowerCase() === currentUserEmail.toLowerCase());
 
   const items: MenuProps['items'] = [
     {
@@ -134,7 +134,7 @@ export function EmployeeRow({
         {/* Joining Date */}
         <div>
           <span className="text-[13px] text-[#111111] font-['Manrope:Regular',sans-serif]">
-            {employee.dateOfJoining}
+            {employee.formattedDateOfJoining || employee.dateOfJoining}
           </span>
         </div>
 

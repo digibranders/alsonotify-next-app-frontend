@@ -10,6 +10,7 @@ import { Role } from '@/types/domain';
 import { FormLayout } from '@/components/common/FormLayout';
 
 dayjs.extend(customParseFormat);
+import { DATE_FORMAT_DISPLAY, formatDateForApi } from "@/utils/date";
 
 const { Option } = Select;
 
@@ -505,10 +506,10 @@ function EmployeeFormContent({
           <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">Date of Joining</span>
           <DatePicker
             className={`w-full h-11 employee-form-datepicker ${resolvedFormData.dateOfJoining ? 'employee-form-datepicker-filled' : ''}`}
-            placeholder="dd/mm/yyyy"
-            format="DD/MM/YYYY"
+            placeholder={DATE_FORMAT_DISPLAY.toLowerCase()}
+            format={DATE_FORMAT_DISPLAY}
             value={resolvedFormData.dateOfJoining ? dayjs(resolvedFormData.dateOfJoining) : null}
-            onChange={(date) => setFormData({ ...formData, dateOfJoining: date ? date.format('YYYY-MM-DD') : '' })}
+            onChange={(date) => setFormData({ ...formData, dateOfJoining: date ? formatDateForApi(date) : '' })}
             suffixIcon={<Calendar className="w-4 h-4 text-[#999999]" />}
           />
         </div>
