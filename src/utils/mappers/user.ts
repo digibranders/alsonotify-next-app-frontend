@@ -1,6 +1,6 @@
 import { UserDto } from '../../types/dto/user.dto';
 import { Employee, UserPermissions } from '../../types/domain';
-import dayjs from 'dayjs';
+import { formatDateForApi, formatDateForDisplay } from '../date';
 
 export const mapUserDtoToEmployee = (dto: UserDto, permissions?: UserPermissions): Employee => {
   // Strict ID Normalization:
@@ -32,9 +32,15 @@ export const mapUserDtoToEmployee = (dto: UserDto, permissions?: UserPermissions
   // Phone
   const phone = dto.mobile_number || dto.phone || dto.user_profile?.mobile_number || dto.user_profile?.phone || dto.user?.mobile_number || '';
 
-  // Dates
-  const dateOfJoining = dto.date_of_joining && dayjs(dto.date_of_joining).isValid()
-    ? dayjs(dto.date_of_joining).format('DD/MM/YYYY')
+  // Dates (Backend sends flat structure from getUsersService)
+  const rawDateOfJoining = dto.date_of_joining || dto.user_profile?.date_of_joining || dto.joining_date;
+
+  const dateOfJoining = rawDateOfJoining && rawDateOfJoining !== 'N/A'
+    ? formatDateForApi(rawDateOfJoining)
+    : 'N/A';
+
+  const formattedDateOfJoining = rawDateOfJoining && rawDateOfJoining !== 'N/A'
+    ? formatDateForDisplay(rawDateOfJoining)
     : 'N/A';
 
   return {
@@ -55,6 +61,7 @@ export const mapUserDtoToEmployee = (dto: UserDto, permissions?: UserPermissions
     hourly_rates: dto.hourly_rates,
 
     dateOfJoining,
+    formattedDateOfJoining,
     date_of_joining: dto.date_of_joining,
     date_of_birth: dto.date_of_birth,
     employee_id: dto.employee_id,

@@ -291,7 +291,7 @@ export function EmployeesPage() {
     const hourlyRate = parseFloat(data.hourlyRate.replace(/[^0-9.]/g, '')) || 0;
 
     // Parse date of joining
-    let dateOfJoining = new Date().toISOString();
+    let dateOfJoining: string | undefined = undefined;
     if (data.dateOfJoining) {
       try {
         const date = new Date(data.dateOfJoining);
@@ -416,7 +416,6 @@ export function EmployeesPage() {
 
 
   // Get current user ID to prevent self-deactivation
-  // Get current user ID to prevent self-deactivation
   // Memoize currentUserId for stable dependency tracking
   const currentUserId = currentUser?.id
     ? Number(currentUser.id)
@@ -473,35 +472,19 @@ export function EmployeesPage() {
         ? parseFloat(employee.hourlyRate.replace(/[^0-9.]/g, ''))
         : (rawEmployee.hourly_rates || null);
 
-      // Parse date of joining - try multiple formats
+      // Parse date of joining
       let dateOfJoining = null;
       if (employee.dateOfJoining && employee.dateOfJoining !== 'N/A') {
-        try {
-          // Parse from format "DD-MMM-YYYY" (e.g., "17-Dec-2007")
-          const dateParts = employee.dateOfJoining.split('-');
-          if (dateParts.length === 3) {
-            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            const monthIndex = monthNames.indexOf(dateParts[1]);
-            if (monthIndex !== -1) {
-              const date = new Date(parseInt(dateParts[2]), monthIndex, parseInt(dateParts[0]));
-              if (!isNaN(date.getTime())) {
-                dateOfJoining = date.toISOString();
-              }
-            }
-          }
-        } catch {
-          // Error parsing date
+        const d = new Date(employee.dateOfJoining);
+        if (!isNaN(d.getTime())) {
+          dateOfJoining = d.toISOString();
         }
       }
       // Fallback to raw employee date
       if (!dateOfJoining && rawEmployee.date_of_joining) {
-        try {
-          const date = new Date(rawEmployee.date_of_joining || '');
-          if (!isNaN(date.getTime())) {
-            dateOfJoining = date.toISOString();
-          }
-        } catch {
-          // Error parsing raw date
+        const d = new Date(rawEmployee.date_of_joining);
+        if (!isNaN(d.getTime())) {
+          dateOfJoining = d.toISOString();
         }
       }
 
@@ -627,35 +610,19 @@ export function EmployeesPage() {
         ? parseFloat(employee.hourlyRate.replace(/[^0-9.]/g, ''))
         : (rawEmployee.hourly_rates || null);
 
-      // Parse date of joining - try multiple formats
+      // Parse date of joining
       let dateOfJoining = null;
       if (employee.dateOfJoining && employee.dateOfJoining !== 'N/A') {
-        try {
-          // Parse from format "DD-MMM-YYYY" (e.g., "17-Dec-2007")
-          const dateParts = employee.dateOfJoining.split('-');
-          if (dateParts.length === 3) {
-            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            const monthIndex = monthNames.indexOf(dateParts[1]);
-            if (monthIndex !== -1) {
-              const date = new Date(parseInt(dateParts[2]), monthIndex, parseInt(dateParts[0]));
-              if (!isNaN(date.getTime())) {
-                dateOfJoining = date.toISOString();
-              }
-            }
-          }
-        } catch {
-          // Error parsing date
+        const d = new Date(employee.dateOfJoining);
+        if (!isNaN(d.getTime())) {
+          dateOfJoining = d.toISOString();
         }
       }
       // Fallback to raw employee date
       if (!dateOfJoining && rawEmployee.date_of_joining) {
-        try {
-          const date = new Date(rawEmployee.date_of_joining);
-          if (!isNaN(date.getTime())) {
-            dateOfJoining = date.toISOString();
-          }
-        } catch {
-          // Error parsing raw date
+        const d = new Date(rawEmployee.date_of_joining);
+        if (!isNaN(d.getTime())) {
+          dateOfJoining = d.toISOString();
         }
       }
 

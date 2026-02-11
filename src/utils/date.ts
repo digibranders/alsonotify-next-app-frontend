@@ -2,13 +2,18 @@ import dayjs from './dayjs';
 
 const DEFAULT_TIMEZONE = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Kolkata';
 
+export const DATE_FORMAT_API = 'YYYY-MM-DD';
+export const DATE_FORMAT_DISPLAY = 'MMM D, YYYY';
+export const DATETIME_FORMAT_DISPLAY = 'MMM D, YYYY h:mm A';
+
 /**
  * Formats a date for display in the UI, respecting the provided timezone.
  * Defaults to the system timezone or 'Asia/Kolkata' if no timezone is provided.
  */
 export const formatDateForDisplay = (date: string | Date | dayjs.Dayjs, timezone: string = DEFAULT_TIMEZONE): string => {
     if (!date) return '-';
-    return dayjs.utc(date).tz(timezone).format('MMM D, YYYY');
+    const d = dayjs.utc(date).tz(timezone);
+    return d.isValid() ? d.format(DATE_FORMAT_DISPLAY) : '-';
 };
 
 /**
@@ -16,7 +21,8 @@ export const formatDateForDisplay = (date: string | Date | dayjs.Dayjs, timezone
  */
 export const formatDateTimeForDisplay = (date: string | Date | dayjs.Dayjs, timezone: string = DEFAULT_TIMEZONE): string => {
     if (!date) return '-';
-    return dayjs.utc(date).tz(timezone).format('MMM D, YYYY h:mm A');
+    const d = dayjs.utc(date).tz(timezone);
+    return d.isValid() ? d.format(DATETIME_FORMAT_DISPLAY) : '-';
 };
 
 /**
@@ -25,12 +31,13 @@ export const formatDateTimeForDisplay = (date: string | Date | dayjs.Dayjs, time
  */
 export const formatDateForApi = (date: string | Date | dayjs.Dayjs): string => {
     if (!date) return '';
-    return dayjs(date).format('YYYY-MM-DD');
+    const d = dayjs(date);
+    return d.isValid() ? d.format(DATE_FORMAT_API) : '';
 };
 
 /**
  * Returns today's date in YYYY-MM-DD format.
  */
 export const getTodayForApi = (): string => {
-    return dayjs().format('YYYY-MM-DD');
+    return dayjs().format(DATE_FORMAT_API);
 };

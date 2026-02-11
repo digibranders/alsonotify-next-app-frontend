@@ -353,6 +353,7 @@ export interface Employee {
   hourly_rates?: number;
   // dateOfJoining defined above
   date_of_joining?: string;
+  formattedDateOfJoining?: string;
   skills?: string[];
   userEmployee?: { isActive?: boolean; is_active?: boolean };
   employeeType?: string;
