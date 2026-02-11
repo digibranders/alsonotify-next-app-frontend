@@ -1,8 +1,19 @@
 'use client';
 
-import React, { useRef, useEffect } from 'react';
-import { MessageSquare, Paperclip, X, Send, Loader2 } from 'lucide-react';
-import { Mentions } from 'antd';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
+import { MessageSquare, Paperclip, X, Send, Loader2, Eye, Download } from 'lucide-react';
+import { Mentions, App } from 'antd';
+import { fileService } from '@/services/file.service';
+import { DocumentPreviewModal } from '@/components/ui/DocumentPreviewModal';
+import { UserDocument } from '@/types/genericTypes';
+
+interface AttachmentObject {
+  id: number;
+  file_name: string;
+  file_url: string;
+  file_type: string;
+  file_size: number;
+}
 
 interface ActivityItem {
   id: number;
@@ -12,7 +23,7 @@ interface ActivityItem {
   date: string;
   message: React.ReactNode;
   isSystem: boolean;
-  attachments: string[];
+  attachments: AttachmentObject[];
   time?: string;
   category?: string;
   task?: string;
@@ -57,13 +68,103 @@ export function ChatPanel({
   onEditorKeyDown,
   onEditorSelectionJump,
 }: ChatPanelProps) {
+  const { message } = App.useApp();
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [previewDoc, setPreviewDoc] = useState<UserDocument | null>(null);
+  const [downloadingIds, setDownloadingIds] = useState<Set<number>>(new Set());
+  const [previewingIds, setPreviewingIds] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [activityData]);
+
+  // File type detection utility
+  const determineFileType = useCallback((
+    fileName: string,
+    contentType?: string
+  ): UserDocument['fileType'] => {
+    const ct = (contentType || '').toLowerCase();
+    const name = fileName.toLowerCase();
+
+    if (ct.startsWith('image/') || /\.(jpg|jpeg|png|gif|webp|svg|bmp|ico|tiff|tif|avif|heic|heif|jfif|pjpeg|pjp|apng|raw|cr2|nef|arw|dng)$/i.test(name)) return 'image';
+    if (ct === 'application/pdf' || name.endsWith('.pdf')) return 'pdf';
+    if (ct.includes('word') || ct.includes('msword') || /\.(doc|docx|odt|rtf|pages)$/i.test(name)) return 'docx';
+    if (ct.includes('excel') || ct.includes('sheet') || /\.(xls|xlsx|ods|numbers)$/i.test(name)) return 'excel';
+    if (ct.includes('powerpoint') || ct.includes('presentation') || /\.(ppt|pptx|odp|key)$/i.test(name)) return 'powerpoint';
+    if (ct.includes('csv') || name.endsWith('.csv')) return 'csv';
+    if (/\.(js|ts|tsx|jsx|py|java|c|cpp|h|hpp|cs|php|rb|go|rs|swift|kt|scala|r|m|sh|bash|sql|dart|lua|perl|pl|vue|svelte)$/i.test(name)) return 'code';
+    return 'text';
+  }, []);
+
+  const handlePreview = useCallback(async (file: AttachmentObject) => {
+    if (previewingIds.has(file.id)) return;
+    setPreviewingIds(prev => new Set(prev).add(file.id));
+
+    try {
+      const downloadUrl = await fileService.getDownloadUrl(file.id);
+      if (!downloadUrl) throw new Error('Download URL not received');
+
+      const response = await fetch(downloadUrl);
+      if (!response.ok) throw new Error('Failed to fetch file');
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const fileType = determineFileType(file.file_name, file.file_type);
+
+      setPreviewDoc({
+        id: String(file.id),
+        documentTypeId: 'requirement-attachment',
+        documentTypeName: 'Requirement Attachment',
+        fileName: file.file_name,
+        fileSize: file.file_size || 0,
+        fileUrl: blobUrl,
+        uploadedDate: new Date().toISOString(),
+        fileType,
+        isRequired: false,
+      });
+    } catch (error) {
+      console.error('Preview error:', error);
+      message.error('Failed to open preview');
+    } finally {
+      setPreviewingIds(prev => {
+        const next = new Set(prev);
+        next.delete(file.id);
+        return next;
+      });
+    }
+  }, [determineFileType, previewingIds, message]);
+
+  const handleDownload = useCallback(async (file: AttachmentObject) => {
+    if (downloadingIds.has(file.id)) return;
+    setDownloadingIds(prev => new Set(prev).add(file.id));
+
+    try {
+      const downloadUrl = await fileService.getDownloadUrl(file.id);
+      if (!downloadUrl) throw new Error('Download URL not received');
+
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = file.file_name;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      document.body.appendChild(link);
+      link.click();
+      setTimeout(() => {
+        document.body.removeChild(link);
+      }, 100);
+      message.success(`Downloading ${file.file_name}`);
+    } catch (error) {
+      console.error('Download error:', error);
+      message.error('Failed to download file');
+    } finally {
+      setDownloadingIds(prev => {
+        const next = new Set(prev);
+        next.delete(file.id);
+        return next;
+      });
+    }
+  }, [downloadingIds, message]);
 
   const escapeRegExp = (string: string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
@@ -131,9 +232,37 @@ export function ChatPanel({
                 {activity.attachments && activity.attachments.length > 0 && (
                   <div className="mt-2 space-y-1">
                     {activity.attachments.map((file, idx) => (
-                      <div key={idx} className="flex items-center gap-2 p-2 bg-white rounded border border-[#EEEEEE]">
-                        <Paperclip className="w-3.5 h-3.5 text-[#666666]" />
-                        <span className="text-[11px] text-[#444444] truncate">{file}</span>
+                      <div key={idx} className="flex items-center justify-between p-2 bg-white rounded border border-[#EEEEEE] group/file">
+                        <div className="flex items-center gap-2 min-w-0 flex-1">
+                          <Paperclip className="w-3.5 h-3.5 text-[#666666] shrink-0" />
+                          <span className="text-[11px] text-[#444444] truncate" title={file.file_name}>{file.file_name}</span>
+                        </div>
+                        <div className="flex items-center gap-1 shrink-0">
+                          <button
+                            onClick={() => handlePreview(file)}
+                            className="p-1 rounded hover:bg-[#F0F0F0] text-[#666666] transition-colors disabled:opacity-50"
+                            disabled={previewingIds.has(file.id)}
+                            title="Preview"
+                          >
+                            {previewingIds.has(file.id) ? (
+                              <Loader2 className="w-3 h-3 animate-spin" />
+                            ) : (
+                              <Eye className="w-3 h-3" />
+                            )}
+                          </button>
+                          <button
+                            onClick={() => handleDownload(file)}
+                            className="p-1 rounded hover:bg-[#FFF0F0] text-[#ff3b3b] transition-colors disabled:opacity-50"
+                            disabled={downloadingIds.has(file.id)}
+                            title="Download"
+                          >
+                            {downloadingIds.has(file.id) ? (
+                              <Loader2 className="w-3 h-3 animate-spin" />
+                            ) : (
+                              <Download className="w-3 h-3" />
+                            )}
+                          </button>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -273,6 +402,11 @@ export function ChatPanel({
           </div>
         </div>
       </div>
+      <DocumentPreviewModal
+        open={!!previewDoc}
+        onClose={() => setPreviewDoc(null)}
+        document={previewDoc}
+      />
     </div>
   );
 }

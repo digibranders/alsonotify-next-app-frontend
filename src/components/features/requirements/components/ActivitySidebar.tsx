@@ -148,7 +148,7 @@ export function ActivitySidebar({ reqId, employeesData, partnersData, tasks }: A
         date: formattedDate,
         message: formatActivityMessage(act.message),
         isSystem: act.type === 'SYSTEM',
-        attachments: act.attachments.map((a) => a.file_name),
+        attachments: act.attachments,
         time: act.metadata && typeof act.metadata === 'object' && 'time' in act.metadata ? String((act.metadata as Record<string, unknown>).time) : undefined,
         category: act.metadata && typeof act.metadata === 'object' && 'category' in act.metadata ? String((act.metadata as Record<string, unknown>).category) : undefined,
         task: act.metadata && typeof act.metadata === 'object' && 'task' in act.metadata ? String((act.metadata as Record<string, unknown>).task) : undefined,
