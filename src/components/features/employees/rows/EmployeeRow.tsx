@@ -140,11 +140,13 @@ export function EmployeeRow({
 
         {/* Actions */}
         <div className="flex justify-end" onClick={(e) => e.stopPropagation()}>
-          <Dropdown menu={{ items }} trigger={['click']} placement="bottomRight">
-            <button className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#F7F7F7] transition-colors opacity-0 group-hover:opacity-100">
-              <MoreVertical className="w-4 h-4 text-[#999999]" />
-            </button>
-          </Dropdown>
+          {items.length > 0 && (
+            <Dropdown menu={{ items }} trigger={['click']} placement="bottomRight">
+              <button className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#F7F7F7] transition-colors opacity-0 group-hover:opacity-100">
+                <MoreVertical className="w-4 h-4 text-[#999999]" />
+              </button>
+            </Dropdown>
+          )}
         </div>
       </div>
     </div>

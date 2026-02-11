@@ -142,6 +142,12 @@ export function EmployeesPage() {
     });
   }, [employees, activeTab, searchQuery, filters]);
 
+  // Derived user role for access control
+  const isEmployeeRole = useMemo(() => {
+    // Check both role name and role ID if possible, but role name is safer here with currentUser
+    return currentUser?.role === 'Employee';
+  }, [currentUser]);
+
   // Pagination
   const paginatedEmployees = useMemo(() => {
     const startIndex = (currentPage - 1) * pageSize;
@@ -1064,10 +1070,10 @@ export function EmployeesPage() {
         setCurrentPage(1);
         setSelectedEmployees([]);
       }}
-      titleAction={{
+      titleAction={!isEmployeeRole ? {
         onClick: () => handleOpenDialog(),
         label: "Add Employee"
-      }}
+      } : undefined}
     >
       <div className="flex flex-col h-full relative">
         {/* Filters Bar */}
@@ -1184,9 +1190,11 @@ export function EmployeesPage() {
         }}
         employee={selectedEmployeeForDetails || null}
         onEdit={() => {
+          if (isEmployeeRole) return; // Guard
           setIsDetailsModalOpen(false);
+          const currentEmployee = selectedEmployeeForDetails;
           setSelectedEmployeeForDetails(null);
-          handleOpenDialog(selectedEmployeeForDetails || undefined);
+          handleOpenDialog(currentEmployee || undefined);
         }}
       />
     </PageLayout >

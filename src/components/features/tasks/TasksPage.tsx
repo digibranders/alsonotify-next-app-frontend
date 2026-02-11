@@ -8,7 +8,9 @@ import { Modal, Checkbox, App, Tooltip } from "antd";
 import { DateRangeSelector } from '../../common/DateRangeSelector';
 import { useFloatingMenu } from '../../../context/FloatingMenuContext';
 import { TaskForm } from '../../modals/TaskForm';
+import { TimerWarningModal } from '../../modals/TimerWarningModal';
 import { TaskRow } from './rows/TaskRow';
+import { useTimer } from '@/context/TimerContext';
 
 import { useTasks, useCreateTask, useDeleteTask, useUpdateTask, useUpdateTaskStatus } from '@/hooks/useTask';
 import { useWorkspaces, useWorkspaceRequirementsDropdown } from '@/hooks/useWorkspace';
@@ -186,6 +188,9 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
 
   // Modal State
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [showTimerWarning, setShowTimerWarning] = useState(false);
+  const [pendingEditTask, setPendingEditTask] = useState<UITask | null>(null);
+  const [isPausingTimer, setIsPausingTimer] = useState(false);
 
   // DELETED: useEffect for initial filter setup - now handled in useState initializer
 
@@ -434,8 +439,8 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
         timelineLabel,
         dueDateValue,
         // Store IDs for editing
-        workspace_id: t.workspace_id,
-        requirement_id: t.requirement_id,
+        workspace_id: t.workspace_id || (t as any).workspaceId || null,
+        requirement_id: t.requirement_id || (t as any).requirementId || null,
         member_id: t.member_user?.id || t.member_id,
         leader_id: t.leader_user?.id || t.leader_id,
         description: t.description || '',
@@ -578,11 +583,57 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
     });
   };
 
+  // Get timer state
+  const { timerState, stopTimer } = useTimer();
+
   // Handle edit task
   const [editingTask, setEditingTask] = useState<UITask | null>(null);
   const handleEditTask = (task: UITask) => {
+    // Check if timer is running for this task
+    if (timerState.isRunning && timerState.taskId === Number(task.id)) {
+      setPendingEditTask(task);
+      setShowTimerWarning(true);
+      return;
+    }
+
+    // Proceed with edit
     setEditingTask(task);
     setIsDialogOpen(true);
+  };
+
+  // Handle pause timer and edit
+  const handlePauseAndEdit = async () => {
+    setIsPausingTimer(true);
+    try {
+      await stopTimer('Paused for task editing');
+      setShowTimerWarning(false);
+      if (pendingEditTask) {
+        setEditingTask(pendingEditTask);
+        setIsDialogOpen(true);
+        setPendingEditTask(null);
+      }
+    } catch (error) {
+      console.error('Failed to pause timer:', error);
+      messageRef.current.error('Failed to pause timer. Please try again.');
+    } finally {
+      setIsPausingTimer(false);
+    }
+  };
+
+  // Handle edit anyway (keep timer running)
+  const handleEditAnyway = () => {
+    setShowTimerWarning(false);
+    if (pendingEditTask) {
+      setEditingTask(pendingEditTask);
+      setIsDialogOpen(true);
+      setPendingEditTask(null);
+    }
+  };
+
+  // Handle cancel timer warning
+  const handleCancelTimerWarning = () => {
+    setShowTimerWarning(false);
+    setPendingEditTask(null);
   };
 
   // Handle delete task
@@ -921,15 +972,15 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
           key={editingTask ? `edit-${editingTask.id}` : `new-task-form`}
           initialData={editingTask ? {
             name: editingTask.name,
-            workspace_id: String(editingTask.workspace_id || ''),
-            requirement_id: String(editingTask.requirement_id || ''),
-            assigned_members: [],
-            execution_mode: 'parallel',
-            member_id: String(editingTask.member_id || ''),
-            leader_id: String(editingTask.leader_id || ''),
-            end_date: editingTask.endDateIso || '',
-            estimated_time: String(editingTask.estTime || ''),
-            is_high_priority: editingTask.is_high_priority,
+            workspace_id: (editingTask.workspace_id || editingTask.workspaceId) ? String(editingTask.workspace_id || editingTask.workspaceId) : '',
+            requirement_id: (editingTask.requirement_id || editingTask.requirementId) ? String(editingTask.requirement_id || editingTask.requirementId) : '',
+            assigned_members: editingTask.task_members?.map(m => m.user?.id || m.user_id) || [],
+            execution_mode: editingTask.execution_mode || editingTask.executionMode || 'parallel',
+            member_id: (editingTask.member_id || editingTask.memberId) ? String(editingTask.member_id || editingTask.memberId) : '',
+            leader_id: (editingTask.leader_id || editingTask.leaderId) ? String(editingTask.leader_id || editingTask.leaderId) : '',
+            end_date: editingTask.endDateIso || editingTask.end_date || '',
+            estimated_time: (editingTask.estTime || editingTask.estimatedTime || editingTask.estimated_time) ? String(editingTask.estTime || editingTask.estimatedTime || editingTask.estimated_time) : '',
+            is_high_priority: editingTask.is_high_priority || editingTask.isHighPriority || false,
             description: editingTask.description || '',
           } : undefined}
           isEditing={!!editingTask}
@@ -973,6 +1024,28 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
         />
       </Modal>
 
+
+      {/* Timer Warning Modal */}
+      {showTimerWarning && pendingEditTask && (
+        <Modal
+          open={showTimerWarning}
+          onCancel={handleCancelTimerWarning}
+          footer={null}
+          closable={false}
+          width={560}
+          centered
+          className="rounded-[16px] overflow-hidden"
+        >
+          <TimerWarningModal
+            open={showTimerWarning}
+            taskName={pendingEditTask.name}
+            onPauseAndEdit={handlePauseAndEdit}
+            onEditAnyway={handleEditAnyway}
+            onCancel={handleCancelTimerWarning}
+            isLoading={isPausingTimer}
+          />
+        </Modal>
+      )}
       {/* Filters Bar */}
       <div className="mb-6">
         <div className="flex items-center gap-3">
