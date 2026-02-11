@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { Button, Input, Select, Checkbox, DatePicker, App, Avatar } from 'antd';
-import { CheckSquare, Calendar, Users, ArrowRight, Layers, UserPlus, X } from 'lucide-react';
+import { CheckSquare, Calendar, Users, ArrowRight, Layers, UserPlus, X, Building2 } from 'lucide-react';
 import dayjs from '@/utils/dayjs';
 import { formatDateForApi, getTodayForApi } from '@/utils/date';
 import { FormLayout } from '@/components/common/FormLayout';
@@ -10,6 +10,7 @@ const { TextArea } = Input;
 const { Option } = Select;
 
 import { CreateTaskRequestDto } from '@/types/dto/task.dto';
+import { RequirementDropdownItem } from '@/types/dto/requirement.dto';
 
 // Backend fields based on TaskCreateSchema
 export interface TaskFormData {
@@ -33,7 +34,7 @@ interface TaskFormProps {
   onCancel: () => void;
   isEditing?: boolean;
   users?: Array<{ id: number; name: string; profile_pic?: string }>;
-  requirements?: Array<{ id: number; name: string }>;
+  requirements?: RequirementDropdownItem[];
   workspaces?: Array<{ id: number; name: string }>;
   disabledFields?: {
     workspace?: boolean;
@@ -83,11 +84,8 @@ export function TaskForm({
     // 1. Resolve base data (Initial or Default)
     const base = initialData || defaultFormData;
 
-    // 2. Resolve Workspace ID (Preserve existing, or auto-pick first available)
-    let workspaceId = base.workspace_id;
-    if (!workspaceId && workspaces.length > 0) {
-      workspaceId = String(workspaces[0].id);
-    }
+    // 2. Resolve Workspace ID (Preserve existing from initialData only, don't auto-select)
+    const workspaceId = base.workspace_id;
 
     // 3. Resolve Leader ID (Current user or preserved)
     // Note: handleSubmit overrides this with currentUserId anyway
@@ -107,6 +105,16 @@ export function TaskForm({
       execution_mode: base.execution_mode || "parallel",
     };
   });
+
+  // Filter requirements based on selected workspace
+  const filteredRequirements = useMemo(() => {
+    if (!formData.workspace_id) return [];
+    const workspaceIdNum = parseInt(formData.workspace_id);
+    return requirements.filter((req) => {
+      // Match if requirement's workspace_id or receiver_workspace_id matches selected workspace
+      return req.workspace_id === workspaceIdNum || req.receiver_workspace_id === workspaceIdNum;
+    });
+  }, [formData.workspace_id, requirements]);
 
   const handleSubmit = async () => {
     // Validate required fields
@@ -236,6 +244,42 @@ export function TaskForm({
           />
         </div>
 
+        {/* Workspace: Col Span 6 */}
+        <div className="col-span-12 sm:col-span-6 space-y-1.5">
+          <span className="text-[12px] font-bold text-[#111111]">
+            Workspace <span className="text-red-500">*</span>
+          </span>
+          <Select
+            className="w-full h-11"
+            placeholder="Select workspace"
+            value={formData.workspace_id || undefined}
+            onChange={(val) => {
+              setFormData(prev => ({
+                ...prev,
+                workspace_id: String(val),
+                // Clear requirement when workspace changes to avoid mismatches
+                requirement_id: ""
+              }));
+            }}
+            disabled={disabledFields.workspace}
+            suffixIcon={<Building2 className="w-4 h-4 text-[#999999]" />}
+            showSearch={{
+              filterOption: (input, option) =>
+                (option?.children as unknown as string).toLowerCase().includes(input.toLowerCase())
+            }}
+          >
+            {workspaces.length > 0 ? (
+              workspaces.map((ws) => (
+                <Option key={ws.id} value={ws.id.toString()}>
+                  {ws.name}
+                </Option>
+              ))
+            ) : (
+              <Option value="none" disabled>No workspaces available</Option>
+            )}
+          </Select>
+        </div>
+
         {/* Requirement: Col Span 6 */}
         <div className="col-span-12 sm:col-span-6 space-y-1.5">
           <span className="text-[12px] font-bold text-[#111111]">
@@ -243,48 +287,15 @@ export function TaskForm({
           </span>
           <Select
             className="w-full h-11"
-            placeholder="Select requirement"
+            placeholder={formData.workspace_id ? "Select requirement" : "Select workspace first"}
             value={formData.requirement_id || undefined}
             onChange={(val) => {
-              const reqId = parseInt(String(val));
-              const selectedReq = requirements.find(r => r.id === reqId) as any;
-
-              console.log('🔍 Requirement selected:', {
-                reqId,
-                selectedReq,
-                hasWorkspaceId: !!selectedReq?.workspace_id,
-                hasReceiverWorkspaceId: !!selectedReq?.receiver_workspace_id,
-                workspace_id: selectedReq?.workspace_id,
-                receiver_workspace_id: selectedReq?.receiver_workspace_id
-              });
-
-              // Auto-infer workspace from requirement if available
-              let targetWorkspaceId = formData.workspace_id;
-
-              if (selectedReq) {
-                // If receiver_workspace_id is present (outsourced task where I am receiver), use it.
-                // Otherwise use workspace_id (in-house task or I am the owner).
-                const inferredWorkspaceId = selectedReq.receiver_workspace_id || selectedReq.workspace_id;
-                if (inferredWorkspaceId) {
-                  targetWorkspaceId = String(inferredWorkspaceId);
-                  console.log('✅ Workspace auto-fetched from requirement:', targetWorkspaceId);
-                } else {
-                  console.warn('⚠️ No workspace_id found in requirement:', selectedReq);
-                }
-              }
-
-              console.log('📝 Setting form data:', {
-                requirement_id: String(val),
-                workspace_id: targetWorkspaceId
-              });
-
               setFormData(prev => ({
                 ...prev,
-                requirement_id: String(val),
-                workspace_id: targetWorkspaceId
+                requirement_id: String(val)
               }));
             }}
-            disabled={disabledFields.requirement}
+            disabled={disabledFields.requirement || !formData.workspace_id}
             suffixIcon={<div className="text-gray-400">⌄</div>}
             allowClear
             onClear={() => setFormData(prev => ({ ...prev, requirement_id: "" }))}
@@ -293,14 +304,16 @@ export function TaskForm({
                 (option?.children as unknown as string).toLowerCase().includes(input.toLowerCase())
             }}
           >
-            {requirements.length > 0 ? (
-              requirements.map((req) => (
+            {filteredRequirements.length > 0 ? (
+              filteredRequirements.map((req) => (
                 <Option key={req.id} value={req.id.toString()}>
                   {req.name}
                 </Option>
               ))
             ) : (
-              <Option value="none" disabled>No requirements available</Option>
+              <Option value="none" disabled>
+                {formData.workspace_id ? "No requirements in this workspace" : "Select workspace first"}
+              </Option>
             )}
           </Select>
         </div>

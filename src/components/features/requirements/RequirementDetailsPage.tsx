@@ -557,7 +557,15 @@ export function RequirementDetailsPage() {
             requirement: true
           }}
           workspaces={workspaceData?.result ? [{ id: workspaceData.result.id, name: workspaceData.result.name }] : []}
-          requirements={requirementsData?.result ? (requirementsData.result as Requirement[]).map((r: Requirement) => ({ id: r.id, name: r.title || r.name || `Requirement ${r.id}` })) : []}
+          requirements={requirementsData?.result ? (requirementsData.result as Requirement[]).map((r: Requirement) => ({
+            id: r.id,
+            name: r.title || r.name || `Requirement ${r.id}`,
+            type: r.type || 'Unknown',
+            status: r.status || 'Unknown',
+            workspace_id: r.workspace_id || workspaceId,
+            receiver_workspace_id: r.receiver_workspace_id || null,
+            receiver_company_id: r.receiver_company_id || null
+          })) : []}
           users={employeesData?.result ? (employeesData.result as Employee[]).map((u: Employee) => ({
             id: u.user_id || u.id || 0,
             name: u.name || 'Unknown User',
