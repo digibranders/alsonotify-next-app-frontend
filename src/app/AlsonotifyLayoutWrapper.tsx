@@ -88,9 +88,19 @@ function AlsonotifyLayoutContent({ children }: Readonly<AlsonotifyLayoutWrapperP
     if (protectedResource) {
       const [id, permissionKey] = protectedResource;
 
-      // Force block Workspace for Employees
-      if (id === 'workspace' && userRole === 'Employee') {
+      // Force block Workspace for Employees - REMOVED per request
+      /* if (id === 'workspace' && userRole === 'Employee') {
         return { authorized: false, resource: 'Workspace' };
+      } */
+
+      // Force block Employees route for Employee role
+      if (id === 'employees' && userRole === 'Employee') {
+        return { authorized: false, resource: 'Employees' };
+      }
+
+      // Force ALLOW Workspace for Employees (overriding DB permission)
+      if (id === 'workspace' && userRole === 'Employee') {
+        return { authorized: true };
       }
 
       const hasPermission = permissions?.Navigation?.[permissionKey];
@@ -152,52 +162,54 @@ function AlsonotifyLayoutContent({ children }: Readonly<AlsonotifyLayoutWrapperP
 
   return (
     <TimerProvider>
-      <div className="w-full h-screen bg-[#F7F7F7] p-5 flex overflow-hidden outline-none" tabIndex={-1}>
-        {/* Main Layout - Visible on all screens */}
-        <div className="flex gap-5 w-full h-full overflow-hidden">
-          {/* Left Sidebar - Hidden on mobile, visible on lg+ */}
-          <div
-            className={`hidden lg:block shrink-0 h-full overflow-y-auto transition-all duration-300 ${isCollapsed ? 'w-[80px]' : 'w-[240px]'}`}
-          >
-            <Sidebar userRole={userRole} permissions={permissions} collapsed={isCollapsed} />
-          </div>
-
-          {/* Main Content Area */}
-          <div className="flex-1 flex flex-col gap-5 h-full overflow-hidden">
-            {/* Header/Taskbar - Fixed Height */}
-            <div className="shrink-0">
-              <Header userRole={userRole} roleColor={userRoleColor} />
+      <>
+        <div className="w-full h-screen bg-[#F7F7F7] p-5 flex overflow-hidden outline-none" tabIndex={-1}>
+          {/* Main Layout - Visible on all screens */}
+          <div className="flex gap-5 w-full h-full overflow-hidden">
+            {/* Left Sidebar - Hidden on mobile, visible on lg+ */}
+            <div
+              className={`hidden lg:block shrink-0 h-full overflow-y-auto transition-all duration-300 ${isCollapsed ? 'w-[80px]' : 'w-[240px]'}`}
+            >
+              <Sidebar userRole={userRole} permissions={permissions} collapsed={isCollapsed} />
             </div>
 
-            {/* Profile Completion Banner */}
-            <ProfileCompletionBanner />
+            {/* Main Content Area */}
+            <div className="flex-1 flex flex-col gap-5 h-full overflow-hidden">
+              {/* Header/Taskbar - Fixed Height */}
+              <div className="shrink-0">
+                <Header userRole={userRole} roleColor={userRoleColor} />
+              </div>
 
-            {/* Page Content */}
-            {renderContent()}
+              {/* Profile Completion Banner */}
+              <ProfileCompletionBanner />
+
+              {/* Page Content */}
+              {renderContent()}
+            </div>
           </div>
         </div>
-      </div>
-      {/* FloatingProductivityWidget removed - FloatingTimerBar handles all timer functionality */}
-      {!pathname?.startsWith('/dashboard/mail') && <FloatingTimerBar />}
-      <InvitationPopup />
+        {/* FloatingProductivityWidget removed - FloatingTimerBar handles all timer functionality */}
+        {!pathname?.startsWith('/dashboard/mail') && <FloatingTimerBar />}
+        <InvitationPopup />
 
-      {/* Mobile sidebar drawer - same content as desktop sidebar; collapse button closes drawer */}
-      <Drawer
-        open={mobileOpen}
-        onClose={closeMobileSidebar}
-        placement="left"
-        closable={false}
-        className="lg:hidden"
-        styles={{
-          wrapper: { width: 220 },
-          body: { padding: 0, height: '100%' }
-        }}
-        rootStyle={{ zIndex: 1100 }}
-      >
-        <div className="h-full overflow-y-auto">
-          <Sidebar userRole={userRole} permissions={permissions} onCloseDrawer={closeMobileSidebar} />
-        </div>
-      </Drawer>
+        {/* Mobile sidebar drawer - same content as desktop sidebar; collapse button closes drawer */}
+        <Drawer
+          open={mobileOpen}
+          onClose={closeMobileSidebar}
+          placement="left"
+          closable={false}
+          className="lg:hidden"
+          styles={{
+            wrapper: { width: 220 },
+            body: { padding: 0, height: '100%' }
+          }}
+          rootStyle={{ zIndex: 1100 }}
+        >
+          <div className="h-full overflow-y-auto">
+            <Sidebar userRole={userRole} permissions={permissions} onCloseDrawer={closeMobileSidebar} />
+          </div>
+        </Drawer>
+      </>
     </TimerProvider>
   );
 }
