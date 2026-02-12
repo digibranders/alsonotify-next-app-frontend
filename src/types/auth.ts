@@ -40,6 +40,19 @@ export interface CompanyProfile {
   country?: string;
   default_employee_password?: string;
   account_type?: string;
+  account_managers?: Array<{
+    id: number;
+    name: string;
+    email: string;
+    user_profile?: {
+      designation?: string;
+      profile_pic?: string;
+    };
+    role?: {
+      name: string;
+      color?: string;
+    };
+  }>;
 
   leaves?: CompanyLeaveSetting[];
   working_hours?: {

@@ -8,6 +8,7 @@ import {
   UserPlus, UserCheck, UserX, Bell
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useNotifications } from '@/hooks/useNotification';
 
 // All notification types from backend NotificationType enum + legacy types
 export type NotificationTypeValue =
@@ -38,8 +39,7 @@ export interface NotificationItem {
 interface NotificationPanelProps {
   open: boolean;
   onClose: () => void;
-  notifications: NotificationItem[];
-  isLoading: boolean;
+  isLoading?: boolean;
   onMarkAsRead: (id: number) => void;
   onMarkAllRead: () => void;
 }
@@ -260,40 +260,39 @@ function NotificationItemComponent({
 export function NotificationPanel({
   open,
   onClose,
-  notifications,
-  isLoading,
+  // notifications prop is now ignored in favor of internal hook for data consistency
+  isLoading: initialLoading,
   onMarkAsRead,
   onMarkAllRead,
 }: NotificationPanelProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('all');
 
+  // Use the hook internally to get filtered data
+  const { data: notificationsData, isLoading: isHookLoading } = useNotifications(activeTab);
+
+  // Map API data to UI format
+  const notifications = useMemo(() => {
+    if (!notificationsData?.result) return [];
+    return notificationsData.result.map((n) => ({
+      id: n.id,
+      title: n.title,
+      message: n.message,
+      time: new Date(n.created_at).toLocaleDateString(), // Basic formatting, consider date-fns for "2 hours ago"
+      unread: !n.is_read,
+      type: (n.type as NotificationTypeValue) || 'general',
+      icon: n.icon,
+      actionLink: n.link,
+      metadata: n.metadata as NotificationItem['metadata']
+    }));
+  }, [notificationsData]);
+
+  const isLoading = initialLoading || isHookLoading;
+
   const unreadCount = useMemo(
     () => notifications.filter((n) => n.unread).length,
     [notifications]
   );
-
-  const filteredNotifications = useMemo(() => {
-    switch (activeTab) {
-      case 'requirements':
-        return notifications.filter((n) =>
-          n.type === 'REQUIREMENT_RECEIVED' ||
-          n.type === 'REQUIREMENT_ACCEPTED' ||
-          n.type === 'REQUIREMENT_REJECTED' ||
-          n.type === 'REQUIREMENT_REVIEW' ||
-          n.type === 'REQUIREMENT_COMPLETED' ||
-          n.type === 'REQUIREMENT_REVISION' ||
-          n.type === 'requirement'
-        );
-      case 'tasks':
-        return notifications.filter((n) =>
-          n.type === 'task' ||
-          n.type === 'TODO_REMINDER'
-        );
-      default:
-        return notifications;
-    }
-  }, [activeTab, notifications]);
 
   const tabItems = [
     {
@@ -301,12 +300,12 @@ export function NotificationPanel({
       label: 'All',
     },
     {
-      key: 'requirements',
-      label: 'Requirements',
+      key: 'mentions',
+      label: 'Mentions',
     },
     {
-      key: 'tasks',
-      label: 'Tasks',
+      key: 'dues',
+      label: 'Dues',
     },
   ];
 
@@ -384,19 +383,19 @@ export function NotificationPanel({
             <div className="h-3 w-56 bg-[#F3F4F6] rounded-full" />
             <div className="h-3 w-40 bg-[#F3F4F6] rounded-full" />
           </div>
-        ) : filteredNotifications.length === 0 ? (
+        ) : notifications.length === 0 ? (
           <EmptyState
             message={
-              activeTab === 'requirements'
-                ? 'No requirement notifications'
-                : activeTab === 'tasks'
-                  ? 'No task notifications'
+              activeTab === 'mentions'
+                ? 'No mentions yet'
+                : activeTab === 'dues'
+                  ? 'No upcoming dues'
                   : 'No notifications'
             }
           />
         ) : (
           <div className="flex flex-col">
-            {filteredNotifications.map((notification) => (
+            {notifications.map((notification) => (
               <NotificationItemComponent
                 key={notification.id}
                 notification={notification}

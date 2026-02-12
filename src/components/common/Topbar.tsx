@@ -79,7 +79,7 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
   const { data: userDetailsData, isLoading: isLoadingUserDetails } = useUserDetails();
 
   // Fetch notifications
-  const { data: notificationsData, isLoading: isLoadingNotifications } = useNotifications();
+  const { data: notificationsData } = useNotifications();
   const markAllReadMutation = useMarkAllNotificationsRead();
   const markReadMutation = useMarkNotificationRead();
 
@@ -516,8 +516,6 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
               <NotificationPanel
                 open={notificationDrawerOpen}
                 onClose={() => setNotificationDrawerOpen(false)}
-                notifications={notifications}
-                isLoading={isLoadingNotifications}
                 onMarkAsRead={handleMarkAsRead}
                 onMarkAllRead={handleClearAllNotifications}
               />
@@ -601,7 +599,7 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
 
             return requirementsDropdown;
           })()}
-          workspaces={workspacesData?.result?.workspaces?.map((p) => ({ id: p.id, name: p.name, company_name: p.company_name || p.client?.name || undefined })) || []}
+          workspaces={workspacesData?.result?.workspaces?.map((p) => ({ id: p.id, name: p.name, company_name: p.partnerName || p.partner_name || p.company_name || p.client?.name || undefined })) || []}
         />
       </Modal>
 
