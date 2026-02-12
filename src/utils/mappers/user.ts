@@ -109,6 +109,7 @@ export const mapUserDtoToEmployee = (dto: UserDto, permissions?: UserPermissions
     user_employee: dto.user_employee,
 
     company_id: dto.company_id,
+    association_id: dto.association_id,
     permissions: permissions || {},
   };
 };

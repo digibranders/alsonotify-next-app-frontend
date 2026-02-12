@@ -26,7 +26,7 @@ import { useCompanyDetails } from '@/hooks/useCompanyDetails';
 import { getErrorMessage } from '@/types/api-utils';
 import { trimStr } from '@/utils/trim';
 import { useDocumentSettings } from '@/hooks/useDocumentSettings';
-import { useRolePermissions } from '@/hooks/useUser';
+import { useRolePermissions, useEmployees } from '@/hooks/useUser';
 
 interface SettingsContentProps {
     activeTab: SettingsTab;
@@ -64,6 +64,9 @@ export function SettingsContent({
     useEffect(() => {
         messageRef.current = message;
     }, [message]);
+
+    const { data: employeesData } = useEmployees();
+
     const [isEditing, setIsEditing] = useState(false);
     const [notifications, setNotifications] = useState({ email: true, push: false, reports: true });
     const [security, setSecurity] = useState({ currentPassword: '', newPassword: '', confirmPassword: '', twoFactor: false });
@@ -79,6 +82,7 @@ export function SettingsContent({
         country, setCountry,
         address, setAddress,
         defaultEmployeePassword, setDefaultEmployeePassword,
+        accountManagerIds, setAccountManagerIds,
         resetCompanyDetails,
         getCompanyDetailsPayload
     } = useCompanyDetails({ initialData: companyData?.result });
@@ -409,6 +413,8 @@ export function SettingsContent({
                         requiredDocuments={requiredDocuments} isAddingDoc={isAddingDoc} setIsAddingDoc={setIsAddingDoc}
                         newDocName={newDocName} setNewDocName={setNewDocName} handleAddDocument={handleAddDocument}
                         handleDeleteDocument={handleDeleteDocument} toggleDocumentRequired={toggleDocumentRequired}
+                        accountManagerIds={accountManagerIds} setAccountManagerIds={setAccountManagerIds}
+                        employeesData={employeesData}
                     />
                 </div>
                 <div style={{ display: activeTab === 'notifications' ? 'block' : 'none' }}><NotificationsTab notifications={notifications} setNotifications={setNotifications} /></div>

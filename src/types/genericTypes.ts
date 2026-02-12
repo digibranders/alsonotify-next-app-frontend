@@ -135,5 +135,6 @@ export interface CompanyUpdateInput {
   logo?: string;
   tax_id?: string;
   tax_id_type?: string;
+  account_manager_ids?: number[];
   [key: string]: unknown;
 }
