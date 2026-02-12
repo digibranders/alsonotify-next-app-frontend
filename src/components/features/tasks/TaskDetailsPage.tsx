@@ -11,8 +11,9 @@ import {
 import { Breadcrumb, App, Modal, Input } from 'antd';
 import { TaskStatusBadge, TaskChatPanel } from './components';
 import { TaskMembersList } from './components/TaskMembersList';
-
+import { TaskDocumentsTab } from './components/TaskDocumentsTab';
 import { useTask, useTaskTimer, useUpdateMemberStatus } from '@/hooks/useTask';
+import { useTaskActivities } from '@/hooks/useTaskActivity';
 import { useTimer } from '@/context/TimerContext';
 import { useAuth } from '@/hooks/useAuth';
 import { useQueryClient } from '@tanstack/react-query';
@@ -34,18 +35,29 @@ export function TaskDetailsPage() {
 
   const task = taskData?.result;
   const timer = timerData?.result;
-
-  // Merge live elapsed from TimerContext when timer runs for this task
-  const isTimerRunningForThisTask = timerState.isRunning && timerState.taskId === taskId;
-  const workedSeconds = isTimerRunningForThisTask
+  const workedSeconds = timerState.taskId === taskId && timerState.isRunning
     ? (timer?.worked_time || 0) + timerState.elapsedSeconds
     : (timer?.worked_time || 0);
 
+  const { data: activitiesData } = useTaskActivities(taskId);
+
+  // Transform activity data for Documents tab
+  const documentsActivityData = activitiesData?.result?.map((act: any) => ({
+    id: act.id,
+    type: act.type,
+    user: act.user?.name || 'Unknown',
+    avatar: '',
+    date: format(new Date(act.created_at), 'MMM d, h:mm a'),
+    message: act.message,
+    isSystem: false,
+    attachments: act.attachments || [],
+  })) || [];
+
   // Use standardized tab sync hook for consistent URL handling
-  type TaskDetailsTab = 'details';
+  type TaskDetailsTab = 'details' | 'documents';
   const [activeTab, setActiveTab] = useTabSync<TaskDetailsTab>({
     defaultTab: 'details',
-    validTabs: ['details']
+    validTabs: ['details', 'documents']
   });
   const [showCompleteModal, setShowCompleteModal] = useState(false);
   const [completeDescription, setCompleteDescription] = useState('');
@@ -98,7 +110,7 @@ export function TaskDetailsPage() {
         tabs={[{ id: 'details', label: 'Details' }]}
         activeTab="details"
         sideContent={
-          <div className="w-[400px] border-l border-[#EEEEEE] flex flex-col bg-white rounded-tr-[24px] rounded-br-[24px]">
+          <div className="w-[350px] border-l border-[#EEEEEE] flex flex-col bg-white rounded-tr-[24px] rounded-br-[24px]">
             <div className="p-6 border-b border-[#EEEEEE]">
               <Skeleton className="h-5 w-32 mb-2" />
               <Skeleton className="h-3 w-48" />
@@ -240,7 +252,8 @@ export function TaskDetailsPage() {
         </div>
       }
       tabs={[
-        { id: 'details', label: 'Details' }
+        { id: 'details', label: 'Details' },
+        { id: 'documents', label: 'Documents' }
       ]}
       activeTab={activeTab}
       onTabChange={(id) => setActiveTab(id as TaskDetailsTab)}
@@ -403,7 +416,9 @@ export function TaskDetailsPage() {
           </div>
         </div>
 
-
+        <div style={{ display: activeTab === 'documents' ? 'block' : 'none' }}>
+          <TaskDocumentsTab activityData={documentsActivityData} />
+        </div>
       </div>
       {/* TaskActionPanel removed as per request */}
       <Modal

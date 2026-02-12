@@ -7,11 +7,15 @@ import {
   CheckCircle,
   ChevronDown,
   Loader2,
-  Clock
+  Clock,
+  Paperclip,
+  X
 } from "lucide-react";
 import { useFloatingMenu } from '../../context/FloatingMenuContext';
 import { useTimer } from '../../context/TimerContext';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useCreateTaskActivity } from '../../hooks/useTaskActivity';
+import { fileService } from '../../services/file.service';
 import { getAssignedTasks, updateTaskMemberStatus } from '../../services/task';
 import { useUserDetails } from '../../hooks/useUser';
 import { App, Tooltip, Modal, Input } from 'antd';
@@ -98,6 +102,8 @@ export function FloatingTimerBar() {
   const [showCompleteModal, setShowCompleteModal] = useState(false);
   const [completeDescription, setCompleteDescription] = useState("");
   const [completeTaskId, setCompleteTaskId] = useState<number | null>(null);
+  const [attachments, setAttachments] = useState<File[]>([]);
+  const { mutateAsync: createTaskActivity } = useCreateTaskActivity();
 
   const dropdownRef = useRef<HTMLDivElement>(null);
   const toggleButtonRef = useRef<HTMLButtonElement>(null);
@@ -304,10 +310,45 @@ export function FloatingTimerBar() {
     const taskIdToComplete = completeTaskId;
     if (!taskIdToComplete) return;
 
+    // 1. Upload attachments if any
+    let uploadedAttachmentIds: number[] = [];
+    if (attachments.length > 0) {
+        try {
+            message.loading({ content: 'Uploading attachments...', key: 'complete-upload' });
+            const uploadPromises = attachments.map(file =>
+                fileService.uploadFile(file, 'TASK', taskIdToComplete)
+            );
+            const uploadedFiles = await Promise.all(uploadPromises);
+            uploadedAttachmentIds = uploadedFiles.map(f => f.id);
+            message.success({ content: 'Attachments uploaded!', key: 'complete-upload' });
+        } catch (error) {
+            console.error("Upload failed", error);
+            message.error({ content: 'Failed to upload attachments', key: 'complete-upload' });
+            return;
+        }
+    }
+
     const description = completeDescription?.trim() ?? "";
+
+    // 2. Create Task Activity with remarks and attachments
+    if (description || uploadedAttachmentIds.length > 0) {
+        try {
+            await createTaskActivity({
+                task_id: taskIdToComplete,
+                message: description || 'Task Completed',
+                type: 'CHAT', 
+                attachment_ids: uploadedAttachmentIds.length > 0 ? uploadedAttachmentIds : undefined
+            });
+        } catch (error) {
+            console.error("Failed to create activity", error);
+            // non-blocking
+        }
+    }
+
     setShowCompleteModal(false);
     setCompleteDescription("");
     setCompleteTaskId(null);
+    setAttachments([]);
 
     // stopTimer is idempotent - safe to call even if timer already stopped remotely
     await stopTimer(description);
@@ -463,11 +504,7 @@ export function FloatingTimerBar() {
             ) : (
               <>
                 {/* Offline Indicator */}
-                {/* {!isOnline && (
-                  <Tooltip title="Offline - Changes may not save">
-                    <WifiOff className="w-4 h-4 text-red-500 animate-pulse" />
-                  </Tooltip>
-                )} */}
+              
                 <p className="text-[14px] text-white font-['Inter:Medium',sans-serif] group-hover:text-white transition-colors truncate max-w-[200px]">
                   {currentTask?.name || timerState.taskName || "Select Task"}
                 </p>
@@ -516,6 +553,7 @@ export function FloatingTimerBar() {
           setShowCompleteModal(false);
           setCompleteDescription("");
           setCompleteTaskId(null);
+          setAttachments([]);
         }}
         okText="Mark Complete"
         cancelText="Cancel"
@@ -532,6 +570,44 @@ export function FloatingTimerBar() {
             rows={4}
             className="w-full"
           />
+
+          <div className="mt-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Attachments
+              </label>
+              {attachments.length > 0 && (
+                  <div className="mb-3 space-y-2">
+                      {attachments.map((file, index) => (
+                          <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded border border-gray-200">
+                              <div className="flex items-center gap-2 flex-1 min-w-0">
+                                  <Paperclip className="w-3.5 h-3.5 text-gray-500 shrink-0" />
+                                  <span className="text-xs text-gray-700 truncate">{file.name}</span>
+                              </div>
+                              <button
+                                  onClick={() => setAttachments(attachments.filter((_, i) => i !== index))}
+                                  className="p-1 hover:bg-gray-200 rounded transition-colors shrink-0"
+                              >
+                                  <X className="w-3.5 h-3.5 text-gray-400" />
+                              </button>
+                          </div>
+                      ))}
+                  </div>
+              )}
+              <label className="cursor-pointer inline-flex items-center gap-2 text-sm text-[#ff3b3b] hover:text-[#e03131] transition-colors font-medium">
+                  <Paperclip className="w-4 h-4" />
+                  Attach Files
+                  <input
+                      type="file"
+                      multiple
+                      className="hidden"
+                      onChange={(e) => {
+                          if (e.target.files) {
+                              setAttachments([...attachments, ...Array.from(e.target.files)]);
+                          }
+                      }}
+                  />
+              </label>
+          </div>
         </div>
       </Modal>
     </div>

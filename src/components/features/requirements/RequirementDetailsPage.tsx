@@ -252,7 +252,7 @@ export function RequirementDetailsPage() {
         </div>
 
         {/* Right Sidebar - Chat Panel Skeleton */}
-        <div className="w-[400px] border-l border-[#EEEEEE] flex flex-col bg-white">
+        <div className="w-[350px] border-l border-[#EEEEEE] flex flex-col bg-white">
           {/* Sidebar Header */}
           <div className="p-6 border-b border-[#EEEEEE]">
             <div className="flex items-center gap-2 mb-1">
