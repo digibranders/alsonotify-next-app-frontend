@@ -36,7 +36,7 @@ interface TaskFormProps {
   isEditing?: boolean;
   users?: Array<{ id: number; name: string; profile_pic?: string }>;
   requirements?: RequirementDropdownItem[];
-  workspaces?: Array<{ id: number; name: string }>;
+  workspaces?: Array<{ id: number; name: string; company_name?: string }>;
   disabledFields?: {
     workspace?: boolean;
     requirement?: boolean;
@@ -295,8 +295,13 @@ export function TaskForm({
           >
             {workspaces.length > 0 ? (
               workspaces.map((ws) => (
-                <Option key={ws.id} value={ws.id.toString()}>
-                  {ws.name}
+                <Option key={ws.id} value={ws.id.toString()} label={ws.name}>
+                  <div className="flex flex-col py-1">
+                    <span className="font-medium text-[#111111] leading-tight">{ws.name}</span>
+                    <span className="text-[10px] text-[#999999] leading-tight">
+                      {ws.company_name || 'In-house'}
+                    </span>
+                  </div>
                 </Option>
               ))
             ) : (

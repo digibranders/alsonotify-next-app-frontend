@@ -36,7 +36,7 @@ interface RequirementsFormProps {
     /** Send requirement: create then set Waiting/Assigned; edit Draft → set Waiting/Assigned */
     onSubmitAndSend?: (data: CreateRequirementRequestDto, files?: File[]) => void;
     onCancel: () => void;
-    workspaces: { id: number | string; name: string }[];
+    workspaces: { id: number | string; name: string; company_name?: string }[];
     isLoading?: boolean;
     isEditing?: boolean;
     open?: boolean; // Added for Modal support
@@ -295,8 +295,13 @@ function RequirementsFormContent({
                                     + Create New Workspace
                                 </Option>
                                 {workspaces.map((w) => (
-                                    <Option key={String(w.id)} value={String(w.id)}>
-                                        {w.name}
+                                    <Option key={String(w.id)} value={String(w.id)} label={w.name}>
+                                        <div className="flex flex-col py-1">
+                                            <span className="font-medium text-[#111111] leading-tight">{w.name}</span>
+                                            <span className="text-[10px] text-[#999999] leading-tight">
+                                                {w.company_name || 'In-house'}
+                                            </span>
+                                        </div>
                                     </Option>
                                 ))}
                             </>

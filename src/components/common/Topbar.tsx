@@ -601,7 +601,7 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
 
             return requirementsDropdown;
           })()}
-          workspaces={workspacesData?.result?.workspaces?.map((p: { id: number; name: string }) => ({ id: p.id, name: p.name })) || []}
+          workspaces={workspacesData?.result?.workspaces?.map((p) => ({ id: p.id, name: p.name, company_name: p.company_name || p.client?.name || undefined })) || []}
         />
       </Modal>
 
@@ -609,7 +609,7 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
         open={showRequirementDialog}
         onSubmit={handleCreateRequirement}
         onCancel={() => setShowRequirementDialog(false)}
-        workspaces={workspacesData?.result?.workspaces?.map((w: { id: number; name: string }) => ({ id: w.id, name: w.name })) || []}
+        workspaces={workspacesData?.result?.workspaces?.map((w) => ({ id: w.id, name: w.name, company_name: w.company_name || w.client?.name || undefined })) || []}
         isLoading={createRequirementMutation.isPending}
       />
 

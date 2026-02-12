@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
-import { MessageSquare, Paperclip, X, Send, Loader2, Eye, Download } from 'lucide-react';
+import { MessageSquare, Paperclip, X, Send, Loader2, Eye, Download, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { Mentions, App } from 'antd';
 import { fileService } from '@/services/file.service';
 import { DocumentPreviewModal } from '@/components/ui/DocumentPreviewModal';
@@ -73,6 +73,7 @@ export function ChatPanel({
   const [previewDoc, setPreviewDoc] = useState<UserDocument | null>(null);
   const [downloadingIds, setDownloadingIds] = useState<Set<number>>(new Set());
   const [previewingIds, setPreviewingIds] = useState<Set<number>>(new Set());
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -169,8 +170,17 @@ export function ChatPanel({
   const escapeRegExp = (string: string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
   return (
-    <div className="w-[400px] border-l border-[#EEEEEE] flex flex-col bg-white rounded-tr-[24px] rounded-br-[24px]">
+    <div className={`border-l border-[#EEEEEE] flex flex-col bg-white rounded-tr-[24px] rounded-br-[24px] transition-all duration-300 relative ${isCollapsed ? 'w-[50px]' : 'w-[350px]'}`}>
+      {/* Collapse Button */}
+      <button
+        onClick={() => setIsCollapsed(!isCollapsed)}
+        className="absolute -left-3 top-6 bg-white border border-[#EEEEEE] rounded-full p-1 shadow-sm hover:bg-[#F7F7F7] z-10"
+      >
+        {isCollapsed ? <ChevronsLeft size={14} /> : <ChevronsRight size={14} />}
+      </button>
+
       {/* Drawer Header */}
+      {!isCollapsed && (
       <div className="p-6 border-b border-[#EEEEEE]">
         <h3 className="text-[16px] font-['Manrope:Bold',sans-serif] text-[#111111] flex items-center gap-2">
           <MessageSquare className="w-5 h-5 text-[#ff3b3b]" />
@@ -180,8 +190,15 @@ export function ChatPanel({
           Team collaboration and updates
         </p>
       </div>
+      )}
+      {isCollapsed && (
+         <div className="p-4 border-b border-[#EEEEEE] flex justify-center">
+            <MessageSquare className="w-5 h-5 text-[#ff3b3b]" />
+         </div>
+      )}
 
       {/* Activity Feed */}
+      {!isCollapsed && (
       <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-6">
         {isLoadingActivities ? (
           <div className="flex justify-center items-center h-full">
@@ -272,8 +289,10 @@ export function ChatPanel({
           </div>
         ))}
       </div>
+      )}
 
       {/* Message Input */}
+      {!isCollapsed && (
       <div className="p-4 border-t border-[#EEEEEE] bg-white">
         {attachments.length > 0 && (
           <div className="mb-3 space-y-1">
@@ -402,6 +421,7 @@ export function ChatPanel({
           </div>
         </div>
       </div>
+      )}
       <DocumentPreviewModal
         open={!!previewDoc}
         onClose={() => setPreviewDoc(null)}

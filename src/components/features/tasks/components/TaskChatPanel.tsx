@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { MessageSquare, Paperclip, X, Send, Loader2 } from 'lucide-react';
+import { MessageSquare, Paperclip, X, Send, Loader2, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { App } from 'antd';
 import { format } from 'date-fns';
 import { useTaskActivities, useCreateTaskActivity } from '@/hooks/useTaskActivity';
@@ -17,6 +17,7 @@ export function TaskChatPanel({ taskId }: TaskChatPanelProps) {
 
   const [messageText, setMessageText] = useState('');
   const [attachments, setAttachments] = useState<File[]>([]);
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const activities = activitiesData?.result || [];
@@ -94,19 +95,37 @@ export function TaskChatPanel({ taskId }: TaskChatPanelProps) {
   };
 
   return (
-    <div className="flex flex-col h-full bg-white border-l border-[#EEEEEE]">
+    <div
+      className={`flex flex-col h-full bg-white border-l border-[#EEEEEE] transition-all duration-300 relative ${isCollapsed ? 'w-[50px]' : 'w-[350px]'}`}
+    >
+      {/* Collapse Button */}
+      <button
+        onClick={() => setIsCollapsed(!isCollapsed)}
+        className="absolute -left-3 top-6 bg-white border border-[#EEEEEE] rounded-full p-1 shadow-sm hover:bg-[#F7F7F7] z-10"
+      >
+        {isCollapsed ? <ChevronsLeft size={14} /> : <ChevronsRight size={14} />}
+      </button>
+
       {/* Header */}
-      <div className="p-6 border-b border-[#EEEEEE]">
-        <h3 className="text-[16px] font-['Manrope:Bold',sans-serif] text-[#111111] flex items-center gap-2">
-          <MessageSquare className="w-5 h-5 text-[#ff3b3b]" />
-          Activity & Chat
-        </h3>
-        <p className="text-[12px] text-[#666666] font-['Inter:Regular',sans-serif] mt-1">
-          Task updates and comments
-        </p>
-      </div>
+      {!isCollapsed && (
+        <div className="p-6 border-b border-[#EEEEEE]">
+          <h3 className="text-[16px] font-['Manrope:Bold',sans-serif] text-[#111111] flex items-center gap-2">
+            <MessageSquare className="w-5 h-5 text-[#ff3b3b]" />
+            Activity & Chat
+          </h3>
+          <p className="text-[12px] text-[#666666] font-['Inter:Regular',sans-serif] mt-1">
+            Task updates and comments
+          </p>
+        </div>
+      )}
+      {isCollapsed && (
+         <div className="p-4 border-b border-[#EEEEEE] flex justify-center">
+            <MessageSquare className="w-5 h-5 text-[#ff3b3b]" />
+         </div>
+      )}
 
       {/* Activity Feed */}
+      {!isCollapsed && (
       <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-6">
         {isLoadingActivities ? (
           <div className="flex flex-col items-center justify-center h-full text-[#999999] space-y-2">
@@ -173,8 +192,10 @@ export function TaskChatPanel({ taskId }: TaskChatPanelProps) {
           })
         )}
       </div>
+      )}
 
       {/* Message Input */}
+      {!isCollapsed && (
       <div className="p-4 border-t border-[#EEEEEE] bg-white">
         {attachments.length > 0 && (
           <div className="mb-3 space-y-1">
@@ -225,6 +246,7 @@ export function TaskChatPanel({ taskId }: TaskChatPanelProps) {
           </div>
         </div>
       </div>
+      )}
     </div>
   );
 }
