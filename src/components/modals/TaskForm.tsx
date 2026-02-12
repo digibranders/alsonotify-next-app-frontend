@@ -290,7 +290,7 @@ export function TaskForm({
             suffixIcon={<Building2 className="w-4 h-4 text-[#999999]" />}
             showSearch={{
               filterOption: (input, option) =>
-                (option?.children as unknown as string).toLowerCase().includes(input.toLowerCase())
+                String(option?.label ?? '').toLowerCase().includes(input.toLowerCase())
             }}
           >
             {workspaces.length > 0 ? (
@@ -331,12 +331,12 @@ export function TaskForm({
             onClear={() => setFormData(prev => ({ ...prev, requirement_id: "" }))}
             showSearch={{
               filterOption: (input, option) =>
-                (option?.children as unknown as string).toLowerCase().includes(input.toLowerCase())
+                String(option?.label ?? '').toLowerCase().includes(input.toLowerCase())
             }}
           >
             {filteredRequirements.length > 0 ? (
               filteredRequirements.map((req) => (
-                <Option key={req.id} value={req.id.toString()}>
+                <Option key={req.id} value={req.id.toString()} label={req.name}>
                   {req.name}
                 </Option>
               ))
