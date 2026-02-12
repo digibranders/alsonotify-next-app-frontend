@@ -202,3 +202,50 @@ export const deletePartner = async (params: { userType: 'PARTNER'; partnerUserId
   const { data } = await axiosApi.delete<ApiResponse<unknown>>("/user/partners", { data: params });
   return data;
 };
+
+// ============================================
+// Account Manager Services
+// ============================================
+
+export interface AccountManager {
+  id: number;
+  name: string;
+  email: string;
+  designation?: string;
+  department?: string;
+  role?: string;
+  roleColor?: string;
+  profilePic?: string;
+  partnerCount: number;
+  assignedPartners: {
+    id: number;
+    name: string;
+    logo?: string;
+    contactPerson: string;
+    status: string;
+  }[];
+}
+
+// Get all account managers
+export const getAccountManagers = async (): Promise<ApiResponse<AccountManager[]>> => {
+  const { data } = await axiosApi.get<ApiResponse<AccountManager[]>>("/user/account-managers");
+  return data;
+};
+
+// Add employee as account manager
+export const addAccountManager = async (employeeId: number): Promise<ApiResponse<{ id: number; name: string; email: string }>> => {
+  const { data } = await axiosApi.post<ApiResponse<{ id: number; name: string; email: string }>>("/user/account-managers/add", { employeeId });
+  return data;
+};
+
+// Update partner assignments for an account manager
+export const updateManagerPartners = async (managerId: number, partnerIds: number[]): Promise<ApiResponse<{ managerId: number; partnerIds: number[]; message: string }>> => {
+  const { data } = await axiosApi.post<ApiResponse<{ managerId: number; partnerIds: number[]; message: string }>>("/user/account-managers/update-partners", { managerId, partnerIds });
+  return data;
+};
+
+// Remove account manager designation
+export const removeAccountManager = async (managerId: number): Promise<ApiResponse<{ managerId: number; message: string }>> => {
+  const { data } = await axiosApi.delete<ApiResponse<{ managerId: number; message: string }>>("/user/account-managers/remove", { data: { managerId } });
+  return data;
+};

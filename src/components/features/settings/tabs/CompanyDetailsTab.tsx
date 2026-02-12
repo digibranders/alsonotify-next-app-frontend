@@ -9,7 +9,7 @@ import { DocumentType } from '@/types/genericTypes';
 const { TextArea } = Input;
 const { Option } = Select;
 import { TAX_ID_TYPES, getTaxIdTypesForCountry } from '@/data/taxIdTypes';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getValidatorForType } from '@/lib/validators/taxIdValidators';
 
 interface CompanyDetailsTabProps {
@@ -56,11 +56,6 @@ interface CompanyDetailsTabProps {
   handleAddDocument: () => void;
   handleDeleteDocument: (id: string) => void;
   toggleDocumentRequired: (id: string) => void;
-
-  // Account Manager
-  accountManagerIds?: number[];
-  setAccountManagerIds: (ids: number[]) => void;
-  employeesData?: any;
 }
 
 export function CompanyDetailsTab({
@@ -101,9 +96,6 @@ export function CompanyDetailsTab({
   handleAddDocument,
   handleDeleteDocument,
   toggleDocumentRequired,
-  accountManagerIds,
-  setAccountManagerIds,
-  employeesData,
 }: CompanyDetailsTabProps) {
   const timezones = getTimezones();
   // We need access to message API. SettingsPage uses App.useApp().
@@ -378,74 +370,6 @@ export function CompanyDetailsTab({
             </div>
           </div>
         </div>
-
-        {/* Account Manager Selection - Only for Organizations & Admins */}
-        {!isIndividual && (isAdmin || canEditCompany) && (
-          <div className="mb-6 mt-6">
-            <div className="space-y-2">
-              <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">Internal Account Manager</span>
-              <div className="flex flex-col gap-4">
-                <Select
-                  mode="multiple"
-                  value={accountManagerIds}
-                  onChange={(v) => setAccountManagerIds(v as number[])}
-                  placeholder="Select internal account managers"
-                  disabled={!isEditing}
-                  className="w-full h-auto min-h-[44px]"
-                  showSearch
-                  allowClear
-                  optionFilterProp="children"
-                  tagRender={() => <></>} // We'll show rich cards below instead of tags inside select
-                >
-                  {(employeesData?.result || []).map((emp: any) => (
-                    <Option key={emp.user_id || emp.id} value={emp.user_id || emp.id}>
-                      {emp.name} {emp.designation ? `(${emp.designation})` : ''}
-                    </Option>
-                  ))}
-                </Select>
-
-                {/* Selected Account Managers Rich Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {(employeesData?.result || [])
-                    .filter((emp: any) => accountManagerIds?.includes(emp.user_id || emp.id))
-                    .map((emp: any) => (
-                      <div key={emp.user_id || emp.id} className="flex items-center gap-3 p-3 rounded-xl border border-[#EEEEEE] bg-white group hover:border-[#ff3b3b] transition-all">
-                        <div className="w-10 h-10 rounded-full bg-[#FAFAFA] border border-[#EEEEEE] flex items-center justify-center overflow-hidden flex-none">
-                          {emp.profile_pic ? (
-                            <img src={emp.profile_pic} alt="" className="w-full h-full object-cover" />
-                          ) : (
-                            <span className="text-[14px] font-bold text-[#999999]">
-                              {emp.name?.charAt(0)}
-                            </span>
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="text-[13px] font-bold text-[#111111] truncate">{emp.name}</div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-[11px] text-[#666666] truncate">{emp.designation || 'Account Manager'}</span>
-                            <span className="px-1.5 py-0.5 rounded bg-[#FAFAFA] border border-[#EEEEEE] text-[9px] font-bold text-[#999999] uppercase">
-                              {emp.role_name || emp.role?.name || 'Admin'}
-                            </span>
-                          </div>
-                        </div>
-                        {isEditing && (
-                          <button
-                            onClick={() => setAccountManagerIds(accountManagerIds?.filter(id => id !== (emp.user_id || emp.id)) || [])}
-                            className="p-1.5 hover:bg-[#FFF1F0] rounded-lg text-[#ff4d4f] md:opacity-0 group-hover:opacity-100 transition-opacity"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        )}
-                      </div>
-                    ))}
-                </div>
-                <span className="text-[11px] text-[#999999] font-['Manrope:Regular',sans-serif]">
-                  These users will have full access to requirements and workspaces of companies where they are assigned as Account Manager.
-                </span>
-              </div>
-            </div>
-          </div>
-        )}
       </section>
 
       {/* Departments & Required Documents - Only for Organizations */}

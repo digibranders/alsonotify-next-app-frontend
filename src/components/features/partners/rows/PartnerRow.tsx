@@ -1,27 +1,7 @@
 import { Checkbox, Dropdown, MenuProps, Tag } from "antd";
 import { MoreVertical, Trash2, Mail, Globe, User, Building } from "lucide-react";
 import { EyeOutlined } from '@ant-design/icons';
-
-export type PartnerStatus = 'active' | 'inactive' | 'pending';
-
-export interface Partner {
-    id: number;
-    association_id?: number | null;
-    name: string; // Contact Person
-    company: string; // Business Name
-    type: 'INDIVIDUAL' | 'ORGANIZATION';
-    email: string;
-    phone: string;
-    country: string;
-    timezone?: string;
-    status: PartnerStatus;
-    requirements: number;
-    onboarding: string;
-    rawStatus?: string;
-    isOrgAccount?: boolean;
-    partner_user_id?: number;
-    company_id?: number;
-}
+import { Partner, PartnerStatus } from "@/types/domain";
 
 interface PartnerRowProps {
     partner: Partner;
@@ -63,7 +43,7 @@ export function PartnerRow({
                 }
       `}
         >
-            <div className="grid grid-cols-[40px_2fr_1fr_0.8fr_1.5fr_0.8fr_0.7fr_0.7fr_40px] gap-4 items-center">
+            <div className="grid grid-cols-[40px_1.8fr_1fr_0.8fr_1fr_0.8fr_0.7fr_0.7fr_40px] gap-4 items-center">
                 {/* Checkbox */}
                 <div className="flex justify-center" onClick={(e) => e.stopPropagation()}>
                     <Checkbox
@@ -150,7 +130,7 @@ export function PartnerRow({
                             if (!partner.country) return 'N/A';
                             try {
                                 return new Intl.DisplayNames(['en'], { type: 'region' }).of(partner.country);
-                            } catch (e) {
+                            } catch {
                                 return partner.country;
                             }
                         })()}

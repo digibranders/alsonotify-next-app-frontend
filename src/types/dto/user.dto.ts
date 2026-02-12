@@ -97,6 +97,12 @@ export interface UserDto {
   associated_date?: string;
   timezone?: string;
   user_id?: number;
+
+  account_managers?: {
+    id: number;
+    name: string;
+    user_profile?: { profile_pic?: string | null };
+  }[];
 }
 
 export type UserAccessDto = Record<string, Record<string, boolean>>;

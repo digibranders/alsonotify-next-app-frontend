@@ -8,13 +8,14 @@ import { fileService } from '@/services/file.service';
 import { queryKeys } from '@/lib/queryKeys';
 import { PageLayout } from '../../layout/PageLayout';
 import { AccessBadge } from '../../ui/AccessBadge';
-import { Button, Tag, Divider, App } from 'antd';
+import { Button, Tag, Divider, App, Tabs } from 'antd';
 import { Mail, Phone, Calendar, Briefcase, DollarSign, ArrowLeft, Edit, FileText } from 'lucide-react';
 import { EmployeeForm, EmployeeFormData } from '../../modals/EmployeesForm';
 import { DocumentCard } from '@/components/ui/DocumentCard';
 import { DocumentPreviewModal } from '@/components/ui/DocumentPreviewModal';
 import { UserDocument } from '@/types/genericTypes';
 import { getErrorMessage } from '@/types/api-utils';
+import { ManagedPartnersTab } from './tabs/ManagedPartnersTab';
 
 // Interface for backend employee data structure
 interface BackendEmployee {
@@ -298,121 +299,137 @@ export function EmployeeDetailsPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Contact Info */}
-          <div className="space-y-6">
-            <h3 className="text-sm font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide">Contact Information</h3>
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[#F7F7F7] flex items-center justify-center">
-                  <Mail className="w-5 h-5 text-[#666666]" />
-                </div>
-                <div>
-                  <p className="text-xs text-[#999999] m-0">Email Address</p>
-                  <p className="text-sm font-medium text-[#111111] m-0">{employee.email}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[#F7F7F7] flex items-center justify-center">
-                  <Phone className="w-5 h-5 text-[#666666]" />
-                </div>
-                <div>
-                  <p className="text-xs text-[#999999] m-0">Phone Number</p>
-                  <p className="text-sm font-medium text-[#111111] m-0">{employee.phone}</p>
-                </div>
-              </div>
-            </div>
-          </div>
+        <Tabs
+          defaultActiveKey="overview"
+          items={[
+            {
+              key: 'overview',
+              label: 'Overview',
+              children: (
+                <div className="mt-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {/* Contact Info */}
+                    <div className="space-y-6">
+                      <h3 className="text-sm font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide">Contact Information</h3>
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-[#F7F7F7] flex items-center justify-center">
+                            <Mail className="w-5 h-5 text-[#666666]" />
+                          </div>
+                          <div>
+                            <p className="text-xs text-[#999999] m-0">Email Address</p>
+                            <p className="text-sm font-medium text-[#111111] m-0">{employee.email}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-[#F7F7F7] flex items-center justify-center">
+                            <Phone className="w-5 h-5 text-[#666666]" />
+                          </div>
+                          <div>
+                            <p className="text-xs text-[#999999] m-0">Phone Number</p>
+                            <p className="text-sm font-medium text-[#111111] m-0">{employee.phone}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
 
-          {/* Employment Details */}
-          <div className="space-y-6">
-            <h3 className="text-sm font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide">Employment Details</h3>
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[#F7F7F7] flex items-center justify-center">
-                  <Calendar className="w-5 h-5 text-[#666666]" />
-                </div>
-                <div>
-                  <p className="text-xs text-[#999999] m-0">Date of Joining</p>
-                  <p className="text-sm font-medium text-[#111111] m-0">{employee.dateOfJoining}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[#F7F7F7] flex items-center justify-center">
-                  <DollarSign className="w-5 h-5 text-[#666666]" />
-                </div>
-                <div className="flex flex-col">
-                  <p className="text-xs text-[#999999] m-0">Hourly Rate</p>
-                  {/* Ensure minimum height to match other items even if N/A */}
-                  <div className="min-h-[20px] flex items-center">
-                    <p className="text-sm font-medium text-[#111111] m-0">{employee.hourlyRate}</p>
+                    {/* Employment Details */}
+                    <div className="space-y-6">
+                      <h3 className="text-sm font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide">Employment Details</h3>
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-[#F7F7F7] flex items-center justify-center">
+                            <Calendar className="w-5 h-5 text-[#666666]" />
+                          </div>
+                          <div>
+                            <p className="text-xs text-[#999999] m-0">Date of Joining</p>
+                            <p className="text-sm font-medium text-[#111111] m-0">{employee.dateOfJoining}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-[#F7F7F7] flex items-center justify-center">
+                            <DollarSign className="w-5 h-5 text-[#666666]" />
+                          </div>
+                          <div className="flex flex-col">
+                            <p className="text-xs text-[#999999] m-0">Hourly Rate</p>
+                            <div className="min-h-[20px] flex items-center">
+                              <p className="text-sm font-medium text-[#111111] m-0">{employee.hourlyRate}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Divider className="my-8" />
+
+                  {/* Skills & Stats */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="p-4 bg-[#F7F7F7] rounded-xl">
+                      <p className="text-xs text-[#999999] mb-1">Experience</p>
+                      <p className="text-xl font-bold text-[#111111]">{employee.experience} Years</p>
+                    </div>
+                    <div className="p-4 bg-[#F7F7F7] rounded-xl">
+                      <p className="text-xs text-[#999999] mb-1">Working Hours</p>
+                      <p className="text-xl font-bold text-[#111111]">{employee.workingHours === 0 ? 'N/A' : `${employee.workingHours}h / week`}</p>
+                    </div>
+                    <div className="p-4 bg-[#F7F7F7] rounded-xl">
+                      <p className="text-xs text-[#999999] mb-1">Leaves Balance</p>
+                      <p className="text-xl font-bold text-[#111111]">{employee.leaves} Days</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-8">
+                    <h3 className="text-sm font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide mb-4">Skillsets</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {employee.skillsets.split(',').map((skill: string, index: number) => (
+                        <Tag key={index} className="bg-[#F7F7F7] text-[#111111] hover:bg-[#EEEEEE] border-0 rounded-full px-3 py-1">
+                          {skill.trim()}
+                        </Tag>
+                      ))}
+                    </div>
+                  </div>
+
+                  <Divider className="my-8" />
+
+                  {/* Documents Section */}
+                  <div>
+                    <h3 className="text-sm font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide mb-4">Attached Documents</h3>
+                    {documents && documents.length > 0 ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {documents.map((doc: UserDocument) => (
+                          <DocumentCard
+                            key={doc.id}
+                            document={doc}
+                            onPreview={handleDocumentPreview}
+                            onDownload={handleDocumentDownload}
+                            showUpload={!doc.fileUrl}
+                            onUpload={handleDocumentUpload}
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="border border-[#EEEEEE] border-dashed rounded-lg p-8 bg-[#FAFAFA] text-center">
+                        <FileText className="w-12 h-12 text-[#CCCCCC] mx-auto mb-3" />
+                        <p className="text-[13px] font-['Manrope:Medium',sans-serif] text-[#666666] mb-1">
+                          No documents uploaded
+                        </p>
+                        <p className="text-[11px] text-[#999999] font-['Manrope:Regular',sans-serif]">
+                          Documents will appear here once uploaded
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <Divider className="my-8" />
-
-        {/* Skills & Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="p-4 bg-[#F7F7F7] rounded-xl">
-            <p className="text-xs text-[#999999] mb-1">Experience</p>
-            <p className="text-xl font-bold text-[#111111]">{employee.experience} Years</p>
-          </div>
-          <div className="p-4 bg-[#F7F7F7] rounded-xl">
-            <p className="text-xs text-[#999999] mb-1">Working Hours</p>
-            <p className="text-xl font-bold text-[#111111]">{employee.workingHours === 0 ? 'N/A' : `${employee.workingHours}h / week`}</p>
-          </div>
-          <div className="p-4 bg-[#F7F7F7] rounded-xl">
-            <p className="text-xs text-[#999999] mb-1">Leaves Balance</p>
-            <p className="text-xl font-bold text-[#111111]">{employee.leaves} Days</p>
-          </div>
-        </div>
-
-        <div className="mt-8">
-          <h3 className="text-sm font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide mb-4">Skillsets</h3>
-          <div className="flex flex-wrap gap-2">
-            {employee.skillsets.split(',').map((skill: string, index: number) => (
-              <Tag key={index} className="bg-[#F7F7F7] text-[#111111] hover:bg-[#EEEEEE] border-0 rounded-full px-3 py-1">
-                {skill.trim()}
-              </Tag>
-            ))}
-          </div>
-        </div>
-
-        <Divider className="my-8" />
-
-        {/* Documents Section */}
-        <div>
-          <h3 className="text-sm font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide mb-4">Attached Documents</h3>
-          {documents && documents.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {documents.map((doc: UserDocument) => (
-                <DocumentCard
-                  key={doc.id}
-                  document={doc}
-                  onPreview={handleDocumentPreview}
-                  onDownload={handleDocumentDownload}
-                  showUpload={!doc.fileUrl}
-                  onUpload={handleDocumentUpload}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="border border-[#EEEEEE] border-dashed rounded-lg p-8 bg-[#FAFAFA] text-center">
-              <FileText className="w-12 h-12 text-[#CCCCCC] mx-auto mb-3" />
-              <p className="text-[13px] font-['Manrope:Medium',sans-serif] text-[#666666] mb-1">
-                No documents uploaded
-              </p>
-              <p className="text-[11px] text-[#999999] font-['Manrope:Regular',sans-serif]">
-                Documents will appear here once uploaded
-              </p>
-            </div>
-          )}
-        </div>
-
+              )
+            },
+            {
+              key: 'managed-partners',
+              label: 'Managed Partners',
+              children: <ManagedPartnersTab employeeId={parseInt(employeeId)} />
+            }
+          ]}
+        />
       </div>
 
       {/* Document Preview Modal */}
@@ -431,7 +448,7 @@ export function EmployeeDetailsPage() {
         isEditing={true}
         initialData={backendEmp}
         onSubmit={handleUpdateEmployee}
-        departments={departmentsData?.result?.filter((dept: { is_active?: boolean; name?: string }) => dept.is_active !== false).map((dept) => dept.name) || []}
+        departments={departmentsData?.result?.filter((dept: { is_active?: boolean; name?: string }) => dept.is_active !== false).map((dept: any) => dept.name) || []}
       />
       <input
         type="file"
