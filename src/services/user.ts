@@ -100,6 +100,14 @@ export const updateCurrentUserCompany = async (params: CompanyUpdateInput): Prom
   return data;
 };
 
+export const getCompanyEmployees = async (companyId: number, roles?: string, partnerId?: number): Promise<ApiResponse<{ label: string; value: number }[]>> => {
+  const params: any = { company_id: companyId };
+  if (roles) params.roles = roles;
+  if (partnerId) params.partner_id = partnerId;
+  const { data } = await axiosApi.get<ApiResponse<{ label: string; value: number }[]>>(`/user/company-employees`, { params });
+  return data;
+};
+
 // Get company departments
 export interface CompanyDepartmentType {
   id?: number | null;

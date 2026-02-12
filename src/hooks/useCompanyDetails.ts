@@ -17,7 +17,8 @@ export const useCompanyDetails = ({ initialData }: UseCompanyDetailsProps) => {
         currency: initialData?.currency || 'USD',
         country: initialData?.country || '',
         address: initialData?.address || '',
-        defaultEmployeePassword: initialData?.default_employee_password || 'Pass@123'
+        defaultEmployeePassword: initialData?.default_employee_password || 'Pass@123',
+        accountManagerIds: initialData?.account_managers?.map(v => v.id) || []
     });
 
     const [prevInitialData, setPrevInitialData] = useState(initialData);
@@ -35,7 +36,8 @@ export const useCompanyDetails = ({ initialData }: UseCompanyDetailsProps) => {
             currency: initialData?.currency || 'USD',
             country: initialData?.country || '',
             address: initialData?.address || '',
-            defaultEmployeePassword: initialData?.default_employee_password || 'Pass@123'
+            defaultEmployeePassword: initialData?.default_employee_password || 'Pass@123',
+            accountManagerIds: initialData?.account_managers?.map(v => v.id) || []
         });
     }
 
@@ -50,7 +52,8 @@ export const useCompanyDetails = ({ initialData }: UseCompanyDetailsProps) => {
                 currency: initialData.currency || 'USD',
                 country: initialData.country || '',
                 address: initialData.address || '',
-                defaultEmployeePassword: initialData.default_employee_password || 'Pass@123'
+                defaultEmployeePassword: initialData.default_employee_password || 'Pass@123',
+                accountManagerIds: initialData.account_managers?.map(v => v.id) || []
             });
         }
     }, [initialData]);
@@ -66,10 +69,11 @@ export const useCompanyDetails = ({ initialData }: UseCompanyDetailsProps) => {
             country: trimStr(formData.country) || undefined,
             address: trimStr(formData.address) || undefined,
             default_employee_password: trimStr(formData.defaultEmployeePassword) || undefined,
+            account_manager_ids: formData.accountManagerIds,
         };
     }, [formData]);
 
-    const updateField = useCallback((field: keyof typeof formData, value: string) => {
+    const updateField = useCallback((field: keyof typeof formData, value: any) => {
         setFormData(prev => ({ ...prev, [field]: value }));
     }, []);
 
@@ -84,6 +88,7 @@ export const useCompanyDetails = ({ initialData }: UseCompanyDetailsProps) => {
         setCountry: (val: string) => updateField('country', val),
         setAddress: (val: string) => updateField('address', val),
         setDefaultEmployeePassword: (val: string) => updateField('defaultEmployeePassword', val),
+        setAccountManagerIds: (val: number[]) => updateField('accountManagerIds', val),
         resetCompanyDetails,
         getCompanyDetailsPayload
     };
