@@ -4,26 +4,9 @@ import { useState, useEffect } from 'react';
 import { Modal, Select, App } from 'antd';
 import { X, Users, Building } from 'lucide-react';
 import { Partner } from '@/types/domain';
+import { AccountManager } from '@/services/user';
 
 const { Option } = Select;
-
-interface AccountManager {
-    id: number;
-    name: string;
-    email: string;
-    designation?: string;
-    department?: string;
-    role: string;
-    roleColor?: string;
-    profilePic?: string;
-    partnerCount: number;
-    assignedPartners: {
-        id: number;
-        name: string;
-        contactPerson: string;
-        status: string;
-    }[];
-}
 
 interface EditManagerPartnersModalProps {
     isOpen: boolean;
@@ -160,7 +143,7 @@ export function EditManagerPartnersModal({
                         className="w-full"
                         showSearch
                         filterOption={(input, option) =>
-                            (option?.children as string)?.toLowerCase().includes(input.toLowerCase())
+                            (option?.label as string)?.toLowerCase().includes(input.toLowerCase())
                         }
                     >
                         {mockPartners.map((partner) => (
@@ -199,8 +182,8 @@ export function EditManagerPartnersModal({
                                             <span className="text-[#CCCCCC]">•</span>
                                             <span
                                                 className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${partner.status === 'active'
-                                                        ? 'bg-[#DCFCE7] text-[#16A34A]'
-                                                        : 'bg-[#F5F5F5] text-[#999999]'
+                                                    ? 'bg-[#DCFCE7] text-[#16A34A]'
+                                                    : 'bg-[#F5F5F5] text-[#999999]'
                                                     }`}
                                             >
                                                 {partner.status}

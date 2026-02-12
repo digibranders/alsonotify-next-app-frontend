@@ -376,6 +376,11 @@ export interface Employee {
     phone?: string;
     date_of_birth?: string;
     employee_id?: string;
+    profile_pic?: string;
+    department?: {
+      id: number;
+      name: string;
+    };
   };
   user?: { mobile_number?: string; phone?: string };
   hourlyRates?: number;
