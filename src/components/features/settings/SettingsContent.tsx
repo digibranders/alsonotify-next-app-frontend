@@ -82,7 +82,6 @@ export function SettingsContent({
         country, setCountry,
         address, setAddress,
         defaultEmployeePassword, setDefaultEmployeePassword,
-        accountManagerIds, setAccountManagerIds,
         resetCompanyDetails,
         getCompanyDetailsPayload
     } = useCompanyDetails({ initialData: companyData?.result });
@@ -90,8 +89,8 @@ export function SettingsContent({
     const [departments, setDepartments] = useState<Department[]>(() => []);
     const [isAddingDept, setIsAddingDept] = useState(false);
 
-    // Sync departments from company API when company data loads (no pre-seeded defaults)
     useEffect(() => {
+        // Sync departments from company API when company data loads (no pre-seeded defaults)
         const apiDepts = (companyData?.result as { departments?: Array<{ id: number; name: string; is_active?: boolean }> })?.departments;
         if (!Array.isArray(apiDepts)) return;
         const next = apiDepts.map((d) => ({
@@ -413,8 +412,6 @@ export function SettingsContent({
                         requiredDocuments={requiredDocuments} isAddingDoc={isAddingDoc} setIsAddingDoc={setIsAddingDoc}
                         newDocName={newDocName} setNewDocName={setNewDocName} handleAddDocument={handleAddDocument}
                         handleDeleteDocument={handleDeleteDocument} toggleDocumentRequired={toggleDocumentRequired}
-                        accountManagerIds={accountManagerIds} setAccountManagerIds={setAccountManagerIds}
-                        employeesData={employeesData}
                     />
                 </div>
                 <div style={{ display: activeTab === 'notifications' ? 'block' : 'none' }}><NotificationsTab notifications={notifications} setNotifications={setNotifications} /></div>

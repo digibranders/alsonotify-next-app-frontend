@@ -36,7 +36,7 @@ import { Skeleton } from '../../ui/Skeleton';
 import { UserDto } from '@/types/dto/user.dto';
 import { getErrorMessage } from '@/types/api-utils';
 import { trimStr } from '@/utils/trim';
-import { AssignManagerModal } from './modals/AssignManagerModal';
+import { AccountManagersTab } from './tabs/AccountManagersTab';
 
 interface ReceivedInvite {
     id: number;
@@ -73,9 +73,9 @@ export function PartnersPageContent() {
     const [editingPartner, setEditingPartner] = useState<Partner | null>(null);
     const searchParams = useSearchParams();
     const router = useRouter();
-    const [activeTab, setActiveTab] = useTabSync<'active' | 'inactive' | 'requests'>({
+    const [activeTab, setActiveTab] = useTabSync<'active' | 'inactive' | 'requests' | 'account-managers'>({
         defaultTab: 'active',
-        validTabs: ['active', 'inactive', 'requests']
+        validTabs: ['active', 'inactive', 'requests', 'account-managers']
     });
     const [searchQuery, setSearchQuery] = useState('');
     const [filters, setFilters] = useState({
@@ -85,19 +85,6 @@ export function PartnersPageContent() {
     const [selectedPartners, setSelectedPartners] = useState<number[]>([]);
     const [requestTypeFilter, setRequestTypeFilter] = useState<'All' | 'Sent' | 'Received'>('All');
     const [form] = Form.useForm();
-    const [assignManagerModalInfo, setAssignManagerModalInfo] = useState<{
-        isOpen: boolean;
-        partnerId: number | null;
-        partnerName: string;
-        companyId: number | null;
-        initialManagerIds: number[]
-    }>({
-        isOpen: false,
-        partnerId: null,
-        partnerName: '',
-        companyId: null,
-        initialManagerIds: []
-    });
 
     const fetchPartners = useCallback(async () => {
         try {
@@ -215,21 +202,6 @@ export function PartnersPageContent() {
             setLastStandardTab(activeTab);
         }
     }, [activeTab]);
-
-    const handleAssignManager = (partnerId: number) => {
-        const partner = partners.find(p => p.id === partnerId);
-        if (partner && partner.company_id) {
-            setAssignManagerModalInfo({
-                isOpen: true,
-                partnerId: partner.id,
-                partnerName: partner.company || partner.name,
-                companyId: partner.company_id,
-                initialManagerIds: partner.account_managers?.map(m => m.id) || []
-            });
-        } else {
-            message.warning("This partner does not have a valid company record to assign managers.");
-        }
-    };
 
     // Data Preparation Logic (Hoisted)
     // 1. Prepare Standard Partners (Active/Inactive)
@@ -499,13 +471,14 @@ export function PartnersPageContent() {
                 label: "Add Partner"
             }}
             tabs={[
-                { id: 'active', label: 'Active' },
-                { id: 'inactive', label: 'Deactivated' },
-                { id: 'requests', label: 'Requests', count: stats.requests }
+                { id: 'active', label: 'Active', count: partners.filter(p => p.status === 'active').length },
+                { id: 'inactive', label: 'Inactive', count: partners.filter(p => p.status === 'inactive').length },
+                { id: 'requests', label: 'Requests', count: allRequests.length },
+                { id: 'account-managers', label: 'Account Managers' }
             ]}
             activeTab={activeTab}
             onTabChange={(tabId) => {
-                setActiveTab(tabId as 'active' | 'inactive' | 'requests');
+                setActiveTab(tabId as 'active' | 'inactive' | 'requests' | 'account-managers');
                 setPagination(prev => ({ ...prev, current: 1 }));
                 setSelectedPartners([]);
             }}
@@ -691,10 +664,15 @@ export function PartnersPageContent() {
                     </div>
                 </div>
 
-                {/* 2. Standard View (Active/Inactive) (Toggle Visibility) */}
-                <div style={{ display: activeTab !== 'requests' ? 'block' : 'none' }}>
+                {/* 2. Account Managers Tab */}
+                <div style={{ display: activeTab === 'account-managers' ? 'block' : 'none' }}>
+                    <AccountManagersTab />
+                </div>
+
+                {/* 3. Standard View (Active/Inactive) (Toggle Visibility) */}
+                <div style={{ display: activeTab !== 'requests' && activeTab !== 'account-managers' ? 'block' : 'none' }}>
                     {/* Header */}
-                    <div className="sticky top-0 z-20 bg-white grid grid-cols-[40px_1.8fr_1fr_0.8fr_1.5fr_1fr_0.8fr_0.7fr_0.7fr_40px] gap-4 px-4 py-3 items-center">
+                    <div className="sticky top-0 z-20 bg-white grid grid-cols-[40px_1.8fr_1fr_0.8fr_1fr_0.8fr_0.7fr_0.7fr_40px] gap-4 px-4 py-3 items-center">
                         <div className="flex justify-center">
                             <Checkbox
                                 checked={paginatedPartners.length > 0 && selectedPartners.length === paginatedPartners.length}
@@ -707,7 +685,6 @@ export function PartnersPageContent() {
                         </div>
                         <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide">Contact Person</p>
                         <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide">Type</p>
-                        <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide">Account Manager</p>
                         <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide">Email</p>
                         <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide">Onboarding</p>
                         <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide">Status</p>
@@ -765,7 +742,6 @@ export function PartnersPageContent() {
                                         onSelect={() => toggleSelect(partner.id)}
                                         onEdit={() => handleEdit(partner)}
                                         onStatusUpdate={(isActive) => handleStatusUpdate(partner, isActive)}
-                                        onAssignManager={handleAssignManager}
                                     />
                                 ))}
 
@@ -931,19 +907,6 @@ export function PartnersPageContent() {
                 )}
 
             </Modal>
-
-            {assignManagerModalInfo.companyId && (
-                <AssignManagerModal
-                    isOpen={assignManagerModalInfo.isOpen}
-                    onClose={() => setAssignManagerModalInfo(prev => ({ ...prev, isOpen: false }))}
-                    onSuccess={() => {
-                        fetchPartners();
-                    }}
-                    partnerName={assignManagerModalInfo.partnerName}
-                    companyId={assignManagerModalInfo.companyId}
-                    initialManagerIds={assignManagerModalInfo.initialManagerIds}
-                />
-            )}
         </PageLayout >
     );
 }
