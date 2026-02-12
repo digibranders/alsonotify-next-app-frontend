@@ -93,7 +93,7 @@ export const mapUserDtoToEmployee = (dto: UserDto, permissions?: UserPermissions
     roleId: dto.role_id || dto.user_employee?.role_id,
     roleColor: dto.roleColor || dto.user_employee?.role?.color,
 
-    roleName: (dto.user_employee as any)?.role?.name || dto.role, // Added roleName for more robust access-badge logic
+    roleName: (dto.user_employee as any)?.role?.name || (typeof dto.role === 'object' ? (dto.role as any)?.name : dto.role), // Ensure string
 
     employmentType,
     employeeType: employmentType,
