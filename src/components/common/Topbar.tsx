@@ -79,7 +79,7 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
   const { data: userDetailsData, isLoading: isLoadingUserDetails } = useUserDetails();
 
   // Fetch notifications
-  const { data: notificationsData, isLoading: isLoadingNotifications } = useNotifications();
+  const { data: notificationsData } = useNotifications();
   const markAllReadMutation = useMarkAllNotificationsRead();
   const markReadMutation = useMarkNotificationRead();
 
@@ -516,8 +516,6 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
               <NotificationPanel
                 open={notificationDrawerOpen}
                 onClose={() => setNotificationDrawerOpen(false)}
-                notifications={notifications}
-                isLoading={isLoadingNotifications}
                 onMarkAsRead={handleMarkAsRead}
                 onMarkAllRead={handleClearAllNotifications}
               />

@@ -50,7 +50,7 @@ export const queryKeys = {
     list: (filters: Record<string, unknown>) => ['notes', 'list', filters] as const,
   },
   notifications: {
-    all: () => ['notifications'] as const,
+    all: (tab: string = 'all') => ['notifications', tab] as const,
   },
   meetings: {
     list: (options: string = "") => ['meetings', 'list', options] as const,

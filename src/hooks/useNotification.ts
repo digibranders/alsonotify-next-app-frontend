@@ -6,10 +6,10 @@ import {
 } from "../services/notification";
 import { queryKeys } from "../lib/queryKeys";
 
-export const useNotifications = () => {
+export const useNotifications = (activeTab: string = 'all') => {
   return useQuery({
-    queryKey: queryKeys.notifications.all(),
-    queryFn: () => fetchNotifications(),
+    queryKey: queryKeys.notifications.all(activeTab),
+    queryFn: () => fetchNotifications(activeTab),
     staleTime: 30_000, // 30 seconds
     refetchInterval: 5000, // Poll every 5 seconds for real-time feel
   });
