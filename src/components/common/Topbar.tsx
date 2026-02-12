@@ -601,7 +601,7 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
 
             return requirementsDropdown;
           })()}
-          workspaces={workspacesData?.result?.workspaces?.map((p) => ({ id: p.id, name: p.name, company_name: p.company_name || p.client?.name || undefined })) || []}
+          workspaces={workspacesData?.result?.workspaces?.map((p) => ({ id: p.id, name: p.name, company_name: p.partnerName || p.partner_name || p.company_name || p.client?.name || undefined })) || []}
         />
       </Modal>
 
