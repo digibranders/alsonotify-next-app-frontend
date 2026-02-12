@@ -371,6 +371,7 @@ export interface Employee {
     role?: any;
     role_id?: number | null;
   };
+  association_id?: number;
 }
 
 export type UserPermissions = Record<string, Record<string, boolean>>;
