@@ -12,6 +12,7 @@ interface RoleLike {
 interface UserLike {
     role?: RoleLike | string | null;
     role_id?: number | null;
+    roleName?: string; // Add roleName as a top-level property
     user_employee?: {
         role?: RoleLike | string | null;
         role_id?: number | null;
@@ -21,7 +22,19 @@ interface UserLike {
 export const getRoleFromUser = (user: UserLike | null | undefined): UserRole => {
     if (!user) return 'Employee';
 
-    // 1. Try Role Name (Most reliable)
+    // 0. Try explicitly passed roleName (from mapper) - Most Reliable
+    if (user.roleName) {
+        const roleLower = user.roleName.toLowerCase().trim();
+        if (roleLower === 'admin') return 'Admin';
+        if (roleLower === 'head') return 'Head';
+        if (roleLower === 'finance') return 'Finance';
+        if (roleLower === 'hr') return 'HR';
+        if (roleLower === 'manager') return 'Manager';
+        if (roleLower === 'employee') return 'Employee';
+        if (roleLower === 'coordinator') return 'Coordinator';
+    }
+
+    // 1. Try Role Name (Fallback)
     const roleVal = user?.role || user?.user_employee?.role;
     const roleName = typeof roleVal === 'string' ? roleVal : (roleVal as RoleLike)?.name;
 

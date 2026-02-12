@@ -458,6 +458,7 @@ function WorkspaceRequirementsSummary({
 
 function WorkspaceCard({ workspace, userRole, onClick }: { workspace: Workspace; userRole: string; onClick?: () => void }) {
   const { message } = App.useApp();
+  const [modal, contextHolder] = Modal.useModal();
   const deleteMutation = useDeleteWorkspace();
   const reactivateMutation = useReactivateWorkspace();
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -466,7 +467,7 @@ function WorkspaceCard({ workspace, userRole, onClick }: { workspace: Workspace;
     if (key === 'delete') {
       const reqCount = workspace.totalRequirements || 0;
       if (reqCount === 0) {
-        Modal.confirm({
+        modal.confirm({
           title: 'Delete Workspace',
           content: `You are about to delete "${workspace.name}". This action is permanent.`,
           okText: 'Delete',
@@ -479,7 +480,7 @@ function WorkspaceCard({ workspace, userRole, onClick }: { workspace: Workspace;
           },
         });
       } else {
-        Modal.confirm({
+        modal.confirm({
           title: 'Cannot Delete Workspace',
           content: `This workspace has ${reqCount} requirements. You cannot delete it, but you can archive it instead.`,
           okText: 'Archive',
@@ -512,6 +513,7 @@ function WorkspaceCard({ workspace, userRole, onClick }: { workspace: Workspace;
 
   return (
     <>
+      {contextHolder}
       <div
         role="button"
         tabIndex={0}
@@ -593,13 +595,14 @@ function WorkspaceListItem({
   const deleteMutation = useDeleteWorkspace();
   const reactivateMutation = useReactivateWorkspace();
   const { message } = App.useApp();
+  const [modal, contextHolder] = Modal.useModal();
   const [isEditOpen, setIsEditOpen] = useState(false);
 
   const handleAction = async (key: string) => {
     if (key === 'delete') {
       const reqCount = workspace.totalRequirements || 0;
       if (reqCount === 0) {
-        Modal.confirm({
+        modal.confirm({
           title: 'Delete Workspace',
           content: `You are about to delete "${workspace.name}". This action is permanent.`,
           okText: 'Delete',
@@ -612,7 +615,7 @@ function WorkspaceListItem({
           },
         });
       } else {
-        Modal.confirm({
+        modal.confirm({
           title: 'Cannot Delete Workspace',
           content: `This workspace has ${reqCount} requirements. You cannot delete it, but you can archive it instead.`,
           okText: 'Archive',
@@ -646,107 +649,111 @@ function WorkspaceListItem({
 
 
   return (
-    <div
-      role="button"
-      tabIndex={0}
-      onClick={onClick}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          onClick?.();
-        }
-      }}
-      className="group bg-white border border-[#F3F4F6] rounded-[12px] px-4 py-3 hover:border-[#ff3b3b] hover:shadow-md transition-all cursor-pointer"
-    >
-      <div className="grid grid-cols-[40px_1.5fr_1.8fr_0.8fr_0.5fr_40px] items-center gap-4">
-        {/* Checkbox */}
-        <div className="flex justify-center" onClick={(e) => e.stopPropagation()}>
-          <Checkbox
-            className="red-checkbox"
-            checked={selected}
-            onChange={onToggleSelect}
-          />
-        </div>
-
-        {/* Workspace name */}
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-[10px] bg-[#FEF3F2] border border-[#ff3b3b]/20 flex items-center justify-center shrink-0 group-hover:bg-[#ff3b3b] transition-colors">
-            <FolderOpen className="w-5 h-5 text-[#ff3b3b] group-hover:text-white transition-colors" />
+    <>
+      {contextHolder}
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={onClick}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            onClick?.();
+          }
+        }}
+        className="group bg-white border border-[#F3F4F6] rounded-[12px] px-4 py-3 hover:border-[#ff3b3b] hover:shadow-md transition-all cursor-pointer"
+      >
+        <div className="grid grid-cols-[40px_1.5fr_1.8fr_0.8fr_0.5fr_40px] items-center gap-4">
+          {/* Checkbox */}
+          <div className="flex justify-center" onClick={(e) => e.stopPropagation()}>
+            <Checkbox
+              className="red-checkbox"
+              checked={selected}
+              onChange={onToggleSelect}
+            />
           </div>
-          <div className="flex flex-col">
-            <h3 className="font-['Manrope:SemiBold',sans-serif] text-[14px] text-[#111111] line-clamp-1">
-              {workspace.name}
-            </h3>
+
+          {/* Workspace name */}
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-[10px] bg-[#FEF3F2] border border-[#ff3b3b]/20 flex items-center justify-center shrink-0 group-hover:bg-[#ff3b3b] transition-colors">
+              <FolderOpen className="w-5 h-5 text-[#ff3b3b] group-hover:text-white transition-colors" />
+            </div>
+            <div className="flex flex-col">
+              <h3 className="font-['Manrope:SemiBold',sans-serif] text-[14px] text-[#111111] line-clamp-1">
+                {workspace.name}
+              </h3>
+            </div>
+          </div>
+
+          {/* Requirements Stats */}
+          <div className="flex items-center gap-6">
+            <div className="flex flex-col">
+              <span className="text-[11px] text-[#999999] font-['Manrope:Regular',sans-serif] mb-0.5">
+                Total
+              </span>
+              <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">
+                {workspace.totalRequirements || 0}
+              </span>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[11px] text-[#999999] font-['Manrope:Regular',sans-serif] mb-0.5">
+                Progress
+              </span>
+              <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#2F80ED]">
+                {workspace.inProgressRequirements || 0}
+              </span>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[11px] text-[#999999] font-['Manrope:Regular',sans-serif] mb-0.5">
+                Delayed
+              </span>
+              <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#ff3b3b]">
+                {workspace.delayedRequirements || 0}
+              </span>
+            </div>
+          </div>
+
+          {/* Organization */}
+          <div className="flex items-center">
+            <p className="text-[13px] text-[#666666] font-['Manrope:Medium',sans-serif] truncate">
+              {workspace.in_house ? workspace.company_name : workspace.partner_name || 'Organization'}
+            </p>
+          </div>
+
+          {/* Status */}
+          <div className="flex items-center">
+            <span
+              className={`inline-flex items-center px-3 py-1 rounded-full text-[12px] font-['Manrope:SemiBold',sans-serif] whitespace-nowrap ${workspace.isActive
+                ? 'bg-[#ECFDF3] text-[#16A34A]'
+                : 'bg-[#F3F4F6] text-[#6B7280]'
+                }`}
+            >
+              {workspace.status.replace(/_/g, ' ')}
+            </span>
+          </div>
+
+          {/* Action */}
+          <div className="flex justify-end">
+            {userRole !== 'Employee' && (
+              <Dropdown menu={{ items, onClick: ({ key }) => handleAction(key) }} trigger={['click']} placement="bottomRight">
+                <button
+                  onClick={(e) => e.stopPropagation()}
+                  className="w-8 h-8 rounded-lg hover:bg-[#F7F7F7] flex items-center justify-center transition-colors opacity-0 group-hover:opacity-100"
+                >
+                  <MoreVertical className="w-5 h-5 text-[#666666]" />
+                </button>
+              </Dropdown>
+            )}
           </div>
         </div>
+        <WorkspaceForm
+          open={isEditOpen}
+          initialData={workspace}
+          onCancel={() => setIsEditOpen(false)}
+          onSuccess={() => setIsEditOpen(false)}
+        />
 
-        {/* Requirements Stats */}
-        <div className="flex items-center gap-6">
-          <div className="flex flex-col">
-            <span className="text-[11px] text-[#999999] font-['Manrope:Regular',sans-serif] mb-0.5">
-              Total
-            </span>
-            <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">
-              {workspace.totalRequirements || 0}
-            </span>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-[11px] text-[#999999] font-['Manrope:Regular',sans-serif] mb-0.5">
-              Progress
-            </span>
-            <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#2F80ED]">
-              {workspace.inProgressRequirements || 0}
-            </span>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-[11px] text-[#999999] font-['Manrope:Regular',sans-serif] mb-0.5">
-              Delayed
-            </span>
-            <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#ff3b3b]">
-              {workspace.delayedRequirements || 0}
-            </span>
-          </div>
-        </div>
-
-        {/* Organization */}
-        <div className="flex items-center">
-          <p className="text-[13px] text-[#666666] font-['Manrope:Medium',sans-serif] truncate">
-            {workspace.in_house ? workspace.company_name : workspace.partner_name || 'Organization'}
-          </p>
-        </div>
-
-        {/* Status */}
-        <div className="flex items-center">
-          <span
-            className={`inline-flex items-center px-3 py-1 rounded-full text-[12px] font-['Manrope:SemiBold',sans-serif] whitespace-nowrap ${workspace.isActive
-              ? 'bg-[#ECFDF3] text-[#16A34A]'
-              : 'bg-[#F3F4F6] text-[#6B7280]'
-              }`}
-          >
-            {workspace.status.replace(/_/g, ' ')}
-          </span>
-        </div>
-
-        {/* Action */}
-        <div className="flex justify-end">
-          {userRole !== 'Employee' && (
-            <Dropdown menu={{ items, onClick: ({ key }) => handleAction(key) }} trigger={['click']} placement="bottomRight">
-              <button
-                onClick={(e) => e.stopPropagation()}
-                className="w-8 h-8 rounded-lg hover:bg-[#F7F7F7] flex items-center justify-center transition-colors opacity-0 group-hover:opacity-100"
-              >
-                <MoreVertical className="w-5 h-5 text-[#666666]" />
-              </button>
-            </Dropdown>
-          )}
-        </div>
       </div>
-      <WorkspaceForm
-        open={isEditOpen}
-        initialData={workspace}
-        onCancel={() => setIsEditOpen(false)}
-        onSuccess={() => setIsEditOpen(false)}
-      />
-    </div>
+    </>
   );
 }
