@@ -1,9 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
     Input,
-    Select,
     Modal,
     Form,
     Checkbox,
@@ -30,12 +29,14 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useTabSync } from '@/hooks/useTabSync';
 import axiosApi from '../../../config/axios';
 import { FilterBar, FilterOption } from '../../ui/FilterBar';
-import { PartnerRow, Partner, PartnerStatus } from './rows/PartnerRow';
+import { PartnerRow } from './rows/PartnerRow';
+import { Partner, PartnerStatus } from '@/types/domain';
 import { acceptInvitation, updatePartnerStatus, getReceivedInvites, acceptInviteById, declineInviteById, getPartners, deletePartner } from '@/services/user';
 import { Skeleton } from '../../ui/Skeleton';
 import { UserDto } from '@/types/dto/user.dto';
 import { getErrorMessage } from '@/types/api-utils';
 import { trimStr } from '@/utils/trim';
+import { AssignManagerModal } from './modals/AssignManagerModal';
 
 interface ReceivedInvite {
     id: number;
@@ -84,8 +85,21 @@ export function PartnersPageContent() {
     const [selectedPartners, setSelectedPartners] = useState<number[]>([]);
     const [requestTypeFilter, setRequestTypeFilter] = useState<'All' | 'Sent' | 'Received'>('All');
     const [form] = Form.useForm();
+    const [assignManagerModalInfo, setAssignManagerModalInfo] = useState<{
+        isOpen: boolean;
+        partnerId: number | null;
+        partnerName: string;
+        companyId: number | null;
+        initialManagerIds: number[]
+    }>({
+        isOpen: false,
+        partnerId: null,
+        partnerName: '',
+        companyId: null,
+        initialManagerIds: []
+    });
 
-    const fetchPartners = async () => {
+    const fetchPartners = useCallback(async () => {
         try {
             setLoading(true);
             const [partnersRes, invitesRes] = await Promise.all([
@@ -120,7 +134,9 @@ export function PartnersPageContent() {
                         rawStatus: item.status,
                         isOrgAccount: !!item.company,
                         partner_user_id: item.partner_user_id,
-                        company_id: item.company_id
+                        company_id: item.company_id,
+                        logo_url: typeof item.company === 'object' ? (item.company as any)?.logo : undefined,
+                        account_managers: item.account_managers
                     };
                 });
                 setPartners(mappedPartners);
@@ -131,7 +147,7 @@ export function PartnersPageContent() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [message]);
 
     useEffect(() => {
         fetchPartners();
@@ -199,6 +215,21 @@ export function PartnersPageContent() {
             setLastStandardTab(activeTab);
         }
     }, [activeTab]);
+
+    const handleAssignManager = (partnerId: number) => {
+        const partner = partners.find(p => p.id === partnerId);
+        if (partner && partner.company_id) {
+            setAssignManagerModalInfo({
+                isOpen: true,
+                partnerId: partner.id,
+                partnerName: partner.company || partner.name,
+                companyId: partner.company_id,
+                initialManagerIds: partner.account_managers?.map(m => m.id) || []
+            });
+        } else {
+            message.warning("This partner does not have a valid company record to assign managers.");
+        }
+    };
 
     // Data Preparation Logic (Hoisted)
     // 1. Prepare Standard Partners (Active/Inactive)
@@ -340,7 +371,7 @@ export function PartnersPageContent() {
                         message.error(result.message || 'Failed to cancel request');
                     }
                 } catch (error: unknown) {
-                     message.error(getErrorMessage(error, 'Failed to cancel request'));
+                    message.error(getErrorMessage(error, 'Failed to cancel request'));
                 }
             }
         });
@@ -425,30 +456,30 @@ export function PartnersPageContent() {
         if (selectedPartners.length > 0) {
             setExpandedContent(
                 <>
-                        <div className="flex items-center gap-2 border-r border-white/20 pr-6">
-                            <div className="bg-[#ff3b3b] text-white text-[12px] font-bold px-2 py-0.5 rounded-full">
-                                {selectedPartners.length}
-                            </div>
-                            <span className="text-[14px] font-['Manrope:SemiBold',sans-serif]">Selected</span>
+                    <div className="flex items-center gap-2 border-r border-white/20 pr-6">
+                        <div className="bg-[#ff3b3b] text-white text-[12px] font-bold px-2 py-0.5 rounded-full">
+                            {selectedPartners.length}
                         </div>
+                        <span className="text-[14px] font-['Manrope:SemiBold',sans-serif]">Selected</span>
+                    </div>
 
-                        <div className="flex items-center gap-2">
-                            <Tooltip title="Export" placement="top" styles={{ root: { marginBottom: '8px' } }}>
-                                <button className="p-2 hover:bg-white/10 rounded-full transition-colors">
-                                    <Download className="w-4 h-4" />
-                                </button>
-                            </Tooltip>
-                            
-                            <Tooltip title="Deactivate" placement="top" styles={{ root: { marginBottom: '8px' } }}>
-                                <button className="p-2 hover:bg-white/10 rounded-full transition-colors text-[#ff3b3b]">
-                                    <Trash2 className="w-4 h-4" />
-                                </button>
-                            </Tooltip>
-                        </div>
+                    <div className="flex items-center gap-2">
+                        <Tooltip title="Export" placement="top" styles={{ root: { marginBottom: '8px' } }}>
+                            <button className="p-2 hover:bg-white/10 rounded-full transition-colors">
+                                <Download className="w-4 h-4" />
+                            </button>
+                        </Tooltip>
 
-                        <button onClick={() => setSelectedPartners([])} className="ml-2 text-[12px] text-[#999999] hover:text-white transition-colors">
-                            Cancel
-                        </button>
+                        <Tooltip title="Deactivate" placement="top" styles={{ root: { marginBottom: '8px' } }}>
+                            <button className="p-2 hover:bg-white/10 rounded-full transition-colors text-[#ff3b3b]">
+                                <Trash2 className="w-4 h-4" />
+                            </button>
+                        </Tooltip>
+                    </div>
+
+                    <button onClick={() => setSelectedPartners([])} className="ml-2 text-[12px] text-[#999999] hover:text-white transition-colors">
+                        Cancel
+                    </button>
                 </>
             );
         } else {
@@ -456,7 +487,7 @@ export function PartnersPageContent() {
         }
 
         return () => {
-             setExpandedContent(null);
+            setExpandedContent(null);
         };
     }, [selectedPartners]);
 
@@ -663,7 +694,7 @@ export function PartnersPageContent() {
                 {/* 2. Standard View (Active/Inactive) (Toggle Visibility) */}
                 <div style={{ display: activeTab !== 'requests' ? 'block' : 'none' }}>
                     {/* Header */}
-                    <div className="sticky top-0 z-20 bg-white grid grid-cols-[40px_2fr_1fr_0.8fr_1.5fr_0.8fr_0.7fr_0.7fr_40px] gap-4 px-4 py-3 items-center">
+                    <div className="sticky top-0 z-20 bg-white grid grid-cols-[40px_1.8fr_1fr_0.8fr_1.5fr_1fr_0.8fr_0.7fr_0.7fr_40px] gap-4 px-4 py-3 items-center">
                         <div className="flex justify-center">
                             <Checkbox
                                 checked={paginatedPartners.length > 0 && selectedPartners.length === paginatedPartners.length}
@@ -676,6 +707,7 @@ export function PartnersPageContent() {
                         </div>
                         <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide">Contact Person</p>
                         <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide">Type</p>
+                        <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide">Account Manager</p>
                         <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide">Email</p>
                         <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide">Onboarding</p>
                         <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide">Status</p>
@@ -688,7 +720,7 @@ export function PartnersPageContent() {
                         {loading ? (
                             Array.from({ length: 10 }).map((_, i) => (
                                 <div key={i} className="bg-white border border-[#EEEEEE] rounded-[16px] px-4 py-3 animate-pulse">
-                                    <div className="grid grid-cols-[40px_2fr_1fr_0.8fr_1.5fr_0.8fr_0.7fr_0.7fr_40px] gap-4 items-center">
+                                    <div className="grid grid-cols-[40px_1.8fr_1fr_0.8fr_1.5fr_1fr_0.8fr_0.7fr_0.7fr_40px] gap-4 items-center">
                                         <div className="flex justify-center">
                                             <Skeleton className="h-4 w-4 rounded" />
                                         </div>
@@ -733,6 +765,7 @@ export function PartnersPageContent() {
                                         onSelect={() => toggleSelect(partner.id)}
                                         onEdit={() => handleEdit(partner)}
                                         onStatusUpdate={(isActive) => handleStatusUpdate(partner, isActive)}
+                                        onAssignManager={handleAssignManager}
                                     />
                                 ))}
 
@@ -843,7 +876,7 @@ export function PartnersPageContent() {
                                             if (!editingPartner.country) return 'N/A';
                                             try {
                                                 return new Intl.DisplayNames(['en'], { type: 'region' }).of(editingPartner.country);
-                                            } catch (e) {
+                                            } catch {
                                                 return editingPartner.country;
                                             }
                                         })()}
@@ -898,6 +931,19 @@ export function PartnersPageContent() {
                 )}
 
             </Modal>
+
+            {assignManagerModalInfo.companyId && (
+                <AssignManagerModal
+                    isOpen={assignManagerModalInfo.isOpen}
+                    onClose={() => setAssignManagerModalInfo(prev => ({ ...prev, isOpen: false }))}
+                    onSuccess={() => {
+                        fetchPartners();
+                    }}
+                    partnerName={assignManagerModalInfo.partnerName}
+                    companyId={assignManagerModalInfo.companyId}
+                    initialManagerIds={assignManagerModalInfo.initialManagerIds}
+                />
+            )}
         </PageLayout >
     );
 }

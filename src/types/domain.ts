@@ -5,6 +5,35 @@
  * It replaces scattered local interfaces and 'any' usages.
  */
 
+export type PartnerStatus = 'active' | 'inactive' | 'pending';
+
+export interface Partner {
+  id: number;
+  association_id?: number | null;
+  name: string; // Contact Person
+  company: string; // Business Name
+  type: 'INDIVIDUAL' | 'ORGANIZATION';
+  email: string;
+  phone: string;
+  country: string;
+  timezone?: string;
+  status: PartnerStatus;
+  requirements: number;
+  onboarding: string;
+  logo_url?: string;
+  rawStatus?: string;
+  isOrgAccount?: boolean;
+  partner_user_id?: number;
+  company_id?: number;
+  account_managers?: {
+    id: number;
+    name: string;
+    user_profile?: {
+      profile_pic?: string | null;
+    };
+  }[];
+}
+
 export interface Requirement {
   id: number;
   title: string;

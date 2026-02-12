@@ -1,27 +1,7 @@
-import { Checkbox, Dropdown, MenuProps, Tag } from "antd";
+import { Checkbox, Dropdown, MenuProps, Tag, Tooltip } from "antd";
 import { MoreVertical, Trash2, Mail, Globe, User, Building } from "lucide-react";
 import { EyeOutlined } from '@ant-design/icons';
-
-export type PartnerStatus = 'active' | 'inactive' | 'pending';
-
-export interface Partner {
-    id: number;
-    association_id?: number | null;
-    name: string; // Contact Person
-    company: string; // Business Name
-    type: 'INDIVIDUAL' | 'ORGANIZATION';
-    email: string;
-    phone: string;
-    country: string;
-    timezone?: string;
-    status: PartnerStatus;
-    requirements: number;
-    onboarding: string;
-    rawStatus?: string;
-    isOrgAccount?: boolean;
-    partner_user_id?: number;
-    company_id?: number;
-}
+import { Partner, PartnerStatus } from "@/types/domain";
 
 interface PartnerRowProps {
     partner: Partner;
@@ -29,6 +9,7 @@ interface PartnerRowProps {
     onSelect: () => void;
     onEdit: () => void;
     onStatusUpdate: (status: PartnerStatus) => void;
+    onAssignManager?: (partnerId: number) => void; // Add callback
 }
 
 export function PartnerRow({
@@ -36,7 +17,8 @@ export function PartnerRow({
     selected,
     onSelect,
     onEdit,
-    onStatusUpdate
+    onStatusUpdate,
+    onAssignManager
 }: PartnerRowProps) {
 
     const getInitials = (name: string) => {
@@ -51,6 +33,7 @@ export function PartnerRow({
     };
 
     const isOrg = partner.type === 'ORGANIZATION';
+    const managers = partner.account_managers || [];
 
     return (
         <div
@@ -63,7 +46,7 @@ export function PartnerRow({
                 }
       `}
         >
-            <div className="grid grid-cols-[40px_2fr_1fr_0.8fr_1.5fr_0.8fr_0.7fr_0.7fr_40px] gap-4 items-center">
+            <div className="grid grid-cols-[40px_1.8fr_1fr_0.8fr_1.5fr_1fr_0.8fr_0.7fr_0.7fr_40px] gap-4 items-center">
                 {/* Checkbox */}
                 <div className="flex justify-center" onClick={(e) => e.stopPropagation()}>
                     <Checkbox
@@ -114,6 +97,34 @@ export function PartnerRow({
                     </span>
                 </div>
 
+                {/* Account Manager */}
+                <div onClick={(e) => { e.stopPropagation(); onAssignManager?.(partner.id); }} className="cursor-pointer group/manager">
+                    {managers.length > 0 ? (
+                        <div className="flex -space-x-2 overflow-hidden">
+                            {managers.slice(0, 3).map((manager: any) => (
+                                <Tooltip key={manager.id} title={manager.name}>
+                                    <div className="inline-block h-6 w-6 rounded-full ring-2 ring-white bg-gray-100 flex items-center justify-center text-[10px] font-bold text-gray-600">
+                                        {manager.user_profile?.profile_pic ? (
+                                            <img src={manager.user_profile.profile_pic} alt={manager.name} className="h-full w-full rounded-full object-cover" />
+                                        ) : (
+                                            getInitials(manager.name)
+                                        )}
+                                    </div>
+                                </Tooltip>
+                            ))}
+                            {managers.length > 3 && (
+                                <div className="inline-block h-6 w-6 rounded-full ring-2 ring-white bg-gray-50 flex items-center justify-center text-[10px] font-medium text-gray-500">
+                                    +{managers.length - 3}
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        <span className="text-[12px] text-[#999999] border border-dashed border-[#CCCCCC] px-2 py-0.5 rounded-full group-hover/manager:border-[#111111] group-hover/manager:text-[#111111] transition-colors">
+                            Assign
+                        </span>
+                    )}
+                </div>
+
                 {/* Email */}
                 <div onClick={(e) => e.stopPropagation()} className="flex items-center gap-2 text-[#666666] overflow-hidden">
                     <Mail className="w-3.5 h-3.5 shrink-0" />
@@ -150,7 +161,7 @@ export function PartnerRow({
                             if (!partner.country) return 'N/A';
                             try {
                                 return new Intl.DisplayNames(['en'], { type: 'region' }).of(partner.country);
-                            } catch (e) {
+                            } catch {
                                 return partner.country;
                             }
                         })()}
