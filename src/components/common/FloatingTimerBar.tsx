@@ -210,7 +210,7 @@ export function FloatingTimerBar() {
 
         return {
           id: t.id,
-          name: t.name || t.title || "Untitled Task",
+          name: t.name || "Untitled Task",
           project: t.task_requirement?.name || t.task_workspace?.name || t.company?.name || t.task_project?.company?.name || "Unknown Project",
           estimatedTime: Number(estimatedTime), // Ensure it is a number
           disabled: t.disabled,
@@ -313,36 +313,36 @@ export function FloatingTimerBar() {
     // 1. Upload attachments if any
     let uploadedAttachmentIds: number[] = [];
     if (attachments.length > 0) {
-        try {
-            message.loading({ content: 'Uploading attachments...', key: 'complete-upload' });
-            const uploadPromises = attachments.map(file =>
-                fileService.uploadFile(file, 'TASK', taskIdToComplete)
-            );
-            const uploadedFiles = await Promise.all(uploadPromises);
-            uploadedAttachmentIds = uploadedFiles.map(f => f.id);
-            message.success({ content: 'Attachments uploaded!', key: 'complete-upload' });
-        } catch (error) {
-            console.error("Upload failed", error);
-            message.error({ content: 'Failed to upload attachments', key: 'complete-upload' });
-            return;
-        }
+      try {
+        message.loading({ content: 'Uploading attachments...', key: 'complete-upload' });
+        const uploadPromises = attachments.map(file =>
+          fileService.uploadFile(file, 'TASK', taskIdToComplete)
+        );
+        const uploadedFiles = await Promise.all(uploadPromises);
+        uploadedAttachmentIds = uploadedFiles.map(f => f.id);
+        message.success({ content: 'Attachments uploaded!', key: 'complete-upload' });
+      } catch (error) {
+        console.error("Upload failed", error);
+        message.error({ content: 'Failed to upload attachments', key: 'complete-upload' });
+        return;
+      }
     }
 
     const description = completeDescription?.trim() ?? "";
 
     // 2. Create Task Activity with remarks and attachments
     if (description || uploadedAttachmentIds.length > 0) {
-        try {
-            await createTaskActivity({
-                task_id: taskIdToComplete,
-                message: description || 'Task Completed',
-                type: 'CHAT', 
-                attachment_ids: uploadedAttachmentIds.length > 0 ? uploadedAttachmentIds : undefined
-            });
-        } catch (error) {
-            console.error("Failed to create activity", error);
-            // non-blocking
-        }
+      try {
+        await createTaskActivity({
+          task_id: taskIdToComplete,
+          message: description || 'Task Completed',
+          type: 'CHAT',
+          attachment_ids: uploadedAttachmentIds.length > 0 ? uploadedAttachmentIds : undefined
+        });
+      } catch (error) {
+        console.error("Failed to create activity", error);
+        // non-blocking
+      }
     }
 
     setShowCompleteModal(false);
@@ -504,7 +504,7 @@ export function FloatingTimerBar() {
             ) : (
               <>
                 {/* Offline Indicator */}
-              
+
                 <p className="text-[14px] text-white font-['Inter:Medium',sans-serif] group-hover:text-white transition-colors truncate max-w-[200px]">
                   {currentTask?.name || timerState.taskName || "Select Task"}
                 </p>
@@ -572,41 +572,41 @@ export function FloatingTimerBar() {
           />
 
           <div className="mt-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Attachments
-              </label>
-              {attachments.length > 0 && (
-                  <div className="mb-3 space-y-2">
-                      {attachments.map((file, index) => (
-                          <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded border border-gray-200">
-                              <div className="flex items-center gap-2 flex-1 min-w-0">
-                                  <Paperclip className="w-3.5 h-3.5 text-gray-500 shrink-0" />
-                                  <span className="text-xs text-gray-700 truncate">{file.name}</span>
-                              </div>
-                              <button
-                                  onClick={() => setAttachments(attachments.filter((_, i) => i !== index))}
-                                  className="p-1 hover:bg-gray-200 rounded transition-colors shrink-0"
-                              >
-                                  <X className="w-3.5 h-3.5 text-gray-400" />
-                              </button>
-                          </div>
-                      ))}
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Attachments
+            </label>
+            {attachments.length > 0 && (
+              <div className="mb-3 space-y-2">
+                {attachments.map((file, index) => (
+                  <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded border border-gray-200">
+                    <div className="flex items-center gap-2 flex-1 min-w-0">
+                      <Paperclip className="w-3.5 h-3.5 text-gray-500 shrink-0" />
+                      <span className="text-xs text-gray-700 truncate">{file.name}</span>
+                    </div>
+                    <button
+                      onClick={() => setAttachments(attachments.filter((_, i) => i !== index))}
+                      className="p-1 hover:bg-gray-200 rounded transition-colors shrink-0"
+                    >
+                      <X className="w-3.5 h-3.5 text-gray-400" />
+                    </button>
                   </div>
-              )}
-              <label className="cursor-pointer inline-flex items-center gap-2 text-sm text-[#ff3b3b] hover:text-[#e03131] transition-colors font-medium">
-                  <Paperclip className="w-4 h-4" />
-                  Attach Files
-                  <input
-                      type="file"
-                      multiple
-                      className="hidden"
-                      onChange={(e) => {
-                          if (e.target.files) {
-                              setAttachments([...attachments, ...Array.from(e.target.files)]);
-                          }
-                      }}
-                  />
-              </label>
+                ))}
+              </div>
+            )}
+            <label className="cursor-pointer inline-flex items-center gap-2 text-sm text-[#ff3b3b] hover:text-[#e03131] transition-colors font-medium">
+              <Paperclip className="w-4 h-4" />
+              Attach Files
+              <input
+                type="file"
+                multiple
+                className="hidden"
+                onChange={(e) => {
+                  if (e.target.files) {
+                    setAttachments([...attachments, ...Array.from(e.target.files)]);
+                  }
+                }}
+              />
+            </label>
           </div>
         </div>
       </Modal>

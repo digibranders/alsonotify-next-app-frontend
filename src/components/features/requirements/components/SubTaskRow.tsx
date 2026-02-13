@@ -17,11 +17,11 @@ export function SubTaskRow({
   const assignedName = task.assigned_to ? `User ${task.assigned_to}` : 'Unassigned';
   // Fallback for name/initials
   const initials = (task.member_user?.name || task.assigned_members?.[0]?.name || assignedName)
-     .split(' ')
-     .map((n: string) => n[0])
-     .join('')
-     .toUpperCase()
-     .substring(0, 2);
+    .split(' ')
+    .map((n: string) => n[0])
+    .join('')
+    .toUpperCase()
+    .substring(0, 2);
 
   return (
     <div
@@ -49,7 +49,7 @@ export function SubTaskRow({
         <div>
           <div className="flex items-center gap-2 mb-1">
             <h3 className="font-['Manrope:Bold',sans-serif] text-[14px] text-[#111111] group-hover:text-[#ff3b3b] transition-colors">
-              {task.title || task.name}
+              {task.name}
             </h3>
           </div>
           <div className="flex items-center gap-2">

@@ -113,7 +113,8 @@ export function WorkspaceRequirementsPage() {
         client,
         budgetFormatted,
         budgetValue,
-        partnerName: req.sender_company?.name || req.receiver_company?.name || null,
+
+        partner_name: req.sender_company?.name || req.receiver_company?.name || null,
       };
     });
   }, [requirementsData, workspace]);
@@ -140,7 +141,7 @@ export function WorkspaceRequirementsPage() {
       const matchesPriority =
         filters.priority === 'All' || req.priority === filters.priority.toLowerCase();
       const matchesPartner =
-        filters.partner === 'All' || req.partnerName === filters.partner;
+        filters.partner === 'All' || req.partner_name === filters.partner;
 
       return matchesTab && matchesSearch && matchesPriority && matchesPartner;
     });
@@ -208,7 +209,7 @@ export function WorkspaceRequirementsPage() {
 
 
   const allPartners = useMemo(() => {
-    const partners = Array.from(new Set(requirements.map(r => r.partnerName).filter(Boolean)));
+    const partners = Array.from(new Set(requirements.map(r => r.partner_name).filter(Boolean)));
     return ['All', ...partners];
   }, [requirements]);
 

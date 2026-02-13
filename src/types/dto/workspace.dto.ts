@@ -1,41 +1,44 @@
+import { WorkspaceStatus } from '../enums';
+
 export interface WorkspaceDto {
   id: number;
   name: string;
   description?: string;
-  status?: string;
+  status?: WorkspaceStatus;
   client_id?: number;
+  partner_id?: number;
   start_date?: string;
   end_date?: string;
-  
+  in_house?: boolean;
+  is_active?: boolean;
+
   // Counts
   total_count?: number;
   total_task?: number;
   total_task_in_progress?: number;
   total_task_delayed?: number;
   total_task_completed?: number;
-  
-  in_house?: boolean;
+
+  total_requirements?: number;
+  in_progress_requirements?: number;
+  delayed_requirements?: number;
+  task_count?: number;
+  in_progress_count?: number;
+  delayed_count?: number;
+  completed_count?: number;
+
   partner_name?: string;
   company_name?: string;
-  partner_id?: number;
-  is_active?: boolean;
-  isActive?: boolean; // sometimes used?
-  
+
   client_user?: { name: string; id?: number };
   client?: { id: number; name: string };
   company?: { id: number; name: string };
-  
+
   client_company_name?: string;
   assigned_users?: Array<{ name: string; image_url?: string }>;
-  
-  // Requirements related counts
-  totalRequirements?: number;
-  inProgressRequirements?: number;
-  delayedRequirements?: number;
-  taskCount?: number;
-  inProgressCount?: number;
-  delayedCount?: number;
-  completedCount?: number;
+
+  // ─── Legacy / Deprecated fields ───────────────────────────────────────────
+
 }
 
 export interface ProjectCommentDto {
@@ -60,3 +63,4 @@ export interface CreateWorkspaceRequestDto {
 export interface UpdateWorkspaceRequestDto extends Partial<CreateWorkspaceRequestDto> {
   id: number;
 }
+

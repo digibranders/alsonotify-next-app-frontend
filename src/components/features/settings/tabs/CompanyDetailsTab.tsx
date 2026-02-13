@@ -4,11 +4,11 @@ import { commonCountries } from '@/data/defaultData';
 import { fileService } from '@/services/file.service';
 import { getTimezones } from '@/utils/timezones';
 import { Department } from '@/types/domain';
-import { DocumentType } from '@/types/genericTypes';
+import { DocumentType } from '@/types/domain';
 
 const { TextArea } = Input;
 const { Option } = Select;
-import { TAX_ID_TYPES, getTaxIdTypesForCountry } from '@/data/taxIdTypes';
+import { getTaxIdTypesForCountry } from '@/data/taxIdTypes';
 import { useEffect, useState } from 'react';
 import { getValidatorForType } from '@/lib/validators/taxIdValidators';
 

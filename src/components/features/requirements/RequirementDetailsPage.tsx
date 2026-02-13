@@ -377,7 +377,7 @@ export function RequirementDetailsPage() {
                     tasks.map((task: Task) => {
                       const mappedTask = {
                         id: String(task.id),
-                        name: task.name || task.title || 'Untitled',
+                        name: task.name || 'Untitled',
                         taskId: String(task.id),
                         client: requirement?.sender_company?.name || workspace?.client_user?.name || workspace?.name || 'In-House',
                         project: requirement?.title || 'N/A',

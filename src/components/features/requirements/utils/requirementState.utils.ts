@@ -51,12 +51,12 @@ export function mapRequirementToStatus(req: Requirement): RequirementStatus | 'd
     // Return a valid workflow status - will be handled by isArchived flag in context
     return 'Assigned'; // Default fallback, archived flag will override tab
   }
-  
+
   // Use type guard to validate status
   if (rawStatus && isRequirementStatus(rawStatus)) {
     return rawStatus;
   }
-  
+
   // Fallback for unknown statuses
   console.warn(`Unknown requirement status: ${rawStatus}, defaulting to 'Waiting'`);
   return 'Waiting';
@@ -92,8 +92,8 @@ export function mapRequirementToContext(
   role?: UserRole
 ): RequirementContext {
   const isWorkspaceMapped = !!req.receiver_workspace_id;
-  const hasQuotedPrice = !!(req.quotedPrice || req.quoted_price);
-  
+  const hasQuotedPrice = !!req.quoted_price;
+
   // Determine rejection source: if updated_user matches currentUserId and role is sender,
   // then sender rejected. Otherwise, if role is receiver and updated_user matches, receiver rejected.
   let isRejectedBySender = false;
@@ -104,7 +104,7 @@ export function mapRequirementToContext(
       isRejectedBySender = true; // Sender rejected (receiver didn't update it)
     }
   }
-  
+
   return {
     isWorkspaceMapped,
     isRejectedBySender,

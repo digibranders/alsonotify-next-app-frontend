@@ -12,9 +12,12 @@ import { WorkspaceForm } from '@/components/modals/WorkspaceForm';
 import { useWorkspaces, useDeleteWorkspace, useReactivateWorkspace } from '@/hooks/useWorkspace';
 import { usePartners, useCurrentUserCompany, useUserDetails } from '@/hooks/useUser';
 import { useQueries } from '@tanstack/react-query';
-import { getRequirementsByWorkspaceId } from '@/services/workspace';
 
-import { Workspace } from '@/types/domain';
+
+import { getRequirementsByWorkspaceId } from '@/services/workspace';
+import { WorkspaceDto } from '@/types/dto/workspace.dto';
+
+import { Workspace, Partner } from '@/types/domain';
 import { getRoleFromUser } from '@/utils/roleUtils';
 
 export function WorkspacePage() {
@@ -73,7 +76,7 @@ export function WorkspacePage() {
       if (filters.organization === selfLabel || filters.organization === 'Self') {
         params.append('in_house', 'true');
       } else {
-        const partner = partnersData?.result?.find((p: any) => (p.name || p.partner_company?.name || p.email) === filters.organization);
+        const partner = partnersData?.result?.find((p: { name?: string; partner_company?: { name?: string }; email?: string }) => (p.name || p.partner_company?.name || p.email) === filters.organization);
         if (partner) params.append('partner_id', partner.id.toString());
       }
     }
@@ -109,7 +112,7 @@ export function WorkspacePage() {
   // Transform backend data to frontend format with requirements counts
   const workspaces = useMemo((): Workspace[] => {
     if (!workspacesData?.result?.workspaces) return [];
-    return workspacesData.result.workspaces.map((w: any) => {
+    return workspacesData.result.workspaces.map((w: WorkspaceDto) => {
       // Find requirements for this workspace
       const reqQuery = requirementQueries.find((q, idx) => workspaceIds[idx] === w.id);
       const requirements = reqQuery?.data?.result || [];
@@ -134,17 +137,17 @@ export function WorkspacePage() {
       return {
         id: w.id,
         name: w.name,
-        taskCount: w.total_task || 0,
-        inProgressCount: w.total_task_in_progress || 0,
-        delayedCount: w.total_task_delayed || 0,
-        completedCount: w.total_task_completed || 0,
+        task_count: w.total_task || 0,
+        in_progress_count: w.total_task_in_progress || 0,
+        delayed_count: w.total_task_delayed || 0,
+        completed_count: w.total_task_completed || 0,
         // Requirements data
-        totalRequirements,
-        inProgressRequirements,
-        delayedRequirements,
+        total_requirements: totalRequirements,
+        in_progress_requirements: inProgressRequirements,
+        delayed_requirements: delayedRequirements,
         // Use exact status from backend
         status: w.status || 'Assigned',
-        isActive: w.is_active ?? true,
+        is_active: w.is_active ?? true,
         description: w.description || '',
         partner_id: w.partner_id,
         in_house: w.in_house,
@@ -153,6 +156,8 @@ export function WorkspacePage() {
       };
     });
   }, [workspacesData, requirementQueries, workspaceIds]);
+
+
 
   const handleFilterChange = (filterId: string, value: string) => {
     setFilters(prev => ({ ...prev, [filterId]: value }));
@@ -170,7 +175,10 @@ export function WorkspacePage() {
     {
       id: 'organization',
       label: 'Organization',
-      options: ['All', `${companyData?.result?.name || 'Current Company'} (Self)`, ...(partnersData?.result?.map((p: any) => p.company || p.partner_company?.name || p.email || p.name) || [])],
+      options: ['All', `${companyData?.result?.name || 'Current Company'} (Self)`, ...((partnersData?.result as unknown as Partner[])?.map((p) => {
+        const companyName = typeof p.company === 'string' ? p.company : (p as any).company?.name;
+        return companyName || (p as any).partner_company?.name || p.email || p.name || 'Unknown';
+      }) || [])],
       defaultValue: 'All'
     }
   ];
@@ -465,7 +473,7 @@ function WorkspaceCard({ workspace, userRole, onClick }: { workspace: Workspace;
 
   const handleAction = async (key: string) => {
     if (key === 'delete') {
-      const reqCount = workspace.totalRequirements || 0;
+      const reqCount = workspace.total_requirements || 0;
       if (reqCount === 0) {
         modal.confirm({
           title: 'Delete Workspace',
@@ -501,7 +509,7 @@ function WorkspaceCard({ workspace, userRole, onClick }: { workspace: Workspace;
     }
   };
 
-  const items: MenuProps['items'] = workspace.isActive
+  const items: MenuProps['items'] = workspace.is_active
     ? [
       { key: 'edit', label: 'Edit Details', icon: <Edit className="w-4 h-4" /> },
       { key: 'delete', label: 'Delete', icon: <Trash2 className="w-4 h-4" />, danger: true }
@@ -562,9 +570,9 @@ function WorkspaceCard({ workspace, userRole, onClick }: { workspace: Workspace;
           {/* Footer: Stats */}
           <div className="border-t border-[#EEEEEE] pt-4 mt-auto">
             <WorkspaceRequirementsSummary
-              total={workspace.totalRequirements || 0}
-              inProgress={workspace.inProgressRequirements || 0}
-              delayed={workspace.delayedRequirements || 0}
+              total={workspace.total_requirements || 0}
+              inProgress={workspace.in_progress_requirements || 0}
+              delayed={workspace.delayed_requirements || 0}
             />
           </div>
         </div>
@@ -600,7 +608,7 @@ function WorkspaceListItem({
 
   const handleAction = async (key: string) => {
     if (key === 'delete') {
-      const reqCount = workspace.totalRequirements || 0;
+      const reqCount = workspace.total_requirements || 0;
       if (reqCount === 0) {
         modal.confirm({
           title: 'Delete Workspace',
@@ -636,7 +644,7 @@ function WorkspaceListItem({
     }
   };
 
-  const items: MenuProps['items'] = workspace.isActive
+  const items: MenuProps['items'] = workspace.is_active
     ? [
       { key: 'edit', label: 'Edit Details', icon: <Edit className="w-4 h-4" /> },
       { key: 'delete', label: 'Delete', icon: <Trash2 className="w-4 h-4" />, danger: true }
@@ -692,7 +700,7 @@ function WorkspaceListItem({
                 Total
               </span>
               <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">
-                {workspace.totalRequirements || 0}
+                {workspace.total_requirements || 0}
               </span>
             </div>
             <div className="flex flex-col">
@@ -700,7 +708,7 @@ function WorkspaceListItem({
                 Progress
               </span>
               <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#2F80ED]">
-                {workspace.inProgressRequirements || 0}
+                {workspace.in_progress_requirements || 0}
               </span>
             </div>
             <div className="flex flex-col">
@@ -708,7 +716,7 @@ function WorkspaceListItem({
                 Delayed
               </span>
               <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#ff3b3b]">
-                {workspace.delayedRequirements || 0}
+                {workspace.delayed_requirements || 0}
               </span>
             </div>
           </div>
@@ -723,12 +731,12 @@ function WorkspaceListItem({
           {/* Status */}
           <div className="flex items-center">
             <span
-              className={`inline-flex items-center px-3 py-1 rounded-full text-[12px] font-['Manrope:SemiBold',sans-serif] whitespace-nowrap ${workspace.isActive
+              className={`inline-flex items-center px-3 py-1 rounded-full text-[12px] font-['Manrope:SemiBold',sans-serif] whitespace-nowrap ${workspace.is_active
                 ? 'bg-[#ECFDF3] text-[#16A34A]'
                 : 'bg-[#F3F4F6] text-[#6B7280]'
                 }`}
             >
-              {workspace.status.replace(/_/g, ' ')}
+              {(workspace.status || 'Assigned').replace(/_/g, ' ')}
             </span>
           </div>
 

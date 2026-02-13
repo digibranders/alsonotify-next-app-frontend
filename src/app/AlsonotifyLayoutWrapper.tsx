@@ -139,7 +139,7 @@ function AlsonotifyLayoutContent({ children }: Readonly<AlsonotifyLayoutWrapperP
       );
     }
 
-    return children;
+    return <>{children}</>;
   };
 
   if (isLoading) {

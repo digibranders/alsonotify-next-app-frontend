@@ -184,7 +184,7 @@ export function GanttChartTab({ tasks, revisions, ganttView, setGanttView }: Gan
         weeks.push({
           start: idx,
           end: idx,
-          label: ganttView === 'week' 
+          label: ganttView === 'week'
             ? `Week ${getWeekNumber(date)}`
             : format(date, 'MMM yyyy')
         });
@@ -218,11 +218,10 @@ export function GanttChartTab({ tasks, revisions, ganttView, setGanttView }: Gan
                 key={mode}
                 type="text"
                 size="small"
-                className={`h-7 px-3 text-[12px] rounded-md transition-all ${
-                  ganttView === mode
-                    ? 'bg-white shadow-sm text-[#111111] font-semibold'
-                    : 'text-[#666666] hover:text-[#111111]'
-                }`}
+                className={`h-7 px-3 text-[12px] rounded-md transition-all ${ganttView === mode
+                  ? 'bg-white shadow-sm text-[#111111] font-semibold'
+                  : 'text-[#666666] hover:text-[#111111]'
+                  }`}
                 onClick={() => setGanttView(mode)}
               >
                 {mode.charAt(0).toUpperCase() + mode.slice(1)}
@@ -270,15 +269,13 @@ export function GanttChartTab({ tasks, revisions, ganttView, setGanttView }: Gan
               const isToday = date.toDateString() === today.toDateString();
               const isWeekend = date.getDay() === 0 || date.getDay() === 6;
               const isFirstOfMonth = date.getDate() === 1;
-              
+
               return (
                 <div
                   key={i}
-                  className={`flex-1 ${getColumnWidth()} border-r border-[#EEEEEE] py-2 px-1 text-center ${
-                    isWeekend ? 'bg-[#FAFAFA]' : ''
-                  } ${isToday ? 'bg-[#FFF5F5]' : ''} ${
-                    isFirstOfMonth && ganttView !== 'day' ? 'border-l-2 border-l-[#DDDDDD]' : ''
-                  }`}
+                  className={`flex-1 ${getColumnWidth()} border-r border-[#EEEEEE] py-2 px-1 text-center ${isWeekend ? 'bg-[#FAFAFA]' : ''
+                    } ${isToday ? 'bg-[#FFF5F5]' : ''} ${isFirstOfMonth && ganttView !== 'day' ? 'border-l-2 border-l-[#DDDDDD]' : ''
+                    }`}
                 >
                   {ganttView === 'day' && (
                     <>
@@ -336,13 +333,12 @@ export function GanttChartTab({ tasks, revisions, ganttView, setGanttView }: Gan
                   <div className="w-[280px] p-3 border-r border-[#EEEEEE] flex items-center gap-3 sticky left-0 bg-white group-hover:bg-[#FAFAFA] z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)] shrink-0">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className={`text-[9px] px-1.5 py-0.5 rounded font-mono shrink-0 ${
-                          isRevision ? 'bg-[#FFF5F5] text-[#ff3b3b]' : 'bg-[#F7F7F7] text-[#999999]'
-                        }`}>
+                        <span className={`text-[9px] px-1.5 py-0.5 rounded font-mono shrink-0 ${isRevision ? 'bg-[#FFF5F5] text-[#ff3b3b]' : 'bg-[#F7F7F7] text-[#999999]'
+                          }`}>
                           #{task.id}
                         </span>
                         <span className="text-[12px] text-[#111111] font-['Manrope:SemiBold',sans-serif] truncate">
-                          {task.name || task.title}
+                          {task.name}
                         </span>
                       </div>
                       <div className="text-[10px] text-[#999999] font-['Inter:Regular',sans-serif] mt-0.5 truncate">
@@ -392,7 +388,7 @@ export function GanttChartTab({ tasks, revisions, ganttView, setGanttView }: Gan
                     <Tooltip
                       title={
                         <div className="text-xs space-y-1">
-                          <div className="font-bold">{task.name || task.title}</div>
+                          <div className="font-bold">{task.name}</div>
                           <div>Start: {task.start_date ? format(new Date(task.start_date), 'MMM d, yyyy') : 'Not set'}</div>
                           <div>End: {task.end_date ? format(new Date(task.end_date), 'MMM d, yyyy') : 'Not set'}</div>
                           <div>Assigned: {assignedName}</div>
@@ -416,7 +412,7 @@ export function GanttChartTab({ tasks, revisions, ganttView, setGanttView }: Gan
                         />
                         {/* Task Name on Bar */}
                         <span className={`relative z-10 text-[10px] font-['Manrope:SemiBold',sans-serif] px-2 truncate w-full ${statusStyles.text}`}>
-                          {width > 8 ? (task.name || task.title) : ''}
+                          {width > 8 ? (task.name) : ''}
                         </span>
                       </div>
                     </Tooltip>

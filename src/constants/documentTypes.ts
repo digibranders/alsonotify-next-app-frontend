@@ -1,4 +1,4 @@
-import { DocumentType } from "@/types/genericTypes";
+import { DocumentType } from "@/types/domain";
 
 export const DOCUMENT_TYPES_STORAGE_KEY = "alsonotify_required_documents";
 

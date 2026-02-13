@@ -132,9 +132,9 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
 
   // Extract first name from user data
   const firstName = useMemo(() => {
-    const userProfile = user?.userProfile;
-    if (userProfile?.first_name) {
-      return userProfile.first_name;
+    const user_profile = user?.user_profile;
+    if (user_profile?.first_name) {
+      return user_profile.first_name;
     }
     // Employee interface doesn't have first_name directly, use name fallback
     if (user?.name) {
@@ -414,7 +414,7 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
         ] : []),
       ],
     },
-    { type: 'divider' },
+    { type: 'divider', key: 'profile-divider' },
     {
       key: 'logout',
       label: <span className="text-[#ff3b3b]">Log out</span>,
@@ -529,10 +529,10 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
                 ) : (
                   <Avatar
                     size={32}
-                    src={user?.userProfile?.profile_pic || user?.profile_pic}
+                    src={user?.user_profile?.profile_pic || user?.profile_pic}
                     alt={user?.name || 'User'}
                   >
-                    {!user?.userProfile?.profile_pic && !user?.profile_pic && (user?.name?.[0] || 'U')}
+                    {!user?.user_profile?.profile_pic && !user?.profile_pic && (user?.name?.[0] || 'U')}
                   </Avatar>
                 )}
               </div>
@@ -599,7 +599,7 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
 
             return requirementsDropdown;
           })()}
-          workspaces={workspacesData?.result?.workspaces?.map((p) => ({ id: p.id, name: p.name, company_name: p.partnerName || p.partner_name || p.company_name || p.client?.name || undefined })) || []}
+          workspaces={workspacesData?.result?.workspaces?.map((p) => ({ id: p.id, name: p.name, company_name: p.partner_name || p.company_name || p.client?.name || undefined })) || []}
         />
       </Modal>
 

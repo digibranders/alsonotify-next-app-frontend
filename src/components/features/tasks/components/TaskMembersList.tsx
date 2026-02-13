@@ -19,8 +19,8 @@ interface TaskMember {
   execution_mode: 'parallel' | 'sequential';
   user: {
     id: number;
-    name: string;
-    profile_pic?: string;
+    name: string | null;
+    profile_pic?: string | null;
   };
 }
 
@@ -51,8 +51,9 @@ export function TaskMembersList({ taskId, members, executionMode, currentUser, i
       await overrideBaton(taskId, targetUserId);
       message.success("Baton handed over successfully");
       queryClient.invalidateQueries({ queryKey: queryKeys.tasks.detail(taskId) });
-    } catch (error: any) {
-      message.error(error.message || "Failed to handover baton");
+    } catch (error: unknown) {
+      const errMsg = error instanceof Error ? error.message : "Failed to handover baton";
+      message.error(errMsg);
     }
   };
 
@@ -61,8 +62,9 @@ export function TaskMembersList({ taskId, members, executionMode, currentUser, i
       await reclaimBaton(taskId);
       message.success("Baton reclaimed successfully");
       queryClient.invalidateQueries({ queryKey: queryKeys.tasks.detail(taskId) });
-    } catch (error: any) {
-      message.error(error.message || "Failed to reclaim baton");
+    } catch (error: unknown) {
+      const errMsg = error instanceof Error ? error.message : "Failed to reclaim baton";
+      message.error(errMsg);
     }
   };
 
@@ -72,8 +74,9 @@ export function TaskMembersList({ taskId, members, executionMode, currentUser, i
       const memberIds = newOrder.map(m => m.user_id);
       await reorderTaskMembers(taskId, memberIds);
       queryClient.invalidateQueries({ queryKey: queryKeys.tasks.detail(taskId) });
-    } catch (error: any) {
-      message.error(error.message || "Failed to reorder members");
+    } catch (error: unknown) {
+      const errMsg = error instanceof Error ? error.message : "Failed to reorder members";
+      message.error(errMsg);
       setItems(members); // Rollback
     }
   };
@@ -154,15 +157,15 @@ export function TaskMembersList({ taskId, members, executionMode, currentUser, i
                 )}
 
                 {/* Avatar */}
-                <Avatar src={member.user.profile_pic} size="default" className="border border-white shadow-sm shrink-0">
-                  {member.user.name.charAt(0)}
+                <Avatar src={member.user.profile_pic || undefined} size="default" className="border border-white shadow-sm shrink-0">
+                  {member.user.name?.charAt(0) || 'U'}
                 </Avatar>
 
                 {/* Info */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <p className={`text-[13px] font-['Manrope:SemiBold',sans-serif] truncate ${isMe ? 'text-[#111111]' : 'text-[#444444]'}`}>
-                      {member.user.name} {isMe && '(You)'}
+                      {member.user.name || 'Unknown'} {isMe && '(You)'}
                     </p>
                     {isTurn && executionMode === 'sequential' && (
                       <span className="text-[10px] font-bold text-amber-600 bg-amber-50 px-1.5 rounded-full border border-amber-100 animate-pulse">

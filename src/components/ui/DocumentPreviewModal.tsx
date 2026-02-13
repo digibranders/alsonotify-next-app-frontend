@@ -1,6 +1,6 @@
 import { Modal, Skeleton, Segmented } from 'antd';
 import { X, Code, Eye } from 'lucide-react';
-import { UserDocument } from '@/types/genericTypes';
+import { UserDocument } from '@/types/domain';
 import Image from 'next/image';
 import { useEffect, useState, useMemo } from 'react';
 

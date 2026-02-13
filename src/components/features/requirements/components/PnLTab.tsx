@@ -32,18 +32,18 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
       // Get assignee info
       const assignee = task.member_user || task.task_members?.[0]?.user;
       const assigneeName = assignee?.name || 'Unassigned';
-      
+
       // Get hourly rate from task member or use default
       const hourlyRate = 25; // Default rate, should come from employee data
-      
+
       // Calculate hours
       const estimatedSeconds = (Number(task.estimated_time) || 0) * 3600;
       const actualSeconds = task.total_seconds_spent || task.totalSecondsSpent || 0;
-      
+
       const estimatedHours = estimatedSeconds / 3600;
       const actualHours = actualSeconds / 3600;
       const extraHours = Math.max(0, actualHours - estimatedHours);
-      
+
       // Calculate costs
       const resourceCost = actualHours * hourlyRate;
       const budgetedCost = estimatedHours * hourlyRate;
@@ -51,7 +51,7 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
 
       return {
         id: task.id,
-        name: task.name || task.title || 'Untitled Task',
+        name: task.name || 'Untitled Task',
         assigneeName,
         assigneeRole: 'Team Member',
         hourlyRate,
@@ -71,7 +71,7 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
     const totalActualHours = pnlData.reduce((sum, t) => sum + t.actualHours, 0);
     const totalResourceCost = pnlData.reduce((sum, t) => sum + t.resourceCost, 0);
     const totalExtraHours = pnlData.reduce((sum, t) => sum + t.extraHours, 0);
-    
+
     const quotedPrice = Number(requirement.quoted_price) || 0;
     const netProfit = quotedPrice - totalResourceCost;
     const profitMargin = quotedPrice > 0 ? (netProfit / quotedPrice) * 100 : 0;
@@ -138,13 +138,11 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
         </div>
 
         {/* Net Profit/Loss */}
-        <div className={`bg-white rounded-[16px] p-5 border shadow-sm ${
-          summary.netProfit >= 0 ? 'border-[#0F9D58]' : 'border-[#DC2626]'
-        }`}>
+        <div className={`bg-white rounded-[16px] p-5 border shadow-sm ${summary.netProfit >= 0 ? 'border-[#0F9D58]' : 'border-[#DC2626]'
+          }`}>
           <div className="flex items-center gap-3 mb-3">
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-              summary.netProfit >= 0 ? 'bg-[#E8F5E9]' : 'bg-[#FEE2E2]'
-            }`}>
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${summary.netProfit >= 0 ? 'bg-[#E8F5E9]' : 'bg-[#FEE2E2]'
+              }`}>
               {summary.netProfit >= 0 ? (
                 <TrendingUp className="w-5 h-5 text-[#0F9D58]" />
               ) : (
@@ -155,9 +153,8 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
               Net {summary.netProfit >= 0 ? 'Profit' : 'Loss'}
             </span>
           </div>
-          <p className={`text-[24px] font-['Manrope:Bold',sans-serif] ${
-            summary.netProfit >= 0 ? 'text-[#0F9D58]' : 'text-[#DC2626]'
-          }`}>
+          <p className={`text-[24px] font-['Manrope:Bold',sans-serif] ${summary.netProfit >= 0 ? 'text-[#0F9D58]' : 'text-[#DC2626]'
+            }`}>
             {summary.netProfit >= 0 ? '+' : ''}{formatCurrency(summary.netProfit)}
           </p>
           <p className="text-[11px] text-[#666666] mt-1">
@@ -281,9 +278,8 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
                     </span>
                   </td>
                   <td className="px-5 py-4 text-right">
-                    <div className={`flex items-center justify-end gap-1 ${
-                      task.profitLoss >= 0 ? 'text-[#0F9D58]' : 'text-[#DC2626]'
-                    }`}>
+                    <div className={`flex items-center justify-end gap-1 ${task.profitLoss >= 0 ? 'text-[#0F9D58]' : 'text-[#DC2626]'
+                      }`}>
                       {task.profitLoss >= 0 ? (
                         <TrendingUp className="w-3.5 h-3.5" />
                       ) : (
@@ -341,9 +337,8 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
                     </span>
                   </td>
                   <td className="px-5 py-4 text-right">
-                    <div className={`flex items-center justify-end gap-1 ${
-                      summary.netProfit >= 0 ? 'text-[#0F9D58]' : 'text-[#DC2626]'
-                    }`}>
+                    <div className={`flex items-center justify-end gap-1 ${summary.netProfit >= 0 ? 'text-[#0F9D58]' : 'text-[#DC2626]'
+                      }`}>
                       {summary.netProfit >= 0 ? (
                         <TrendingUp className="w-4 h-4" />
                       ) : (

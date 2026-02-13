@@ -1,4 +1,4 @@
-import { UserDocument } from "./genericTypes";
+import { UserDocument } from "./domain";
 
 export interface ProfileCompletionData {
     firstName: string;

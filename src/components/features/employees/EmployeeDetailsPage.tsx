@@ -13,7 +13,7 @@ import { Mail, Phone, Calendar, Briefcase, DollarSign, ArrowLeft, Edit, FileText
 import { EmployeeForm, EmployeeFormData } from '../../modals/EmployeesForm';
 import { DocumentCard } from '@/components/ui/DocumentCard';
 import { DocumentPreviewModal } from '@/components/ui/DocumentPreviewModal';
-import { UserDocument } from '@/types/genericTypes';
+import { UserDocument } from '@/types/domain';
 import { getErrorMessage } from '@/types/api-utils';
 import { ManagedPartnersTab } from './tabs/ManagedPartnersTab';
 
@@ -91,7 +91,7 @@ export function EmployeeDetailsPage() {
     const departmentId = selectedDepartment?.id || null;
 
     // Parse hourly rate
-    const hourlyRate = parseFloat(data.hourlyRate.replace(/[^0-9.]/g, '')) || 0;
+    const hourlyRate = parseFloat(data.hourly_rates.replace(/[^0-9.]/g, '')) || 0;
 
     // Parse date of joining
     let dateOfJoining = new Date().toISOString();
@@ -174,8 +174,8 @@ export function EmployeeDetailsPage() {
     role: emp.designation || 'Unassigned',
     email: emp.email || '',
     phone: mobileNumber,
-    hourlyRate: emp.hourly_rates ? `$${emp.hourly_rates}/Hr` : 'N/A',
-    dateOfJoining: emp.date_of_joining
+    hourly_rates: emp.hourly_rates ? `$${emp.hourly_rates}/Hr` : 'N/A',
+    date_of_joining: emp.date_of_joining
       ? new Date(emp.date_of_joining || '').toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' })
       : 'N/A',
     experience: emp.experience || 0,
@@ -189,7 +189,7 @@ export function EmployeeDetailsPage() {
     leaves: emp.no_of_leaves || 0,
     roleId: emp.user_employee?.role_id,
     roleColor: emp.user_employee?.role?.color,
-    employmentType: emp.employment_type || 'Full-time',
+    employment_type: emp.employment_type || 'Full-time',
   };
 
   const handleDocumentPreview = (document: UserDocument) => {
@@ -343,7 +343,7 @@ export function EmployeeDetailsPage() {
                           </div>
                           <div>
                             <p className="text-xs text-[#999999] m-0">Date of Joining</p>
-                            <p className="text-sm font-medium text-[#111111] m-0">{employee.dateOfJoining}</p>
+                            <p className="text-sm font-medium text-[#111111] m-0">{employee.date_of_joining}</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-3">
@@ -353,7 +353,7 @@ export function EmployeeDetailsPage() {
                           <div className="flex flex-col">
                             <p className="text-xs text-[#999999] m-0">Hourly Rate</p>
                             <div className="min-h-[20px] flex items-center">
-                              <p className="text-sm font-medium text-[#111111] m-0">{employee.hourlyRate}</p>
+                              <p className="text-sm font-medium text-[#111111] m-0">{employee.hourly_rates}</p>
                             </div>
                           </div>
                         </div>

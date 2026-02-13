@@ -127,7 +127,7 @@ export function AddAccountManagerModal({
                         <Empty description="No employees found" />
                     ) : (
                         availableEmployees.map((employee: Employee) => {
-                            const employeeId = employee.user_id || employee.userId || 0;
+                            const employeeId = employee.user_id || employee.id || 0;
                             const isSelected = selectedEmployeeIds.includes(employeeId);
 
                             return (
@@ -146,9 +146,9 @@ export function AddAccountManagerModal({
 
                                     {/* Avatar */}
                                     <div className="w-10 h-10 rounded-full bg-[#F5F5F5] flex items-center justify-center flex-shrink-0 overflow-hidden">
-                                        {employee.user_profile?.profile_pic || employee.userProfile?.profile_pic ? (
+                                        {employee.user_profile?.profile_pic ? (
                                             <img
-                                                src={employee.user_profile?.profile_pic || employee.userProfile?.profile_pic}
+                                                src={employee.user_profile?.profile_pic}
                                                 alt={employee.name}
                                                 className="w-full h-full object-cover"
                                             />
@@ -175,10 +175,10 @@ export function AddAccountManagerModal({
                                             {employee.designation && (
                                                 <span className="truncate">{employee.designation}</span>
                                             )}
-                                            {employee.user_profile?.department?.name && (
+                                            {employee.department && typeof employee.department === 'object' && 'name' in employee.department && (
                                                 <>
                                                     <span className="text-[#CCCCCC]">•</span>
-                                                    <span className="truncate">{employee.user_profile.department.name}</span>
+                                                    <span className="truncate">{(employee.department as { name: string }).name}</span>
                                                 </>
                                             )}
                                         </div>

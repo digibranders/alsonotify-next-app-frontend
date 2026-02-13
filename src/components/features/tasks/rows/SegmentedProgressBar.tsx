@@ -3,7 +3,7 @@ import { Tooltip } from 'antd';
 
 interface Member {
     id: number;
-    user: { name: string };
+    user: { name: string | null | undefined };
     estimated_time: number | null;
     seconds_spent: number; // LIVE seconds (calculated in parent)
     status: string; // Member status or Task status context?

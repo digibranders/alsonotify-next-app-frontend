@@ -113,14 +113,14 @@ export function CalendarPage() {
 
     if (tasks?.result) {
       tasks.result.forEach((task: Task) => {
-        if (task.dueDate) {
+        if (task.end_date) {
           allEvents.push({
             id: `task-${task.id}`,
-            title: task.title || task.name || 'Untitled',
-            date: formatDateForApi(task.dueDate),
+            title: task.name || 'Untitled',
+            date: formatDateForApi(task.end_date),
             time: 'Deadline',
             type: 'deadline',
-            description: task.description,
+            description: task.description ?? undefined,
             status: task.status,
             color: '#ff3b3b',
             raw: task

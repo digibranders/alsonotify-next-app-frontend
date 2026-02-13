@@ -26,7 +26,7 @@ import { RequirementsForm } from '../../modals/RequirementsForm';
 import { QuotationDialog, RejectDialog, InternalMappingModal } from './components/dialogs';
 import { RequirementsList } from './components/RequirementsList';
 
-import { Requirement, Workspace } from '@/types/domain';
+import { Requirement, Workspace, RequirementType } from '@/types/domain';
 import { RequirementDto, CreateRequirementRequestDto, UpdateRequirementRequestDto } from '@/types/dto/requirement.dto';
 import { getErrorMessage } from '@/types/api-utils';
 import { getRequirementTab, type TabContext } from '@/lib/workflow';
@@ -56,16 +56,16 @@ export function RequirementsPage() {
   const { data: workspacesData, isLoading: isLoadingWorkspaces } = useWorkspaces();
 
   // Get all workspace IDs
-  const workspaceIds = useMemo(() => {
+  const workspace_ids = useMemo(() => {
     return workspacesData?.result?.workspaces?.map((w: { id: number }) => w.id) || [];
   }, [workspacesData]);
 
   // Fetch requirements for all workspaces
   const requirementQueries = useQueries({
-    queries: workspaceIds.map((id: number) => ({
+    queries: workspace_ids.map((id: number) => ({
       queryKey: ['requirements', id],
       queryFn: () => getRequirementsByWorkspaceId(id),
-      enabled: !!id && workspaceIds.length > 0,
+      enabled: !!id && workspace_ids.length > 0,
       refetchInterval: 5000,
     })),
   });
@@ -128,7 +128,7 @@ export function RequirementsPage() {
       case 'Stuck':
         return 'in-progress';
 
-      case 'Rejected':
+      case 'rejected':
         return 'in-progress';
 
       case 'Archived':
@@ -144,11 +144,11 @@ export function RequirementsPage() {
     const combined: RequirementDto[] = [];
 
     requirementQueries.forEach((query, index) => {
-      const workspaceIdFromQuery = workspaceIds[index];
-      if (query.data?.result && workspaceIdFromQuery) {
+      const workspace_idFromQuery = workspace_ids[index];
+      if (query.data?.result && workspace_idFromQuery) {
         const requirementsWithWorkspace = query.data.result.map((req: RequirementDto) => ({
           ...req,
-          workspace_id: req.workspace_id ?? workspaceIdFromQuery,
+          workspace_id: req.workspace_id ?? workspace_idFromQuery,
         }));
         combined.push(...requirementsWithWorkspace);
       }
@@ -157,8 +157,8 @@ export function RequirementsPage() {
     // Add collaborative requirements (avoid duplicates if possible)
     if (collaborativeData?.result) {
       collaborativeData.result.forEach((collab: RequirementDto) => {
-        if (collab.title === 'Test 2' || collab.id === 3) {
-          console.log('DEBUG COLLAB REQ:', { id: collab.id, title: collab.title, currency: collab.currency, raw: collab });
+        if (collab.name === 'Test 2' || collab.id === 3) {
+          console.log('DEBUG COLLAB REQ:', { id: collab.id, title: collab.name, currency: collab.currency, raw: collab });
         }
         if (!combined.some(req => req.id === collab.id)) {
           combined.push(collab);
@@ -169,7 +169,7 @@ export function RequirementsPage() {
     return combined;
     // requirementQueries is an array that is structurally memoized, but requirementQueries.map creates a new array every render.
     // Instead, depend on the queries themselves.
-  }, [requirementQueries, workspaceIds, collaborativeData]);
+  }, [requirementQueries, workspace_ids, collaborativeData]);
 
   // Create a map of workspace ID to workspace data for client/company lookup
   // Workspace API returns: { client: {id, name}, client_company_name, company_name }
@@ -218,12 +218,12 @@ export function RequirementsPage() {
         : contactPersonName;
 
       // PLACEHOLDER DATA: Pricing model - infer from available data if not explicitly set
-      const mockPricingModel = req.pricingModel || (req.hourlyRate ? 'hourly' : 'project');
+      const mockPricingModel = req.pricing_model || (req.hourly_rate ? 'hourly' : 'project');
 
       // PLACEHOLDER DATA: Rejection reason - may not be stored in requirement table
-      const mockRejectionReason = req.status?.toLowerCase().includes('rejected') && !req.rejectionReason
-        ? 'Requirement was rejected during review process' // Placeholder - would need separate field or table
-        : req.rejectionReason;
+      const mockRejectionReason = req.status?.toLowerCase().includes('rejected') && !req.rejection_reason
+        ? 'Requirement was rejected during review process' // Placeholder
+        : req.rejection_reason;
 
       // Get client name from workspace data
       // Workspace API structure: { client: {id, name}, client_company_name: string, company_name: string }
@@ -235,7 +235,8 @@ export function RequirementsPage() {
 
       // Department: Only use actual department name if it exists, don't default to 'General'
       // The old frontend (Requirements.tsx line 772) only shows department tag if record.department?.name exists
-      const departmentName = req.department?.name || null;
+      // Department mapping is handled via department_id if strictly needed, or removed if not available on DTO
+      const departmentName = null;
 
       // Determine roles - STRICT checks with type coercion for safety
       // A is Sender: sender_company_id matches current user's company
@@ -304,7 +305,7 @@ export function RequirementsPage() {
           headerCompany = req.sender_company?.name;
         } else {
           // Standard Inhouse - show assigned internal people
-          headerContact = req.contact_person?.name || req.manager?.name || req.leader?.name || clientName || undefined;
+          headerContact = (typeof req.contact_person === 'object' ? req.contact_person?.name : req.contact_person) || 'Unknown';
           headerCompany = workspace?.client_company_name || workspace?.company_name || undefined;
         }
 
@@ -316,39 +317,43 @@ export function RequirementsPage() {
 
       const mappedReq: Requirement = {
         id: req.id,
-        title: req.title || req.name || 'Untitled Requirement',
+        title: req.name || 'Untitled Requirement',
+        name: req.name || 'Untitled Requirement',
         description: stripHtmlTags(req.description || 'No description provided'),
         company: req.type === 'outsourced' ? (headerCompany || companyName) : companyName,
         client: clientName || (workspace ? 'N/A' : 'N/A'),
-        assignedTo: req.manager ? [req.manager.name] : req.leader ? [req.leader.name] : [],
+        assignedTo: req.manager_user ? [req.manager_user.name || ''] : req.leader_user ? [req.leader_user.name || ''] : [],
         dueDate: req.end_date ? format(new Date(req.end_date), 'dd-MMM-yyyy') : 'TBD',
         startDate: req.start_date ? format(new Date(req.start_date), 'dd-MMM-yyyy') : undefined,
         createdDate: req.start_date ? format(new Date(req.start_date), 'dd-MMM-yyyy') : 'TBD',
         is_high_priority: req.is_high_priority ?? false,
-        type: (req.type || 'inhouse') as 'inhouse' | 'outsourced' | 'client',
+        type: (req.type || 'inhouse') as RequirementType,
         status: mapRequirementStatus(req.status || 'Assigned'),
         category: departmentName || 'General',
-        departments: departmentName ? [departmentName] : [],
-        progress: req.progress || 0,
-        tasksCompleted: req.total_task ? Math.floor(req.total_task * (req.progress || 0) / 100) : 0,
+        // departments removed (duplicate)
+        progress: 0,
+        tasksCompleted: req.total_task ? Math.floor(req.total_task * 0 / 100) : 0,
         tasksTotal: req.total_task || 0,
-        workspaceId: req.workspace_id || 0,
+        workspace_id: req.workspace_id || 0,
         workspace: workspace?.name || 'Unknown Workspace',
-        approvalStatus: (req.approved_by?.id ? 'approved' :
-          (req.status === 'Waiting' || req.status === 'Review' || req.status === 'Rejected' || req.status?.toLowerCase() === 'review' || req.status?.toLowerCase() === 'waiting' || req.status?.toLowerCase() === 'rejected' || req.status?.toLowerCase().includes('pending')) ? 'pending' :
+        approvalStatus: (req.approved_by ? 'approved' :
+          (req.status === 'Waiting' || req.status === 'Review' || req.status?.toLowerCase() === 'rejected' || req.status?.toLowerCase() === 'review' || req.status?.toLowerCase() === 'waiting' || req.status?.toLowerCase().includes('pending')) ? 'pending' :
             undefined
         ) as 'pending' | 'approved' | 'rejected' | undefined,
-        invoiceStatus: mockInvoiceStatus as 'paid' | 'billed' | undefined,
-        estimatedCost: req.estimatedCost || (req.budget || undefined),
+        invoice_status: mockInvoiceStatus as 'paid' | 'billed' | undefined,
+        // invoiceStatus removed in favor of invoice_status
+        estimated_cost: req.estimated_cost || (req.budget || undefined),
         budget: req.budget || undefined,
-        quotedPrice: req.quotedPrice || req.quoted_price || undefined, // Add quoted_price for vendor quotes
+        quoted_price: req.quoted_price || undefined,
         currency: (req.currency && req.currency.trim() !== '') ? req.currency : 'USD',
-        hourlyRate: req.hourlyRate || undefined,
-        estimatedHours: req.estimatedHours || undefined,
-        pricingModel: mockPricingModel as 'hourly' | 'project' | undefined,
-        contactPerson: mockContactPerson || undefined,
+        hourly_rate: req.hourly_rate || undefined,
+        estimated_hours: req.estimated_hours || undefined,
+        pricing_model: mockPricingModel as 'hourly' | 'project' | undefined,
+        departments: req.department_id ? [String(req.department_id)] : [], // Placeholder until department name resolution
+        // departments added
+        contact_person: mockContactPerson || undefined,
         contact_person_id: req.contact_person_id,
-        rejectionReason: mockRejectionReason,
+        rejection_reason: mockRejectionReason,
         headerContact,
         headerCompany,
         isReceiver,
@@ -357,7 +362,7 @@ export function RequirementsPage() {
         sender_company_id: req.sender_company_id,
         receiver_company_id: req.receiver_company_id,
         receiver_workspace_id: req.receiver_workspace_id,
-        receiver_project_id: req.receiver_workspace_id, // Backward compat if needed, but safer to rely on new field
+        receiver_project_id: req.receiver_workspace_id, // Alias for backward compatibility
         negotiation_reason: req.negotiation_reason,
         is_archived: req.is_archived,
       };
@@ -481,8 +486,8 @@ export function RequirementsPage() {
     // Call mutation to update requirement with quote
     const payload: UpdateRequirementRequestDto = {
       id: reqId,
-      project_id: requirements.find(r => r.id === reqId)?.workspaceId || 0,
-      workspace_id: requirements.find(r => r.id === reqId)?.workspaceId || 0,
+      project_id: requirements.find(r => r.id === reqId)?.workspace_id || 0,
+      workspace_id: requirements.find(r => r.id === reqId)?.workspace_id || 0,
       quoted_price: amount,
       currency: currency,
       // estimated_hours: hours, // Not in DTO interface? Check DTO. 
@@ -516,8 +521,8 @@ export function RequirementsPage() {
 
     const payload: UpdateRequirementRequestDto = {
       id: reqId,
-      workspace_id: requirements.find(r => r.id === reqId)?.workspaceId || 0,
-      status: 'Rejected',
+      workspace_id: requirements.find(r => r.id === reqId)?.workspace_id || 0,
+      status: 'rejected',
       // rejection_reason: reason // DTO might not have this. Check DTO.
     };
 
@@ -652,11 +657,11 @@ export function RequirementsPage() {
     let billingMatch = true;
     if (filters.billing !== 'All') {
       if (filters.billing === 'Paid') {
-        billingMatch = req.invoiceStatus === 'paid';
+        billingMatch = req.invoice_status === 'paid';
       } else if (filters.billing === 'Invoiced') {
-        billingMatch = req.invoiceStatus === 'billed';
+        billingMatch = req.invoice_status === 'billed';
       } else if (filters.billing === 'Ready to Bill') {
-        billingMatch = req.status === 'completed' && !req.invoiceStatus;
+        billingMatch = req.status === 'completed' && !req.invoice_status;
       }
     }
 
@@ -671,7 +676,7 @@ export function RequirementsPage() {
     // Search
     const searchMatch = searchQuery === '' ||
       req.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      req.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (req.description || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
       (req.company || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
       (req.client || '').toLowerCase().includes(searchQuery.toLowerCase());
 
@@ -707,7 +712,7 @@ export function RequirementsPage() {
     const tabContext: TabContext = {
       ...baseContext,
       isArchived: !!req.is_archived,
-      approvalStatus: req.approvalStatus,
+      approvalStatus: req.approvalStatus as 'pending' | 'rejected' | 'approved' | undefined,
     };
     const reqTab = getRequirementTab(status, type, role, tabContext);
     return reqTab === activeStatusTab;
@@ -733,8 +738,8 @@ export function RequirementsPage() {
             bVal = b.dueDate && b.dueDate !== 'TBD' ? new Date(b.dueDate).getTime() : 0;
             break;
           case 'budget':
-            aVal = a.quotedPrice || a.estimatedCost || a.budget || 0;
-            bVal = b.quotedPrice || b.estimatedCost || b.budget || 0;
+            aVal = a.quoted_price || a.estimated_cost || a.budget || 0;
+            bVal = b.quoted_price || b.estimated_cost || b.budget || 0;
             break;
           case 'progress':
             aVal = a.progress || 0;
@@ -849,7 +854,7 @@ export function RequirementsPage() {
       if (req.type === 'outsourced' && req.isSender) {
         updateRequirementMutation.mutate({
           id: req.id,
-          workspace_id: req.workspaceId,
+          workspace_id: req.workspace_id,
           status: 'Waiting',
         } as UpdateRequirementRequestDto, {
           onSuccess: () => {
@@ -865,7 +870,7 @@ export function RequirementsPage() {
       if (req.type === 'inhouse') {
         updateRequirementMutation.mutate({
           id: req.id,
-          workspace_id: req.workspaceId,
+          workspace_id: req.workspace_id,
           status: 'Assigned',
         } as UpdateRequirementRequestDto, {
           onSuccess: () => {
@@ -887,7 +892,7 @@ export function RequirementsPage() {
       // RECEIVER ACTIONS (Company B - Vendor)
       if (req.isReceiver) {
         // Scenario 1: Waiting for quote submission OR resubmitting after rejection
-        if (req.rawStatus === 'Waiting' || req.rawStatus === 'Rejected') {
+        if (req.rawStatus === 'Waiting' || req.rawStatus === 'rejected') {
           // Open quotation dialog to submit/resubmit quote
           setIsQuotationOpen(true);
           return;
@@ -912,7 +917,7 @@ export function RequirementsPage() {
           // Accept quote directly - update status to Assigned
           updateRequirementMutation.mutate({
             id: req.id,
-            workspace_id: req.workspaceId,
+            workspace_id: req.workspace_id,
             status: 'Assigned'
           }, {
             onSuccess: () => {
@@ -932,7 +937,7 @@ export function RequirementsPage() {
           // Might need feedback dialog later? For now direct approval.
           updateRequirementMutation.mutate({
             id: req.id,
-            workspace_id: req.workspaceId,
+            workspace_id: req.workspace_id,
             status: 'Completed'
           }, {
             onSuccess: () => {
@@ -971,14 +976,14 @@ export function RequirementsPage() {
     },
     {
       id: 'pending', label: 'Pending', count: baseFilteredReqs.filter(req => {
-        const status = mapRequirementToStatus(req);
+        const status = (req.status || req.rawStatus || 'draft') as any;
         const type = mapRequirementToType(req);
         const role = mapRequirementToRole(req);
         const baseContext = mapRequirementToContext(req, undefined, role);
         const tabContext: TabContext = {
           ...baseContext,
           isArchived: !!req.is_archived,
-          approvalStatus: req.approvalStatus,
+          approvalStatus: req.approvalStatus as 'pending' | 'rejected' | 'approved' | undefined,
         };
         const reqTab = getRequirementTab(status, type, role, tabContext);
         return reqTab === 'pending';
@@ -986,8 +991,7 @@ export function RequirementsPage() {
     },
     {
       id: 'draft', label: 'Drafts', count: baseFilteredReqs.filter(req => {
-        if (req.is_archived) return false;
-        if (req.status === 'draft') return true;
+        if (req.status === 'draft' || req.rawStatus === 'draft') return true;
         return false;
       }).length
     },
@@ -1015,7 +1019,7 @@ export function RequirementsPage() {
     const tabContext: TabContext = {
       ...baseContext,
       isArchived: !!requirement.is_archived,
-      approvalStatus: requirement.approvalStatus,
+      approvalStatus: requirement.approvalStatus as 'pending' | 'rejected' | 'approved' | undefined,
     };
     const tab = getRequirementTab(status, type, role, tabContext);
     const isArchived = tab === 'archived';
@@ -1032,7 +1036,7 @@ export function RequirementsPage() {
         onOk: () => {
           updateRequirementMutation.mutate({
             id: requirement.id,
-            workspace_id: requirement.workspaceId || 0,
+            workspace_id: requirement.workspace_id || 0,
             is_archived: true
           }, {
             onSuccess: () => messageRef.current.success("Requirement archived")
@@ -1048,7 +1052,7 @@ export function RequirementsPage() {
         cancelText: 'Cancel',
         okButtonProps: { danger: true },
         onOk: () => {
-          deleteRequirement({ id: requirement.id, workspace_id: requirement.workspaceId });
+          deleteRequirement({ id: requirement.id, workspace_id: requirement.workspace_id || 0 });
         },
       });
     }
@@ -1122,8 +1126,8 @@ export function RequirementsPage() {
             handleEditDraft={handleEditDraft}
             handleDelete={handleDelete}
             handleDuplicateRequirement={handleDuplicateRequirement}
-            onNavigate={(workspaceId, reqId) =>
-              router.push(`/dashboard/workspace/${workspaceId}/requirements/${reqId}`)
+            onNavigate={(workspace_id, reqId) =>
+              router.push(`/dashboard/workspace/${workspace_id}/requirements/${reqId}`)
             }
           />
 
@@ -1157,16 +1161,16 @@ export function RequirementsPage() {
         }}
         isEditing={!!editingReq}
         initialData={editingReq ? {
-          title: editingReq.title,
-          workspace: String(editingReq.workspaceId),
+          title: editingReq.title || '',
+          workspace: String(editingReq.workspace_id || ''),
           type: editingReq.type === 'client' ? 'inhouse' : (editingReq.type || 'inhouse') as 'inhouse' | 'outsourced',
           description: editingReq.description || '',
           dueDate: editingReq.dueDate || '',
           is_high_priority: editingReq.is_high_priority,
-          contactPerson: editingReq.contactPerson,
-          contact_person_id: editingReq.contact_person_id || editingReq.clientId || undefined,
+          contactPerson: (typeof editingReq.contact_person === 'string' ? editingReq.contact_person : editingReq.contact_person?.name) || undefined,
+          contact_person_id: editingReq.contact_person_id || undefined,
           budget: String(editingReq.budget || ''),
-          quoted_price: String(editingReq.quotedPrice || ''),
+          quoted_price: String(editingReq.quoted_price || ''),
           currency: editingReq.currency || 'USD',
         } : undefined}
         onSubmit={handleSaveDraft}
@@ -1179,7 +1183,7 @@ export function RequirementsPage() {
         open={isQuotationOpen}
         onOpenChange={setIsQuotationOpen}
         onConfirm={handleQuotationConfirm}
-        pricingModel={requirements.find(r => r.id === pendingReqId)?.pricingModel as 'hourly' | 'project' | undefined}
+        pricingModel={requirements.find(r => r.id === pendingReqId)?.pricing_model as 'hourly' | 'project' | undefined}
       />
       <RejectDialog
         open={isRejectOpen}
@@ -1189,12 +1193,12 @@ export function RequirementsPage() {
       <InternalMappingModal
         open={isMappingOpen}
         onOpenChange={setIsMappingOpen}
-        onConfirm={(workspaceId) => {
+        onConfirm={(workspace_id) => {
           if (!pendingReqId) return;
           updateRequirementMutation.mutate({
             id: pendingReqId,
-            workspace_id: allRequirements.find(r => r.id === pendingReqId)?.workspaceId || 0, // Required field
-            receiver_workspace_id: workspaceId,
+            workspace_id: allRequirements.find(r => r.id === pendingReqId)?.workspace_id || 0, // Required field
+            receiver_workspace_id: workspace_id,
             status: 'In_Progress'
           }, {
             onSuccess: () => {

@@ -20,10 +20,8 @@ import {
   // updatePassword,
 } from "../services/user";
 import { UserDto, RoleDto, CreateEmployeeRequestDto, UpdateEmployeeRequestDto, UpdateUserProfileRequestDto } from "../types/dto/user.dto";
-import { CompanyUpdateInput } from "../types/genericTypes";
-
 import { ApiResponse } from "../types/api";
-import { Employee, UserPermissions } from "../types/domain";
+import { Employee, UserPermissions, CompanyUpdateInput } from "../types/domain";
 import { mapUserDtoToEmployee } from "../utils/mappers/user";
 import { queryKeys } from "../lib/queryKeys";
 

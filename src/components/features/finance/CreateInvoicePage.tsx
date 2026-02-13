@@ -20,8 +20,6 @@ import { InvoicePreview } from './InvoicePreview';
 import { useInvoicePresets, InvoicePaymentPreset } from '@/hooks/useInvoicePresets';
 import { trimStr } from '@/utils/trim';
 
-
-
 interface LineItem {
     id: string;
     description: string;

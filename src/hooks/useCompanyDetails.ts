@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { CompanyProfile } from '@/types/auth';
-import { CompanyUpdateInput } from '@/types/genericTypes';
+import { CompanyUpdateInput } from '@/types/domain';
 import { trimStr } from '@/utils/trim';
 
 interface UseCompanyDetailsProps {

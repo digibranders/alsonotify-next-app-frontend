@@ -12,20 +12,21 @@ export function ProfileCompletionBanner() {
 
   useEffect(() => {
     // Only access storage on client side
-    if (typeof window !== 'undefined') {
-      const isPersistentDismissed = localStorage.getItem('profileCompletionBannerDismissed') === 'true';
-      const isSessionSeen = sessionStorage.getItem('profileCompletionBannerSeen') === 'true';
-      setIsVisible(!isPersistentDismissed && !isSessionSeen);
-    }
-  }, []);
+    const timer = setTimeout(() => {
+      if (typeof window !== 'undefined') {
+        const isPersistentDismissed = localStorage.getItem('profileCompletionBannerDismissed') === 'true';
+        const isSessionSeen = sessionStorage.getItem('profileCompletionBannerSeen') === 'true';
+        const show = !isPersistentDismissed && !isSessionSeen;
 
-  // Handle session-based persistence
-  useEffect(() => {
-    if (isVisible && typeof window !== 'undefined') {
-      // Mark as seen immediately so it won't show on next interaction/reload
-      sessionStorage.setItem('profileCompletionBannerSeen', 'true');
-    }
-  }, [isVisible]);
+        if (show) {
+          setIsVisible(true);
+          // Mark as seen immediately so it won't show on next interaction/reload
+          sessionStorage.setItem('profileCompletionBannerSeen', 'true');
+        }
+      }
+    }, 0);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Don't show if dismissed, on profile page, or 100% complete
   if (!isVisible || pathname === '/dashboard/profile' || profileCompletion >= 100) {

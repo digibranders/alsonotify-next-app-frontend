@@ -10,7 +10,4 @@ export interface ChatMessage {
   responseType?: string;
 }
 
-/**
- * @deprecated Use ChatMessage instead
- */
-export type Message = ChatMessage;
+

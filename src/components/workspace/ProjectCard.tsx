@@ -23,8 +23,7 @@ const { Option } = Select;
 
 interface ProjectTaskUI {
   id: string;
-  title: string;
-  name?: string;
+  name: string;
   taskId: string;
   client: string;
   project: string;
@@ -94,37 +93,37 @@ export function WorkspaceDetailsPage({ id }: { id: string }) {
     if (!tasksData?.result) return [];
     return tasksData.result.map((t: DomainTask) => {
       const assignedName = (typeof t.assignedTo === 'object' ? t.assignedTo?.name : t.assignedTo) || 'Unassigned';
-      
+
       return {
-      // Map service TaskDto to UI Task
-      id: String(t.id),
-      title: t.title || t.name || 'Untitled', 
-      name: t.title || t.name || 'Untitled', // Keep name for DomainTask compatibility if needed
-      taskId: String(t.id),
-      client: 'Unknown', // Default or fetch
-      project: workspace?.name || 'Unknown',
-      leader: 'Unknown',
-      assignedTo: assignedName,
-      assignee: {
-        name: assignedName,
-        avatar: undefined
-      },
-      startDate: t.start_date || '',
-      dueDate: t.dueDate || '',
-      estTime: t.estTime || 0,
-      timeSpent: t.timeSpent || 0,
-      activities: t.activities || 0,
-      status: t.status as ProjectTaskUI['status'],
-      priority: t.is_high_priority ? 'High' : 'Medium',
-      is_high_priority: t.is_high_priority || false,
-      timelineDate: '',
-      timelineLabel: '',
-      dueDateValue: t.dueDate ? new Date(t.dueDate).getTime() : 0,
-      description: t.description || '',
-      total_seconds_spent: 0,
-      comments: 0,
-      attachments: 0
-    }}); 
+        // Map service TaskDto to UI Task
+        id: String(t.id),
+        name: t.name || 'Untitled',
+        taskId: String(t.id),
+        client: 'Unknown', // Default or fetch
+        project: workspace?.name || 'Unknown',
+        leader: 'Unknown',
+        assignedTo: assignedName,
+        assignee: {
+          name: assignedName,
+          avatar: undefined
+        },
+        startDate: t.start_date || '',
+        dueDate: t.dueDate || '',
+        estTime: t.estTime || 0,
+        timeSpent: t.timeSpent || 0,
+        activities: t.activities || 0,
+        status: t.status as ProjectTaskUI['status'],
+        priority: t.is_high_priority ? 'High' : 'Medium',
+        is_high_priority: t.is_high_priority || false,
+        timelineDate: '',
+        timelineLabel: '',
+        dueDateValue: t.dueDate ? new Date(t.dueDate).getTime() : 0,
+        description: t.description || '',
+        total_seconds_spent: 0,
+        comments: 0,
+        attachments: 0
+      }
+    });
   }, [tasksData, workspace]);
 
   // Filter Options
@@ -208,7 +207,7 @@ export function WorkspaceDetailsPage({ id }: { id: string }) {
 
 
   const filteredTasks = tasks.filter((task: ProjectTaskUI) => {
-    const matchesSearch = searchQuery === '' || task.title.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = searchQuery === '' || task.name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = filters.status === 'All' || task.status === filters.status;
     const matchesPriority = filters.priority === 'All' || task.priority === filters.priority;
     const matchesAssignee = filters.assignee === 'All' || task.assignee.name === filters.assignee;
@@ -376,7 +375,7 @@ export function WorkspaceDetailsPage({ id }: { id: string }) {
                   <div key={task.id} className="group bg-white border border-[#EEEEEE] rounded-[12px] p-4 hover:border-[#ff3b3b] hover:shadow-sm transition-all flex items-center gap-4">
                     <Checkbox className="custom-checkbox" />x1
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-['Manrope:SemiBold',sans-serif] text-[#111111] text-[14px] truncate">{task.title}</h4>
+                      <h4 className="font-['Manrope:SemiBold',sans-serif] text-[#111111] text-[14px] truncate">{task.name}</h4>
                       <div className="flex items-center gap-3 mt-1 text-[12px] text-[#666666]">
                         <span className={`px-2 py-0.5 rounded-full border text-[10px] font-['Manrope:Bold',sans-serif] ${getStatusColor(task.status)}`}>
                           {task.status}
@@ -442,7 +441,7 @@ export function WorkspaceDetailsPage({ id }: { id: string }) {
                         </button>
                       </Dropdown>
                     </div>
-                    <h4 className="font-['Manrope:SemiBold',sans-serif] text-[#111111] text-[15px] mb-2 line-clamp-2 flex-grow">{task.title}</h4>
+                    <h4 className="font-['Manrope:SemiBold',sans-serif] text-[#111111] text-[15px] mb-2 line-clamp-2 flex-grow">{task.name}</h4>
                     <div className="flex items-center gap-2 mb-4">
                       <span className={`px-2 py-0.5 rounded-full border text-[10px] font-['Manrope:Bold',sans-serif] ${getStatusColor(task.status)}`}>
                         {task.status}

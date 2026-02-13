@@ -23,7 +23,8 @@ export interface EmployeeFormData {
   phone: string;
   countryCode: string;
   department: string;
-  hourlyRate: string;
+  hourly_rates: string;
+  hourlyRate?: string; // limit key usage
   dateOfJoining: string;
   experience: string;
   skillsets: string;
@@ -35,7 +36,8 @@ export interface EmployeeFormData {
   leaves: string;
   role_id?: number;
   manager_id?: number;
-  employmentType?: 'Full-time' | 'Part-time' | 'Contract' | 'Intern';
+  employment_type?: 'Full-time' | 'Part-time' | 'Contract' | 'Intern';
+  employmentType?: 'Full-time' | 'Part-time' | 'Contract' | 'Intern'; // deprecated
 }
 
 export interface EmployeeFormProps {
@@ -58,7 +60,7 @@ const defaultFormData: EmployeeFormData = {
   phone: "",
   countryCode: "+91",
   department: "",
-  hourlyRate: "",
+  hourly_rates: "",
   dateOfJoining: "",
   experience: "",
   skillsets: "",
@@ -70,7 +72,7 @@ const defaultFormData: EmployeeFormData = {
   leaves: "",
   role_id: undefined,
   manager_id: undefined,
-  employmentType: undefined,
+  employment_type: undefined,
 };
 
 const countryCodes = [
@@ -191,12 +193,13 @@ function EmployeeFormContent({
         phone,
         countryCode,
         salary: String(initialData.salary || ""),
-        hourlyRate: String(initialData.hourly_rates ?? initialData.hourlyRate ?? "").replace("/Hr", "").replace("N/A", ""),
+        hourly_rates: String(initialData.hourly_rates ?? initialData.hourlyRate ?? "").replace("/Hr", "").replace("N/A", ""),
         leaves: String(initialData.no_of_leaves ?? initialData.leaves ?? ""),
         experience: String(initialData.experience || ""),
         currency: initialData.currency || "INR",
         access: initialData.access || "Employee",
         manager_id: initialData.manager_id,
+        employment_type: initialData.employment_type || initialData.employmentType || undefined,
       };
     }
 
@@ -221,7 +224,7 @@ function EmployeeFormContent({
         if (updated.leaves === defaultFormData.leaves) {
           const companyLeaves = company.leaves;
           const totalLeaves = Array.isArray(companyLeaves)
-            ? companyLeaves.reduce((sum: number, leave: any) => sum + (Number(leave.count) || 0), 0)
+            ? companyLeaves.reduce((sum: number, leave: { count?: number | string }) => sum + (Number(leave.count) || 0), 0)
             : 15;
           updated.leaves = totalLeaves.toString();
         }
@@ -242,7 +245,7 @@ function EmployeeFormContent({
         if ((updated.leaves === "" || updated.leaves === "0")) {
           const companyLeaves = company.leaves;
           const totalLeaves = Array.isArray(companyLeaves)
-            ? companyLeaves.reduce((sum: number, leave: any) => sum + (Number(leave.count) || 0), 0)
+            ? companyLeaves.reduce((sum: number, leave: { count?: number | string }) => sum + (Number(leave.count) || 0), 0)
             : 15;
           updated.leaves = totalLeaves.toString();
         }
@@ -304,10 +307,10 @@ function EmployeeFormContent({
 
   const displayHourlyCost = useMemo(() => {
     if (calculatedHourlyRate) return `${calculatedHourlyRate}/Hr`;
-    const existing = (resolvedFormData.hourlyRate || "").trim();
+    const existing = (resolvedFormData.hourly_rates || resolvedFormData.hourlyRate || "").trim();
     if (!existing) return "";
     return `${existing}/Hr`;
-  }, [calculatedHourlyRate, resolvedFormData.hourlyRate]);
+  }, [calculatedHourlyRate, resolvedFormData.hourly_rates, resolvedFormData.hourlyRate]);
 
   const handleSubmit = () => {
     if (!resolvedFormData.firstName) {
@@ -318,7 +321,7 @@ function EmployeeFormContent({
       message.error("Email is required");
       return;
     }
-    if (!resolvedFormData.employmentType) {
+    if (!resolvedFormData.employment_type) {
       message.error("Employment Type is required");
       return;
     }
@@ -326,7 +329,10 @@ function EmployeeFormContent({
     const selectedRole = fetchedRoles.find((r: Role) => r.name === resolvedFormData.access);
     const submissionData = {
       ...resolvedFormData,
-      hourlyRate: calculatedHourlyRate
+      hourly_rates: calculatedHourlyRate || resolvedFormData.hourly_rates,
+      // Backward compat
+      employmentType: resolvedFormData.employment_type,
+      hourlyRate: calculatedHourlyRate || resolvedFormData.hourly_rates
     };
 
     if (selectedRole) {
@@ -450,10 +456,10 @@ function EmployeeFormContent({
         <div className="col-span-6 space-y-1">
           <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">Employment Type <span className="text-[#ff3b3b]">*</span></span>
           <Select
-            className={`w-full h-11 employee-form-select ${resolvedFormData.employmentType ? 'employee-form-select-filled' : ''}`}
+            className={`w-full h-11 employee-form-select ${resolvedFormData.employment_type ? 'employee-form-select-filled' : ''}`}
             placeholder="Select type"
-            value={resolvedFormData.employmentType}
-            onChange={(v) => setFormData({ ...formData, employmentType: v as EmployeeFormData["employmentType"] })}
+            value={resolvedFormData.employment_type}
+            onChange={(v) => setFormData({ ...formData, employment_type: v as EmployeeFormData["employment_type"] })}
             suffixIcon={<div className="text-gray-400">⌄</div>}
           >
             <Option value="Full-time">Full Time</Option>

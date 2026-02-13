@@ -40,9 +40,11 @@ export const getTodayForApi = (): string => {
 };
 
 /**
- * Calculates the number of working days (Mon-Fri) between two dates, inclusive.
+ * Calculates the number of working days between two dates, inclusive.
+ * Supports custom working days configuration.
+ * @param workingDays Array of day names (e.g. ['Monday', 'Friday']) or explicit configuration. Defaults to Mon-Fri.
  */
-export const getWorkingDaysCount = (start: dayjs.Dayjs, end: dayjs.Dayjs): number => {
+export const getWorkingDaysCount = (start: dayjs.Dayjs, end: dayjs.Dayjs, workingDays?: string[]): number => {
     let count = 0;
     let current = dayjs(start);
     const last = dayjs(end);
@@ -50,10 +52,27 @@ export const getWorkingDaysCount = (start: dayjs.Dayjs, end: dayjs.Dayjs): numbe
     // Ensure we don't calculate if start is after end
     if (current.isAfter(last)) return 0;
 
+    // Map day names to dayjs day numbers (0=Sunday, 1=Monday, ..., 6=Saturday)
+    const dayMap: Record<string, number> = {
+        'sunday': 0, 'monday': 1, 'tuesday': 2, 'wednesday': 3, 'thursday': 4, 'friday': 5, 'saturday': 6
+    };
+
+    const activeDays = new Set<number>();
+
+    if (workingDays && workingDays.length > 0) {
+        workingDays.forEach(day => {
+            const dayNum = dayMap[day.toLowerCase()];
+            if (dayNum !== undefined) activeDays.add(dayNum);
+        });
+    } else {
+        // Default to Mon-Fri (1-5)
+        [1, 2, 3, 4, 5].forEach(d => activeDays.add(d));
+    }
+
     // Iterate through each day
     while (current.isBefore(last) || current.isSame(last, 'day')) {
         const dayOfWeek = current.day(); // 0 is Sunday, 6 is Saturday
-        if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+        if (activeDays.has(dayOfWeek)) {
             count++;
         }
         current = current.add(1, 'day');

@@ -35,7 +35,7 @@ dayjs.extend(isSameOrAfter);
 import { Task, TaskStatus } from '@/types/domain';
 import { TaskDto, CreateTaskRequestDto, UpdateTaskRequestDto } from '@/types/dto/task.dto';
 import { toQueryParams } from '@/utils/queryParams';
-import { User, Employee } from '@/types/domain';
+import { Employee } from '@/types/domain';
 import { ApiResponse } from '@/types/api';
 import { CompanyProfile } from '@/types/auth';
 import { CurrentUser } from '@/hooks/useCurrentUser';
@@ -211,7 +211,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
       }
     }
     if (filters.company !== 'All') {
-      // Need to find company ID from name - for now, we'll keep client-side filtering for company
+      // Determine company/client name: if client exists, it's client work, otherwise show company name for in-house-side filtering for company
       // params.client_company_id = filters.company;
     }
     if (filters.workspace !== 'All') {
@@ -315,7 +315,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
     const today = new Date();
     const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
 
-    return tasksData.result.map((t: Task) => {
+    return (tasksData.result as Task[]).map((t: Task) => {
       const startDateObj = t.start_date ? new Date(t.start_date) : null;
       const dueDateObj = t.end_date ? new Date(t.end_date) : null;
 
@@ -382,7 +382,6 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
             ? 'Delayed'
             : baseStatus;
 
-      // Determine company/client name: if client exists, it's client work, otherwise show company name for in-house
       // New logic: Use requirement sender company, fallback to current user's company or In-House
 
       // 1. Try to get company from the requirement's sender (The company that sent the requirement)
@@ -396,11 +395,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
 
       // Get requirement name - check multiple possible paths
       // First try from API response (nested relation)
-      let requirementName =
-        t.task_requirement?.name ||
-        t.requirement_relation?.name ||
-        t.requirement_name ||
-        null;
+      let requirementName = t.project || null;
 
       // If not found in API response, look it up from the requirements dropdown map
       if (!requirementName && t.requirement_id) {
@@ -414,8 +409,9 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
           : 'General';
 
       return {
+        ...t,
         id: String(t.id),
-        name: t.name || t.title || '',
+        name: t.name || '',
         taskId: String(t.id),
         client: displayCompanyName,
         project: requirementDisplay,
@@ -424,13 +420,12 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
           'Unassigned',
         assignedTo:
           t.member_user?.name ||
-          (typeof t.assigned_to === 'object' && t.assigned_to !== null ? (t.assigned_to as { name: string }).name : undefined) ||
-          t.assigned_to_user?.name ||
           'Unassigned',
         startDate,
         dueDate,
         estTime,
         timeSpent,
+
 
         activities: t.worklogs?.length || 0,
         status: uiStatus,
@@ -439,17 +434,18 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
         timelineLabel,
         dueDateValue,
         // Store IDs for editing
-        workspace_id: t.workspace_id || (t as any).workspaceId || null,
-        requirement_id: t.requirement_id || (t as any).requirementId || null,
+        workspace_id: t.workspace_id || undefined,
+        requirement_id: t.requirement_id || undefined,
         member_id: t.member_user?.id || t.member_id,
         leader_id: t.leader_user?.id || t.leader_id,
+
         description: t.description || '',
-        endDateIso: t.end_date || '',
+        end_date: t.end_date || '', // endDateIso replacement
         task_members: t.task_members || [],
         total_seconds_spent: t.total_seconds_spent || 0,
         totalSecondsSpent: t.total_seconds_spent || 0,
         execution_mode: t.execution_mode,
-      };
+      } as UITask;
     });
   }, [tasksData, requirementMap, currentUserCompanyName]);
 
@@ -700,8 +696,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
 
   // Get total count from API response
   const totalTasks = useMemo(() => {
-    const firstTask = tasksData?.result?.[0] as TaskDto | undefined;
-
+    const firstTask = tasksData?.result?.[0] as Task | undefined;
     return firstTask?.total_count ?? tasks.length ?? 0;
   }, [tasksData, tasks.length]);
 
@@ -972,15 +967,15 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
           key={editingTask ? `edit-${editingTask.id}` : `new-task-form`}
           initialData={editingTask ? {
             name: editingTask.name,
-            workspace_id: (editingTask.workspace_id || editingTask.workspaceId) ? String(editingTask.workspace_id || editingTask.workspaceId) : '',
-            requirement_id: (editingTask.requirement_id || editingTask.requirementId) ? String(editingTask.requirement_id || editingTask.requirementId) : '',
+            workspace_id: editingTask.workspace_id ? String(editingTask.workspace_id) : '',
+            requirement_id: editingTask.requirement_id ? String(editingTask.requirement_id) : '',
             assigned_members: editingTask.task_members?.map(m => m.user?.id || m.user_id) || [],
-            execution_mode: editingTask.execution_mode || editingTask.executionMode || 'parallel',
-            member_id: (editingTask.member_id || editingTask.memberId) ? String(editingTask.member_id || editingTask.memberId) : '',
-            leader_id: (editingTask.leader_id || editingTask.leaderId) ? String(editingTask.leader_id || editingTask.leaderId) : '',
-            end_date: editingTask.endDateIso || editingTask.end_date || '',
-            estimated_time: (editingTask.estTime || editingTask.estimatedTime || editingTask.estimated_time) ? String(editingTask.estTime || editingTask.estimatedTime || editingTask.estimated_time) : '',
-            is_high_priority: editingTask.is_high_priority || editingTask.isHighPriority || false,
+            execution_mode: editingTask.execution_mode || 'parallel',
+            member_id: editingTask.member_id ? String(editingTask.member_id) : '',
+            leader_id: editingTask.leader_id ? String(editingTask.leader_id) : '',
+            end_date: editingTask.end_date || '',
+            estimated_time: (editingTask.estTime || editingTask.estimated_time) ? String(editingTask.estTime || editingTask.estimated_time) : '',
+            is_high_priority: editingTask.is_high_priority || false,
             description: editingTask.description || '',
           } : undefined}
           isEditing={!!editingTask}
@@ -1020,7 +1015,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
           workspaces={workspacesData?.result?.workspaces?.map((p) => ({
             id: p.id,
             name: p.name,
-            company_name: p.partnerName || p.partner_name || p.company_name || p.client?.name || undefined
+            company_name: p.partner_name || p.company_name || p.client?.name || undefined
           })) || []}
         />
       </Modal>

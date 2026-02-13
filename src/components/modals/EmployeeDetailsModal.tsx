@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { Modal, Button, App } from 'antd';
 import { Briefcase, Mail, Phone, Calendar, DollarSign, Clock, CalendarDays, X, FileText, Users, Globe, ShieldAlert, Linkedin, Github } from 'lucide-react';
 import { AccessBadge } from '../ui/AccessBadge';
-import { UserDocument } from '@/types/genericTypes';
+import { UserDocument } from '@/types/domain';
 import { Employee } from '@/types/domain';
 import { DocumentCard } from '@/components/ui/DocumentCard';
 import { DocumentPreviewModal } from '@/components/ui/DocumentPreviewModal';
@@ -26,8 +26,7 @@ export function EmployeeDetailsModal({
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
 
   const documents = useMemo(() => {
-    // Check if employee data has documents
-    return (employee as any)?.documents || [];
+    return employee?.documents || [];
   }, [employee]);
 
   if (!employee) return null;
@@ -40,8 +39,8 @@ export function EmployeeDetailsModal({
     : [];
 
   // Format hourly rate
-  const hourlyRate = employee.hourlyRate && employee.hourlyRate !== 'N/A'
-    ? employee.hourlyRate
+  const hourlyRate = employee.hourly_rate && employee.hourly_rate !== 'N/A'
+    ? employee.hourly_rate
     : 'N/A';
 
   // Format experience
@@ -49,14 +48,15 @@ export function EmployeeDetailsModal({
 
   // Format working hours
   const workingHours = (() => {
-    if (employee.rawWorkingHours?.start_time && employee.rawWorkingHours?.end_time) {
-      return `${employee.rawWorkingHours.start_time} - ${employee.rawWorkingHours.end_time}`;
+    const wh = employee.working_hours;
+    if (wh && typeof wh === 'object' && 'start_time' in wh && 'end_time' in wh) {
+      return `${wh.start_time} - ${wh.end_time}`;
     }
-    return employee.workingHours ? `${employee.workingHours}h / week` : 'N/A';
+    return (typeof employee.working_hours === 'number' || typeof employee.working_hours === 'string') ? `${employee.working_hours}h / week` : 'N/A';
   })();
 
   // Format leaves
-  const leavesTaken = employee.leaves ? `${employee.leaves} Days` : '0 Days';
+  const leavesTaken = employee.leaves_count ? `${employee.leaves_count} Days` : '0 Days';
 
   const handleDocumentPreview = (document: UserDocument) => {
     setSelectedDocument(document);
@@ -144,7 +144,7 @@ export function EmployeeDetailsModal({
                     <Button
                       type="text"
                       icon={<Linkedin className="w-4 h-4 text-[#0077B5]" />}
-                      onClick={() => window.open(employee.linkedin!.startsWith('http') ? employee.linkedin : `https://linkedin.com/in/${employee.linkedin}`, '_blank')}
+                      onClick={() => window.open((employee.linkedin || '').startsWith('http') ? (employee.linkedin || '') : `https://linkedin.com/in/${employee.linkedin}`, '_blank')}
                       className="hover:bg-[#F7F7F7] rounded-full w-8 h-8 flex items-center justify-center p-0"
                       aria-label={`Visit ${employee.name}'s LinkedIn profile`}
                     />
@@ -153,7 +153,7 @@ export function EmployeeDetailsModal({
                     <Button
                       type="text"
                       icon={<Github className="w-4 h-4 text-[#111111]" />}
-                      onClick={() => window.open(employee.github!.startsWith('http') ? employee.github : `https://github.com/${employee.github}`, '_blank')}
+                      onClick={() => window.open((employee.github || '').startsWith('http') ? (employee.github || '') : `https://github.com/${employee.github}`, '_blank')}
                       className="hover:bg-[#F7F7F7] rounded-full w-8 h-8 flex items-center justify-center p-0"
                       aria-label={`Visit ${employee.name}'s GitHub profile`}
                     />
@@ -162,7 +162,7 @@ export function EmployeeDetailsModal({
                     <Button
                       type="text"
                       icon={<Globe className="w-4 h-4 text-[#666666]" />}
-                      onClick={() => window.open(employee.portfolio!.startsWith('http') ? employee.portfolio : `https://${employee.portfolio}`, '_blank')}
+                      onClick={() => window.open((employee.portfolio || '').startsWith('http') ? (employee.portfolio || '') : `https://${employee.portfolio}`, '_blank')}
                       className="hover:bg-[#F7F7F7] rounded-full w-8 h-8 flex items-center justify-center p-0"
                       aria-label={`Visit ${employee.name}'s portfolio`}
                     />
@@ -204,6 +204,7 @@ export function EmployeeDetailsModal({
             <div className="flex items-center gap-2 mb-4">
               <div className="w-1 h-4 bg-[#111111] rounded-full"></div>
               <h3 className="text-[14px] font-['Manrope:Bold',sans-serif] text-[#111111]">Employment & HR Details</h3>
+              <div className="text-[13px] text-[#666666]">Leaves: <span className="text-[#111111] font-medium">{employee.leaves_count}</span></div>
             </div>
             <div className="grid grid-cols-3 gap-4 mb-6 pl-3">
               <StatCard label="Experience" value={experience} icon={<Briefcase className="w-4 h-4 text-gray-400" />} />
@@ -211,10 +212,10 @@ export function EmployeeDetailsModal({
               <StatCard label="Working Hours" value={workingHours} icon={<Clock className="w-4 h-4 text-gray-400" />} />
             </div>
             <div className="grid grid-cols-2 gap-y-5 gap-x-12 pl-3">
-              <DetailItem label="Date of Joining" value={employee.formattedDateOfJoining || 'N/A'} icon={<Calendar className="w-3.5 h-3.5" />} />
+              <DetailItem label="Date of Joining" value={employee.formattedDateOfJoining || employee.date_of_joining || 'N/A'} icon={<Calendar className="w-3.5 h-3.5" />} />
               <DetailItem label="Annual Salary" value={employee.salary ? `${employee.currency || '$'} ${Number(employee.salary).toLocaleString()}` : 'N/A'} icon={<DollarSign className="w-3.5 h-3.5" />} />
-              <DetailItem label="Hourly Cost" value={hourlyRate} icon={<DollarSign className="w-3.5 h-3.5" />} />
-              <DetailItem label="Employment Type" value={employee.employmentType || "Full-time"} icon={<Briefcase className="w-3.5 h-3.5" />} />
+              <DetailItem label="Hourly Cost" value={employee.hourly_rates ? `$${employee.hourly_rates}/Hr` : (hourlyRate || 'N/A')} icon={<DollarSign className="w-3.5 h-3.5" />} />
+              <DetailItem label="Employment Type" value={employee.employment_type || 'Full Time'} icon={<Briefcase className="w-3.5 h-3.5" />} />
               {employee.timezone && (
                 <DetailItem label="Local Timezone" value={employee.timezone} icon={<Globe className="w-3.5 h-3.5" />} />
               )}
@@ -233,6 +234,7 @@ export function EmployeeDetailsModal({
                   </div>
                 </div>
                 <div className="text-right">
+                  <div className="text-[13px] text-[#666666] mb-1">Working Hours: <span className="text-[#111111] font-medium">{workingHours}</span></div>
                   <p className="text-[13px] font-['Manrope:Medium',sans-serif] text-[#B42318]">{employee.emergencyContactPhone || '-'}</p>
                 </div>
               </div>
@@ -331,7 +333,7 @@ export function EmployeeDetailsModal({
   );
 }
 
-function DetailItem({ label, value, icon }: { label: string; value: string | null; icon: React.ReactNode }) {
+function DetailItem({ label, value, icon }: { label: string; value: string | null | undefined; icon: React.ReactNode }) {
   return (
     <div className="flex items-start gap-3">
       <div className="mt-1 text-[#666666] flex-shrink-0">

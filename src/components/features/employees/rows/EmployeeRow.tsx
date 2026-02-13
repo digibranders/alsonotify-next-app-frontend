@@ -117,26 +117,28 @@ export function EmployeeRow({
           <AccessBadge role={employee.access} color={employee.roleColor} />
         </div>
 
+
         {/* Employment Type */}
         <div>
           <span className="text-[13px] font-['Manrope:Regular',sans-serif] text-[#111111]">
-            {employee.employmentType || 'Unknown'}
+            {employee.employment_type || 'Unknown'}
           </span>
         </div>
 
         {/* Hourly Rate */}
         <div>
           <span className="text-[13px] font-['Manrope:Regular',sans-serif] text-[#111111]">
-            {employee.hourlyRate}
+            {employee.hourly_rates ? `$${employee.hourly_rates}/Hr` : 'N/A'}
           </span>
         </div>
 
         {/* Joining Date */}
         <div>
           <span className="text-[13px] text-[#111111] font-['Manrope:Regular',sans-serif]">
-            {employee.formattedDateOfJoining || employee.dateOfJoining}
+            {employee.formattedDateOfJoining || employee.date_of_joining || 'N/A'}
           </span>
         </div>
+
 
         {/* Actions */}
         <div className="flex justify-end" onClick={(e) => e.stopPropagation()}>
