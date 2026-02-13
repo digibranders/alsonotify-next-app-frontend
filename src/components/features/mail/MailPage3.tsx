@@ -38,7 +38,7 @@ import {
 import dayjs from "dayjs";
 import { PageLayout } from "../../layout/PageLayout";
 import { DocumentPreviewModal } from "../../ui/DocumentPreviewModal";
-import { UserDocument } from "@/types/genericTypes";
+import { UserDocument } from "@/types/domain";
 import { useMailAttachments, useMailFolders, useMailMessage, useMailMessages } from "@/hooks/useMail";
 import { useDebounce } from "@/hooks/useDebounce";
 import {

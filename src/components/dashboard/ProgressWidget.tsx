@@ -86,7 +86,7 @@ export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => 
     let inProgress = 0;
     let delayed = 0;
 
-    tasks.forEach((task: { status?: string }) => {
+    tasks.forEach((task) => {
       const status = task.status?.toLowerCase() || '';
       // Task statuses: Assigned, In_Progress, Completed, Delayed, Impediment, Review, Stuck, New Task
       if (status.includes('completed') || status === 'done') {
@@ -123,7 +123,7 @@ export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => 
 
   // Combine all requirements from all workspaces
   const allRequirements = useMemo(() => {
-    const combined: Array<{ status?: string; start_date?: string }> = [];
+    const combined: Array<{ status?: string; start_date?: string | null }> = [];
     requirementQueries.forEach((query) => {
       const data = query.data as ApiResponse<RequirementDto[]>;
       if (data?.result && Array.isArray(data.result)) {
@@ -144,7 +144,7 @@ export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => 
     let delayed = 0;
     let total = 0;
 
-    allRequirements.forEach((req: { status?: string; start_date?: string }) => {
+    allRequirements.forEach((req) => {
       // Filter by date if range is selected
       if (dateRange && dateRange[0] && dateRange[1]) {
         // Use start_date for filtering requirements
@@ -180,76 +180,94 @@ export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => 
 
   // Calculate Hours Capacity Data
   const hoursData = useMemo(() => {
-    // Default zero state
-    if (!tasksData?.result || isLoadingTasks || !currentUserId) {
-      return { allotted: 0, total: 160, percentage: 0, remaining: 160 };
+    // 1. Calculate Allotted Hours (Sum of estimated time of fetched tasks ASSIGNED TO CURRENT USER)
+    // Always calculate allotted if tasks exist, regardless of capacity
+    const allotted = (!tasksData?.result || isLoadingTasks || !currentUserId)
+      ? 0
+      : Math.round((tasksData.result as Task[]).reduce((acc: number, task: Task) => {
+        // Filter: Check if task is assigned to current user
+        let isAssigned = false;
+
+        // Direct assignment check (assigned_to_user is preferred)
+        if (task.leader_user?.id === currentUserId || task.member_user?.id === currentUserId) {
+          isAssigned = true;
+        }
+
+        // Handle assignedTo legacy path
+        if (!isAssigned && task.member_user) {
+          if (task.member_user.id === currentUserId) isAssigned = true;
+        }
+
+        // Member list check
+        if (!isAssigned && Array.isArray(task.task_members)) {
+          isAssigned = task.task_members.some((m) => (m.user_id === currentUserId || m.user?.id === currentUserId));
+        }
+
+        if (isAssigned) {
+          // Handle various property casing from API safely
+          const estValue = task.estTime ?? task.estimated_time ?? 0;
+          const est = Number(estValue);
+          return acc + (isNaN(est) ? 0 : est);
+        }
+        return acc;
+      }, 0));
+
+    // 2. Calculate Total Capacity dynamically
+    let total = 0;
+
+    // Helper to calculate hours from start/end time strings "HH:mm"
+    const calculateDailyHours = (startStr?: string, endStr?: string): number => {
+      if (!startStr || !endStr) return 0;
+      const start = dayjs(startStr, ['h:mm a', 'h:mm A', 'HH:mm']);
+      const end = dayjs(endStr, ['h:mm a', 'h:mm A', 'HH:mm']);
+      if (start.isValid() && end.isValid()) {
+        return Math.abs(end.diff(start, 'minute')) / 60;
+      }
+      return 0;
+    };
+
+    // --- Configuration Sources ---
+    const userProfile = userDetailsData?.result?.user_profile;
+    const companySettings = companyData?.result?.working_hours;
+
+    // A. Daily Hours Logic (User > Company > 0)
+    let grossDailyHours = 0;
+
+    // Check User Profile
+    if (userProfile?.working_hours?.start_time && userProfile?.working_hours?.end_time) {
+      grossDailyHours = calculateDailyHours(userProfile.working_hours.start_time, userProfile.working_hours.end_time);
     }
 
-    // 1. Calculate Allotted Hours (Sum of estimated time of fetched tasks ASSIGNED TO CURRENT USER)
-    const allotted = Math.round(tasksData.result.reduce((acc: number, task: Task) => {
-      // Filter: Check if task is assigned to current user
-      let isAssigned = false;
+    // Check Company Settings if User Profile is missing/incomplete
+    if (grossDailyHours === 0 && companySettings?.start_time && companySettings?.end_time) {
+      grossDailyHours = calculateDailyHours(companySettings.start_time, companySettings.end_time);
+    }
 
-      // Direct assignment check (assignedToUser is often preferred in latest API)
-      if (task.assignedToUser?.id === currentUserId) {
-        isAssigned = true;
-      }
-
-      // Handle assignedTo which can be object or string in various legacy/current paths
-      if (!isAssigned && typeof task.assignedTo === 'object' && task.assignedTo !== null) {
-        if (task.assignedTo.id === currentUserId) isAssigned = true;
-      }
-
-      // Member list check
-      if (!isAssigned && Array.isArray(task.taskMembers)) {
-        isAssigned = task.taskMembers.some((m) => m.userId === currentUserId || m.user_id === currentUserId);
-      }
-
-      if (isAssigned) {
-        // Handle various property casing from API safely
-        const estValue = task.estimatedTime ?? task.estimated_time ?? task.estTime ?? 0;
-        const est = Number(estValue);
-        return acc + (isNaN(est) ? 0 : est);
-      }
-      return acc;
-    }, 0));
-
-    // 2. Calculate Total Capacity
-    let total = 160; // Default fallback
-
-    // Strategy: Prefer User Profile Hours -> Company Settings -> Default (8h)
-
-    // a) Try User Profile Specific Hours
-    let dailyHours = 0;
+    // B. Break Time Logic (User > Company > 0)
     let breakTimeMinutes = 0;
 
-    const userProfileHours = (userDetailsData?.result?.userProfile as { working_hours?: { start_time?: string; end_time?: string; break_time?: number } } | undefined)?.working_hours;
-
-    if (userProfileHours?.start_time && userProfileHours?.end_time) {
-      const start = dayjs(userProfileHours.start_time, ['h:mm a', 'h:mm A', 'HH:mm']);
-      const end = dayjs(userProfileHours.end_time, ['h:mm a', 'h:mm A', 'HH:mm']);
-
-      if (start.isValid() && end.isValid()) {
-        // Calculate duration in hours
-        const durationMinutes = end.diff(start, 'minute');
-        dailyHours = durationMinutes / 60;
-        // User profile break time might be in the same object or parent
-        breakTimeMinutes = Number(userProfileHours.break_time) || 0;
-      }
+    // Check User Profile
+    if (userProfile?.working_hours?.break_time !== undefined) {
+      breakTimeMinutes = Number(userProfile.working_hours.break_time);
+    }
+    // Check Company Settings
+    else if (companySettings?.break_time !== undefined) {
+      breakTimeMinutes = Number(companySettings.break_time);
     }
 
-    // b) Fallback to Company Settings if user hours not found
-    if (dailyHours === 0) {
-      const companyWorkingHours = companyData?.result?.working_hours as { daily_hours?: number; hours?: number; break_time?: number } | undefined;
-      dailyHours = companyWorkingHours?.daily_hours || companyWorkingHours?.hours || 8;
-      breakTimeMinutes = companyWorkingHours?.break_time || 0;
+    // C. Working Days Logic (Company > Default Mon-Fri)
+    // Note: User-specific working days aren't standard in profile yet, so we rely on Company Settings.
+    let workingDaysConfig: string[] | undefined = undefined;
+    if (Array.isArray(companySettings?.working_days) && companySettings.working_days.length > 0) {
+      workingDaysConfig = companySettings.working_days;
     }
 
-    const netDailyHours = Math.max(0, dailyHours - (breakTimeMinutes / 60));
+    // D. Final Calculation
+    const netDailyHours = Math.max(0, grossDailyHours - (breakTimeMinutes / 60));
 
-    if (dateRange && dateRange[0] && dateRange[1]) {
-      // Calculate precise working days (Mon-Fri) in the range
-      const workDays = getWorkingDaysCount(dateRange[0], dateRange[1]);
+    if (dateRange && dateRange[0] && dateRange[1] && netDailyHours > 0) {
+      // Calculate precise working days based on configuration
+      const workDays = getWorkingDaysCount(dateRange[0], dateRange[1], workingDaysConfig);
       total = Math.round(workDays * netDailyHours);
     }
 
