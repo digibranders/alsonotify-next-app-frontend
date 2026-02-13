@@ -133,10 +133,10 @@ export function EmployeesPage() {
           : emp.access === filters.access);
 
       const matchesType = filters.employmentType === 'All' ||
-        (filters.employmentType === 'Full-time' && (emp.employmentType === 'Full-time' || emp.employmentType === 'In-house')) ||
-        (filters.employmentType === 'Contract' && (emp.employmentType === 'Contract' || emp.employmentType === 'Freelancer' || emp.employmentType === 'Agency')) ||
-        (filters.employmentType === 'Part-time' && emp.employmentType === 'Part-time') ||
-        (filters.employmentType !== 'All' && emp.employmentType === filters.employmentType);
+        (filters.employmentType === 'Full-time' && (emp.employment_type === 'Full-time' || emp.employment_type === 'In-house')) ||
+        (filters.employmentType === 'Contract' && (emp.employment_type === 'Contract' || emp.employment_type === 'Freelancer' || emp.employment_type === 'Agency')) ||
+        (filters.employmentType === 'Part-time' && (emp.employment_type === 'Part-time')) ||
+        (filters.employmentType !== 'All' && (emp.employment_type === filters.employmentType));
 
       return matchesTab && matchesSearch && matchesRole && matchesDept && matchesAccess && matchesType;
     });
@@ -294,7 +294,8 @@ export function EmployeesPage() {
     }
 
     // Parse hourly rate (remove $ if present)
-    const hourlyRate = parseFloat(data.hourlyRate.replace(/[^0-9.]/g, '')) || 0;
+    const hourlyRateStr = data.hourly_rates || data.hourlyRate || '';
+    const hourlyRate = parseFloat(hourlyRateStr.replace(/[^0-9.]/g, '')) || 0;
 
     // Parse date of joining
     let dateOfJoining: string | undefined = undefined;
@@ -340,7 +341,7 @@ export function EmployeesPage() {
         hourly_rates: hourlyRate,
         no_of_leaves: Number.parseFloat(data.leaves) || 0,
         working_hours: workingHours,
-        employment_type: data.employmentType,
+        employment_type: data.employment_type || data.employmentType,
         manager_id: data.manager_id,
       };
 
@@ -381,7 +382,7 @@ export function EmployeesPage() {
         hourly_rates: hourlyRate,
         no_of_leaves: Number.parseFloat(data.leaves) || 0,
         working_hours: workingHours,
-        employment_type: data.employmentType,
+        employment_type: data.employment_type || data.employmentType,
         manager_id: data.manager_id,
       };
 
@@ -476,14 +477,14 @@ export function EmployeesPage() {
       }
 
       // Parse hourly rate from display format (e.g., "200/Hr" -> 200)
-      const hourlyRate = employee.hourlyRate && employee.hourlyRate !== 'N/A'
-        ? parseFloat(employee.hourlyRate.replace(/[^0-9.]/g, ''))
+      const hourlyRate = employee.hourly_rates && parseInt(String(employee.hourly_rates)) > 0
+        ? employee.hourly_rates
         : (rawEmployee.hourly_rates || null);
 
       // Parse date of joining
       let dateOfJoining = null;
-      if (employee.dateOfJoining && employee.dateOfJoining !== 'N/A') {
-        const d = new Date(employee.dateOfJoining);
+      if (employee.date_of_joining && employee.date_of_joining !== 'N/A') {
+        const d = new Date(employee.date_of_joining);
         if (!isNaN(d.getTime())) {
           dateOfJoining = d.toISOString();
         }
@@ -615,14 +616,14 @@ export function EmployeesPage() {
       }
 
       // Parse hourly rate from display format (e.g., "200/Hr" -> 200)
-      const hourlyRate = employee.hourlyRate && employee.hourlyRate !== 'N/A'
-        ? parseFloat(employee.hourlyRate.replace(/[^0-9.]/g, ''))
+      const hourlyRate = employee.hourly_rates && parseInt(String(employee.hourly_rates)) > 0
+        ? employee.hourly_rates
         : (rawEmployee.hourly_rates || null);
 
       // Parse date of joining
       let dateOfJoining = null;
-      if (employee.dateOfJoining && employee.dateOfJoining !== 'N/A') {
-        const d = new Date(employee.dateOfJoining);
+      if (employee.date_of_joining && employee.date_of_joining !== 'N/A') {
+        const d = new Date(employee.date_of_joining);
         if (!isNaN(d.getTime())) {
           dateOfJoining = d.toISOString();
         }
@@ -757,9 +758,9 @@ export function EmployeesPage() {
       emp.role || '',
       emp.department || '',
       emp.access || '',
-      emp.employmentType || 'N/A',
-      emp.hourlyRate || 'N/A',
-      emp.dateOfJoining || 'N/A',
+      emp.employment_type || 'N/A',
+      emp.hourly_rates ? `$${emp.hourly_rates}/Hr` : ('N/A'),
+      emp.formattedDateOfJoining || emp.date_of_joining || 'N/A',
       emp.status || ''
     ]);
 
