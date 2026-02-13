@@ -10,7 +10,7 @@ import { ApiResponse } from '@/types/api';
 import { Role, Department, Holiday, Employee } from '@/types/domain';
 import { CompanyProfile, CompanyLeaveSetting } from '@/types/auth';
 import { UseMutateAsyncFunction, UseMutateFunction } from '@tanstack/react-query';
-import { CompanyUpdateInput } from '@/types/genericTypes';
+import { CompanyUpdateInput } from '@/types/domain';
 
 // Components & Tabs
 import { CompanyDetailsTab } from './tabs/CompanyDetailsTab';
@@ -65,7 +65,7 @@ export function SettingsContent({
         messageRef.current = message;
     }, [message]);
 
-    const { data: employeesData } = useEmployees();
+    // const { data: employeesData } = useEmployees();
 
     const [isEditing, setIsEditing] = useState(false);
     const [notifications, setNotifications] = useState({ email: true, push: false, reports: true });

@@ -1,6 +1,6 @@
 'use client';
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { Workspace, Requirement, Employee, Client, Task } from '../types/genericTypes';
+import { Workspace, Requirement, Employee, Client, Task } from '../types/domain';
 import { initialWorkspaces, initialRequirements, initialEmployees, initialClients, initialTasks } from '../data/defaultData';
 
 interface DataContextType {

@@ -8,7 +8,7 @@ import { PageLayout } from "../../layout/PageLayout";
 import { useUserDetails, useUpdateProfile, useUpdatePassword } from "@/hooks/useUser";
 import { DocumentCard } from "@/components/ui/DocumentCard";
 import { DocumentPreviewModal } from "@/components/ui/DocumentPreviewModal";
-import { UserDocument } from "@/types/genericTypes";
+import { UserDocument } from "@/types/domain";
 import { useDocumentSettings } from "@/hooks/useDocumentSettings";
 import { getErrorMessage } from "@/types/api-utils";
 import { fileService } from "@/services/file.service";
@@ -76,17 +76,17 @@ export function ProfilePage() {
     const initialProfile = useMemo(() => {
         // Use shared mapper for base fields
         const baseProfile = mapUserDtoToProfileData(user as unknown as UserDto);
-        
+
         // user_profile is an array in the User model definition
         const rawUserProfile = user?.user_profile;
         const userProfile = (Array.isArray(rawUserProfile) ? rawUserProfile[0] : rawUserProfile || {}) as UserProfile;
 
         const fullName = user?.name || "";
         const nameParts = fullName.split(" ");
-        
+
         // Parse working hours
         const workingHours = userProfile?.working_hours || {};
-        
+
         // Helper to get mobile/phone since not in baseProfile? 
         // actually baseProfile doesn't have phone separate from country code/splitting logic
         // helper for phone parsing
@@ -117,7 +117,7 @@ export function ProfilePage() {
             middleName: userProfile?.middle_name || (nameParts.length > 2 ? nameParts[1] : "") || "",
             phone: phone,
             countryCode: countryCode,
-            
+
             // Employment Details (Read only mostly)
             employmentType: userProfile?.employment_type || "Full-time",
             dateOfJoining: userProfile?.date_of_joining
@@ -133,8 +133,8 @@ export function ProfilePage() {
             leaves: userProfile?.no_of_leaves || 0,
 
             addressLine2: userProfile?.address_line_2 || "",
-            
-            department: (function() {
+
+            department: (function () {
                 const u = user as unknown as UserDto;
                 if (!u?.department) return "-";
                 if (typeof u.department === 'object') return u.department.name;
@@ -389,7 +389,7 @@ export function ProfilePage() {
             profilePic: profile.profilePic,
             documents: profile.documents
         };
-        
+
         const { percentage } = calculateProfileCompletion(completionData, documentTypes);
         return percentage;
     }, [profile, documentTypes]);

@@ -1,7 +1,7 @@
 
 import axiosApi from "../config/axios";
 import { ApiResponse } from "../types/api";
-import { CompanyUpdateInput } from "../types/genericTypes";
+import { CompanyUpdateInput } from "../types/domain";
 import { CompanyProfile } from "../types/auth";
 import { UserDto, RoleDto, ModuleActionGroupDto, CreateEmployeeRequestDto, UpdateEmployeeRequestDto, UpdateUserProfileRequestDto, UserAccessDto } from "../types/dto/user.dto";
 

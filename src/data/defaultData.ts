@@ -105,7 +105,7 @@ export const commonTimezones = [
 ];
 
 // Initial data for DataContext (empty arrays - data will come from API)
-import { Workspace, Requirement, Employee, Client, Task } from '../types/genericTypes';
+import { Workspace, Requirement, Employee, Client, Task } from '../types/domain';
 
 export const initialWorkspaces: Workspace[] = [];
 export const initialRequirements: Requirement[] = [];

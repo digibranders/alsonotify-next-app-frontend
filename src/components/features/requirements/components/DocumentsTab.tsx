@@ -4,7 +4,7 @@ import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Paperclip, FileText, Eye, Download, Loader2 } from 'lucide-react';
 import { App } from 'antd';
 import { DocumentPreviewModal } from '@/components/ui/DocumentPreviewModal';
-import { UserDocument } from '@/types/genericTypes';
+import { UserDocument } from '@/types/domain';
 import { fileService } from '@/services/file.service';
 
 interface AttachmentObject {

@@ -1,5 +1,5 @@
 import { UserDto } from "../types/dto/user.dto";
-import { DocumentType } from "../types/genericTypes";
+import { DocumentType } from "../types/domain";
 import { ProfileCompletionData, CompletionResult } from "../types/profile-completion.types";
 import { trimStr } from "./trim";
 
@@ -103,7 +103,7 @@ export const calculateProfileCompletion = (
         const value = data[field.key];
         // Check if value is non-empty string or non-null
         const isFilled = value !== null && value !== undefined && String(value).trim() !== "";
-        
+
         if (isFilled) {
             filledCount++;
         } else {
@@ -117,7 +117,7 @@ export const calculateProfileCompletion = (
     const uploadedTypeIds = new Set(data.documents.map(d => String(d.documentTypeId)));
 
     let documentsFilledCount = 0;
-    
+
     requiredDocumentTypes.filter(dt => dt.required).forEach(docType => {
         const isUploaded = uploadedTypeIds.has(String(docType.id));
         if (isUploaded) {
@@ -130,7 +130,7 @@ export const calculateProfileCompletion = (
     // Total Calculation
     const totalStandardFields = REQUIRED_PROFILE_FIELDS.length;
     const totalRequiredDocs = requiredDocumentTypes.filter(dt => dt.required).length;
-    
+
     const totalItems = totalStandardFields + totalRequiredDocs;
     const totalFilled = filledCount + documentsFilledCount;
 

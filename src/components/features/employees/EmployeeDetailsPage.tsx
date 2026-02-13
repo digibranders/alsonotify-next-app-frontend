@@ -13,7 +13,7 @@ import { Mail, Phone, Calendar, Briefcase, DollarSign, ArrowLeft, Edit, FileText
 import { EmployeeForm, EmployeeFormData } from '../../modals/EmployeesForm';
 import { DocumentCard } from '@/components/ui/DocumentCard';
 import { DocumentPreviewModal } from '@/components/ui/DocumentPreviewModal';
-import { UserDocument } from '@/types/genericTypes';
+import { UserDocument } from '@/types/domain';
 import { getErrorMessage } from '@/types/api-utils';
 import { ManagedPartnersTab } from './tabs/ManagedPartnersTab';
 

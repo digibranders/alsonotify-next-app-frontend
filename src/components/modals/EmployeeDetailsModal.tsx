@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { Modal, Button, App } from 'antd';
 import { Briefcase, Mail, Phone, Calendar, DollarSign, Clock, CalendarDays, X, FileText, Users, Globe, ShieldAlert, Linkedin, Github } from 'lucide-react';
 import { AccessBadge } from '../ui/AccessBadge';
-import { UserDocument } from '@/types/genericTypes';
+import { UserDocument } from '@/types/domain';
 import { Employee } from '@/types/domain';
 import { DocumentCard } from '@/components/ui/DocumentCard';
 import { DocumentPreviewModal } from '@/components/ui/DocumentPreviewModal';

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Eye, Download, Upload as UploadIcon, FileText, Image as ImageIcon, FileSpreadsheet } from 'lucide-react';
-import { UserDocument } from '@/types/genericTypes';
+import { UserDocument } from '@/types/domain';
 
 interface DocumentCardProps {
   document: UserDocument;
