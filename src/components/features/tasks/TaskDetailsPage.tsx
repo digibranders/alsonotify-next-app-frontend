@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useTabSync } from '@/hooks/useTabSync';
 import {
@@ -11,7 +11,7 @@ import {
 import { Breadcrumb, App, Modal, Input } from 'antd';
 import { TaskStatusBadge, TaskChatPanel } from './components';
 import { TaskMembersList } from './components/TaskMembersList';
-import { TaskDocumentsTab } from './components/TaskDocumentsTab';
+import { DocumentsTab } from '@/components/shared/DocumentsTab';
 import { useTask, useTaskTimer, useUpdateMemberStatus } from '@/hooks/useTask';
 import { useTaskActivities } from '@/hooks/useTaskActivity';
 import { useTimer } from '@/context/TimerContext';
@@ -21,6 +21,24 @@ import { format } from 'date-fns';
 import { Skeleton } from '../../ui/Skeleton';
 import { PageLayout } from '../../layout/PageLayout';
 import { queryKeys } from '@/lib/queryKeys';
+
+
+interface TaskActivityAttachment {
+  id: number;
+  file_name: string;
+  file_url: string;
+  file_type: string;
+  file_size: number;
+}
+
+interface TaskActivity {
+  id: number;
+  type: string;
+  user?: { name: string };
+  created_at: string;
+  message: string;
+  attachments?: TaskActivityAttachment[];
+}
 
 export function TaskDetailsPage() {
   const params = useParams();
@@ -42,16 +60,18 @@ export function TaskDetailsPage() {
   const { data: activitiesData } = useTaskActivities(taskId);
 
   // Transform activity data for Documents tab
-  const documentsActivityData = activitiesData?.result?.map((act: any) => ({
-    id: act.id,
-    type: act.type,
-    user: act.user?.name || 'Unknown',
-    avatar: '',
-    date: format(new Date(act.created_at), 'MMM d, h:mm a'),
-    message: act.message,
-    isSystem: false,
-    attachments: act.attachments || [],
-  })) || [];
+  const documentsActivityData = useMemo(() => {
+    return (activitiesData?.result as TaskActivity[] | undefined)?.map((act) => ({
+      id: act.id,
+      type: act.type,
+      user: act.user?.name || 'Unknown',
+      avatar: '',
+      date: format(new Date(act.created_at), 'MMM d, h:mm a'),
+      message: act.message,
+      isSystem: false,
+      attachments: act.attachments || [],
+    })) || [];
+  }, [activitiesData]);
 
   // Use standardized tab sync hook for consistent URL handling
   type TaskDetailsTab = 'details' | 'documents';
@@ -417,7 +437,7 @@ export function TaskDetailsPage() {
         </div>
 
         <div style={{ display: activeTab === 'documents' ? 'block' : 'none' }}>
-          <TaskDocumentsTab activityData={documentsActivityData} />
+          <DocumentsTab activityData={documentsActivityData} />
         </div>
       </div>
       {/* TaskActionPanel removed as per request */}

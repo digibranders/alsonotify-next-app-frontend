@@ -325,6 +325,8 @@ export function RequirementsPage() {
         assignedTo: req.manager_user ? [req.manager_user.name || ''] : req.leader_user ? [req.leader_user.name || ''] : [],
         dueDate: req.end_date ? format(new Date(req.end_date), 'dd-MMM-yyyy') : 'TBD',
         startDate: req.start_date ? format(new Date(req.start_date), 'dd-MMM-yyyy') : undefined,
+        end_date: req.end_date || undefined, // Correctly pass snake_case end_date for RequirementCard
+        start_date: req.start_date || undefined, // Correctly pass snake_case start_date for consistency
         createdDate: req.start_date ? format(new Date(req.start_date), 'dd-MMM-yyyy') : 'TBD',
         is_high_priority: req.is_high_priority ?? false,
         type: (req.type || 'inhouse') as RequirementType,

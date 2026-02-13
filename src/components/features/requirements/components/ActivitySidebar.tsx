@@ -3,7 +3,7 @@ import { App } from 'antd';
 import { format } from 'date-fns';
 import { useRequirementActivities, useCreateRequirementActivity } from '@/hooks/useRequirementActivity';
 import { fileService } from '@/services/file.service';
-import { ChatPanel } from './ChatPanel';
+import { ChatPanel } from '@/components/shared/ChatPanel';
 
 import { ApiResponse } from '@/types/api';
 import { Employee, Task } from '@/types/domain';
