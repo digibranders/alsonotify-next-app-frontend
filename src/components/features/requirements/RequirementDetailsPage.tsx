@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useTabSync } from '@/hooks/useTabSync';
 import {
@@ -30,6 +30,8 @@ import {
   mapRequirementToType,
 } from './utils/requirementState.utils';
 import { getRoleFromUser } from '@/utils/roleUtils';
+import { RequirementActivityDto } from '@/services/requirement-activity';
+import { ReqTabId } from './components/RequirementHeader';
 
 
 // Extracted components
@@ -73,7 +75,7 @@ export function RequirementDetailsPage() {
   const [selectedTasks, setSelectedTasks] = useState<string[]>([]);
   const [ganttView, setGanttView] = useState<'day' | 'week' | 'month'>('week');
 
-  const { mutate: updateRequirement } = useUpdateRequirement();
+  const { mutateAsync: updateRequirement } = useUpdateRequirement();
   const { data: myWorkspacesData } = useWorkspaces();
   const { data: partnersData } = usePartners();
   const { mutate: requestRevision } = useRequestRevision();
@@ -81,7 +83,7 @@ export function RequirementDetailsPage() {
   const { data: activityResponse } = useRequirementActivities(reqId);
   const documentsActivityData = useMemo(() => {
     if (!activityResponse?.result) return [];
-    return (activityResponse.result as any[]).map((act) => ({
+    return (activityResponse.result as RequirementActivityDto[]).map((act) => ({
       id: act.id,
       type: act.type,
       user: act.user?.name || 'Unknown',
@@ -116,12 +118,12 @@ export function RequirementDetailsPage() {
 
   const tasks = useMemo((): Task[] => {
     if (!tasksData?.result || !requirement) return [];
-    return tasksData.result.filter((t: any) => Number(t.requirement_id) === reqId && (!t.type || t.type === 'task'));
+    return tasksData.result.filter((t: Task) => Number(t.requirement_id) === reqId && (!t.type || t.type === 'task'));
   }, [tasksData, requirement, reqId]);
 
   const revisions = useMemo(() => {
     if (!tasksData?.result || !requirement) return [];
-    return tasksData.result.filter((t: Task & { type?: string }) => t.requirement_id === reqId && t.type === 'revision');
+    return tasksData.result.filter((t: Task) => Number(t.requirement_id) === reqId && t.type === 'revision');
   }, [tasksData, requirement, reqId]);
 
   const ctaConfig = useMemo(() => {
@@ -154,6 +156,24 @@ export function RequirementDetailsPage() {
   }, [requirement, user?.id]);
 
   const displayStatus = ctaConfig.displayStatus;
+
+  const myCompanyId = companyData?.result?.id;
+  const isReceiver = useMemo(() => !!myCompanyId && requirement?.receiver_company_id === myCompanyId, [myCompanyId, requirement]);
+  const isInHouse = useMemo(() => !requirement?.receiver_company_id || requirement?.receiver_company_id === requirement?.sender_company_id, [requirement]);
+
+  const visibleTabs: ReqTabId[] = useMemo(() => {
+    if (isReceiver || isInHouse) {
+      return ['details', 'tasks', 'gantt', 'kanban', 'pnl', 'documents'];
+    }
+    return ['details', 'documents'];
+  }, [isReceiver, isInHouse]);
+
+  // If active tab is not visible, switch to 'details' - moved to useEffect for safety
+  useEffect(() => {
+    if (visibleTabs && !visibleTabs.includes(activeTab)) {
+      setActiveTab('details');
+    }
+  }, [visibleTabs, activeTab, setActiveTab]);
 
 
 
@@ -318,6 +338,7 @@ export function RequirementDetailsPage() {
           updateRequirement={updateRequirement}
           activeTab={activeTab}
           setActiveTab={setActiveTab}
+          visibleTabs={visibleTabs}
         />
 
         {/* Content Area - Using CSS visibility to prevent DOM unmounting and flickering */}
@@ -394,12 +415,14 @@ export function RequirementDetailsPage() {
                         timelineDate: task.end_date ? format(new Date(task.end_date), 'MMM dd') : 'N/A',
                         timelineLabel: task.status === 'Delayed' ? 'Overdue' : '',
                         execution_mode: task.execution_mode,
-                        task_members: task.task_members || []
+                        task_members: task.task_members || [],
+                        dueDateValue: task.end_date ? new Date(task.end_date).getTime() : null,
+                        totalSecondsSpent: task.total_seconds_spent || 0,
                       };
                       return (
                         <TaskRow
                           key={task.id}
-                          task={mappedTask as any}
+                          task={mappedTask}
                           selected={selectedTasks.includes(String(task.id))}
                           onSelect={() => {
                             if (selectedTasks.includes(String(task.id))) {
@@ -411,7 +434,7 @@ export function RequirementDetailsPage() {
                           onStatusChange={() => { }}
                           hideRequirements={true}
                           onRequestRevision={getRoleFromUser(user) !== 'Employee' ? () => {
-                            setTargetTaskId(task.id as any);
+                            setTargetTaskId(Number(task.id));
                             setIsRevisionModalOpen(true);
                           } : undefined}
                         />
@@ -438,7 +461,7 @@ export function RequirementDetailsPage() {
                         setRevisionNotes('');
                       },
                       onError: (err: Error) => {
-                        message.error((err as any).message || "Failed to request revision");
+                        message.error(err.message || "Failed to request revision");
                       }
                     });
                   }}

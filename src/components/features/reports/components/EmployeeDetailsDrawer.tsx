@@ -2,6 +2,7 @@ import React from 'react';
 import { Drawer } from 'antd';
 import { Download, Loader2 } from 'lucide-react';
 import { MemberWorklog, EmployeeReport } from '../../../../services/report';
+import { useResizable } from '@/hooks/useResizable';
 
 interface EmployeeDetailsDrawerProps {
     isOpen: boolean;
@@ -25,6 +26,13 @@ const EmployeeDetailsDrawer: React.FC<EmployeeDetailsDrawerProps> = ({
     isDownloading,
     onDownload
 }) => {
+    const { width, isResizing, startResizing } = useResizable({
+        initialWidth: typeof window !== 'undefined' ? window.innerWidth * 0.5 : 600,
+        minWidth: 400,
+        maxWidth: typeof window !== 'undefined' ? window.innerWidth * 0.9 : 1200,
+        direction: 'left'
+    });
+
     if (!member) return null;
 
     const taskEfficiency = member.taskStats.assigned > 0
@@ -45,8 +53,17 @@ const EmployeeDetailsDrawer: React.FC<EmployeeDetailsDrawerProps> = ({
             closable={false}
             onClose={onClose}
             open={isOpen}
-            styles={{ body: { padding: 0 }, wrapper: { width: '50%' } }}
+            width={width}
+            styles={{ body: { padding: 0 }, wrapper: { width: width } }}
+            className="resizable-drawer"
         >
+            {/* Resize Handle */}
+            <div
+                className={`absolute inset-y-0 left-0 w-1.5 hover:w-2 hover:bg-[#ff3b3b]/10 cursor-col-resize z-[1001] flex items-center justify-center transition-all group ${isResizing ? 'bg-[#ff3b3b]/5 w-2' : ''}`}
+                onMouseDown={startResizing}
+            >
+                <div className={`h-8 w-0.5 rounded-full transition-colors ${isResizing ? 'bg-[#ff3b3b]' : 'bg-[#DDDDDD] group-hover:bg-[#ff3b3b]/50'}`} />
+            </div>
             <div className="flex flex-col h-full bg-white">
                 {/* Drawer Header */}
                 <div className="p-6 border-b border-[#EEEEEE] sticky top-0 bg-white z-10">

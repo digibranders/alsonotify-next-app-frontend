@@ -6,7 +6,8 @@ import { Mentions, App } from 'antd';
 import { fileService } from '@/services/file.service';
 import { DocumentPreviewModal } from '@/components/ui/DocumentPreviewModal';
 import { UserDocument } from '@/types/domain';
-import { parseMentionsAndTasks, escapeRegExp, MentionOption } from '@/utils/textUtils';
+import { parseMentionsAndTasks, MentionOption } from '@/utils/textUtils';
+import { useResizable } from '@/hooks/useResizable';
 
 export interface AttachmentObject {
     id: number;
@@ -75,49 +76,18 @@ export function ChatPanel({
     const [isCollapsed, setIsCollapsed] = useState(false);
 
     // Resizable state
-    const [width, setWidth] = useState(350);
-    const [isResizing, setIsResizing] = useState(false);
+    const { width, isResizing, startResizing } = useResizable({
+        initialWidth: 350,
+        minWidth: 300,
+        maxWidth: 800,
+        direction: 'left',
+    });
 
     useEffect(() => {
         if (scrollRef.current) {
             scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
         }
     }, [activityData]);
-
-    // Resizing logic
-    const startResizing = useCallback((e: React.MouseEvent) => {
-        e.preventDefault();
-        setIsResizing(true);
-    }, []);
-
-    const stopResizing = useCallback(() => {
-        setIsResizing(false);
-    }, []);
-
-    const resize = useCallback(
-        (e: MouseEvent) => {
-            if (isResizing) {
-                // Calculate new width based on mouse position
-                // Since panel is on the right, width = window.innerWidth - mouseX
-                const newWidth = window.innerWidth - e.clientX;
-                if (newWidth > 300 && newWidth < 800) {
-                    setWidth(newWidth);
-                }
-            }
-        },
-        [isResizing]
-    );
-
-    useEffect(() => {
-        if (isResizing) {
-            window.addEventListener("mousemove", resize);
-            window.addEventListener("mouseup", stopResizing);
-        }
-        return () => {
-            window.removeEventListener("mousemove", resize);
-            window.removeEventListener("mouseup", stopResizing);
-        };
-    }, [isResizing, resize, stopResizing]);
 
     // File type detection utility
     const determineFileType = useCallback((

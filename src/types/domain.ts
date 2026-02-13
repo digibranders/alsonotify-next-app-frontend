@@ -121,6 +121,7 @@ export interface Task extends Omit<TaskDto, 'id' | 'name' | 'title'> {
 
   // UI computed
   totalSecondsSpent: number;
+  type?: 'task' | 'revision';
 
   // Relations and snake_case fields are now inherited from TaskDto
 }
