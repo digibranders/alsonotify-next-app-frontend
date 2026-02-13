@@ -2,21 +2,22 @@ import { useState, useMemo } from 'react';
 import {
   Download, Clock, CheckCircle2, AlertCircle, Loader2, ArrowUp, ArrowDown
 } from 'lucide-react';
-import BrandLogo from '@/assets/images/logo.png';
 import { PageLayout } from '../../layout/PageLayout';
 import { FilterBar, FilterOption } from '../../ui/FilterBar';
 import { DateRangeSelector } from '../../common/DateRangeSelector';
 import { Drawer, Tooltip, Button } from "antd";
 import { Skeleton } from '../../ui/Skeleton';
-import dynamic from 'next/dynamic'; 
+import dynamic from 'next/dynamic';
 const ReportsPdfTemplate = dynamic(() => import('./ReportsPdfGeneration').then(m => m.ReportsPdfTemplate), { ssr: false });
 const IndividualEmployeePdfTemplate = dynamic(() => import('./ReportsPdfGeneration').then(m => m.IndividualEmployeePdfTemplate), { ssr: false });
-import dayjs from 'dayjs';
+import dayjs from '@/utils/dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 import { useTabSync } from '@/hooks/useTabSync';
 import { useQuery } from '@tanstack/react-query';
-import { usePartners, useEmployees, useCompanyDepartments, useCurrentUserCompany } from '@/hooks/useUser';
-import { getRequirementReports, getTaskReports, getEmployeeReports, getMemberWorklogs, EmployeeReport, EmployeeKPI } from '../../../services/report';
+import { usePartners, useEmployees, useCompanyDepartments } from '@/hooks/useUser';
+import { useTimezone } from '@/hooks/useTimezone';
+import { getRequirementReports, getTaskReports, getEmployeeReports, getMemberWorklogs } from '../../../services/report';
+import EmployeeDetailsDrawer from './components/EmployeeDetailsDrawer';
 
 // Initialize dayjs plugins
 dayjs.extend(isBetween);
@@ -99,26 +100,27 @@ export function ReportsPage() {
   });
 
 
-  const { data: companyData } = useCurrentUserCompany();
-  const companyName = companyData?.result?.name; // Correctly accessing 'name' nested in 'result' property of ApiResponse
+  const { companyName, companyTimezone, formatWithTimezone, getDayjsInTimezone, dayjs } = useTimezone();
 
   // Fetch Dropdown Data
   const { data: partnersData } = usePartners();
   const { data: employeesData } = useEmployees("is_active=true&limit=1000"); // Fetch all active for filters
   const { data: departmentsData } = useCompanyDepartments();
 
-  const partnerOptions = [
-      { label: 'All', value: 'All' }, 
-      ...(partnersData?.result || []).map((p) => ({ label: p.name, value: String(p.id) }))
-  ];
-  const employeeOptions = [
-      { label: 'All', value: 'All' }, 
-      ...(employeesData?.result || []).map((e) => ({ label: e.name, value: String(e.id) }))
-  ];
-  const departmentOptions = [
-      { label: 'All', value: 'All' },
-      ...(departmentsData?.result || []).map((d) => ({ label: d.name, value: String(d.id) }))
-  ];
+  const partnerOptions = useMemo(() => [
+    { label: 'All', value: 'All' },
+    ...(partnersData?.result || []).map((p) => ({ label: p.name, value: String(p.id) }))
+  ], [partnersData]);
+
+  const employeeOptions = useMemo(() => [
+    { label: 'All', value: 'All' },
+    ...(employeesData?.result || []).map((e) => ({ label: e.name, value: String(e.id) }))
+  ], [employeesData]);
+
+  const departmentOptions = useMemo(() => [
+    { label: 'All', value: 'All' },
+    ...(departmentsData?.result || []).map((d) => ({ label: d.name, value: String(d.id) }))
+  ], [departmentsData]);
 
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -152,8 +154,8 @@ export function ReportsPage() {
 
   // Date Picker State using dayjs for AntD
   const [dateRange, setDateRange] = useState<[dayjs.Dayjs | null, dayjs.Dayjs | null] | null>([
-    dayjs().startOf('month'),
-    dayjs().endOf('month')
+    getDayjsInTimezone().startOf('month'),
+    getDayjsInTimezone().endOf('month')
   ]);
 
   // Handle Filters
@@ -179,7 +181,7 @@ export function ReportsPage() {
   const handleDownloadPDF = async () => {
     setIsDownloading(true);
     try {
-      const fileName = `alsonotify_${activeTab}_report_${dayjs().format('YYYY-MM-DD')}.pdf`;
+      const fileName = `alsonotify_${activeTab}_report_${getDayjsInTimezone().format('YYYY-MM-DD')}.pdf`;
       const { generatePdf } = await import('./ReportsPdfGeneration');
       await generatePdf(fileName, 'pdf-report-container');
     } catch (error) {
@@ -191,22 +193,22 @@ export function ReportsPage() {
   };
 
   const handleDownloadIndividualPDF = async () => {
-    if(!selectedMember) return;
+    if (!selectedMember) return;
     setIsDownloadingIndividual(true);
     try {
-      const fileName = `alsonotify_employee_${selectedMember.member.replace(/\s+/g, '_')}_${dayjs().format('YYYY-MM-DD')}.pdf`;
+      const fileName = `alsonotify_employee_${selectedMember.member.replace(/\s+/g, '_')}_${getDayjsInTimezone().format('YYYY-MM-DD')}.pdf`;
       const { generatePdf } = await import('./ReportsPdfGeneration');
       await generatePdf(fileName, 'pdf-individual-report-container');
     } catch (error) {
-         console.error('PDF Generation failed:', error);
-         alert("Failed to generate PDF");
+      console.error('PDF Generation failed:', error);
+      alert("Failed to generate PDF");
     } finally {
-        setIsDownloadingIndividual(false);
+      setIsDownloadingIndividual(false);
     }
   }
 
   const handleExport = () => {
-      handleDownloadPDF();
+    handleDownloadPDF();
   };
 
   // --- Queries ---
@@ -261,12 +263,12 @@ export function ReportsPage() {
     placeholderData: (previousData) => previousData, // Keep previous data while fetching
   });
 
-  console.log('Reports Debug:', { 
-      requirementData, 
-      taskData, 
-      employeeData,
-      reqLoading: isLoadingRequirements,
-      taskLoading: isLoadingTasks 
+  console.log('Reports Debug:', {
+    requirementData,
+    taskData,
+    employeeData,
+    reqLoading: isLoadingRequirements,
+    taskLoading: isLoadingTasks
   });
 
 
@@ -341,19 +343,19 @@ export function ReportsPage() {
       totalInvestment: totals.totalInvestment,
       totalRevenue: totals.totalRevenue,
       netProfit: totals.totalRevenue - totals.totalInvestment,
-      avgRatePerHr: totals.totalEngagedHrs > 0 
-        ? totals.totalRevenue / totals.totalEngagedHrs 
+      avgRatePerHr: totals.totalEngagedHrs > 0
+        ? totals.totalRevenue / totals.totalEngagedHrs
         : 0,
-      avgUtilization: filteredEmployees.length > 0 
+      avgUtilization: filteredEmployees.length > 0
         ? Math.round(totals.totalUtilization / filteredEmployees.length)
         : 0
     };
   }, [filteredEmployees]);
 
   // Debug Logs
-  console.log('ReportsPage Render:', { 
-    activeTab, 
-    requirementsCount: requirements.length, 
+  console.log('ReportsPage Render:', {
+    activeTab,
+    requirementsCount: requirements.length,
     tasksCount: tasks.length,
     reqData: requirementData,
     taskData: taskData
@@ -387,27 +389,26 @@ export function ReportsPage() {
   // Selected Member Logic
   // Find member in the fetched employees list
   const selectedMemberData = employees.find(m => String(m.id) === selectedMemberId) || null;
-  
+
   // Adapt EmployeeReport to the shape expected by the drawer (MemberRow-like)
   const selectedMember = selectedMemberData ? {
-      ...selectedMemberData,
-      id: String(selectedMemberData.id), // Ensure ID is string
-      totalWorkingHrs: selectedMemberData.utilization > 0 ? Math.round(selectedMemberData.engagedHrs / (selectedMemberData.utilization / 100)) : 0,
-      actualEngagedHrs: selectedMemberData.engagedHrs,
-      costPerHour: selectedMemberData.hourlyCost,
-      billablePerHour: 0 // Not in API yet
+    ...selectedMemberData,
+    totalWorkingHrs: selectedMemberData.utilization > 0 ? Math.round(selectedMemberData.engagedHrs / (selectedMemberData.utilization / 100)) : 0,
+    actualEngagedHrs: selectedMemberData.engagedHrs,
+    costPerHour: selectedMemberData.hourlyCost,
+    billablePerHour: 0 // Not in API yet
   } : null;
 
   // Placeholder task filtering for member drawer - Mock worklogs as we don't have an endpoint for user worklogs yet
   // Query Member Worklogs
   const { data: memberWorklogs } = useQuery({
-      queryKey: ['member-worklogs', selectedMemberId, dateRange],
-      queryFn: () => getMemberWorklogs(
-          selectedMemberId!, 
-          dateRange && dateRange[0] ? dateRange[0].toISOString() : undefined,
-          dateRange && dateRange[1] ? dateRange[1].toISOString() : undefined
-      ),
-      enabled: !!selectedMemberId
+    queryKey: ['member-worklogs', selectedMemberId, dateRange],
+    queryFn: () => getMemberWorklogs(
+      selectedMemberId!,
+      dateRange && dateRange[0] ? dateRange[0].toISOString() : undefined,
+      dateRange && dateRange[1] ? dateRange[1].toISOString() : undefined
+    ),
+    enabled: !!selectedMemberId
   });
 
   const selectedMemberWorklogs = memberWorklogs || [];
@@ -415,7 +416,7 @@ export function ReportsPage() {
 
   return (
     <PageLayout
-      title="Reports" 
+      title="Reports"
       tabs={[
         { id: 'requirement', label: 'Requirement' },
         { id: 'task', label: 'Tasks' },
@@ -579,10 +580,10 @@ export function ReportsPage() {
         </div>
 
 
-          {/* Scrollable Content Area */}
-          <div className="flex-1 overflow-auto w-full relative">
-            {/* Requirements Table */}
-            <div style={{ display: activeTab === 'requirement' ? 'block' : 'none' }}>
+        {/* Scrollable Content Area */}
+        <div className="flex-1 overflow-auto w-full relative">
+          {/* Requirements Table */}
+          <div style={{ display: activeTab === 'requirement' ? 'block' : 'none' }}>
             {isLoadingRequirements ? (
               <div className="space-y-2 px-1">
                 {Array.from({ length: 8 }).map((_, i) => (
@@ -599,58 +600,58 @@ export function ReportsPage() {
               </div>
             ) : (
               <div className="px-1 space-y-2">
-                 {/* Header */}
+                {/* Header */}
                 <div className="sticky top-0 z-20 bg-white grid grid-cols-[50px_2fr_1fr_1.2fr_1.5fr_100px_100px] gap-4 px-4 py-3 mb-2 items-center border-b border-transparent">
-                     <div className="pl-2"><TableHeader label="No" /></div>
-                     <TableHeader label="Requirement" sortKey="requirement" currentSort={sortConfig} onSort={handleSort} />
-                     <TableHeader label="Manager" sortKey="manager" currentSort={sortConfig} onSort={handleSort} />
-                     <TableHeader label="Timeline" />
-                     <TableHeader label="Hours Utilization" sortKey="efficiency" currentSort={sortConfig} onSort={handleSort} />
-                     <TableHeader label="Revenue" sortKey="revenue" currentSort={sortConfig} onSort={handleSort} />
-                     <TableHeader label="Status" sortKey="status" currentSort={sortConfig} onSort={handleSort} />
+                  <div className="pl-2"><TableHeader label="No" /></div>
+                  <TableHeader label="Requirement" sortKey="requirement" currentSort={sortConfig} onSort={handleSort} />
+                  <TableHeader label="Manager" sortKey="manager" currentSort={sortConfig} onSort={handleSort} />
+                  <TableHeader label="Timeline" />
+                  <TableHeader label="Hours Utilization" sortKey="efficiency" currentSort={sortConfig} onSort={handleSort} />
+                  <TableHeader label="Revenue" sortKey="revenue" currentSort={sortConfig} onSort={handleSort} />
+                  <TableHeader label="Status" sortKey="status" currentSort={sortConfig} onSort={handleSort} />
                 </div>
-                
+
                 {/* Rows */}
                 {filteredRequirements.map((row, idx) => (
-                    <div 
-                        key={row.id} 
-                        className="group bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[50px_2fr_1fr_1.2fr_1.5fr_100px_100px] gap-4 px-4 py-3 items-center hover:border-[#ff3b3b]/20 hover:shadow-lg transition-all duration-300"
-                    >
-                        <div className="pl-2 text-[13px] text-[#999999] font-['Inter:Medium',sans-serif]">{idx + 1}</div>
-                        
-                        <div className="flex flex-col justify-center">
-                            <span className="text-[14px] text-[#111111] font-['Manrope:Bold',sans-serif] mb-0.5">{row.requirement}</span>
-                            <span className="text-[12px] text-[#666666] font-['Inter:Regular',sans-serif]">{row.partner}</span>
-                        </div>
+                  <div
+                    key={row.id}
+                    className="group bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[50px_2fr_1fr_1.2fr_1.5fr_100px_100px] gap-4 px-4 py-3 items-center hover:border-[#ff3b3b]/20 hover:shadow-lg transition-all duration-300"
+                  >
+                    <div className="pl-2 text-[13px] text-[#999999] font-['Inter:Medium',sans-serif]">{idx + 1}</div>
 
-                        <div className="text-[13px] text-[#666666] font-['Inter:Regular',sans-serif]">{row.manager || 'Unassigned'}</div>
-
-                        <div className="flex flex-col gap-0.5">
-                            <span className="text-[13px] text-[#111111] font-medium">{row.startDate ? dayjs(row.startDate).format('MMM DD') : '-'}</span>
-                            <span className="text-[11px] text-[#999999]">to {row.endDate ? dayjs(row.endDate).format('MMM DD') : '-'}</span>
-                        </div>
-
-                        <div className="flex flex-col gap-1.5 justify-center h-full">
-                            <div className="flex justify-between text-[11px]">
-                            <span className="font-medium text-[#111111]">{row.engagedHrs}h</span>
-                            <span className="text-[#999999]">of {row.allottedHrs}h</span>
-                            </div>
-                            <div className="w-full h-1.5 bg-[#F0F0F0] rounded-full overflow-hidden">
-                            <div 
-                                className={`h-full rounded-full ${row.engagedHrs > row.allottedHrs ? 'bg-[#FF3B3B]' : 'bg-[#111111]'}`}
-                                style={{ width: `${Math.min((row.engagedHrs / (row.allottedHrs || 1)) * 100, 100)}%` }}
-                            ></div>
-                            </div>
-                        </div>
-
-                        <div className="text-[13px] text-[#111111] font-['Manrope:Bold',sans-serif]">${row.revenue?.toLocaleString() || 0}</div>
-                        
-                        <div><StatusBadge status={row.status} /></div>
+                    <div className="flex flex-col justify-center">
+                      <span className="text-[14px] text-[#111111] font-['Manrope:Bold',sans-serif] mb-0.5">{row.requirement}</span>
+                      <span className="text-[12px] text-[#666666] font-['Inter:Regular',sans-serif]">{row.partner}</span>
                     </div>
+
+                    <div className="text-[13px] text-[#666666] font-['Inter:Regular',sans-serif]">{row.manager || 'Unassigned'}</div>
+
+                    <div className="flex flex-col gap-0.5">
+                      <span className="text-[13px] text-[#111111] font-medium">{formatWithTimezone(row.startDate, 'MMM DD')}</span>
+                      <span className="text-[11px] text-[#999999]">to {formatWithTimezone(row.endDate, 'MMM DD')}</span>
+                    </div>
+
+                    <div className="flex flex-col gap-1.5 justify-center h-full">
+                      <div className="flex justify-between text-[11px]">
+                        <span className="font-medium text-[#111111]">{row.engagedHrs}h</span>
+                        <span className="text-[#999999]">of {row.allottedHrs}h</span>
+                      </div>
+                      <div className="w-full h-1.5 bg-[#F0F0F0] rounded-full overflow-hidden">
+                        <div
+                          className={`h-full rounded-full ${row.engagedHrs > row.allottedHrs ? 'bg-[#FF3B3B]' : 'bg-[#111111]'}`}
+                          style={{ width: `${Math.min((row.engagedHrs / (row.allottedHrs || 1)) * 100, 100)}%` }}
+                        ></div>
+                      </div>
+                    </div>
+
+                    <div className="text-[13px] text-[#111111] font-['Manrope:Bold',sans-serif]">${row.revenue?.toLocaleString() || 0}</div>
+
+                    <div><StatusBadge status={row.status} /></div>
+                  </div>
                 ))}
 
                 {filteredRequirements.length === 0 && (
-                    <div className="text-center py-12 text-[#999999] text-[13px]">No requirements found matching your filters.</div>
+                  <div className="text-center py-12 text-[#999999] text-[13px]">No requirements found matching your filters.</div>
                 )}
               </div>
             )}
@@ -674,41 +675,41 @@ export function ReportsPage() {
                 ))}
               </div>
             ) : (
-                <div className="px-1 space-y-2">
-                    {/* Header */}
-                    <div className="sticky top-0 z-20 bg-white grid grid-cols-[50px_2fr_1.5fr_1fr_1fr_0.8fr_0.8fr_0.8fr_100px] gap-4 px-4 py-3 mb-2 items-center border-b border-transparent">
-                        <div className="pl-2"><TableHeader label="No" /></div>
-                        <TableHeader label="Task" sortKey="task" currentSort={sortConfig} onSort={handleSort} />
-                        <TableHeader label="Requirement" sortKey="requirement" currentSort={sortConfig} onSort={handleSort} />
-                        <TableHeader label="Leader" sortKey="leader" currentSort={sortConfig} onSort={handleSort} />
-                        <TableHeader label="Assigned" sortKey="assigned" currentSort={sortConfig} onSort={handleSort} />
-                        <TableHeader label="Allotted" sortKey="allottedHrs" currentSort={sortConfig} onSort={handleSort} />
-                        <TableHeader label="Engaged" sortKey="engagedHrs" currentSort={sortConfig} onSort={handleSort} />
-                        <TableHeader label="Extra" sortKey="extraHrs" currentSort={sortConfig} onSort={handleSort} />
-                        <div className="text-center"><TableHeader label="Status" sortKey="status" currentSort={sortConfig} onSort={handleSort} align="center" /></div>
-                    </div>
-
-                    {/* Rows */}
-                    {filteredTasks.map((row, idx) => (
-                        <div 
-                            key={row.id} 
-                            className="group bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[50px_2fr_1.5fr_1fr_1fr_1fr_0.8fr_0.8fr_0.8fr_100px] gap-4 px-4 py-3 items-center hover:border-[#ff3b3b]/20 hover:shadow-lg transition-all duration-300"
-                        >
-                            <div className="pl-2 text-[13px] text-[#999999] font-['Inter:Medium',sans-serif]">{idx + 1}</div>
-                            <div className="text-[13px] text-[#111111] font-['Manrope:SemiBold',sans-serif]">{row.task}</div>
-                            <div className="text-[13px] text-[#666666] font-['Inter:Regular',sans-serif]">{row.requirement}</div>
-                            <div className="text-[13px] text-[#666666] font-['Inter:Regular',sans-serif]">{row.leader}</div>
-                            <div className="text-[13px] text-[#666666] font-['Inter:Regular',sans-serif]">{row.assigned}</div>
-                            <div className="text-[13px] text-[#666666] font-['Inter:Regular',sans-serif]">{row.allottedHrs}h</div>
-                            <div className="text-[13px] text-[#111111] font-['Manrope:Bold',sans-serif]">{row.engagedHrs}h</div>
-                            <div className="text-[13px] font-['Inter:Medium',sans-serif] text-[#FF3B3B]">{row.extraHrs > 0 ? `+${row.extraHrs}h` : '-'}</div>
-                            <div className="flex justify-center"><StatusBadge status={row.status} /></div>
-                        </div>
-                    ))}
-                    {filteredTasks.length === 0 && (
-                        <div className="text-center py-12 text-[#999999] text-[13px]">No tasks found matching your filters.</div>
-                    )}
+              <div className="px-1 space-y-2">
+                {/* Header */}
+                <div className="sticky top-0 z-20 bg-white grid grid-cols-[50px_2fr_1.5fr_1fr_1fr_0.8fr_0.8fr_0.8fr_100px] gap-4 px-4 py-3 mb-2 items-center border-b border-transparent">
+                  <div className="pl-2"><TableHeader label="No" /></div>
+                  <TableHeader label="Task" sortKey="task" currentSort={sortConfig} onSort={handleSort} />
+                  <TableHeader label="Requirement" sortKey="requirement" currentSort={sortConfig} onSort={handleSort} />
+                  <TableHeader label="Leader" sortKey="leader" currentSort={sortConfig} onSort={handleSort} />
+                  <TableHeader label="Assigned" sortKey="assigned" currentSort={sortConfig} onSort={handleSort} />
+                  <TableHeader label="Allotted" sortKey="allottedHrs" currentSort={sortConfig} onSort={handleSort} />
+                  <TableHeader label="Engaged" sortKey="engagedHrs" currentSort={sortConfig} onSort={handleSort} />
+                  <TableHeader label="Extra" sortKey="extraHrs" currentSort={sortConfig} onSort={handleSort} />
+                  <div className="text-center"><TableHeader label="Status" sortKey="status" currentSort={sortConfig} onSort={handleSort} align="center" /></div>
                 </div>
+
+                {/* Rows */}
+                {filteredTasks.map((row, idx) => (
+                  <div
+                    key={row.id}
+                    className="group bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[50px_2fr_1.5fr_1fr_1fr_1fr_0.8fr_0.8fr_0.8fr_100px] gap-4 px-4 py-3 items-center hover:border-[#ff3b3b]/20 hover:shadow-lg transition-all duration-300"
+                  >
+                    <div className="pl-2 text-[13px] text-[#999999] font-['Inter:Medium',sans-serif]">{idx + 1}</div>
+                    <div className="text-[13px] text-[#111111] font-['Manrope:SemiBold',sans-serif]">{row.task}</div>
+                    <div className="text-[13px] text-[#666666] font-['Inter:Regular',sans-serif]">{row.requirement}</div>
+                    <div className="text-[13px] text-[#666666] font-['Inter:Regular',sans-serif]">{row.leader}</div>
+                    <div className="text-[13px] text-[#666666] font-['Inter:Regular',sans-serif]">{row.assigned}</div>
+                    <div className="text-[13px] text-[#666666] font-['Inter:Regular',sans-serif]">{row.allottedHrs}h</div>
+                    <div className="text-[13px] text-[#111111] font-['Manrope:Bold',sans-serif]">{row.engagedHrs}h</div>
+                    <div className="text-[13px] font-['Inter:Medium',sans-serif] text-[#FF3B3B]">{row.extraHrs > 0 ? `+${row.extraHrs}h` : '-'}</div>
+                    <div className="flex justify-center"><StatusBadge status={row.status} /></div>
+                  </div>
+                ))}
+                {filteredTasks.length === 0 && (
+                  <div className="text-center py-12 text-[#999999] text-[13px]">No tasks found matching your filters.</div>
+                )}
+              </div>
             )}
           </div>
 
@@ -725,209 +726,109 @@ export function ReportsPage() {
                 ))}
               </div>
             ) : (
-                <div className="px-1 space-y-2">
-                    {/* Header */}
-                    <div className="sticky top-0 z-20 bg-white grid grid-cols-[50px_2fr_2fr_0.8fr_1fr_1fr_1fr] gap-4 px-4 py-3 mb-2 items-center border-b border-transparent">
-                        <div className="pl-2"><TableHeader label="No" /></div>
-                        <TableHeader label="Member" sortKey="member" currentSort={sortConfig} onSort={handleSort} />
-                        <TableHeader label="Tasks Performance" />
-                        <TableHeader label="Load" sortKey="utilization" currentSort={sortConfig} onSort={handleSort} />
-                        <TableHeader label="Investment" sortKey="investment" currentSort={sortConfig} onSort={handleSort} />
-                        <TableHeader label="Revenue" sortKey="revenue" currentSort={sortConfig} onSort={handleSort} />
-                        <TableHeader label="Net Profit" sortKey="profit" currentSort={sortConfig} onSort={handleSort} />
+              <div className="px-1 space-y-2">
+                {/* Header */}
+                <div className="sticky top-0 z-20 bg-white grid grid-cols-[50px_2fr_2fr_0.8fr_1fr_1fr_1fr] gap-4 px-4 py-3 mb-2 items-center border-b border-transparent">
+                  <div className="pl-2"><TableHeader label="No" /></div>
+                  <TableHeader label="Member" sortKey="member" currentSort={sortConfig} onSort={handleSort} />
+                  <TableHeader label="Tasks Performance" />
+                  <TableHeader label="Load" sortKey="utilization" currentSort={sortConfig} onSort={handleSort} />
+                  <TableHeader label="Investment" sortKey="investment" currentSort={sortConfig} onSort={handleSort} />
+                  <TableHeader label="Revenue" sortKey="revenue" currentSort={sortConfig} onSort={handleSort} />
+                  <TableHeader label="Net Profit" sortKey="profit" currentSort={sortConfig} onSort={handleSort} />
+                </div>
+
+                {/* Rows */}
+                {filteredEmployees.map((row, idx) => (
+                  <div
+                    key={row.id}
+                    className="group bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[50px_2fr_2fr_0.8fr_1fr_1fr_1fr] gap-4 px-4 py-3 items-center hover:border-[#ff3b3b]/20 hover:shadow-lg transition-all duration-300 cursor-pointer"
+                    onClick={() => setSelectedMemberId(String(row.id))}
+                  >
+                    <div className="pl-2 text-[13px] text-[#999999] font-['Inter:Medium',sans-serif]">{idx + 1}</div>
+
+                    <div className="flex flex-col justify-center">
+                      <span className="text-[14px] text-[#111111] font-['Manrope:Bold',sans-serif]">{row.member}</span>
+                      <span className="text-[12px] text-[#666666] font-['Inter:Regular',sans-serif]">{row.designation} <span className="text-[#E5E5E5] mx-1">|</span> {row.department}</span>
                     </div>
 
-                    {/* Rows */}
-                    {filteredEmployees.map((row, idx) => (
-                        <div 
-                            key={row.id} 
-                            className="group bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[50px_2fr_2fr_0.8fr_1fr_1fr_1fr] gap-4 px-4 py-3 items-center hover:border-[#ff3b3b]/20 hover:shadow-lg transition-all duration-300 cursor-pointer"
-                            onClick={() => setSelectedMemberId(String(row.id))}
-                        >
-                            <div className="pl-2 text-[13px] text-[#999999] font-['Inter:Medium',sans-serif]">{idx + 1}</div>
-                            
-                            <div className="flex flex-col justify-center">
-                                <span className="text-[14px] text-[#111111] font-['Manrope:Bold',sans-serif]">{row.member}</span>
-                                <span className="text-[12px] text-[#666666] font-['Inter:Regular',sans-serif]">{row.designation} <span className="text-[#E5E5E5] mx-1">|</span> {row.department}</span>
-                            </div>
-
-                            <div className="flex flex-col">
-                                <span className="text-[14px] text-[#111111] font-['Manrope:Bold',sans-serif]">
-                                    {row.taskStats.assigned} <span className="text-[#666666] font-['Inter:Regular',sans-serif] text-[13px]">Assigned</span>
-                                </span>
-                                <div className="flex gap-3 mt-1 text-[11px] font-medium text-[#666666]">
-                                    <div className="flex items-center gap-1.5">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-[#0F9D58]"></div>
-                                        <span>{row.taskStats.completed}</span>
-                                    </div>
-                                    <div className="flex items-center gap-1.5">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-[#1A73E8]"></div>
-                                        <span>{row.taskStats.inProgress}</span>
-                                    </div>
-                                    <div className="flex items-center gap-1.5">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-[#FF3B3B]"></div>
-                                        <span>{row.taskStats.delayed}</span>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            {/* Load / Utilization */}
-                             <div className="flex flex-col gap-1.5 justify-center">
-                                <div className="flex justify-between text-[11px]">
-                                <span className="font-medium text-[#111111]">{row.utilization}%</span>
-                                </div>
-                                <div className="w-full h-1.5 bg-[#F0F0F0] rounded-full overflow-hidden">
-                                <div 
-                                    className={`h-full rounded-full ${row.utilization > 100 ? 'bg-[#FF3B3B]' : 'bg-[#111111]'}`}
-                                    style={{ width: `${Math.min(row.utilization, 100)}%` }}
-                                ></div>
-                                </div>
-                            </div>
-
-                            <div className="text-[13px] text-[#111111] font-['Manrope:Bold',sans-serif]">${row.investment?.toLocaleString() || 0}</div>
-                            <div className="text-[13px] text-[#111111] font-['Manrope:Bold',sans-serif]">${row.revenue?.toLocaleString() || 0}</div>
-                            <div className={`text-[13px] font-['Manrope:Bold',sans-serif] ${row.profit >= 0 ? 'text-[#0F9D58]' : 'text-[#FF3B3B]'}`}>
-                                {row.profit >= 0 ? '+' : ''}${row.profit?.toLocaleString() || 0}
-                            </div>
+                    <div className="flex flex-col">
+                      <span className="text-[14px] text-[#111111] font-['Manrope:Bold',sans-serif]">
+                        {row.taskStats.assigned} <span className="text-[#666666] font-['Inter:Regular',sans-serif] text-[13px]">Assigned</span>
+                      </span>
+                      <div className="flex gap-3 mt-1 text-[11px] font-medium text-[#666666]">
+                        <div className="flex items-center gap-1.5">
+                          <div className="w-1.5 h-1.5 rounded-full bg-[#0F9D58]"></div>
+                          <span>{row.taskStats.completed}</span>
                         </div>
-                    ))}
-                    {filteredEmployees.length === 0 && (
-                        <div className="text-center py-12 text-[#999999] text-[13px]">No employees found matching your filters.</div>
-                    )}
-                </div>
+                        <div className="flex items-center gap-1.5">
+                          <div className="w-1.5 h-1.5 rounded-full bg-[#1A73E8]"></div>
+                          <span>{row.taskStats.inProgress}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <div className="w-1.5 h-1.5 rounded-full bg-[#FF3B3B]"></div>
+                          <span>{row.taskStats.delayed}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Load / Utilization */}
+                    <div className="flex flex-col gap-1.5 justify-center">
+                      <div className="flex justify-between text-[11px]">
+                        <span className="font-medium text-[#111111]">{row.utilization}%</span>
+                      </div>
+                      <div className="w-full h-1.5 bg-[#F0F0F0] rounded-full overflow-hidden">
+                        <div
+                          className={`h-full rounded-full ${row.utilization > 100 ? 'bg-[#FF3B3B]' : 'bg-[#111111]'}`}
+                          style={{ width: `${Math.min(row.utilization, 100)}%` }}
+                        ></div>
+                      </div>
+                    </div>
+
+                    <div className="text-[13px] text-[#111111] font-['Manrope:Bold',sans-serif]">${row.investment?.toLocaleString() || 0}</div>
+                    <div className="text-[13px] text-[#111111] font-['Manrope:Bold',sans-serif]">${row.revenue?.toLocaleString() || 0}</div>
+                    <div className={`text-[13px] font-['Manrope:Bold',sans-serif] ${row.profit >= 0 ? 'text-[#0F9D58]' : 'text-[#FF3B3B]'}`}>
+                      {row.profit >= 0 ? '+' : ''}${row.profit?.toLocaleString() || 0}
+                    </div>
+                  </div>
+                ))}
+                {filteredEmployees.length === 0 && (
+                  <div className="text-center py-12 text-[#999999] text-[13px]">No employees found matching your filters.</div>
+                )}
+              </div>
             )}
           </div>
         </div>
 
-        <Drawer
-          title={null}
-          closable={false}
+        <EmployeeDetailsDrawer
+          isOpen={!!selectedMemberId}
           onClose={() => setSelectedMemberId(null)}
-          open={!!selectedMemberId}
-          styles={{ body: { padding: 0 }, wrapper: { width: '50%' } }}
-        >
-          {selectedMember && (
-            <div className="flex flex-col h-full bg-white">
-              {/* Drawer Header */}
-              <div className="p-6 border-b border-[#EEEEEE] sticky top-0 bg-white z-10">
-                <div className="flex items-center justify-between w-full">
-                  <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-full bg-[#111111] flex items-center justify-center text-white text-lg font-['Manrope:Bold',sans-serif] shrink-0">
-                      {selectedMember.member.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
-                    </div>
-                    <div>
-                      <h2 className="text-xl font-['Manrope:Bold',sans-serif] text-[#111111] m-0 flex items-center gap-2">
-                        {selectedMember.member}
-                        <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-[#F5F5F7] text-[#666666] border border-[#E5E5E5] uppercase tracking-wide">
-                              {selectedMember.role || 'Member'}
-                        </span>
-                      </h2>
-                      <div className="flex items-center gap-2 mt-1">
-                        <span className="text-sm text-[#666666] font-['Inter:Medium',sans-serif]">
-                          {selectedMember.designation} <span className="text-[#E5E5E5] mx-1">|</span> {selectedMember.department}
-                        </span>
-                        <span className="w-1 h-1 rounded-full bg-[#999999]/30"></span>
-                        <span className="px-2 py-0.5 rounded-full bg-[#7ccf00]/10 text-[#7ccf00] text-[11px] font-bold uppercase tracking-wide">
-                          Active
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <button 
-                    onClick={handleDownloadIndividualPDF}
-                    disabled={isDownloadingIndividual}
-                    className="p-2 hover:bg-[#FAFAFA] rounded-full transition-colors text-[#666666]"
-                    title="Download Report"
-                  >
-                    {isDownloadingIndividual ? <Loader2 className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />}
-                  </button>
-                </div>
-              </div>
+          member={selectedMember}
+          worklogs={selectedMemberWorklogs}
+          isDownloading={isDownloadingIndividual}
+          onDownload={handleDownloadIndividualPDF}
+        />
 
-              {/* Drawer Scrollable Content */}
-              <div className="flex-1 overflow-y-auto p-6 space-y-8">
-                
-                {/* Stats Cards */}
-                <div className="grid grid-cols-3 gap-4">
-                    <div className="p-4 bg-[#FAFAFA] rounded-xl border border-[#EEEEEE] flex flex-col items-center text-center">
-                        <span className="text-[11px] font-bold text-[#666666] uppercase tracking-wide mb-1">Total Hours</span>
-                        <span className="text-2xl font-['Manrope:Bold',sans-serif] text-[#111111]">{selectedMember.totalWorkingHrs}h</span>
-                    </div>
-                    <div className="p-4 bg-[#FAFAFA] rounded-xl border border-[#EEEEEE] flex flex-col items-center text-center">
-                        <span className="text-[11px] font-bold text-[#666666] uppercase tracking-wide mb-1">Engaged</span>
-                        <span className="text-2xl font-['Manrope:Bold',sans-serif] text-[#111111]">{selectedMember.actualEngagedHrs}h</span>
-                    </div>
-                    <div className="p-4 bg-[#FAFAFA] rounded-xl border border-[#EEEEEE] flex flex-col items-center text-center">
-                        <span className="text-[11px] font-bold text-[#666666] uppercase tracking-wide mb-1">Efficiency</span>
-                        <span className={`text-2xl font-['Manrope:Bold',sans-serif] ${
-                          (selectedMember.taskStats.assigned > 0 && (selectedMember.taskStats.completed / selectedMember.taskStats.assigned * 100) >= 90) ? 'text-[#7ccf00]' : 
-                          (selectedMember.taskStats.assigned > 0 && (selectedMember.taskStats.completed / selectedMember.taskStats.assigned * 100) >= 75) ? 'text-[#2196F3]' : 'text-[#FF3B3B]'
-                        }`}>
-                          {selectedMember.taskStats.assigned > 0 ? Math.round(selectedMember.taskStats.completed / selectedMember.taskStats.assigned * 100) : 0}%
-                        </span>
-                    </div>
-                </div>
+        {/* Hidden PDF Template Component */}
+        <ReportsPdfTemplate
+          activeTab={activeTab}
+          data={activeTab === 'requirement' ? filteredRequirements : activeTab === 'task' ? filteredTasks : filteredEmployees}
+          kpis={activeTab === 'requirement' ? kpi : activeTab === 'task' ? taskKPI : employeeKPI}
+          dateRange={dateRange}
+          companyName={companyName}
+          timezone={companyTimezone}
+        />
 
-                {/* Work History */}
-                <div>
-                    <h3 className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111] uppercase tracking-wide mb-3">Work History</h3>
-                    <div className="border border-[#EEEEEE] rounded-lg overflow-x-auto">
-                        <table className="w-full text-left border-collapse min-w-[600px]">
-                            <thead className="bg-[#FAFAFA] border-b border-[#EEEEEE]">
-                                <tr>
-                                    <th className="py-2 px-3 text-[11px] font-bold text-[#666666] uppercase w-[100px]">Date</th>
-                                    <th className="py-2 px-3 text-[11px] font-bold text-[#666666] uppercase w-[150px]">Task</th>
-                                    <th className="py-2 px-3 text-[11px] font-bold text-[#666666] uppercase min-w-[200px]">Details</th>
-                                    <th className="py-2 px-3 text-[11px] font-bold text-[#666666] uppercase w-[120px] text-right">Time</th>
-                                    <th className="py-2 px-3 text-[11px] font-bold text-[#666666] uppercase w-[80px] text-right">Duration</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {selectedMemberWorklogs.map((log) => (
-                                    <tr key={log.id} className="border-b border-[#EEEEEE] last:border-0 hover:bg-[#FAFAFA] transition-colors group h-9">
-                                        <td className="px-3 text-[12px] font-medium text-[#111111] whitespace-nowrap">{log.date}</td>
-                                        <td className="px-3 text-[12px] font-medium text-[#111111] truncate max-w-[150px]" title={log.task}>{log.task}</td>
-                                        <td className="px-3 text-[12px] text-[#666666] truncate max-w-[250px]" title={log.details}>{log.details}</td>
-                                        <td className="px-3 text-[11px] text-[#666666] text-right whitespace-nowrap">{log.startTime} - {log.endTime}</td>
-                                        <td className="px-3 text-right">
-                                            <span className="text-[11px] font-bold text-[#111111] bg-[#EEEEEE] px-1.5 py-0.5 rounded group-hover:bg-white group-hover:shadow-sm transition-all">{log.engagedTime}</span>
-                                        </td>
-                                    </tr>
-                                ))}
-                                {selectedMemberWorklogs.length === 0 && (
-                                    <tr>
-                                        <td colSpan={5} className="py-8 text-center text-[13px] text-[#666666] italic">No work history found.</td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-              </div>
-            </div>
-          )}
-        </Drawer>
-      
-      {/* Hidden PDF Template Component */}
-      <ReportsPdfTemplate 
-        activeTab={activeTab}
-        data={activeTab === 'requirement' ? filteredRequirements : activeTab === 'task' ? filteredTasks : filteredEmployees}
-        kpis={activeTab === 'requirement' ? kpi : activeTab === 'task' ? taskKPI : employeeKPI}
-        dateRange={dateRange}
-        companyName={companyName}
-      />
-
-      {/* Hidden Individual Employee PDF Template */}
-      {selectedMember && (
-          <IndividualEmployeePdfTemplate 
+        {/* Hidden Individual Employee PDF Template */}
+        {selectedMember && (
+          <IndividualEmployeePdfTemplate
             member={selectedMember}
             worklogs={selectedMemberWorklogs}
             dateRange={dateRange}
             companyName={companyName}
+            timezone={companyTimezone}
           />
-      )}
+        )}
 
 
       </div>

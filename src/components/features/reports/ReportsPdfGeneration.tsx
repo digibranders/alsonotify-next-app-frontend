@@ -1,25 +1,26 @@
 import React from 'react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
-import dayjs from 'dayjs';
+import dayjs from '@/utils/dayjs';
 import BrandLogo from '@/assets/images/logo.png';
-import { RequirementReport, TaskReport, EmployeeReport, ReportKPI, EmployeeKPI } from '../../../services/report';
+import { RequirementReport, TaskReport, EmployeeReport, ReportKPI, EmployeeKPI, TaskReportsResponse } from '../../../services/report';
 
 // --- Types ---
 export interface MemberRow {
-  id: string;
-  member: string;
-  department: string;
-  designation?: string;
-  taskStats: { assigned: number; completed: number; inProgress: number; delayed: number };
-  totalWorkingHrs: number;
-  actualEngagedHrs: number;
-  costPerHour: number;
-  billablePerHour: number;
+    id: string | number;
+    member: string;
+    department: string;
+    designation?: string;
+    taskStats: { assigned: number; completed: number; inProgress: number; delayed: number };
+    totalWorkingHrs: number;
+    actualEngagedHrs: number;
+    costPerHour: number;
+    billablePerHour: number;
+    utilization: number;
 }
 
 export interface WorklogRow {
-    id: string;
+    id: string | number;
     date: string;
     task: string;
     details: string;
@@ -29,11 +30,12 @@ export interface WorklogRow {
 }
 
 interface ReportsPdfTemplateProps {
-  activeTab: 'requirement' | 'task' | 'member';
-  data: RequirementReport[] | TaskReport[] | EmployeeReport[];
-  kpis: ReportKPI | EmployeeKPI | any;
-  dateRange: [dayjs.Dayjs | null, dayjs.Dayjs | null] | null;
-  companyName?: string;
+    activeTab: 'requirement' | 'task' | 'member';
+    data: RequirementReport[] | TaskReport[] | EmployeeReport[];
+    kpis: ReportKPI | EmployeeKPI | TaskReportsResponse['kpi'];
+    dateRange: [dayjs.Dayjs | null, dayjs.Dayjs | null] | null;
+    companyName?: string;
+    timezone?: string;
 }
 
 // --- Pagination Constants ---
@@ -44,13 +46,13 @@ const PAGE_1_ROWS = 12; // Fewer rows due to KPIs
 const PAGE_N_ROWS = 20; // More rows on subsequent pages (no KPIs)
 
 // --- Helper Functions ---
-const chunkData = (data: any[], firstPageSize: number, otherPageSize: number) => {
+const chunkData = <T,>(data: T[], firstPageSize: number, otherPageSize: number): T[][] => {
     const chunks = [];
     if (data.length === 0) return [];
-    
+
     // First chunk
     chunks.push(data.slice(0, firstPageSize));
-    
+
     // Subsequent chunks
     let i = firstPageSize;
     while (i < data.length) {
@@ -62,152 +64,153 @@ const chunkData = (data: any[], firstPageSize: number, otherPageSize: number) =>
 
 const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Completed': return { bg: '#E6F4EA', text: '#1E8E3E' };
-      case 'In Progress': return { bg: '#E8F0FE', text: '#1967D2' };
-      case 'Delayed': return { bg: '#FCE8E6', text: '#C5221F' }; // Or Overdue
-      case 'Paid': return { bg: '#E6F4EA', text: '#1E8E3E' };
-      case 'Pending': return { bg: '#FEF3C7', text: '#B45309' }; 
-      default: return { bg: '#F3F4F6', text: '#4B5563' };
+        case 'Completed': return { bg: '#E6F4EA', text: '#1E8E3E' };
+        case 'In Progress': return { bg: '#E8F0FE', text: '#1967D2' };
+        case 'Delayed': return { bg: '#FCE8E6', text: '#C5221F' }; // Or Overdue
+        case 'Paid': return { bg: '#E6F4EA', text: '#1E8E3E' };
+        case 'Pending': return { bg: '#FEF3C7', text: '#B45309' };
+        default: return { bg: '#F3F4F6', text: '#4B5563' };
     }
-  };
+};
 
 
 // --- Components ---
 
-export const ReportsPdfTemplate = ({ activeTab, data, kpis, dateRange, companyName }: ReportsPdfTemplateProps) => {
-  const generatedDate = dayjs().format('MMM DD, YYYY');
-  const periodStart = dateRange && dateRange[0] ? dateRange[0].format('MMM DD, YYYY') : 'Start';
-  const periodEnd = dateRange && dateRange[1] ? dateRange[1].format('MMM DD, YYYY') : 'End';
+export const ReportsPdfTemplate = ({ activeTab, data, kpis, dateRange, companyName, timezone }: ReportsPdfTemplateProps) => {
+    const generatedDate = dayjs().tz(timezone || 'Asia/Kolkata').format('MMM DD, YYYY');
+    const periodStart = dateRange && dateRange[0] ? dateRange[0].format('MMM DD, YYYY') : 'Start';
+    const periodEnd = dateRange && dateRange[1] ? dateRange[1].format('MMM DD, YYYY') : 'End';
 
-  // Chunk Data
-  const chunks = chunkData(data, PAGE_1_ROWS, PAGE_N_ROWS);
-  const totalPages = chunks.length || 1;
+    // Chunk Data
+    const chunks = chunkData(data as unknown[], PAGE_1_ROWS, PAGE_N_ROWS);
+    const totalPages = chunks.length || 1;
 
-  // If no data, render at least one page
-  if (chunks.length === 0) {
-      chunks.push([]); 
-  }
+    // If no data, render at least one page
+    if (chunks.length === 0) {
+        chunks.push([]);
+    }
 
-  return (
-    <div id="pdf-report-container" style={{ position: 'absolute', left: '-9999px', top: 0 }}>
-        {chunks.map((chunk, pageIndex) => (
-            <div 
-                key={pageIndex} 
-                className="pdf-page"
-                style={{
-                    width: '210mm',
-                    height: '296mm', // Fixed A4 height
-                    padding: '40px',
-                    backgroundColor: 'white',
-                    fontFamily: "'Inter', sans-serif",
-                    color: '#111111',
-                    position: 'relative',
-                    boxSizing: 'border-box',
-                    overflow: 'hidden', // Ensure no overflow
-                    display: 'flex',
-                    flexDirection: 'column'
-                }}
-            >
-                {/* Header Section (On every page for context, or Simplified?) */}
-                <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'flex-start',
-                    borderBottom: '2px solid #EEEEEE',
-                    paddingBottom: '20px',
-                    marginBottom: '20px',
-                    flexShrink: 0
-                }}>
-                    <div className="brand-section">
-                        <h1 style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 800, fontSize: '24px', margin: 0, color: '#111111' }}>
-                            {companyName || 'Company Name'}
-                        </h1>
-                    </div>
-                    <div style={{ textAlign: 'right', fontSize: '12px', color: '#666666' }}>
-                        <span style={{
-                            fontFamily: "'Manrope', sans-serif", fontWeight: 700, fontSize: '16px', color: '#111111', marginBottom: '4px', display: 'block'
-                        }}>
-                             {activeTab === 'requirement' ? 'Requirements Report' : activeTab === 'task' ? 'Tasks Report' : 'Employees Report'}
-                        </span>
-                        <span>Generated: {generatedDate}</span><br />
-                        <span>Period: {periodStart} - {periodEnd}</span>
-                    </div>
-                </div>
-
-                {/* KPIs (Page 1 Only) */}
-                {pageIndex === 0 && (
+    return (
+        <div id="pdf-report-container" style={{ position: 'absolute', left: '-9999px', top: 0 }}>
+            {chunks.map((chunk, pageIndex) => (
+                <div
+                    key={pageIndex}
+                    className="pdf-page"
+                    style={{
+                        width: '210mm',
+                        height: '296mm', // Fixed A4 height
+                        padding: '40px',
+                        backgroundColor: 'white',
+                        fontFamily: "'Inter', sans-serif",
+                        color: '#111111',
+                        position: 'relative',
+                        boxSizing: 'border-box',
+                        overflow: 'hidden', // Ensure no overflow
+                        display: 'flex',
+                        flexDirection: 'column'
+                    }}
+                >
+                    {/* Header Section (On every page for context, or Simplified?) */}
                     <div style={{
-                        display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '15px', marginBottom: '30px', flexShrink: 0
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'flex-start',
+                        borderBottom: '2px solid #EEEEEE',
+                        paddingBottom: '20px',
+                        marginBottom: '20px',
+                        flexShrink: 0
                     }}>
-                        {activeTab === 'requirement' && renderRequirementKPIs(kpis as ReportKPI)}
-                        {activeTab === 'task' && renderTaskKPIs(kpis)}
-                        {activeTab === 'member' && renderEmployeeKPIs(kpis as EmployeeKPI)}
+                        <div className="brand-section">
+                            <h1 style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 800, fontSize: '24px', margin: 0, color: '#111111' }}>
+                                {companyName || 'Company Name'}
+                            </h1>
+                        </div>
+                        <div style={{ textAlign: 'right', fontSize: '12px', color: '#666666' }}>
+                            <span style={{
+                                fontFamily: "'Manrope', sans-serif", fontWeight: 700, fontSize: '16px', color: '#111111', marginBottom: '4px', display: 'block'
+                            }}>
+                                {activeTab === 'requirement' ? 'Requirements Report' : activeTab === 'task' ? 'Tasks Report' : 'Employees Report'}
+                            </span>
+                            <span>Generated: {generatedDate}</span><br />
+                            <span>Period: {periodStart} - {periodEnd}</span>
+                        </div>
                     </div>
-                )}
 
-                {/* Table Section */}
-                <div style={{ flex: 1 }}> {/* Table takes remaining space */}
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
-                        <thead>
-                            <tr>
-                                {activeTab === 'requirement' && renderReqHeader()}
-                                {activeTab === 'task' && renderTaskHeader()}
-                                {activeTab === 'member' && renderEmpHeader()}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {chunk.map((row, idx) => {
-                                // Calculate global index
-                                const globalIdx = (pageIndex === 0 ? idx : PAGE_1_ROWS + (pageIndex - 1) * PAGE_N_ROWS + idx);
-                                return (
-                                    <tr key={idx} style={idx % 2 === 0 ? {} : { backgroundColor: '#F9FAFB' }}>
-                                        {activeTab === 'requirement' && renderReqRow(row as RequirementReport, globalIdx)}
-                                        {activeTab === 'task' && renderTaskRow(row as TaskReport, globalIdx)}
-                                        {activeTab === 'member' && renderEmpRow(row as EmployeeReport, globalIdx)}
-                                    </tr>
-                                );
-                            })}
-                            {chunk.length === 0 && (
-                                <tr><Td colSpan={7} style={{textAlign:'center', padding:'30px', color:'#999'}}>No data available for this period.</Td></tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+                    {/* KPIs (Page 1 Only) */}
+                    {pageIndex === 0 && (
+                        <div style={{
+                            display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '15px', marginBottom: '30px', flexShrink: 0
+                        }}>
+                            {activeTab === 'requirement' && renderRequirementKPIs(kpis as ReportKPI)}
+                            {activeTab === 'task' && renderTaskKPIs(kpis as TaskReportsResponse['kpi'])}
+                            {activeTab === 'member' && renderEmployeeKPIs(kpis as EmployeeKPI)}
+                        </div>
+                    )}
 
-                {/* Footer Section - Absolute bottom to ensure margin */}
-                <div style={{
-                    position: 'absolute',
-                    bottom: '40px',
-                    left: '40px',
-                    right: '40px',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'flex-end',
-                    borderTop: '1px solid #EEEEEE',
-                    paddingTop: '20px'
-                }}>
-                    <img src={BrandLogo.src} alt="Alsonotify" className="h-6 object-contain" />
-                    <span style={{ fontSize: '10px', color: '#999999' }}>Page {pageIndex + 1} of {totalPages}</span>
+                    {/* Table Section */}
+                    <div style={{ flex: 1 }}> {/* Table takes remaining space */}
+                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+                            <thead>
+                                <tr>
+                                    {activeTab === 'requirement' && renderReqHeader()}
+                                    {activeTab === 'task' && renderTaskHeader()}
+                                    {activeTab === 'member' && renderEmpHeader()}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {chunk.map((row, idx) => {
+                                    // Calculate global index
+                                    const globalIdx = (pageIndex === 0 ? idx : PAGE_1_ROWS + (pageIndex - 1) * PAGE_N_ROWS + idx);
+                                    return (
+                                        <tr key={idx} style={idx % 2 === 0 ? {} : { backgroundColor: '#F9FAFB' }}>
+                                            {activeTab === 'requirement' && renderReqRow(row as unknown as RequirementReport, globalIdx, timezone)}
+                                            {activeTab === 'task' && renderTaskRow(row as unknown as TaskReport, globalIdx)}
+                                            {activeTab === 'member' && renderEmpRow(row as unknown as EmployeeReport, globalIdx)}
+                                        </tr>
+                                    );
+                                })}
+                                {chunk.length === 0 && (
+                                    <tr><Td colSpan={7} style={{ textAlign: 'center', padding: '30px', color: '#999' }}>No data available for this period.</Td></tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* Footer Section - Absolute bottom to ensure margin */}
+                    <div style={{
+                        position: 'absolute',
+                        bottom: '40px',
+                        left: '40px',
+                        right: '40px',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'flex-end',
+                        borderTop: '1px solid #EEEEEE',
+                        paddingTop: '20px'
+                    }}>
+                        <img src={BrandLogo.src} alt="Alsonotify" className="h-6 object-contain" />
+                        <span style={{ fontSize: '10px', color: '#999999' }}>Page {pageIndex + 1} of {totalPages}</span>
+                    </div>
                 </div>
-            </div>
-        ))}
-    </div>
-  );
+            ))}
+        </div>
+    );
 };
 
 
-export const IndividualEmployeePdfTemplate = ({ member, worklogs, dateRange, companyName }: { member: MemberRow, worklogs: WorklogRow[], dateRange: [dayjs.Dayjs | null, dayjs.Dayjs | null] | null, companyName?: string }) => {
-    const generatedDate = dayjs().format('MMM DD, YYYY');
+export const IndividualEmployeePdfTemplate = ({ member, worklogs, dateRange, companyName, timezone }: { member: MemberRow, worklogs: WorklogRow[], dateRange: [dayjs.Dayjs | null, dayjs.Dayjs | null] | null, companyName?: string, timezone?: string }) => {
+    const generatedDate = dayjs().tz(timezone || 'Asia/Kolkata').format('MMM DD, YYYY');
     const periodStart = dateRange && dateRange[0] ? dateRange[0].format('MMM DD, YYYY') : 'Start';
     const periodEnd = dateRange && dateRange[1] ? dateRange[1].format('MMM DD, YYYY') : 'End';
-    const efficiency = member.totalWorkingHrs > 0 ? Math.round((member.actualEngagedHrs / member.totalWorkingHrs) * 100) : 0;
+    const taskEfficiency = member.taskStats.assigned > 0 ? Math.round((member.taskStats.completed / member.taskStats.assigned) * 100) : 0;
+    const workEfficiency = member.utilization;
 
     // Chunk worklogs
     // Page 1: Profile + KPIs + History Header + ~5 rows
     // Page N: History Header + ~20 rows
     const EMP_PAGE_1_ROWS = 8;
     const EMP_PAGE_N_ROWS = 25;
-    
+
     const chunks = chunkData(worklogs, EMP_PAGE_1_ROWS, EMP_PAGE_N_ROWS);
     const totalPages = chunks.length || 1;
     if (chunks.length === 0) chunks.push([]);
@@ -215,7 +218,7 @@ export const IndividualEmployeePdfTemplate = ({ member, worklogs, dateRange, com
     return (
         <div id="pdf-individual-report-container" style={{ position: 'absolute', left: '-9999px', top: 0 }}>
             {chunks.map((chunk, pageIndex) => (
-                <div 
+                <div
                     key={pageIndex}
                     className="pdf-page"
                     style={{
@@ -240,7 +243,7 @@ export const IndividualEmployeePdfTemplate = ({ member, worklogs, dateRange, com
                         marginBottom: '30px'
                     }}>
                         <div className="brand-section">
-                             <h1 style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 800, fontSize: '24px', margin: 0, color: '#111111' }}>
+                            <h1 style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 800, fontSize: '24px', margin: 0, color: '#111111' }}>
                                 {companyName || 'Company Name'}
                             </h1>
                         </div>
@@ -273,20 +276,25 @@ export const IndividualEmployeePdfTemplate = ({ member, worklogs, dateRange, com
                                 </div>
                             </div>
 
-                            {/* KPI Cards */}
-                            <div style={{ display:'flex', gap:'15px', flex:2 }}>
-                                <div style={{ flex:1, padding: '16px', borderRadius: '12px', border: '1px solid #EEEEEE', backgroundColor: '#FAFAFA', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                    <span style={{ fontSize: '12px', fontWeight: 500, color: '#666666', textTransform:'uppercase' }}>Total Hours</span>
-                                    <span style={{ fontSize: '24px', fontFamily: "'Manrope', sans-serif", fontWeight: 700, color: '#111111' }}>{member.totalWorkingHrs}h</span>
+                            <div style={{ display: 'flex', gap: '10px', flex: 3 }}>
+                                <div style={{ flex: 1, padding: '12px', borderRadius: '12px', border: '1px solid #EEEEEE', backgroundColor: '#FAFAFA', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                    <span style={{ fontSize: '10px', fontWeight: 500, color: '#666666', textTransform: 'uppercase' }}>Total Hours</span>
+                                    <span style={{ fontSize: '20px', fontFamily: "'Manrope', sans-serif", fontWeight: 700, color: '#111111' }}>{member.totalWorkingHrs}h</span>
                                 </div>
-                                <div style={{ flex:1, padding: '16px', borderRadius: '12px', border: '1px solid #EEEEEE', backgroundColor: '#FAFAFA', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                    <span style={{ fontSize: '12px', fontWeight: 500, color: '#666666', textTransform:'uppercase' }}>Engaged</span>
-                                    <span style={{ fontSize: '24px', fontFamily: "'Manrope', sans-serif", fontWeight: 700, color: '#111111' }}>{member.actualEngagedHrs}h</span>
+                                <div style={{ flex: 1, padding: '12px', borderRadius: '12px', border: '1px solid #EEEEEE', backgroundColor: '#FAFAFA', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                    <span style={{ fontSize: '10px', fontWeight: 500, color: '#666666', textTransform: 'uppercase' }}>Engaged</span>
+                                    <span style={{ fontSize: '20px', fontFamily: "'Manrope', sans-serif", fontWeight: 700, color: '#111111' }}>{member.actualEngagedHrs}h</span>
                                 </div>
-                                <div style={{ flex:1, padding: '16px', borderRadius: '12px', border: '1px solid #EEEEEE', backgroundColor: '#FAFAFA', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                    <span style={{ fontSize: '12px', fontWeight: 500, color: '#666666', textTransform:'uppercase' }}>Efficiency</span>
-                                    <span style={{ fontSize: '24px', fontFamily: "'Manrope', sans-serif", fontWeight: 700, color: efficiency >= 90 ? '#0F9D58' : efficiency >= 75 ? '#2196F3' : '#FF3B3B' }}>
-                                        {efficiency}%
+                                <div style={{ flex: 1, padding: '12px', borderRadius: '12px', border: '1px solid #EEEEEE', backgroundColor: '#FAFAFA', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                    <span style={{ fontSize: '10px', fontWeight: 500, color: '#666666', textTransform: 'uppercase' }}>Task Yield</span>
+                                    <span style={{ fontSize: '20px', fontFamily: "'Manrope', sans-serif", fontWeight: 700, color: taskEfficiency >= 90 ? '#0F9D58' : taskEfficiency >= 75 ? '#2196F3' : '#FF3B3B' }}>
+                                        {taskEfficiency}%
+                                    </span>
+                                </div>
+                                <div style={{ flex: 1, padding: '12px', borderRadius: '12px', border: '1px solid #EEEEEE', backgroundColor: '#FAFAFA', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                    <span style={{ fontSize: '10px', fontWeight: 500, color: '#666666', textTransform: 'uppercase' }}>Work Efficiency</span>
+                                    <span style={{ fontSize: '20px', fontFamily: "'Manrope', sans-serif", fontWeight: 700, color: workEfficiency >= 90 ? '#0F9D58' : workEfficiency >= 75 ? '#2196F3' : '#FF3B3B' }}>
+                                        {workEfficiency}%
                                     </span>
                                 </div>
                             </div>
@@ -295,11 +303,11 @@ export const IndividualEmployeePdfTemplate = ({ member, worklogs, dateRange, com
 
                     {/* Table Section */}
                     <div style={{ marginBottom: '15px' }}>
-                         {/* Title only page 1 */}
+                        {/* Title only page 1 */}
                         {pageIndex === 0 && (
                             <h3 style={{ fontSize: '14px', fontWeight: 700, fontFamily: "'Manrope', sans-serif", color: '#111111', textTransform: 'uppercase', marginBottom: '15px' }}>Work History</h3>
                         )}
-                        
+
                         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
                             <thead>
                                 <tr>
@@ -321,14 +329,14 @@ export const IndividualEmployeePdfTemplate = ({ member, worklogs, dateRange, com
                                     </tr>
                                 ))}
                                 {chunk.length === 0 && pageIndex === 0 && (
-                                     <tr><Td style={{textAlign:'center', color:'#999'}} colSpan={5}>No work history found.</Td></tr>
+                                    <tr><Td style={{ textAlign: 'center', color: '#999' }} colSpan={5}>No work history found.</Td></tr>
                                 )}
                             </tbody>
                         </table>
                     </div>
 
-                     {/* Footer */}
-                     <div style={{
+                    {/* Footer */}
+                    <div style={{
                         position: 'absolute',
                         bottom: '40px',
                         left: '40px',
@@ -356,7 +364,7 @@ export const generatePdf = async (fileName: string, containerId: string = 'pdf-r
     // However, for the individual report, we passed 'pdf-report-container' by prop default or override.
     // The components above use hardcoded IDs 'pdf-report-container' and 'pdf-individual-report-container'.
     // We should ensure the caller passes the right ID or we query based on presence.
-    
+
     // Actually, let's select ALL elements with class 'pdf-page' inside the container.
     const container = document.getElementById(containerId);
     if (!container) {
@@ -377,7 +385,7 @@ export const generatePdf = async (fileName: string, containerId: string = 'pdf-r
 
         for (let i = 0; i < pages.length; i++) {
             const pageEl = pages[i] as HTMLElement;
-            
+
             // Render the page
             const canvas = await html2canvas(pageEl, {
                 scale: 2,
@@ -389,9 +397,9 @@ export const generatePdf = async (fileName: string, containerId: string = 'pdf-r
             });
 
             const imgData = canvas.toDataURL('image/png');
-            
+
             if (i > 0) pdf.addPage();
-            
+
             // Add image full scale to PDF page
             // We set DOM element to 210mm x 297mm, so it maps 1:1
             pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
@@ -448,52 +456,52 @@ function renderEmpHeader() {
     )
 }
 
-function renderReqRow(row: RequirementReport, idx: number) {
+function renderReqRow(row: RequirementReport, idx: number, timezone?: string) {
     return (
         <>
-          <Td>{idx + 1}</Td>
-          <Td>
-            <div style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, fontSize: '13px', color: '#111111' }}>{row.requirement}</div>
-            <div style={{ fontSize: '11px', color: '#666666' }}>{row.partner}</div>
-          </Td>
-          <Td>{row.manager || '-'}</Td>
-          <Td>
-             <div style={{display:'flex', flexDirection:'column'}}>
-                <span>{row.startDate ? dayjs(row.startDate).format('MMM DD') : '-'}</span>
-                <span style={{color: '#999', fontSize: '10px'}}>to {row.endDate ? dayjs(row.endDate).format('MMM DD') : '-'}</span>
-             </div>
-          </Td>
-          <Td>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                <div style={{display:'flex', justifyContent:'space-between', fontSize:'11px'}}>
-                     <span style={{ fontWeight: 700, color: row.engagedHrs > row.allottedHrs ? '#FF3B3B' : '#111111' }}>{row.engagedHrs}h</span>
-                     <span style={{ color: '#666666' }}>of {row.allottedHrs}h</span>
+            <Td>{idx + 1}</Td>
+            <Td>
+                <div style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, fontSize: '13px', color: '#111111' }}>{row.requirement}</div>
+                <div style={{ fontSize: '11px', color: '#666666' }}>{row.partner}</div>
+            </Td>
+            <Td>{row.manager || '-'}</Td>
+            <Td>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <span>{row.startDate ? dayjs(row.startDate).tz(timezone || 'Asia/Kolkata').format('MMM DD') : '-'}</span>
+                    <span style={{ color: '#999', fontSize: '10px' }}>to {row.endDate ? dayjs(row.endDate).tz(timezone || 'Asia/Kolkata').format('MMM DD') : '-'}</span>
                 </div>
-                <ProgressBar filled={row.engagedHrs} total={row.allottedHrs} color={row.engagedHrs > row.allottedHrs ? '#FF3B3B' : '#111111'} />
-            </div>
-          </Td>
-          <Td style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700 }}>${row.revenue?.toLocaleString()}</Td>
-          <Td>
-            <span style={{
-               display: 'inline-block',
-               padding: '4px 8px',
-               borderRadius: '99px',
-               fontSize: '10px',
-               fontWeight: 600,
-               textTransform: 'uppercase',
-               backgroundColor: getStatusColor(row.status).bg,
-               color: getStatusColor(row.status).text
-            }}>
-              {row.status}
-            </span>
-          </Td>
+            </Td>
+            <Td>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px' }}>
+                        <span style={{ fontWeight: 700, color: row.engagedHrs > row.allottedHrs ? '#FF3B3B' : '#111111' }}>{row.engagedHrs}h</span>
+                        <span style={{ color: '#666666' }}>of {row.allottedHrs}h</span>
+                    </div>
+                    <ProgressBar filled={row.engagedHrs} total={row.allottedHrs} color={row.engagedHrs > row.allottedHrs ? '#FF3B3B' : '#111111'} />
+                </div>
+            </Td>
+            <Td style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700 }}>${row.revenue?.toLocaleString()}</Td>
+            <Td>
+                <span style={{
+                    display: 'inline-block',
+                    padding: '4px 8px',
+                    borderRadius: '99px',
+                    fontSize: '10px',
+                    fontWeight: 600,
+                    textTransform: 'uppercase',
+                    backgroundColor: getStatusColor(row.status).bg,
+                    color: getStatusColor(row.status).text
+                }}>
+                    {row.status}
+                </span>
+            </Td>
         </>
     )
 }
 
 function renderTaskRow(row: TaskReport, idx: number) {
     return (
-         <>
+        <>
             <Td>{idx + 1}</Td>
             <Td style={{ fontWeight: 600, color: '#111' }}>{row.task}</Td>
             <Td style={{ color: '#666' }}>{row.requirement}</Td>
@@ -511,105 +519,105 @@ function renderTaskRow(row: TaskReport, idx: number) {
                     backgroundColor: getStatusColor(row.status).bg,
                     color: getStatusColor(row.status).text
                 }}>
-                {row.status}
+                    {row.status}
                 </span>
             </Td>
-         </>
+        </>
     )
 }
 
 function renderEmpRow(row: EmployeeReport, idx: number) {
     return (
-         <>
+        <>
             <Td>{idx + 1}</Td>
             <Td>
                 <div style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, fontSize: '13px', color: '#111111' }}>{row.member}</div>
-                <div style={{ fontSize: '11px', color: '#666666' }}>{row.designation} <span style={{color:'#E5E5E5'}}>|</span> {row.department}</div>
+                <div style={{ fontSize: '11px', color: '#666666' }}>{row.designation} <span style={{ color: '#E5E5E5' }}>|</span> {row.department}</div>
             </Td>
             <Td>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    <span style={{fontWeight: 700, fontSize: '12px'}}>{row.taskStats.assigned} <span style={{fontWeight:400, color:'#666'}}>Assigned</span></span>
-                    <div style={{display:'flex', gap:'8px', fontSize:'10px', color:'#666'}}>
-                         <div style={{display:'flex', alignItems:'center', gap:'4px'}}><div style={{width:6, height:6, borderRadius:'50%', background:'#0F9D58'}}></div> {row.taskStats.completed}</div>
-                         <div style={{display:'flex', alignItems:'center', gap:'4px'}}><div style={{width:6, height:6, borderRadius:'50%', background:'#1A73E8'}}></div> {row.taskStats.inProgress}</div>
-                         <div style={{display:'flex', alignItems:'center', gap:'4px'}}><div style={{width:6, height:6, borderRadius:'50%', background:'#FF3B3B'}}></div> {row.taskStats.delayed}</div>
+                    <span style={{ fontWeight: 700, fontSize: '12px' }}>{row.taskStats.assigned} <span style={{ fontWeight: 400, color: '#666' }}>Assigned</span></span>
+                    <div style={{ display: 'flex', gap: '8px', fontSize: '10px', color: '#666' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><div style={{ width: 6, height: 6, borderRadius: '50%', background: '#0F9D58' }}></div> {row.taskStats.completed}</div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><div style={{ width: 6, height: 6, borderRadius: '50%', background: '#1A73E8' }}></div> {row.taskStats.inProgress}</div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><div style={{ width: 6, height: 6, borderRadius: '50%', background: '#FF3B3B' }}></div> {row.taskStats.delayed}</div>
                     </div>
                 </div>
             </Td>
             <Td>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    <div style={{display:'flex', justifyContent:'space-between', fontSize:'11px'}}>
-                         <span style={{ fontWeight: 700, color: '#111111' }}>{row.utilization}%</span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px' }}>
+                        <span style={{ fontWeight: 700, color: '#111111' }}>{row.utilization}%</span>
                     </div>
                     <ProgressBar filled={row.utilization} total={100} color={row.utilization > 100 ? '#FF3B3B' : '#111111'} />
                 </div>
             </Td>
-            <Td style={{color: '#666'}}>${row.hourlyCost?.toLocaleString()}/hr</Td>
+            <Td style={{ color: '#666' }}>${row.hourlyCost?.toLocaleString()}/hr</Td>
             <Td style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, color: row.profit >= 0 ? '#0F9D58' : '#FF3B3B' }}>
                 ${row.profit?.toLocaleString()}
             </Td>
-         </>
+        </>
     )
 }
 
 // Reuse Sub-components like KPICard, Th, Td, ProgressBar from before
 const KPICard = ({ label, value, color = '#111111', subValue = null }: { label: string, value: string | number, color?: string, subValue?: React.ReactNode }) => (
-  <div style={{
-    background: '#FAFAFA',
-    border: '1px solid #EEEEEE',
-    borderRadius: '12px',
-    padding: '15px'
-  }}>
-    <span style={{
-      fontSize: '11px',
-      fontWeight: 500,
-      color: '#666666',
-      textTransform: 'uppercase',
-      letterSpacing: '0.5px',
-      marginBottom: '5px',
-      display: 'block'
-    }}>{label}</span>
-    <div style={{display:'flex', alignItems:'baseline', gap:'8px'}}>
-        <p style={{
-        fontFamily: "'Manrope', sans-serif",
-        fontWeight: 700,
-        fontSize: '20px',
-        margin: 0,
-        color: color
-        }}>{value}</p>
-        {subValue}
+    <div style={{
+        background: '#FAFAFA',
+        border: '1px solid #EEEEEE',
+        borderRadius: '12px',
+        padding: '15px'
+    }}>
+        <span style={{
+            fontSize: '11px',
+            fontWeight: 500,
+            color: '#666666',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px',
+            marginBottom: '5px',
+            display: 'block'
+        }}>{label}</span>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+            <p style={{
+                fontFamily: "'Manrope', sans-serif",
+                fontWeight: 700,
+                fontSize: '20px',
+                margin: 0,
+                color: color
+            }}>{value}</p>
+            {subValue}
+        </div>
     </div>
-  </div>
 );
 
 const Th = ({ children, style, ...props }: React.ThHTMLAttributes<HTMLTableCellElement>) => (
-  <th style={{
-    backgroundColor: '#111111',
-    color: 'white',
-    fontFamily: "'Manrope', sans-serif",
-    fontWeight: 600,
-    textAlign: 'left',
-    padding: '12px 15px',
-    fontSize: '11px',
-    textTransform: 'uppercase',
-    letterSpacing: '0.5px',
-    ...style
-  }} {...props}>
-    {children}
-  </th>
+    <th style={{
+        backgroundColor: '#111111',
+        color: 'white',
+        fontFamily: "'Manrope', sans-serif",
+        fontWeight: 600,
+        textAlign: 'left',
+        padding: '12px 15px',
+        fontSize: '11px',
+        textTransform: 'uppercase',
+        letterSpacing: '0.5px',
+        ...style
+    }} {...props}>
+        {children}
+    </th>
 );
 
 const Td = ({ children, style, ...props }: React.TdHTMLAttributes<HTMLTableCellElement>) => (
-  <td style={{
-    padding: '12px 15px',
-    borderBottom: '1px solid #EEEEEE',
-    fontWeight: 500,
-    verticalAlign: 'middle',
-    color: '#111111', 
-    ...style
-  }} {...props}>
-    {children}
-  </td>
+    <td style={{
+        padding: '12px 15px',
+        borderBottom: '1px solid #EEEEEE',
+        fontWeight: 500,
+        verticalAlign: 'middle',
+        color: '#111111',
+        ...style
+    }} {...props}>
+        {children}
+    </td>
 );
 
 const ProgressBar = ({ filled, total, color }: { filled: number, total: number, color: string }) => {
@@ -622,47 +630,47 @@ const ProgressBar = ({ filled, total, color }: { filled: number, total: number, 
 }
 
 function renderRequirementKPIs(kpi: ReportKPI) {
-    if(!kpi) return null;
+    if (!kpi) return null;
     return (
         <>
             <KPICard label="Total Requirements" value={kpi.totalRequirements} />
             <KPICard label="On Time Completed" value={kpi.onTimeCompleted} color="#0F9D58" />
-            <KPICard 
-                label="Delayed" 
-                value={kpi.delayedCompleted} 
-                color="#FF3B3B" 
-                subValue={kpi.totalExtraHrs > 0 ? <span style={{fontSize:'12px', fontWeight:500, color:'#666'}}>(+{kpi.totalExtraHrs}h)</span> : null}
+            <KPICard
+                label="Delayed"
+                value={kpi.delayedCompleted}
+                color="#FF3B3B"
+                subValue={kpi.totalExtraHrs > 0 ? <span style={{ fontSize: '12px', fontWeight: 500, color: '#666' }}>(+{kpi.totalExtraHrs}h)</span> : null}
             />
             <KPICard label="Avg. Efficiency" value={`${kpi.efficiency}%`} color="#2196F3" />
         </>
     )
 }
 
-function renderTaskKPIs(kpi: any) {
-    if(!kpi) return null;
+function renderTaskKPIs(kpis: TaskReportsResponse['kpi']) {
+    if (!kpis) return null;
     return (
         <>
-             <KPICard label="Total Tasks" value={kpi.totalTasks} />
-            <KPICard label="On Time Completed" value={kpi.onTimeCompleted} color="#0F9D58" />
-             <KPICard 
-                label="Delayed" 
-                value={kpi.delayedCompleted} 
-                color="#FF3B3B" 
-                subValue={kpi.totalExtraHrs > 0 ? <span style={{fontSize:'12px', fontWeight:500, color:'#666'}}>(+{kpi.totalExtraHrs}h)</span> : null}
+            <KPICard label="Total Tasks" value={kpis.totalTasks} />
+            <KPICard label="On Time Completed" value={kpis.onTimeCompleted} color="#0F9D58" />
+            <KPICard
+                label="Delayed"
+                value={kpis.delayedCompleted}
+                color="#FF3B3B"
+                subValue={kpis.totalExtraHrs > 0 ? <span style={{ fontSize: '12px', fontWeight: 500, color: '#666' }}>(+{kpis.totalExtraHrs}h)</span> : null}
             />
-            <KPICard label="Avg. Efficiency" value={`${kpi.efficiency}%`} color="#2196F3" />
+            <KPICard label="Avg. Efficiency" value={`${kpis.efficiency}%`} color="#2196F3" />
         </>
     )
 }
 
 function renderEmployeeKPIs(kpi: EmployeeKPI) {
-    if(!kpi) return null;
+    if (!kpi) return null;
     return (
         <>
-             <KPICard label="Total Investment" value={`$${kpi.totalInvestment?.toLocaleString()}`} />
-             <KPICard label="Total Revenue" value={`$${kpi.totalRevenue?.toLocaleString()}`} color="#0F9D58" />
-             <KPICard label="Net Profit" value={`$${kpi.netProfit?.toLocaleString()}`} color={kpi.netProfit >= 0 ? "#0F9D58" : "#FF3B3B"} />
-             <KPICard label="Avg. Rate/Hr" value={`$${kpi.avgRatePerHr?.toLocaleString()}`} color="#2196F3" />
+            <KPICard label="Total Investment" value={`$${kpi.totalInvestment?.toLocaleString()}`} />
+            <KPICard label="Total Revenue" value={`$${kpi.totalRevenue?.toLocaleString()}`} color="#0F9D58" />
+            <KPICard label="Net Profit" value={`$${kpi.netProfit?.toLocaleString()}`} color={kpi.netProfit >= 0 ? "#0F9D58" : "#FF3B3B"} />
+            <KPICard label="Avg. Rate/Hr" value={`$${kpi.avgRatePerHr?.toLocaleString()}`} color="#2196F3" />
         </>
     )
 }
