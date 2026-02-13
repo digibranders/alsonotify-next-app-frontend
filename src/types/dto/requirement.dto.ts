@@ -1,76 +1,74 @@
+import { PricingModel, RequirementStatus } from '../enums';
+
 export interface RequirementDto {
   id: number;
-  title: string;
-  name?: string; // Payload often sends name
-  description?: string;
-  workspace_id: number;
-  status?: string;
-  priority?: string;
-  pricing_model?: string;
-  budget?: number;
-  start_date?: string;
-  end_date?: string;
-  quoted_price?: number;
-  currency?: string;
+  name?: string | null;
+  description?: string | null;
+  status?: RequirementStatus;
+  workspace_id?: number;
+  start_date?: string | null;
+  end_date?: string | null;
+  budget?: number | null;
+  quoted_price?: number | null;
+  pricing_model?: PricingModel | null;
+  currency?: string | null;
+  priority?: string | null;
+  type?: string | null;
+  is_high_priority?: boolean | null;
+  is_archived?: boolean;
+  is_deleted?: boolean;
+  rejection_reason?: string | null;
+  negotiation_reason?: string | null;
+  document_link?: string | null;
+  hourly_rate?: number | null;
+  estimated_cost?: number | null;
+  estimated_hours?: number | null;
+
+  // Foreign keys
+  sender_company_id?: number | null;
+  receiver_company_id?: number | null;
+  receiver_workspace_id?: number | null;
+  contact_person_id?: number | null;
+  leader_id?: number | null;
+  manager_id?: number | null;
+  department_id?: number | null;
+  parent_id?: number | null;
+  approved_by?: number | null;
+  created_user?: number | { name: string; id: number } | null;
+  updated_user?: number | null;
+  company_id?: number;
+  created_at?: string;
+  updated_at?: string | null;
+
+  // Computed / aggregated
   total_task?: number;
-  updated_user?: number;
-  created_user?: number | { name: string; id: number }; // Accommodate both scalar and object
-
-  sender_company_id?: number;
-  sender_company?: { name: string; id?: number };
-
-  leader_user?: { name: string; id?: number; avatar?: string };
-  manager?: { name: string; id?: number };
-  leader?: { name: string; id?: number };
-  manager_user?: { name: string; id?: number; avatar?: string };
-
-  document_link?: string;
-  is_high_priority?: boolean;
-  assignedTo?: string[] | any[]; // DTOs may be loose here initially if backend is inconsistent
-
-  // Observed in RequirementsPage
-  company?: string;
-  client?: string;
-  dueDate?: string;
-  createdDate?: string;
-  type?: string;
-  category?: string;
-  departments?: string[];
-  department?: { name: string; id: number };
-  progress?: number;
-  tasksCompleted?: number;
-  tasksTotal?: number;
-  workspaceId?: number;
-  workspace?: string;
-  approvalStatus?: string;
-  invoiceStatus?: string;
-  estimatedCost?: number;
-  hourlyRate?: number;
-  estimatedHours?: number;
-  pricingModel?: string;
-  contactPerson?: string;
-  rejectionReason?: string;
-  headerContact?: string;
-  headerCompany?: string;
-  quotedPrice?: number;
-  rawStatus?: string;
-  client_id?: number;
-  contact_person_id?: number;
-  receiver_company_id?: number;
-  receiver_workspace_id?: number;
-  negotiation_reason?: string;
-  isReceiver?: boolean;
-  isSender?: boolean;
-  receiver_project_id?: number;
+  total_tasks?: number;
+  tasks_completed?: number;
 
   // Relations
-  receiver_company?: { name: string; id: number };
-  created_user_data?: { name: string; id: number };
-  approved_by?: { id: number; name?: string };
-  invoice?: { status: string; id?: number };
+  sender_company?: { name: string; id?: number } | null;
+  receiver_company?: { name: string; id: number } | null;
+  workspace?: { id: number; name: string | null } | null;
+  leader_user?: { id: number; name: string | null; avatar?: string | null } | null;
+  manager_user?: { id: number; name: string | null; avatar?: string | null } | null;
+  contact_person?: {
+    id: number;
+    name: string | null;
+    user_profile?: {
+      name: string | null;
+      first_name: string | null;
+      last_name: string | null;
+    } | null;
+  } | null;
+  created_user_data?: { id: number; name: string | null; avatar?: string | null } | null;
+  approved_by_user?: { id: number; name: string | null; avatar?: string | null } | null;
+  invoice?: { id: number; status: string } | null;
   invoice_id?: number;
-  contact_person?: { name: string; id: number };
-  is_archived?: boolean;
+  company?: string | null;
+  client?: string | null;
+
+  // ─── Legacy / Deprecated fields ───────────────────────────────────────────
+
 }
 
 export interface CreateRequirementRequestDto {
@@ -104,9 +102,6 @@ export interface UpdateRequirementRequestDto extends Partial<CreateRequirementRe
   is_archived?: boolean;
 }
 
-/**
- * Requirement dropdown item returned by the /requirement/:workspace_id/requirement/dropdown endpoint
- */
 export interface RequirementDropdownItem {
   id: number;
   name: string;
@@ -116,3 +111,4 @@ export interface RequirementDropdownItem {
   receiver_workspace_id: number | null;
   receiver_company_id: number | null;
 }
+

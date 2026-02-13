@@ -65,7 +65,7 @@ export type TaskMemberStatus = (typeof TASK_MEMBER_STATUSES)[number];
 /**
  * RequirementType - How a requirement is sourced.
  */
-export type RequirementType = 'inhouse' | 'outsourced';
+export type RequirementType = 'inhouse' | 'outsourced' | 'client';
 
 /**
  * EmployeeStatus - Active/inactive status for employees.

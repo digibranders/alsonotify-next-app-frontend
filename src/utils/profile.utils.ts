@@ -53,11 +53,11 @@ export const mapUserDtoToProfileData = (user: UserDto | null | undefined): Profi
 
     // Helper to get value from either location, preferring user_profile
     const getValue = (profileKey: string, rootKey: string, fallback: string = "") => {
-        // @ts-ignore - dynamic access
+        // @ts-expect-error - dynamic access
         return userProfile[profileKey] || user[rootKey] || fallback;
     };
 
-    const emergencyContact = userProfile.emergency_contact || {};
+    const emergencyContact = userProfile.emergency_contact;
 
     return {
         firstName: trimStr(userProfile.first_name || nameParts[0] || ""),
@@ -83,10 +83,10 @@ export const mapUserDtoToProfileData = (user: UserDto | null | undefined): Profi
         city: trimStr(userProfile.city || ""),
         state: trimStr(userProfile.state || ""),
         zipCode: trimStr(userProfile.zipcode || ""),
-        emergencyContactName: trimStr(emergencyContact.name || ""),
-        emergencyContactNumber: trimStr(emergencyContact.phone || ""),
+        emergencyContactName: trimStr(emergencyContact?.name || ""),
+        emergencyContactNumber: trimStr(emergencyContact?.phone || ""),
         profilePic: user.profile_pic || userProfile.profile_pic || null,
-        // @ts-ignore - documents might exist on user object
+        // @ts-expect-error - documents might exist on user object
         documents: user.documents || []
     };
 };
@@ -95,7 +95,7 @@ export const calculateProfileCompletion = (
     data: ProfileCompletionData,
     requiredDocumentTypes: DocumentType[] = []
 ): CompletionResult => {
-    let missingFields: string[] = [];
+    const missingFields: string[] = [];
     let filledCount = 0;
 
     // 1. Check Standard Fields

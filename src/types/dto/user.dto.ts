@@ -1,3 +1,15 @@
+export interface EmergencyContactDto {
+  name: string;
+  relationship?: string;
+  phone: string;
+}
+
+export interface WorkingHoursDto {
+  start_time: string;
+  end_time: string;
+  break_time?: string | number;
+}
+
 export interface UserDto {
   id: number;
   name: string;
@@ -8,7 +20,6 @@ export interface UserDto {
   is_active?: boolean;
   role?: string | { id?: number; name: string; color?: string };
   role_id?: number;
-  roleColor?: string;
   status?: string;
   date_of_birth?: string;
   employee_id?: string;
@@ -17,13 +28,13 @@ export interface UserDto {
   user_employee?: {
     is_active?: boolean;
     role_id?: number;
-    role?: { color?: string };
+    role?: { id?: number; name?: string; color?: string };
     salary?: number;
     salary_yearly?: number;
   };
 
   department_id?: number;
-  department?: { id: number; name: string } | string; // Sometimes string in some responses
+  department?: { id: number; name: string } | string;
   manager_id?: number | null;
   manager?: { id: number; name: string };
 
@@ -32,8 +43,9 @@ export interface UserDto {
   salary?: number;
   hourly_rates?: number;
   working_hours?: {
-    start_time: string; end_time: string;
-    break_time?: string | number
+    start_time: string;
+    end_time: string;
+    break_time?: string | number;
   };
   no_of_leaves?: number;
   joining_date?: string;
@@ -49,14 +61,6 @@ export interface UserDto {
   date_of_joining?: string;
   late_time?: string;
 
-  // Other observed fields
-  employmentType?: string;
-  access?: string;
-  employee_access?: string;
-  employee_type?: string;
-  currency?: string;
-  leaves?: number;
-  workingHours?: number;
   user_profile?: {
     mobile_number?: string;
     phone?: string;
@@ -75,16 +79,16 @@ export interface UserDto {
     country?: string;
     currency?: string;
     skills?: string[];
-    emergency_contact?: any;
-    working_hours?: any;
+    emergency_contact?: EmergencyContactDto | null;
+    working_hours?: WorkingHoursDto | null;
     date_of_joining?: string;
     experience?: number;
     hourly_rates?: number;
     no_of_leaves?: number;
     profile_pic?: string;
   };
-  user?: { mobile_number?: string; phone?: string }; // Nested user object sometimes returned
-  company?: string | { id: number; name: string }; // Company name (from ClientOrOutsourceType) or object
+  user?: { mobile_number?: string; phone?: string };
+  company?: string | { id: number; name: string };
   company_id?: number;
   companies?: { id: number; name: string }[];
 
@@ -103,6 +107,10 @@ export interface UserDto {
     name: string;
     user_profile?: { profile_pic?: string | null };
   }[];
+
+  // ─── Legacy / Deprecated fields ───────────────────────────────────────────
+
+  employee_access?: string;
 }
 
 export type UserAccessDto = Record<string, Record<string, boolean>>;

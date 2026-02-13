@@ -1,3 +1,5 @@
+import { TaskStatus, ExecutionMode } from '../enums';
+
 // Nested types
 export interface WorklogDto {
   id: number;
@@ -31,77 +33,79 @@ export interface CommentDto {
 }
 
 export interface TaskDto {
+  title: string;
   id: number;
-  title?: string;
-  name?: string;
-  description?: string;
-  status?: string;
-  is_high_priority?: boolean;
-  workspace_id?: number;
-  requirement_id?: number;
-  assigned_to?: number;
-  member_id?: number;
-  leader_id?: number;
-  due_date?: string;
+  name: string;
+  description?: string | null;
+  status?: TaskStatus;
   start_date?: string;
-  end_date?: string;
-  created_by?: number;
-  created_at?: string;
-  updated_at?: string;
-  priority?: string;
-  estimated_time?: number;
-  time_spent?: number;
-  execution_mode?: 'parallel' | 'sequential';
-  disabled?: boolean;
+  end_date?: string | null;
+  estimated_time?: number | null;
+  workspace_id?: number;
+  requirement_id?: number | null;
+  leader_id?: number | null;
+  member_id?: number | null;
+  execution_mode?: ExecutionMode;
+  is_high_priority?: boolean;
+  is_active?: boolean;
   is_revision?: boolean;
   revision_round?: number;
+  parent_id?: number | null;
+  disabled?: boolean;
+  document_link?: string | null;
+  company_id?: number;
+  created_user?: number | null;
+  created_at?: string;
+  updated_at?: string | null;
 
-  // Relations/Nested objects often returned by different endpoints
-  worklogs?: WorklogDto[];
-  comments?: CommentDto[];
-  task_workspace?: { id: number; name?: string };
+  // Computed / aggregated
+  time_spent?: number;
+  total_seconds_spent?: number;
+  task_project?: { company?: { name: string } | null } | null;
+
+  // Relations
+  task_workspace?: { id: number; name: string | null } | null;
   task_requirement?: {
     id: number;
-    name?: string;
-    sender_company?: { id: number; name: string };
-  };
-  task_project?: {
-    company?: { name: string };
-    client_user?: { company?: { name: string } };
-  };
-  leader_user?: { id: number; name?: string; email?: string; profile_pic?: string };
-  member_user?: { id: number; name?: string; email?: string; profile_pic?: string };
-  assigned_to_user?: { id: number; name: string };
+    name: string | null;
+    sender_company?: { id: number; name: string } | null;
+  } | null;
+  leader_user?: { id: number; name: string | null; email?: string; profile_pic?: string | null } | null;
+  member_user?: { id: number; name: string | null; email?: string; profile_pic?: string | null } | null;
+  manager_user?: { id: number; name: string | null; email?: string; profile_pic?: string | null } | null;
   task_members?: Array<{
     id: number;
     user_id: number;
     status: string;
     estimated_time: number | null;
-    seconds_spent: number;
-    active_worklog_start_time?: string | null;
-    is_current_turn: boolean;
     queue_order: number;
-    execution_mode: 'parallel' | 'sequential';
+    execution_mode: ExecutionMode;
+    is_current_turn: boolean;
+    seconds_spent: number;
+    active_worklog_start_time: string | null;
     user: {
       id: number;
-      name: string;
-      profile_pic?: string;
+      name: string | null;
+      profile_pic?: string | null;
     };
   }>;
+  company?: { id: number; name: string } | null;
+  subtasks?: Array<{
+    id: number;
+    name: string;
+    start_date: string;
+    estimated_time: number | null;
+    status: TaskStatus;
+    member_user: {
+      id: number;
+      name: string | null;
+    } | null;
+  }>;
+  worklogs?: WorklogDto[];
+  total_count?: number; // API pagination metadata attached to rows
 
-  // Additional fields observed in usage or responses
-  client?: { name: string };
-  client_name?: string;
-  client_company_name?: string;
-  manager_user?: { name: string };
-  total_count?: number; // Metadata often mixed in
-  total_seconds_spent?: number;
-  company?: { name: string };
-  company_name?: string;
+  // ─── Legacy / Deprecated fields ───────────────────────────────────────────
 
-  // Requirement relations
-  requirement_relation?: { name: string; id: number };
-  requirement_name?: string;
 }
 
 export interface AssignedTaskDetailDto {
@@ -142,3 +146,4 @@ export interface CreateTaskRequestDto {
 export interface UpdateTaskRequestDto extends Partial<CreateTaskRequestDto> {
   id: number;
 }
+
