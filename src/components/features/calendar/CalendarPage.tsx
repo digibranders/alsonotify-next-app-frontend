@@ -90,7 +90,7 @@ export function CalendarPage() {
     } finally {
       setConnecting(false);
     }
-  }, []);
+  }, [message]);
 
   useEffect(() => {
     refetchTeamsStatus();
