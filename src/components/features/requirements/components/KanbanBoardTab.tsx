@@ -72,7 +72,7 @@ export function KanbanBoardTab({ tasks, revisions }: KanbanBoardTabProps) {
                   columnTasks.map((task) => {
                     const assignee = getAssignedInfo(task);
                     const isRevision = (task as Task & { type?: string }).type === 'revision';
-                    
+
                     return (
                       <div
                         key={task.id}
@@ -80,9 +80,8 @@ export function KanbanBoardTab({ tasks, revisions }: KanbanBoardTabProps) {
                       >
                         {/* Task ID Badge */}
                         <div className="flex items-center justify-between mb-2">
-                          <span className={`text-[10px] px-1.5 py-0.5 rounded font-mono ${
-                            isRevision ? 'bg-[#FFF5F5] text-[#ff3b3b]' : 'bg-[#F7F7F7] text-[#999999]'
-                          }`}>
+                          <span className={`text-[10px] px-1.5 py-0.5 rounded font-mono ${isRevision ? 'bg-[#FFF5F5] text-[#ff3b3b]' : 'bg-[#F7F7F7] text-[#999999]'
+                            }`}>
                             #{task.id}
                           </span>
                           {task.is_high_priority && (
@@ -94,7 +93,7 @@ export function KanbanBoardTab({ tasks, revisions }: KanbanBoardTabProps) {
 
                         {/* Task Title */}
                         <h4 className="text-[13px] font-['Manrope:SemiBold',sans-serif] text-[#111111] mb-3 line-clamp-2">
-                          {task.name || task.title}
+                          {task.name}
                         </h4>
 
                         {/* Due Date */}

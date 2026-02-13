@@ -28,8 +28,8 @@ export function ActivitySidebar({ reqId, employeesData, partnersData, tasks }: A
 
   const taskOptions = useMemo(() => {
     return tasks.map(t => ({
-      value: t.name || t.title || 'Untitled',
-      label: t.name || t.title || 'Untitled',
+      value: t.name || 'Untitled',
+      label: t.name || 'Untitled',
       key: `task-${t.id}`
     }));
   }, [tasks]);

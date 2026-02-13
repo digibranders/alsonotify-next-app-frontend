@@ -40,7 +40,7 @@ export const createTask = async (params: CreateTaskRequestDto): Promise<ApiRespo
       throw new ApiError('Task title is required', 400);
     }
 
-    const { name: _name, ...restParams } = params;
+    const { ...restParams } = params;
     const payload = {
       ...restParams,
       name: taskName,
@@ -201,7 +201,7 @@ export const getTaskById = async (id: number): Promise<ApiResponse<TaskDto>> => 
 
     // Normalizing name (ensure name is set, fallback to title)
     if (data.result) {
-      data.result.name = data.result.name || data.result.title;
+      data.result.name = data.result.name || 'Untitled Task';
     }
 
     return data;

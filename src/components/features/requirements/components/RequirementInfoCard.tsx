@@ -114,7 +114,7 @@ export function RequirementInfoCard({ requirement, tasks, timezone }: Requiremen
             <p className="text-[14px] font-['Inter:Medium',sans-serif] text-[#111111] uppercase">
               {requirement.type === 'outsourced'
                 ? (requirement.isReceiver ? 'Client work' : 'Outsourced')
-                : (['client', 'Client work', 'Client Work'].includes(requirement.type) ? 'Client work' : 'Inhouse')}
+                : (['client', 'Client work', 'Client Work'].includes(requirement.type || '') ? 'Client work' : 'Inhouse')}
             </p>
           </div>
 
@@ -146,7 +146,9 @@ export function RequirementInfoCard({ requirement, tasks, timezone }: Requiremen
           <div>
             <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wider mb-2">Contact Person</p>
             <p className="text-[14px] font-['Inter:Medium',sans-serif] text-[#111111]">
-              {requirement.contact_person?.name || 'Unknown'}
+              {(typeof requirement.contact_person === 'string'
+                ? requirement.contact_person
+                : requirement.contact_person?.name) || 'Unknown'}
             </p>
           </div>
 

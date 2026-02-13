@@ -201,7 +201,7 @@ export function TaskDetailsPage() {
   }
 
   const leader = task?.leader_user;
-  const taskProject = task?.taskProject?.company;
+  const taskProject = task?.task_project?.company;
   const workspace = taskProject ? { name: taskProject.name, id: task.workspace_id } : undefined;
   const requirement = task?.task_requirement;
 

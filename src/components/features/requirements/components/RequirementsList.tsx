@@ -93,7 +93,7 @@ export function RequirementsList({
                             deleteLabel={(activeStatusTab === 'active' || activeStatusTab === 'completed' || activeStatusTab === 'delayed') ? 'Archive' : 'Delete'}
                             deleteIcon={(activeStatusTab === 'active' || activeStatusTab === 'completed' || activeStatusTab === 'delayed') ? <Archive className="w-3.5 h-3.5" /> : undefined}
                             onDuplicate={userRole !== 'Employee' ? () => handleDuplicateRequirement(requirement) : undefined}
-                            onNavigate={() => onNavigate(requirement.workspaceId, requirement.id)}
+                            onNavigate={() => onNavigate(requirement.workspace_id || 0, requirement.id)}
                         />
                     ))}
                 </Masonry>

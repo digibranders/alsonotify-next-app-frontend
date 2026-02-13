@@ -104,7 +104,7 @@ const TaskRowComponent = memo(function TaskRow({
   // Progress/Styling Logic
   const percentage = task.estTime > 0 ? (totalSeconds / (task.estTime * 3600)) * 100 : 0;
   const isOvertime = percentage > 100;
-  const isBlockedOrDelayed = ['Stuck', 'Impediment', 'Delayed'].includes(task.status);
+  const isBlockedOrDelayed = ['Stuck', 'Impediment', 'Delayed'].includes(task.status || '');
   const showRed = isOvertime || isBlockedOrDelayed;
   const textColor = showRed ? 'text-[#ff3b3b]' : 'text-[#666666]';
 
@@ -240,7 +240,7 @@ const TaskRowComponent = memo(function TaskRow({
                   return 0; // Keep default order (by ID usually or DB order) for parallel
                 })}
                 totalEstimate={task.estTime}
-                taskStatus={task.status}
+                taskStatus={task.status || 'Assigned'}
                 executionMode={task.execution_mode || 'parallel'}
               />
             </div>
@@ -277,7 +277,7 @@ const TaskRowComponent = memo(function TaskRow({
                           message.success("Estimate submitted");
                           setEstimateOpen(false);
                           window.location.reload();
-                        } catch (err) {
+                        } catch {
                           message.error("Failed");
                         } finally {
                           setSubmissionLoading(false);
@@ -296,7 +296,7 @@ const TaskRowComponent = memo(function TaskRow({
                 </button>
               </Popover>
             ) : (
-              <TaskStatusBadge status={task.status} showLabel={false} />
+              <TaskStatusBadge status={task.status || 'Assigned'} showLabel={false} />
             )}
           </div>
 
@@ -305,7 +305,7 @@ const TaskRowComponent = memo(function TaskRow({
             <Dropdown
               menu={{
                 items: (() => {
-                  const isLeader = task.leader_id === currentUserId || task.leaderUser?.id === currentUserId;
+                  const isLeader = task.leader_id === currentUserId || task.leader_user?.id === currentUserId;
                   const isReview = task.status === 'Review';
 
                   if (isReview && isLeader) {

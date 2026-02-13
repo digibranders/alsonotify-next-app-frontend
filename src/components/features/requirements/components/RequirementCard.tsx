@@ -15,6 +15,7 @@ import {
   getRequirementCTAConfig,
   type RequirementStatus,
 } from '@/lib/workflow';
+import { Requirement as DomainRequirement } from '@/types/domain';
 import {
   mapRequirementToStatus,
   mapRequirementToRole,
@@ -23,7 +24,7 @@ import {
 } from '../utils/requirementState.utils';
 
 interface RequirementCardProps {
-  requirement: any; // Using any for compatibility with mapped data
+  requirement: DomainRequirement;
   onAccept?: () => void;
   onReject?: () => void;
   onEdit?: () => void;
@@ -86,7 +87,7 @@ export function RequirementCard({
 
   const getUnifiedStatusConfig = () => {
     // 1. Billing / Financial Status (Highest Priority)
-    if (requirement.invoiceStatus === 'paid') {
+    if (requirement.invoice_status === 'paid') {
       return {
         label: requirement.type === 'outsourced' ? 'Payment Cleared' : 'Payment Received',
         icon: <CheckCircle className="w-3 h-3" />,
@@ -94,7 +95,7 @@ export function RequirementCard({
         onClick: null
       };
     }
-    if (requirement.invoiceStatus === 'billed') {
+    if (requirement.invoice_status === 'billed') {
       return {
         label: requirement.type === 'outsourced' ? 'Invoice Received' : 'Invoice Sent',
         icon: <CheckCircle className="w-3 h-3" />,
@@ -115,7 +116,7 @@ export function RequirementCard({
           };
         }
         // In-House / Client work completed -> Ready to Bill
-        const price = requirement.quotedPrice || requirement.estimatedCost || requirement.budget;
+        const price = requirement.quoted_price || requirement.estimated_cost || requirement.budget;
         const symbol = CURRENCY_SYMBOLS[requirement.currency || 'USD'] || '$';
         const priceLabel = price ? ` - ${symbol}${Number(price).toLocaleString()}` : '';
         return {
@@ -176,12 +177,12 @@ export function RequirementCard({
   // Helper to check valid date
   const isValidDate = (d: Date) => d instanceof Date && !isNaN(d.getTime());
 
-  const timelineStatus = getTimelineStatus(requirement.dueDate);
+  const timelineStatus = getTimelineStatus(requirement.end_date ?? undefined);
 
   /* Helper methods replaced by getRequirementActionState utility */
 
   const getCostDisplay = () => {
-    const val = requirement.quotedPrice || requirement.estimatedCost || requirement.budget;
+    const val = requirement.quoted_price || requirement.estimated_cost || requirement.budget;
     if (!val) return null;
 
     // Robust currency handling: Try exact match, then uppercase match, default to code or '$'
@@ -192,7 +193,6 @@ export function RequirementCard({
   };
 
   const costDisplay = getCostDisplay();
-
 
   return (
     <div
@@ -268,7 +268,7 @@ export function RequirementCard({
           <span className="px-1.5 py-0.5 rounded text-[9px] font-['Inter:Medium',sans-serif] bg-[#F5F5F5] text-[#666666] uppercase border border-[#EEEEEE] tracking-wide whitespace-nowrap">
             {requirement.type === 'outsourced'
               ? (requirement.isReceiver ? 'client work' : 'outsourced')
-              : (['client', 'Client work', 'Client Work'].includes(requirement.type) ? 'client work' : 'inhouse')}
+              : (['client', 'Client work', 'Client Work'].includes(requirement.type || '') ? 'client work' : 'inhouse')}
           </span>
 
           {/* Contact Person Name - only show if available */}
@@ -314,13 +314,13 @@ export function RequirementCard({
 
       {/* Date & Description */}
       <div className="mb-4">
-        {(requirement.startDate || requirement.dueDate) && (
+        {(requirement.startDate || requirement.end_date) && (
           <div className="flex items-center gap-2 text-[11px] text-[#666666] font-['Inter:Medium',sans-serif] mb-2 bg-[#F9FAFB] p-1.5 rounded-md w-fit max-w-full">
             <CalendarIcon className="w-3 h-3 text-[#999999] flex-shrink-0" />
             <span className="truncate">
               {requirement.startDate ? format(new Date(requirement.startDate), 'MMM d') : ''}
               {requirement.startDate ? ' - ' : ''}
-              {requirement.dueDate && requirement.dueDate !== 'TBD' ? format(new Date(requirement.dueDate), 'MMM d') : 'TBD'}
+              {requirement.end_date && requirement.end_date !== 'TBD' ? format(new Date(requirement.end_date), 'MMM d') : 'TBD'}
             </span>
             {timelineStatus && (
               <span className={`pl-1 border-l border-[#E5E5E5] ${timelineStatus.color} whitespace-nowrap`}>
