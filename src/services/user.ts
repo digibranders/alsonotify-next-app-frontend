@@ -108,6 +108,24 @@ export const getCompanyEmployees = async (companyId: number, roles?: string, par
   return data;
 };
 
+// Get outsourced contacts (Admins, Coordinators, Assigned AMs from linked partners)
+export const getOutsourcedContacts = async (): Promise<ApiResponse<{
+  id: number;
+  name: string;
+  role: string;
+  company_id: number;
+  company_name: string;
+}[]>> => {
+  const { data } = await axiosApi.get<ApiResponse<{
+    id: number;
+    name: string;
+    role: string;
+    company_id: number;
+    company_name: string;
+  }[]>>(`/user/outsourced-contacts`);
+  return data;
+};
+
 // Get company departments
 export interface CompanyDepartmentType {
   id?: number | null;

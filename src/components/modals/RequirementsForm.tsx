@@ -4,8 +4,8 @@ import dayjs from '@/utils/dayjs';
 import { formatDateForApi, getTodayForApi } from '@/utils/date';
 import { Input, DatePicker, Checkbox, App, Button, Modal, Select } from 'antd';
 import { Upload as UploadIcon, FileText, ChevronDown } from 'lucide-react';
-import { useOutsourcePartners, useEmployees } from '@/hooks/useUser';
-import { getCompanyEmployees } from '@/services/user';
+import { useEmployees } from '@/hooks/useUser';
+import { getOutsourcedContacts } from '@/services/user';
 import { FormLayout } from '@/components/common/FormLayout';
 import { trimStr } from '@/utils/trim';
 import { WorkspaceForm } from './WorkspaceForm';
@@ -98,23 +98,8 @@ function RequirementsFormContent({
     isEditing = false,
 }: Readonly<RequirementsFormProps>) {
     const { user } = useAuth();
-    const { data: partnersData, isLoading: isLoadingPartners } = useOutsourcePartners();
     const { data: employeesData, isLoading: isLoadingEmployees } = useEmployees();
     const { message } = App.useApp();
-
-    // Process partners - filter for active and ensure unique IDs
-    const partners = useMemo(() => (partnersData?.result || [])
-        .filter((item: any) => (item.status === 'ACCEPTED' || item.is_active === true) && item.is_active !== false)
-        .map((item: any) => {
-            const id = item.id ?? item.user_id ?? item.partner_user_id ?? item.client_id ?? item.outsource_id ?? item.association_id ?? item.invite_id;
-            return {
-                id: (typeof id === 'number' ? id : undefined) as number | undefined,
-                name: (item.partner_user?.name || item.name || item.partner_user?.company || item.company || 'Unknown Partner') as string,
-                company: (item.partner_user?.company || item.company) as string | undefined,
-                company_id: item.company_id as number | undefined
-            };
-        })
-        .filter((p: { id?: number }) => p.id !== undefined), [partnersData]);
 
     // Process employees
     const employees = useMemo(() => (employeesData?.result || [])
@@ -145,50 +130,41 @@ function RequirementsFormContent({
 
     const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
     const [isWorkspaceCreateOpen, setIsWorkspaceCreateOpen] = useState(false);
-    const [partnerEmployees, setPartnerEmployees] = useState<any[]>([]);
-    const [isLoadingPartnerEmployees, setIsLoadingPartnerEmployees] = useState(false);
-    const [selectedPartnerId, setSelectedPartnerId] = useState<number | undefined>(() => {
-        if (initialData?.contact_person_id) {
-            const sp = partners.find(p => p.id === initialData.contact_person_id);
-            return sp?.company_id;
-        }
-        return undefined;
-    });
 
-    // Fetch partner employees when selectedPartnerId changes
+    // New state for outsourced contacts
+    interface OutsourcedContact {
+        id: number;
+        name: string;
+        role: string;
+        company_id: number;
+        company_name: string;
+    }
+    const [outsourcedContacts, setOutsourcedContacts] = useState<OutsourcedContact[]>([]);
+    const [isLoadingOutsourcedContacts, setIsLoadingOutsourcedContacts] = useState(false);
+
+    // Fetch outsourced contacts when type is 'outsourced'
     useEffect(() => {
-        const fetchPartnerEmployees = async () => {
-            if (!selectedPartnerId) {
-                setPartnerEmployees([]);
-                return;
-            }
-            setIsLoadingPartnerEmployees(true);
+        const fetchOutsourcedContacts = async () => {
+            setIsLoadingOutsourcedContacts(true);
             try {
-                // Determine filter: If current user is a Partner, filter the contact list by their own company ID
-                // to show only assigned Account Managers + Admin/Coordinator.
-                // If current user is Host, show all employees of the selected partner.
-                const isPartner = !!user?.association_id;
-                const filterPartnerId = isPartner ? user?.company_id : undefined;
-
-                const response = await getCompanyEmployees(selectedPartnerId, 'Admin,Coordinator', filterPartnerId);
+                const response = await getOutsourcedContacts();
                 if (response.success && response.result) {
-                    setPartnerEmployees(response.result.map(item => ({
-                        id: item.value,
-                        name: item.label
-                    })));
+                    setOutsourcedContacts(response.result);
                 }
             } catch (error) {
-                console.error('Failed to fetch partner employees:', error);
-                message.error('Failed to load eligible contact persons from partner.');
+                console.error('Failed to fetch outsourced contacts:', error);
+                message.error('Failed to load eligible contact persons.');
             } finally {
-                setIsLoadingPartnerEmployees(false);
+                setIsLoadingOutsourcedContacts(false);
             }
         };
 
-        if (formData.type !== 'inhouse') {
-            fetchPartnerEmployees();
+        if (formData.type === 'outsourced') {
+            fetchOutsourcedContacts();
+        } else {
+            setOutsourcedContacts([]);
         }
-    }, [selectedPartnerId, formData.type, message, user]);
+    }, [formData.type, message]);
 
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
@@ -216,6 +192,16 @@ function RequirementsFormContent({
             message.error('Please select a workspace');
             return null;
         }
+
+        // Determine receiver company
+        let receiverCompanyId = formData.receiver_company_id;
+        if (formData.type === 'outsourced' && formData.contact_person_id) {
+            const contact = outsourcedContacts.find(c => c.id === formData.contact_person_id);
+            if (contact) {
+                receiverCompanyId = contact.company_id;
+            }
+        }
+
         return {
             name: title,
             title,
@@ -225,15 +211,15 @@ function RequirementsFormContent({
             is_high_priority: formData.is_high_priority,
             contact_person_id: formData.contact_person_id,
             contact_person: formData.contactPerson != null ? trimStr(String(formData.contactPerson)) : undefined,
-            receiver_company_id: (formData.type === 'client' || formData.type === 'Client work' || formData.type === 'Client Work') ? undefined : selectedPartnerId,
-            sender_company_id: (formData.type === 'client' || formData.type === 'Client work' || formData.type === 'Client Work') ? selectedPartnerId : undefined,
+            receiver_company_id: (formData.type === 'client' || formData.type === 'Client work' || formData.type === 'Client Work') ? undefined : receiverCompanyId,
+            sender_company_id: (formData.type === 'client' || formData.type === 'Client work' || formData.type === 'Client Work') ? undefined : undefined, // Removed selectedPartnerId
             budget: Number(formData.budget) || 0,
             quoted_price: Number(formData.quoted_price) || undefined,
             currency: formData.currency || 'USD',
             end_date: formData.dueDate ? formatDateForApi(formData.dueDate) : undefined,
             start_date: getTodayForApi(),
         };
-    }, [formData, selectedPartnerId, message]);
+    }, [formData, outsourcedContacts, message]);
 
     const onSaveDraft = useCallback(() => {
         const payload = buildPayload();
@@ -387,44 +373,7 @@ function RequirementsFormContent({
                     </Select>
                 </div>
 
-                <div className="space-y-1.5" id="partner-selection">
-                    <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">
-                        {formData.type === 'inhouse' ? 'Internal Dept' : 'Partner Company'}
-                    </span>
-                    {formData.type === 'inhouse' ? (
-                        <Select
-                            className="w-full h-11"
-                            placeholder="Select department"
-                            disabled
-                            value="Fynix Digital"
-                        >
-                            <Option value="Fynix Digital">Fynix Digital</Option>
-                        </Select>
-                    ) : (
-                        <Select
-                            showSearch
-                            className="w-full h-11"
-                            placeholder="Select partner company"
-                            value={selectedPartnerId}
-                            onChange={(v) => {
-                                setSelectedPartnerId(v);
-                                setFormData(prev => ({ ...prev, contact_person_id: undefined, contactPerson: undefined }));
-                            }}
-                            loading={isLoadingPartners}
-                            suffixIcon={<ChevronDown className="w-4 h-4 text-gray-400" />}
-                            optionFilterProp="children"
-                        >
-                            {partners.map((p: any) => (
-                                <Option key={p.id} value={p.company_id} label={p.name}>
-                                    <div className="flex flex-col py-1">
-                                        <span className="font-semibold">{p.company || p.name}</span>
-                                        {p.company && p.name !== p.company && <span className="text-[10px] text-gray-400 font-normal">{p.name}</span>}
-                                    </div>
-                                </Option>
-                            ))}
-                        </Select>
-                    )}
-                </div>
+                {/* Removed Partner Company selection */}
 
                 <div className="space-y-1.5" id="contact-person-selection">
                     <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">Contact Person</span>
@@ -441,9 +390,10 @@ function RequirementsFormContent({
                             contact_person_id: typeof v === 'number' ? v : undefined,
                             contactPerson: option?.label
                         })}
-                        loading={formData.type === 'inhouse' ? isLoadingEmployees : isLoadingPartnerEmployees}
+                        loading={formData.type === 'inhouse' ? isLoadingEmployees : isLoadingOutsourcedContacts}
                         suffixIcon={<ChevronDown className="w-4 h-4 text-gray-400" />}
-                        disabled={formData.type !== 'inhouse' && !selectedPartnerId}
+                        disabled={false} // Always enabled now
+                        optionLabelProp="label"
                     >
                         {formData.type === 'inhouse' ? (
                             employees.map((e: any) => (
@@ -455,10 +405,14 @@ function RequirementsFormContent({
                                 </Option>
                             ))
                         ) : (
-                            partnerEmployees.map((pe: any) => (
-                                <Option key={pe.id} value={pe.id} label={pe.name}>
+                            outsourcedContacts.map((c) => (
+                                <Option key={c.id} value={c.id} label={c.name}>
                                     <div className="flex flex-col py-1">
-                                        <span className="font-semibold">{pe.name}</span>
+                                        <div className="flex items-center gap-1">
+                                            <span className="font-semibold">{c.name}</span>
+                                            {c.role && <span className="text-gray-500 text-[11px]">({c.role})</span>}
+                                        </div>
+                                        <span className="text-[10px] text-gray-400 font-normal mt-0.5">{c.company_name}</span>
                                     </div>
                                 </Option>
                             ))
