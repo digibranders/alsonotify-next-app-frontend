@@ -91,10 +91,7 @@ export function AccountManagersTab() {
     };
 
     const handlePartnerSearch = useCallback(async (value: string) => {
-        if (!value) {
-            setPartnerSearchOptions([]);
-            return;
-        }
+        // Allow empty search to show default list
         setSearchingPartners(true);
         try {
             const response = await searchPartners(value);
@@ -186,6 +183,83 @@ export function AccountManagersTab() {
 
     const selectedManager = accountManagers.find(m => m.id === selectedManagerId);
 
+    const renderManagersList = () => {
+        if (loading && accountManagers.length === 0) {
+            return (
+                <div className="space-y-3">
+                    {[1, 2, 3].map(i => (
+                        <div key={i} className="h-16 bg-gray-50 rounded-xl animate-pulse" />
+                    ))}
+                </div>
+            );
+        }
+
+        if (filteredManagers.length === 0) {
+            return (
+                <div className="text-center py-10 text-[#999999] text-[13px]">
+                    No account managers found
+                </div>
+            );
+        }
+
+        return filteredManagers.map(manager => (
+            <div
+                key={manager.id}
+                onClick={() => handleManagerSelect(manager)}
+                className={`group flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all border ${
+                    selectedManagerId === manager.id
+                        ? 'bg-[#F5F5F5] border-[#111111]'
+                        : 'border-transparent hover:bg-[#F9FAFB] hover:border-[#EEEEEE]'
+                }`}
+            >
+                {/* Avatar */}
+                <div className="w-10 h-10 rounded-full bg-white border border-[#EEEEEE] flex items-center justify-center flex-shrink-0 overflow-hidden text-[12px] font-bold text-[#666666]">
+                    {manager.profilePic ? (
+                        <img src={manager.profilePic} alt={manager.name} className="w-full h-full object-cover" />
+                    ) : getInitials(manager.name)}
+                </div>
+
+                <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-1">
+                        <h3 className={`text-[14px] font-['Manrope:SemiBold',sans-serif] truncate ${
+                            selectedManagerId === manager.id ? 'text-[#111111]' : 'text-[#444444]'
+                        }`}>
+                            {manager.name}
+                        </h3>
+                        {manager.role && (
+                            <span 
+                                className="text-[10px] font-bold px-1.5 py-0.5 rounded-md uppercase shrink-0 ml-2"
+                                style={{
+                                    backgroundColor: manager.roleColor ? `${manager.roleColor}15` : '#EEEEEE',
+                                    color: manager.roleColor || '#666666'
+                                }}
+                            >
+                                {manager.role}
+                            </span>
+                        )}
+                    </div>
+                    <div className="flex flex-col gap-0.5">
+                        {manager.designation && (
+                            <p className="text-[12px] text-[#666666] truncate font-['Manrope:Medium',sans-serif]">
+                                {manager.designation}
+                            </p>
+                        )}
+                        <p className="text-[12px] text-[#999999] truncate flex items-center gap-1">
+                            {manager.partnerCount} partners
+                        </p>
+                    </div>
+                </div>
+                
+                    <button
+                    onClick={(e) => handleRemoveManager(e, manager)}
+                    className="p-1.5 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-white text-[#FF3B3B] transition-all"
+                >
+                    <Trash2 className="w-3.5 h-3.5" />
+                </button>
+            </div>
+        ));
+    };
+
     return (
         <div className="bg-white rounded-[24px] p-8 border border-[#EEEEEE] mb-6 h-[calc(100vh-140px)] flex flex-col animate-in fade-in slide-in-from-bottom-2 duration-300">
             {/* Header */}
@@ -221,56 +295,7 @@ export function AccountManagersTab() {
                     </div>
 
                     <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-2">
-                        {loading && accountManagers.length === 0 ? (
-                             <div className="space-y-3">
-                                {[1, 2, 3].map(i => (
-                                    <div key={i} className="h-16 bg-gray-50 rounded-xl animate-pulse" />
-                                ))}
-                            </div>
-                        ) : filteredManagers.length === 0 ? (
-                            <div className="text-center py-10 text-[#999999] text-[13px]">
-                                No account managers found
-                            </div>
-                        ) : (
-                            filteredManagers.map(manager => (
-                                <div
-                                    key={manager.id}
-                                    onClick={() => handleManagerSelect(manager)}
-                                    className={`group flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all border ${
-                                        selectedManagerId === manager.id
-                                            ? 'bg-[#F5F5F5] border-[#111111]'
-                                            : 'border-transparent hover:bg-[#F9FAFB] hover:border-[#EEEEEE]'
-                                    }`}
-                                >
-                                    {/* Avatar */}
-                                    <div className="w-10 h-10 rounded-full bg-white border border-[#EEEEEE] flex items-center justify-center flex-shrink-0 overflow-hidden text-[12px] font-bold text-[#666666]">
-                                        {manager.profilePic ? (
-                                            <img src={manager.profilePic} alt={manager.name} className="w-full h-full object-cover" />
-                                        ) : getInitials(manager.name)}
-                                    </div>
-
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center justify-between">
-                                            <h3 className={`text-[14px] font-['Manrope:SemiBold',sans-serif] truncate ${
-                                                selectedManagerId === manager.id ? 'text-[#111111]' : 'text-[#444444]'
-                                            }`}>
-                                                {manager.name}
-                                            </h3>
-                                        </div>
-                                        <p className="text-[12px] text-[#999999] truncate flex items-center gap-1">
-                                            {manager.partnerCount} partners
-                                        </p>
-                                    </div>
-                                    
-                                     <button
-                                        onClick={(e) => handleRemoveManager(e, manager)}
-                                        className="p-1.5 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-white text-[#FF3B3B] transition-all"
-                                    >
-                                        <Trash2 className="w-3.5 h-3.5" />
-                                    </button>
-                                </div>
-                            ))
-                        )}
+                    {renderManagersList()}
                     </div>
                 </div>
 
@@ -289,22 +314,6 @@ export function AccountManagersTab() {
                                         <h3 className="text-[18px] font-['Manrope:Bold',sans-serif] text-[#111111]">
                                             {selectedManager.name}
                                         </h3>
-                                        <div className="flex items-center gap-2 mt-1">
-                                            <span className="text-[13px] text-[#666666] bg-[#F5F5F5] px-2 py-0.5 rounded-md">
-                                                {selectedManager.email}
-                                            </span>
-                                            {selectedManager.role && (
-                                                <span 
-                                                    className="text-[10px] font-bold px-2 py-0.5 rounded-md uppercase"
-                                                    style={{
-                                                        backgroundColor: selectedManager.roleColor ? `${selectedManager.roleColor}15` : '#EEEEEE',
-                                                        color: selectedManager.roleColor || '#666666'
-                                                    }}
-                                                >
-                                                    {selectedManager.role}
-                                                </span>
-                                            )}
-                                        </div>
                                     </div>
                                 </div>
 
@@ -334,6 +343,7 @@ export function AccountManagersTab() {
                                         defaultActiveFirstOption={false}
                                         filterOption={false}
                                         onSearch={debouncedPartnerSearch}
+                                        onFocus={() => handlePartnerSearch('')}
                                         onChange={handleAddPartner}
                                         notFoundContent={searchingPartners ? <Spin size="small" /> : null}
                                         options={partnerSearchOptions}
