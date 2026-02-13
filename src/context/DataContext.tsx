@@ -63,7 +63,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   };
 
   const getRequirementsByWorkspace = (workspaceId: number) => {
-    return requirements.filter(r => r.workspaceId === workspaceId);
+    return requirements.filter(r => r.workspace_id === workspaceId);
   };
 
   // Employees
