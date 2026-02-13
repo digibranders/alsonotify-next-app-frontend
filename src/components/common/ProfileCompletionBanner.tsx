@@ -1,21 +1,23 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { X, ArrowRight } from 'lucide-react';
-import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { useProfileCompletion } from '@/hooks/useProfileCompletion';
 
 export function ProfileCompletionBanner() {
   const router = useRouter();
   const pathname = usePathname();
-  const { user: currentUser } = useCurrentUser();
+  const { percentage: profileCompletion } = useProfileCompletion();
 
-  const [isVisible, setIsVisible] = useState(() => {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    // Only access storage on client side
     if (typeof window !== 'undefined') {
       const isPersistentDismissed = localStorage.getItem('profileCompletionBannerDismissed') === 'true';
       const isSessionSeen = sessionStorage.getItem('profileCompletionBannerSeen') === 'true';
-      return !isPersistentDismissed && !isSessionSeen;
+      setIsVisible(!isPersistentDismissed && !isSessionSeen);
     }
-    return false;
-  });
+  }, []);
 
   // Handle session-based persistence
   useEffect(() => {
@@ -24,61 +26,6 @@ export function ProfileCompletionBanner() {
       sessionStorage.setItem('profileCompletionBannerSeen', 'true');
     }
   }, [isVisible]);
-
-  // Get user data from localStorage or backend
-  const user = useMemo(() => {
-    return currentUser;
-  }, [currentUser]);
-
-  // Calculate profile completion percentage (same logic as ProfilePage)
-  const profileCompletion = useMemo(() => {
-    const userProfile = user?.user_profile || {};
-    const fullName = user?.name || '';
-    const nameParts = fullName.split(' ');
-
-    const profile = {
-      firstName: userProfile?.first_name || nameParts[0] || '',
-      lastName: userProfile?.last_name || nameParts.slice(2).join(' ') || nameParts[1] || '',
-      designation: userProfile?.designation || user?.designation || '',
-      email: user?.email || '',
-      dob: userProfile?.date_of_birth
-        ? new Date(userProfile.date_of_birth).toISOString().split('T')[0]
-        : '',
-      gender: userProfile?.gender || '',
-      employeeId: user?.employee_id || userProfile?.employee_id || '',
-      country: userProfile?.country || '',
-      addressLine1: userProfile?.address?.split(',')[0] || userProfile?.address || '',
-      city: userProfile?.city || '',
-      state: userProfile?.state || '',
-      zipCode: userProfile?.zipcode || '',
-      emergencyContactName: userProfile?.emergency_contact_name || '',
-      emergencyContactNumber: userProfile?.emergency_contact_number || '',
-    };
-
-    const requiredFields = [
-      profile.firstName,
-      profile.lastName,
-      profile.designation,
-      profile.email,
-      profile.dob,
-      profile.gender,
-      profile.employeeId,
-      profile.country,
-      profile.addressLine1,
-      profile.city,
-      profile.state,
-      profile.zipCode,
-      profile.emergencyContactName,
-      profile.emergencyContactNumber,
-    ];
-
-    const filledFields = requiredFields.filter(
-      (field) => field && field.toString().trim() !== ''
-    ).length;
-
-    const totalFields = requiredFields.length;
-    return totalFields > 0 ? Math.round((filledFields / totalFields) * 100) : 0;
-  }, [user]);
 
   // Don't show if dismissed, on profile page, or 100% complete
   if (!isVisible || pathname === '/dashboard/profile' || profileCompletion >= 100) {
@@ -162,4 +109,5 @@ export function ProfileCompletionBanner() {
     </div>
   );
 }
+
 

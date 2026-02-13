@@ -12,8 +12,10 @@ import { UserDocument } from "@/types/genericTypes";
 import { useDocumentSettings } from "@/hooks/useDocumentSettings";
 import { getErrorMessage } from "@/types/api-utils";
 import { fileService } from "@/services/file.service";
-import { UpdateUserProfileRequestDto } from "@/types/dto/user.dto";
+import { UpdateUserProfileRequestDto, UserDto } from "@/types/dto/user.dto";
 import { trimStr } from "@/utils/trim";
+import { mapUserDtoToProfileData, calculateProfileCompletion } from "@/utils/profile.utils";
+import { queryKeys } from "@/lib/queryKeys";
 
 interface DocumentTypeLocal {
     id: string;
@@ -44,6 +46,7 @@ interface UserProfile {
     state?: string;
     zipcode?: string;
     country?: string;
+    department?: string;
     emergency_contact?: { name?: string; relationship?: string; phone?: string };
 }
 
@@ -59,6 +62,7 @@ const countryCodes = [
 ];
 
 export function ProfilePage() {
+    const { documentTypes } = useDocumentSettings();
     const { message } = App.useApp();
     const { data: currentUserData, isLoading } = useUserDetails();
     // Note: useUserDetails hook transforms result via mapUserDtoToEmployee,
@@ -70,14 +74,22 @@ export function ProfilePage() {
 
     // Initialize profile state with real data or fallback to mock data
     const initialProfile = useMemo(() => {
+        // Use shared mapper for base fields
+        const baseProfile = mapUserDtoToProfileData(user as unknown as UserDto);
+        
         // user_profile is an array in the User model definition
         const rawUserProfile = user?.user_profile;
         const userProfile = (Array.isArray(rawUserProfile) ? rawUserProfile[0] : rawUserProfile || {}) as UserProfile;
 
         const fullName = user?.name || "";
         const nameParts = fullName.split(" ");
-
-        // Robust mobile number resolution (same as EmployeesPage)
+        
+        // Parse working hours
+        const workingHours = userProfile?.working_hours || {};
+        
+        // Helper to get mobile/phone since not in baseProfile? 
+        // actually baseProfile doesn't have phone separate from country code/splitting logic
+        // helper for phone parsing
         const fullMobileNumber =
             userProfile?.mobile_number ||
             user?.mobile_number ||
@@ -96,36 +108,17 @@ export function ProfilePage() {
                 phone = phone.replace(matched.code, "").trim();
             }
         } else if (!phone) {
-            // Default if no phone
             phone = "";
         }
 
-        // Address fields
-        const addressLine1 = userProfile?.address_line_1 || "";
-        const addressLine2 = userProfile?.address_line_2 || "";
-
-        // Parse Working Hours
-        const workingHours = userProfile?.working_hours || {};
-        const startTime = workingHours?.start_time || "09:30";
-        const endTime = workingHours?.end_time || "18:30";
-
         return {
-            firstName: userProfile?.first_name || nameParts[0] || "",
+            ...baseProfile,
+            // Add fields that are not in ProfileCompletionData or need specific handling
             middleName: userProfile?.middle_name || (nameParts.length > 2 ? nameParts[1] : "") || "",
-            lastName: userProfile?.last_name || nameParts.slice(nameParts.length > 2 ? 2 : 1).join(" ") || "",
-            email: user?.email || "",
             phone: phone,
             countryCode: countryCode,
-            designation: userProfile?.designation || user?.designation || "",
-            dob: userProfile?.date_of_birth
-                ? new Date(userProfile.date_of_birth)
-                    .toISOString()
-                    .split("T")[0]
-                : "",
-            gender: userProfile?.gender || "",
-            employeeId: user?.employee_id || userProfile?.employee_id || "",
-
-            // Employment Details
+            
+            // Employment Details (Read only mostly)
             employmentType: userProfile?.employment_type || "Full-time",
             dateOfJoining: userProfile?.date_of_joining
                 ? new Date(userProfile.date_of_joining)
@@ -133,21 +126,21 @@ export function ProfilePage() {
                     .split("T")[0]
                 : "",
             experience: userProfile?.experience || 0,
-            startTime: startTime,
-            endTime: endTime,
+            startTime: workingHours?.start_time || "09:30",
+            endTime: workingHours?.end_time || "18:30",
             salary: userProfile?.salary_yearly || 0,
             hourlyRate: userProfile?.hourly_rates || 0,
             leaves: userProfile?.no_of_leaves || 0,
 
-            addressLine1: addressLine1,
-            addressLine2: addressLine2,
-            city: userProfile?.city || "",
-            state: userProfile?.state || "",
-            zipCode: userProfile?.zipcode || "",
-            country: userProfile?.country || "India",
-            emergencyContactName: userProfile?.emergency_contact?.name || "",
+            addressLine2: userProfile?.address_line_2 || "",
+            
+            department: (function() {
+                const u = user as unknown as UserDto;
+                if (!u?.department) return "-";
+                if (typeof u.department === 'object') return u.department.name;
+                return u.department as string;
+            })(),
             emergencyRelationship: userProfile?.emergency_contact?.relationship || "",
-            emergencyContactNumber: userProfile?.emergency_contact?.phone || "",
         };
     }, [user]);
 
@@ -171,11 +164,6 @@ export function ProfilePage() {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [uploadingDocType, setUploadingDocType] = useState<string | null>(null);
     const queryClient = useQueryClient();
-
-
-
-    // Document settings from hook
-    const { documentTypes } = useDocumentSettings();
 
     const documents = useMemo(() => {
         // Check if user data has documents
@@ -237,7 +225,7 @@ export function ProfilePage() {
             message.success({ content: 'Document uploaded successfully!', key: 'doc-upload' });
 
             // Refresh user data to show the new document
-            queryClient.invalidateQueries({ queryKey: ['user-details'] });
+            queryClient.invalidateQueries({ queryKey: queryKeys.users.me() });
 
         } catch (error) {
             console.error('Upload failed:', error);
@@ -264,10 +252,10 @@ export function ProfilePage() {
                     {label}
                 </div>
                 <Input
-                    value={profile[field]}
+                    value={value}
                     onChange={(e) => {
                         const newVal = e.target.value;
-                        setProfile({ ...profile, [field]: newVal });
+                        setProfile((prev) => ({ ...prev, [field]: newVal }));
                         if (onChange) onChange(newVal);
                     }}
                     placeholder={placeholder}
@@ -382,31 +370,29 @@ export function ProfilePage() {
 
     // Calculate profile completion percentage
     const profileCompletion = useMemo(() => {
-        const requiredFields = [
-            profile.firstName,
-            profile.lastName,
-            profile.designation,
-            profile.email,
-            profile.dob,
-            profile.gender,
-            profile.employeeId,
-            profile.country,
-            profile.addressLine1,
-            profile.city,
-            profile.state,
-            profile.zipCode,
-            profile.emergencyContactName,
-            profile.emergencyContactNumber,
-        ];
-
-        const filledFields = requiredFields.filter(
-            (field) => field && field.toString().trim() !== ""
-        ).length;
-
-        const totalFields = requiredFields.length;
-        const percentage = Math.round((filledFields / totalFields) * 100);
+        // Construct standard ProfileCompletionData from local state
+        const completionData = {
+            firstName: profile.firstName,
+            lastName: profile.lastName,
+            designation: profile.designation,
+            email: profile.email,
+            dob: profile.dob,
+            gender: profile.gender,
+            employeeId: profile.employeeId,
+            country: profile.country,
+            addressLine1: profile.addressLine1,
+            city: profile.city,
+            state: profile.state,
+            zipCode: profile.zipCode,
+            emergencyContactName: profile.emergencyContactName,
+            emergencyContactNumber: profile.emergencyContactNumber,
+            profilePic: profile.profilePic,
+            documents: profile.documents
+        };
+        
+        const { percentage } = calculateProfileCompletion(completionData, documentTypes);
         return percentage;
-    }, [profile]);
+    }, [profile, documentTypes]);
 
     return (
         <PageLayout
@@ -655,15 +641,9 @@ export function ProfilePage() {
                                                 profile.lastName,
                                                 "lastName"
                                             )}
-                                            {renderField(
-                                                "Designation",
-                                                profile.designation,
-                                                "designation"
-                                            )}
                                         </div>
                                     </div>
                                 </div>
-
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                                     {renderField("Email Address", profile.email, "email")}
                                     <div className="space-y-2">
@@ -706,11 +686,6 @@ export function ProfilePage() {
                                         "Female",
                                         "Other",
                                     ])}
-                                    {renderField(
-                                        "Employee ID",
-                                        profile.employeeId,
-                                        "employeeId"
-                                    )}
                                 </div>
                             </section>
 
@@ -719,10 +694,46 @@ export function ProfilePage() {
                             {/* Employment Details */}
                             <section className="mb-10">
                                 <h2 className="text-[16px] font-['Manrope:SemiBold',sans-serif] text-[#111111] mb-6">
-                                    Employment Details(Admin or HR can edit this details from Employees Page)
+                                    Employment Details(Contact Your Admin or HR to Update Employment Details)
                                 </h2>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                                    {/* Employment Type - Read Only */}
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    {/* Row 1 */}
+                                    {/* Employee ID */}
+                                    <div className="space-y-2">
+                                        <div className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">
+                                            Employee ID
+                                        </div>
+                                        <Input
+                                            value={profile.employeeId}
+                                            disabled={true}
+                                            className="h-11 rounded-lg border-[#EEEEEE] font-['Manrope:Medium',sans-serif] text-[13px] bg-[#FAFAFA] text-[#666666]"
+                                        />
+                                    </div>
+                                    {/* Designation */}
+                                    <div className="space-y-2">
+                                        <div className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">
+                                            Designation
+                                        </div>
+                                        <Input
+                                            value={profile.designation}
+                                            disabled={true}
+                                            className="h-11 rounded-lg border-[#EEEEEE] font-['Manrope:Medium',sans-serif] text-[13px] bg-[#FAFAFA] text-[#666666]"
+                                        />
+                                    </div>
+                                    {/* Department */}
+                                    <div className="space-y-2">
+                                        <div className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">
+                                            Department
+                                        </div>
+                                        <Input
+                                            value={profile.department}
+                                            disabled={true}
+                                            className="h-11 rounded-lg border-[#EEEEEE] font-['Manrope:Medium',sans-serif] text-[13px] bg-[#FAFAFA] text-[#666666]"
+                                        />
+                                    </div>
+
+                                    {/* Row 2 */}
+                                    {/* Employment Type */}
                                     <div className="space-y-2">
                                         <div className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">
                                             Employment Type
@@ -733,7 +744,7 @@ export function ProfilePage() {
                                             className="h-11 rounded-lg border-[#EEEEEE] font-['Manrope:Medium',sans-serif] text-[13px] bg-[#FAFAFA] text-[#666666]"
                                         />
                                     </div>
-                                    {/* Date of Joining - Read Only */}
+                                    {/* Date of Joining */}
                                     <div className="space-y-2">
                                         <div className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">
                                             Date of Joining
@@ -745,9 +756,6 @@ export function ProfilePage() {
                                             className="h-11 rounded-lg border-[#EEEEEE] font-['Manrope:Medium',sans-serif] text-[13px] bg-[#FAFAFA] text-[#666666]"
                                         />
                                     </div>
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                                     {/* Experience */}
                                     <div className="space-y-2">
                                         <div className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">
@@ -759,8 +767,10 @@ export function ProfilePage() {
                                             className="h-11 rounded-lg border-[#EEEEEE] font-['Manrope:Medium',sans-serif] text-[13px] bg-[#FAFAFA] text-[#666666]"
                                         />
                                     </div>
+
+                                    {/* Row 3 */}
                                     {/* Working Hours */}
-                                    <div className="col-span-2 space-y-2">
+                                    <div className="space-y-2">
                                         <div className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">
                                             Working Hours
                                         </div>
@@ -768,42 +778,15 @@ export function ProfilePage() {
                                             <Input
                                                 value={profile.startTime}
                                                 disabled={true}
-                                                className="h-11 rounded-lg border-[#EEEEEE] font-['Manrope:Medium',sans-serif] text-[13px] bg-[#FAFAFA] text-[#666666]"
+                                                className="h-11 rounded-lg border-[#EEEEEE] font-['Manrope:Medium',sans-serif] text-[13px] bg-[#FAFAFA] text-[#666666] min-w-0"
                                             />
-                                            <span className="text-[#666666] text-sm">to</span>
+                                            <span className="text-[#666666] text-sm shrink-0">to</span>
                                             <Input
                                                 value={profile.endTime}
                                                 disabled={true}
-                                                className="h-11 rounded-lg border-[#EEEEEE] font-['Manrope:Medium',sans-serif] text-[13px] bg-[#FAFAFA] text-[#666666]"
+                                                className="h-11 rounded-lg border-[#EEEEEE] font-['Manrope:Medium',sans-serif] text-[13px] bg-[#FAFAFA] text-[#666666] min-w-0"
                                             />
                                         </div>
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                    {/* Salary */}
-                                    <div className="space-y-2">
-                                        <div className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">
-                                            Salary (Yearly)
-                                        </div>
-                                        <Input
-                                            value={profile.salary}
-                                            disabled={true}
-                                            prefix="$"
-                                            className="h-11 rounded-lg border-[#EEEEEE] font-['Manrope:Medium',sans-serif] text-[13px] bg-[#FAFAFA] text-[#666666]"
-                                        />
-                                    </div>
-                                    {/* Hourly Rate */}
-                                    <div className="space-y-2">
-                                        <div className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">
-                                            Hourly Rate
-                                        </div>
-                                        <Input
-                                            value={profile.hourlyRate}
-                                            disabled={true}
-                                            suffix="/Hr"
-                                            className="h-11 rounded-lg border-[#EEEEEE] font-['Manrope:Medium',sans-serif] text-[13px] bg-[#FAFAFA] text-[#666666]"
-                                        />
                                     </div>
                                     {/* Leaves Balance */}
                                     <div className="space-y-2">
@@ -813,6 +796,18 @@ export function ProfilePage() {
                                         <Input
                                             value={profile.leaves}
                                             disabled={true}
+                                            className="h-11 rounded-lg border-[#EEEEEE] font-['Manrope:Medium',sans-serif] text-[13px] bg-[#FAFAFA] text-[#666666]"
+                                        />
+                                    </div>
+                                    {/* Salary */}
+                                    <div className="space-y-2">
+                                        <div className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">
+                                            Salary (Yearly)
+                                        </div>
+                                        <Input
+                                            value={profile.salary}
+                                            disabled={true}
+                                            prefix="$"
                                             className="h-11 rounded-lg border-[#EEEEEE] font-['Manrope:Medium',sans-serif] text-[13px] bg-[#FAFAFA] text-[#666666]"
                                         />
                                     </div>

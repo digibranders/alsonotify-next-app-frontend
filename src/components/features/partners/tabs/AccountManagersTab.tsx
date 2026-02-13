@@ -1,80 +1,179 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Input, Dropdown, MenuProps, App } from 'antd';
-import { Search, Plus, MoreVertical, Users, Trash2 } from 'lucide-react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import { Input, App, Button, Select, Spin } from 'antd';
+import { Search, Plus, Trash2, X, Building2, User } from 'lucide-react';
 import { AddAccountManagerModal } from '../modals/AddAccountManagerModal';
-import { EditManagerPartnersModal } from '../modals/EditManagerPartnersModal';
-import { getAccountManagers, removeAccountManager, AccountManager as AccountManagerType } from '@/services/user';
+import { 
+    getAccountManagers, 
+    removeAccountManager, 
+    updateManagerPartners, 
+    searchPartners,
+    AccountManager as AccountManagerType 
+} from '@/services/user';
 
+import { debounce } from 'lodash';
 
 export function AccountManagersTab() {
     const { message, modal } = App.useApp();
-    const [searchQuery, setSearchQuery] = useState('');
-    const [loading, setLoading] = useState(true);
-    const [accountManagers, setAccountManagers] = useState<AccountManagerType[]>([]);
+    
+    // UI State
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-    const [editingManager, setEditingManager] = useState<AccountManagerType | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
+    
+    // Data State
+    const [accountManagers, setAccountManagers] = useState<AccountManagerType[]>([]);
+    
+    // Selection State
+    const [selectedManagerId, setSelectedManagerId] = useState<number | null>(null);
+    const [searchQuery, setSearchQuery] = useState('');
+    
+    // Right Panel State
+    const [assignedPartners, setAssignedPartners] = useState<{ label: string; value: number }[]>([]);
+    const [originalPartners, setOriginalPartners] = useState<{ label: string; value: number }[]>([]);
+    const [partnerSearchOptions, setPartnerSearchOptions] = useState<{ label: string; value: number }[]>([]);
+    const [searchingPartners, setSearchingPartners] = useState(false);
 
     // Fetch account managers
-    const fetchAccountManagers = async () => {
+    const fetchAccountManagers = useCallback(async (keepSelection = false) => {
         try {
             setLoading(true);
             const response = await getAccountManagers();
-            setAccountManagers(response.result || []);
+            const managers = response.result || [];
+            setAccountManagers(managers);
+            
+            // If we need to keep selection (e.g. after save), update the selected manager's data
+            if (keepSelection && selectedManagerId) {
+                const updatedManager = managers.find(m => m.id === selectedManagerId);
+                // We need to handle handleManagerSelect but it's defined below. 
+                // To avoid circular dependency, we just update local state if manager exists.
+                if (updatedManager) {
+                     // Update selected manager's partners in right panel
+                    const formattedPartners = updatedManager.assignedPartners.map(p => ({
+                        label: p.name,
+                        value: p.id
+                    }));
+                    setAssignedPartners(formattedPartners);
+                    setOriginalPartners(formattedPartners);
+                } else {
+                    setSelectedManagerId(null);
+                }
+            }
         } catch (error) {
+            console.error(error);
             message.error('Failed to fetch account managers');
         } finally {
             setLoading(false);
         }
-    };
+    }, [message, selectedManagerId]);
 
-    // Load account managers on mount
+    // Initial load
     useEffect(() => {
         fetchAccountManagers();
-    }, []);
+    }, [fetchAccountManagers]);
 
-    const filteredManagers = accountManagers.filter(manager =>
-        manager.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        manager.email.toLowerCase().includes(searchQuery.toLowerCase())
+    const filteredManagers = useMemo(() => {
+        return accountManagers.filter(manager =>
+            manager.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            manager.email.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+    }, [accountManagers, searchQuery]);
+
+    const handleManagerSelect = (manager: AccountManagerType) => {
+        setSelectedManagerId(manager.id);
+        const formattedPartners = manager.assignedPartners.map(p => ({
+            label: p.name,
+            value: p.id
+        }));
+        setAssignedPartners(formattedPartners);
+        setOriginalPartners(formattedPartners);
+    };
+
+    const handlePartnerSearch = useCallback(async (value: string) => {
+        if (!value) {
+            setPartnerSearchOptions([]);
+            return;
+        }
+        setSearchingPartners(true);
+        try {
+            const response = await searchPartners(value);
+            // Filter out already assigned partners
+            const headerOptions = response.result?.filter(
+                opt => !assignedPartners.some(ap => ap.value === opt.value)
+            ) || [];
+            setPartnerSearchOptions(headerOptions);
+        } catch (error) {
+           console.error('Failed to search partners', error);
+        } finally {
+            setSearchingPartners(false);
+        }
+    }, [assignedPartners]);
+
+    const debouncedPartnerSearch = useMemo(
+        () => debounce(handlePartnerSearch, 500),
+        [handlePartnerSearch]
     );
 
-    const handleRemoveManager = async (manager: AccountManagerType) => {
+    const handleAddPartner = (value: number, option: { label: string } | { label: string }[] | undefined) => {
+        if (!option) return;
+        const label = Array.isArray(option) ? option[0].label : option.label;
+        setAssignedPartners(prev => [...prev, { label, value }]);
+        setPartnerSearchOptions([]); // Clear search options
+        message.success('Partner added to list. Click Save Changes to confirm.');
+    };
+
+    const handleRemovePartner = (partnerId: number) => {
+        setAssignedPartners(prev => prev.filter(p => p.value !== partnerId));
+    };
+
+    const hasChanges = useMemo(() => {
+        if (assignedPartners.length !== originalPartners.length) return true;
+        const currentIds = new Set(assignedPartners.map(p => p.value));
+        return !originalPartners.every(p => currentIds.has(p.value));
+    }, [assignedPartners, originalPartners]);
+
+    const handleSaveChanges = async () => {
+        if (!selectedManagerId) return;
+        
+        try {
+            setSaving(true);
+            await updateManagerPartners(
+                selectedManagerId, 
+                assignedPartners.map(p => p.value)
+            );
+            message.success('Partner assignments updated successfully');
+            await fetchAccountManagers(true);
+        } catch (error) {
+            console.error(error);
+            message.error('Failed to update assignments');
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleRemoveManager = async (e: React.MouseEvent, manager: AccountManagerType) => {
+        e.stopPropagation();
         modal.confirm({
             title: 'Remove Account Manager',
-            content: `Are you sure you want to remove ${manager.name} as an account manager? This will unassign all their partners.`,
+            content: `Are you sure you want to remove ${manager.name}? This will unassign all their partners.`,
             okText: 'Remove',
             okButtonProps: { danger: true },
             onOk: async () => {
                 try {
                     await removeAccountManager(manager.id);
-                    message.success(`${manager.name} removed as account manager`);
+                    message.success('Account manager removed');
+                    if (selectedManagerId === manager.id) {
+                        setSelectedManagerId(null);
+                    }
                     fetchAccountManagers();
                 } catch (error) {
+                    console.error(error);
                     message.error('Failed to remove account manager');
                 }
             }
         });
     };
-
-    const getMenuItems = (manager: AccountManagerType): MenuProps['items'] => [
-        {
-            key: 'edit',
-            label: 'Edit Partners',
-            icon: <Users className="w-4 h-4" />,
-            onClick: () => setEditingManager(manager)
-        },
-        {
-            type: 'divider'
-        },
-        {
-            key: 'remove',
-            label: 'Remove',
-            icon: <Trash2 className="w-4 h-4" />,
-            danger: true,
-            onClick: () => handleRemoveManager(manager)
-        }
-    ];
 
     const getInitials = (name: string) => {
         return name
@@ -85,127 +184,217 @@ export function AccountManagersTab() {
             .slice(0, 2);
     };
 
+    const selectedManager = accountManagers.find(m => m.id === selectedManagerId);
+
     return (
-        <div className="flex flex-col h-full">
+        <div className="bg-white rounded-[24px] p-8 border border-[#EEEEEE] mb-6 h-[calc(100vh-140px)] flex flex-col animate-in fade-in slide-in-from-bottom-2 duration-300">
             {/* Header */}
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-6 shrink-0">
                 <div>
-                    <h2 className="text-[16px] font-['Manrope:SemiBold',sans-serif] text-[#111111]">
+                    <h2 className="text-[18px] font-['Manrope:Bold',sans-serif] text-[#111111]">
                         Account Managers
                     </h2>
-                    <p className="text-[13px] text-[#666666] mt-1">
-                        Manage employees who handle partner relationships
+                    <p className="text-[13px] text-[#666666] mt-1 font-['Manrope:Regular',sans-serif]">
+                        Manage account managers and their partner assignments
                     </p>
                 </div>
-                <button
+                <Button
                     onClick={() => setIsAddModalOpen(true)}
-                    className="flex items-center gap-2 px-4 py-2 bg-[#111111] hover:bg-[#000000] text-white rounded-full transition-colors"
+                    className="bg-[#111111] hover:bg-[#000000]/90 text-white font-['Manrope:SemiBold',sans-serif] px-6 h-11 rounded-full text-[13px] flex items-center gap-2 border-none transition-all shadow-md active:scale-95"
                 >
                     <Plus className="w-4 h-4" />
-                    Add Account Manager
-                </button>
+                    Add Manager
+                </Button>
             </div>
 
-            {/* Search Bar */}
-            <div className="mb-4">
-                <Input
-                    prefix={<Search className="w-4 h-4 text-[#999999]" />}
-                    placeholder="Search account managers..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="h-10 rounded-xl"
-                />
-            </div>
+            <div className="flex gap-8 flex-1 min-h-0">
+                {/* Left Panel: Managers List */}
+                <div className="w-1/3 flex flex-col border-r border-[#EEEEEE] pr-6">
+                     <div className="mb-4">
+                        <Input
+                            prefix={<Search className="w-4 h-4 text-[#999999]" />}
+                            placeholder="Search managers..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="h-10 rounded-xl"
+                        />
+                    </div>
 
-            {/* Table */}
-            <div className="flex-1 overflow-y-auto">
-                {loading ? (
-                    <div className="space-y-3">
-                        {[1, 2, 3].map(i => (
-                            <div key={i} className="h-16 bg-gray-100 rounded-xl animate-pulse" />
-                        ))}
-                    </div>
-                ) : filteredManagers.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-16">
-                        <div className="w-16 h-16 rounded-full bg-[#F5F5F5] flex items-center justify-center mb-4">
-                            <Users className="w-8 h-8 text-[#CCCCCC]" />
-                        </div>
-                        <h3 className="text-[15px] font-['Manrope:SemiBold',sans-serif] text-[#111111] mb-2">
-                            No account managers yet
-                        </h3>
-                        <p className="text-[13px] text-[#666666] mb-4">
-                            Click "Add Account Manager" to get started
-                        </p>
-                    </div>
-                ) : (
-                    <div className="space-y-2">
-                        {filteredManagers.map(manager => (
-                            <div
-                                key={manager.id}
-                                className="bg-white border border-[#EEEEEE] rounded-xl p-4 hover:border-[#ff3b3b]/20 hover:shadow-md transition-all"
-                            >
-                                <div className="flex items-center gap-4">
+                    <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-2">
+                        {loading && accountManagers.length === 0 ? (
+                             <div className="space-y-3">
+                                {[1, 2, 3].map(i => (
+                                    <div key={i} className="h-16 bg-gray-50 rounded-xl animate-pulse" />
+                                ))}
+                            </div>
+                        ) : filteredManagers.length === 0 ? (
+                            <div className="text-center py-10 text-[#999999] text-[13px]">
+                                No account managers found
+                            </div>
+                        ) : (
+                            filteredManagers.map(manager => (
+                                <div
+                                    key={manager.id}
+                                    onClick={() => handleManagerSelect(manager)}
+                                    className={`group flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all border ${
+                                        selectedManagerId === manager.id
+                                            ? 'bg-[#F5F5F5] border-[#111111]'
+                                            : 'border-transparent hover:bg-[#F9FAFB] hover:border-[#EEEEEE]'
+                                    }`}
+                                >
                                     {/* Avatar */}
-                                    <div className="w-12 h-12 rounded-full bg-[#F5F5F5] flex items-center justify-center flex-shrink-0 overflow-hidden">
+                                    <div className="w-10 h-10 rounded-full bg-white border border-[#EEEEEE] flex items-center justify-center flex-shrink-0 overflow-hidden text-[12px] font-bold text-[#666666]">
                                         {manager.profilePic ? (
                                             <img src={manager.profilePic} alt={manager.name} className="w-full h-full object-cover" />
-                                        ) : (
-                                            <span className="text-[14px] font-bold text-[#999999]">
-                                                {getInitials(manager.name)}
-                                            </span>
-                                        )}
+                                        ) : getInitials(manager.name)}
                                     </div>
 
-                                    {/* Info */}
                                     <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <h3 className="text-[14px] font-['Manrope:SemiBold',sans-serif] text-[#111111] truncate">
+                                        <div className="flex items-center justify-between">
+                                            <h3 className={`text-[14px] font-['Manrope:SemiBold',sans-serif] truncate ${
+                                                selectedManagerId === manager.id ? 'text-[#111111]' : 'text-[#444444]'
+                                            }`}>
                                                 {manager.name}
                                             </h3>
-                                            {manager.role && (
-                                                <span
-                                                    className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase"
+                                        </div>
+                                        <p className="text-[12px] text-[#999999] truncate flex items-center gap-1">
+                                            {manager.partnerCount} partners
+                                        </p>
+                                    </div>
+                                    
+                                     <button
+                                        onClick={(e) => handleRemoveManager(e, manager)}
+                                        className="p-1.5 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-white text-[#FF3B3B] transition-all"
+                                    >
+                                        <Trash2 className="w-3.5 h-3.5" />
+                                    </button>
+                                </div>
+                            ))
+                        )}
+                    </div>
+                </div>
+
+                {/* Right Panel: Partner Assignments */}
+                <div className="w-2/3 flex flex-col pl-2">
+                    {selectedManager ? (
+                        <>
+                            <div className="flex items-center justify-between mb-6 pb-6 border-b border-[#EEEEEE]">
+                                <div className="flex items-center gap-4">
+                                     <div className="w-14 h-14 rounded-full bg-[#F5F5F5] flex items-center justify-center flex-shrink-0 overflow-hidden text-[18px] font-bold text-[#666666]">
+                                        {selectedManager.profilePic ? (
+                                            <img src={selectedManager.profilePic} alt={selectedManager.name} className="w-full h-full object-cover" />
+                                        ) : getInitials(selectedManager.name)}
+                                    </div>
+                                    <div>
+                                        <h3 className="text-[18px] font-['Manrope:Bold',sans-serif] text-[#111111]">
+                                            {selectedManager.name}
+                                        </h3>
+                                        <div className="flex items-center gap-2 mt-1">
+                                            <span className="text-[13px] text-[#666666] bg-[#F5F5F5] px-2 py-0.5 rounded-md">
+                                                {selectedManager.email}
+                                            </span>
+                                            {selectedManager.role && (
+                                                <span 
+                                                    className="text-[10px] font-bold px-2 py-0.5 rounded-md uppercase"
                                                     style={{
-                                                        backgroundColor: manager.roleColor ? `${manager.roleColor}20` : '#F5F5F5',
-                                                        color: manager.roleColor || '#666666'
+                                                        backgroundColor: selectedManager.roleColor ? `${selectedManager.roleColor}15` : '#EEEEEE',
+                                                        color: selectedManager.roleColor || '#666666'
                                                     }}
                                                 >
-                                                    {manager.role}
+                                                    {selectedManager.role}
                                                 </span>
                                             )}
                                         </div>
-                                        <div className="flex items-center gap-3 text-[12px] text-[#666666]">
-                                            {manager.designation && (
-                                                <span className="truncate">{manager.designation}</span>
-                                            )}
-                                            {manager.department && (
-                                                <>
-                                                    <span className="text-[#CCCCCC]">•</span>
-                                                    <span className="truncate">{manager.department}</span>
-                                                </>
-                                            )}
+                                    </div>
+                                </div>
+
+                                <Button
+                                    type="primary"
+                                    disabled={!hasChanges}
+                                    loading={saving}
+                                    onClick={handleSaveChanges}
+                                    className={`h-10 px-6 rounded-full font-['Manrope:SemiBold',sans-serif] border-none shadow-none ${
+                                        hasChanges 
+                                            ? 'bg-[#111111] hover:bg-[#000000]' 
+                                            : 'bg-[#F5F5F5] text-[#999999] hover:bg-[#F5F5F5]'
+                                    }`}
+                                >
+                                    {saving ? 'Saving...' : 'Save Changes'}
+                                </Button>
+                            </div>
+
+                            <div className="flex flex-col h-full overflow-hidden">
+                                <div className="mb-4">
+                                    <label className="text-[12px] font-['Manrope:Bold',sans-serif] text-[#111111] uppercase tracking-wide mb-2 block">
+                                        Assign Partners
+                                    </label>
+                                    <Select
+                                        showSearch
+                                        placeholder="Search and add partners..."
+                                        defaultActiveFirstOption={false}
+                                        filterOption={false}
+                                        onSearch={debouncedPartnerSearch}
+                                        onChange={handleAddPartner}
+                                        notFoundContent={searchingPartners ? <Spin size="small" /> : null}
+                                        options={partnerSearchOptions}
+                                        className="w-full h-11"
+                                        suffixIcon={<Search className="w-4 h-4 text-[#999999]" />}
+                                        value={null} // Always clear after selection
+                                    />
+                                </div>
+
+                                <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+                                    <label className="text-[12px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide mb-3 block">
+                                        Assigned Partners ({assignedPartners.length})
+                                    </label>
+                                    
+                                    {assignedPartners.length === 0 ? (
+                                        <div className="flex flex-col items-center justify-center py-12 bg-[#F9FAFB] rounded-xl border border-dashed border-[#EEEEEE]">
+                                            <Building2 className="w-8 h-8 text-[#DDDDDD] mb-3" />
+                                            <p className="text-[13px] text-[#999999]">No partners assigned yet</p>
                                         </div>
-                                    </div>
-
-                                    {/* Partner Count */}
-                                    <div className="flex items-center gap-2 px-3 py-1.5 bg-[#F5F5F5] rounded-lg">
-                                        <Users className="w-4 h-4 text-[#666666]" />
-                                        <span className="text-[13px] font-['Manrope:SemiBold',sans-serif] text-[#111111]">
-                                            {manager.partnerCount} {manager.partnerCount === 1 ? 'partner' : 'partners'}
-                                        </span>
-                                    </div>
-
-                                    {/* Actions */}
-                                    <Dropdown menu={{ items: getMenuItems(manager) }} trigger={['click']} placement="bottomRight">
-                                        <button className="p-2 hover:bg-[#F5F5F5] rounded-lg transition-colors">
-                                            <MoreVertical className="w-4 h-4 text-[#666666]" />
-                                        </button>
-                                    </Dropdown>
+                                    ) : (
+                                        <div className="grid grid-cols-1 gap-2">
+                                            {assignedPartners.map(partner => (
+                                                <div 
+                                                    key={partner.value}
+                                                    className="flex items-center justify-between p-3 bg-white border border-[#EEEEEE] rounded-xl group hover:border-[#111111] transition-colors"
+                                                >
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-8 h-8 rounded-lg bg-[#F5F5F5] flex items-center justify-center text-[#666666]">
+                                                            <Building2 className="w-4 h-4" />
+                                                        </div>
+                                                        <span className="text-[14px] font-['Manrope:Medium',sans-serif] text-[#111111]">
+                                                            {partner.label}
+                                                        </span>
+                                                    </div>
+                                                    <button
+                                                        onClick={() => handleRemovePartner(partner.value)}
+                                                        className="p-1.5 rounded-lg text-[#999999] hover:bg-[#FFF5F5] hover:text-[#FF3B3B] transition-colors"
+                                                    >
+                                                        <X className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
-                        ))}
-                    </div>
-                )}
+                        </>
+                    ) : (
+                        <div className="flex flex-col items-center justify-center h-full text-center p-8 bg-[#F9FAFB] rounded-2xl border border-dashed border-[#EEEEEE]">
+                            <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4 shadow-sm">
+                                <User className="w-8 h-8 text-[#DDDDDD]" />
+                            </div>
+                            <h3 className="text-[16px] font-['Manrope:SemiBold',sans-serif] text-[#111111]">
+                                Select an Account Manager
+                            </h3>
+                            <p className="text-[13px] text-[#666666] mt-2 max-w-[280px]">
+                                Select a manager from the list to view and manage their partner assignments.
+                            </p>
+                        </div>
+                    )}
+                </div>
             </div>
 
             {/* Modals */}
@@ -215,22 +404,9 @@ export function AccountManagersTab() {
                 onSuccess={() => {
                     setIsAddModalOpen(false);
                     fetchAccountManagers();
-                    message.success('Account manager added successfully');
+                    message.success('Account manager added');
                 }}
             />
-
-            {editingManager && (
-                <EditManagerPartnersModal
-                    isOpen={!!editingManager}
-                    onClose={() => setEditingManager(null)}
-                    manager={editingManager}
-                    onSuccess={() => {
-                        setEditingManager(null);
-                        fetchAccountManagers();
-                        message.success('Partner assignments updated successfully');
-                    }}
-                />
-            )}
         </div>
     );
 }
