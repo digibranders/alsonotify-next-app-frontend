@@ -97,7 +97,7 @@ function RequirementsFormContent({
     isLoading = false,
     isEditing = false,
 }: Readonly<RequirementsFormProps>) {
-    const { user } = useAuth();
+    useAuth();
     const { data: employeesData, isLoading: isLoadingEmployees } = useEmployees();
     const { message } = App.useApp();
 
@@ -142,7 +142,7 @@ function RequirementsFormContent({
     const [outsourcedContacts, setOutsourcedContacts] = useState<OutsourcedContact[]>([]);
     const [isLoadingOutsourcedContacts, setIsLoadingOutsourcedContacts] = useState(false);
 
-    // Fetch outsourced contacts when type is 'outsourced'
+    // Fetch outsourced contacts when type is 'outsourced' or 'client'
     useEffect(() => {
         const fetchOutsourcedContacts = async () => {
             setIsLoadingOutsourcedContacts(true);
@@ -159,7 +159,7 @@ function RequirementsFormContent({
             }
         };
 
-        if (formData.type === 'outsourced') {
+        if (formData.type === 'outsourced' || formData.type === 'client' || formData.type === 'Client work' || formData.type === 'Client Work') {
             fetchOutsourcedContacts();
         } else {
             setOutsourcedContacts([]);
@@ -184,6 +184,8 @@ function RequirementsFormContent({
     const buildPayload = useCallback((): CreateRequirementRequestDto | null => {
         const title = (formData.title || '').trim();
         const workspaceId = formData.workspace ? Number(formData.workspace) : 0;
+        const isClientWork = formData.type === 'client' || formData.type === 'Client work' || formData.type === 'Client Work';
+
         if (!title) {
             message.error('Requirement title is required');
             return null;
@@ -193,12 +195,17 @@ function RequirementsFormContent({
             return null;
         }
 
-        // Determine receiver company
+        // Determine receiver/sender company
         let receiverCompanyId = formData.receiver_company_id;
-        if (formData.type === 'outsourced' && formData.contact_person_id) {
+        let senderCompanyId = undefined;
+        if ((formData.type === 'outsourced' || isClientWork) && formData.contact_person_id) {
             const contact = outsourcedContacts.find(c => c.id === formData.contact_person_id);
             if (contact) {
-                receiverCompanyId = contact.company_id;
+                if (formData.type === 'outsourced') {
+                    receiverCompanyId = contact.company_id;
+                } else {
+                    senderCompanyId = contact.company_id;
+                }
             }
         }
 
@@ -207,17 +214,18 @@ function RequirementsFormContent({
             title,
             workspace_id: workspaceId,
             description: formData.description?.trim() ?? '',
-            type: (formData.type === 'client' || formData.type === 'Client work' || formData.type === 'Client Work') ? 'client' : formData.type as 'inhouse' | 'outsourced',
+            type: isClientWork ? 'client' : formData.type as 'inhouse' | 'outsourced',
             is_high_priority: formData.is_high_priority,
             contact_person_id: formData.contact_person_id,
             contact_person: formData.contactPerson != null ? trimStr(String(formData.contactPerson)) : undefined,
-            receiver_company_id: (formData.type === 'client' || formData.type === 'Client work' || formData.type === 'Client Work') ? undefined : receiverCompanyId,
-            sender_company_id: (formData.type === 'client' || formData.type === 'Client work' || formData.type === 'Client Work') ? undefined : undefined, // Removed selectedPartnerId
+            receiver_company_id: isClientWork ? undefined : receiverCompanyId,
+            sender_company_id: isClientWork ? senderCompanyId : undefined,
             budget: Number(formData.budget) || 0,
-            quoted_price: Number(formData.quoted_price) || undefined,
+            quoted_price: isClientWork ? (Number(formData.quoted_price) || undefined) : undefined,
             currency: formData.currency || 'USD',
             end_date: formData.dueDate ? formatDateForApi(formData.dueDate) : undefined,
             start_date: getTodayForApi(),
+            status: isClientWork ? 'Submitted' : undefined,
         };
     }, [formData, outsourcedContacts, message]);
 
@@ -367,9 +375,9 @@ function RequirementsFormContent({
                         })}
                         suffixIcon={<ChevronDown className="w-4 h-4 text-gray-400" />}
                     >
-                        <Option value="inhouse">In-house (Internal)</Option>
-                        <Option value="outsourced">Partner (Outsourced)</Option>
-                        <Option value="client">Client Work (Received)</Option>
+                        <Option value="inhouse">In-house</Option>
+                        <Option value="outsourced">Outsourced</Option>
+                        <Option value="client">Client-Work</Option>
                     </Select>
                 </div>
 
@@ -421,6 +429,7 @@ function RequirementsFormContent({
                 </div>
             </div>
 
+
             <div className="grid grid-cols-2 gap-x-6 gap-y-4 mb-4">
                 <div className="space-y-1.5">
                     <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">Due Date</span>
@@ -432,20 +441,31 @@ function RequirementsFormContent({
                         disabledDate={(current) => current && current < dayjs().startOf('day')}
                     />
                 </div>
-                <div className="space-y-1.5 flex flex-col justify-center">
-                    <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111] mb-2">Priority</span>
+                {(formData.type === 'client' || formData.type === 'Client work' || formData.type === 'Client Work') && (
+                    <div className="space-y-1.5">
+                        <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">Quotation price</span>
+                        <Input
+                            type="number"
+                            placeholder="Enter quotation price"
+                            className="h-11 rounded-lg border border-[#EEEEEE]"
+                            value={formData.quoted_price}
+                            onChange={(e) => setFormData({ ...formData, quoted_price: e.target.value })}
+                        />
+                    </div>
+                )}
+            </div>
+
+            <div className="space-y-1.5 mb-4">
+                <div className="flex justify-between items-center">
+                    <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">Description</span>
                     <Checkbox
                         checked={formData.is_high_priority}
                         onChange={(e) => setFormData({ ...formData, is_high_priority: e.target.checked })}
-                        className="font-medium text-sm"
+                        className="font-semibold text-[13px] text-[#111111]"
                     >
                         High Priority
                     </Checkbox>
                 </div>
-            </div>
-
-            <div className="space-y-1.5 mb-4">
-                <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">Description</span>
                 <TextArea
                     placeholder="Describe the requirement..."
                     className="min-h-[100px] rounded-lg border border-[#EEEEEE] resize-none p-3.5"
