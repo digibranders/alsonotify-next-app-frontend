@@ -343,7 +343,9 @@ export function TaskDetailsPage() {
                         <p className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111] truncate">
                           {workspace?.name || 'In-House'}
                         </p>
-                        <p className="text-[11px] text-[#666666] truncate">Project</p>
+                        <p className="text-[11px] text-[#666666] truncate">
+                          {task.task_workspace?.partner?.company || task.task_workspace?.company?.name || 'Workspace'}
+                        </p>
                       </div>
                     </div>
                   </div>

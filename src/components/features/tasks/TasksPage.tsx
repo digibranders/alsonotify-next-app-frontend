@@ -1015,7 +1015,9 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
           workspaces={workspacesData?.result?.workspaces?.map((p) => ({
             id: p.id,
             name: p.name,
-            company_name: p.partner_name || p.company_name || p.client?.name || undefined
+            company_name: p.company_name,
+            partner_name: p.partner_name,
+            in_house: p.in_house
           })) || []}
         />
       </Modal>

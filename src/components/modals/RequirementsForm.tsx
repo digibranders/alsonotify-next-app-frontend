@@ -38,7 +38,7 @@ interface RequirementsFormProps {
     /** Send requirement: create then set Waiting/Assigned; edit Draft → set Waiting/Assigned */
     onSubmitAndSend?: (data: CreateRequirementRequestDto, files?: File[]) => void;
     onCancel: () => void;
-    workspaces: { id: number | string; name: string; company_name?: string }[];
+    workspaces: { id: number | string; name: string; company_name?: string; partner_name?: string; in_house?: boolean }[];
     isLoading?: boolean;
     isEditing?: boolean;
     open?: boolean; // Added for Modal support
@@ -339,7 +339,7 @@ function RequirementsFormContent({
                                         <div className="flex flex-col py-1">
                                             <span className="font-medium text-[#111111] leading-tight">{w.name}</span>
                                             <span className="text-[10px] text-[#999999] leading-tight">
-                                                {w.company_name || 'In-house'}
+                                                {w.in_house ? w.company_name : w.partner_name || 'Organization'}
                                             </span>
                                         </div>
                                     </Option>
