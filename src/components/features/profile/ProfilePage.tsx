@@ -17,11 +17,6 @@ import { trimStr } from "@/utils/trim";
 import { mapUserDtoToProfileData, calculateProfileCompletion } from "@/utils/profile.utils";
 import { queryKeys } from "@/lib/queryKeys";
 
-interface DocumentTypeLocal {
-    id: string;
-    name: string;
-    required: boolean;
-}
 
 interface UserProfile {
     first_name?: string;
@@ -138,7 +133,7 @@ export function ProfilePage() {
                 const u = user as unknown as UserDto;
                 if (!u?.department) return "-";
                 if (typeof u.department === 'object') return u.department.name;
-                return u.department as string;
+                return u.department;
             })(),
             emergencyRelationship: userProfile?.emergency_contact?.relationship || "",
         };

@@ -188,11 +188,6 @@ export function PartnersPageContent() {
     });
 
     // Stats
-    const stats = {
-        active: partners.filter(p => p.status === 'active').length,
-        inactive: partners.filter(p => p.status === 'inactive').length,
-        requests: pendingInvites.length + partners.filter(p => p.status === 'pending').length
-    };
 
     const [lastStandardTab, setLastStandardTab] = useState<'active' | 'inactive'>('active');
 

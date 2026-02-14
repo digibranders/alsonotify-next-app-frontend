@@ -64,7 +64,12 @@ export interface TaskDto {
   task_project?: { company?: { name: string } | null } | null;
 
   // Relations
-  task_workspace?: { id: number; name: string | null } | null;
+  task_workspace?: { 
+    id: number; 
+    name: string | null;
+    company?: { name: string };
+    partner?: { company: string };
+  } | null;
   task_requirement?: {
     id: number;
     name: string | null;

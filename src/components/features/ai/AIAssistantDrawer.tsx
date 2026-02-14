@@ -123,7 +123,6 @@ export function AIAssistantDrawer({ open, onClose }: AIAssistantDrawerProps) {
       placement="right"
       onClose={onClose}
       open={open}
-      width={width}
       styles={{
         wrapper: { width: width },
         body: { padding: 0, display: 'flex', flexDirection: 'column' },

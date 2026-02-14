@@ -1,10 +1,10 @@
 import { useState, useRef, forwardRef, useImperativeHandle } from 'react';
 import { Button, Avatar, Tooltip } from 'antd';
 import {
-  Bold, Italic, Underline,
-  List, ListOrdered,
+  Bold, Italic,
+  List,
   Paperclip, Image as ImageIcon, Smile,
-  MoreVertical, Trash2, Send, Forward, X
+  Trash2, Forward, X
 } from 'lucide-react';
 import { RichTextEditor, formatText } from '../../common/RichTextEditor';
 import dayjs from 'dayjs';

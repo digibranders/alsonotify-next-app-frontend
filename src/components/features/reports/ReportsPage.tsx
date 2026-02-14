@@ -5,7 +5,7 @@ import {
 import { PageLayout } from '../../layout/PageLayout';
 import { FilterBar, FilterOption } from '../../ui/FilterBar';
 import { DateRangeSelector } from '../../common/DateRangeSelector';
-import { Drawer, Tooltip, Button } from "antd";
+import { Tooltip, Button } from "antd";
 import { Skeleton } from '../../ui/Skeleton';
 import dynamic from 'next/dynamic';
 const ReportsPdfTemplate = dynamic(() => import('./ReportsPdfGeneration').then(m => m.ReportsPdfTemplate), { ssr: false });
@@ -100,7 +100,7 @@ export function ReportsPage() {
   });
 
 
-  const { companyName, companyTimezone, formatWithTimezone, getDayjsInTimezone, dayjs } = useTimezone();
+  const { companyName, companyTimezone, formatWithTimezone, getDayjsInTimezone } = useTimezone();
 
   // Fetch Dropdown Data
   const { data: partnersData } = usePartners();
