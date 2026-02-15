@@ -243,8 +243,9 @@ export function NoteComposerModal({ open, onClose, onSave, initialNote }: Readon
       styles={{
         body: {
           padding: 0,
-          height: '80vh',
-          overflow: 'hidden',
+          maxHeight: '80vh',
+          display: 'flex',
+          flexDirection: 'column',
         }
       }}
       afterOpenChange={(visible) => {
@@ -253,7 +254,7 @@ export function NoteComposerModal({ open, onClose, onSave, initialNote }: Readon
         }
       }}
     >
-      <div onKeyDown={handleKeyDown} className="h-full" tabIndex={-1}>
+      <div onKeyDown={handleKeyDown} tabIndex={-1} className="flex flex-col flex-1 min-h-0">
         <FormLayout
           title={initialNote ? 'Edit Note' : 'Add Note'}
           subtitle="Create a new sticky note for quick reminders and tasks."

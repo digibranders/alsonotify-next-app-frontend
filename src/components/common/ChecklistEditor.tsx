@@ -224,13 +224,13 @@ export function ChecklistEditor({ items, onChange, placeholder = "List", classNa
           return (
             <div
               key={item.id}
-              className="flex items-start gap-2"
+              className="flex items-center gap-2"
               style={{ paddingLeft: `${item.indentLevel * 24}px` }}
             >
               <Checkbox
                 checked={item.isChecked}
                 onChange={() => handleToggleCheck(item)}
-                className="mt-1.5 flex-shrink-0"
+                className="flex-shrink-0 scale-90"
               />
               <input
                 ref={(el) => { inputRefs.current[item.id] = el; }}
@@ -259,13 +259,13 @@ export function ChecklistEditor({ items, onChange, placeholder = "List", classNa
               return (
                 <div
                   key={item.id}
-                  className="flex items-start gap-2 opacity-60"
+                  className="flex items-center gap-2 opacity-60"
                   style={{ paddingLeft: `${item.indentLevel * 24}px` }}
                 >
                   <Checkbox
                     checked={item.isChecked}
                     onChange={() => handleToggleCheck(item)}
-                    className="mt-1.5 flex-shrink-0"
+                    className="flex-shrink-0 scale-90"
                   />
                   <input
                     ref={(el) => { inputRefs.current[item.id] = el; }}

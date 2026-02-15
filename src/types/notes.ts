@@ -8,12 +8,27 @@ export type NoteCreate = CreateNoteDto;
 export type NoteUpdate = UpdateNoteDto;
 
 // Type conversion helpers
+// Helper to strip HTML and decode entities
+function stripHtml(html: string): string {
+  if (typeof window === 'undefined') return html; // Server-side fallback
+  
+  const tmp = document.createElement('DIV');
+  // Replace block tags with newlines to preserve structure
+  let processed = html.replace(/<(div|p|br|li|h[1-6])[^>]*>/gi, '\n');
+  tmp.innerHTML = processed;
+  return tmp.textContent || tmp.innerText || '';
+}
+
 export function convertTextToChecklist(content: string): ChecklistItem[] {
   if (!content || content.trim() === '') {
     return [createEmptyChecklistItem(0)];
   }
   
-  const lines = content.split('\n').filter(line => line.trim() !== '');
+  // Strip HTML tags if looks like HTML (contains < and >)
+  const isHtml = /<[^>]+>/.test(content);
+  const plainText = isHtml ? stripHtml(content) : content;
+  
+  const lines = plainText.split('\n').filter(line => line.trim() !== '');
   if (lines.length === 0) {
     return [createEmptyChecklistItem(0)];
   }
