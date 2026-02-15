@@ -69,6 +69,7 @@ export interface Requirement extends Omit<RequirementDto, 'workspace' | 'status'
   headerContact?: string;
   headerCompany?: string;
   category?: string;
+  completed_at?: string | null;
 
 
   departments?: string[];

@@ -159,3 +159,18 @@ export const getRequirementBillingStatus = async (
   return data;
 };
 
+export interface PnLChartDataPoint {
+  name: string;
+  price: number;
+  invested: number;
+}
+
+export const getRequirementPnLChart = async (
+  requirementId: number
+): Promise<ApiResponse<PnLChartDataPoint[]>> => {
+  const { data } = await axiosApi.get<ApiResponse<PnLChartDataPoint[]>>(
+    `/requirement/${requirementId}/pnl-chart`
+  );
+  return data;
+};
+

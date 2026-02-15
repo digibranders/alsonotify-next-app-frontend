@@ -18,7 +18,7 @@ import { CreateRequirementRequestDto } from '@/types/dto/requirement.dto';
 export interface RequirementFormData {
     title: string;
     workspace: string | number | undefined;
-    type: 'inhouse' | 'outsourced' | 'client' | 'Client work' | 'Client Work';
+    type: 'inhouse' | 'outsourced' | 'client';
     contactPerson?: string;
     contact_person_id?: number;
     dueDate: string;
@@ -159,7 +159,7 @@ function RequirementsFormContent({
             }
         };
 
-        if (formData.type === 'outsourced' || formData.type === 'client' || formData.type === 'Client work' || formData.type === 'Client Work') {
+        if (formData.type === 'client' || formData.type === 'outsourced') {
             fetchOutsourcedContacts();
         } else {
             setOutsourcedContacts([]);
@@ -184,7 +184,7 @@ function RequirementsFormContent({
     const buildPayload = useCallback((): CreateRequirementRequestDto | null => {
         const title = (formData.title || '').trim();
         const workspaceId = formData.workspace ? Number(formData.workspace) : 0;
-        const isClientWork = formData.type === 'client' || formData.type === 'Client work' || formData.type === 'Client Work';
+        const isClientWork = formData.type === 'client';
 
         if (!title) {
             message.error('Requirement title is required');
@@ -253,7 +253,7 @@ function RequirementsFormContent({
         }
     }, [buildPayload, onSubmit, onSubmitAndSend, selectedFiles, message]);
 
-    const sendButtonLabel = isEditing ? 'Update' : (formData.type === 'outsourced' ? 'Send to Partner' : (formData.type === 'client' || formData.type === 'Client work' || formData.type === 'Client Work') ? 'Log Client Work' : formData.type === 'inhouse' ? 'Submit for Work' : 'Send Requirement');
+    const sendButtonLabel = isEditing ? 'Update' : (formData.type === 'outsourced' ? 'Send to Partner' : (formData.type === 'client') ? 'Log Client Work' : formData.type === 'inhouse' ? 'Submit for Work' : 'Send Requirement');
 
     const footer = (
         <>
@@ -441,7 +441,7 @@ function RequirementsFormContent({
                         disabledDate={(current) => current && current < dayjs().startOf('day')}
                     />
                 </div>
-                {(formData.type === 'client' || formData.type === 'Client work' || formData.type === 'Client Work') && (
+                {(formData.type === 'client') && (
                     <div className="space-y-1.5">
                         <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">Quotation price</span>
                         <Input

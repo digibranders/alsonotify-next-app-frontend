@@ -1,9 +1,11 @@
 'use client';
 
-import React, { useMemo } from 'react';
-import { TrendingUp, TrendingDown, DollarSign, Clock, Users, AlertTriangle } from 'lucide-react';
+import React, { useMemo , useEffect, useState } from 'react';
+import { TrendingUp, TrendingDown, DollarSign, Clock, Users, AlertTriangle, BarChart2 } from 'lucide-react';
 import { Tooltip } from 'antd';
 import { Task, Requirement } from '@/types/domain';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend } from 'recharts';
+import { getRequirementPnLChart, PnLChartDataPoint } from '@/services/workspace';
 
 interface PnLTabProps {
   requirement: Requirement;
@@ -26,6 +28,23 @@ interface TaskPnLData {
 }
 
 export function PnLTab({ requirement, tasks }: PnLTabProps) {
+  const [chartData, setChartData] = useState<PnLChartDataPoint[]>([]);
+  const [loadingChart, setLoadingChart] = useState(false);
+
+  useEffect(() => {
+    if (requirement.id) {
+      setLoadingChart(true);
+      getRequirementPnLChart(requirement.id)
+        .then(res => {
+          if (res.success && res.result) {
+            setChartData(res.result);
+          }
+        })
+        .catch(err => console.error("Failed to load P&L chart", err))
+        .finally(() => setLoadingChart(false));
+    }
+  }, [requirement.id]);
+
   // Calculate P&L data from real task data
   const pnlData = useMemo((): TaskPnLData[] => {
     return tasks.map((task) => {
@@ -105,8 +124,15 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
-      {/* Summary Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Title */}
+      <div className="bg-white rounded-[16px] p-6 border border-[#EEEEEE] shadow-sm">
+        <h3 className="text-[16px] font-['Manrope:Bold',sans-serif] text-[#111111] mb-6 flex items-center gap-2">
+           <TrendingUp className="w-5 h-5 text-[#ff3b3b]" />
+           Profit & Loss Analysis
+        </h3>
+      
+        {/* Summary Cards */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {/* Quoted Price */}
         <div className="bg-white rounded-[16px] p-5 border border-[#EEEEEE] shadow-sm">
           <div className="flex items-center gap-3 mb-3">
@@ -180,6 +206,72 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
             )}
           </p>
         </div>
+      </div>
+
+      {/* P&L Chart */}
+      <div className="h-[400px] w-full mt-8">
+        {loadingChart ? (
+          <div className="w-full h-full flex items-center justify-center bg-[#F7F7F7] rounded-xl border border-[#EEEEEE]">
+            <span className="text-gray-400">Loading Chart...</span>
+          </div>
+        ) : chartData.length > 0 ? (
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+              <defs>
+                <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#ff3b3b" stopOpacity={0.2}/>
+                  <stop offset="95%" stopColor="#ff3b3b" stopOpacity={0}/>
+                </linearGradient>
+                <linearGradient id="colorInvested" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#111111" stopOpacity={0.2}/>
+                  <stop offset="95%" stopColor="#111111" stopOpacity={0}/>
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F0F0F0" />
+              <XAxis 
+                dataKey="name" 
+                axisLine={false} 
+                tickLine={false} 
+                tick={{ fill: '#999999', fontSize: 12 }} 
+                dy={10}
+              />
+              <YAxis 
+                axisLine={false} 
+                tickLine={false} 
+                tick={{ fill: '#999999', fontSize: 12 }} 
+                tickFormatter={(value) => `$${value}`}
+              />
+              <RechartsTooltip 
+                contentStyle={{ backgroundColor: '#fff', borderRadius: '12px', border: '1px solid #EEEEEE', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}
+                itemStyle={{ fontSize: '12px', fontWeight: '500' }}
+              />
+              <Legend wrapperStyle={{ paddingTop: '20px' }} />
+              <Area 
+                type="monotone" 
+                dataKey="price" 
+                name="Total Requirement Price" 
+                stroke="#ff3b3b" 
+                strokeWidth={2}
+                fillOpacity={1} 
+                fill="url(#colorPrice)" 
+              />
+              <Area 
+                type="monotone" 
+                dataKey="invested" 
+                name="Amount Invested" 
+                stroke="#111111" 
+                strokeWidth={2}
+                fillOpacity={1} 
+                fill="url(#colorInvested)" 
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        ) : (
+           <div className="w-full h-full flex items-center justify-center bg-[#F7F7F7] rounded-xl border border-[#EEEEEE]">
+            <span className="text-gray-400">No chart data available</span>
+          </div>
+        )}
+      </div>
       </div>
 
       {/* Alert for over-budget tasks */}
