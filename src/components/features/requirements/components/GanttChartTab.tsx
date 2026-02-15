@@ -170,8 +170,6 @@ export function GanttChartTab({ tasks, revisions, ganttView, setGanttView }: Gan
     if (ganttView === 'day') return null;
 
     const weeks: { start: number; end: number; label: string }[] = [];
-    let currentWeekStart = 0;
-
     columnDates.forEach((date, idx) => {
       const isFirstDay = idx === 0;
       const isMonday = date.getDay() === 1;
@@ -188,7 +186,6 @@ export function GanttChartTab({ tasks, revisions, ganttView, setGanttView }: Gan
             ? `Week ${getWeekNumber(date)}`
             : format(date, 'MMM yyyy')
         });
-        currentWeekStart = idx;
       }
 
       if (isLastDay && weeks.length > 0) {

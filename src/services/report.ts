@@ -128,6 +128,7 @@ export interface EmployeeReport {
     department_id: number | null;
     role: string;
     utilization: number;
+    efficiency: number;
     hourlyCost: number; // This is the RATE
     investment: number; // This is the TOTAL COST
     revenue: number;

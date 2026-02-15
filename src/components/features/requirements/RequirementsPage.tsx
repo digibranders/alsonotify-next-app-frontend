@@ -77,13 +77,6 @@ export function RequirementsPage() {
   // We need company_id for role detection
   const currentUser = userData?.result;
 
-  console.log('CurrentUser DEBUG:', {
-    rawUserData: userData,
-    resultUser: userData?.result?.user,
-    companyId: userData?.result?.company_id,
-  });
-
-
   const isLoadingRequirements = requirementQueries.some(q => q.isLoading);
   const isLoading = isLoadingWorkspaces || isLoadingRequirements;
 
@@ -157,9 +150,6 @@ export function RequirementsPage() {
     // Add collaborative requirements (avoid duplicates if possible)
     if (collaborativeData?.result) {
       collaborativeData.result.forEach((collab: RequirementDto) => {
-        if (collab.name === 'Test 2' || collab.id === 3) {
-          console.log('DEBUG COLLAB REQ:', { id: collab.id, title: collab.name, currency: collab.currency, raw: collab });
-        }
         if (!combined.some(req => req.id === collab.id)) {
           combined.push(collab);
         }
@@ -389,15 +379,6 @@ export function RequirementsPage() {
         rawSenderCompany: req.sender_company,
         rawReceiverCompany: req.receiver_company,
       });
-
-      if (req.id === 3 || mappedReq.title === 'Test 2') {
-        console.log('DEBUG MAPPED REQ:', {
-          id: mappedReq.id,
-          currency: mappedReq.currency,
-          rawCurrency: req.currency,
-          isReceiver: mappedReq.isReceiver
-        });
-      }
 
       return mappedReq;
 

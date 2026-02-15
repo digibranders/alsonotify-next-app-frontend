@@ -29,7 +29,7 @@ interface NoteComposerModalProps {
   } | null;
 }
 
-export function NoteComposerModal({ open, onClose, onSave, initialNote }: NoteComposerModalProps) {
+export function NoteComposerModal({ open, onClose, onSave, initialNote }: Readonly<NoteComposerModalProps>) {
   const { message } = App.useApp();
   const [state, setState] = useState<ComposerState>('COLLAPSED');
   const [noteType, setNoteType] = useState<NoteType>(initialNote?.type || 'TEXT_NOTE');

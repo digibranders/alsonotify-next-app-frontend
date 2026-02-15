@@ -33,7 +33,7 @@ dayjs.extend(isSameOrBefore);
 dayjs.extend(isSameOrAfter);
 
 import { Task, TaskStatus } from '@/types/domain';
-import { TaskDto, CreateTaskRequestDto, UpdateTaskRequestDto } from '@/types/dto/task.dto';
+import { CreateTaskRequestDto, UpdateTaskRequestDto } from '@/types/dto/task.dto';
 import { toQueryParams } from '@/utils/queryParams';
 import { Employee } from '@/types/domain';
 import { ApiResponse } from '@/types/api';
@@ -684,7 +684,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
     try {
       await Promise.all(
         selectedTasks.map(id =>
-          updateTaskStatusMutation.mutateAsync({ id: parseInt(id), status: 'Completed' })
+          updateTaskStatusMutation.mutateAsync({ id: Number.parseInt(id), status: 'Completed' })
         )
       );
       messageRef.current.success(`${selectedTasks.length} tasks marked as completed`);

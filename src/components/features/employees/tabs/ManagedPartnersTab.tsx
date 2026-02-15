@@ -1,6 +1,6 @@
 
-import React, { useState, useEffect } from 'react';
-import { Button, Table, Modal, Avatar, Input, Tag, message } from 'antd';
+import { useState, useEffect } from 'react';
+import { Button, Table, Modal, Avatar, Input, message } from 'antd';
 import { Search, Plus, Trash2, Building2 } from 'lucide-react';
 import { usePartners } from '@/hooks/useUser';
 import { Partner } from '@/types/domain';
@@ -10,8 +10,8 @@ interface ManagedPartnersTabProps {
     employeeId: number;
 }
 
-export function ManagedPartnersTab({ employeeId }: ManagedPartnersTabProps) {
-    const { data: partnersData, isLoading: isLoadingPartners } = usePartners();
+export function ManagedPartnersTab({ employeeId }: Readonly<ManagedPartnersTabProps>) {
+    const { data: partnersData } = usePartners();
     const allPartners = (partnersData?.result as unknown as Partner[]) || [];
     const [assignedPartners, setAssignedPartners] = useState<Partner[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);

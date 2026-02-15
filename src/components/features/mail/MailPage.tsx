@@ -28,7 +28,6 @@ import {
   Image as ImageIcon,
   Mail,
   Paperclip,
-  RefreshCcw,
   Reply,
   ReplyAll,
   Send,

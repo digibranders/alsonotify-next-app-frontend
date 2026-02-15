@@ -3,9 +3,7 @@ import { Button, Input, Select, Switch, Divider, message, Upload } from "antd";
 import { commonCountries } from '@/data/defaultData';
 import { fileService } from '@/services/file.service';
 import { getTimezones } from '@/utils/timezones';
-import { Department } from '@/types/domain';
-import { DocumentType } from '@/types/domain';
-
+import { Department, DocumentType } from '@/types/domain';
 const { TextArea } = Input;
 const { Option } = Select;
 import { getTaxIdTypesForCountry } from '@/data/taxIdTypes';
