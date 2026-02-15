@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo , useEffect, useState } from 'react';
-import { TrendingUp, TrendingDown, DollarSign, Clock, Users, AlertTriangle, BarChart2 } from 'lucide-react';
+import { TrendingUp, TrendingDown, DollarSign, Clock, Users, AlertTriangle } from 'lucide-react';
 import { Tooltip } from 'antd';
 import { Task, Requirement } from '@/types/domain';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend } from 'recharts';
@@ -33,15 +33,21 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
 
   useEffect(() => {
     if (requirement.id) {
-      setLoadingChart(true);
-      getRequirementPnLChart(requirement.id)
-        .then(res => {
+      const fetchChartData = async () => {
+        setLoadingChart(true);
+        try {
+          const res = await getRequirementPnLChart(requirement.id);
           if (res.success && res.result) {
             setChartData(res.result);
           }
-        })
-        .catch(err => console.error("Failed to load P&L chart", err))
-        .finally(() => setLoadingChart(false));
+        } catch (err) {
+          console.error("Failed to load P&L chart", err);
+        } finally {
+          setLoadingChart(false);
+        }
+      };
+
+      fetchChartData();
     }
   }, [requirement.id]);
 
