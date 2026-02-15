@@ -30,13 +30,11 @@ import {
   mapRequirementToType,
 } from './utils/requirementState.utils';
 import { getRoleFromUser } from '@/utils/roleUtils';
-import { RequirementActivityDto } from '@/services/requirement-activity';
-import { ReqTabId } from './components/RequirementHeader';
+import { ReqTabId , RequirementHeader } from './components/RequirementHeader';
 
 
 // Extracted components
 import { GanttChartTab, PnLTab, DocumentsTab, KanbanBoardTab } from './components';
-import { RequirementHeader } from './components/RequirementHeader';
 import { RequirementInfoCard } from './components/RequirementInfoCard';
 import { ActivitySidebar } from './components/ActivitySidebar';
 import { SubTaskRow } from './components/SubTaskRow';
@@ -83,7 +81,7 @@ export function RequirementDetailsPage() {
   const { data: activityResponse } = useRequirementActivities(reqId);
   const documentsActivityData = useMemo(() => {
     if (!activityResponse?.result) return [];
-    return (activityResponse.result as RequirementActivityDto[]).map((act) => ({
+    return (activityResponse.result).map((act) => ({
       id: act.id,
       type: act.type,
       user: act.user?.name || 'Unknown',
@@ -174,8 +172,6 @@ export function RequirementDetailsPage() {
       setActiveTab('details');
     }
   }, [visibleTabs, activeTab, setActiveTab]);
-
-
 
   if (isLoadingWorkspace || isLoadingRequirements) {
     return (

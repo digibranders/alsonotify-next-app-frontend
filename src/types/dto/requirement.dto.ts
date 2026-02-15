@@ -39,6 +39,7 @@ export interface RequirementDto {
   company_id?: number;
   created_at?: string;
   updated_at?: string | null;
+  completed_at?: string | null;
 
   // Computed / aggregated
   total_task?: number;

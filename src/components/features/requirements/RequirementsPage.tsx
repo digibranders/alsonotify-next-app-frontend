@@ -77,13 +77,6 @@ export function RequirementsPage() {
   // We need company_id for role detection
   const currentUser = userData?.result;
 
-  console.log('CurrentUser DEBUG:', {
-    rawUserData: userData,
-    resultUser: userData?.result?.user,
-    companyId: userData?.result?.company_id,
-  });
-
-
   const isLoadingRequirements = requirementQueries.some(q => q.isLoading);
   const isLoading = isLoadingWorkspaces || isLoadingRequirements;
 
@@ -157,9 +150,6 @@ export function RequirementsPage() {
     // Add collaborative requirements (avoid duplicates if possible)
     if (collaborativeData?.result) {
       collaborativeData.result.forEach((collab: RequirementDto) => {
-        if (collab.name === 'Test 2' || collab.id === 3) {
-          console.log('DEBUG COLLAB REQ:', { id: collab.id, title: collab.name, currency: collab.currency, raw: collab });
-        }
         if (!combined.some(req => req.id === collab.id)) {
           combined.push(collab);
         }
@@ -367,6 +357,7 @@ export function RequirementsPage() {
         receiver_project_id: req.receiver_workspace_id, // Alias for backward compatibility
         negotiation_reason: req.negotiation_reason,
         is_archived: req.is_archived,
+        completed_at: req.completed_at,
       };
 
 
@@ -389,15 +380,6 @@ export function RequirementsPage() {
         rawSenderCompany: req.sender_company,
         rawReceiverCompany: req.receiver_company,
       });
-
-      if (req.id === 3 || mappedReq.title === 'Test 2') {
-        console.log('DEBUG MAPPED REQ:', {
-          id: mappedReq.id,
-          currency: mappedReq.currency,
-          rawCurrency: req.currency,
-          isReceiver: mappedReq.isReceiver
-        });
-      }
 
       return mappedReq;
 
@@ -707,17 +689,75 @@ export function RequirementsPage() {
 
   // 2. Apply Status Tab filter
   const finalFilteredReqs = useMemo(() => baseFilteredReqs.filter(req => {
-    const status = mapRequirementToStatus(req);
-    const type = mapRequirementToType(req);
-    const role = mapRequirementToRole(req);
-    const baseContext = mapRequirementToContext(req, undefined, role);
-    const tabContext: TabContext = {
-      ...baseContext,
-      isArchived: !!req.is_archived,
-      approvalStatus: req.approvalStatus as 'pending' | 'rejected' | 'approved' | undefined,
-    };
-    const reqTab = getRequirementTab(status, type, role, tabContext);
-    return reqTab === activeStatusTab;
+    
+    // Status normalization
+    const rawStatus = req.rawStatus || 'Assigned';
+    const isArchived = !!req.is_archived;
+    const isCompleted = rawStatus === 'Completed';
+    const isDelayedStatus = rawStatus === 'Delayed' || rawStatus === 'On_Hold';
+    const isDraft = rawStatus === 'Draft' || rawStatus === 'draft';
+    const isPending = 
+      rawStatus === 'Waiting' || 
+      rawStatus === 'Submitted' || 
+      (rawStatus === 'Assigned' && req.type === 'outsourced' && !req.workspace_id) || // Unmapped outsourced
+      rawStatus?.toLowerCase().includes('pending') ||
+      (req.approvalStatus === 'pending');
+
+    // Date checks
+    const now = new Date();
+    // Helper to parse dates safely
+    const parseDate = (d: string | Date | undefined | null) => d ? new Date(d) : null;
+    const endDate = parseDate(req.end_date);
+    const completedAt = parseDate(req.completed_at); // New field from backend
+    // Fallback if completed_at missing: use updated_at if status is Completed? 
+    // Plan said explicit field. If missing, assume on time or ignore? 
+    // Let's use completed_at if present.
+
+    const isOverdue = endDate && endDate < now && !isCompleted;
+    
+    // Check if completed late: completed_at > end_date
+    const isCompletedLate = isCompleted && completedAt && endDate && completedAt > endDate;
+
+    switch (activeStatusTab) {
+      case 'active':
+        // Active: Not archived, not completed (unless delayed logic applies? No, Active tab is for open work)
+        // Includes: Assigned, In_Progress, Review, Revision, Impediment, Stuck
+        // AND Delayed status items
+        // AND Overdue items (which are active by definition if not completed)
+        
+        if (isArchived || isDraft || isPending || isCompleted) return false;
+        return true; // Catch-all for working states + Delayed status
+
+      case 'delayed':
+        // Delayed: 
+        // 1. Explicit status 'Delayed'
+        // 2. Active (not completed) AND Overdue
+        // 3. Completed AND Late (completed_at > end_date)
+        
+        if (isArchived || isDraft || isPending) return false;
+        
+        if (isDelayedStatus) return true;
+        if (isOverdue) return true; // Active & Overdue
+        if (isCompletedLate) return true; // Completed & Late
+        
+        return false;
+
+      case 'draft':
+        return !isArchived && isDraft;
+
+      case 'pending':
+        return !isArchived && isPending;
+
+      case 'completed':
+        // All completed items, regardless of timeliness
+        return !isArchived && isCompleted;
+
+      case 'archived':
+        return isArchived;
+
+      default:
+        return false;
+    }
   }), [baseFilteredReqs, activeStatusTab]);
 
   // 3. Apply Sorting
@@ -1165,7 +1205,17 @@ export function RequirementsPage() {
         initialData={editingReq ? {
           title: editingReq.title || '',
           workspace: String(editingReq.workspace_id || ''),
-          type: editingReq.type === 'client' ? 'inhouse' : (editingReq.type || 'inhouse') as 'inhouse' | 'outsourced',
+          type: (() => {
+            const req = editingReq;
+            // Explicit Client Type
+            if (['client', 'Client work', 'Client Work'].includes(req.type || '')) return 'client';
+            
+            // Outsourced but acting as Receiver (Client Work context)
+            if (req.type === 'outsourced' && req.isReceiver) return 'client';
+            
+            // Default to existing type or inhouse
+            return (req.type as 'inhouse' | 'outsourced') || 'inhouse';
+          })(),
           description: editingReq.description || '',
           dueDate: editingReq.dueDate || '',
           is_high_priority: editingReq.is_high_priority,

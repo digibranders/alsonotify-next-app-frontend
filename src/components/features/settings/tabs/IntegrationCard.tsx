@@ -1,4 +1,4 @@
-import { Check, LogOut, RefreshCw, AlertCircle, ExternalLink } from 'lucide-react';
+import { Check, LogOut, RefreshCw, AlertCircle } from 'lucide-react';
 import { Button, Popconfirm, Tag } from "antd";
 
 interface IntegrationCardProps {

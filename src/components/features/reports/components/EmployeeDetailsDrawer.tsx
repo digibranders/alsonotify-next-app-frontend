@@ -35,12 +35,6 @@ const EmployeeDetailsDrawer: React.FC<EmployeeDetailsDrawerProps> = ({
 
     if (!member) return null;
 
-    const taskEfficiency = member.taskStats.assigned > 0
-        ? Math.round((member.taskStats.completed / member.taskStats.assigned) * 100)
-        : 0;
-
-    const workEfficiency = member.utilization;
-
     const getEfficiencyColor = (value: number) => {
         if (value >= 90) return 'text-[#7ccf00]';
         if (value >= 75) return 'text-[#2196F3]';
@@ -116,15 +110,15 @@ const EmployeeDetailsDrawer: React.FC<EmployeeDetailsDrawerProps> = ({
                             <span className="text-2xl font-['Manrope:Bold',sans-serif] text-[#111111]">{member.actualEngagedHrs}h</span>
                         </div>
                         <div className="p-4 bg-[#FAFAFA] rounded-xl border border-[#EEEEEE] flex flex-col items-center text-center">
-                            <span className="text-[11px] font-bold text-[#666666] uppercase tracking-wide mb-1" title="Completed vs Assigned Tasks">Task Yield</span>
-                            <span className={`text-2xl font-['Manrope:Bold',sans-serif] ${getEfficiencyColor(taskEfficiency)}`}>
-                                {taskEfficiency}%
+                            <span className="text-[11px] font-bold text-[#666666] uppercase tracking-wide mb-1" title="Engaged Hours vs Capacity">Occupancy</span>
+                            <span className={`text-2xl font-['Manrope:Bold',sans-serif] ${getEfficiencyColor(member.utilization)}`}>
+                                {member.utilization}%
                             </span>
                         </div>
                         <div className="p-4 bg-[#FAFAFA] rounded-xl border border-[#EEEEEE] flex flex-col items-center text-center">
-                            <span className="text-[11px] font-bold text-[#666666] uppercase tracking-wide mb-1" title="Engaged Hours vs Capacity">Work Efficiency</span>
-                            <span className={`text-2xl font-['Manrope:Bold',sans-serif] ${getEfficiencyColor(workEfficiency)}`}>
-                                {workEfficiency}%
+                            <span className="text-[11px] font-bold text-[#666666] uppercase tracking-wide mb-1" title="Standard Hours vs Actual Hours (Completed Tasks)">Efficiency</span>
+                            <span className={`text-2xl font-['Manrope:Bold',sans-serif] ${getEfficiencyColor(member.efficiency ?? 0)}`}>
+                                {member.efficiency ?? 0}%
                             </span>
                         </div>
                     </div>

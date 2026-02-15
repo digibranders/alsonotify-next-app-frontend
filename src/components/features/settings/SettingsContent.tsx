@@ -7,10 +7,9 @@ import dayjs from 'dayjs';
 import { RoleDto } from '@/types/dto/user.dto';
 import { SettingsTab } from './SettingsPage';
 import { ApiResponse } from '@/types/api';
-import { Role, Department, Holiday, Employee } from '@/types/domain';
+import {  Department, Holiday, Employee , CompanyUpdateInput } from '@/types/domain';
 import { CompanyProfile, CompanyLeaveSetting } from '@/types/auth';
 import { UseMutateAsyncFunction, UseMutateFunction } from '@tanstack/react-query';
-import { CompanyUpdateInput } from '@/types/domain';
 
 // Components & Tabs
 import { CompanyDetailsTab } from './tabs/CompanyDetailsTab';
@@ -26,7 +25,7 @@ import { useCompanyDetails } from '@/hooks/useCompanyDetails';
 import { getErrorMessage } from '@/types/api-utils';
 import { trimStr } from '@/utils/trim';
 import { useDocumentSettings } from '@/hooks/useDocumentSettings';
-import { useRolePermissions, useEmployees } from '@/hooks/useUser';
+import { useRolePermissions } from '@/hooks/useUser';
 
 interface SettingsContentProps {
     activeTab: SettingsTab;

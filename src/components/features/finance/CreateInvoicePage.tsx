@@ -477,7 +477,7 @@ export function CreateInvoicePage() {
                             </div>
 
                             <div className="space-y-3 mb-4">
-                                {items.map((item, index) => (
+                                {items.map((item) => (
                                     <div key={item.id} className="group flex gap-3 items-start">
                                         <div className="flex-1">
                                             <input
