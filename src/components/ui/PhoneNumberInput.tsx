@@ -5,8 +5,8 @@ import { useState } from "react";
 const { Option } = Select;
 
 interface PhoneNumberInputProps {
-  value: string;
-  onChange: (value: string) => void;
+  value?: string;
+  onChange?: (value: string) => void;
   placeholder?: string;
   className?: string;
 }
@@ -18,32 +18,38 @@ export default function PhoneNumberInput({
   className = "",
 }: PhoneNumberInputProps) {
   // Parse initial value if it contains a country code
-  const [countryCode, setCountryCode] = useState(() => {
-    // Try to find a matching country code prefix
-    const matchingCountry = commonCountries.find((c) => 
-      value && value.startsWith(c.phoneCode + " ")
-    );
-    return matchingCountry ? matchingCountry.phoneCode : "+91";
-  });
+  const [countryCode, setCountryCode] = useState("+91");
+  const [phoneNumber, setPhoneNumber] = useState("");
 
-  const [phoneNumber, setPhoneNumber] = useState(() => {
-    const matchingCountry = commonCountries.find((c) => 
+  // Track previous value to handle prop changes
+  const [prevValue, setPrevValue] = useState(value);
+
+  // Update state during render if value prop changes
+  if (value !== prevValue) {
+    setPrevValue(value);
+    
+    const matchingCountry = commonCountries.find((c) =>
       value && value.startsWith(c.phoneCode + " ")
     );
-    return matchingCountry 
-      ? value.replace(matchingCountry.phoneCode + " ", "") 
-      : value || "";
-  });
+
+    if (matchingCountry && value) {
+      setCountryCode(matchingCountry.phoneCode);
+      setPhoneNumber(value.replace(matchingCountry.phoneCode + " ", ""));
+    } else {
+      setCountryCode("+91");
+      setPhoneNumber(value || "");
+    }
+  }
 
   const handleCountryCodeChange = (code: string) => {
     setCountryCode(code);
-    onChange(`${code} ${phoneNumber}`);
+    onChange?.(`${code} ${phoneNumber}`);
   };
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newNumber = e.target.value.replaceAll(/\D/g, ""); // Allow only digits
     setPhoneNumber(newNumber);
-    onChange(newNumber ? `${countryCode} ${newNumber}` : "");
+    onChange?.(newNumber ? `${countryCode} ${newNumber}` : "");
   };
 
   return (

@@ -23,6 +23,7 @@ export interface UserDto {
   status?: string;
   date_of_birth?: string;
   employee_id?: string;
+  account_type?: string; // INDIVIDUAL or ORGANIZATION
 
   // Nested structure often found in employee responses
   user_employee?: {
@@ -199,4 +200,14 @@ export interface UpdateUserProfileRequestDto {
     relationship: string;
     phone: string;
   };
+}
+
+export interface UpgradeOrgDto {
+  companyName: string;
+  businessType: number;
+  country: string;
+  timezone: string;
+  firstName: string;
+  lastName: string;
+  phone: string;
 }

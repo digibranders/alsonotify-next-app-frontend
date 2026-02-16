@@ -4,6 +4,7 @@ import { doLogin, doSignup, forgetPassword, doCompleteSignup, verifyRegisterToke
 import { setToken, deleteToken, getToken } from "../services/cookies";
 import { setAuthToken } from "../config/axios";
 import { getUserDetails } from "../services/user";
+import { UpgradeOrgDto } from "@/types/dto/user.dto";
 import { queryKeys } from "../lib/queryKeys";
 import { useUserDetails } from "./useUser";
 
@@ -120,6 +121,22 @@ export const useCompleteSignup = () => {
           queryClient.invalidateQueries({ queryKey: queryKeys.users.me() });
         }
         // Redirect handled by component
+      }
+    },
+  });
+};
+
+export const useUpgradeToOrg = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (params: UpgradeOrgDto) => import("../services/user").then(mod => mod.upgradeToOrganization(params)),
+    onSuccess: (data) => {
+      if (data.success && data.result.token) {
+        setToken(data.result.token);
+        setAuthToken(data.result.token);
+        // Invalidate to fetch full details including new role and company
+        queryClient.invalidateQueries({ queryKey: queryKeys.users.me() });
       }
     },
   });

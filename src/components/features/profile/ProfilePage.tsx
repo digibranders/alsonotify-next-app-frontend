@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect, useRef } from "react";
 import { Button, Input, Select, Divider, Upload, Switch, Progress, App } from "antd";
 import { useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/Skeleton";
-import { Camera, Pencil, FileText, Bell, Shield, User } from "lucide-react";
+import { Camera, Pencil, FileText, Bell, Shield, User, Briefcase } from "lucide-react";
 import Image from "next/image";
 import { PageLayout } from "../../layout/PageLayout";
 import { useUserDetails, useUpdateProfile, useUpdatePassword } from "@/hooks/useUser";
@@ -16,6 +16,7 @@ import { UpdateUserProfileRequestDto, UserDto } from "@/types/dto/user.dto";
 import { trimStr } from "@/utils/trim";
 import { mapUserDtoToProfileData, calculateProfileCompletion } from "@/utils/profile.utils";
 import { queryKeys } from "@/lib/queryKeys";
+import UpgradeToOrgModal from "@/components/modals/UpgradeToOrgModal";
 
 
 interface UserProfile {
@@ -65,6 +66,7 @@ export function ProfilePage() {
     const user = currentUserData?.result;
     const updateProfileMutation = useUpdateProfile();
     const updatePasswordMutation = useUpdatePassword();
+    const [upgradeModalVisible, setUpgradeModalVisible] = useState(false);
 
 
     // Initialize profile state with real data or fallback to mock data
@@ -427,13 +429,24 @@ export function ProfilePage() {
 
                     {/* Actions */}
                     {!isEditing ? (
-                        <Button
-                            onClick={handleEdit}
-                            className="bg-[#111111] hover:bg-[#000000]/90 text-white font-['Manrope:SemiBold',sans-serif] px-6 h-10 rounded-full text-[13px] flex items-center gap-2 border-none"
-                        >
-                            <Pencil className="w-4 h-4" />
-                            Edit
-                        </Button>
+                        <div className="flex items-center gap-3">
+                            {user?.account_type === "INDIVIDUAL" && (
+                                <Button
+                                    onClick={() => setUpgradeModalVisible(true)}
+                                    className="bg-black hover:bg-black/90 text-white font-['Manrope:SemiBold',sans-serif] px-6 h-10 rounded-full text-[13px] flex items-center gap-2 border-none"
+                                >
+                                    <Briefcase className="w-4 h-4" />
+                                    Upgrade to Organization
+                                </Button>
+                            )}
+                            <Button
+                                onClick={handleEdit}
+                                className="bg-[#111111] hover:bg-[#000000]/90 text-white font-['Manrope:SemiBold',sans-serif] px-6 h-10 rounded-full text-[13px] flex items-center gap-2 border-none"
+                            >
+                                <Pencil className="w-4 h-4" />
+                                Edit
+                            </Button>
+                        </div>
                     ) : (
                         <div className="flex items-center gap-3">
                             <Button
@@ -636,10 +649,17 @@ export function ProfilePage() {
                                                 profile.lastName,
                                                 "lastName"
                                             )}
+                                            {renderSelect("Gender", profile.gender, "gender", [
+                                                "Male",
+                                                "Female",
+                                                "Other",
+                                            ])}
                                         </div>
                                     </div>
                                 </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+
+
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                     {renderField("Email Address", profile.email, "email")}
                                     <div className="space-y-2">
                                         <div className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">
@@ -672,15 +692,7 @@ export function ProfilePage() {
                                             />
                                         </div>
                                     </div>
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                     {renderField("DOB", profile.dob, "dob", "date")}
-                                    {renderSelect("Gender", profile.gender, "gender", [
-                                        "Male",
-                                        "Female",
-                                        "Other",
-                                    ])}
                                 </div>
                             </section>
 
@@ -1105,6 +1117,11 @@ export function ProfilePage() {
                     setSelectedDocument(null);
                 }}
                 document={selectedDocument}
+            />
+            <UpgradeToOrgModal
+              visible={upgradeModalVisible}
+              onCancel={() => setUpgradeModalVisible(false)}
+              currentUser={user || null}
             />
         </PageLayout>
     );

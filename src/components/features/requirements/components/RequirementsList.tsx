@@ -18,6 +18,7 @@ interface RequirementsListProps {
     handleReqReject: (id: number) => void;
     handleEditDraft: (req: Requirement) => void;
     handleDelete: (req: Requirement) => void;
+    handleRestore: (req: Requirement) => void;
     handleDuplicateRequirement: (req: Requirement) => void;
     onNavigate: (workspaceId: number, reqId: number) => void;
 }
@@ -34,6 +35,7 @@ export function RequirementsList({
     handleReqReject,
     handleEditDraft,
     handleDelete,
+    handleRestore,
     handleDuplicateRequirement,
     onNavigate
 }: RequirementsListProps) {
@@ -89,7 +91,19 @@ export function RequirementsList({
                             onAccept={userRole !== 'Employee' ? () => handleReqAccept(requirement.id) : undefined}
                             onReject={userRole !== 'Employee' ? () => handleReqReject(requirement.id) : undefined}
                             onEdit={userRole !== 'Employee' ? () => handleEditDraft(requirement) : undefined}
-                            onDelete={userRole !== 'Employee' ? () => handleDelete(requirement) : undefined}
+                            
+                            // Condition for Delete vs Restore
+                            onDelete={
+                                userRole !== 'Employee' && activeStatusTab !== 'archived' 
+                                    ? () => handleDelete(requirement) 
+                                    : undefined
+                            }
+                            onRestore={
+                                userRole !== 'Employee' && activeStatusTab === 'archived'
+                                    ? () => handleRestore(requirement)
+                                    : undefined
+                            }
+
                             deleteLabel={(activeStatusTab === 'active' || activeStatusTab === 'completed' || activeStatusTab === 'delayed') ? 'Archive' : 'Delete'}
                             deleteIcon={(activeStatusTab === 'active' || activeStatusTab === 'completed' || activeStatusTab === 'delayed') ? <Archive className="w-3.5 h-3.5" /> : undefined}
                             onDuplicate={userRole !== 'Employee' ? () => handleDuplicateRequirement(requirement) : undefined}
