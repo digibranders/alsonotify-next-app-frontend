@@ -8,11 +8,9 @@ import { DateRangeSelector } from '../../common/DateRangeSelector';
 
 import { PaginationBar } from '../../ui/PaginationBar';
 import { Select, App } from 'antd';
-import { useWorkspaces, useCreateRequirement, useUpdateRequirement, useDeleteRequirement, useCollaborativeRequirements } from '@/hooks/useWorkspace';
+import { useWorkspaces, useCreateRequirement, useUpdateRequirement, useDeleteRequirement, useAllRequirements, useCollaborativeRequirements } from '@/hooks/useWorkspace';
 import { useUserDetails } from '@/hooks/useUser';
-import { getRequirementsByWorkspaceId } from '@/services/workspace';
 import { fileService } from '@/services/file.service';
-import { useQueries } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import { useTabSync } from '@/hooks/useTabSync';
@@ -54,40 +52,74 @@ export function RequirementsPage() {
   const updateRequirementMutation = useUpdateRequirement();
 
   const { data: workspacesData, isLoading: isLoadingWorkspaces } = useWorkspaces();
-
-  // Get all workspace IDs
-  const workspace_ids = useMemo(() => {
-    return workspacesData?.result?.workspaces?.map((w: { id: number }) => w.id) || [];
-  }, [workspacesData]);
-
-  // Fetch requirements for all workspaces
-  const requirementQueries = useQueries({
-    queries: workspace_ids.map((id: number) => ({
-      queryKey: ['requirements', id],
-      queryFn: () => getRequirementsByWorkspaceId(id),
-      enabled: !!id && workspace_ids.length > 0,
-      refetchInterval: 5000,
-    })),
-  });
-
-  // Fetch collaborative requirements (where my company is receiver)
-  const { data: collaborativeData } = useCollaborativeRequirements();
   const { data: userData } = useUserDetails();
-  // userData.result is the Employee/User object directly
-  // We need company_id for role detection
   const currentUser = userData?.result;
 
-  const isLoadingRequirements = requirementQueries.some(q => q.isLoading);
+  // Pagination & Filtering State
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filters, setFilters] = useState<Record<string, string>>({
+    type: 'All',
+    billing: 'All',
+    category: 'All',
+    priority: 'All',
+    client: 'All',
+    partner: 'All',
+    assignee: 'All'
+  });
+
+  // Date Picker State
+  const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null] | null>(null);
+
+  // Use standardized tab sync hook for consistent URL handling
+  type RequirementTab = 'draft' | 'pending' | 'active' | 'completed' | 'delayed' | 'archived';
+  const [activeStatusTab, setActiveStatusTab] = useTabSync<RequirementTab>({
+    defaultTab: 'active',
+    validTabs: ['draft', 'pending', 'active', 'completed', 'delayed', 'archived']
+  });
+
+  // Construct Query Options for Server-Side Filtering/Pagination
+  const queryOptions = useMemo(() => {
+    const params = new URLSearchParams();
+    params.append('limit', pageSize.toString());
+    params.append('skip', ((currentPage - 1) * pageSize).toString());
+
+    if (searchQuery) params.append('name', searchQuery);
+    if (filters.priority !== 'All') {
+      params.append('priority', filters.priority === 'High Priority' ? 'High' : 'Normal');
+    }
+    if (filters.partner !== 'All') {
+      params.append('partner_id', filters.partner);
+    }
+
+    // Status Tab mapping to Backend Status
+    // Based on how finalFilteredReqs handles status, we can pass a primary status to backend
+    if (activeStatusTab === 'completed') params.append('status', 'Completed');
+    if (activeStatusTab === 'draft') params.append('status', 'Draft');
+    // Others like 'active' or 'pending' might involve multiple statuses, handled client-side for now
+    // but fetching from global pool.
+
+    return params.toString();
+  }, [currentPage, pageSize, searchQuery, filters, activeStatusTab]);
+
+  // Unified Requirements Fetching (Server-Side Paginated)
+  const { data: requirementsData, isLoading: isLoadingRequirements } = useAllRequirements(queryOptions);
+
+  const totalCount = useMemo(() => {
+    return requirementsData?.result?.[0]?.total_count || 0;
+  }, [requirementsData]);
+
+  // Fetch collaborative requirements (where my company is receiver)
+  useCollaborativeRequirements();
+
   const isLoading = isLoadingWorkspaces || isLoadingRequirements;
 
   // Helper function to strip HTML tags from text
-  // Helper function to strip HTML tags from text - using DOMParser for XSS safety
   const stripHtmlTags = useMemo(() => {
-    // Return a function that uses DOMParser for security
     if (typeof document === 'undefined') return (html: string) => html.replace(/<[^>]*>/g, '').trim();
     return (html: string): string => {
       if (!html) return '';
-      // Use DOMParser instead of innerHTML for XSS protection
       const parser = new DOMParser();
       const doc = parser.parseFromString(html, 'text/html');
       return (doc.body.textContent || '').trim();
@@ -95,21 +127,12 @@ export function RequirementsPage() {
   }, []);
 
   const mapRequirementStatus = (status: string): 'in-progress' | 'completed' | 'delayed' | 'draft' => {
-    // Backend sends Prisma enum values: Draft, Assigned, In_Progress, Waiting, Review, Completed, etc.
-    // Map to frontend display statuses
-
     switch (status) {
-      case 'Completed':
-        return 'completed';
-
+      case 'Completed': return 'completed';
       case 'On_Hold':
-      case 'Delayed':
-        return 'delayed';
-
+      case 'Delayed': return 'delayed';
       case 'Draft':
-      case 'draft':
-        return 'draft';
-
+      case 'draft': return 'draft';
       // Active work states - show as in-progress
       case 'Assigned':
       case 'In_Progress':
@@ -127,67 +150,31 @@ export function RequirementsPage() {
       case 'Archived':
       case 'archived':
         return 'archived' as 'in-progress';
-
-      default:
-        return 'in-progress';
+      default: return 'in-progress';
     }
   };
 
   const allRequirements = useMemo(() => {
-    const combined: RequirementDto[] = [];
+    return (requirementsData?.result || []) as any[];
+  }, [requirementsData]);
 
-    requirementQueries.forEach((query, index) => {
-      const workspace_idFromQuery = workspace_ids[index];
-      if (query.data?.result && workspace_idFromQuery) {
-        const requirementsWithWorkspace = query.data.result.map((req: RequirementDto) => ({
-          ...req,
-          workspace_id: req.workspace_id ?? workspace_idFromQuery,
-        }));
-        combined.push(...requirementsWithWorkspace);
-      }
-    });
-
-    // Add collaborative requirements (avoid duplicates if possible)
-    if (collaborativeData?.result) {
-      collaborativeData.result.forEach((collab: RequirementDto) => {
-        if (!combined.some(req => req.id === collab.id)) {
-          combined.push(collab);
-        }
-      });
-    }
-
-    return combined;
-    // requirementQueries is an array that is structurally memoized, but requirementQueries.map creates a new array every render.
-    // Instead, depend on the queries themselves.
-  }, [requirementQueries, workspace_ids, collaborativeData]);
-
-  // Create a map of workspace ID to workspace data for client/company lookup
-  // Workspace API returns: { client: {id, name}, client_company_name, company_name }
+  // Workspace Map moved down
   const workspaceMap = useMemo(() => {
-    const map = new Map<number, Workspace>(); // using simplified type for now
+    const map = new Map<number, Workspace>();
     workspacesData?.result?.workspaces?.forEach((w) => {
       map.set(w.id, w);
     });
     return map;
   }, [workspacesData]);
 
-  // Transform backend data to UI format with placeholder/mock data where API data is not available
+  // Transform backend data to UI format
   const requirements = useMemo(() => {
     const mappedData = allRequirements.map((req: RequirementDto) => {
-      // Get workspace data for this requirement to access client/company information
-      // NOTE: The requirement API (getRequirements.sql) doesn't include project/client data
-      // It only returns: requirement fields, department, manager, leader, created_user, approved_by
-      // So we must get client/company from the workspace data we already fetched
-      // Determine which workspace to show
-      // If I am the receiver (Vendor) and I have mapped this to an internal project (receiver_project_id),
-      // I should see MY internal workspace, not the client's source workspace.
       const myCompanyId = currentUser?.company_id ? Number(currentUser.company_id) : null;
       const reqReceiverCompanyId = req.receiver_company_id ? Number(req.receiver_company_id) : null;
       const reqSenderCompanyId = req.sender_company_id ? Number(req.sender_company_id) : null;
       const isReceiver = myCompanyId !== null && reqReceiverCompanyId === myCompanyId;
       const isSender = myCompanyId !== null && reqSenderCompanyId === myCompanyId;
-
-
 
       const effectiveWorkspaceId = (isReceiver && req.receiver_workspace_id)
         ? req.receiver_workspace_id
@@ -195,63 +182,32 @@ export function RequirementsPage() {
 
       const workspace = workspaceMap.get(effectiveWorkspaceId || 0);
 
-      // PLACEHOLDER DATA: Invoice status - not directly available in requirement API
-      // In real implementation, this would come from a separate invoice API or join query
       const mockInvoiceStatus = req.invoice_id
         ? (req.invoice?.status === 'paid' ? 'paid' : req.invoice?.status === 'open' ? 'billed' : undefined)
         : undefined;
 
-      // Contact Person: Use the name from the joined user record (or placeholder if missing)
       const contactPersonName = req.contact_person?.name || null;
       const mockContactPerson = req.type === 'outsourced' && !contactPersonName
         ? 'External Vendor'
         : contactPersonName;
 
-      // PLACEHOLDER DATA: Pricing model - infer from available data if not explicitly set
       const mockPricingModel = req.pricing_model || (req.hourly_rate ? 'hourly' : 'project');
 
-      // PLACEHOLDER DATA: Rejection reason - may not be stored in requirement table
       const mockRejectionReason = req.status?.toLowerCase().includes('rejected') && !req.rejection_reason
-        ? 'Requirement was rejected during review process' // Placeholder
+        ? 'Requirement was rejected during review process'
         : req.rejection_reason;
 
-      // Get client name from workspace data
-      // Workspace API structure: { client: {id, name}, client_company_name: string, company_name: string }
-      // Match the pattern used in WorkspacePage.tsx line 85
       const clientName = workspace?.client?.name || workspace?.client_company_name || null;
-
-      // Get company name from workspace data (agency/company name)
       const companyName = workspace?.company_name || 'Internal';
 
-      // Department: Only use actual department name if it exists, don't default to 'General'
-      // The old frontend (Requirements.tsx line 772) only shows department tag if record.department?.name exists
-      // Department mapping is handled via department_id if strictly needed, or removed if not available on DTO
-      const departmentName = null;
-
-      // Determine roles - STRICT checks with type coercion for safety
-      // A is Sender: sender_company_id matches current user's company
-      // B is Receiver: receiver_company_id matches current user's company
-
-
-      // For outsourced requirements:
-      // - Sender sees: OUTSOURCED badge, shows Receiver's name/company
-      // - Receiver sees: INHOUSE badge, shows Sender's name/company
-
-      // Header Contact: Who is on the OTHER end of this requirement?
-      // - If I'm Sender (A): Show Receiver's info (partner company name or contact person from receiver side)
-      // - If I'm Receiver (B): Show Sender's info (the person who created/sent the requirement)
       let headerContact: string | undefined;
       let headerCompany: string | undefined;
 
       if (req.type === 'outsourced') {
         if (isSender) {
-          // Sender (A) views: Show receiver info (B's company)
-          // Show contact person only if it's explicitly assigned and DIFFERENT from the creator (internal user)
-          // Otherwise fall back to partner company
           const contactName = req.contact_person?.name;
-          // Fix: backend returns created_user object, not created_user_data
-          const creatorName = (typeof req.created_user === 'object' ? req.created_user?.name : undefined) || req.created_user_data?.name;
-          const receiverCompanyName = req.receiver_company?.name;
+          const creatorName = (typeof req.created_user === 'object' ? (req.created_user as any)?.name : undefined) || req.created_user_data?.name;
+          const receiverCompanyName = (req as any).receiver_company?.name;
 
           const isContactExternal = !!contactName && !!creatorName && contactName !== creatorName;
 
@@ -263,15 +219,13 @@ export function RequirementsPage() {
             headerCompany = undefined;
           }
         } else if (isReceiver) {
-          // Receiver (B) views: Show sender info (A's name and A's company)
-          // Prioritize Sender Name (Created User) over Contact Person to ensure B sees A
           headerContact = req.created_user_data?.name ||
-            (typeof req.created_user === 'object' ? req.created_user?.name : undefined) ||
+            (typeof req.created_user === 'object' ? (req.created_user as any)?.name : undefined) ||
             req.contact_person?.name ||
-            req.sender_company?.name ||
+            (req as any).sender_company?.name ||
             'Sender';
 
-          headerCompany = req.sender_company?.name;
+          headerCompany = (req as any).sender_company?.name;
 
           if (headerContact === headerCompany) {
             headerCompany = undefined;
@@ -283,23 +237,18 @@ export function RequirementsPage() {
           headerCompany = undefined;
         }
       } else {
-        // Inhouse requirements
-        // Check if this is a mapped requirement (I am the receiver of an originally outsourced req that is now "inhouse" locally)
-        if (isReceiver && req.sender_company) {
-          // Treat like Receiver View: Show Sender Info
+        if (isReceiver && (req as any).sender_company) {
           headerContact = req.created_user_data?.name ||
-            (typeof req.created_user === 'object' ? req.created_user?.name : undefined) ||
+            (typeof req.created_user === 'object' ? (req.created_user as any)?.name : undefined) ||
             req.contact_person?.name ||
-            req.sender_company?.name ||
+            (req as any).sender_company?.name ||
             'Sender';
-          headerCompany = req.sender_company?.name;
+          headerCompany = (req as any).sender_company?.name;
         } else {
-          // Standard Inhouse - show assigned internal people
-          headerContact = (typeof req.contact_person === 'object' ? req.contact_person?.name : req.contact_person) || 'Unknown';
+          headerContact = (typeof req.contact_person === 'object' ? (req.contact_person as any)?.name : req.contact_person) || 'Unknown';
           headerCompany = workspace?.client_company_name || workspace?.company_name || undefined;
         }
 
-        // Don't show company if it's the same as contact
         if (headerContact && headerCompany && headerContact === headerCompany) {
           headerCompany = undefined;
         }
@@ -315,25 +264,23 @@ export function RequirementsPage() {
         assignedTo: req.manager_user ? [req.manager_user.name || ''] : req.leader_user ? [req.leader_user.name || ''] : [],
         dueDate: req.end_date ? format(new Date(req.end_date), 'dd-MMM-yyyy') : 'TBD',
         startDate: req.start_date ? format(new Date(req.start_date), 'dd-MMM-yyyy') : undefined,
-        end_date: req.end_date || undefined, // Correctly pass snake_case end_date for RequirementCard
-        start_date: req.start_date || undefined, // Correctly pass snake_case start_date for consistency
+        end_date: req.end_date || undefined,
+        start_date: req.start_date || undefined,
         createdDate: req.start_date ? format(new Date(req.start_date), 'dd-MMM-yyyy') : 'TBD',
         is_high_priority: req.is_high_priority ?? false,
         type: (req.type || 'inhouse') as RequirementType,
         status: mapRequirementStatus(req.status || 'Assigned'),
-        category: departmentName || 'General',
-        // departments removed (duplicate)
+        category: 'General',
         progress: 0,
         tasksCompleted: req.total_task ? Math.floor(req.total_task * 0 / 100) : 0,
         tasksTotal: req.total_task || 0,
         workspace_id: req.workspace_id || 0,
         workspace: workspace?.name || 'Unknown Workspace',
         approvalStatus: (req.approved_by ? 'approved' :
-          (req.status === 'Waiting' || req.status === 'Review' || req.status?.toLowerCase() === 'rejected' || req.status?.toLowerCase() === 'review' || req.status?.toLowerCase() === 'waiting' || req.status?.toLowerCase().includes('pending')) ? 'pending' :
+          (req.status === 'Waiting' || req.status === 'Review' || req.status?.toLowerCase() === 'rejected' || req.status?.toLowerCase().includes('pending')) ? 'pending' :
             undefined
         ) as 'pending' | 'approved' | 'rejected' | undefined,
         invoice_status: mockInvoiceStatus as 'paid' | 'billed' | undefined,
-        // invoiceStatus removed in favor of invoice_status
         estimated_cost: req.estimated_cost || (req.budget || undefined),
         budget: req.budget || undefined,
         quoted_price: req.quoted_price || undefined,
@@ -341,8 +288,7 @@ export function RequirementsPage() {
         hourly_rate: req.hourly_rate || undefined,
         estimated_hours: req.estimated_hours || undefined,
         pricing_model: mockPricingModel as 'hourly' | 'project' | undefined,
-        departments: req.department_id ? [String(req.department_id)] : [], // Placeholder until department name resolution
-        // departments added
+        departments: req.department_id ? [String(req.department_id)] : [],
         contact_person: mockContactPerson || undefined,
         contact_person_id: req.contact_person_id,
         rejection_reason: mockRejectionReason,
@@ -354,7 +300,7 @@ export function RequirementsPage() {
         sender_company_id: req.sender_company_id,
         receiver_company_id: req.receiver_company_id,
         receiver_workspace_id: req.receiver_workspace_id,
-        receiver_project_id: req.receiver_workspace_id, // Alias for backward compatibility
+        receiver_project_id: req.receiver_workspace_id,
         negotiation_reason: req.negotiation_reason,
         is_archived: req.is_archived,
         completed_at: req.completed_at,
@@ -396,40 +342,16 @@ export function RequirementsPage() {
     requirementsRef.current = requirements;
   }, [requirements]);
 
-  // Use standardized tab sync hook for consistent URL handling
-  type RequirementTab = 'draft' | 'pending' | 'active' | 'completed' | 'delayed' | 'archived';
-  const [activeStatusTab, setActiveStatusTab] = useTabSync<RequirementTab>({
-    defaultTab: 'active',
-    validTabs: ['draft', 'pending', 'active', 'completed', 'delayed', 'archived']
-  });
-  const [searchQuery, setSearchQuery] = useState('');
-
-  // Date Picker State
-  const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null] | null>(null);
-
   // Quotation Dialog State
   const [isQuotationOpen, setIsQuotationOpen] = useState(false);
   const [isRejectOpen, setIsRejectOpen] = useState(false);
   const [isMappingOpen, setIsMappingOpen] = useState(false);
   const [pendingReqId, setPendingReqId] = useState<number | null>(null);
 
-  const [filters, setFilters] = useState<Record<string, string>>({
-    type: 'All',
-    billing: 'All',
-    category: 'All',
-    priority: 'All',
-    client: 'All',
-    partner: 'All',
-    assignee: 'All'
-  });
-
   const { mutate: deleteRequirement } = useDeleteRequirement();
 
   const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
-
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingReq, setEditingReq] = useState<Requirement | undefined>(undefined);
@@ -474,7 +396,7 @@ export function RequirementsPage() {
       workspace_id: requirements.find(r => r.id === reqId)?.workspace_id || 0,
       quoted_price: amount,
       currency: currency,
-      // estimated_hours: hours, // Not in DTO interface? Check DTO. 
+      // estimated_hours: hours, // Not in DTO interface? Check DTO.
       // DTO has budget, pricing_model etc. `estimated_hours` might not be in UpdateRequirementRequestDto.
       // Assuming it is for now or I will add it if needed.
       status: 'Submitted'
@@ -689,16 +611,16 @@ export function RequirementsPage() {
 
   // 2. Apply Status Tab filter
   const finalFilteredReqs = useMemo(() => baseFilteredReqs.filter(req => {
-    
+
     // Status normalization
     const rawStatus = req.rawStatus || 'Assigned';
     const isArchived = !!req.is_archived;
     const isCompleted = rawStatus === 'Completed';
     const isDelayedStatus = rawStatus === 'Delayed' || rawStatus === 'On_Hold';
     const isDraft = rawStatus === 'Draft' || rawStatus === 'draft';
-    const isPending = 
-      rawStatus === 'Waiting' || 
-      rawStatus === 'Submitted' || 
+    const isPending =
+      rawStatus === 'Waiting' ||
+      rawStatus === 'Submitted' ||
       (rawStatus === 'Assigned' && req.type === 'outsourced' && !req.workspace_id) || // Unmapped outsourced
       rawStatus?.toLowerCase().includes('pending') ||
       (req.approvalStatus === 'pending');
@@ -709,12 +631,12 @@ export function RequirementsPage() {
     const parseDate = (d: string | Date | undefined | null) => d ? new Date(d) : null;
     const endDate = parseDate(req.end_date);
     const completedAt = parseDate(req.completed_at); // New field from backend
-    // Fallback if completed_at missing: use updated_at if status is Completed? 
-    // Plan said explicit field. If missing, assume on time or ignore? 
+    // Fallback if completed_at missing: use updated_at if status is Completed?
+    // Plan said explicit field. If missing, assume on time or ignore?
     // Let's use completed_at if present.
 
     const isOverdue = endDate && endDate < now && !isCompleted;
-    
+
     // Check if completed late: completed_at > end_date
     const isCompletedLate = isCompleted && completedAt && endDate && completedAt > endDate;
 
@@ -724,22 +646,22 @@ export function RequirementsPage() {
         // Includes: Assigned, In_Progress, Review, Revision, Impediment, Stuck
         // AND Delayed status items
         // AND Overdue items (which are active by definition if not completed)
-        
+
         if (isArchived || isDraft || isPending || isCompleted) return false;
         return true; // Catch-all for working states + Delayed status
 
       case 'delayed':
-        // Delayed: 
+        // Delayed:
         // 1. Explicit status 'Delayed'
         // 2. Active (not completed) AND Overdue
         // 3. Completed AND Late (completed_at > end_date)
-        
+
         if (isArchived || isDraft || isPending) return false;
-        
+
         if (isDelayedStatus) return true;
         if (isOverdue) return true; // Active & Overdue
         if (isCompletedLate) return true; // Completed & Late
-        
+
         return false;
 
       case 'draft':
@@ -1199,11 +1121,11 @@ export function RequirementsPage() {
 
         </div>
 
-        {finalFilteredReqs.length > 0 && (
+        {totalCount > 0 && (
           <div className="bg-white">
             <PaginationBar
               currentPage={currentPage}
-              totalItems={finalFilteredReqs.length}
+              totalItems={totalCount}
               pageSize={pageSize}
               onPageChange={setCurrentPage}
               onPageSizeChange={(size) => {
@@ -1233,10 +1155,10 @@ export function RequirementsPage() {
             const req = editingReq;
             // Explicit Client Type
             if (['client', 'Client work', 'Client Work'].includes(req.type || '')) return 'client';
-            
+
             // Outsourced but acting as Receiver (Client Work context)
             if (req.type === 'outsourced' && req.isReceiver) return 'client';
-            
+
             // Default to existing type or inhouse
             return (req.type as 'inhouse' | 'outsourced') || 'inhouse';
           })(),
@@ -1251,9 +1173,9 @@ export function RequirementsPage() {
         } : undefined}
         onSubmit={handleSaveDraft}
         onSubmitAndSend={handleSendRequirement}
-        workspaces={workspacesData?.result?.workspaces?.map((w) => ({ 
-          id: w.id, 
-          name: w.name, 
+        workspaces={workspacesData?.result?.workspaces?.map((w) => ({
+          id: w.id,
+          name: w.name,
           company_name: w.company_name || w.client?.name || undefined,
           partner_name: w.partner_name,
           in_house: w.in_house

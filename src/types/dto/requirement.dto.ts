@@ -45,6 +45,7 @@ export interface RequirementDto {
   total_task?: number;
   total_tasks?: number;
   tasks_completed?: number;
+  total_count?: number;
 
   // Relations
   sender_company?: { name: string; id?: number } | null;
