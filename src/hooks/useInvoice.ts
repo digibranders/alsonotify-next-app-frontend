@@ -1,6 +1,6 @@
 
 import { useQuery } from '@tanstack/react-query';
-import { getInvoices, InvoiceDto } from '../services/invoice.ts';
+import { getInvoices } from '../services/invoice';
 import { toQueryParams } from '../utils/queryParams';
 
 export const useInvoices = (filters: Record<string, unknown> = {}) => {
