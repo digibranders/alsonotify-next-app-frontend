@@ -72,10 +72,7 @@ export function RequirementsList({
         );
     }
 
-    const paginatedRequirements = requirements.slice(
-        (currentPage - 1) * pageSize,
-        (currentPage - 1) * pageSize + pageSize
-    );
+    const paginatedRequirements = requirements;
 
     return (
         <div className="pb-6">
@@ -91,11 +88,11 @@ export function RequirementsList({
                             onAccept={userRole !== 'Employee' ? () => handleReqAccept(requirement.id) : undefined}
                             onReject={userRole !== 'Employee' ? () => handleReqReject(requirement.id) : undefined}
                             onEdit={userRole !== 'Employee' ? () => handleEditDraft(requirement) : undefined}
-                            
+
                             // Condition for Delete vs Restore
                             onDelete={
-                                userRole !== 'Employee' && activeStatusTab !== 'archived' 
-                                    ? () => handleDelete(requirement) 
+                                userRole !== 'Employee' && activeStatusTab !== 'archived'
+                                    ? () => handleDelete(requirement)
                                     : undefined
                             }
                             onRestore={
