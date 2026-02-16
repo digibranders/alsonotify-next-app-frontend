@@ -274,7 +274,7 @@ export function RequirementsPage() {
         progress: 0,
         tasksCompleted: req.total_task ? Math.floor(req.total_task * 0 / 100) : 0,
         tasksTotal: req.total_task || 0,
-        workspace_id: req.workspace_id || 0,
+        workspace_id: effectiveWorkspaceId || 0,
         workspace: workspace?.name || 'Unknown Workspace',
         approvalStatus: (req.approved_by ? 'approved' :
           (req.status === 'Waiting' || req.status === 'Review' || req.status?.toLowerCase() === 'rejected' || req.status?.toLowerCase().includes('pending')) ? 'pending' :

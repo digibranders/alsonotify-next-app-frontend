@@ -182,13 +182,13 @@ export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => 
         }
       }
 
-      // Count this requirement in the total
-      total++;
-
       // Filter: Exclude archived requirements
       if (req.is_archived) {
         return;
       }
+
+      // Count this requirement in the total
+      total++;
 
       const status = req.status?.toLowerCase() || '';
 
