@@ -203,6 +203,17 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
       skip: pagination.skip,
     };
 
+    // Map Active Tab to Backend Status Filter
+    if (activeTab === 'In_Progress') {
+      params.status = 'ACTIVE';
+    } else if (activeTab === 'Completed') {
+      params.status = 'Completed';
+    } else if (activeTab === 'Delayed') {
+      params.status = 'OVERDUE';
+    } else if (filters.status !== 'All') {
+      params.status = filters.status;
+    }
+
     // Add filters
     if (filters.user !== 'All') {
       const selectedUser = usersDropdown.find(u => u.name === filters.user);
@@ -210,12 +221,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
         params.member_id = selectedUser.id;
       }
     }
-    if (filters.company !== 'All') {
-      // Determine company/client name: if client exists, it's client work, otherwise show company name for in-house-side filtering for company
-      // params.client_company_id = filters.company;
-    }
     if (filters.workspace !== 'All') {
-      // Find workspace ID from name
       const selectedWorkspace = workspacesData?.result?.workspaces?.find(
         (p: { name: string; id: number }) => p.name === filters.workspace
       );
@@ -229,24 +235,20 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
         params.requirement_id = selectedReq.id;
       }
     }
-    // Tab-based filtering is done client-side to prevent re-fetches on tab switch
-    // Only apply status filter from explicit filter dropdown (value is already backend enum)
-    if (filters.status !== 'All') {
-      params.status = filters.status;
-    }
+
     if (searchQuery) {
       params.name = searchQuery;
     }
 
-    // Add date range filter if applicable
     if (dateRange && dateRange[0] && dateRange[1]) {
-      params.start_date = dateRange[0].format('YYYY-MM-DD');
-      params.end_date = dateRange[1].format('YYYY-MM-DD');
+      params.start_date = {
+        start: dateRange[0].format('YYYY-MM-DD'),
+        end: dateRange[1].format('YYYY-MM-DD')
+      };
     }
 
-
     return toQueryParams(params);
-  }, [pagination.limit, pagination.skip, filters, searchQuery, dateRange, workspacesData, usersDropdown, requirementsDropdown]);
+  }, [pagination.limit, pagination.skip, filters, searchQuery, dateRange, workspacesData, usersDropdown, requirementsDropdown, activeTab]);
 
   // Build query params for STATS (without status filter to get global counts)
   const statsQueryParams = useMemo(() => {
@@ -702,50 +704,13 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
 
   // Apply client-side filters for user/company (since we can't easily map names to IDs)
   // Workspace filtering is now done server-side via query params
+  // Client-side filtering is now minimal (mostly for things backend doesn't handle yet)
   const filteredTasks = useMemo(() => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const todayTime = today.getTime();
-
     return tasks.filter(task => {
-      // Client-side filtering for items not supported by backend yet (e.g. company name match)
       const matchesCompany = filters.company === 'All' || task.client === filters.company;
-
-      // Date filtering (client-side since API might not support it exactly as we need)
-      let matchesDate = true;
-      if (dateRange && dateRange[0] && dateRange[1]) {
-        const from = dateRange[0].startOf('day').toDate().getTime();
-        const to = dateRange[1].endOf('day').toDate().getTime();
-
-        if (task.dueDateValue == null) {
-          matchesDate = false;
-        } else {
-          matchesDate = task.dueDateValue >= from && task.dueDateValue <= to;
-        }
-      }
-
-      // Tab-based filtering (all filtering done client-side to prevent re-fetches on tab switch)
-      // In Progress tab: show all tasks except Assigned and Completed
-      if (activeTab === 'In_Progress') {
-        const isActiveTask = task.status !== 'Assigned' && task.status !== 'Completed';
-        if (!isActiveTask) return false;
-      }
-
-      // Completed tab: show only completed tasks
-      if (activeTab === 'Completed') {
-        if (task.status !== 'Completed') return false;
-      }
-
-      // Delayed tab: show tasks where end_date has passed and task is NOT completed
-      if (activeTab === 'Delayed') {
-        const isOverdue = task.dueDateValue != null && task.dueDateValue < todayTime;
-        const isNotCompleted = task.status !== 'Completed';
-        if (!isOverdue || !isNotCompleted) return false;
-      }
-
-      return matchesCompany && matchesDate;
+      return matchesCompany;
     });
-  }, [tasks, filters, dateRange, activeTab]);
+  }, [tasks, filters]);
 
   const sortedTasks = useMemo(() => {
     const sorted = [...filteredTasks];

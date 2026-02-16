@@ -12,6 +12,7 @@ import {
   approveRequirement,
   getCollaborativeRequirements,
   reactivateWorkspace,
+  getAllRequirements,
 } from "../services/workspace";
 import { WorkspaceDto, CreateWorkspaceRequestDto, UpdateWorkspaceRequestDto } from "../types/dto/workspace.dto";
 import { RequirementDto, CreateRequirementRequestDto, UpdateRequirementRequestDto, RequirementDropdownItem } from "../types/dto/requirement.dto";
@@ -167,6 +168,14 @@ export const useWorkspaceRequirementsDropdown = (workspaceId?: number) => {
   });
 };
 
+export const useAllRequirements = (options: string = "") => {
+  return useQuery({
+    queryKey: queryKeys.requirements.all(options),
+    queryFn: () => getAllRequirements(options),
+    select: selectRequirements,
+    refetchInterval: 5000,
+  });
+};
 
 export const useCollaborativeRequirements = () => {
   return useQuery({

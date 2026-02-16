@@ -80,13 +80,18 @@ export const approveRequirement = async (
   return data;
 };
 
-export const getRequirementsByWorkspaceId = async (workspaceId: number): Promise<ApiResponse<RequirementDto[]>> => {
-  const { data } = await axiosApi.get<ApiResponse<RequirementDto[]>>(`/requirement/${workspaceId}`);
+export const getRequirementsByWorkspaceId = async (workspaceId: number, options: string = ""): Promise<ApiResponse<RequirementDto[]>> => {
+  const { data } = await axiosApi.get<ApiResponse<RequirementDto[]>>(`/requirement/${workspaceId}?${options}`);
   return data;
 };
 
 export const getCollaborativeRequirements = async (): Promise<ApiResponse<RequirementDto[]>> => {
   const { data } = await axiosApi.get<ApiResponse<RequirementDto[]>>(`/requirement/collaborative`);
+  return data;
+};
+
+export const getAllRequirements = async (options: string = ""): Promise<ApiResponse<RequirementDto[]>> => {
+  const { data } = await axiosApi.get<ApiResponse<RequirementDto[]>>(`/requirement?${options}`);
   return data;
 };
 

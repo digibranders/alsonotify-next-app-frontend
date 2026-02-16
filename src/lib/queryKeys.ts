@@ -28,7 +28,8 @@ export const queryKeys = {
     detail: (id: number) => ['workspaces', 'detail', id] as const,
   },
   requirements: {
-    all: () => ['requirements'] as const,
+    all: (options: string = "") => ['requirements', 'all', options] as const,
+    allRoot: () => ['requirements', 'all'] as const,
     byWorkspace: (workspaceId: number) => ['requirements', 'workspace', workspaceId] as const,
     collaborative: () => ['requirements', 'collaborative'] as const,
     activities: (requirementId: number) => ['requirements', 'activities', requirementId] as const,
