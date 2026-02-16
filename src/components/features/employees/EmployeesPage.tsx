@@ -14,7 +14,6 @@ import {
   useCreateEmployee,
   useUpdateEmployee,
   useUpdateEmployeeStatus,
-  useUserDetails,
   useRoles,
   useCompanyDepartments,
 } from '../../../hooks/useUser';
@@ -48,12 +47,8 @@ export function EmployeesPage() {
 
   // Fetch all employees (both active and inactive) to prevent re-fetches on tab switch
   // Filtering by status is done client-side in filteredEmployees useMemo
-  const queryParams = useMemo(() => {
-    // No is_active filter - fetch all employees for flicker-free tab switching
-    return '';
-  }, []);
-
   const { data: rolesData } = useRoles();
+  const { data: departmentsData } = useCompanyDepartments();
   const createEmployeeMutation = useCreateEmployee();
   const updateEmployeeMutation = useUpdateEmployee();
   const updateEmployeeStatusMutation = useUpdateEmployeeStatus();
@@ -66,11 +61,6 @@ export function EmployeesPage() {
     employmentType: 'All'
   });
   const [selectedEmployees, setSelectedEmployees] = useState<number[]>([]);
-  const [showAccessDropdown, setShowAccessDropdown] = useState(false);
-  const [showDepartmentDropdown, setShowDepartmentDropdown] = useState(false);
-  const accessDropdownRef = useRef<HTMLDivElement>(null);
-  const departmentDropdownRef = useRef<HTMLDivElement>(null);
-
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
@@ -80,29 +70,56 @@ export function EmployeesPage() {
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [selectedEmployeeForDetails, setSelectedEmployeeForDetails] = useState<Employee | null>(null);
 
+  const [showAccessDropdown, setShowAccessDropdown] = useState(false);
+  const [showDepartmentDropdown, setShowDepartmentDropdown] = useState(false);
+  const accessDropdownRef = useRef<HTMLDivElement>(null);
+  const departmentDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Construct Query Options for Server-Side Filtering/Pagination
+  const queryParams = useMemo(() => {
+    const params = new URLSearchParams();
+    params.append('limit', pageSize.toString());
+    params.append('skip', ((currentPage - 1) * pageSize).toString());
+    params.append('is_active', activeTab === 'active' ? 'true' : 'false');
+
+    if (searchQuery) params.append('name', searchQuery);
+
+    if (filters.role !== 'All') {
+      const selectedRole = rolesData?.result?.find(r => r.name === filters.role);
+      if (selectedRole) params.append('role_id', selectedRole.id.toString());
+    }
+
+    if (filters.department !== 'All') {
+      const selectedDept = departmentsData?.result?.find(d => d.name === filters.department);
+      if (selectedDept?.id) params.append('department_id', selectedDept.id.toString());
+    }
+
+    if (filters.employmentType !== 'All') {
+      params.append('employment_type', filters.employmentType);
+    }
+
+    return params.toString();
+  }, [currentPage, pageSize, searchQuery, filters, activeTab, rolesData, departmentsData]);
+
   const { data: employeesData, isLoading } = useEmployees(queryParams);
-  const { data: departmentsData } = useCompanyDepartments();
   const { user: currentUser } = useCurrentUser();
-  useUserDetails();
+
+  const totalCount = useMemo(() => {
+    // Backend getUsersService returns total_count in each item
+    return (employeesData?.result?.[0] as any)?.total_count || 0;
+  }, [employeesData]);
 
   // Transform backend data to UI format
   const employees = useMemo(() => {
     if (!employeesData?.result) return [];
     return employeesData.result.map((emp: Employee) => {
-      // Resolve access name dynamically from rolesData if available
       let resolvedAccess = emp.access || 'Employee';
       if (rolesData?.result) {
-        // Use the normalized roleName if available, or fall back to role/access
         const currentRoleName = emp.roleName || emp.role || emp.access;
-
-        // Try precise ID match first (robust against string/number types)
         let foundRole = emp.roleId ? rolesData.result.find((r: { id: number }) => r.id == emp.roleId) : undefined;
-
-        // If not found by ID, try finding by name (case-insensitive)
         if (!foundRole && currentRoleName) {
           foundRole = rolesData.result.find((r: { name: string }) => r.name.toLowerCase() === currentRoleName.toLowerCase());
         }
-
         if (foundRole) {
           resolvedAccess = foundRole.name as Employee['access'];
         }
@@ -116,43 +133,12 @@ export function EmployeesPage() {
     });
   }, [employeesData, rolesData]);
 
-  const filteredEmployees = useMemo(() => {
-    return employees.filter((emp: Employee) => {
-      const matchesTab = emp.status === activeTab;
-      const matchesSearch = searchQuery === '' ||
-        emp.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        emp.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        emp.skillsets.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesRole = filters.role === 'All' || emp.role === filters.role;
-      const matchesDept = filters.department === 'All' || emp.department === filters.department;
-
-      // Handle "Employee" display mapping for "Member" role
-      const matchesAccess = filters.access === 'All' ||
-        (filters.access === 'Employee'
-          ? (emp.access === 'Employee')
-          : emp.access === filters.access);
-
-      const matchesType = filters.employmentType === 'All' ||
-        (filters.employmentType === 'Full-time' && (emp.employment_type === 'Full-time' || emp.employment_type === 'In-house')) ||
-        (filters.employmentType === 'Contract' && (emp.employment_type === 'Contract' || emp.employment_type === 'Freelancer' || emp.employment_type === 'Agency')) ||
-        (filters.employmentType === 'Part-time' && (emp.employment_type === 'Part-time')) ||
-        (filters.employmentType !== 'All' && (emp.employment_type === filters.employmentType));
-
-      return matchesTab && matchesSearch && matchesRole && matchesDept && matchesAccess && matchesType;
-    });
-  }, [employees, activeTab, searchQuery, filters]);
+  const paginatedEmployees = employees; // Already paginated by server
 
   // Derived user role for access control
   const isEmployeeRole = useMemo(() => {
-    // Check both role name and role ID if possible, but role name is safer here with currentUser
     return currentUser?.role === 'Employee';
   }, [currentUser]);
-
-  // Pagination
-  const paginatedEmployees = useMemo(() => {
-    const startIndex = (currentPage - 1) * pageSize;
-    return filteredEmployees.slice(startIndex, startIndex + pageSize);
-  }, [filteredEmployees, currentPage, pageSize]);
 
   // Get unique roles and departments
   const uniqueRoles = useMemo(() => ['All', ...Array.from(new Set(employees.map(emp => emp.role)))], [employees]);
@@ -1144,7 +1130,7 @@ export function EmployeesPage() {
             )}
           </div>
 
-          {!isLoading && filteredEmployees.length === 0 && (
+          {!isLoading && employees.length === 0 && (
             <div className="text-center py-12">
               <p className="text-[#999999] font-['Manrope:Regular',sans-serif]">
                 No employees found
@@ -1156,7 +1142,7 @@ export function EmployeesPage() {
         <div className="bg-white">
           <PaginationBar
             currentPage={currentPage}
-            totalItems={filteredEmployees.length}
+            totalItems={totalCount}
             pageSize={pageSize}
             onPageChange={setCurrentPage}
             onPageSizeChange={(size) => {

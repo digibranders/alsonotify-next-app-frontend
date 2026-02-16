@@ -42,12 +42,14 @@ interface GetRequirementReportsParams {
     type?: string;
     priority?: string;
     department_id?: string;
+    limit?: number;
+    skip?: number;
 }
 
 interface ApiResponse<T> {
-  success: boolean;
-  message: string;
-  result: T;
+    success: boolean;
+    message: string;
+    result: T;
 }
 
 export const getRequirementReports = async (params: GetRequirementReportsParams): Promise<RequirementReportsResponse> => {
@@ -61,10 +63,13 @@ export const getRequirementReports = async (params: GetRequirementReportsParams)
     if (params.start_date) queryParams.start_date = params.start_date;
     if (params.end_date) queryParams.end_date = params.end_date;
 
+    if (params.limit !== undefined) queryParams.limit = params.limit;
+    if (params.skip !== undefined) queryParams.skip = params.skip;
+
     const response = await axiosApi.get<ApiResponse<RequirementReportsResponse>>('/report/requirements', {
         params: queryParams
     });
-    
+
     return response.data.result;
 };
 
@@ -101,6 +106,8 @@ interface GetTaskReportsParams {
     status?: string;
     start_date?: string;
     end_date?: string;
+    limit?: number;
+    skip?: number;
 }
 
 export const getTaskReports = async (params: GetTaskReportsParams): Promise<TaskReportsResponse> => {
@@ -112,10 +119,13 @@ export const getTaskReports = async (params: GetTaskReportsParams): Promise<Task
     if (params.start_date) queryParams.start_date = params.start_date;
     if (params.end_date) queryParams.end_date = params.end_date;
 
+    if (params.limit !== undefined) queryParams.limit = params.limit;
+    if (params.skip !== undefined) queryParams.skip = params.skip;
+
     const response = await axiosApi.get<ApiResponse<TaskReportsResponse>>('/report/tasks', {
         params: queryParams
     });
-    
+
     return response.data.result;
 };
 
@@ -148,6 +158,7 @@ export interface EmployeeKPI {
     totalRevenue: number;
     netProfit: number;
     avgRatePerHr: number;
+    totalCount: number;
 }
 
 export interface EmployeeReportsResponse {
@@ -161,6 +172,8 @@ interface GetEmployeeReportsParams {
     member_id?: string;
     start_date?: string;
     end_date?: string;
+    limit?: number;
+    skip?: number;
 }
 
 export const getEmployeeReports = async (params: GetEmployeeReportsParams): Promise<EmployeeReportsResponse> => {
@@ -171,10 +184,13 @@ export const getEmployeeReports = async (params: GetEmployeeReportsParams): Prom
     if (params.start_date) queryParams.start_date = params.start_date;
     if (params.end_date) queryParams.end_date = params.end_date;
 
+    if (params.limit !== undefined) queryParams.limit = params.limit;
+    if (params.skip !== undefined) queryParams.skip = params.skip;
+
     const response = await axiosApi.get<ApiResponse<EmployeeReportsResponse>>('/report/employees', {
         params: queryParams
     });
-    
+
     return response.data.result;
 };
 
@@ -196,6 +212,6 @@ export const getMemberWorklogs = async (memberId: string, startDate?: string, en
     const response = await axiosApi.get<ApiResponse<MemberWorklog[]>>('/report/member/worklogs', {
         params: queryParams
     });
-    
+
     return response.data.result;
 };

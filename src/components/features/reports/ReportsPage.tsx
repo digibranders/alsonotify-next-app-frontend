@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
   Download, Clock, CheckCircle2, AlertCircle, Loader2, ArrowUp, ArrowDown
 } from 'lucide-react';
@@ -18,6 +18,7 @@ import { usePartners, useEmployees, useCompanyDepartments } from '@/hooks/useUse
 import { useTimezone } from '@/hooks/useTimezone';
 import { getRequirementReports, getTaskReports, getEmployeeReports, getMemberWorklogs } from '../../../services/report';
 import EmployeeDetailsDrawer from './components/EmployeeDetailsDrawer';
+import { PaginationBar } from '../../ui/PaginationBar';
 
 // Initialize dayjs plugins
 dayjs.extend(isBetween);
@@ -143,6 +144,20 @@ export function ReportsPage() {
   // Sorting State
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
 
+  // Date Picker State using dayjs for AntD
+  const [dateRange, setDateRange] = useState<[dayjs.Dayjs | null, dayjs.Dayjs | null] | null>([
+    getDayjsInTimezone().startOf('month'),
+    getDayjsInTimezone().endOf('month')
+  ]);
+
+  // Pagination State
+  const [pagination, setPagination] = useState({ limit: 10, skip: 0 });
+
+  useEffect(() => {
+    // Reset to first page on filter change
+    setPagination(prev => ({ ...prev, skip: 0 }));
+  }, [filters, searchQuery, dateRange, activeTab]);
+
   const handleSort = (key: string) => {
     setSortConfig(current => {
       if (current?.key === key && current.direction === 'asc') {
@@ -151,12 +166,6 @@ export function ReportsPage() {
       return { key, direction: 'asc' };
     });
   };
-
-  // Date Picker State using dayjs for AntD
-  const [dateRange, setDateRange] = useState<[dayjs.Dayjs | null, dayjs.Dayjs | null] | null>([
-    getDayjsInTimezone().startOf('month'),
-    getDayjsInTimezone().endOf('month')
-  ]);
 
   // Handle Filters
   const handleFilterChange = (filterId: string, value: string) => {
@@ -228,6 +237,8 @@ export function ReportsPage() {
       department_id: filters.department,
       start_date: dateRange && dateRange[0] ? dateRange[0].toISOString() : undefined,
       end_date: dateRange && dateRange[1] ? dateRange[1].toISOString() : undefined,
+      limit: pagination.limit,
+      skip: pagination.skip,
     }),
     staleTime: 5 * 60 * 1000, // 5 minutes - prevents re-fetches on tab switch
     placeholderData: (previousData) => previousData, // Keep previous data while fetching
@@ -244,6 +255,8 @@ export function ReportsPage() {
       status: filters.status,
       start_date: dateRange && dateRange[0] ? dateRange[0].toISOString() : undefined,
       end_date: dateRange && dateRange[1] ? dateRange[1].toISOString() : undefined,
+      limit: pagination.limit,
+      skip: pagination.skip,
     }),
     staleTime: 5 * 60 * 1000, // 5 minutes - prevents re-fetches on tab switch
     placeholderData: (previousData) => previousData, // Keep previous data while fetching
@@ -258,18 +271,13 @@ export function ReportsPage() {
       member_id: filters.member,
       start_date: dateRange && dateRange[0] ? dateRange[0].toISOString() : undefined,
       end_date: dateRange && dateRange[1] ? dateRange[1].toISOString() : undefined,
+      limit: pagination.limit,
+      skip: pagination.skip,
     }),
     staleTime: 5 * 60 * 1000, // 5 minutes - prevents re-fetches on tab switch
     placeholderData: (previousData) => previousData, // Keep previous data while fetching
   });
 
-  console.log('Reports Debug:', {
-    requirementData,
-    taskData,
-    employeeData,
-    reqLoading: isLoadingRequirements,
-    taskLoading: isLoadingTasks
-  });
 
 
   // Process Data
@@ -348,18 +356,12 @@ export function ReportsPage() {
         : 0,
       avgUtilization: filteredEmployees.length > 0
         ? Math.round(totals.totalUtilization / filteredEmployees.length)
-        : 0
+        : 0,
+      totalCount: employeeData?.kpi?.totalCount || filteredEmployees.length
     };
-  }, [filteredEmployees]);
+  }, [filteredEmployees, employeeData]);
 
   // Debug Logs
-  console.log('ReportsPage Render:', {
-    activeTab,
-    requirementsCount: requirements.length,
-    tasksCount: tasks.length,
-    reqData: requirementData,
-    taskData: taskData
-  });
 
 
   // Filter Configuration - memoized to prevent unnecessary re-renders
@@ -653,6 +655,16 @@ export function ReportsPage() {
                 {filteredRequirements.length === 0 && (
                   <div className="text-center py-12 text-[#999999] text-[13px]">No requirements found matching your filters.</div>
                 )}
+
+                <div className="pt-4 border-t border-[#EEEEEE]">
+                  <PaginationBar
+                    currentPage={Math.floor(pagination.skip / pagination.limit) + 1}
+                    totalItems={kpi.totalRequirements}
+                    pageSize={pagination.limit}
+                    onPageChange={(page) => setPagination(prev => ({ ...prev, skip: (page - 1) * pagination.limit }))}
+                    onPageSizeChange={(limit) => setPagination({ limit, skip: 0 })}
+                  />
+                </div>
               </div>
             )}
           </div>
@@ -709,6 +721,16 @@ export function ReportsPage() {
                 {filteredTasks.length === 0 && (
                   <div className="text-center py-12 text-[#999999] text-[13px]">No tasks found matching your filters.</div>
                 )}
+
+                <div className="pt-4 border-t border-[#EEEEEE]">
+                  <PaginationBar
+                    currentPage={Math.floor(pagination.skip / pagination.limit) + 1}
+                    totalItems={taskKPI.totalTasks}
+                    pageSize={pagination.limit}
+                    onPageChange={(page) => setPagination(prev => ({ ...prev, skip: (page - 1) * pagination.limit }))}
+                    onPageSizeChange={(limit) => setPagination({ limit, skip: 0 })}
+                  />
+                </div>
               </div>
             )}
           </div>
@@ -795,6 +817,16 @@ export function ReportsPage() {
                 {filteredEmployees.length === 0 && (
                   <div className="text-center py-12 text-[#999999] text-[13px]">No employees found matching your filters.</div>
                 )}
+
+                <div className="pt-4 border-t border-[#EEEEEE]">
+                  <PaginationBar
+                    currentPage={Math.floor(pagination.skip / pagination.limit) + 1}
+                    totalItems={employeeData?.kpi?.totalCount || employees.length}
+                    pageSize={pagination.limit}
+                    onPageChange={(page) => setPagination(prev => ({ ...prev, skip: (page - 1) * pagination.limit }))}
+                    onPageSizeChange={(limit) => setPagination({ limit, skip: 0 })}
+                  />
+                </div>
               </div>
             )}
           </div>
