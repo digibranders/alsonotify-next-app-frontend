@@ -1081,7 +1081,9 @@ export function RequirementsPage() {
             workspace_id: requirement.workspace_id || 0,
             is_archived: true
           }, {
-            onSuccess: () => messageRef.current.success("Requirement archived")
+            onSuccess: () => {
+              messageRef.current.success("Requirement archived");
+            }
           });
         },
       });
@@ -1099,6 +1101,27 @@ export function RequirementsPage() {
       });
     }
   }, [updateRequirementMutation, deleteRequirement]);
+
+  const handleRestoreRequirement = useCallback((requirement: Requirement) => {
+    modalRef.current.confirm({
+      title: 'Restore Requirement',
+      content: 'Do you want to restore this requirement? It will be moved to the Active tab.',
+      okText: 'Restore',
+      cancelText: 'Cancel',
+      okButtonProps: { className: 'bg-[#7ccf00] hover:bg-[#6bb800] border-none' },
+      onOk: () => {
+        updateRequirementMutation.mutate({
+          id: requirement.id,
+          workspace_id: requirement.workspace_id || 0,
+          is_archived: false
+        }, {
+          onSuccess: () => {
+            messageRef.current.success("Requirement restored successfully");
+          }
+        });
+      },
+    });
+  }, [updateRequirementMutation]);
 
   return (
     <PageLayout
@@ -1167,6 +1190,7 @@ export function RequirementsPage() {
             handleReqReject={handleReqReject}
             handleEditDraft={handleEditDraft}
             handleDelete={handleDelete}
+            handleRestore={handleRestoreRequirement}
             handleDuplicateRequirement={handleDuplicateRequirement}
             onNavigate={(workspace_id, reqId) =>
               router.push(`/dashboard/workspace/${workspace_id}/requirements/${reqId}`)

@@ -11,7 +11,7 @@
  */
 export function toQueryParams(params: Record<string, unknown>): string {
   return Object.entries(params)
-    .filter(([_key, value]) => value !== null && value !== "" && value !== undefined && value !== 'All')
+    .filter(([, value]) => value !== null && value !== "" && value !== undefined && value !== 'All')
     .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`)
     .join("&");
 }

@@ -3,7 +3,8 @@ import axiosApi from "../config/axios";
 import { ApiResponse } from "../types/api";
 import { CompanyUpdateInput } from "../types/domain";
 import { CompanyProfile } from "../types/auth";
-import { UserDto, RoleDto, ModuleActionGroupDto, CreateEmployeeRequestDto, UpdateEmployeeRequestDto, UpdateUserProfileRequestDto, UserAccessDto } from "../types/dto/user.dto";
+import { LoginResponseDTO } from "../types/dto/auth.dto";
+import { UserDto, RoleDto, ModuleActionGroupDto, CreateEmployeeRequestDto, UpdateEmployeeRequestDto, UpdateUserProfileRequestDto, UserAccessDto, UpgradeOrgDto } from "../types/dto/user.dto";
 
 // Get user details
 // Get user details
@@ -265,5 +266,12 @@ export const updateManagerPartners = async (managerId: number, partnerIds: numbe
 // Remove account manager designation
 export const removeAccountManager = async (managerId: number): Promise<ApiResponse<{ managerId: number; message: string }>> => {
   const { data } = await axiosApi.delete<ApiResponse<{ managerId: number; message: string }>>("/user/account-managers/remove", { data: { managerId } });
+  return data;
+};
+
+// Upgrade individual account to organization
+// Upgrade individual account to organization
+export const upgradeToOrganization = async (params: UpgradeOrgDto): Promise<ApiResponse<LoginResponseDTO>> => {
+  const { data } = await axiosApi.post<ApiResponse<LoginResponseDTO>>("/user/upgrade-to-organization", params);
   return data;
 };

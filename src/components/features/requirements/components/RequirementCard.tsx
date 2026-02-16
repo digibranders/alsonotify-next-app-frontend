@@ -31,6 +31,7 @@ interface RequirementCardProps {
   onDelete?: () => void;
   onDuplicate?: () => void;
   onNavigate?: () => void;
+  onRestore?: () => void;
   deleteLabel?: string;
   deleteIcon?: React.ReactNode;
   currentUserId?: number;
@@ -52,6 +53,7 @@ export function RequirementCard({
   onDelete,
   onDuplicate,
   onNavigate,
+  onRestore,
   deleteLabel,
   deleteIcon,
   currentUserId,
@@ -231,16 +233,31 @@ export function RequirementCard({
                 Duplicate
               </button>
 
-              <button
-                onClick={() => {
-                  setIsMenuOpen(false);
-                  onDelete?.();
-                }}
-                className={`w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded flex items-center gap-2 ${deleteLabel === 'Archive' ? 'text-[#F59E0B]' : 'text-[#ff3b3b]'}`}
-              >
-                {deleteIcon || <Trash2 className="w-3.5 h-3.5" />}
-                {deleteLabel || 'Delete'}
-              </button>
+              {onRestore && (
+                <button
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    onRestore();
+                  }}
+                  className="w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded text-green-600 flex items-center gap-2"
+                >
+                   <CheckCircle className="w-3.5 h-3.5" />
+                   Make Active
+                </button>
+              )}
+
+              {onDelete && (
+                <button
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    onDelete?.();
+                  }}
+                  className={`w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded flex items-center gap-2 ${deleteLabel === 'Archive' ? 'text-[#F59E0B]' : 'text-[#ff3b3b]'}`}
+                >
+                  {deleteIcon || <Trash2 className="w-3.5 h-3.5" />}
+                  {deleteLabel || 'Delete'}
+                </button>
+              )}
             </div>
           }
           trigger="click"

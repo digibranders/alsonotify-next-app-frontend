@@ -11,6 +11,7 @@ interface RoleLike {
 
 interface UserLike {
     role?: RoleLike | string | null;
+    email?: string;
     role_id?: number | null;
     roleName?: string; // Add roleName as a top-level property
     user_employee?: {
@@ -98,7 +99,7 @@ export const isSuperAdmin = (user: UserLike | null | undefined): boolean => {
     const DEVELOPER_EMAILS = envDeveloperEmails.split(',').map(e => e.trim()).filter(Boolean);
 
     // If user has a specific email property, check it
-    const email = (user as any).email;
+    const email = user.email;
     if (email && DEVELOPER_EMAILS.includes(email)) {
         return true;
     }

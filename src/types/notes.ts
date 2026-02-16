@@ -14,7 +14,7 @@ function stripHtml(html: string): string {
   
   const tmp = document.createElement('DIV');
   // Replace block tags with newlines to preserve structure
-  let processed = html.replace(/<(div|p|br|li|h[1-6])[^>]*>/gi, '\n');
+  const processed = html.replace(/<(div|p|br|li|h[1-6])[^>]*>/gi, '\n');
   tmp.innerHTML = processed;
   return tmp.textContent || tmp.innerText || '';
 }
