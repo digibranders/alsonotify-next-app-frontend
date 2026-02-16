@@ -230,6 +230,7 @@ function RequirementsFormContent({
     }, [formData, outsourcedContacts, message]);
 
     const onSaveDraft = useCallback(() => {
+        if (isLoading) return;
         const payload = buildPayload();
         if (!payload) return;
         try {
@@ -237,9 +238,10 @@ function RequirementsFormContent({
         } catch (err) {
             message.error('Failed to save draft');
         }
-    }, [buildPayload, onSubmit, selectedFiles, message]);
+    }, [buildPayload, onSubmit, selectedFiles, message, isLoading]);
 
     const onSendRequirement = useCallback(() => {
+        if (isLoading) return;
         const payload = buildPayload();
         if (!payload) return;
         if (!onSubmitAndSend) {
@@ -251,7 +253,7 @@ function RequirementsFormContent({
         } catch (err) {
             message.error('Failed to send requirement');
         }
-    }, [buildPayload, onSubmit, onSubmitAndSend, selectedFiles, message]);
+    }, [buildPayload, onSubmit, onSubmitAndSend, selectedFiles, message, isLoading]);
 
     const sendButtonLabel = isEditing ? 'Update' : (formData.type === 'outsourced' ? 'Send to Partner' : (formData.type === 'client') ? 'Log Client Work' : formData.type === 'inhouse' ? 'Submit for Work' : 'Send Requirement');
 

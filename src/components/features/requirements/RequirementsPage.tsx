@@ -62,11 +62,9 @@ export function RequirementsPage() {
   const [filters, setFilters] = useState<Record<string, string>>({
     type: 'All',
     billing: 'All',
-    category: 'All',
+    department_id: 'All',
     priority: 'All',
-    client: 'All',
-    partner: 'All',
-    assignee: 'All'
+    partner: 'All'
   });
 
   // Date Picker State
@@ -92,16 +90,42 @@ export function RequirementsPage() {
     if (filters.partner !== 'All') {
       params.append('partner_id', filters.partner);
     }
+    if (filters.type !== 'All') {
+      params.append('type', filters.type === 'In-house' ? 'inhouse' : filters.type === 'Outsourced' ? 'outsourced' : 'client');
+    }
+    if (filters.department_id !== 'All') {
+      params.append('department_id', filters.department_id);
+    }
+    if (filters.billing !== 'All') {
+      const billingStatusMap: Record<string, string> = {
+        'Paid': 'Paid',
+        'Invoiced': 'Invoiced',
+        'Ready to Bill': 'Ready to Bill'
+      };
+      params.append('billing_status', billingStatusMap[filters.billing] || filters.billing);
+    }
+    if (dateRange && dateRange[0] && dateRange[1]) {
+      params.append('from_date', dateRange[0].toISOString());
+      params.append('to_date', dateRange[1].toISOString());
+    }
 
     // Status Tab mapping to Backend Status
-    // Based on how finalFilteredReqs handles status, we can pass a primary status to backend
-    if (activeStatusTab === 'completed') params.append('status', 'Completed');
-    if (activeStatusTab === 'draft') params.append('status', 'Draft');
-    // Others like 'active' or 'pending' might involve multiple statuses, handled client-side for now
-    // but fetching from global pool.
+    const statusMap: Record<string, string> = {
+      'active': 'Assigned,In_Progress,Review,Revision,Impediment,Stuck,Delayed,On_Hold',
+      'pending': 'Waiting,Submitted,Rejected',
+      'draft': 'Draft',
+      'completed': 'Completed',
+      'delayed': 'Delayed,On_Hold',
+    };
+
+    if (activeStatusTab && statusMap[activeStatusTab]) {
+      params.append('status', statusMap[activeStatusTab]);
+    }
+
+    params.append('is_archived', activeStatusTab === 'archived' ? 'true' : 'false');
 
     return params.toString();
-  }, [currentPage, pageSize, searchQuery, filters, activeStatusTab]);
+  }, [currentPage, pageSize, searchQuery, filters, activeStatusTab, dateRange]);
 
   // Unified Requirements Fetching (Server-Side Paginated)
   const { data: requirementsData, isLoading: isLoadingRequirements } = useAllRequirements(queryOptions);
@@ -552,142 +576,19 @@ export function RequirementsPage() {
 
   // Filter Logic:
   // 1. First apply all filters EXCEPT the Status Tab
-  const baseFilteredReqs = useMemo(() => requirements.filter(req => {
-    // Type
-    const typeMatch = filters.type === 'All' ||
-      (filters.type === 'In-house' && req.type === 'inhouse') ||
-      (filters.type === 'Outsourced' && req.type === 'outsourced') ||
-      (filters.type === 'Client Work' && req.type === 'client');
-
-    // Billing Status
-    let billingMatch = true;
-    if (filters.billing !== 'All') {
-      if (filters.billing === 'Paid') {
-        billingMatch = req.invoice_status === 'paid';
-      } else if (filters.billing === 'Invoiced') {
-        billingMatch = req.invoice_status === 'billed';
-      } else if (filters.billing === 'Ready to Bill') {
-        billingMatch = req.status === 'completed' && !req.invoice_status;
-      }
-    }
-
-    // Priority
-    const priorityMatch = filters.priority === 'All' ||
-      (filters.priority === 'High Priority' && req.is_high_priority) ||
-      (filters.priority === 'Normal Priority' && !req.is_high_priority);
-
-    // Client
-    const clientMatch = filters.client === 'All' || req.client === filters.client;
-
-    // Search
-    const searchMatch = searchQuery === '' ||
-      req.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (req.description || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (req.company || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (req.client || '').toLowerCase().includes(searchQuery.toLowerCase());
-
-    // Category - match if filter is 'All' or if requirement has the selected department
-    const categoryMatch = filters.category === 'All' ||
-      (filters.category && req.departments && req.departments.length > 0 && req.departments.includes(filters.category));
-
-    // Assignee
-    const assigneeMatch = filters.assignee === 'All' || (req.assignedTo && req.assignedTo.includes(filters.assignee));
-
-    // Date Range Filter
-    let dateMatch = true;
-    if (dateRange && dateRange[0] && dateRange[1] && req.dueDate && req.dueDate !== 'TBD') {
-      try {
-        const due = new Date(req.dueDate);
-        const from = dateRange[0].toDate();
-        const to = dateRange[1].toDate();
-        dateMatch = due >= from && due <= to;
-      } catch {
-        dateMatch = true;
-      }
-    }
-
-    return typeMatch && billingMatch && priorityMatch && clientMatch && searchMatch && dateMatch && categoryMatch && assigneeMatch;
-  }), [requirements, filters, searchQuery, dateRange]);
-
+  // Logic removed: Filtering is now handled server-side via queryOptions.
+  // The 'requirements' array contains the server-provided data for the current tab and filters.
   // 2. Apply Status Tab filter
-  const finalFilteredReqs = useMemo(() => baseFilteredReqs.filter(req => {
-
-    // Status normalization
-    const rawStatus = req.rawStatus || 'Assigned';
-    const isArchived = !!req.is_archived;
-    const isCompleted = rawStatus === 'Completed';
-    const isDelayedStatus = rawStatus === 'Delayed' || rawStatus === 'On_Hold';
-    const isDraft = rawStatus === 'Draft' || rawStatus === 'draft';
-    const isPending =
-      rawStatus === 'Waiting' ||
-      rawStatus === 'Submitted' ||
-      (rawStatus === 'Assigned' && req.type === 'outsourced' && !req.workspace_id) || // Unmapped outsourced
-      rawStatus?.toLowerCase().includes('pending') ||
-      (req.approvalStatus === 'pending');
-
-    // Date checks
-    const now = new Date();
-    // Helper to parse dates safely
-    const parseDate = (d: string | Date | undefined | null) => d ? new Date(d) : null;
-    const endDate = parseDate(req.end_date);
-    const completedAt = parseDate(req.completed_at); // New field from backend
-    // Fallback if completed_at missing: use updated_at if status is Completed?
-    // Plan said explicit field. If missing, assume on time or ignore?
-    // Let's use completed_at if present.
-
-    const isOverdue = endDate && endDate < now && !isCompleted;
-
-    // Check if completed late: completed_at > end_date
-    const isCompletedLate = isCompleted && completedAt && endDate && completedAt > endDate;
-
-    switch (activeStatusTab) {
-      case 'active':
-        // Active: Not archived, not completed (unless delayed logic applies? No, Active tab is for open work)
-        // Includes: Assigned, In_Progress, Review, Revision, Impediment, Stuck
-        // AND Delayed status items
-        // AND Overdue items (which are active by definition if not completed)
-
-        if (isArchived || isDraft || isPending || isCompleted) return false;
-        return true; // Catch-all for working states + Delayed status
-
-      case 'delayed':
-        // Delayed:
-        // 1. Explicit status 'Delayed'
-        // 2. Active (not completed) AND Overdue
-        // 3. Completed AND Late (completed_at > end_date)
-
-        if (isArchived || isDraft || isPending) return false;
-
-        if (isDelayedStatus) return true;
-        if (isOverdue) return true; // Active & Overdue
-        if (isCompletedLate) return true; // Completed & Late
-
-        return false;
-
-      case 'draft':
-        return !isArchived && isDraft;
-
-      case 'pending':
-        return !isArchived && isPending;
-
-      case 'completed':
-        // All completed items, regardless of timeliness
-        return !isArchived && isCompleted;
-
-      case 'archived':
-        return isArchived;
-
-      default:
-        return false;
-    }
-  }), [baseFilteredReqs, activeStatusTab]);
+  // Logic removed: Filtering is now handled server-side via queryOptions.
+  // The 'requirements' array contains the server-provided data for the current tab and filters.
+  // Delayed status
 
   // 3. Apply Sorting
   const sortedRequirements = useMemo(() => {
-    const sorted = [...finalFilteredReqs];
+    const list = [...requirements];
 
     if (sortColumn) {
-      sorted.sort((a, b) => {
+      list.sort((a, b) => {
         let aVal: string | number = '';
         let bVal: string | number = '';
 
@@ -727,8 +628,8 @@ export function RequirementsPage() {
       });
     }
 
-    return sorted;
-  }, [finalFilteredReqs, sortColumn, sortDirection]);
+    return list;
+  }, [requirements, sortColumn, sortDirection]);
 
   const handleSort = (column: string) => {
     if (sortColumn === column) {
@@ -747,12 +648,6 @@ export function RequirementsPage() {
     return ['All', ...partners];
   }, [requirements]);
 
-  // Get unique clients for filter options
-  const allClients = useMemo(() => {
-    const clients = Array.from(new Set(requirements.map(r => r.client))).filter((x): x is string => Boolean(x));
-    return ['All', ...clients];
-  }, [requirements]);
-
   const priorities = ['All', 'High', 'Normal'];
 
   // Get unique departments/categories - only include actual department names from requirements
@@ -762,25 +657,14 @@ export function RequirementsPage() {
     return ['All', ...depts];
   }, [requirements]);
 
-  // Get unique assignees - add placeholder if no assignees available
-  // PLACEHOLDER DATA: If no assignees exist, show "Unassigned" option
-  const allAssignees = useMemo(() => {
-    const assignees = Array.from(new Set(requirements.flatMap(r => r.assignedTo || []))).filter((x): x is string => Boolean(x));
-    // Add placeholder if no assignees found
-    if (assignees.length === 0) {
-      return ['All', 'Unassigned'];
-    }
-    return ['All', ...assignees];
-  }, [requirements]);
+  // Get unique assignees - removed (filter removed)
 
   const filterOptions: FilterOption[] = [
     { id: 'type', label: 'Type', options: ['All', 'In-house', 'Outsourced', 'Client Work'], placeholder: 'Type' },
     { id: 'priority', label: 'Priority', options: priorities, placeholder: 'Priority' },
-    { id: 'client', label: 'Client', options: allClients, placeholder: 'Client' },
     { id: 'partner', label: 'Partner', options: allPartners, placeholder: 'Partner' },
-    { id: 'category', label: 'Department', options: allCategories, placeholder: 'Department' },
-    { id: 'assignee', label: 'Assigned To', options: allAssignees, placeholder: 'Assignee' },
-    // Only show Billing filter when on Completed tab - moved to last position to prevent layout shift
+    { id: 'department_id', label: 'Department', options: allCategories, placeholder: 'Department' },
+    // Only show Billing filter when on Completed tab
     ...(activeStatusTab === 'completed' ? [{ id: 'billing', label: 'Billing', options: ['All', 'Ready to Bill', 'Invoiced', 'Paid'], placeholder: 'Billing Status' }] : [])
   ];
 
@@ -794,9 +678,7 @@ export function RequirementsPage() {
       type: 'All',
       billing: 'All',
       priority: 'All',
-      client: 'All',
-      category: 'All',
-      assignee: 'All',
+      department_id: 'All',
       partner: 'All'
     });
     setSearchQuery('');
@@ -935,37 +817,12 @@ export function RequirementsPage() {
 
   // Tabs Configuration
   const tabs = [
-    {
-      id: 'active', label: 'Active'
-    },
-    {
-      id: 'pending', label: 'Pending', count: baseFilteredReqs.filter(req => {
-        const status = (req.status || req.rawStatus || 'draft') as any;
-        const type = mapRequirementToType(req);
-        const role = mapRequirementToRole(req);
-        const baseContext = mapRequirementToContext(req, undefined, role);
-        const tabContext: TabContext = {
-          ...baseContext,
-          isArchived: !!req.is_archived,
-          approvalStatus: req.approvalStatus as 'pending' | 'rejected' | 'approved' | undefined,
-        };
-        const reqTab = getRequirementTab(status, type, role, tabContext);
-        return reqTab === 'pending';
-      }).length
-    },
-    {
-      id: 'draft', label: 'Drafts', count: baseFilteredReqs.filter(req => {
-        if (req.status === 'draft' || req.rawStatus === 'draft') return true;
-        return false;
-      }).length
-    },
-    {
-      id: 'delayed', label: 'Delayed', count: baseFilteredReqs.filter(req => !req.is_archived && req.status === 'delayed').length
-    },
+    { id: 'active', label: 'Active' },
+    { id: 'pending', label: 'Pending' },
+    { id: 'draft', label: 'Drafts' },
+    { id: 'delayed', label: 'Delayed' },
     { id: 'completed', label: 'Completed' },
-    {
-      id: 'archived', label: 'Archive'
-    }
+    { id: 'archived', label: 'Archive' }
   ];
 
 
