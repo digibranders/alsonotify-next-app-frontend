@@ -88,14 +88,42 @@ export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => 
 
     tasks.forEach((task) => {
       const status = task.status?.toLowerCase() || '';
-      // Task statuses: Assigned, In_Progress, Completed, Delayed, Impediment, Review, Stuck, New Task
-      if (status.includes('completed') || status === 'done') {
+
+      // Calculate strict delay based on due date (matches TasksPage logic)
+      let isOverdue = false;
+      if (task.end_date) {
+        const endDate = dayjs(task.end_date);
+        // Check if end date is before today (start of day)
+        if (endDate.isValid() && endDate.isBefore(dayjs().startOf('day'))) {
+          isOverdue = true;
+        }
+      }
+
+      // Calculate if time spent exceeds estimated time
+      const estTime = Number(task.estimated_time || 0);
+      const timeSpent = Number(task.time_spent || 0);
+      const isOverEstimate = estTime > 0 && timeSpent > estTime;
+
+      // Check for completion first
+      const isCompleted = status.includes('completed') || status === 'done';
+
+      if (isCompleted) {
         completed++;
-      } else if (status.includes('delayed') || status.includes('stuck') || status.includes('impediment') || status.includes('blocked')) {
+      } else if (isOverdue || isOverEstimate) {
+        // STRICTLY time-based: Delayed (Missed due date OR crossed estimated time)
+        // Stuck/Impediment statuses are NOT counted here unless time criteria are met.
         delayed++;
       } else {
-        // Default everything else (In Progress, Assigned, New Task, etc.) to In Progress
-        inProgress++;
+        // Default everything else to In Progress
+        // Exclude Stuck/Impediment/Blocked from In Progress count as per user request
+        const isStuckOrImpediment =
+          status.includes('stuck') ||
+          status.includes('impediment') ||
+          status.includes('blocked');
+
+        if (!isStuckOrImpediment) {
+          inProgress++;
+        }
       }
     });
 
@@ -123,7 +151,7 @@ export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => 
 
   // Combine all requirements from all workspaces
   const allRequirements = useMemo(() => {
-    const combined: Array<{ status?: string; start_date?: string | null }> = [];
+    const combined: RequirementDto[] = [];
     requirementQueries.forEach((query) => {
       const data = query.data as ApiResponse<RequirementDto[]>;
       if (data?.result && Array.isArray(data.result)) {
@@ -157,15 +185,38 @@ export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => 
       // Count this requirement in the total
       total++;
 
+      // Filter: Exclude archived requirements
+      if (req.is_archived) {
+        return;
+      }
+
       const status = req.status?.toLowerCase() || '';
-      // Requirement statuses: Assigned, In_Progress, On_Hold, Submitted, Completed, Waiting, Rejected, Review, Revision, Impediment, Stuck
-      if (status.includes('completed')) {
+
+      // Calculate strict delay for requirements based on end date
+      let isOverdue = false;
+      if (req.end_date) {
+        const endDate = dayjs(req.end_date);
+        // Check if end date is before today (start of day)
+        if (endDate.isValid() && endDate.isBefore(dayjs().startOf('day'))) {
+          isOverdue = true;
+        }
+      }
+
+      // Requirement statuses
+      const isCompleted = status.includes('completed');
+
+      if (isCompleted) {
         completed++;
-      } else if (status.includes('stuck') || status.includes('impediment')) {
+      } else if (isOverdue) {
+        // STRICTLY time-based: Delayed (Missed due date)
         delayed++;
       } else {
-        // Default everything else (In Progress, Assigned, etc.) to In Progress
-        inProgress++;
+        // Exclude Stuck/Impediment from In Progress count
+        const isStuckOrImpediment = status.includes('stuck') || status.includes('impediment');
+
+        if (!isStuckOrImpediment) {
+          inProgress++;
+        }
       }
     });
 
