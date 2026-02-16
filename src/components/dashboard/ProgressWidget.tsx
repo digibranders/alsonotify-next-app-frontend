@@ -187,10 +187,15 @@ export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => 
         return;
       }
 
+      const status = req.status?.toLowerCase() || '';
+
+      // Filter: Exclude Draft and Pending (Waiting, Submitted, Rejected) requirements from dashboard
+      if (status === 'draft' || status === 'waiting' || status === 'submitted' || status === 'rejected') {
+        return;
+      }
+
       // Count this requirement in the total
       total++;
-
-      const status = req.status?.toLowerCase() || '';
 
       // Calculate strict delay for requirements based on end date
       let isOverdue = false;
