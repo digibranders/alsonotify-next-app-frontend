@@ -9,7 +9,7 @@ import { DateRangeSelector } from '../../common/DateRangeSelector';
 import { PaginationBar } from '../../ui/PaginationBar';
 import { Select, App } from 'antd';
 import { useWorkspaces, useCreateRequirement, useUpdateRequirement, useDeleteRequirement, useAllRequirements, useCollaborativeRequirements } from '@/hooks/useWorkspace';
-import { useUserDetails } from '@/hooks/useUser';
+import { useUserDetails, usePartners, useCompanyDepartments } from '@/hooks/useUser';
 import { fileService } from '@/services/file.service';
 import { format } from 'date-fns';
 import { useRouter } from 'next/navigation';
@@ -85,13 +85,21 @@ export function RequirementsPage() {
 
     if (searchQuery) params.append('name', searchQuery);
     if (filters.priority !== 'All') {
-      params.append('priority', filters.priority === 'High Priority' ? 'High' : 'Normal');
+      // filters.priority is now 'High' or 'Normal' based on the options
+      params.append('priority', filters.priority);
     }
     if (filters.partner !== 'All') {
       params.append('partner_id', filters.partner);
     }
     if (filters.type !== 'All') {
-      params.append('type', filters.type === 'In-house' ? 'inhouse' : filters.type === 'Outsourced' ? 'outsourced' : 'client');
+      // Map 'In-house' -> 'inhouse', 'Outsourced' -> 'outsourced', 'Client Work' -> 'client'
+      // Or rely on backend robustness. Let's map explicitly for safety.
+      const typeMap: Record<string, string> = {
+        'In-house': 'inhouse',
+        'Outsourced': 'outsourced',
+        'Client Work': 'client'
+      };
+      params.append('type', typeMap[filters.type] || filters.type.toLowerCase());
     }
     if (filters.department_id !== 'All') {
       params.append('department_id', filters.department_id);
@@ -574,6 +582,10 @@ export function RequirementsPage() {
 
 
 
+  // Fetch partners and departments for filters
+  const { data: partnersData } = usePartners();
+  const { data: departmentsData } = useCompanyDepartments();
+
   // Filter Logic:
   // 1. First apply all filters EXCEPT the Status Tab
   // Logic removed: Filtering is now handled server-side via queryOptions.
@@ -644,26 +656,43 @@ export function RequirementsPage() {
 
   // Get unique partners for filter options
   const allPartners = useMemo(() => {
-    const partners = Array.from(new Set(requirements.map(r => r.sender_company?.name || r.receiver_company?.name))).filter((x): x is string => Boolean(x));
-    return ['All', ...partners];
-  }, [requirements]);
+    const partners = partnersData?.result || [];
+    // The filter expects Company ID, but 'partners' are User objects.
+    // We must use the company_id associated with the partner user.
+    const options = partners.map((p: any) => ({
+      label: p.name,
+      value: String(p.company_id || p.company?.id || p.id)
+    }));
+    return [{ label: 'All', value: 'All' }, ...options];
+  }, [partnersData]);
 
-  const priorities = ['All', 'High', 'Normal'];
+  const priorities = useMemo(() => ([
+    { label: 'All', value: 'All' },
+    { label: 'High', value: 'High' },
+    { label: 'Normal', value: 'Normal' }
+  ]), []);
 
-  // Get unique departments/categories - only include actual department names from requirements
+  // Get unique departments/categories
   const allCategories = useMemo(() => {
-    const depts = Array.from(new Set(requirements.flatMap(r => r.departments || []))).filter((x): x is string => Boolean(x));
-    // Return 'All' plus actual department names (no 'General' placeholder)
-    return ['All', ...depts];
-  }, [requirements]);
+    const depts = departmentsData?.result || [];
+    const options = depts.map((d: any) => ({ label: d.name, value: String(d.id) }));
+    return [{ label: 'All', value: 'All' }, ...options];
+  }, [departmentsData]);
 
-  // Get unique assignees - removed (filter removed)
+  const typeOptions = useMemo(() => ([
+    { label: 'All', value: 'All' },
+    { label: 'In-house', value: 'In-house' },
+    { label: 'Outsourced', value: 'Outsourced' },
+    { label: 'Client Work', value: 'Client Work' }
+  ]), []);
+
 
   const filterOptions: FilterOption[] = [
-    { id: 'type', label: 'Type', options: ['All', 'In-house', 'Outsourced', 'Client Work'], placeholder: 'Type' },
+    { id: 'type', label: 'Type', options: typeOptions, placeholder: 'Type' },
     { id: 'priority', label: 'Priority', options: priorities, placeholder: 'Priority' },
     { id: 'partner', label: 'Partner', options: allPartners, placeholder: 'Partner' },
-    { id: 'department_id', label: 'Department', options: allCategories, placeholder: 'Department' },
+    // Only show Department filter when NOT on Draft or Pending tabs
+    ...(!['draft', 'pending'].includes(activeStatusTab) ? [{ id: 'department_id', label: 'Department', options: allCategories, placeholder: 'Department' }] : []),
     // Only show Billing filter when on Completed tab
     ...(activeStatusTab === 'completed' ? [{ id: 'billing', label: 'Billing', options: ['All', 'Ready to Bill', 'Invoiced', 'Paid'], placeholder: 'Billing Status' }] : [])
   ];
