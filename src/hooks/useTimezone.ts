@@ -24,6 +24,7 @@ export const useTimezone = () => {
 
     return {
         companyName,
+        companyId: companyData?.result?.id,
         companyTimezone,
         formatWithTimezone,
         getDayjsInTimezone,

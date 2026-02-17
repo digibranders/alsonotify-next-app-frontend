@@ -140,7 +140,7 @@ export interface EmployeeReport {
     utilization: number;
     efficiency: number;
     hourlyCost: number; // This is the RATE
-    investment: number; // This is the TOTAL COST
+    expenses: number; // This is the TOTAL COST
     revenue: number;
     profit: number;
     margin: number;
@@ -154,7 +154,7 @@ export interface EmployeeReport {
 }
 
 export interface EmployeeKPI {
-    totalInvestment: number;
+    totalExpenses: number;
     totalRevenue: number;
     netProfit: number;
     avgRatePerHr: number;
