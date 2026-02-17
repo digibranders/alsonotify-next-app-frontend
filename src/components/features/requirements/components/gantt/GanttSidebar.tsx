@@ -61,7 +61,7 @@ export const GanttSidebar: React.FC = () => {
                                     <div
                                         className="w-6 h-6 rounded-full border-2 border-white flex items-center justify-center text-[9px] font-['Manrope:Bold',sans-serif] text-white shadow-sm"
                                         style={{ backgroundColor: task.color || '#666666' }}
-                                        title={task.member_user.name}
+                                        title={task.member_user.name ?? undefined}
                                     >
                                         {task.member_user.name?.[0]?.toUpperCase() || <User className="w-3 h-3 text-white" />}
                                     </div>
