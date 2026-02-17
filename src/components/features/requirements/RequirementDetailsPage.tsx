@@ -124,6 +124,11 @@ export function RequirementDetailsPage() {
     return tasksData.result.filter((t: Task) => Number(t.requirement_id) === reqId && t.type === 'revision');
   }, [tasksData, requirement, reqId]);
 
+  const allTasksCompleted = useMemo(() => {
+    if (tasks.length === 0) return false;
+    return tasks.every((t: Task) => t.status === 'Completed');
+  }, [tasks]);
+
   const ctaConfig = useMemo(() => {
     if (!requirement) {
       return {
@@ -335,6 +340,7 @@ export function RequirementDetailsPage() {
           activeTab={activeTab}
           setActiveTab={setActiveTab}
           visibleTabs={visibleTabs}
+          allTasksCompleted={allTasksCompleted}
         />
 
         {/* Content Area - Using CSS visibility to prevent DOM unmounting and flickering */}

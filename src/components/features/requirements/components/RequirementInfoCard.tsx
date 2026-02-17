@@ -1,4 +1,5 @@
-import { FileText, Briefcase } from 'lucide-react';
+import { FileText, Briefcase, Star, RotateCcw, Clock } from 'lucide-react';
+import { Rate } from 'antd';
 import { formatDateForDisplay } from '@/utils/date';
 import { sanitizeRichText } from '@/utils/sanitizeHtml';
 import { Requirement, Workspace, Task } from '@/types/domain';
@@ -214,6 +215,59 @@ export function RequirementInfoCard({ requirement, tasks, timezone }: Requiremen
           )}
         </div>
       </div>
+
+      {/* Submission Info — shown when in Review status */}
+      {requirement.status === 'Review' && requirement.submission_remark && (
+        <div className="bg-white rounded-[16px] p-6 border border-[#EEEEEE] shadow-sm">
+          <h3 className="text-[15px] font-['Manrope:Bold',sans-serif] text-[#111111] mb-3 flex items-center gap-2">
+            <Clock className="w-4 h-4 text-[#ff3b3b]" />
+            Submission Note
+          </h3>
+          <p className="text-[14px] text-[#444444] font-['Inter:Regular',sans-serif] leading-relaxed">
+            {requirement.submission_remark}
+          </p>
+        </div>
+      )}
+
+      {/* Revision Info — shown when in Revision status */}
+      {requirement.status === 'Revision' && (
+        <div className="bg-white rounded-[16px] p-6 border border-[#EEEEEE] shadow-sm">
+          <h3 className="text-[15px] font-['Manrope:Bold',sans-serif] text-[#111111] mb-3 flex items-center gap-2">
+            <RotateCcw className="w-4 h-4 text-[#ff3b3b]" />
+            Revision Requested
+            {(requirement.revision_round ?? 0) > 0 && (
+              <span className="ml-2 px-2 py-0.5 bg-[#FFF5F5] text-[#ff3b3b] text-[11px] font-['Manrope:Bold',sans-serif] rounded-full">
+                Round {requirement.revision_round}
+              </span>
+            )}
+          </h3>
+          {requirement.revision_remark && (
+            <p className="text-[14px] text-[#444444] font-['Inter:Regular',sans-serif] leading-relaxed">
+              {requirement.revision_remark}
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* Approval Info — shown when Completed */}
+      {requirement.status === 'Completed' && (requirement.approval_rating != null || requirement.approval_remark) && (
+        <div className="bg-white rounded-[16px] p-6 border border-[#EEEEEE] shadow-sm">
+          <h3 className="text-[15px] font-['Manrope:Bold',sans-serif] text-[#111111] mb-3 flex items-center gap-2">
+            <Star className="w-4 h-4 text-[#ff3b3b]" />
+            Approval Feedback
+          </h3>
+          {requirement.approval_rating != null && (
+            <div className="mb-2">
+              <Rate disabled value={requirement.approval_rating} className="text-[#ff3b3b] text-[18px]" />
+            </div>
+          )}
+          {requirement.approval_remark && (
+            <p className="text-[14px] text-[#444444] font-['Inter:Regular',sans-serif] leading-relaxed">
+              {requirement.approval_remark}
+            </p>
+          )}
+        </div>
+      )}
     </div>
   );
 }

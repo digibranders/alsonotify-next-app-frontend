@@ -1,16 +1,19 @@
-import { Breadcrumb, Skeleton, Button, App } from 'antd';
+import { Breadcrumb, Skeleton, Button, App, Tooltip } from 'antd';
 import { FileText, ListTodo, BarChart2, Columns, TrendingUp, Paperclip, ChevronRight } from 'lucide-react';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { TabButton } from './TabButton';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { WorkspaceMappingModal } from '@/components/modals/WorkspaceMappingModal';
 import { Requirement, Workspace } from '@/types/domain';
 import { ApiResponse } from '@/types/api';
 import { RequirementCTAConfig, ActionConfig } from '@/lib/workflow';
-import { UpdateRequirementRequestDto } from '@/types/dto/requirement.dto';
+import { UpdateRequirementRequestDto, ApproveRequirementRequestDto } from '@/types/dto/requirement.dto';
 import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 import { RequirementRevisionModal } from '@/components/modals/RequirementRevisionModal';
 import { RequirementRejectionModal } from '@/components/modals/RequirementRejectionModal';
+import { SubmitForApprovalModal } from '@/components/modals/SubmitForApprovalModal';
+import { RequirementApprovalModal } from '@/components/modals/RequirementApprovalModal';
+import { useSubmitForReview, useApproveRequirement } from '@/hooks/useWorkspace';
 
 export type ReqTabId = 'details' | 'tasks' | 'gantt' | 'kanban' | 'pnl' | 'documents';
 
@@ -26,6 +29,7 @@ interface RequirementHeaderProps {
   myWorkspacesData?: ApiResponse<{ workspaces: Workspace[] }>;
   updateRequirement: (data: UpdateRequirementRequestDto) => Promise<any>;
   visibleTabs?: ReqTabId[];
+  allTasksCompleted?: boolean;
 }
 
 export function RequirementHeader({
@@ -39,15 +43,21 @@ export function RequirementHeader({
   ctaConfig,
   myWorkspacesData,
   updateRequirement,
-  visibleTabs = ['details', 'tasks', 'gantt', 'kanban', 'pnl', 'documents']
+  visibleTabs = ['details', 'tasks', 'gantt', 'kanban', 'pnl', 'documents'],
+  allTasksCompleted = false,
 }: Readonly<RequirementHeaderProps>) {
   const { message } = App.useApp();
+  const submitForReviewMutation = useSubmitForReview();
+  const approveRequirementMutation = useApproveRequirement();
+
   const [isMappingModalOpen, setIsMappingModalOpen] = useState(false);
   const [isRevisionModalOpen, setIsRevisionModalOpen] = useState(false);
   const [isRejectionModalOpen, setIsRejectionModalOpen] = useState(false);
+  const [isSubmitForApprovalOpen, setIsSubmitForApprovalOpen] = useState(false);
+  const [isApprovalModalOpen, setIsApprovalModalOpen] = useState(false);
   const [rejectionTitle, setRejectionTitle] = useState("Reject Requirement");
 
-  const handleAction = async (action: ActionConfig | undefined) => {
+  const handleAction = useCallback(async (action: ActionConfig | undefined) => {
     if (!action) return;
 
     // Handle modal triggers
@@ -56,20 +66,29 @@ export function RequirementHeader({
       return;
     }
 
-    if (action.apiAction === 'reject_quote' || action.apiAction === 'decline') {
+    if (action.modal === 'submit_approval') {
+      setIsSubmitForApprovalOpen(true);
+      return;
+    }
+
+    if (action.modal === 'approval') {
+      setIsApprovalModalOpen(true);
+      return;
+    }
+
+    if (action.modal === 'revision') {
+      setIsRevisionModalOpen(true);
+      return;
+    }
+
+    if (action.modal === 'reject' || action.apiAction === 'reject_quote' || action.apiAction === 'decline') {
       setRejectionTitle(action.label);
       setIsRejectionModalOpen(true);
       return;
     }
 
-    if (action.apiAction === 'request_revision') {
-      setIsRevisionModalOpen(true);
-      return;
-    }
-
     // Handle direct API actions
     if (action.apiAction) {
-      // Special case: Accept Quote for Client-Work needs Mapping if workspace_id is missing
       if (action.apiAction === 'accept_quote' && !requirement.workspace_id) {
         setIsMappingModalOpen(true);
         return;
@@ -79,21 +98,18 @@ export function RequirementHeader({
         await updateRequirement({
           id: requirement.id,
           status: getNextStatus(action.apiAction),
-          // Add other fields if needed for specific actions
         });
         message.success(`Action "${action.label}" completed successfully`);
       } catch (error: any) {
         message.error(error.message || `Failed to perform action: ${action.label}`);
       }
     }
-  };
+  }, [requirement, updateRequirement, message]);
 
   const getNextStatus = (apiAction: string) => {
     switch (apiAction) {
       case 'accept_quote': return 'Assigned';
       case 'send_to_partner': return 'Waiting';
-      case 'submit_review': return 'Review';
-      case 'approve': return 'Completed';
       case 'start_work': return 'In_Progress';
       case 'resume': return 'In_Progress';
       case 'pause': return 'On_Hold';
@@ -102,35 +118,64 @@ export function RequirementHeader({
     }
   };
 
-  const handleMappingSubmit = async (selectedWorkspaceId: number) => {
+  const handleMappingSubmit = useCallback(async (selectedWorkspaceId: number) => {
     try {
       await updateRequirement({
         id: requirement.id,
         receiver_workspace_id: selectedWorkspaceId,
-        status: 'Assigned' // Usually mapping moves it to Assigned
+        status: 'Assigned'
       });
       message.success("Requirement mapped successfully!");
     } catch (error: any) {
       message.error(error.message || "Failed to map requirement");
       throw error;
     }
-  };
+  }, [requirement.id, updateRequirement, message]);
 
-  const handleRevisionSubmit = async (feedback: string) => {
+  const handleSubmitForApproval = useCallback(async (data: { remark?: string; attachment_ids?: number[] }) => {
     try {
-      await updateRequirement({
-        id: requirement.id,
+      await submitForReviewMutation.mutateAsync({
+        requirementId: requirement.id,
+        body: data,
+      });
+      message.success("Requirement submitted for approval successfully!");
+    } catch (error: any) {
+      message.error(error.message || "Failed to submit for approval");
+      throw error;
+    }
+  }, [requirement.id, submitForReviewMutation, message]);
+
+  const handleApproval = useCallback(async (data: { rating?: number; remark?: string }) => {
+    try {
+      await approveRequirementMutation.mutateAsync({
+        requirement_id: requirement.id,
+        status: 'Completed',
+        approval_rating: data.rating ?? null,
+        approval_remark: data.remark ?? null,
+      });
+      message.success("Requirement approved successfully!");
+    } catch (error: any) {
+      message.error(error.message || "Failed to approve requirement");
+      throw error;
+    }
+  }, [requirement.id, approveRequirementMutation, message]);
+
+  const handleRevisionSubmit = useCallback(async (data: { feedback?: string; attachment_ids?: number[] }) => {
+    try {
+      await approveRequirementMutation.mutateAsync({
+        requirement_id: requirement.id,
         status: 'Revision',
-        description: `${requirement.description}\n\n[Revision Feedback]: ${feedback}`
+        revision_remark: data.feedback ?? null,
+        revision_attachment_ids: data.attachment_ids,
       });
       message.success("Revision requested successfully");
     } catch (error: any) {
       message.error(error.message || "Failed to request revision");
       throw error;
     }
-  };
+  }, [requirement.id, approveRequirementMutation, message]);
 
-  const handleRejectionSubmit = async (reason: string) => {
+  const handleRejectionSubmit = useCallback(async (reason: string) => {
     try {
       await updateRequirement({
         id: requirement.id,
@@ -142,7 +187,11 @@ export function RequirementHeader({
       message.error(error.message || "Failed to reject requirement");
       throw error;
     }
-  };
+  }, [requirement.id, updateRequirement, message]);
+
+  // Determine if Submit for Approval button should be disabled
+  const isSubmitApprovalAction = ctaConfig?.primaryAction?.modal === 'submit_approval';
+  const submitApprovalDisabled = isSubmitApprovalAction && !allTasksCompleted;
 
   return (
     <div className="px-6 pt-6 pb-0">
@@ -190,15 +239,21 @@ export function RequirementHeader({
               </Button>
             )}
             {ctaConfig?.primaryAction && (
-              <Button
-                type="primary"
-                size="middle"
-                className="bg-[#111111] hover:!bg-[#333333] border-none rounded-full px-6 font-['Manrope:SemiBold',sans-serif] flex items-center gap-2"
-                onClick={() => handleAction(ctaConfig.primaryAction)}
+              <Tooltip
+                title={submitApprovalDisabled ? 'Complete all tasks first' : undefined}
+                placement="bottom"
               >
-                {ctaConfig.primaryAction.label}
-                <ChevronRight className="w-4 h-4" />
-              </Button>
+                <Button
+                  type="primary"
+                  size="middle"
+                  disabled={submitApprovalDisabled}
+                  className="bg-[#111111] hover:!bg-[#333333] border-none rounded-full px-6 font-['Manrope:SemiBold',sans-serif] flex items-center gap-2 disabled:opacity-50"
+                  onClick={() => handleAction(ctaConfig.primaryAction)}
+                >
+                  {ctaConfig.primaryAction.label}
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </Tooltip>
             )}
           </div>
 
@@ -235,6 +290,7 @@ export function RequirementHeader({
         onClose={() => setIsRevisionModalOpen(false)}
         onSubmit={handleRevisionSubmit}
         requirementName={requirement.title || requirement.name || 'Untitled'}
+        requirementId={requirement.id}
       />
 
       <RequirementRejectionModal
@@ -242,6 +298,20 @@ export function RequirementHeader({
         onClose={() => setIsRejectionModalOpen(false)}
         onSubmit={handleRejectionSubmit}
         title={rejectionTitle}
+      />
+
+      <SubmitForApprovalModal
+        open={isSubmitForApprovalOpen}
+        onClose={() => setIsSubmitForApprovalOpen(false)}
+        onSubmit={handleSubmitForApproval}
+        requirement={requirement}
+      />
+
+      <RequirementApprovalModal
+        open={isApprovalModalOpen}
+        onClose={() => setIsApprovalModalOpen(false)}
+        onSubmit={handleApproval}
+        requirement={requirement}
       />
 
 

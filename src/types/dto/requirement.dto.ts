@@ -41,6 +41,15 @@ export interface RequirementDto {
   updated_at?: string | null;
   completed_at?: string | null;
 
+  // Submission / Approval / Revision fields
+  submission_remark?: string | null;
+  submission_at?: string | null;
+  approval_remark?: string | null;
+  approval_rating?: number | null;
+  approved_at?: string | null;
+  revision_remark?: string | null;
+  revision_round?: number;
+
   // Computed / aggregated
   total_task?: number;
   total_tasks?: number;
@@ -102,6 +111,21 @@ export interface CreateRequirementRequestDto {
 export interface UpdateRequirementRequestDto extends Partial<CreateRequirementRequestDto> {
   id: number;
   is_archived?: boolean;
+}
+
+export interface SubmitForReviewRequestDto {
+  remark?: string | null;
+  attachment_ids?: number[];
+}
+
+export interface ApproveRequirementRequestDto {
+  requirement_id: number;
+  status: 'Assigned' | 'Rejected' | 'Completed' | 'Revision';
+  rejection_reason?: string | null;
+  approval_remark?: string | null;
+  approval_rating?: number | null;
+  revision_remark?: string | null;
+  revision_attachment_ids?: number[];
 }
 
 export interface RequirementDropdownItem {

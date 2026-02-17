@@ -21,4 +21,4 @@ export type Tab = 'draft' | 'pending' | 'active' | 'completed' | 'delayed' | 'ar
  * - edit: Edit requirement details
  * - none: No modal needed, direct API action
  */
-export type ModalType = 'quotation' | 'reject' | 'mapping' | 'edit' | 'none';
+export type ModalType = 'quotation' | 'reject' | 'mapping' | 'edit' | 'submit_approval' | 'approval' | 'revision' | 'none';

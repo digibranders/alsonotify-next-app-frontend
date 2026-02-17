@@ -1,9 +1,10 @@
-import { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
-  Download, Clock, CheckCircle, ArrowUp, ArrowDown, Receipt, FilePlus
+  Download, ArrowUp, ArrowDown, Info
 } from 'lucide-react';
 import { PageLayout } from '../../layout/PageLayout';
 import { FilterBar, FilterOption } from '../../ui/FilterBar';
+import { getTaskStatusUI } from '@/lib/workflow';
 import { DateRangeSelector } from '../../common/DateRangeSelector';
 import { Tooltip, Button } from "antd";
 import { Skeleton } from '../../ui/Skeleton';
@@ -15,8 +16,9 @@ import isBetween from 'dayjs/plugin/isBetween';
 import { useTabSync } from '@/hooks/useTabSync';
 import { useQuery } from '@tanstack/react-query';
 import { usePartners, useEmployees, useCompanyDepartments } from '@/hooks/useUser';
+
 import { useTimezone } from '@/hooks/useTimezone';
-import { getRequirementReports, getTaskReports, getEmployeeReports, getMemberWorklogs } from '../../../services/report';
+import { getRequirementReports, getTaskReports, getEmployeeReports, getMemberWorklogs, RequirementReport, TaskReport, EmployeeReport, MemberWorklog, RequirementReportsResponse, TaskReportsResponse, EmployeeReportsResponse } from '../../../services/report';
 import EmployeeDetailsDrawer from './components/EmployeeDetailsDrawer';
 import { PaginationBar } from '../../ui/PaginationBar';
 
@@ -28,28 +30,12 @@ dayjs.extend(isBetween);
 // --- Helper Components ---
 
 function StatusBadge({ status }: { status: string }) {
-  const config: Record<string, { icon: any, color: string, label: string }> = {
-    'Completed': { icon: Receipt, color: 'text-[#EF6C00]', label: 'Ready to Bill' },
-    'In Progress': { icon: Clock, color: 'text-[#2F80ED]', label: 'In Progress' },
-    'Delayed': { icon: Clock, color: 'text-[#EB5757]', label: 'Delayed' },
-    'paid': { icon: CheckCircle, color: 'text-[#7ccf00]', label: 'Payment Received' },
-    'billed': { icon: CheckCircle, color: 'text-[#2196F3]', label: 'Invoice Sent' },
-    'Draft': { icon: FilePlus, color: 'text-[#666666]', label: 'Draft' },
-  };
-
-  // Allow case-insensitive lookups or maps
-  const lookup = status === 'completed' ? 'Completed' :
-    status === 'in-progress' ? 'In Progress' :
-      status === 'delayed' ? 'Delayed' :
-        status;
-
-  const style = config[lookup] || { icon: Clock, color: 'text-[#6B7280]', label: status };
-  const Icon = style.icon;
+  const { color, icon: Icon, label } = getTaskStatusUI(status);
 
   return (
-    <Tooltip title={style.label}>
-      <div className="cursor-help inline-flex items-center justify-center p-1">
-        <Icon className={`w-5 h-5 ${style.color} ${lookup === 'In Progress' && status !== 'Delayed' ? '' : ''}`} />
+    <Tooltip title={label}>
+      <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-all duration-200 ${color} cursor-help`}>
+        {Icon && React.cloneElement(Icon as React.ReactElement<React.SVGProps<SVGSVGElement>>, { className: "w-3.5 h-3.5" })}
       </div>
     </Tooltip>
   );
@@ -60,40 +46,49 @@ function TableHeader({
   sortKey,
   currentSort,
   onSort,
-  align = 'left'
+  align = 'left',
+  tooltip
 }: {
   label: string;
   sortKey?: string;
   currentSort?: { key: string; direction: 'asc' | 'desc' } | null;
   onSort?: (key: string) => void;
   align?: 'left' | 'right' | 'center';
+  tooltip?: string;
 }) {
   const isSorted = currentSort?.key === sortKey;
 
   return (
-    <button
-      className={`flex items-center gap-1 group outline-none ${sortKey ? 'cursor-pointer' : 'cursor-default'} ${align === 'right' ? 'ml-auto' : align === 'center' ? 'mx-auto' : ''}`}
-      onClick={() => sortKey && onSort?.(sortKey)}
-      disabled={!sortKey}
-    >
-      <span className={`text-[11px] font-['Manrope:Bold',sans-serif] uppercase tracking-wide transition-colors ${isSorted ? 'text-[#111111]' : 'text-[#999999] group-hover:text-[#666666]'}`}>
-        {label}
-      </span>
-      {sortKey && isSorted && currentSort && (
-        <span className="flex items-center justify-center transition-all">
-          {currentSort.direction === 'asc' ? (
-            <ArrowUp className="w-3 h-3 text-[#111111]" />
-          ) : (
-            <ArrowDown className="w-3 h-3 text-[#111111]" />
-          )}
+    <div className={`flex items-center gap-1 ${align === 'right' ? 'justify-end' : align === 'center' ? 'justify-center' : 'justify-start'}`}>
+      <button
+        className={`flex items-center gap-1 group outline-none ${sortKey ? 'cursor-pointer' : 'cursor-default'}`}
+        onClick={() => sortKey && onSort?.(sortKey)}
+        disabled={!sortKey}
+      >
+        <span className={`text-[11px] font-['Manrope:Bold',sans-serif] uppercase tracking-wide transition-colors ${isSorted ? 'text-[#111111]' : 'text-[#999999] group-hover:text-[#666666]'}`}>
+          {label}
         </span>
+        {sortKey && isSorted && currentSort && (
+          <span className="flex items-center justify-center transition-all">
+            {currentSort.direction === 'asc' ? (
+              <ArrowUp className="w-3 h-3 text-[#111111]" />
+            ) : (
+              <ArrowDown className="w-3 h-3 text-[#111111]" />
+            )}
+          </span>
+        )}
+        {sortKey && !isSorted && (
+          <span className="flex items-center justify-center opacity-0 group-hover:opacity-50 transition-all">
+            <ArrowUp className="w-3 h-3 text-[#999999]" />
+          </span>
+        )}
+      </button>
+      {tooltip && (
+        <Tooltip title={tooltip} overlayStyle={{ maxWidth: 260 }} overlayInnerStyle={{ fontSize: 11, lineHeight: '1.4' }}>
+          <Info className="w-3 h-3 text-[#CCCCCC] hover:text-[#999999] cursor-help flex-shrink-0 transition-colors" />
+        </Tooltip>
       )}
-      {sortKey && !isSorted && (
-        <span className="flex items-center justify-center opacity-0 group-hover:opacity-50 transition-all">
-          <ArrowUp className="w-3 h-3 text-[#999999]" />
-        </span>
-      )}
-    </button>
+    </div>
   );
 }
 
@@ -107,17 +102,38 @@ export function ReportsPage() {
   });
 
 
-  const { companyName, companyTimezone, formatWithTimezone, getDayjsInTimezone } = useTimezone();
+  const { companyName, companyId, companyTimezone, formatWithTimezone, getDayjsInTimezone } = useTimezone();
 
   // Fetch Dropdown Data
   const { data: partnersData } = usePartners();
   const { data: employeesData } = useEmployees("is_active=true&limit=1000"); // Fetch all active for filters
   const { data: departmentsData } = useCompanyDepartments();
 
-  const partnerOptions = useMemo(() => [
-    { label: 'All', value: 'All' },
-    ...(partnersData?.result || []).map((p) => ({ label: p.name, value: String(p.id) }))
-  ], [partnersData]);
+  const partnerOptions = useMemo(() => {
+    const options = [
+      { label: 'All', value: 'All' },
+    ];
+
+    // Add Self Company if ID is available
+    if (companyId) {
+      options.push({ label: `${companyName} (Self / In-house)`, value: String(companyId) });
+    }
+
+
+    // Add Partners
+    const partnerList = (partnersData?.result || []).map((p) => {
+      // Prioritize company name over individual name
+      const cName = (typeof p.company === 'object' ? p.company?.name : (typeof p.company === 'string' ? p.company : p.partner_company?.name)) || p.name;
+      const cId = p.company_id || (typeof p.company === 'object' ? p.company?.id : null) || p.id;
+
+      return {
+        label: cName,
+        value: String(cId)
+      };
+    });
+
+    return [...options, ...partnerList];
+  }, [partnersData, companyId, companyName]);
 
   const employeeOptions = useMemo(() => [
     { label: 'All', value: 'All' },
@@ -143,7 +159,7 @@ export function ReportsPage() {
     status: 'All',
     type: 'All',
     priority: 'All',
-    department: 'All'
+    department_id: 'All'
   });
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -185,7 +201,7 @@ export function ReportsPage() {
       status: 'All',
       leader: 'All',
       assigned: 'All',
-      department: 'All',
+      department_id: 'All',
       type: 'All',
       priority: 'All'
     });
@@ -231,27 +247,35 @@ export function ReportsPage() {
   // placeholderData keeps previous data visible while refetching (prevents flicker)
 
   // Requirements Query
-  const { data: requirementData, isLoading: isLoadingRequirements } = useQuery({
+  const { data: requirementData, isLoading: isLoadingRequirements } = useQuery<RequirementReportsResponse>({
     queryKey: ['requirement-reports', filters, searchQuery, dateRange],
-    queryFn: () => getRequirementReports({
-      search: searchQuery,
-      partner_id: filters.partner,
-      status: filters.status,
-      type: filters.type,
-      priority: filters.priority,
-      department_id: filters.department,
-      start_date: dateRange && dateRange[0] ? dateRange[0].toISOString() : undefined,
-      end_date: dateRange && dateRange[1] ? dateRange[1].toISOString() : undefined,
-      limit: pagination.limit,
-      skip: pagination.skip,
-    }),
-    staleTime: 5 * 60 * 1000, // 5 minutes - prevents re-fetches on tab switch
-    placeholderData: (previousData) => previousData, // Keep previous data while fetching
+    queryFn: async () => {
+      const typeMap: Record<string, string> = {
+        'In-house': 'inhouse',
+        'Outsourced': 'outsourced',
+        'Client Work': 'client'
+      };
+
+      return getRequirementReports({
+        search: searchQuery,
+        partner_id: filters.partner,
+        status: filters.status,
+        type: typeMap[filters.type] || filters.type,
+        priority: filters.priority,
+        department_id: filters.department_id,
+        start_date: dateRange && dateRange[0] ? dateRange[0].toISOString() : undefined,
+        end_date: dateRange && dateRange[1] ? dateRange[1].toISOString() : undefined,
+        limit: pagination.limit,
+        skip: pagination.skip,
+      });
+    },
+    staleTime: 5 * 60 * 1000,
+    placeholderData: (previousData) => previousData,
   });
 
 
   // Tasks Query
-  const { data: taskData, isLoading: isLoadingTasks } = useQuery({
+  const { data: taskData, isLoading: isLoadingTasks } = useQuery<TaskReportsResponse>({
     queryKey: ['task-reports', filters, searchQuery, dateRange],
     queryFn: () => getTaskReports({
       search: searchQuery,
@@ -263,30 +287,30 @@ export function ReportsPage() {
       limit: pagination.limit,
       skip: pagination.skip,
     }),
-    staleTime: 5 * 60 * 1000, // 5 minutes - prevents re-fetches on tab switch
-    placeholderData: (previousData) => previousData, // Keep previous data while fetching
+    staleTime: 5 * 60 * 1000,
+    placeholderData: (previousData) => previousData,
   });
 
   // Employees Query
-  const { data: employeeData, isLoading: isLoadingEmployees } = useQuery({
+  const { data: employeeData, isLoading: isLoadingEmployees } = useQuery<EmployeeReportsResponse>({
     queryKey: ['employee-reports', filters, searchQuery, dateRange],
     queryFn: () => getEmployeeReports({
       search: searchQuery,
-      department_id: filters.department,
+      department_id: filters.department_id,
       member_id: filters.member,
       start_date: dateRange && dateRange[0] ? dateRange[0].toISOString() : undefined,
       end_date: dateRange && dateRange[1] ? dateRange[1].toISOString() : undefined,
       limit: pagination.limit,
       skip: pagination.skip,
     }),
-    staleTime: 5 * 60 * 1000, // 5 minutes - prevents re-fetches on tab switch
-    placeholderData: (previousData) => previousData, // Keep previous data while fetching
+    staleTime: 5 * 60 * 1000,
+    placeholderData: (previousData) => previousData,
   });
 
 
 
   // Process Data
-  const requirements = requirementData?.data || [];
+  const requirements: RequirementReport[] = requirementData?.data || [];
   const kpi = requirementData?.kpi || {
     totalRequirements: 0,
     onTimeCompleted: 0,
@@ -297,7 +321,7 @@ export function ReportsPage() {
     efficiency: 0
   };
 
-  const tasks = taskData?.data || [];
+  const tasks: TaskReport[] = taskData?.data || [];
   const taskKPI = taskData?.kpi || {
     totalTasks: 0,
     onTimeCompleted: 0,
@@ -308,7 +332,7 @@ export function ReportsPage() {
     efficiency: 0
   };
 
-  const employees = employeeData?.data || [];
+  const employees: EmployeeReport[] = employeeData?.data || [];
   // Backend KPI (Still used for types or potential future comparison, but we override with calculated below)
 
 
@@ -332,39 +356,21 @@ export function ReportsPage() {
     });
   };
 
-  const filteredRequirements = sortData(requirements);
-  const filteredTasks = sortData(tasks);
-  const filteredEmployees = sortData(employees);
+  const filteredRequirements: RequirementReport[] = sortData<RequirementReport>(requirements);
+  const filteredTasks: TaskReport[] = sortData<TaskReport>(tasks);
+  const filteredEmployees: EmployeeReport[] = sortData<EmployeeReport>(employees);
 
-  // Client-side KPI Calculation for Employees
-  const employeeKPI = useMemo(() => {
-    const totals = filteredEmployees.reduce(
-      (acc, employee) => {
-        const inv = employee.engagedHrs * employee.hourlyCost;
-        const rev = employee.revenue;
-        return {
-          totalInvestment: acc.totalInvestment + inv,
-          totalRevenue: acc.totalRevenue + rev,
-          totalEngagedHrs: acc.totalEngagedHrs + employee.engagedHrs,
-          totalUtilization: acc.totalUtilization + (employee.utilization || 0)
-        };
-      },
-      { totalInvestment: 0, totalRevenue: 0, totalEngagedHrs: 0, totalUtilization: 0 }
-    );
-
-    return {
-      totalInvestment: totals.totalInvestment,
-      totalRevenue: totals.totalRevenue,
-      netProfit: totals.totalRevenue - totals.totalInvestment,
-      avgRatePerHr: totals.totalEngagedHrs > 0
-        ? totals.totalRevenue / totals.totalEngagedHrs
-        : 0,
-      avgUtilization: filteredEmployees.length > 0
-        ? Math.round(totals.totalUtilization / filteredEmployees.length)
-        : 0,
-      totalCount: employeeData?.kpi?.totalCount || filteredEmployees.length
-    };
-  }, [filteredEmployees, employeeData]);
+  // Use backend KPIs directly (no client-side recalculation)
+  // This ensures KPIs reflect ALL filtered employees, not just the paginated subset
+  const employeeKPI = employeeData?.kpi || {
+    totalExpenses: 0,
+    totalRevenue: 0,
+    netProfit: 0,
+    avgRatePerHr: 0,
+    avgOccupancy: 0,
+    avgEfficiency: 0,
+    totalCount: 0
+  };
 
   // Debug Logs
 
@@ -374,21 +380,51 @@ export function ReportsPage() {
     if (activeTab === 'requirement') {
       return [
         { id: 'partner', label: 'Partner', options: partnerOptions, defaultValue: 'All', placeholder: 'Select Partner' },
-        { id: 'status', label: 'Status', options: ['All', 'Completed', 'In Progress', 'Delayed'], defaultValue: 'All' },
-        { id: 'type', label: 'Type', options: ['All', 'Inhouse', 'Outsourced'], defaultValue: 'All', placeholder: 'Select Type' },
+        {
+          id: 'status', label: 'Status', options: [
+            { label: 'All', value: 'All' },
+            { label: 'Completed', value: 'Completed' },
+            { label: 'In Progress', value: 'In_Progress' },
+            { label: 'Review', value: 'Review' },
+            { label: 'Revision', value: 'Revision' },
+            { label: 'Impediment', value: 'Impediment' },
+            { label: 'Stuck', value: 'Stuck' },
+            { label: 'Delayed', value: 'Delayed' },
+            { label: 'Assigned', value: 'Assigned' }
+          ], defaultValue: 'All'
+        },
+        {
+          id: 'type', label: 'Type', options: [
+            { label: 'All', value: 'All' },
+            { label: 'In-house', value: 'In-house' },
+            { label: 'Outsourced', value: 'Outsourced' },
+            { label: 'Client Work', value: 'Client Work' }
+          ], defaultValue: 'All', placeholder: 'Select Type'
+        },
         { id: 'priority', label: 'Priority', options: ['All', 'High', 'Normal'], defaultValue: 'All', placeholder: 'Select Priority' },
-        { id: 'department', label: 'Department', options: departmentOptions, defaultValue: 'All', placeholder: 'Select Department' }
+        { id: 'department_id', label: 'Department', options: departmentOptions, defaultValue: 'All', placeholder: 'Select Department' }
       ];
     } else if (activeTab === 'task') {
       return [
         { id: 'leader', label: 'Leader', options: employeeOptions, defaultValue: 'All', placeholder: 'Select Leader' },
-        { id: 'assigned', label: 'Assigned', options: employeeOptions, defaultValue: 'All', placeholder: 'Select Member' },
-        { id: 'status', label: 'Status', options: ['All', 'Completed', 'In Progress', 'Delayed'], defaultValue: 'All' }
+        { id: 'assigned', label: 'Member', options: employeeOptions, defaultValue: 'All', placeholder: 'Select Member' },
+        {
+          id: 'status', label: 'Status', options: [
+            { label: 'All', value: 'All' },
+            { label: 'Assigned', value: 'Assigned' },
+            { label: 'Completed', value: 'Completed' },
+            { label: 'In Progress', value: 'In Progress' },
+            { label: 'Delayed', value: 'Delayed' },
+            { label: 'In Review', value: 'Review' },
+            { label: 'Stuck', value: 'Stuck' },
+            { label: 'Impediment', value: 'Impediment' },
+          ], defaultValue: 'All'
+        },
       ];
     } else {
       return [
         { id: 'member', label: 'Member', options: employeeOptions, defaultValue: 'All', placeholder: 'Select Member' },
-        { id: 'department', label: 'Department', options: departmentOptions, defaultValue: 'All', placeholder: 'Select Department' }
+        { id: 'department_id', label: 'Department', options: departmentOptions, defaultValue: 'All', placeholder: 'Select Department' }
       ];
     }
   }, [activeTab, partnerOptions, employeeOptions, departmentOptions]);
@@ -401,14 +437,14 @@ export function ReportsPage() {
   const selectedMember = selectedMemberData ? {
     ...selectedMemberData,
     totalWorkingHrs: selectedMemberData.utilization > 0 ? Math.round(selectedMemberData.engagedHrs / (selectedMemberData.utilization / 100)) : 0,
-    actualEngagedHrs: selectedMemberData.engagedHrs,
+    actualEngagedHrs: Math.round(selectedMemberData.engagedHrs),
     costPerHour: selectedMemberData.hourlyCost,
     billablePerHour: 0 // Not in API yet
   } : null;
 
   // Placeholder task filtering for member drawer - Mock worklogs as we don't have an endpoint for user worklogs yet
   // Query Member Worklogs
-  const { data: memberWorklogs } = useQuery({
+  const { data: memberWorklogs } = useQuery<MemberWorklog[]>({
     queryKey: ['member-worklogs', selectedMemberId, dateRange],
     queryFn: () => getMemberWorklogs(
       selectedMemberId!,
@@ -464,7 +500,7 @@ export function ReportsPage() {
           />
 
           {/* Summary Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:grid-cols-5">
+          <div className={`grid grid-cols-1 sm:grid-cols-2 gap-4 ${activeTab === 'member' ? 'md:grid-cols-6' : 'md:grid-cols-5'}`}>
             {/* Requirement KPI Cards */}
             {isLoadingRequirements ? (
               Array.from({ length: 5 }).map((_, i) => (
@@ -476,28 +512,53 @@ export function ReportsPage() {
             ) : (
               <>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'requirement' ? '' : 'hidden'}`}>
-                  <span className="text-[12px] font-medium text-[#666666]">Total Requirements</span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-[12px] font-medium text-[#666666]">Total Requirements</span>
+                    <Tooltip title="Total number of active requirements assigned to or received by your company in the selected date range. Excludes Draft, Waiting, Submitted, Rejected, and Completed statuses." overlayStyle={{ maxWidth: 260 }} overlayInnerStyle={{ fontSize: 11, lineHeight: '1.4' }}>
+                      <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
+                    </Tooltip>
+                  </div>
                   <span className="text-xl font-['Manrope:Bold',sans-serif] text-[#111111]">{kpi.totalRequirements}</span>
                 </div>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'requirement' ? '' : 'hidden'}`}>
-                  <span className="text-[12px] font-medium text-[#666666]">On Time Completed</span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-[12px] font-medium text-[#666666]">On Time Completed</span>
+                    <Tooltip title="Requirements completed without exceeding their allotted hours budget. Formula: Completed requirements − over-budget completions." overlayStyle={{ maxWidth: 260 }} overlayInnerStyle={{ fontSize: 11, lineHeight: '1.4' }}>
+                      <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
+                    </Tooltip>
+                  </div>
                   <span className="text-xl font-['Manrope:Bold',sans-serif] text-[#0F9D58]">{kpi.onTimeCompleted}</span>
                 </div>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'requirement' ? '' : 'hidden'}`}>
-                  <span className="text-[12px] font-medium text-[#666666]">In Progress</span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-[12px] font-medium text-[#666666]">In Progress</span>
+                    <Tooltip title="Requirements currently active — includes statuses: Assigned, In Progress, Review, Revision, Impediment, Stuck, Delayed, On Hold." overlayStyle={{ maxWidth: 260 }} overlayInnerStyle={{ fontSize: 11, lineHeight: '1.4' }}>
+                      <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
+                    </Tooltip>
+                  </div>
                   <div className="flex items-baseline gap-2">
                     <span className="text-xl font-['Manrope:Bold',sans-serif] text-[#111111]">{kpi.inProgress}</span>
                   </div>
                 </div>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'requirement' ? '' : 'hidden'}`}>
-                  <span className="text-[12px] font-medium text-[#666666]">Delayed</span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-[12px] font-medium text-[#666666]">Delayed</span>
+                    <Tooltip title="Active requirements whose end date has already passed. The +Xh shows total extra hours logged beyond the allotted budget on over-budget completions." overlayStyle={{ maxWidth: 260 }} overlayInnerStyle={{ fontSize: 11, lineHeight: '1.4' }}>
+                      <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
+                    </Tooltip>
+                  </div>
                   <div className="flex items-baseline gap-2">
                     <span className="text-xl font-['Manrope:Bold',sans-serif] text-[#FF3B3B]">{kpi.delayed}</span>
                     <span className="text-sm font-medium text-[#FF3B3B]">(+{kpi.totalExtraHrs}h)</span>
                   </div>
                 </div>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'requirement' ? '' : 'hidden'}`}>
-                  <span className="text-[12px] font-medium text-[#666666]">Avg. Efficiency</span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-[12px] font-medium text-[#666666]">Efficiency</span>
+                    <Tooltip title="Delivery efficiency score. Formula: (On Time Completed ÷ Total Requirements) × 100. A higher % means more requirements are being delivered on time and within budget." overlayStyle={{ maxWidth: 260 }} overlayInnerStyle={{ fontSize: 11, lineHeight: '1.4' }}>
+                      <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
+                    </Tooltip>
+                  </div>
                   <span className="text-xl font-['Manrope:Bold',sans-serif] text-[#2196F3]">
                     {kpi.efficiency}%
                   </span>
@@ -516,28 +577,53 @@ export function ReportsPage() {
             ) : (
               <>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'task' ? '' : 'hidden'}`}>
-                  <span className="text-[12px] font-medium text-[#666666]">Total Tasks</span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-[12px] font-medium text-[#666666]">Total Tasks</span>
+                    <Tooltip title="Total active tasks in the selected date range. Excludes sub-tasks (unless they are revision tasks) and inactive/deleted tasks." overlayStyle={{ maxWidth: 260 }} overlayInnerStyle={{ fontSize: 11, lineHeight: '1.4' }}>
+                      <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
+                    </Tooltip>
+                  </div>
                   <span className="text-xl font-['Manrope:Bold',sans-serif] text-[#111111]">{taskKPI.totalTasks}</span>
                 </div>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'task' ? '' : 'hidden'}`}>
-                  <span className="text-[12px] font-medium text-[#666666]">On Time Completed</span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-[12px] font-medium text-[#666666]">On Time Completed</span>
+                    <Tooltip title="Tasks marked Completed where actual logged hours did not exceed the estimated hours. Over-budget completions are counted separately as delayed." overlayStyle={{ maxWidth: 260 }} overlayInnerStyle={{ fontSize: 11, lineHeight: '1.4' }}>
+                      <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
+                    </Tooltip>
+                  </div>
                   <span className="text-xl font-['Manrope:Bold',sans-serif] text-[#0F9D58]">{taskKPI.onTimeCompleted}</span>
                 </div>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'task' ? '' : 'hidden'}`}>
-                  <span className="text-[12px] font-medium text-[#666666]">In Progress</span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-[12px] font-medium text-[#666666]">In Progress</span>
+                    <Tooltip title="Tasks currently being worked on. Includes statuses: Assigned, In Progress, Review, Stuck, and Impediment." overlayStyle={{ maxWidth: 260 }} overlayInnerStyle={{ fontSize: 11, lineHeight: '1.4' }}>
+                      <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
+                    </Tooltip>
+                  </div>
                   <div className="flex items-baseline gap-2">
                     <span className="text-xl font-['Manrope:Bold',sans-serif] text-[#111111]">{taskKPI.inProgress}</span>
                   </div>
                 </div>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'task' ? '' : 'hidden'}`}>
-                  <span className="text-[12px] font-medium text-[#666666]">Delayed</span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-[12px] font-medium text-[#666666]">Delayed</span>
+                    <Tooltip title="Tasks with status set to Delayed, or incomplete tasks whose due date has already passed. The +Xh shows total extra hours logged beyond estimated on over-budget completed tasks." overlayStyle={{ maxWidth: 260 }} overlayInnerStyle={{ fontSize: 11, lineHeight: '1.4' }}>
+                      <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
+                    </Tooltip>
+                  </div>
                   <div className="flex items-baseline gap-2">
                     <span className="text-xl font-['Manrope:Bold',sans-serif] text-[#FF3B3B]">{taskKPI.delayed}</span>
                     <span className="text-sm font-medium text-[#FF3B3B]">(+{taskKPI.totalExtraHrs}h)</span>
                   </div>
                 </div>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'task' ? '' : 'hidden'}`}>
-                  <span className="text-[12px] font-medium text-[#666666]">Avg. Efficiency</span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-[12px] font-medium text-[#666666]">Efficiency</span>
+                    <Tooltip title="Task delivery efficiency. Formula: (On Time Completed ÷ Total Tasks) × 100. A higher % means more tasks are being completed within their estimated hours." overlayStyle={{ maxWidth: 260 }} overlayInnerStyle={{ fontSize: 11, lineHeight: '1.4' }}>
+                      <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
+                    </Tooltip>
+                  </div>
                   <span className="text-xl font-['Manrope:Bold',sans-serif] text-[#2196F3]">
                     {taskKPI.efficiency}%
                   </span>
@@ -545,9 +631,9 @@ export function ReportsPage() {
               </>
             )}
 
-            {/* Member/Employee KPI Cards - 5 columns layout */}
+            {/* Member/Employee KPI Cards - 6 columns layout */}
             {isLoadingEmployees ? (
-              Array.from({ length: 5 }).map((_, i) => (
+              Array.from({ length: 6 }).map((_, i) => (
                 <div key={`member-kpi-skel-${i}`} className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-1 justify-center animate-pulse ${activeTab === 'member' ? '' : 'hidden'}`}>
                   <Skeleton className="h-3 w-2/3" />
                   <Skeleton className="h-6 w-1/2" />
@@ -556,29 +642,65 @@ export function ReportsPage() {
             ) : (
               <>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'member' ? '' : 'hidden'}`}>
-                  <span className="text-[12px] font-medium text-[#666666]">Total Investment</span>
-                  <span className="text-xl font-['Manrope:Bold',sans-serif] text-[#111111]">${employeeKPI.totalInvestment.toLocaleString()}</span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-[12px] font-medium text-[#666666]">Total Expenses</span>
+                    <Tooltip title="Total cost incurred by all employees in the selected period. Formula: Sum of (hours logged × hourly rate) for each employee. Hourly rate is taken from their profile, or derived from annual salary ÷ annual working hours." overlayStyle={{ maxWidth: 280 }} overlayInnerStyle={{ fontSize: 11, lineHeight: '1.4' }}>
+                      <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
+                    </Tooltip>
+                  </div>
+                  <span className="text-xl font-['Manrope:Bold',sans-serif] text-[#111111]">${employeeKPI.totalExpenses.toLocaleString()}</span>
                 </div>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'member' ? '' : 'hidden'}`}>
-                  <span className="text-[12px] font-medium text-[#666666]">Total Revenue</span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-[12px] font-medium text-[#666666]">Total Revenue</span>
+                    <Tooltip title="Revenue generated from client and outsourced requirements in the selected period. Each employee's share is proportional to their logged hours on that requirement vs. the total hours logged by all team members. Based on the requirement's quoted price (or budget if no quote yet). In-house work generates $0 revenue." overlayStyle={{ maxWidth: 280 }} overlayInnerStyle={{ fontSize: 11, lineHeight: '1.4' }}>
+                      <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
+                    </Tooltip>
+                  </div>
                   <span className="text-xl font-['Manrope:Bold',sans-serif] text-[#0F9D58]">${employeeKPI.totalRevenue.toLocaleString()}</span>
                 </div>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'member' ? '' : 'hidden'}`}>
-                  <span className="text-[12px] font-medium text-[#666666]">Net Profit</span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-[12px] font-medium text-[#666666]">Net Profit</span>
+                    <Tooltip title="Total Revenue minus Total Expenses across all employees in the selected period. A positive value means your team is generating more revenue than it costs to run. A negative value indicates a cost overrun." overlayStyle={{ maxWidth: 280 }} overlayInnerStyle={{ fontSize: 11, lineHeight: '1.4' }}>
+                      <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
+                    </Tooltip>
+                  </div>
                   <span className={`text-xl font-['Manrope:Bold',sans-serif] ${employeeKPI.netProfit >= 0 ? 'text-[#0F9D58]' : 'text-[#FF3B3B]'}`}>
                     ${employeeKPI.netProfit.toLocaleString()}
                   </span>
                 </div>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'member' ? '' : 'hidden'}`}>
-                  <span className="text-[12px] font-medium text-[#666666]">Avg. Rate/Hr</span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-[12px] font-medium text-[#666666]">Avg. Rate/Hr</span>
+                    <Tooltip title="Average hourly cost rate across all employees matching the current filters. Based on each employee's set hourly rate, or calculated from their annual salary divided by annual working hours." overlayStyle={{ maxWidth: 280 }} overlayInnerStyle={{ fontSize: 11, lineHeight: '1.4' }}>
+                      <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
+                    </Tooltip>
+                  </div>
                   <span className="text-xl font-['Manrope:Bold',sans-serif] text-[#2196F3]">
                     ${employeeKPI.avgRatePerHr.toLocaleString()}
                   </span>
                 </div>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'member' ? '' : 'hidden'}`}>
-                  <span className="text-[12px] font-medium text-[#666666]">Avg. Utilization</span>
-                  <span className={`text-xl font-['Manrope:Bold',sans-serif] ${employeeKPI.avgUtilization >= 70 ? 'text-[#0F9D58]' : 'text-[#FF3B3B]'}`}>
-                    {employeeKPI.avgUtilization}%
+                  <div className="flex items-center gap-1">
+                    <span className="text-[12px] font-medium text-[#666666]">Occupancy</span>
+                    <Tooltip title="Average workforce utilization. Formula: (Hours logged ÷ Available working hours in period) × 100. Available hours are based on each employee's working schedule minus public holidays. ≥70% is considered healthy." overlayStyle={{ maxWidth: 280 }} overlayInnerStyle={{ fontSize: 11, lineHeight: '1.4' }}>
+                      <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
+                    </Tooltip>
+                  </div>
+                  <span className={`text-xl font-['Manrope:Bold',sans-serif] ${employeeKPI.avgOccupancy >= 70 ? 'text-[#0F9D58]' : 'text-[#FF3B3B]'}`}>
+                    {employeeKPI.avgOccupancy}%
+                  </span>
+                </div>
+                <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'member' ? '' : 'hidden'}`}>
+                  <div className="flex items-center gap-1">
+                    <span className="text-[12px] font-medium text-[#666666]">Efficiency</span>
+                    <Tooltip title="Average on-time delivery rate across all employees. Formula: (Tasks completed on or before their due date ÷ Total tasks assigned) × 100. Only tasks started within the selected date range are counted. ≥75% is considered good." overlayStyle={{ maxWidth: 280 }} overlayInnerStyle={{ fontSize: 11, lineHeight: '1.4' }}>
+                      <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
+                    </Tooltip>
+                  </div>
+                  <span className={`text-xl font-['Manrope:Bold',sans-serif] ${employeeKPI.avgEfficiency >= 75 ? 'text-[#0F9D58]' : 'text-[#FF3B3B]'}`}>
+                    {employeeKPI.avgEfficiency}%
                   </span>
                 </div>
               </>
@@ -613,8 +735,8 @@ export function ReportsPage() {
                   <TableHeader label="Requirement" sortKey="requirement" currentSort={sortConfig} onSort={handleSort} />
                   <TableHeader label="Contact Person" sortKey="manager" currentSort={sortConfig} onSort={handleSort} />
                   <TableHeader label="Timeline" />
-                  <TableHeader label="Hours Utilization" sortKey="efficiency" currentSort={sortConfig} onSort={handleSort} />
-                  <TableHeader label="Revenue" sortKey="revenue" currentSort={sortConfig} onSort={handleSort} />
+                  <TableHeader label="Hours Utilization" sortKey="efficiency" currentSort={sortConfig} onSort={handleSort} tooltip="Shows allotted hours (estimated) vs. engaged hours (actual logged). Extra hours = time logged beyond the estimate." />
+                  <TableHeader label="Revenue" sortKey="revenue" currentSort={sortConfig} onSort={handleSort} tooltip="Revenue from the requirement based on its quoted price (or budget if no quote yet)." />
                   <TableHeader label="Status" sortKey="status" currentSort={sortConfig} onSort={handleSort} />
                 </div>
 
@@ -657,6 +779,10 @@ export function ReportsPage() {
                   </div>
                 ))}
 
+                {filteredRequirements.length === 0 && (
+                  <div className="text-center py-12 text-[#999999] text-[13px]">No requirements found matching your filters.</div>
+                )}
+
                 {/* Pagination moved outside */}
               </div>
             )}
@@ -682,15 +808,13 @@ export function ReportsPage() {
             ) : (
               <div className="px-1 space-y-2">
                 {/* Header */}
-                <div className="sticky top-0 z-20 bg-white grid grid-cols-[50px_2fr_1.5fr_1fr_1fr_0.8fr_0.8fr_0.8fr_100px] gap-4 px-4 py-3 mb-2 items-center border-b border-transparent">
+                <div className="sticky top-0 z-20 bg-white grid grid-cols-[50px_2fr_1.5fr_1fr_1fr_1fr_100px] gap-4 px-4 py-3 mb-2 items-center border-b border-transparent">
                   <div className="pl-2"><TableHeader label="No" /></div>
                   <TableHeader label="Task" sortKey="task" currentSort={sortConfig} onSort={handleSort} />
                   <TableHeader label="Requirement" sortKey="requirement" currentSort={sortConfig} onSort={handleSort} />
                   <TableHeader label="Leader" sortKey="leader" currentSort={sortConfig} onSort={handleSort} />
                   <TableHeader label="Assigned" sortKey="assigned" currentSort={sortConfig} onSort={handleSort} />
-                  <TableHeader label="Allotted" sortKey="allottedHrs" currentSort={sortConfig} onSort={handleSort} />
-                  <TableHeader label="Engaged" sortKey="engagedHrs" currentSort={sortConfig} onSort={handleSort} />
-                  <TableHeader label="Extra" sortKey="extraHrs" currentSort={sortConfig} onSort={handleSort} />
+                  <TableHeader label="Duration" sortKey="engagedHrs" currentSort={sortConfig} onSort={handleSort} tooltip="Engaged hours / Allotted hours. Shows actual logged time vs. estimated time for this task." />
                   <div className="text-center"><TableHeader label="Status" sortKey="status" currentSort={sortConfig} onSort={handleSort} align="center" /></div>
                 </div>
 
@@ -698,16 +822,14 @@ export function ReportsPage() {
                 {filteredTasks.map((row, idx) => (
                   <div
                     key={row.id}
-                    className="group bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[50px_2fr_1.5fr_1fr_1fr_1fr_0.8fr_0.8fr_0.8fr_100px] gap-4 px-4 py-3 items-center hover:border-[#ff3b3b]/20 hover:shadow-lg transition-all duration-300"
+                    className="group bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[50px_2fr_1.5fr_1fr_1fr_1fr_100px] gap-4 px-4 py-3 items-center hover:border-[#ff3b3b]/20 hover:shadow-lg transition-all duration-300"
                   >
                     <div className="pl-2 text-[13px] text-[#999999] font-['Inter:Medium',sans-serif]">{idx + 1}</div>
                     <div className="text-[13px] text-[#111111] font-['Manrope:SemiBold',sans-serif]">{row.task}</div>
                     <div className="text-[13px] text-[#666666] font-['Inter:Regular',sans-serif]">{row.requirement}</div>
                     <div className="text-[13px] text-[#666666] font-['Inter:Regular',sans-serif]">{row.leader}</div>
                     <div className="text-[13px] text-[#666666] font-['Inter:Regular',sans-serif]">{row.assigned}</div>
-                    <div className="text-[13px] text-[#666666] font-['Inter:Regular',sans-serif]">{row.allottedHrs}h</div>
-                    <div className="text-[13px] text-[#111111] font-['Manrope:Bold',sans-serif]">{row.engagedHrs}h</div>
-                    <div className="text-[13px] font-['Inter:Medium',sans-serif] text-[#FF3B3B]">{row.extraHrs > 0 ? `+${row.extraHrs}h` : '-'}</div>
+                    <div className="text-[13px] text-[#111111] font-['Manrope:Bold',sans-serif]">{row.engagedHrs}h / {row.allottedHrs}h</div>
                     <div className="flex justify-center"><StatusBadge status={row.status} /></div>
                   </div>
                 ))}
@@ -737,11 +859,11 @@ export function ReportsPage() {
                 <div className="sticky top-0 z-20 bg-white grid grid-cols-[50px_2fr_2fr_0.8fr_1fr_1fr_1fr] gap-4 px-4 py-3 mb-2 items-center border-b border-transparent">
                   <div className="pl-2"><TableHeader label="No" /></div>
                   <TableHeader label="Member" sortKey="member" currentSort={sortConfig} onSort={handleSort} />
-                  <TableHeader label="Tasks Performance" />
-                  <TableHeader label="Load" sortKey="utilization" currentSort={sortConfig} onSort={handleSort} />
-                  <TableHeader label="Investment" sortKey="investment" currentSort={sortConfig} onSort={handleSort} />
-                  <TableHeader label="Revenue" sortKey="revenue" currentSort={sortConfig} onSort={handleSort} />
-                  <TableHeader label="Net Profit" sortKey="profit" currentSort={sortConfig} onSort={handleSort} />
+                  <TableHeader label="Tasks Performance" tooltip="Shows total assigned tasks and a breakdown of completed (green), in-progress (blue), and delayed (red) tasks for the selected period." />
+                  <TableHeader label="Load" sortKey="utilization" currentSort={sortConfig} onSort={handleSort} tooltip="Occupancy rate: (hours logged ÷ available working hours in period) × 100. Red bar means over 100% — the employee logged more hours than their capacity." />
+                  <TableHeader label="Expenses" sortKey="expenses" currentSort={sortConfig} onSort={handleSort} tooltip="Total cost for this employee in the period. Formula: hours logged × hourly rate." />
+                  <TableHeader label="Revenue" sortKey="revenue" currentSort={sortConfig} onSort={handleSort} tooltip="Revenue attributed to this employee from client/outsourced requirements, proportional to their hours contribution." />
+                  <TableHeader label="Net Profit" sortKey="profit" currentSort={sortConfig} onSort={handleSort} tooltip="Revenue minus Expenses for this employee. Positive = profitable contributor. Negative = cost exceeds revenue generated." />
                 </div>
 
                 {/* Rows */}
@@ -791,7 +913,7 @@ export function ReportsPage() {
                       </div>
                     </div>
 
-                    <div className="text-[13px] text-[#111111] font-['Manrope:Bold',sans-serif]">${row.investment?.toLocaleString() || 0}</div>
+                    <div className="text-[13px] text-[#111111] font-['Manrope:Bold',sans-serif]">${row.expenses?.toLocaleString() || 0}</div>
                     <div className="text-[13px] text-[#111111] font-['Manrope:Bold',sans-serif]">${row.revenue?.toLocaleString() || 0}</div>
                     <div className={`text-[13px] font-['Manrope:Bold',sans-serif] ${row.profit >= 0 ? 'text-[#0F9D58]' : 'text-[#FF3B3B]'}`}>
                       {row.profit >= 0 ? '+' : ''}${row.profit?.toLocaleString() || 0}

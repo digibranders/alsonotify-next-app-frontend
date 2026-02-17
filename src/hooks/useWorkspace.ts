@@ -13,9 +13,10 @@ import {
   getCollaborativeRequirements,
   reactivateWorkspace,
   getAllRequirements,
+  submitRequirementForReview,
 } from "../services/workspace";
 import { WorkspaceDto, CreateWorkspaceRequestDto, UpdateWorkspaceRequestDto } from "../types/dto/workspace.dto";
-import { RequirementDto, CreateRequirementRequestDto, UpdateRequirementRequestDto, RequirementDropdownItem } from "../types/dto/requirement.dto";
+import { RequirementDto, CreateRequirementRequestDto, UpdateRequirementRequestDto, RequirementDropdownItem, ApproveRequirementRequestDto, SubmitForReviewRequestDto } from "../types/dto/requirement.dto";
 import { getTasks } from "../services/task";
 export { usePartners } from "./useUser";
 
@@ -236,14 +237,24 @@ export const useApproveRequirement = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ requirement_id, status }: { requirement_id: number; status: "Assigned" | "Rejected" }) =>
-      approveRequirement(requirement_id, status),
+    mutationFn: (params: ApproveRequirementRequestDto) => approveRequirement(params),
     onSuccess: () => {
-      // Invalidate all requirements queries to refresh data
       queryClient.invalidateQueries({ queryKey: queryKeys.requirements.all() });
     },
   });
 };
+export const useSubmitForReview = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ requirementId, body }: { requirementId: number; body?: SubmitForReviewRequestDto }) =>
+      submitRequirementForReview(requirementId, body ?? {}),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.requirements.all() });
+    },
+  });
+};
+
 export const useReactivateWorkspace = () => {
   const queryClient = useQueryClient();
 
