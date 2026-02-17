@@ -14,7 +14,7 @@ export interface TaskUIConfig {
  */
 export const TASK_STATUS_UI_CONFIG: Record<TaskStatus, TaskUIConfig> = {
   Assigned: {
-    label: 'To Do',
+    label: 'Assigned',
     color: 'bg-[#F7F7F7] text-[#666666]',
     icon: <Clock className="w-3.5 h-3.5" />,
   },
@@ -61,7 +61,7 @@ export function getTaskStatusUI(status?: string): TaskUIConfig {
 
   // Normalize inputs (backend uses underscores, UI might use dashes or lowercase)
   // We try to match valid keys in TASK_STATUS_UI_CONFIG
-  
+
   // 1. Direct match
   if (status in TASK_STATUS_UI_CONFIG) {
     return TASK_STATUS_UI_CONFIG[status as TaskStatus];
@@ -69,14 +69,14 @@ export function getTaskStatusUI(status?: string): TaskUIConfig {
 
   // 2. Case-insensitive / format normalization
   const normalized = status.toLowerCase();
-  
+
   if (normalized.includes('progress')) return TASK_STATUS_UI_CONFIG.In_Progress;
   if (normalized.includes('review')) return TASK_STATUS_UI_CONFIG.Review;
   if (normalized.includes('complete') || normalized.includes('done')) return TASK_STATUS_UI_CONFIG.Completed;
   if (normalized.includes('delay')) return TASK_STATUS_UI_CONFIG.Delayed;
   if (normalized.includes('stuck')) return TASK_STATUS_UI_CONFIG.Stuck;
   if (normalized.includes('impediment')) return TASK_STATUS_UI_CONFIG.Impediment;
-  
+
   // Fallback
   return TASK_STATUS_UI_CONFIG.Assigned;
 }

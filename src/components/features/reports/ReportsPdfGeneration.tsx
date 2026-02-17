@@ -64,9 +64,11 @@ const chunkData = <T,>(data: T[], firstPageSize: number, otherPageSize: number):
 
 const getStatusColor = (status: string) => {
     const s = status?.toLowerCase();
-    if (s === 'completed' || s === 'ready to bill') return { bg: '#FFF3E0', text: '#EF6C00', label: 'Ready to Bill' };
-    if (s === 'in progress' || s === 'in-progress') return { bg: '#E3F2FD', text: '#2F80ED', label: 'In Progress' };
-    if (s === 'delayed') return { bg: '#FFEBEE', text: '#EB5757', label: 'Delayed' };
+    if (s === 'completed' || s === 'done') return { bg: '#E8F5E9', text: '#0F9D58', label: 'Completed' };
+    if (s === 'in progress' || s === 'in-progress' || s === 'in_progress') return { bg: '#E3F2FD', text: '#2F80ED', label: 'In Progress' };
+    if (s === 'delayed') return { bg: '#FFF5F5', text: '#ff3b3b', label: 'Delayed' };
+    if (s === 'review' || s === 'in review' || s === 'in-review') return { bg: '#F3E5F5', text: '#9C27B0', label: 'In Review' };
+    if (s === 'stuck' || s === 'impediment') return { bg: '#FFF3E0', text: '#EF6C00', label: status.charAt(0).toUpperCase() + status.slice(1) };
     if (s === 'paid' || s === 'payment received') return { bg: '#E8F5E9', text: '#7ccf00', label: 'Payment Received' };
     if (s === 'billed' || s === 'invoice sent') return { bg: '#E3F2FD', text: '#2196F3', label: 'Invoice Sent' };
     if (s === 'draft') return { bg: '#F5F5F5', text: '#666666', label: 'Draft' };
@@ -440,8 +442,7 @@ function renderTaskHeader() {
             <Th>Task</Th>
             <Th>Requirement</Th>
             <Th>Assigned To</Th>
-            <Th>Allotted</Th>
-            <Th>Engaged</Th>
+            <Th>Duration</Th>
             <Th>Status</Th>
         </>
     )
@@ -454,7 +455,7 @@ function renderEmpHeader() {
             <Th style={{ width: '20%' }}>Employee</Th>
             <Th style={{ width: '25%' }}>Tasks Performance</Th>
             <Th style={{ width: '20%' }}>Load</Th>
-            <Th style={{ width: '15%' }}>Investment</Th>
+            <Th style={{ width: '15%' }}>Expenses</Th>
             <Th style={{ width: '15%' }}>Net Profit</Th>
         </>
     )
@@ -510,8 +511,7 @@ function renderTaskRow(row: TaskReport, idx: number) {
             <Td style={{ fontWeight: 600, color: '#111' }}>{row.task}</Td>
             <Td style={{ color: '#666' }}>{row.requirement}</Td>
             <Td>{row.assigned}</Td>
-            <Td>{row.allottedHrs}h</Td>
-            <Td style={{ fontWeight: 700 }}>{row.engagedHrs}h</Td>
+            <Td style={{ fontWeight: 700 }}>{row.engagedHrs}h / {row.allottedHrs}h</Td>
             <Td>
                 <div style={{
                     display: 'inline-block',
@@ -645,7 +645,7 @@ function renderRequirementKPIs(kpi: ReportKPI) {
                 color="#FF3B3B"
                 subValue={kpi.totalExtraHrs > 0 ? <span style={{ fontSize: '12px', fontWeight: 500, color: '#666' }}>(+{kpi.totalExtraHrs}h)</span> : null}
             />
-            <KPICard label="Avg. Efficiency" value={`${kpi.efficiency}%`} color="#2196F3" />
+            <KPICard label="Efficiency" value={`${kpi.efficiency}%`} color="#2196F3" />
         </>
     )
 }
@@ -671,7 +671,7 @@ function renderEmployeeKPIs(kpi: EmployeeKPI) {
     if (!kpi) return null;
     return (
         <>
-            <KPICard label="Total Investment" value={`$${kpi.totalInvestment?.toLocaleString()}`} />
+            <KPICard label="Total Expenses" value={`$${kpi.totalExpenses?.toLocaleString()}`} />
             <KPICard label="Total Revenue" value={`$${kpi.totalRevenue?.toLocaleString()}`} color="#0F9D58" />
             <KPICard label="Net Profit" value={`$${kpi.netProfit?.toLocaleString()}`} color={kpi.netProfit >= 0 ? "#0F9D58" : "#FF3B3B"} />
             <KPICard label="Avg. Rate/Hr" value={`$${kpi.avgRatePerHr?.toLocaleString()}`} color="#2196F3" />
