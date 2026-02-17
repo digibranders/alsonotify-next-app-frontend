@@ -32,9 +32,7 @@ export function TabBar({ tabs, activeTab, onTabChange }: TabBarProps) {
                 {tab.count}
               </span>
             )}
-            {activeTab === tab.id && (
-              <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#ff3b3b]" />
-            )}
+            <div className={`absolute bottom-0 left-0 right-0 h-[2px] bg-[#ff3b3b] transition-opacity duration-150 ${activeTab === tab.id ? 'opacity-100' : 'opacity-0'}`} />
           </button>
         ))}
       </div>

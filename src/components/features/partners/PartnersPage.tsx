@@ -502,7 +502,7 @@ export function PartnersPageContent() {
             <div className="flex-1 overflow-y-auto relative pb-5">
 
                 {/* 1. Requests View (Toggle Visibility) */}
-                <div style={{ display: activeTab === 'requests' ? 'block' : 'none' }}>
+                <div className={activeTab === 'requests' ? '' : 'hidden'}>
                     {/* Header */}
                     <div className="sticky top-0 z-20 bg-white grid grid-cols-[40px_1.5fr_2fr_1fr_100px] gap-4 px-4 py-3 mb-2 items-center">
                         <div className="flex justify-center"></div>
@@ -660,12 +660,12 @@ export function PartnersPageContent() {
                 </div>
 
                 {/* 2. Account Managers Tab */}
-                <div style={{ display: activeTab === 'account-managers' ? 'block' : 'none' }}>
+                <div className={activeTab === 'account-managers' ? '' : 'hidden'}>
                     <AccountManagersTab />
                 </div>
 
                 {/* 3. Standard View (Active/Inactive) (Toggle Visibility) */}
-                <div style={{ display: activeTab !== 'requests' && activeTab !== 'account-managers' ? 'block' : 'none' }}>
+                <div className={activeTab !== 'requests' && activeTab !== 'account-managers' ? '' : 'hidden'}>
                     {/* Header */}
                     <div className="sticky top-0 z-20 bg-white grid grid-cols-[40px_1.8fr_1fr_0.8fr_1fr_0.8fr_0.7fr_0.7fr_40px] gap-4 px-4 py-3 items-center">
                         <div className="flex justify-center">
