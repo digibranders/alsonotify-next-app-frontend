@@ -63,14 +63,14 @@ const chunkData = <T,>(data: T[], firstPageSize: number, otherPageSize: number):
 };
 
 const getStatusColor = (status: string) => {
-    switch (status) {
-        case 'Completed': return { bg: '#E6F4EA', text: '#1E8E3E' };
-        case 'In Progress': return { bg: '#E8F0FE', text: '#1967D2' };
-        case 'Delayed': return { bg: '#FCE8E6', text: '#C5221F' }; // Or Overdue
-        case 'Paid': return { bg: '#E6F4EA', text: '#1E8E3E' };
-        case 'Pending': return { bg: '#FEF3C7', text: '#B45309' };
-        default: return { bg: '#F3F4F6', text: '#4B5563' };
-    }
+    const s = status?.toLowerCase();
+    if (s === 'completed' || s === 'ready to bill') return { bg: '#FFF3E0', text: '#EF6C00', label: 'Ready to Bill' };
+    if (s === 'in progress' || s === 'in-progress') return { bg: '#E3F2FD', text: '#2F80ED', label: 'In Progress' };
+    if (s === 'delayed') return { bg: '#FFEBEE', text: '#EB5757', label: 'Delayed' };
+    if (s === 'paid' || s === 'payment received') return { bg: '#E8F5E9', text: '#7ccf00', label: 'Payment Received' };
+    if (s === 'billed' || s === 'invoice sent') return { bg: '#E3F2FD', text: '#2196F3', label: 'Invoice Sent' };
+    if (s === 'draft') return { bg: '#F5F5F5', text: '#666666', label: 'Draft' };
+    return { bg: '#F5F5F5', text: '#4B5563', label: status };
 };
 
 
@@ -420,7 +420,7 @@ function renderReqHeader() {
         <>
             <Th style={{ width: '50px' }}>No</Th>
             <Th style={{ width: '25%' }}>Requirement</Th>
-            <Th style={{ width: '15%' }}>Manager</Th>
+            <Th style={{ width: '15%' }}>Contact Person</Th>
             <Th style={{ width: '15%' }}>Timeline</Th>
             <Th style={{ width: '20%' }}>Hours Utilization</Th>
             <Th style={{ width: '10%' }}>Revenue</Th>
@@ -482,18 +482,18 @@ function renderReqRow(row: RequirementReport, idx: number, timezone?: string) {
             </Td>
             <Td style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700 }}>${row.revenue?.toLocaleString()}</Td>
             <Td>
-                <span style={{
+                <div style={{
                     display: 'inline-block',
-                    padding: '4px 8px',
-                    borderRadius: '99px',
+                    padding: '4px 10px',
+                    borderRadius: '6px',
                     fontSize: '10px',
-                    fontWeight: 600,
-                    textTransform: 'uppercase',
+                    fontWeight: 700,
                     backgroundColor: getStatusColor(row.status).bg,
-                    color: getStatusColor(row.status).text
+                    color: getStatusColor(row.status).text,
+                    whiteSpace: 'nowrap'
                 }}>
-                    {row.status}
-                </span>
+                    {getStatusColor(row.status).label}
+                </div>
             </Td>
         </>
     )
@@ -509,18 +509,18 @@ function renderTaskRow(row: TaskReport, idx: number) {
             <Td>{row.allottedHrs}h</Td>
             <Td style={{ fontWeight: 700 }}>{row.engagedHrs}h</Td>
             <Td>
-                <span style={{
+                <div style={{
                     display: 'inline-block',
-                    padding: '4px 8px',
-                    borderRadius: '99px',
+                    padding: '4px 10px',
+                    borderRadius: '6px',
                     fontSize: '10px',
-                    fontWeight: 600,
-                    textTransform: 'uppercase',
+                    fontWeight: 700,
                     backgroundColor: getStatusColor(row.status).bg,
-                    color: getStatusColor(row.status).text
+                    color: getStatusColor(row.status).text,
+                    whiteSpace: 'nowrap'
                 }}>
-                    {row.status}
-                </span>
+                    {getStatusColor(row.status).label}
+                </div>
             </Td>
         </>
     )

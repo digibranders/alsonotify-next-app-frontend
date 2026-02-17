@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import {
-  Download, Clock, CheckCircle2, AlertCircle, Loader2, ArrowUp, ArrowDown
+  Download, Clock, CheckCircle, ArrowUp, ArrowDown, Receipt, FilePlus
 } from 'lucide-react';
 import { PageLayout } from '../../layout/PageLayout';
 import { FilterBar, FilterOption } from '../../ui/FilterBar';
@@ -29,21 +29,27 @@ dayjs.extend(isBetween);
 
 function StatusBadge({ status }: { status: string }) {
   const config: Record<string, { icon: any, color: string, label: string }> = {
-    'Completed': { icon: CheckCircle2, color: 'text-[#0F9D58]', label: 'Completed' },
-    'In Progress': { icon: Loader2, color: 'text-[#2196F3]', label: 'In Progress' },
-    'Delayed': { icon: AlertCircle, color: 'text-[#FF3B3B]', label: 'Delayed' },
-    'Paid': { icon: CheckCircle2, color: 'text-[#0F9D58]', label: 'Paid' },
-    'Pending': { icon: Clock, color: 'text-[#F59E0B]', label: 'Pending' },
-    'Overdue': { icon: AlertCircle, color: 'text-[#FF3B3B]', label: 'Overdue' },
+    'Completed': { icon: Receipt, color: 'text-[#EF6C00]', label: 'Ready to Bill' },
+    'In Progress': { icon: Clock, color: 'text-[#2F80ED]', label: 'In Progress' },
+    'Delayed': { icon: Clock, color: 'text-[#EB5757]', label: 'Delayed' },
+    'paid': { icon: CheckCircle, color: 'text-[#7ccf00]', label: 'Payment Received' },
+    'billed': { icon: CheckCircle, color: 'text-[#2196F3]', label: 'Invoice Sent' },
+    'Draft': { icon: FilePlus, color: 'text-[#666666]', label: 'Draft' },
   };
 
-  const style = config[status] || { icon: Clock, color: 'text-[#999999]', label: status };
+  // Allow case-insensitive lookups or maps
+  const lookup = status === 'completed' ? 'Completed' :
+    status === 'in-progress' ? 'In Progress' :
+      status === 'delayed' ? 'Delayed' :
+        status;
+
+  const style = config[lookup] || { icon: Clock, color: 'text-[#6B7280]', label: status };
   const Icon = style.icon;
 
   return (
     <Tooltip title={style.label}>
       <div className="cursor-help inline-flex items-center justify-center p-1">
-        <Icon className={`w-5 h-5 ${style.color} ${status === 'In Progress' ? 'animate-spin' : ''}`} />
+        <Icon className={`w-5 h-5 ${style.color} ${lookup === 'In Progress' && status !== 'Delayed' ? '' : ''}`} />
       </div>
     </Tooltip>
   );
@@ -177,7 +183,6 @@ export function ReportsPage() {
       partner: 'All',
       member: 'All',
       status: 'All',
-      manager: 'All',
       leader: 'All',
       assigned: 'All',
       department: 'All',
@@ -470,28 +475,28 @@ export function ReportsPage() {
               ))
             ) : (
               <>
-                <div className="p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center" style={{ display: activeTab === 'requirement' ? 'flex' : 'none' }}>
+                <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'requirement' ? '' : 'hidden'}`}>
                   <span className="text-[12px] font-medium text-[#666666]">Total Requirements</span>
                   <span className="text-xl font-['Manrope:Bold',sans-serif] text-[#111111]">{kpi.totalRequirements}</span>
                 </div>
-                <div className="p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center" style={{ display: activeTab === 'requirement' ? 'flex' : 'none' }}>
+                <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'requirement' ? '' : 'hidden'}`}>
                   <span className="text-[12px] font-medium text-[#666666]">On Time Completed</span>
                   <span className="text-xl font-['Manrope:Bold',sans-serif] text-[#0F9D58]">{kpi.onTimeCompleted}</span>
                 </div>
-                <div className="p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center" style={{ display: activeTab === 'requirement' ? 'flex' : 'none' }}>
+                <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'requirement' ? '' : 'hidden'}`}>
                   <span className="text-[12px] font-medium text-[#666666]">In Progress</span>
                   <div className="flex items-baseline gap-2">
                     <span className="text-xl font-['Manrope:Bold',sans-serif] text-[#111111]">{kpi.inProgress}</span>
                   </div>
                 </div>
-                <div className="p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center" style={{ display: activeTab === 'requirement' ? 'flex' : 'none' }}>
+                <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'requirement' ? '' : 'hidden'}`}>
                   <span className="text-[12px] font-medium text-[#666666]">Delayed</span>
                   <div className="flex items-baseline gap-2">
                     <span className="text-xl font-['Manrope:Bold',sans-serif] text-[#FF3B3B]">{kpi.delayed}</span>
                     <span className="text-sm font-medium text-[#FF3B3B]">(+{kpi.totalExtraHrs}h)</span>
                   </div>
                 </div>
-                <div className="p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center" style={{ display: activeTab === 'requirement' ? 'flex' : 'none' }}>
+                <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'requirement' ? '' : 'hidden'}`}>
                   <span className="text-[12px] font-medium text-[#666666]">Avg. Efficiency</span>
                   <span className="text-xl font-['Manrope:Bold',sans-serif] text-[#2196F3]">
                     {kpi.efficiency}%
@@ -503,35 +508,35 @@ export function ReportsPage() {
             {/* Task KPI Cards */}
             {isLoadingTasks ? (
               Array.from({ length: 5 }).map((_, i) => (
-                <div key={`task-kpi-skel-${i}`} className="p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-1 justify-center animate-pulse" style={{ display: activeTab === 'task' ? 'flex' : 'none' }}>
+                <div key={`task-kpi-skel-${i}`} className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-1 justify-center animate-pulse ${activeTab === 'task' ? '' : 'hidden'}`}>
                   <Skeleton className="h-3 w-2/3" />
                   <Skeleton className="h-6 w-1/2" />
                 </div>
               ))
             ) : (
               <>
-                <div className="p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center" style={{ display: activeTab === 'task' ? 'flex' : 'none' }}>
+                <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'task' ? '' : 'hidden'}`}>
                   <span className="text-[12px] font-medium text-[#666666]">Total Tasks</span>
                   <span className="text-xl font-['Manrope:Bold',sans-serif] text-[#111111]">{taskKPI.totalTasks}</span>
                 </div>
-                <div className="p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center" style={{ display: activeTab === 'task' ? 'flex' : 'none' }}>
+                <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'task' ? '' : 'hidden'}`}>
                   <span className="text-[12px] font-medium text-[#666666]">On Time Completed</span>
                   <span className="text-xl font-['Manrope:Bold',sans-serif] text-[#0F9D58]">{taskKPI.onTimeCompleted}</span>
                 </div>
-                <div className="p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center" style={{ display: activeTab === 'task' ? 'flex' : 'none' }}>
+                <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'task' ? '' : 'hidden'}`}>
                   <span className="text-[12px] font-medium text-[#666666]">In Progress</span>
                   <div className="flex items-baseline gap-2">
                     <span className="text-xl font-['Manrope:Bold',sans-serif] text-[#111111]">{taskKPI.inProgress}</span>
                   </div>
                 </div>
-                <div className="p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center" style={{ display: activeTab === 'task' ? 'flex' : 'none' }}>
+                <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'task' ? '' : 'hidden'}`}>
                   <span className="text-[12px] font-medium text-[#666666]">Delayed</span>
                   <div className="flex items-baseline gap-2">
                     <span className="text-xl font-['Manrope:Bold',sans-serif] text-[#FF3B3B]">{taskKPI.delayed}</span>
                     <span className="text-sm font-medium text-[#FF3B3B]">(+{taskKPI.totalExtraHrs}h)</span>
                   </div>
                 </div>
-                <div className="p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center" style={{ display: activeTab === 'task' ? 'flex' : 'none' }}>
+                <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'task' ? '' : 'hidden'}`}>
                   <span className="text-[12px] font-medium text-[#666666]">Avg. Efficiency</span>
                   <span className="text-xl font-['Manrope:Bold',sans-serif] text-[#2196F3]">
                     {taskKPI.efficiency}%
@@ -543,34 +548,34 @@ export function ReportsPage() {
             {/* Member/Employee KPI Cards - 5 columns layout */}
             {isLoadingEmployees ? (
               Array.from({ length: 5 }).map((_, i) => (
-                <div key={`member-kpi-skel-${i}`} className="p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-1 justify-center animate-pulse" style={{ display: activeTab === 'member' ? 'flex' : 'none' }}>
+                <div key={`member-kpi-skel-${i}`} className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-1 justify-center animate-pulse ${activeTab === 'member' ? '' : 'hidden'}`}>
                   <Skeleton className="h-3 w-2/3" />
                   <Skeleton className="h-6 w-1/2" />
                 </div>
               ))
             ) : (
               <>
-                <div className="p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center" style={{ display: activeTab === 'member' ? 'flex' : 'none' }}>
+                <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'member' ? '' : 'hidden'}`}>
                   <span className="text-[12px] font-medium text-[#666666]">Total Investment</span>
                   <span className="text-xl font-['Manrope:Bold',sans-serif] text-[#111111]">${employeeKPI.totalInvestment.toLocaleString()}</span>
                 </div>
-                <div className="p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center" style={{ display: activeTab === 'member' ? 'flex' : 'none' }}>
+                <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'member' ? '' : 'hidden'}`}>
                   <span className="text-[12px] font-medium text-[#666666]">Total Revenue</span>
                   <span className="text-xl font-['Manrope:Bold',sans-serif] text-[#0F9D58]">${employeeKPI.totalRevenue.toLocaleString()}</span>
                 </div>
-                <div className="p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center" style={{ display: activeTab === 'member' ? 'flex' : 'none' }}>
+                <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'member' ? '' : 'hidden'}`}>
                   <span className="text-[12px] font-medium text-[#666666]">Net Profit</span>
                   <span className={`text-xl font-['Manrope:Bold',sans-serif] ${employeeKPI.netProfit >= 0 ? 'text-[#0F9D58]' : 'text-[#FF3B3B]'}`}>
                     ${employeeKPI.netProfit.toLocaleString()}
                   </span>
                 </div>
-                <div className="p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center" style={{ display: activeTab === 'member' ? 'flex' : 'none' }}>
+                <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'member' ? '' : 'hidden'}`}>
                   <span className="text-[12px] font-medium text-[#666666]">Avg. Rate/Hr</span>
                   <span className="text-xl font-['Manrope:Bold',sans-serif] text-[#2196F3]">
                     ${employeeKPI.avgRatePerHr.toLocaleString()}
                   </span>
                 </div>
-                <div className="p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center" style={{ display: activeTab === 'member' ? 'flex' : 'none' }}>
+                <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'member' ? '' : 'hidden'}`}>
                   <span className="text-[12px] font-medium text-[#666666]">Avg. Utilization</span>
                   <span className={`text-xl font-['Manrope:Bold',sans-serif] ${employeeKPI.avgUtilization >= 70 ? 'text-[#0F9D58]' : 'text-[#FF3B3B]'}`}>
                     {employeeKPI.avgUtilization}%
@@ -585,7 +590,7 @@ export function ReportsPage() {
         {/* Scrollable Content Area */}
         <div className="flex-1 overflow-auto w-full relative">
           {/* Requirements Table */}
-          <div style={{ display: activeTab === 'requirement' ? 'block' : 'none' }}>
+          <div className={activeTab === 'requirement' ? '' : 'hidden'}>
             {isLoadingRequirements ? (
               <div className="space-y-2 px-1">
                 {Array.from({ length: 8 }).map((_, i) => (
@@ -606,7 +611,7 @@ export function ReportsPage() {
                 <div className="sticky top-0 z-20 bg-white grid grid-cols-[50px_2fr_1fr_1.2fr_1.5fr_100px_100px] gap-4 px-4 py-3 mb-2 items-center border-b border-transparent">
                   <div className="pl-2"><TableHeader label="No" /></div>
                   <TableHeader label="Requirement" sortKey="requirement" currentSort={sortConfig} onSort={handleSort} />
-                  <TableHeader label="Manager" sortKey="manager" currentSort={sortConfig} onSort={handleSort} />
+                  <TableHeader label="Contact Person" sortKey="manager" currentSort={sortConfig} onSort={handleSort} />
                   <TableHeader label="Timeline" />
                   <TableHeader label="Hours Utilization" sortKey="efficiency" currentSort={sortConfig} onSort={handleSort} />
                   <TableHeader label="Revenue" sortKey="revenue" currentSort={sortConfig} onSort={handleSort} />
@@ -621,9 +626,9 @@ export function ReportsPage() {
                   >
                     <div className="pl-2 text-[13px] text-[#999999] font-['Inter:Medium',sans-serif]">{idx + 1}</div>
 
-                    <div className="flex flex-col justify-center">
-                      <span className="text-[14px] text-[#111111] font-['Manrope:Bold',sans-serif] mb-0.5">{row.requirement}</span>
-                      <span className="text-[12px] text-[#666666] font-['Inter:Regular',sans-serif]">{row.partner}</span>
+                    <div className="flex flex-col justify-center gap-0.5">
+                      <span className="text-[14px] text-[#111111] font-['Manrope:Bold',sans-serif] leading-tight truncate" title={row.requirement}>{row.requirement}</span>
+                      <span className="text-[10px] uppercase tracking-wider text-[#999999] font-['Manrope:Bold',sans-serif] truncate" title={row.partner}>{row.partner}</span>
                     </div>
 
                     <div className="text-[13px] text-[#666666] font-['Inter:Regular',sans-serif]">{row.manager || 'Unassigned'}</div>
@@ -652,25 +657,13 @@ export function ReportsPage() {
                   </div>
                 ))}
 
-                {filteredRequirements.length === 0 && (
-                  <div className="text-center py-12 text-[#999999] text-[13px]">No requirements found matching your filters.</div>
-                )}
-
-                <div className="pt-4 border-t border-[#EEEEEE]">
-                  <PaginationBar
-                    currentPage={Math.floor(pagination.skip / pagination.limit) + 1}
-                    totalItems={kpi.totalRequirements}
-                    pageSize={pagination.limit}
-                    onPageChange={(page) => setPagination(prev => ({ ...prev, skip: (page - 1) * pagination.limit }))}
-                    onPageSizeChange={(limit) => setPagination({ limit, skip: 0 })}
-                  />
-                </div>
+                {/* Pagination moved outside */}
               </div>
             )}
           </div>
 
           {/* Tasks Table */}
-          <div style={{ display: activeTab === 'task' ? 'block' : 'none' }}>
+          <div className={activeTab === 'task' ? '' : 'hidden'}>
             {isLoadingTasks ? (
               <div className="space-y-2 px-1">
                 {Array.from({ length: 10 }).map((_, i) => (
@@ -721,22 +714,13 @@ export function ReportsPage() {
                 {filteredTasks.length === 0 && (
                   <div className="text-center py-12 text-[#999999] text-[13px]">No tasks found matching your filters.</div>
                 )}
-
-                <div className="pt-4 border-t border-[#EEEEEE]">
-                  <PaginationBar
-                    currentPage={Math.floor(pagination.skip / pagination.limit) + 1}
-                    totalItems={taskKPI.totalTasks}
-                    pageSize={pagination.limit}
-                    onPageChange={(page) => setPagination(prev => ({ ...prev, skip: (page - 1) * pagination.limit }))}
-                    onPageSizeChange={(limit) => setPagination({ limit, skip: 0 })}
-                  />
-                </div>
+                {/* Pagination moved outside */}
               </div>
             )}
           </div>
 
           {/* Member/Employee Table */}
-          <div style={{ display: activeTab === 'member' ? 'block' : 'none' }}>
+          <div className={activeTab === 'member' ? '' : 'hidden'}>
             {isLoadingEmployees ? (
               <div className="space-y-2 px-1">
                 {Array.from({ length: 8 }).map((_, i) => (
@@ -818,19 +802,29 @@ export function ReportsPage() {
                   <div className="text-center py-12 text-[#999999] text-[13px]">No employees found matching your filters.</div>
                 )}
 
-                <div className="pt-4 border-t border-[#EEEEEE]">
-                  <PaginationBar
-                    currentPage={Math.floor(pagination.skip / pagination.limit) + 1}
-                    totalItems={employeeData?.kpi?.totalCount || employees.length}
-                    pageSize={pagination.limit}
-                    onPageChange={(page) => setPagination(prev => ({ ...prev, skip: (page - 1) * pagination.limit }))}
-                    onPageSizeChange={(limit) => setPagination({ limit, skip: 0 })}
-                  />
-                </div>
+                {/* Pagination moved outside */}
               </div>
             )}
           </div>
         </div>
+
+        {/* Unified Sticky Pagination Bar */}
+        {!isLoadingRequirements && !isLoadingTasks && !isLoadingEmployees && (
+          <div className="bg-white shrink-0 px-4">
+            <PaginationBar
+              currentPage={Math.floor(pagination.skip / pagination.limit) + 1}
+              totalItems={
+                activeTab === 'requirement' ? (kpi?.totalRequirements || 0) :
+                  activeTab === 'task' ? (taskKPI?.totalTasks || 0) :
+                    (employeeKPI?.totalCount || 0)
+              }
+              pageSize={pagination.limit}
+              onPageChange={(page) => setPagination(prev => ({ ...prev, skip: (page - 1) * pagination.limit }))}
+              onPageSizeChange={(limit) => setPagination({ limit, skip: 0 })}
+              itemLabel={activeTab === 'requirement' ? 'requirements' : activeTab === 'task' ? 'tasks' : 'members'}
+            />
+          </div>
+        )}
 
         <EmployeeDetailsDrawer
           isOpen={!!selectedMemberId}

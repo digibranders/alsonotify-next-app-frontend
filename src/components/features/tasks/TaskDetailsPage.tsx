@@ -281,7 +281,7 @@ export function TaskDetailsPage() {
     >
       {/* Using CSS visibility to prevent DOM unmounting and flickering */}
       <div className="h-full overflow-y-auto p-0 bg-[#FAFAFA]">
-        <div style={{ display: activeTab === 'details' ? 'block' : 'none' }}>
+        <div className={activeTab === 'details' ? '' : 'hidden'}>
           <div className="space-y-8 p-8 max-w-5xl mx-auto">
             {/* Description Section */}
             <div className="bg-white rounded-[16px] p-8 border border-[#EEEEEE] shadow-sm">
@@ -438,7 +438,7 @@ export function TaskDetailsPage() {
           </div>
         </div>
 
-        <div style={{ display: activeTab === 'documents' ? 'block' : 'none' }}>
+        <div className={activeTab === 'documents' ? '' : 'hidden'}>
           <DocumentsTab activityData={documentsActivityData} />
         </div>
       </div>

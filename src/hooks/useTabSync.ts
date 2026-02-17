@@ -1,5 +1,5 @@
-import { useState, useCallback, useMemo, useEffect } from 'react';
-import { useSearchParams, useRouter, usePathname } from 'next/navigation';
+import { useState, useCallback, useMemo } from 'react';
+import { useSearchParams } from 'next/navigation';
 
 interface UseTabSyncOptions<T extends string> {
     defaultTab: T;
@@ -24,7 +24,8 @@ function getInitialTab<T extends string>(
 
 /**
  * Custom hook to sync tab state with URL search parameters.
- * Tab is synced from URL on popstate/load; router.replace keeps Next.js in sync.
+ * Uses history.replaceState to update URL without triggering a Next.js
+ * navigation re-render, eliminating tab switch flickering.
  */
 export function useTabSync<T extends string>({
     defaultTab,
@@ -32,53 +33,34 @@ export function useTabSync<T extends string>({
     paramName = 'tab'
 }: UseTabSyncOptions<T>) {
     const searchParams = useSearchParams();
-    const router = useRouter();
-    const pathname = usePathname();
 
     // Stabilization for validTabs
     const validTabsJson = JSON.stringify(validTabs);
     const stableValidTabs = useMemo(() => validTabs, [validTabsJson, validTabs]);
 
-    // Initialize state from URL
+    // Initialize state from URL (runs once on mount)
     const [activeTab, setActiveTabState] = useState<T>(() =>
         getInitialTab(new URLSearchParams(searchParams.toString()), stableValidTabs, defaultTab, paramName)
     );
 
-    useEffect(() => {
-        const tabFromUrl = searchParams.get(paramName) as T | null;
-        const targetTab = (tabFromUrl && stableValidTabs.includes(tabFromUrl))
-            ? tabFromUrl
-            : defaultTab;
-
-        if (targetTab !== activeTab) {
-            // Defer update to avoid "setState synchronously in effect" warning
-            const timer = setTimeout(() => {
-                setActiveTabState(targetTab);
-            }, 0);
-            return () => clearTimeout(timer);
-        }
-    }, [searchParams, paramName, stableValidTabs, defaultTab, activeTab]);
-
-    // Handler to update state and URL
+    // Handler to update state and URL without triggering Next.js re-render
     const setActiveTab = useCallback((newTab: T) => {
         if (!stableValidTabs.includes(newTab)) return;
 
-        // 1. Update local state
+        // 1. Update local state immediately (single synchronous render)
         setActiveTabState(newTab);
 
-        // 2. Update URL using Next.js Router (proper way to keep useSearchParams in sync)
-        const params = new URLSearchParams(searchParams.toString());
+        // 2. Update URL without triggering Next.js navigation/re-render
+        const params = new URLSearchParams(window.location.search);
         if (newTab === defaultTab) {
             params.delete(paramName);
         } else {
             params.set(paramName, newTab);
         }
-
         const query = params.toString();
-        const url = query ? `${pathname}?${query}` : pathname;
-
-        router.replace(url, { scroll: false });
-    }, [searchParams, pathname, router, paramName, defaultTab, stableValidTabs]);
+        const url = `${window.location.pathname}${query ? `?${query}` : ''}`;
+        window.history.replaceState(null, '', url);
+    }, [paramName, defaultTab, stableValidTabs]);
 
     return [activeTab, setActiveTab] as const;
 }

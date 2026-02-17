@@ -339,11 +339,11 @@ export function RequirementDetailsPage() {
 
         {/* Content Area - Using CSS visibility to prevent DOM unmounting and flickering */}
         <div className="flex-1 overflow-y-auto p-8 bg-[#FAFAFA]">
-          <div style={{ display: activeTab === 'details' ? 'block' : 'none' }}>
+          <div className={activeTab === 'details' ? '' : 'hidden'}>
             <RequirementInfoCard requirement={requirement} workspace={workspace} tasks={tasks} timezone={timezone} />
           </div>
 
-          <div style={{ display: activeTab === 'tasks' ? 'block' : 'none' }}>
+          <div className={activeTab === 'tasks' ? '' : 'hidden'}>
             <div className="max-w-5xl mx-auto space-y-8">
               {/* Tasks Section */}
               <div className="bg-white rounded-[16px] p-8 border border-[#EEEEEE] shadow-sm">
@@ -511,24 +511,22 @@ export function RequirementDetailsPage() {
             </div>
           </div>
 
-          <div style={{ display: activeTab === 'gantt' ? 'block' : 'none' }}>
+          <div className={activeTab === 'gantt' ? '' : 'hidden'}>
             <GanttChartTab
               tasks={tasks}
-              revisions={revisions}
-              ganttView={ganttView}
-              setGanttView={setGanttView}
+              workingDays={companyData?.result?.working_hours?.working_days}
             />
           </div>
 
-          <div style={{ display: activeTab === 'kanban' ? 'block' : 'none' }}>
+          <div className={activeTab === 'kanban' ? '' : 'hidden'}>
             <KanbanBoardTab tasks={tasks} revisions={revisions} />
           </div>
 
-          <div style={{ display: activeTab === 'pnl' ? 'block' : 'none' }}>
+          <div className={activeTab === 'pnl' ? '' : 'hidden'}>
             <PnLTab requirement={requirement} tasks={tasks} />
           </div>
 
-          <div style={{ display: activeTab === 'documents' ? 'block' : 'none' }}>
+          <div className={activeTab === 'documents' ? '' : 'hidden'}>
             <DocumentsTab activityData={documentsActivityData} />
           </div>
         </div>

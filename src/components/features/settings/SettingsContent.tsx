@@ -390,7 +390,7 @@ export function SettingsContent({
                                 className={`pb-3 px-1 relative font-['Manrope:SemiBold',sans-serif] text-[14px] transition-colors whitespace-nowrap ${activeTab === tab ? 'text-[#ff3b3b]' : 'text-[#666666] hover:text-[#111111]'}`}
                             >
                                 {tab.charAt(0).toUpperCase() + tab.slice(1).replace('-', ' ')}
-                                {activeTab === tab && <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#ff3b3b]" />}
+                                <div className={`absolute bottom-0 left-0 right-0 h-[2px] bg-[#ff3b3b] transition-opacity duration-150 ${activeTab === tab ? 'opacity-100' : 'opacity-0'}`} />
                             </button>
                         ))}
                 </div>
@@ -398,7 +398,7 @@ export function SettingsContent({
 
             {/* Content Area */}
             <div className="flex-1 overflow-y-auto pr-2 pb-10 custom-scrollbar">
-                <div style={{ display: activeTab === 'company' ? 'block' : 'none' }}>
+                <div className={activeTab === 'company' ? '' : 'hidden'}>
                     <CompanyDetailsTab
                         isIndividual={isIndividual} isAdmin={isAdmin} canEditCompany={canEditCompany} isEditing={isEditing}
                         companyName={companyName} setCompanyName={setCompanyName} companyLogo={companyLogo} setCompanyLogo={setCompanyLogo}
@@ -413,8 +413,8 @@ export function SettingsContent({
                         handleDeleteDocument={handleDeleteDocument} toggleDocumentRequired={toggleDocumentRequired}
                     />
                 </div>
-                <div style={{ display: activeTab === 'notifications' ? 'block' : 'none' }}><NotificationsTab notifications={notifications} setNotifications={setNotifications} /></div>
-                <div style={{ display: activeTab === 'security' ? 'block' : 'none' }}>
+                <div className={activeTab === 'notifications' ? '' : 'hidden'}><NotificationsTab notifications={notifications} setNotifications={setNotifications} /></div>
+                <div className={activeTab === 'security' ? '' : 'hidden'}>
                     <SecurityTab
                         security={security}
                         setSecurity={setSecurity}
@@ -425,7 +425,7 @@ export function SettingsContent({
                         canEditSecurity={canEditSecurity}
                     />
                 </div>
-                <div style={{ display: activeTab === 'leaves' ? 'block' : 'none' }}>
+                <div className={activeTab === 'leaves' ? '' : 'hidden'}>
                     <LeavesTab
                         isEditing={isEditing}
                         leaves={leaves}
@@ -441,7 +441,7 @@ export function SettingsContent({
                         handleDeleteHoliday={handleDeleteHoliday}
                     />
                 </div>
-                <div style={{ display: activeTab === 'working-hours' ? 'block' : 'none' }}>
+                <div className={activeTab === 'working-hours' ? '' : 'hidden'}>
                     <WorkingHoursTab
                         workingDays={workingDays}
                         toggleWorkingDay={toggleWorkingDay}
@@ -458,7 +458,7 @@ export function SettingsContent({
                         setBreakTime={setBreakTime}
                     />
                 </div>
-                <div style={{ display: activeTab === 'access-management' ? 'block' : 'none' }}>
+                <div className={activeTab === 'access-management' ? '' : 'hidden'}>
                     <AccessManagementTab
                         key={selectedRoleId || 'new'}
                         canEditAccessManagement={isAdmin || !!permissions['EDIT_ACCESS_MANAGEMENT']}
@@ -486,7 +486,7 @@ export function SettingsContent({
                         }, [rolePermissions])}
                     />
                 </div>
-                <div style={{ display: activeTab === 'integrations' ? 'block' : 'none' }}><IntegrationsTab /></div>
+                <div className={activeTab === 'integrations' ? '' : 'hidden'}><IntegrationsTab /></div>
             </div>
 
             {/* Modals */}
