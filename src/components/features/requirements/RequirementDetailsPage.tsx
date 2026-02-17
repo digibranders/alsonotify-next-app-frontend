@@ -514,9 +514,7 @@ export function RequirementDetailsPage() {
           <div style={{ display: activeTab === 'gantt' ? 'block' : 'none' }}>
             <GanttChartTab
               tasks={tasks}
-              revisions={revisions}
-              ganttView={ganttView}
-              setGanttView={setGanttView}
+              workingDays={companyData?.result?.working_hours?.working_days}
             />
           </div>
 

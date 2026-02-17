@@ -195,7 +195,7 @@ export function ChatPanel({
             {/* Resize Handle */}
             {!isCollapsed && (
                 <div
-                    className="absolute inset-y-0 left-0 w-1 hover:w-2 hover:bg-[#ff3b3b]/10 cursor-col-resize z-20 flex items-center justify-center transition-all group"
+                    className="absolute top-[92px] bottom-0 left-0 w-1 hover:w-2 hover:bg-[#ff3b3b]/10 cursor-col-resize z-20 flex items-center justify-center transition-all group"
                     onMouseDown={startResizing}
                 >
                     <div className="h-8 w-0.5 bg-[#DDDDDD] group-hover:bg-[#ff3b3b]/50 rounded-full transition-colors" />

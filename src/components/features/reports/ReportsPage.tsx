@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import {
-  Download, Clock, CheckCircle2, AlertCircle, Loader2, ArrowUp, ArrowDown
+  Download, Clock, CheckCircle, ArrowUp, ArrowDown, Receipt, FilePlus
 } from 'lucide-react';
 import { PageLayout } from '../../layout/PageLayout';
 import { FilterBar, FilterOption } from '../../ui/FilterBar';
@@ -29,21 +29,27 @@ dayjs.extend(isBetween);
 
 function StatusBadge({ status }: { status: string }) {
   const config: Record<string, { icon: any, color: string, label: string }> = {
-    'Completed': { icon: CheckCircle2, color: 'text-[#0F9D58]', label: 'Completed' },
-    'In Progress': { icon: Loader2, color: 'text-[#2196F3]', label: 'In Progress' },
-    'Delayed': { icon: AlertCircle, color: 'text-[#FF3B3B]', label: 'Delayed' },
-    'Paid': { icon: CheckCircle2, color: 'text-[#0F9D58]', label: 'Paid' },
-    'Pending': { icon: Clock, color: 'text-[#F59E0B]', label: 'Pending' },
-    'Overdue': { icon: AlertCircle, color: 'text-[#FF3B3B]', label: 'Overdue' },
+    'Completed': { icon: Receipt, color: 'text-[#EF6C00]', label: 'Ready to Bill' },
+    'In Progress': { icon: Clock, color: 'text-[#2F80ED]', label: 'In Progress' },
+    'Delayed': { icon: Clock, color: 'text-[#EB5757]', label: 'Delayed' },
+    'paid': { icon: CheckCircle, color: 'text-[#7ccf00]', label: 'Payment Received' },
+    'billed': { icon: CheckCircle, color: 'text-[#2196F3]', label: 'Invoice Sent' },
+    'Draft': { icon: FilePlus, color: 'text-[#666666]', label: 'Draft' },
   };
 
-  const style = config[status] || { icon: Clock, color: 'text-[#999999]', label: status };
+  // Allow case-insensitive lookups or maps
+  const lookup = status === 'completed' ? 'Completed' :
+    status === 'in-progress' ? 'In Progress' :
+      status === 'delayed' ? 'Delayed' :
+        status;
+
+  const style = config[lookup] || { icon: Clock, color: 'text-[#6B7280]', label: status };
   const Icon = style.icon;
 
   return (
     <Tooltip title={style.label}>
       <div className="cursor-help inline-flex items-center justify-center p-1">
-        <Icon className={`w-5 h-5 ${style.color} ${status === 'In Progress' ? 'animate-spin' : ''}`} />
+        <Icon className={`w-5 h-5 ${style.color} ${lookup === 'In Progress' && status !== 'Delayed' ? '' : ''}`} />
       </div>
     </Tooltip>
   );
@@ -177,7 +183,6 @@ export function ReportsPage() {
       partner: 'All',
       member: 'All',
       status: 'All',
-      manager: 'All',
       leader: 'All',
       assigned: 'All',
       department: 'All',
@@ -606,7 +611,7 @@ export function ReportsPage() {
                 <div className="sticky top-0 z-20 bg-white grid grid-cols-[50px_2fr_1fr_1.2fr_1.5fr_100px_100px] gap-4 px-4 py-3 mb-2 items-center border-b border-transparent">
                   <div className="pl-2"><TableHeader label="No" /></div>
                   <TableHeader label="Requirement" sortKey="requirement" currentSort={sortConfig} onSort={handleSort} />
-                  <TableHeader label="Manager" sortKey="manager" currentSort={sortConfig} onSort={handleSort} />
+                  <TableHeader label="Contact Person" sortKey="manager" currentSort={sortConfig} onSort={handleSort} />
                   <TableHeader label="Timeline" />
                   <TableHeader label="Hours Utilization" sortKey="efficiency" currentSort={sortConfig} onSort={handleSort} />
                   <TableHeader label="Revenue" sortKey="revenue" currentSort={sortConfig} onSort={handleSort} />
@@ -621,9 +626,9 @@ export function ReportsPage() {
                   >
                     <div className="pl-2 text-[13px] text-[#999999] font-['Inter:Medium',sans-serif]">{idx + 1}</div>
 
-                    <div className="flex flex-col justify-center">
-                      <span className="text-[14px] text-[#111111] font-['Manrope:Bold',sans-serif] mb-0.5">{row.requirement}</span>
-                      <span className="text-[12px] text-[#666666] font-['Inter:Regular',sans-serif]">{row.partner}</span>
+                    <div className="flex flex-col justify-center gap-0.5">
+                      <span className="text-[14px] text-[#111111] font-['Manrope:Bold',sans-serif] leading-tight truncate" title={row.requirement}>{row.requirement}</span>
+                      <span className="text-[10px] uppercase tracking-wider text-[#999999] font-['Manrope:Bold',sans-serif] truncate" title={row.partner}>{row.partner}</span>
                     </div>
 
                     <div className="text-[13px] text-[#666666] font-['Inter:Regular',sans-serif]">{row.manager || 'Unassigned'}</div>
@@ -652,19 +657,7 @@ export function ReportsPage() {
                   </div>
                 ))}
 
-                {filteredRequirements.length === 0 && (
-                  <div className="text-center py-12 text-[#999999] text-[13px]">No requirements found matching your filters.</div>
-                )}
-
-                <div className="pt-4 border-t border-[#EEEEEE]">
-                  <PaginationBar
-                    currentPage={Math.floor(pagination.skip / pagination.limit) + 1}
-                    totalItems={kpi.totalRequirements}
-                    pageSize={pagination.limit}
-                    onPageChange={(page) => setPagination(prev => ({ ...prev, skip: (page - 1) * pagination.limit }))}
-                    onPageSizeChange={(limit) => setPagination({ limit, skip: 0 })}
-                  />
-                </div>
+                {/* Pagination moved outside */}
               </div>
             )}
           </div>
@@ -721,16 +714,7 @@ export function ReportsPage() {
                 {filteredTasks.length === 0 && (
                   <div className="text-center py-12 text-[#999999] text-[13px]">No tasks found matching your filters.</div>
                 )}
-
-                <div className="pt-4 border-t border-[#EEEEEE]">
-                  <PaginationBar
-                    currentPage={Math.floor(pagination.skip / pagination.limit) + 1}
-                    totalItems={taskKPI.totalTasks}
-                    pageSize={pagination.limit}
-                    onPageChange={(page) => setPagination(prev => ({ ...prev, skip: (page - 1) * pagination.limit }))}
-                    onPageSizeChange={(limit) => setPagination({ limit, skip: 0 })}
-                  />
-                </div>
+                {/* Pagination moved outside */}
               </div>
             )}
           </div>
@@ -818,19 +802,29 @@ export function ReportsPage() {
                   <div className="text-center py-12 text-[#999999] text-[13px]">No employees found matching your filters.</div>
                 )}
 
-                <div className="pt-4 border-t border-[#EEEEEE]">
-                  <PaginationBar
-                    currentPage={Math.floor(pagination.skip / pagination.limit) + 1}
-                    totalItems={employeeData?.kpi?.totalCount || employees.length}
-                    pageSize={pagination.limit}
-                    onPageChange={(page) => setPagination(prev => ({ ...prev, skip: (page - 1) * pagination.limit }))}
-                    onPageSizeChange={(limit) => setPagination({ limit, skip: 0 })}
-                  />
-                </div>
+                {/* Pagination moved outside */}
               </div>
             )}
           </div>
         </div>
+
+        {/* Unified Sticky Pagination Bar */}
+        {!isLoadingRequirements && !isLoadingTasks && !isLoadingEmployees && (
+          <div className="bg-white shrink-0 px-4">
+            <PaginationBar
+              currentPage={Math.floor(pagination.skip / pagination.limit) + 1}
+              totalItems={
+                activeTab === 'requirement' ? (kpi?.totalRequirements || 0) :
+                  activeTab === 'task' ? (taskKPI?.totalTasks || 0) :
+                    (employeeKPI?.totalCount || 0)
+              }
+              pageSize={pagination.limit}
+              onPageChange={(page) => setPagination(prev => ({ ...prev, skip: (page - 1) * pagination.limit }))}
+              onPageSizeChange={(limit) => setPagination({ limit, skip: 0 })}
+              itemLabel={activeTab === 'requirement' ? 'requirements' : activeTab === 'task' ? 'tasks' : 'members'}
+            />
+          </div>
+        )}
 
         <EmployeeDetailsDrawer
           isOpen={!!selectedMemberId}
