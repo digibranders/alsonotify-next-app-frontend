@@ -113,8 +113,8 @@ function getSenderCTA(
         displayStatus: 'Work Completed. Review Needed.',
         isPending: true,
         tab,
-        primaryAction: createAction('Approve Work', 'primary', 'none', 'approve'),
-        secondaryAction: createAction('Request Revision', 'danger', 'reject'),
+        primaryAction: createAction('Approve Work', 'primary', 'approval'),
+        secondaryAction: createAction('Request Revision', 'danger', 'revision'),
       };
 
     case 'Revision':
@@ -261,7 +261,7 @@ function getReceiverCTA(
         displayStatus: 'Work In Progress',
         isPending: false,
         tab,
-        primaryAction: createAction('Submit for Review', 'primary', 'none', 'submit_review'),
+        primaryAction: createAction('Submit for Approval', 'primary', 'submit_approval'),
         secondaryAction: createAction('Mark Blocked', 'danger', 'none', 'mark_blocked'),
       };
 
@@ -422,7 +422,7 @@ function getInternalCTA(
         displayStatus: 'In Progress',
         isPending: false,
         tab,
-        primaryAction: createAction('Submit for Review', 'primary', 'none', 'submit_review'),
+        primaryAction: createAction('Submit for Approval', 'primary', 'submit_approval'),
         secondaryAction: createAction('Mark Blocked', 'danger', 'none', 'mark_blocked'),
       };
 
@@ -431,8 +431,8 @@ function getInternalCTA(
         displayStatus: 'Awaiting Review',
         isPending: true,
         tab,
-        primaryAction: createAction('Approve', 'primary', 'none', 'approve'),
-        secondaryAction: createAction('Request Revision', 'danger', 'reject'),
+        primaryAction: createAction('Approve', 'primary', 'approval'),
+        secondaryAction: createAction('Request Revision', 'danger', 'revision'),
       };
 
     case 'Revision':

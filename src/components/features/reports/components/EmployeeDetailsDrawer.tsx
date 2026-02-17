@@ -47,7 +47,6 @@ const EmployeeDetailsDrawer: React.FC<EmployeeDetailsDrawerProps> = ({
             closable={false}
             onClose={onClose}
             open={isOpen}
-            width={width}
             styles={{ body: { padding: 0 }, wrapper: { width: width } }}
             className="resizable-drawer"
         >

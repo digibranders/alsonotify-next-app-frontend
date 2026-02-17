@@ -139,7 +139,11 @@ export const ReportsPdfTemplate = ({ activeTab, data, kpis, dateRange, companyNa
                     {/* KPIs (Page 1 Only) */}
                     {pageIndex === 0 && (
                         <div style={{
-                            display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '15px', marginBottom: '30px', flexShrink: 0
+                            display: 'grid',
+                            gridTemplateColumns: activeTab === 'member' ? 'repeat(3, 1fr)' : 'repeat(4, 1fr)',
+                            gap: '15px',
+                            marginBottom: '30px',
+                            flexShrink: 0
                         }}>
                             {activeTab === 'requirement' && renderRequirementKPIs(kpis as ReportKPI)}
                             {activeTab === 'task' && renderTaskKPIs(kpis as TaskReportsResponse['kpi'])}
@@ -671,6 +675,8 @@ function renderEmployeeKPIs(kpi: EmployeeKPI) {
             <KPICard label="Total Revenue" value={`$${kpi.totalRevenue?.toLocaleString()}`} color="#0F9D58" />
             <KPICard label="Net Profit" value={`$${kpi.netProfit?.toLocaleString()}`} color={kpi.netProfit >= 0 ? "#0F9D58" : "#FF3B3B"} />
             <KPICard label="Avg. Rate/Hr" value={`$${kpi.avgRatePerHr?.toLocaleString()}`} color="#2196F3" />
+            <KPICard label="Occupancy" value={`${kpi.avgOccupancy}%`} color={kpi.avgOccupancy >= 70 ? "#0F9D58" : "#FF3B3B"} />
+            <KPICard label="Efficiency" value={`${kpi.avgEfficiency}%`} color={kpi.avgEfficiency >= 75 ? "#0F9D58" : "#FF3B3B"} />
         </>
     )
 }

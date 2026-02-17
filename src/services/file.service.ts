@@ -100,6 +100,22 @@ export const fileService = {
   },
 
   /**
+   * List files for a given context (e.g., all files attached to a requirement)
+   */
+  listFiles: async (
+    contextType: FileContextType,
+    contextId: number
+  ): Promise<FileAttachmentDto[]> => {
+    const { data } = await axiosApi.get<ApiResponse<FileAttachmentDto[]>>('/files/list', {
+      params: { context_type: contextType, context_id: contextId }
+    });
+    if (!data.success) {
+      throw new Error(data.message || 'Failed to list files');
+    }
+    return data.result ?? [];
+  },
+
+  /**
    * Helper to download a file given its ID
    */
   getDownloadUrl: async (fileId: number): Promise<string> => {

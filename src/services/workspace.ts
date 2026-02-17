@@ -2,7 +2,7 @@
 import axiosApi from "../config/axios";
 import { ApiResponse } from "../types/api";
 import { WorkspaceDto, ProjectCommentDto, CreateWorkspaceRequestDto, UpdateWorkspaceRequestDto } from "../types/dto/workspace.dto";
-import { RequirementDto, CreateRequirementRequestDto, UpdateRequirementRequestDto, RequirementDropdownItem } from "../types/dto/requirement.dto";
+import { RequirementDto, CreateRequirementRequestDto, UpdateRequirementRequestDto, RequirementDropdownItem, SubmitForReviewRequestDto, ApproveRequirementRequestDto } from "../types/dto/requirement.dto";
 
 // Create workspace
 export const createWorkspace = async (params: CreateWorkspaceRequestDto): Promise<ApiResponse<WorkspaceDto>> => {
@@ -70,13 +70,9 @@ export const deleteRequirementById = async (id: number, workspace_id: number): P
 };
 
 export const approveRequirement = async (
-  requirement_id: number,
-  status: "Assigned" | "Rejected"
+  params: ApproveRequirementRequestDto
 ): Promise<ApiResponse<RequirementDto>> => {
-  const { data } = await axiosApi.post<ApiResponse<RequirementDto>>("/workspace/requirement/approve", {
-    requirement_id,
-    status,
-  });
+  const { data } = await axiosApi.post<ApiResponse<RequirementDto>>("/requirement/approve", params);
   return data;
 };
 
@@ -121,8 +117,11 @@ export const getCommentById = async (
 };
 
 // === WORKFLOW: Submit Requirement for Review ===
-export const submitRequirementForReview = async (requirementId: number): Promise<ApiResponse<RequirementDto>> => {
-  const { data } = await axiosApi.post<ApiResponse<RequirementDto>>(`/requirement/${requirementId}/submit-for-review`);
+export const submitRequirementForReview = async (
+  requirementId: number,
+  body: SubmitForReviewRequestDto = {}
+): Promise<ApiResponse<RequirementDto>> => {
+  const { data } = await axiosApi.post<ApiResponse<RequirementDto>>(`/requirement/${requirementId}/submit-for-review`, body);
   return data;
 };
 

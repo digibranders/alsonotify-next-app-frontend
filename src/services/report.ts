@@ -158,6 +158,8 @@ export interface EmployeeKPI {
     totalRevenue: number;
     netProfit: number;
     avgRatePerHr: number;
+    avgOccupancy: number;
+    avgEfficiency: number;
     totalCount: number;
 }
 

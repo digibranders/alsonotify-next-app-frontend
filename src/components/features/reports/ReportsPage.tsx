@@ -353,14 +353,17 @@ export function ReportsPage() {
     );
 
     return {
-      totalInvestment: totals.totalInvestment,
-      totalRevenue: totals.totalRevenue,
-      netProfit: totals.totalRevenue - totals.totalInvestment,
-      avgRatePerHr: totals.totalEngagedHrs > 0
+      totalInvestment: Math.round(totals.totalInvestment),
+      totalRevenue: Math.round(totals.totalRevenue),
+      netProfit: Math.round(totals.totalRevenue - totals.totalInvestment),
+      avgRatePerHr: Math.round(totals.totalEngagedHrs > 0
         ? totals.totalRevenue / totals.totalEngagedHrs
-        : 0,
-      avgUtilization: filteredEmployees.length > 0
+        : 0),
+      avgOccupancy: filteredEmployees.length > 0
         ? Math.round(totals.totalUtilization / filteredEmployees.length)
+        : 0,
+      avgEfficiency: filteredEmployees.length > 0
+        ? Math.round(filteredEmployees.reduce((acc, e) => acc + (e.efficiency || 0), 0) / filteredEmployees.length)
         : 0,
       totalCount: employeeData?.kpi?.totalCount || filteredEmployees.length
     };
@@ -401,7 +404,7 @@ export function ReportsPage() {
   const selectedMember = selectedMemberData ? {
     ...selectedMemberData,
     totalWorkingHrs: selectedMemberData.utilization > 0 ? Math.round(selectedMemberData.engagedHrs / (selectedMemberData.utilization / 100)) : 0,
-    actualEngagedHrs: selectedMemberData.engagedHrs,
+    actualEngagedHrs: Math.round(selectedMemberData.engagedHrs),
     costPerHour: selectedMemberData.hourlyCost,
     billablePerHour: 0 // Not in API yet
   } : null;
@@ -464,7 +467,7 @@ export function ReportsPage() {
           />
 
           {/* Summary Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:grid-cols-5">
+          <div className={`grid grid-cols-1 sm:grid-cols-2 gap-4 ${activeTab === 'member' ? 'md:grid-cols-6' : 'md:grid-cols-5'}`}>
             {/* Requirement KPI Cards */}
             {isLoadingRequirements ? (
               Array.from({ length: 5 }).map((_, i) => (
@@ -545,9 +548,9 @@ export function ReportsPage() {
               </>
             )}
 
-            {/* Member/Employee KPI Cards - 5 columns layout */}
+            {/* Member/Employee KPI Cards - 6 columns layout */}
             {isLoadingEmployees ? (
-              Array.from({ length: 5 }).map((_, i) => (
+              Array.from({ length: 6 }).map((_, i) => (
                 <div key={`member-kpi-skel-${i}`} className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-1 justify-center animate-pulse ${activeTab === 'member' ? '' : 'hidden'}`}>
                   <Skeleton className="h-3 w-2/3" />
                   <Skeleton className="h-6 w-1/2" />
@@ -556,7 +559,7 @@ export function ReportsPage() {
             ) : (
               <>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'member' ? '' : 'hidden'}`}>
-                  <span className="text-[12px] font-medium text-[#666666]">Total Investment</span>
+                  <span className="text-[12px] font-medium text-[#666666]">Total Expenses</span>
                   <span className="text-xl font-['Manrope:Bold',sans-serif] text-[#111111]">${employeeKPI.totalInvestment.toLocaleString()}</span>
                 </div>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'member' ? '' : 'hidden'}`}>
@@ -576,9 +579,15 @@ export function ReportsPage() {
                   </span>
                 </div>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'member' ? '' : 'hidden'}`}>
-                  <span className="text-[12px] font-medium text-[#666666]">Avg. Utilization</span>
-                  <span className={`text-xl font-['Manrope:Bold',sans-serif] ${employeeKPI.avgUtilization >= 70 ? 'text-[#0F9D58]' : 'text-[#FF3B3B]'}`}>
-                    {employeeKPI.avgUtilization}%
+                  <span className="text-[12px] font-medium text-[#666666]">Occupancy</span>
+                  <span className={`text-xl font-['Manrope:Bold',sans-serif] ${employeeKPI.avgOccupancy >= 70 ? 'text-[#0F9D58]' : 'text-[#FF3B3B]'}`}>
+                    {employeeKPI.avgOccupancy}%
+                  </span>
+                </div>
+                <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'member' ? '' : 'hidden'}`}>
+                  <span className="text-[12px] font-medium text-[#666666]">Efficiency</span>
+                  <span className={`text-xl font-['Manrope:Bold',sans-serif] ${employeeKPI.avgEfficiency >= 75 ? 'text-[#0F9D58]' : 'text-[#FF3B3B]'}`}>
+                    {employeeKPI.avgEfficiency}%
                   </span>
                 </div>
               </>
