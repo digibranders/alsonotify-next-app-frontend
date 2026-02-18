@@ -336,9 +336,9 @@ export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => 
   const isLoading = isLoadingTasks || isLoadingWorkspaces || isLoadingRequirements;
 
   return (
-    <div className="bg-white rounded-[24px] p-5 w-full h-full flex flex-col overflow-hidden border border-[#EEEEEE]">
+    <div className="bg-white rounded-[24px] p-5 w-full h-full flex flex-col overflow-y-auto border border-[#EEEEEE]">
       {/* Header */}
-      <div className="flex items-center justify-between mb-2 shrink-0">
+      <div className="flex items-center justify-between mb-3 shrink-0">
         <h3 className="font-semibold text-xl text-[#111111]">Progress</h3>
         {/* Date Range Selector */}
         <div className="relative z-20">
@@ -351,9 +351,9 @@ export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => 
       </div>
 
       {/* Main Content Area - contains cards and hours bar */}
-      <div className="flex-1 flex flex-col min-h-0 mt-1">
-        {/* Sub-cards Grid - Scrollable if content exceeds flexible height */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1 min-h-0 overflow-y-auto pr-1 scrollbar-hide py-1">
+      <div className="flex-1 flex flex-col min-h-0 gap-3">
+        {/* Sub-cards Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1 min-h-[160px]">
           <ProgressCard
             title="Requirements"
             data={requirementsData}
@@ -362,14 +362,13 @@ export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => 
             onClick={() => onNavigate && onNavigate('requirements')}
             onStatusClick={(status: string) => {
               if (onNavigate) {
-                // Map status to requirements page tab
-                let tab = 'active'; // Default to active tab
+                let tab = 'active';
                 if (status === 'Completed') {
                   tab = 'completed';
                 } else if (status === 'In Progress') {
                   tab = 'active';
                 } else if (status === 'Delayed') {
-                  tab = 'delayed'; // Correctly map to delayed tab
+                  tab = 'delayed';
                 }
                 onNavigate(`requirements?tab=${tab}`);
               }
@@ -384,7 +383,6 @@ export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => 
             onClick={() => onNavigate && onNavigate('tasks')}
             onStatusClick={(status: string) => {
               if (onNavigate) {
-                // Map status to tasks page tab
                 let tab = 'all';
                 if (status === 'In Progress') {
                   tab = 'In_Progress';
@@ -401,7 +399,7 @@ export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => 
 
         {/* Hours Bar - Only show for ORGANIZATION accounts */}
         {!isIndividual && (
-          <div className="shrink-0 pt-2 border-t border-gray-50 mt-1">
+          <div className="shrink-0">
             <HoursBar data={hoursData} onClick={() => onNavigate && onNavigate('tasks')} />
           </div>
         )}
@@ -421,41 +419,47 @@ interface HoursBarProps {
 }
 
 function HoursBar({ data, onClick }: HoursBarProps) {
+  const isOverCapacity = data.allotted > data.total && data.total > 0;
+
   return (
     <div
-      className="group bg-white rounded-[14px] border border-gray-50 p-3 hover:shadow-lg hover:border-[#ff3b3b]/10 transition-all duration-300 cursor-pointer"
+      className="group bg-[#fafafa] rounded-[14px] border border-gray-100 p-3 hover:shadow-md hover:border-[#ff3b3b]/15 transition-all duration-300 cursor-pointer"
       onClick={onClick}
     >
       <div className="flex items-center gap-3">
         {/* Label Section */}
-        <div className="flex items-center gap-2 min-w-[110px]">
-          <h4 className=" font-semibold text-xs text-[#111111]">Hours Capacity</h4>
-        </div>
+        <h4 className="font-semibold text-xs text-[#111111] shrink-0 w-[100px]">Hours Capacity</h4>
 
         {/* Progress Bar Section */}
-        <div className="flex-1 flex items-center gap-2">
-          <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+        <div className="flex-1 flex flex-col gap-1 min-w-0">
+          <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-[#7ccf00] to-[#6ab800] transition-all duration-500 rounded-full"
+              className={`h-full transition-all duration-500 rounded-full ${isOverCapacity
+                ? 'bg-gradient-to-r from-[#ff3b3b] to-[#e02020]'
+                : 'bg-gradient-to-r from-[#7ccf00] to-[#6ab800]'
+                }`}
               style={{ width: `${Math.min(data.percentage, 100)}%` }}
             />
           </div>
         </div>
 
         {/* Stats Section */}
-        <div className="flex items-center gap-4 min-w-[170px]">
-          <div className="flex items-center gap-1.5">
-            <span className="text-[0.625rem] text-[#666666] font-medium">Balance:</span>
-            <span className="text-xs font-bold text-[#111111]">{data.remaining}h</span>
+        <div className="flex items-center gap-3 shrink-0">
+          <div className="flex items-center gap-1">
+            <span className="text-[0.625rem] text-[#888888] font-medium">Balance:</span>
+            <span className={`text-xs font-bold ${isOverCapacity ? 'text-[#ff3b3b]' : 'text-[#111111]'}`}>
+              {data.remaining}h
+            </span>
           </div>
-          <div className="flex items-center gap-1.5">
-            <span className="text-[0.625rem] text-[#666666] font-medium">Total:</span>
+          <div className="w-px h-3 bg-gray-200" />
+          <div className="flex items-center gap-1">
+            <span className="text-[0.625rem] text-[#888888] font-medium">Total:</span>
             <span className="text-xs font-bold text-[#111111]">{data.total}h</span>
           </div>
         </div>
 
         {/* Arrow Icon */}
-        <div className="w-6 h-6 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-[#ff3b3b] transition-colors duration-300 shrink-0">
+        <div className="w-6 h-6 rounded-full bg-white border border-gray-100 flex items-center justify-center group-hover:bg-[#ff3b3b] group-hover:border-[#ff3b3b] transition-all duration-300 shrink-0">
           <ArrowRight className="w-3 h-3 text-gray-400 group-hover:text-white transition-colors duration-300" />
         </div>
       </div>
@@ -495,18 +499,20 @@ function ProgressCard({ title, data, isLoading = false, dateRangeLabel = 'this p
 
   if (isLoading) {
     return (
-      <div className="group relative flex flex-col bg-white rounded-[20px] border border-gray-100 p-4 h-full overflow-hidden">
+      <div className="group relative flex flex-col bg-white rounded-[20px] border border-gray-100 p-4 h-full min-h-[140px] overflow-hidden">
         {/* Header Skeleton */}
         <div className="flex items-center justify-between mb-3 z-10 shrink-0">
           <Skeleton className="h-6 w-24 rounded-md" />
           <Skeleton className="w-8 h-8 rounded-full" />
         </div>
         {/* Content Skeleton */}
-        <div className="flex-1 flex items-center gap-5 min-h-[140px] px-2">
-          {/* Chart Skeleton */}
-          <Skeleton className="w-[130px] h-[130px] rounded-full shrink-0" />
+        <div className="flex-1 flex items-center gap-4 px-1 min-h-0">
+          {/* Chart Skeleton - fluid square */}
+          <div className="relative aspect-square w-[35%] max-w-[140px] min-w-[90px] shrink-0">
+            <Skeleton className="w-full h-full rounded-full" />
+          </div>
           {/* Legend Skeleton */}
-          <div className="flex-1 flex flex-col justify-center gap-2">
+          <div className="flex-1 flex flex-col justify-center gap-1">
             {[1, 2, 3].map((i) => (
               <div key={i} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
                 <div className="flex items-center gap-3">
@@ -524,29 +530,29 @@ function ProgressCard({ title, data, isLoading = false, dateRangeLabel = 'this p
 
   return (
     <div
-      className="group relative flex flex-col bg-white rounded-[20px] border border-gray-100 p-4 hover:shadow-lg hover:border-[#ff3b3b]/10 transition-all duration-300 cursor-pointer h-full"
+      className="group relative flex flex-col bg-white rounded-[20px] border border-gray-100 p-4 hover:shadow-lg hover:border-[#ff3b3b]/10 transition-all duration-300 cursor-pointer h-full min-h-[140px]"
       onClick={onClick}
     >
       {/* Card Header */}
       <div className="flex items-center justify-between mb-3 z-10 shrink-0">
-        <h4 className=" font-semibold text-base text-[#111111]">{title}</h4>
-        <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-[#ff3b3b] transition-colors duration-300">
+        <h4 className="font-semibold text-base text-[#111111]">{title}</h4>
+        <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-[#ff3b3b] transition-colors duration-300 shrink-0">
           <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-white transition-colors duration-300" />
         </div>
       </div>
 
       {/* Content Container - Side by Side Layout */}
-      <div className="flex-1 flex items-center gap-5 min-h-0 px-2 overflow-hidden">
-        {/* Chart Section */}
-        <div className="relative w-[130px] h-[130px] shrink-0">
+      <div className="flex-1 flex items-center gap-4 min-h-0 px-1 overflow-hidden" style={{ minHeight: 0 }}>
+        {/* Chart Section — fluid square, 35% of card width, clamped; also capped by card height */}
+        <div className="relative aspect-square w-[35%] max-w-[120px] min-w-[80px] shrink-0 self-center">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
               <Pie
                 data={renderData}
                 cx="50%"
                 cy="50%"
-                innerRadius={45}
-                outerRadius={60}
+                innerRadius="68%"
+                outerRadius="90%"
                 paddingAngle={data.total === 0 ? 0 : 4}
                 cornerRadius={data.total === 0 ? 0 : 4}
                 dataKey="value"
@@ -560,12 +566,9 @@ function ProgressCard({ title, data, isLoading = false, dateRangeLabel = 'this p
                 <Label
                   content={({ viewBox }) => {
                     if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-                      // If total is 0, show a message instead of "0 Total"
                       if (data.total === 0) {
                         const itemType = title.toLowerCase();
-                        // Create a more readable message based on date range
                         let periodText = (dateRangeLabel || 'this period').toLowerCase();
-                        // Handle custom date ranges (format: "MMM D - MMM D")
                         if (periodText.includes(' - ')) {
                           periodText = 'this period';
                         }
@@ -579,14 +582,18 @@ function ProgressCard({ title, data, isLoading = false, dateRangeLabel = 'this p
                             <tspan
                               x={viewBox.cx}
                               y={(viewBox.cy || 0) - 8}
-                              className="fill-[#666666] text-[0.625rem] font-medium"
+                              fill="#666666"
+                              fontSize="10"
+                              fontWeight="500"
                             >
                               No {itemType}
                             </tspan>
                             <tspan
                               x={viewBox.cx}
                               y={(viewBox.cy || 0) + 8}
-                              className="fill-[#666666] text-[0.625rem] font-medium"
+                              fill="#666666"
+                              fontSize="10"
+                              fontWeight="500"
                             >
                               {periodText}
                             </tspan>
@@ -594,7 +601,6 @@ function ProgressCard({ title, data, isLoading = false, dateRangeLabel = 'this p
                         );
                       }
 
-                      // Otherwise show the total number
                       return (
                         <text
                           x={viewBox.cx}
@@ -604,17 +610,22 @@ function ProgressCard({ title, data, isLoading = false, dateRangeLabel = 'this p
                         >
                           <tspan
                             x={viewBox.cx}
-                            y={viewBox.cy}
-                            className="fill-[#111111] text-3xl font-extrabold tracking-tight"
+                            y={(viewBox.cy || 0) - 4}
+                            fill="#111111"
+                            fontSize="22"
+                            fontWeight="800"
                           >
                             {data.total || 0}
                           </tspan>
                           <tspan
                             x={viewBox.cx}
-                            y={(viewBox.cy || 0) + 20}
-                            className="fill-[#999999] text-[0.6875rem] font-semibold uppercase tracking-wider"
+                            y={(viewBox.cy || 0) + 14}
+                            fill="#999999"
+                            fontSize="9"
+                            fontWeight="600"
+                            letterSpacing="0.08em"
                           >
-                            Total
+                            TOTAL
                           </tspan>
                         </text>
                       );
@@ -628,7 +639,7 @@ function ProgressCard({ title, data, isLoading = false, dateRangeLabel = 'this p
         </div>
 
         {/* Legend / Stats Section */}
-        <div className="flex-1 flex flex-col justify-center">
+        <div className="flex-1 flex flex-col justify-center min-w-0">
           {chartData.map((item) => (
             <div
               key={item.name}
@@ -638,19 +649,19 @@ function ProgressCard({ title, data, isLoading = false, dateRangeLabel = 'this p
                   onStatusClick(item.name);
                 }
               }}
-              className={`flex items-center justify-between w-full py-2 border-b border-gray-50 last:border-0 group/item transition-colors rounded-lg px-2 -mx-2 ${onStatusClick
+              className={`flex items-center justify-between w-full py-[7px] border-b border-gray-50 last:border-0 group/item transition-colors rounded-lg px-2 -mx-2 ${onStatusClick
                 ? 'hover:bg-gray-50/50 cursor-pointer'
                 : 'cursor-default'
                 } ${item.value === 0 ? 'opacity-60' : ''}`}
             >
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2.5 min-w-0">
                 <div className="w-2 h-2 rounded-full shrink-0 ring-2 ring-white shadow-sm" style={{ backgroundColor: item.color }} />
-                <span className={`text-[0.8125rem] font-medium whitespace-nowrap group-hover/item:text-[#111111] transition-colors ${item.value > 0 ? 'text-[#111111]' : 'text-[#666666]'
+                <span className={`text-[0.8125rem] font-medium truncate group-hover/item:text-[#111111] transition-colors ${item.value > 0 ? 'text-[#111111]' : 'text-[#666666]'
                   }`}>
-                  {item.name === 'In Progress' ? 'In Progress' : item.name}
+                  {item.name}
                 </span>
               </div>
-              <span className={`text-base font-bold ${item.value > 0 ? 'text-[#111111]' : 'text-[#666666]'
+              <span className={`text-base font-bold shrink-0 ml-2 ${item.value > 0 ? 'text-[#111111]' : 'text-[#666666]'
                 }`}>
                 {item.value || 0}
               </span>

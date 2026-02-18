@@ -27,10 +27,10 @@ export default function DashboardPage() {
       {/* Responsive widget grid: mobile stack; tablet/small laptop: Progress full, Meetings|Leaves one row, Notes full below; xl: Progress+Meetings row 1, Notes+Leaves row 2 */}
       <div className="flex-1 flex flex-col gap-5 overflow-y-auto xl:overflow-hidden min-h-0 pr-1 xl:pr-0">
         {/* Desktop Layout (>1280px) - Two-column flex with relative vertical scaling */}
-        <div className="hidden xl:flex gap-5 flex-1 h-full min-h-0 overflow-hidden">
+        <div className="hidden xl:flex gap-5 flex-1 h-full min-h-[500px] overflow-y-auto overflow-x-hidden">
           {/* Main Column (2/3) */}
           <div className="flex-[2] flex flex-col gap-5 h-full min-w-0">
-            <div className="flex-[0.6] min-h-0">
+            <div className="flex-[0.6] min-h-[320px]">
               <ProgressWidget onNavigate={handleProgressNavigate} />
             </div>
             <div className="flex-[0.4] min-h-0">
