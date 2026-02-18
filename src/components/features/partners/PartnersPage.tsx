@@ -122,7 +122,7 @@ export function PartnersPageContent() {
                         isOrgAccount: !!item.company,
                         partner_user_id: item.partner_user_id,
                         company_id: item.company_id,
-                        logo_url: typeof item.company === 'object' ? (item.company as any)?.logo : undefined,
+                        logo_url: typeof item.company === 'object' ? (item.company as { logo?: string })?.logo : undefined,
                         account_managers: item.account_managers
                     };
                 });
@@ -138,7 +138,7 @@ export function PartnersPageContent() {
 
     useEffect(() => {
         fetchPartners();
-    }, []);
+    }, [fetchPartners]);
 
     // Sync activeTab with URL
     // Sync activeTab with URL - handled by useTabSync
@@ -179,7 +179,7 @@ export function PartnersPageContent() {
             };
             processInvite();
         }
-    }, [inviteToken, searchParams, router]);
+    }, [inviteToken, searchParams, router, message, fetchPartners]);
 
     // Pagination
     const [pagination, setPagination] = useState({
@@ -208,14 +208,18 @@ export function PartnersPageContent() {
             item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             item.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
             item.email.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesType = filters.type === 'All' || item.type.toUpperCase() === filters.type.toUpperCase();
+        const matchesType = filters.type === 'All' ||
+            filters.type.split(',').map(t => t.trim().toUpperCase()).includes(item.type.toUpperCase());
+
         const matchesCountry = filters.country === 'All' || (() => {
             if (!item.country) return false;
             let fullName = item.country;
             try {
                 fullName = new Intl.DisplayNames(['en'], { type: 'region' }).of(item.country) || item.country;
             } catch { /* empty */ }
-            return fullName.toLowerCase() === filters.country.toLowerCase();
+
+            const selectedCountries = filters.country.split(',').map(c => c.trim().toLowerCase());
+            return selectedCountries.includes(fullName.toLowerCase());
         })();
         return matchesTab && matchesSearch && matchesType && matchesCountry;
     });
@@ -410,8 +414,8 @@ export function PartnersPageContent() {
     ];
 
     const activeFilterOptions: FilterOption[] = [
-        { id: 'type', label: 'Type', options: ['All', 'Individual', 'Organization'], defaultValue: 'All' },
-        { id: 'country', label: 'Country', options: countries, defaultValue: 'All' }
+        { id: 'type', label: 'Type', options: ['All', 'Individual', 'Organization'], defaultValue: 'All', multiSelect: true },
+        { id: 'country', label: 'Country', options: countries, defaultValue: 'All', multiSelect: true }
     ];
 
 
@@ -424,10 +428,10 @@ export function PartnersPageContent() {
             setExpandedContent(
                 <>
                     <div className="flex items-center gap-2 border-r border-white/20 pr-6">
-                        <div className="bg-[#ff3b3b] text-white text-[12px] font-bold px-2 py-0.5 rounded-full">
+                        <div className="bg-[#ff3b3b] text-white text-xs font-bold px-2 py-0.5 rounded-full">
                             {selectedPartners.length}
                         </div>
-                        <span className="text-[14px] font-['Manrope:SemiBold',sans-serif]">Selected</span>
+                        <span className="text-sm font-semibold">Selected</span>
                     </div>
 
                     <div className="flex items-center gap-2">
@@ -444,7 +448,7 @@ export function PartnersPageContent() {
                         </Tooltip>
                     </div>
 
-                    <button onClick={() => setSelectedPartners([])} className="ml-2 text-[12px] text-[#999999] hover:text-white transition-colors">
+                    <button onClick={() => setSelectedPartners([])} className="ml-2 text-xs text-[#999999] hover:text-white transition-colors">
                         Cancel
                     </button>
                 </>
@@ -456,7 +460,7 @@ export function PartnersPageContent() {
         return () => {
             setExpandedContent(null);
         };
-    }, [selectedPartners]);
+    }, [selectedPartners, setExpandedContent]);
 
     return (
         <PageLayout
@@ -507,11 +511,11 @@ export function PartnersPageContent() {
                     <div className="sticky top-0 z-20 bg-white grid grid-cols-[40px_1.5fr_2fr_1fr_100px] gap-4 px-4 py-3 mb-2 items-center">
                         <div className="flex justify-center"></div>
                         <div className="pl-[44px]">
-                            <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide">Contact Person</p>
+                            <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Contact Person</p>
                         </div>
-                        <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide">Email</p>
-                        <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide">Status</p>
-                        <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide text-right pr-10">Actions</p>
+                        <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Email</p>
+                        <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Status</p>
+                        <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide text-right pr-10">Actions</p>
                     </div>
 
                     {/* Content */}
@@ -546,7 +550,7 @@ export function PartnersPageContent() {
                         ) : allRequests.length === 0 ? (
                             <div className="text-center py-20 bg-[#FAFAFA] rounded-2xl border border-dashed border-[#EEEEEE] mx-4">
                                 <Users className="w-10 h-10 text-[#CCCCCC] mx-auto mb-3" />
-                                <p className="text-[#999999] font-['Manrope:Medium',sans-serif]">
+                                <p className="text-[#999999] font-medium">
                                     {requestTypeFilter === 'All'
                                         ? 'No pending requests'
                                         : requestTypeFilter === 'Received'
@@ -567,15 +571,15 @@ export function PartnersPageContent() {
                                                         <div className={`w-2 h-2 rounded-full ${item.data.status === 'REJECTED' ? 'bg-[#EF4444]' : 'bg-[#3b8eff]'}`} title={item.data.status === 'REJECTED' ? "Rejected" : "New Invitation"} />
                                                     </div>
                                                     <div className="flex items-center gap-3">
-                                                        <div className="w-8 h-8 rounded-full bg-[#EFF6FF] text-[#2563EB] flex items-center justify-center text-[10px] font-bold shrink-0">
+                                                        <div className="w-8 h-8 rounded-full bg-[#EFF6FF] text-[#2563EB] flex items-center justify-center text-[0.625rem] font-bold shrink-0">
                                                             {(item.data.inviterName || "?")[0].toUpperCase()}
                                                         </div>
                                                         <div className="flex flex-col">
-                                                            <span className="font-['Manrope:Bold',sans-serif] text-[14px] text-[#111111]">
+                                                            <span className="font-bold text-sm text-[#111111]">
                                                                 {item.data.inviterName?.replace(' undefined', '')}
                                                             </span>
                                                             {item.data.inviterCompany && (
-                                                                <span className="text-[11px] text-[#999999] font-['Manrope:Regular',sans-serif]">
+                                                                <span className="text-[0.6875rem] text-[#999999] font-normal">
                                                                     {item.data.inviterCompany}
                                                                 </span>
                                                             )}
@@ -583,7 +587,7 @@ export function PartnersPageContent() {
                                                     </div>
                                                     <div className="flex items-center gap-2 text-[#666666] overflow-hidden">
                                                         <Mail className="w-3.5 h-3.5 shrink-0" />
-                                                        <span className="text-[13px] font-['Manrope:Medium',sans-serif] truncate block text-[#111111]">
+                                                        <span className="text-[0.8125rem] font-medium truncate block text-[#111111]">
                                                             {(item.data).inviterEmail || (item.data).email || (item.data).inviter_email || 'Not provided'}
                                                         </span>
                                                     </div>
@@ -591,12 +595,12 @@ export function PartnersPageContent() {
                                                         {item.data.status === 'REJECTED' ? (
                                                             <div className="w-2 h-2 rounded-full bg-[#EF4444]" title="Rejected" />
                                                         ) : (
-                                                            <Tag color="processing" className="text-[10px] font-bold uppercase rounded-full border-none px-2.5">Action Required</Tag>
+                                                            <Tag color="processing" className="text-[0.625rem] font-bold uppercase rounded-full border-none px-2.5">Action Required</Tag>
                                                         )}
                                                     </div>
                                                     <div className="flex justify-end gap-2 pr-5">
                                                         {item.data.status === 'REJECTED' ? (
-                                                            <Tag color="error" className="text-[10px] font-bold uppercase rounded-full border-none px-2.5">Rejected</Tag>
+                                                            <Tag color="error" className="text-[0.625rem] font-bold uppercase rounded-full border-none px-2.5">Rejected</Tag>
                                                         ) : (
                                                             <>
                                                                 <button onClick={() => handleAcceptInvite(item.data.id)} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#DCFCE7] text-[#16A34A] transition-colors"><Check className="w-4 h-4" /></button>
@@ -612,21 +616,21 @@ export function PartnersPageContent() {
                                                 <div className="grid grid-cols-[40px_1.5fr_2fr_1fr_100px] gap-4 items-center w-full">
                                                     <div className="flex justify-center"><div className="w-2 h-2 rounded-full bg-[#f59e0b]" title="Pending" /></div>
                                                     <div className="flex items-center gap-3">
-                                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${item.data.company ? 'bg-[#FEF2F2] text-[#DC2626]' : 'bg-[#EFF6FF] text-[#2563EB]'}`}>
+                                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-[0.625rem] font-bold shrink-0 ${item.data.company ? 'bg-[#FEF2F2] text-[#DC2626]' : 'bg-[#EFF6FF] text-[#2563EB]'}`}>
                                                             {(item.data.name || "?")[0].toUpperCase()}
                                                         </div>
                                                         <div className="flex flex-col">
-                                                            <span className="font-['Manrope:Bold',sans-serif] text-[14px] text-[#111111]">
+                                                            <span className="font-bold text-sm text-[#111111]">
                                                                 {(item.data.name || item.data.email)?.replace(' undefined', '')}
                                                             </span>
-                                                            {item.data.company && <span className="text-[11px] text-[#999999] font-['Manrope:Regular',sans-serif]">{item.data.company}</span>}
+                                                            {item.data.company && <span className="text-[0.6875rem] text-[#999999] font-normal">{item.data.company}</span>}
                                                         </div>
                                                     </div>
                                                     <div className="flex items-center gap-2 text-[#666666] overflow-hidden">
                                                         <Mail className="w-3.5 h-3.5 shrink-0" />
-                                                        <span className="text-[13px] font-['Manrope:Medium',sans-serif] truncate block text-[#111111]">{item.data.email}</span>
+                                                        <span className="text-[0.8125rem] font-medium truncate block text-[#111111]">{item.data.email}</span>
                                                     </div>
-                                                    <div><Tag color="orange" className="text-[10px] font-bold uppercase rounded-full border-none px-2.5">Pending</Tag></div>
+                                                    <div><Tag color="orange" className="text-[0.625rem] font-bold uppercase rounded-full border-none px-2.5">Pending</Tag></div>
                                                     <div className="flex justify-end pr-5">
                                                         <Dropdown
                                                             menu={{
@@ -637,7 +641,7 @@ export function PartnersPageContent() {
                                                                         icon: <Trash2 className="w-3.5 h-3.5" />,
                                                                         onClick: () => handleCancelRequest(item.data.id),
                                                                         danger: true,
-                                                                        className: "text-[13px] font-['Manrope:Medium',sans-serif]"
+                                                                        className: "text-[0.8125rem] font-medium"
                                                                     }
                                                                 ]
                                                             }}
@@ -676,14 +680,14 @@ export function PartnersPageContent() {
                             />
                         </div>
                         <div className="pl-[48px]">
-                            <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide">Business Name</p>
+                            <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Business Name</p>
                         </div>
-                        <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide">Contact Person</p>
-                        <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide">Type</p>
-                        <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide">Email</p>
-                        <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide">Onboarding</p>
-                        <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide">Status</p>
-                        <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide">Country</p>
+                        <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Contact Person</p>
+                        <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Type</p>
+                        <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Email</p>
+                        <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Onboarding</p>
+                        <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Status</p>
+                        <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Country</p>
                         <p></p>
                     </div>
 
@@ -742,7 +746,7 @@ export function PartnersPageContent() {
 
                                 {filteredPartners.length === 0 && (
                                     <div className="text-center py-12">
-                                        <p className="text-[#999999] font-['Manrope:Regular',sans-serif]">
+                                        <p className="text-[#999999] font-normal">
                                             No partners found
                                         </p>
                                     </div>
@@ -777,7 +781,7 @@ export function PartnersPageContent() {
             {/* Modal */}
             <Modal
                 title={
-                    <div className="flex items-center gap-2 text-[18px] font-['Manrope:Bold',sans-serif]">
+                    <div className="flex items-center gap-2 text-lg font-bold">
                         <UserOutlined className="p-2 bg-[#F7F7F7] rounded-full text-[#666666]" />
                         {editingPartner ? 'Partner Details' : 'Invite Partner'}
                     </div>
@@ -788,12 +792,12 @@ export function PartnersPageContent() {
                 okText={editingPartner ? 'Close' : 'Send Invitation'}
                 okButtonProps={{
                     className: editingPartner
-                        ? "bg-[#666666] hover:bg-[#555555] border-none rounded-[8px] h-10 px-6 font-['Manrope:SemiBold',sans-serif]"
-                        : "bg-[#111111] hover:bg-black border-none rounded-[8px] h-10 px-6 font-['Manrope:SemiBold',sans-serif]"
+                        ? "bg-[#666666] hover:bg-[#555555] border-none rounded-[8px] h-10 px-6 font-semibold"
+                        : "bg-[#111111] hover:bg-black border-none rounded-[8px] h-10 px-6 font-semibold"
                 }}
                 cancelButtonProps={{
                     style: { display: editingPartner ? 'none' : 'inline-block' },
-                    className: "rounded-[8px] h-10 px-6 font-['Manrope:SemiBold',sans-serif]"
+                    className: "rounded-[8px] h-10 px-6 font-semibold"
                 }}
                 centered
                 className="rounded-[16px] overflow-hidden"
@@ -802,30 +806,30 @@ export function PartnersPageContent() {
                     <div className="mt-6 space-y-6">
                         <div className="grid grid-cols-2 gap-6">
                             <div>
-                                <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wider mb-1">Contact Person</p>
-                                <p className="text-[14px] font-['Manrope:SemiBold',sans-serif] text-[#111111]">{editingPartner.name}</p>
+                                <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wider mb-1">Contact Person</p>
+                                <p className="text-sm font-semibold text-[#111111]">{editingPartner.name}</p>
                             </div>
                             {editingPartner.company && (
                                 <div>
-                                    <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wider mb-1">Company Name</p>
-                                    <p className="text-[14px] font-['Manrope:SemiBold',sans-serif] text-[#111111]">{editingPartner.company}</p>
+                                    <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wider mb-1">Company Name</p>
+                                    <p className="text-sm font-semibold text-[#111111]">{editingPartner.company}</p>
                                 </div>
                             )}
                         </div>
 
                         <div className="grid grid-cols-2 gap-6">
                             <div>
-                                <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wider mb-1">Email Address</p>
+                                <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wider mb-1">Email Address</p>
                                 <div className="flex items-center gap-2">
-                                    <MailOutlined className="text-[#666666] text-[12px]" />
-                                    <p className="text-[14px] font-['Manrope:Medium',sans-serif] text-[#111111]">{editingPartner.email}</p>
+                                    <MailOutlined className="text-[#666666] text-xs" />
+                                    <p className="text-sm font-medium text-[#111111]">{editingPartner.email}</p>
                                 </div>
                             </div>
                             <div>
-                                <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wider mb-1">Contact</p>
+                                <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wider mb-1">Contact</p>
                                 <div className="flex items-center gap-2">
-                                    <PhoneOutlined className="text-[#666666] text-[12px]" />
-                                    <p className="text-[14px] font-['Manrope:Medium',sans-serif] text-[#111111]">
+                                    <PhoneOutlined className="text-[#666666] text-xs" />
+                                    <p className="text-sm font-medium text-[#111111]">
                                         {(() => {
                                             const phone = editingPartner.phone || '';
                                             if (phone.startsWith('+')) return phone;
@@ -839,10 +843,10 @@ export function PartnersPageContent() {
 
                         <div className="grid grid-cols-2 gap-6">
                             <div>
-                                <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wider mb-1">Country</p>
+                                <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wider mb-1">Country</p>
                                 <div className="flex items-center gap-2">
                                     <Globe className="w-3.5 h-3.5 text-[#666666]" />
-                                    <p className="text-[14px] font-['Manrope:Medium',sans-serif] text-[#111111]">
+                                    <p className="text-sm font-medium text-[#111111]">
                                         {(() => {
                                             if (!editingPartner.country) return 'N/A';
                                             try {
@@ -855,8 +859,8 @@ export function PartnersPageContent() {
                                 </div>
                             </div>
                             <div>
-                                <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wider mb-1">Timezone</p>
-                                <p className="text-[14px] font-['Manrope:Medium',sans-serif] text-[#111111]">{editingPartner.timezone || 'N/A'}</p>
+                                <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wider mb-1">Timezone</p>
+                                <p className="text-sm font-medium text-[#111111]">{editingPartner.timezone || 'N/A'}</p>
                             </div>
                         </div>
                     </div>
@@ -865,7 +869,7 @@ export function PartnersPageContent() {
                         <div className="grid grid-cols-2 gap-4">
                             <Form.Item
                                 name="firstName"
-                                label={<span className="font-['Manrope:Bold',sans-serif] text-[13px]">First Name</span>}
+                                label={<span className="font-bold text-[0.8125rem]">First Name</span>}
                                 rules={[{ required: true, message: 'First name is required' }]}
                             >
                                 <Input
@@ -877,7 +881,7 @@ export function PartnersPageContent() {
 
                             <Form.Item
                                 name="lastName"
-                                label={<span className="font-['Manrope:Bold',sans-serif] text-[13px]">Last Name</span>}
+                                label={<span className="font-bold text-[0.8125rem]">Last Name</span>}
                             >
                                 <Input
                                     prefix={<UserOutlined className="text-gray-400" />}
@@ -889,7 +893,7 @@ export function PartnersPageContent() {
 
                         <Form.Item
                             name="email"
-                            label={<span className="font-['Manrope:Bold',sans-serif] text-[13px]">Email Address</span>}
+                            label={<span className="font-bold text-[0.8125rem]">Email Address</span>}
                             rules={[{ required: true, type: 'email', message: 'Valid email is required' }]}
                         >
                             <Input

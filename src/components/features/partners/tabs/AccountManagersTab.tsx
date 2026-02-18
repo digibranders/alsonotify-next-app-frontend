@@ -196,7 +196,7 @@ export function AccountManagersTab() {
 
         if (filteredManagers.length === 0) {
             return (
-                <div className="text-center py-10 text-[#999999] text-[13px]">
+                <div className="text-center py-10 text-[#999999] text-[0.8125rem]">
                     No account managers found
                 </div>
             );
@@ -213,7 +213,7 @@ export function AccountManagersTab() {
                 }`}
             >
                 {/* Avatar */}
-                <div className="w-10 h-10 rounded-full bg-white border border-[#EEEEEE] flex items-center justify-center flex-shrink-0 overflow-hidden text-[12px] font-bold text-[#666666]">
+                <div className="w-10 h-10 rounded-full bg-white border border-[#EEEEEE] flex items-center justify-center flex-shrink-0 overflow-hidden text-xs font-bold text-[#666666]">
                     {manager.profilePic ? (
                         <img src={manager.profilePic} alt={manager.name} className="w-full h-full object-cover" />
                     ) : getInitials(manager.name)}
@@ -221,14 +221,14 @@ export function AccountManagersTab() {
 
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-1">
-                        <h3 className={`text-[14px] font-['Manrope:SemiBold',sans-serif] truncate ${
+                        <h3 className={`text-sm font-semibold truncate ${
                             selectedManagerId === manager.id ? 'text-[#111111]' : 'text-[#444444]'
                         }`}>
                             {manager.name}
                         </h3>
                         {manager.role && (
                             <span 
-                                className="text-[10px] font-bold px-1.5 py-0.5 rounded-md uppercase shrink-0 ml-2"
+                                className="text-[0.625rem] font-bold px-1.5 py-0.5 rounded-md uppercase shrink-0 ml-2"
                                 style={{
                                     backgroundColor: manager.roleColor ? `${manager.roleColor}15` : '#EEEEEE',
                                     color: manager.roleColor || '#666666'
@@ -240,11 +240,11 @@ export function AccountManagersTab() {
                     </div>
                     <div className="flex flex-col gap-0.5">
                         {manager.designation && (
-                            <p className="text-[12px] text-[#666666] truncate font-['Manrope:Medium',sans-serif]">
+                            <p className="text-xs text-[#666666] truncate font-medium">
                                 {manager.designation}
                             </p>
                         )}
-                        <p className="text-[12px] text-[#999999] truncate flex items-center gap-1">
+                        <p className="text-xs text-[#999999] truncate flex items-center gap-1">
                             {manager.partnerCount} partners
                         </p>
                     </div>
@@ -265,16 +265,16 @@ export function AccountManagersTab() {
             {/* Header */}
             <div className="flex items-center justify-between mb-6 shrink-0">
                 <div>
-                    <h2 className="text-[18px] font-['Manrope:Bold',sans-serif] text-[#111111]">
+                    <h2 className="text-lg font-bold text-[#111111]">
                         Account Managers
                     </h2>
-                    <p className="text-[13px] text-[#666666] mt-1 font-['Manrope:Regular',sans-serif]">
+                    <p className="text-[0.8125rem] text-[#666666] mt-1 font-normal">
                         Manage account managers and their partner assignments
                     </p>
                 </div>
                 <Button
                     onClick={() => setIsAddModalOpen(true)}
-                    className="bg-[#111111] hover:bg-[#000000]/90 text-white font-['Manrope:SemiBold',sans-serif] px-6 h-11 rounded-full text-[13px] flex items-center gap-2 border-none transition-all shadow-md active:scale-95"
+                    className="bg-[#111111] hover:bg-[#000000]/90 text-white font-semibold px-6 h-11 rounded-full text-[0.8125rem] flex items-center gap-2 border-none transition-all shadow-md active:scale-95"
                 >
                     <Plus className="w-4 h-4" />
                     Add Manager
@@ -305,13 +305,13 @@ export function AccountManagersTab() {
                         <>
                             <div className="flex items-center justify-between mb-6 pb-6 border-b border-[#EEEEEE]">
                                 <div className="flex items-center gap-4">
-                                     <div className="w-14 h-14 rounded-full bg-[#F5F5F5] flex items-center justify-center flex-shrink-0 overflow-hidden text-[18px] font-bold text-[#666666]">
+                                     <div className="w-14 h-14 rounded-full bg-[#F5F5F5] flex items-center justify-center flex-shrink-0 overflow-hidden text-lg font-bold text-[#666666]">
                                         {selectedManager.profilePic ? (
                                             <img src={selectedManager.profilePic} alt={selectedManager.name} className="w-full h-full object-cover" />
                                         ) : getInitials(selectedManager.name)}
                                     </div>
                                     <div>
-                                        <h3 className="text-[18px] font-['Manrope:Bold',sans-serif] text-[#111111]">
+                                        <h3 className="text-lg font-bold text-[#111111]">
                                             {selectedManager.name}
                                         </h3>
                                     </div>
@@ -322,7 +322,7 @@ export function AccountManagersTab() {
                                     disabled={!hasChanges}
                                     loading={saving}
                                     onClick={handleSaveChanges}
-                                    className={`h-10 px-6 rounded-full font-['Manrope:SemiBold',sans-serif] border-none shadow-none ${
+                                    className={`h-10 px-6 rounded-full font-semibold border-none shadow-none ${
                                         hasChanges 
                                             ? 'bg-[#111111] hover:bg-[#000000]' 
                                             : 'bg-[#F5F5F5] text-[#999999] hover:bg-[#F5F5F5]'
@@ -334,7 +334,7 @@ export function AccountManagersTab() {
 
                             <div className="flex flex-col h-full overflow-hidden">
                                 <div className="mb-4">
-                                    <label className="text-[12px] font-['Manrope:Bold',sans-serif] text-[#111111] uppercase tracking-wide mb-2 block">
+                                    <label className="text-xs font-bold text-[#111111] uppercase tracking-wide mb-2 block">
                                         Assign Partners
                                     </label>
                                     <Select
@@ -354,14 +354,14 @@ export function AccountManagersTab() {
                                 </div>
 
                                 <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
-                                    <label className="text-[12px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide mb-3 block">
+                                    <label className="text-xs font-bold text-[#999999] uppercase tracking-wide mb-3 block">
                                         Assigned Partners ({assignedPartners.length})
                                     </label>
                                     
                                     {assignedPartners.length === 0 ? (
                                         <div className="flex flex-col items-center justify-center py-12 bg-[#F9FAFB] rounded-xl border border-dashed border-[#EEEEEE]">
                                             <Building2 className="w-8 h-8 text-[#DDDDDD] mb-3" />
-                                            <p className="text-[13px] text-[#999999]">No partners assigned yet</p>
+                                            <p className="text-[0.8125rem] text-[#999999]">No partners assigned yet</p>
                                         </div>
                                     ) : (
                                         <div className="grid grid-cols-1 gap-2">
@@ -374,7 +374,7 @@ export function AccountManagersTab() {
                                                         <div className="w-8 h-8 rounded-lg bg-[#F5F5F5] flex items-center justify-center text-[#666666]">
                                                             <Building2 className="w-4 h-4" />
                                                         </div>
-                                                        <span className="text-[14px] font-['Manrope:Medium',sans-serif] text-[#111111]">
+                                                        <span className="text-sm font-medium text-[#111111]">
                                                             {partner.label}
                                                         </span>
                                                     </div>
@@ -396,10 +396,10 @@ export function AccountManagersTab() {
                             <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4 shadow-sm">
                                 <User className="w-8 h-8 text-[#DDDDDD]" />
                             </div>
-                            <h3 className="text-[16px] font-['Manrope:SemiBold',sans-serif] text-[#111111]">
+                            <h3 className="text-base font-semibold text-[#111111]">
                                 Select an Account Manager
                             </h3>
-                            <p className="text-[13px] text-[#666666] mt-2 max-w-[280px]">
+                            <p className="text-[0.8125rem] text-[#666666] mt-2 max-w-[280px]">
                                 Select a manager from the list to view and manage their partner assignments.
                             </p>
                         </div>

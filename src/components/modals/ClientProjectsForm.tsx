@@ -54,7 +54,7 @@ export function ClientForm(props: ClientFormProps) {
         onCancel={onCancel}
         footer={null}
         title={null}
-        width={600}
+        width="min(600px, 95vw)"
         centered
         destroyOnHidden={true}
         className="rounded-[16px] overflow-hidden"
@@ -185,7 +185,7 @@ function ClientFormContent({
       {!isEditing ? (
         <div className="space-y-4">
           <div className="space-y-1.5">
-            <label className="text-[12px] font-bold text-[#111111] block">
+            <label className="text-xs font-bold text-[#111111] block">
               Client Email Address <span className="text-[#ff3b3b]">*</span>
             </label>
             <Input
@@ -203,7 +203,7 @@ function ClientFormContent({
           <div className="grid grid-cols-2 gap-6 mb-6">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="text-[12px] font-bold text-[#111111] block">
+                <label className="text-xs font-bold text-[#111111] block">
                   First Name <span className="text-[#ff3b3b]">*</span>
                 </label>
                 <Input
@@ -214,7 +214,7 @@ function ClientFormContent({
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-[12px] font-bold text-[#111111] block">
+                <label className="text-xs font-bold text-[#111111] block">
                   Last Name
                 </label>
                 <Input
@@ -226,7 +226,7 @@ function ClientFormContent({
               </div>
             </div>
             <div className="space-y-1.5">
-              <label className="text-[12px] font-bold text-[#111111] block">
+              <label className="text-xs font-bold text-[#111111] block">
                 Business Name
               </label>
               <Select
@@ -246,7 +246,7 @@ function ClientFormContent({
 
           <div className="grid grid-cols-2 gap-6 mb-6">
             <div className="space-y-1.5">
-              <label className="text-[12px] font-bold text-[#111111] block">
+              <label className="text-xs font-bold text-[#111111] block">
                 Email <span className="text-[#ff3b3b]">*</span>
               </label>
               <Input
@@ -259,7 +259,7 @@ function ClientFormContent({
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-[12px] font-bold text-[#111111] block">
+              <label className="text-xs font-bold text-[#111111] block">
                 Contact (Phone)
               </label>
               <div className="flex gap-2">
@@ -290,7 +290,7 @@ function ClientFormContent({
 
           <div className="grid grid-cols-2 gap-6 mb-6">
             <div className="space-y-1.5">
-              <label className="text-[12px] font-bold text-[#111111] block">
+              <label className="text-xs font-bold text-[#111111] block">
                 Country
               </label>
               <Select
@@ -307,7 +307,7 @@ function ClientFormContent({
               </Select>
             </div>
             <div className="space-y-1.5">
-              <label className="text-[12px] font-bold text-[#111111] block">
+              <label className="text-xs font-bold text-[#111111] block">
                 Onboarding Date
               </label>
               <Input
@@ -322,7 +322,7 @@ function ClientFormContent({
           </div>
 
           <div className="space-y-1.5 mb-6">
-            <label className="text-[12px] font-bold text-[#111111] block">
+            <label className="text-xs font-bold text-[#111111] block">
               Requirements (Count)
             </label>
             <Input

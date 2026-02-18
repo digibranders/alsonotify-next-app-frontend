@@ -16,6 +16,7 @@ import { DocumentPreviewModal } from '@/components/ui/DocumentPreviewModal';
 import { UserDocument } from '@/types/domain';
 import { getErrorMessage } from '@/types/api-utils';
 import { ManagedPartnersTab } from './tabs/ManagedPartnersTab';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 // Interface for backend employee data structure
 interface BackendEmployee {
@@ -141,8 +142,28 @@ export function EmployeeDetailsPage() {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center h-full">
-        <p className="text-[#999999]">Loading employee...</p>
+      <div className="flex flex-col gap-6 h-full p-6 bg-white rounded-[24px]">
+        {/* Header */}
+        <div className="flex items-center gap-4">
+          <Skeleton className="h-16 w-16 rounded-full shrink-0" />
+          <div className="flex flex-col gap-2 flex-1">
+            <Skeleton className="h-6 w-48 rounded-lg" />
+            <Skeleton className="h-4 w-32 rounded" />
+          </div>
+        </div>
+        {/* Info cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} className="h-20 rounded-[16px]" />
+          ))}
+        </div>
+        {/* Tab content area */}
+        <div className="flex flex-col gap-3 flex-1">
+          <Skeleton className="h-10 w-full rounded-lg" />
+          <Skeleton className="h-4 w-full rounded" />
+          <Skeleton className="h-4 w-3/4 rounded" />
+          <Skeleton className="h-4 w-1/2 rounded" />
+        </div>
       </div>
     );
   }
@@ -271,7 +292,7 @@ export function EmployeeDetailsPage() {
         <Button
           type="primary"
           onClick={() => setIsDialogOpen(true)}
-          className="flex items-center gap-2 bg-[#111111] text-white hover:bg-[#000000] border-0 h-10 px-5 rounded-full font-['Manrope:SemiBold',sans-serif]"
+          className="flex items-center gap-2 bg-[#111111] text-white hover:bg-[#000000] border-0 h-10 px-5 rounded-full font-semibold"
         >
           <Edit className="w-4 h-4" />
           Edit Profile
@@ -281,10 +302,10 @@ export function EmployeeDetailsPage() {
       <div className="bg-white rounded-[24px] border border-[#EEEEEE] p-8 max-w-4xl mx-auto mt-6">
         <div className="flex items-start justify-between mb-8">
           <div>
-            <h1 className="text-2xl font-['Manrope:Bold',sans-serif] text-[#111111] mb-2">{employee.name}</h1>
+            <h1 className="text-2xl font-bold text-[#111111] mb-2">{employee.name}</h1>
             <div className="flex items-center gap-2 text-[#666666]">
               <Briefcase className="w-4 h-4" />
-              <span className="text-sm font-['Manrope:Medium',sans-serif]">{employee.role} • {employee.department}</span>
+              <span className="text-sm font-medium">{employee.role} • {employee.department}</span>
             </div>
           </div>
 
@@ -310,7 +331,7 @@ export function EmployeeDetailsPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {/* Contact Info */}
                     <div className="space-y-6">
-                      <h3 className="text-sm font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide">Contact Information</h3>
+                      <h3 className="text-sm font-bold text-[#999999] uppercase tracking-wide">Contact Information</h3>
                       <div className="space-y-4">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full bg-[#F7F7F7] flex items-center justify-center">
@@ -335,7 +356,7 @@ export function EmployeeDetailsPage() {
 
                     {/* Employment Details */}
                     <div className="space-y-6">
-                      <h3 className="text-sm font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide">Employment Details</h3>
+                      <h3 className="text-sm font-bold text-[#999999] uppercase tracking-wide">Employment Details</h3>
                       <div className="space-y-4">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full bg-[#F7F7F7] flex items-center justify-center">
@@ -380,7 +401,7 @@ export function EmployeeDetailsPage() {
                   </div>
 
                   <div className="mt-8">
-                    <h3 className="text-sm font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide mb-4">Skillsets</h3>
+                    <h3 className="text-sm font-bold text-[#999999] uppercase tracking-wide mb-4">Skillsets</h3>
                     <div className="flex flex-wrap gap-2">
                       {employee.skillsets.split(',').map((skill: string, index: number) => (
                         <Tag key={index} className="bg-[#F7F7F7] text-[#111111] hover:bg-[#EEEEEE] border-0 rounded-full px-3 py-1">
@@ -394,7 +415,7 @@ export function EmployeeDetailsPage() {
 
                   {/* Documents Section */}
                   <div>
-                    <h3 className="text-sm font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide mb-4">Attached Documents</h3>
+                    <h3 className="text-sm font-bold text-[#999999] uppercase tracking-wide mb-4">Attached Documents</h3>
                     {documents && documents.length > 0 ? (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {documents.map((doc: UserDocument) => (
@@ -411,10 +432,10 @@ export function EmployeeDetailsPage() {
                     ) : (
                       <div className="border border-[#EEEEEE] border-dashed rounded-lg p-8 bg-[#FAFAFA] text-center">
                         <FileText className="w-12 h-12 text-[#CCCCCC] mx-auto mb-3" />
-                        <p className="text-[13px] font-['Manrope:Medium',sans-serif] text-[#666666] mb-1">
+                        <p className="text-[0.8125rem] font-medium text-[#666666] mb-1">
                           No documents uploaded
                         </p>
-                        <p className="text-[11px] text-[#999999] font-['Manrope:Regular',sans-serif]">
+                        <p className="text-[0.6875rem] text-[#999999] font-normal">
                           Documents will appear here once uploaded
                         </p>
                       </div>
