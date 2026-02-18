@@ -11,7 +11,7 @@ export const useNotifications = (activeTab: string = 'all') => {
     queryKey: queryKeys.notifications.all(activeTab),
     queryFn: () => fetchNotifications(activeTab),
     staleTime: 30_000, // 30 seconds
-    refetchInterval: 5000, // Poll every 5 seconds for real-time feel
+    refetchInterval: 30_000, // Poll every 30 seconds (WebSocket handles real-time)
   });
 };
 

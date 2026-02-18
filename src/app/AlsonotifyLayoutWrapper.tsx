@@ -19,6 +19,7 @@ import { FloatingTimerBar } from '../components/common/FloatingTimerBar';
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 import { SidebarProvider, useSidebar } from '../context/SidebarContext';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { useWebSocket } from '@/hooks/useWebSocket';
 
 interface AlsonotifyLayoutWrapperProps {
   children: ReactNode;
@@ -42,6 +43,9 @@ function AlsonotifyLayoutContent({ children }: Readonly<AlsonotifyLayoutWrapperP
   const { isCollapsed, mobileOpen, closeMobileSidebar } = useSidebar();
   const { data: userDetailsData, isLoading, isError } = useUserDetails();
   const router = useRouter();
+
+  // Real-time notifications via WebSocket
+  useWebSocket();
 
   useEffect(() => {
     if (!isLoading && (isError || !userDetailsData?.result)) {

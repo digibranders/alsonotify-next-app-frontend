@@ -25,7 +25,7 @@ import {
 import { TaskForm } from '../modals/TaskForm';
 import { RequirementsForm, RequirementFormData } from '../modals/RequirementsForm';
 import { WorkspaceForm } from '../modals/WorkspaceForm';
-import { NotificationPanel, NotificationItem } from './NotificationPanel';
+import { NotificationPanel } from './NotificationPanel';
 import { Skeleton } from '../ui/Skeleton';
 import { FeedbackWidget } from './FeedbackWidget';
 import { useUserDetails } from '@/hooks/useUser';
@@ -36,7 +36,6 @@ import { useWorkspaces, useCreateRequirement } from '../../hooks/useWorkspace';
 import { useCreateTask } from '@/hooks/useTask';
 import { useCreateNote } from '@/hooks/useNotes';
 import { useLogout } from '@/hooks/useAuth';
-import { formatDistanceToNow } from 'date-fns';
 import { formatDateForApi, getTodayForApi } from '@/utils/date';
 import { searchEmployees } from '@/services/user';
 import { getRequirementsByWorkspaceId } from '@/services/workspace';
@@ -214,37 +213,10 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
 
   // Handle Calendar Success
 
-  // Transform notifications
-  const notifications = useMemo(() => {
-    if (!notificationsData?.result) return [];
-    return notificationsData.result.map((n) => {
-      let relativeTime = 'Just now';
-      try {
-        if (n.created_at) {
-          const date = new Date(n.created_at);
-          if (!isNaN(date.getTime())) {
-            relativeTime = formatDistanceToNow(date, { addSuffix: true });
-          }
-        }
-      } catch {
-        console.warn("Invalid notification date:", n.created_at);
-      }
-
-      return {
-        id: n.id,
-        title: n.metadata?.title || n.title || n.message || 'Notification',
-        message: n.message || n.title || '',
-        time: relativeTime,
-        unread: !n.is_read,
-        type: (n.type || 'general') as NotificationItem['type'],
-        icon: n.icon || undefined,
-        actionLink: n.link || undefined,
-        metadata: n.metadata || undefined,
-      };
-    });
-  }, [notificationsData]);
-
-  const unreadCount = notifications.filter((n) => n.unread).length;
+  const unreadCount = useMemo(
+    () => notificationsData?.result?.filter((n) => !n.is_read).length ?? 0,
+    [notificationsData]
+  );
 
   const handleMarkAsRead = (id: number) => {
     markReadMutation.mutate(id);
