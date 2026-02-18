@@ -115,8 +115,8 @@ export function RequirementsPage() {
       params.append('billing_status', billingStatusMap[filters.billing] || filters.billing);
     }
     if (dateRange && dateRange[0] && dateRange[1]) {
-      params.append('from_date', dateRange[0].toISOString());
-      params.append('to_date', dateRange[1].toISOString());
+      params.append('from_date', dateRange[0].startOf('day').toISOString());
+      params.append('to_date', dateRange[1].endOf('day').toISOString());
     }
 
     // Status Tab mapping to Backend Status
