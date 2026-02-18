@@ -124,7 +124,7 @@ export function MonthView({ currentDate, events, isLoading, selectedDate, onSele
                     <tr>
                         {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
                             <th key={day} className="text-center py-2">
-                                <span className="font-['Manrope:SemiBold',sans-serif] text-[13px] text-[#666666]">
+                                <span className="font-semibold text-[0.8125rem] text-[#666666]">
                                     {day}
                                 </span>
                             </th>
@@ -177,10 +177,10 @@ export function MonthView({ currentDate, events, isLoading, selectedDate, onSele
                                         }}
                                     >
                                         <div className="flex flex-col h-full">
-                                            <div className={`font-['Manrope:SemiBold',sans-serif] text-[13px] mb-1 flex justify-between items-center ${dayObj.isCurrentMonth ? 'text-[#111111]' : 'text-[#999999]'
+                                            <div className={`font-semibold text-[0.8125rem] mb-1 flex justify-between items-center ${dayObj.isCurrentMonth ? 'text-[#111111]' : 'text-[#999999]'
                                                 } ${isToday ? 'text-[#ff3b3b]' : ''}`}>
                                                 <span aria-hidden="true">{dayObj.day}</span>
-                                                {isToday && <span className="text-[10px] bg-[#ff3b3b] text-white px-1.5 rounded" aria-hidden="true">Today</span>}
+                                                {isToday && <span className="text-[0.625rem] bg-[#ff3b3b] text-white px-1.5 rounded" aria-hidden="true">Today</span>}
                                             </div>
                                             <div className="space-y-1 flex-1">
                                                 {dayEvents.slice(0, 3).map((event) => (
@@ -188,7 +188,7 @@ export function MonthView({ currentDate, events, isLoading, selectedDate, onSele
                                                         <button
                                                             type="button"
                                                             aria-label={`Event: ${event.title}`}
-                                                            className="px-2 py-1 rounded-[4px] text-[10px] font-['Manrope:Medium',sans-serif] text-white truncate cursor-pointer hover:opacity-80 transition-opacity focus:ring-1 focus:ring-white focus:outline-none w-full text-left border-none"
+                                                            className="px-2 py-1 rounded-[4px] text-[0.625rem] font-medium text-white truncate cursor-pointer hover:opacity-80 transition-opacity focus:ring-1 focus:ring-white focus:outline-none w-full text-left border-none"
                                                             style={{ backgroundColor: event.color }}
                                                             onClick={(e) => e.stopPropagation()}
                                                             onKeyDown={(e) => {
@@ -202,7 +202,7 @@ export function MonthView({ currentDate, events, isLoading, selectedDate, onSele
                                                     </Popover>
                                                 ))}
                                                 {dayEvents.length > 3 && (
-                                                    <div className="text-[10px] font-['Manrope:Medium',sans-serif] text-[#666666] px-2">
+                                                    <div className="text-[0.625rem] font-medium text-[#666666] px-2">
                                                         +{dayEvents.length - 3} more
                                                     </div>
                                                 )}

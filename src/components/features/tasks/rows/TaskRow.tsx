@@ -1,4 +1,6 @@
 import { Checkbox, Tooltip, Dropdown, Popover, Input, Button, message, Avatar } from "antd";
+import { useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@/lib/queryKeys";
 import { MoreVertical, Edit, Trash2, RotateCcw, CheckCircle } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -36,6 +38,7 @@ const TaskRowComponent = memo(function TaskRow({
   isAdmin = false
 }: TaskRowProps) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { timerState } = useTimer();
   const { taskId: activeTaskId, elapsedSeconds, isRunning } = timerState;
   const [estimateOpen, setEstimateOpen] = useState(false);
@@ -139,16 +142,16 @@ const TaskRowComponent = memo(function TaskRow({
           {/* Task Info */}
           <div className="flex flex-col gap-0.5">
             <div className="flex items-center gap-2">
-              <span className="font-['Manrope:Bold',sans-serif] text-[14px] !text-[#111111] group-hover:text-[#ff3b3b] transition-colors">
+              <span className="font-bold text-sm !text-[#111111] group-hover:text-[#ff3b3b] transition-colors">
                 {task.name}
               </span>
             </div>
             <div className="flex items-center gap-2">
-              {/* <span className="text-[11px] text-[#999999] font-['Manrope:Regular',sans-serif]">
+              {/* <span className="text-[0.6875rem] text-[#999999] font-normal">
                 #{task.taskId}
               </span> */}
               <span
-                className="text-[11px] !text-[#111111] font-['Manrope:Medium',sans-serif]"
+                className="text-[0.6875rem] !text-[#111111] font-medium"
               >
                 {task.client}
               </span>
@@ -166,7 +169,7 @@ const TaskRowComponent = memo(function TaskRow({
               <Link
                 href="/dashboard/workspace"
                 onClick={(e) => e.stopPropagation()}
-                className="text-[13px] !text-[#111111] visited:!text-[#111111] font-['Manrope:Medium',sans-serif] truncate hover:text-[#ff3b3b] hover:underline"
+                className="text-[0.8125rem] !text-[#111111] visited:!text-[#111111] font-medium truncate hover:text-[#ff3b3b] hover:underline"
               >
                 {task.project}
               </Link>
@@ -175,11 +178,11 @@ const TaskRowComponent = memo(function TaskRow({
 
           {/* Timeline */}
           <div className="flex flex-col gap-0.5">
-            <span className="text-[13px] font-['Manrope:Medium',sans-serif] text-[#111111]">
+            <span className="text-[0.8125rem] font-medium text-[#111111]">
               {task.timelineDate}
             </span>
             <span
-              className={`text-[11px] font-['Manrope:Regular',sans-serif] ${task.status === 'Delayed' || task.status === 'Impediment' || task.status === 'Stuck'
+              className={`text-[0.6875rem] font-normal ${task.status === 'Delayed' || task.status === 'Impediment' || task.status === 'Stuck'
                 ? 'text-[#dc2626]'
                 : task.status === 'Review'
                   ? 'text-[#fbbf24]'
@@ -219,7 +222,7 @@ const TaskRowComponent = memo(function TaskRow({
 
           {/* Duration Text */}
           <div className="flex justify-center items-center">
-            <span className={`text-[11px] font-['Manrope:Medium',sans-serif] ${textColor}`}>
+            <span className={`text-[0.6875rem] font-medium ${textColor}`}>
               {formatHours(totalHours)}h / {formatDuration(task.estTime)}h
             </span>
           </div>
@@ -228,7 +231,7 @@ const TaskRowComponent = memo(function TaskRow({
           <div className="flex flex-col gap-1 w-full justify-center">
             <div className="flex flex-col gap-0.5">
               <div className="flex justify-end">
-                <span className={`text-[10px] font-bold ${textColor}`}>
+                <span className={`text-[0.625rem] font-bold ${textColor}`}>
                   {Math.round(percentage)}%
                 </span>
               </div>
@@ -276,7 +279,8 @@ const TaskRowComponent = memo(function TaskRow({
                           await provideEstimate(Number(task.id), Number(estimateHours));
                           message.success("Estimate submitted");
                           setEstimateOpen(false);
-                          window.location.reload();
+                          queryClient.invalidateQueries({ queryKey: queryKeys.tasks.listRoot() });
+                          queryClient.invalidateQueries({ queryKey: queryKeys.tasks.assigned() });
                         } catch {
                           message.error("Failed");
                         } finally {
@@ -290,7 +294,7 @@ const TaskRowComponent = memo(function TaskRow({
                 }
               >
                 <button
-                  className="px-2 py-1 bg-yellow-400 hover:bg-yellow-500 text-black text-[10px] font-bold rounded-full flex items-center shadow-sm transition-colors"
+                  className="px-2 py-1 bg-yellow-400 hover:bg-yellow-500 text-black text-[0.625rem] font-bold rounded-full flex items-center shadow-sm transition-colors"
                 >
                   ESTIMATE
                 </button>
@@ -315,14 +319,14 @@ const TaskRowComponent = memo(function TaskRow({
                         label: 'Approve & Complete',
                         icon: <CheckCircle className="w-3.5 h-3.5" />,
                         onClick: () => onStatusChange?.('Completed'),
-                        className: "text-[13px] font-['Manrope:Medium',sans-serif] text-[#16a34a]"
+                        className: "text-[0.8125rem] font-medium text-[#16a34a]"
                       },
                       {
                         key: 'revision',
                         label: 'Request Revision',
                         icon: <RotateCcw className="w-3.5 h-3.5" />,
                         onClick: () => setRevisionModalOpen(true),
-                        className: "text-[13px] font-['Manrope:Medium',sans-serif] text-[#ff3b3b]"
+                        className: "text-[0.8125rem] font-medium text-[#ff3b3b]"
                       }
                     ];
                   }
@@ -339,7 +343,7 @@ const TaskRowComponent = memo(function TaskRow({
                       icon: <Edit className="w-3.5 h-3.5" />,
                       onClick: () => onEdit?.(),
                       disabled: task.status === 'Completed',
-                      className: "text-[13px] font-['Manrope:Medium',sans-serif]"
+                      className: "text-[0.8125rem] font-medium"
                     });
 
                     // Admin/Leader Delete (Hidden if In_Progress)
@@ -350,7 +354,7 @@ const TaskRowComponent = memo(function TaskRow({
                         icon: <Trash2 className="w-3.5 h-3.5" />,
                         onClick: () => onDelete?.(),
                         danger: true,
-                        className: "text-[13px] font-['Manrope:Medium',sans-serif]"
+                        className: "text-[0.8125rem] font-medium"
                       });
                     }
                   }
@@ -375,7 +379,8 @@ const TaskRowComponent = memo(function TaskRow({
         onSuccess={() => {
           // Refresh list or optimistic update?
           // Usually parent re-fetches, but we might want to manually trigger
-          window.location.reload(); // Simple refresh for now to see new revision task
+          queryClient.invalidateQueries({ queryKey: queryKeys.tasks.listRoot() });
+          queryClient.invalidateQueries({ queryKey: queryKeys.tasks.assigned() });
         }}
       />
     </>

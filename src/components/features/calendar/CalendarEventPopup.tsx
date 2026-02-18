@@ -59,21 +59,21 @@ export function CalendarEventPopup({ event }: CalendarEventPopupProps) {
             {/* Header */}
             <div className="flex items-center justify-between mb-3">
                 <Tag color={event.color} className="m-0">{event.type.toUpperCase()}</Tag>
-                {event.status && <span className="text-[12px] text-[#999999] font-['Manrope:Regular',sans-serif] capitalize">{event.status}</span>}
+                {event.status && <span className="text-xs text-[#999999] font-normal capitalize">{event.status}</span>}
             </div>
 
             {/* Title */}
-            <h4 className="font-['Manrope:Bold',sans-serif] text-[16px] text-[#111111] mb-3">{event.title}</h4>
+            <h4 className="font-bold text-base text-[#111111] mb-3">{event.title}</h4>
 
             {/* Date & Time */}
-            <div className="flex items-center gap-2 text-[#666666] text-[13px] font-['Manrope:Regular',sans-serif] mb-3">
+            <div className="flex items-center gap-2 text-[#666666] text-[0.8125rem] font-normal mb-3">
                 <Clock className="w-4 h-4" />
                 <span>{dayjs(event.date).format('MMM D, YYYY')} • {event.time}</span>
             </div>
 
             {/* Location */}
             {event.location && (
-                <div className="flex items-center gap-2 text-[#666666] text-[13px] font-['Manrope:Regular',sans-serif] mb-4">
+                <div className="flex items-center gap-2 text-[#666666] text-[0.8125rem] font-normal mb-4">
                     <MapPin className="w-4 h-4" />
                     <span>{event.location}</span>
                 </div>
@@ -84,26 +84,26 @@ export function CalendarEventPopup({ event }: CalendarEventPopupProps) {
                 <div className="border-t border-[#EEEEEE] pt-4 mt-4 space-y-3">
                     {meetingId && (
                         <div>
-                            <span className="text-[13px] text-[#616161] font-['Manrope:Regular',sans-serif] mb-1 block">Meeting ID:</span>
-                            <span className="text-[13px] text-[#242424] font-['Manrope:Regular',sans-serif]">{meetingId}</span>
+                            <span className="text-[0.8125rem] text-[#616161] font-normal mb-1 block">Meeting ID:</span>
+                            <span className="text-[0.8125rem] text-[#242424] font-normal">{meetingId}</span>
                         </div>
                     )}
                     {passcode && (
                         <div>
-                            <span className="text-[13px] text-[#616161] font-['Manrope:Regular',sans-serif] mb-1 block">Passcode:</span>
-                            <span className="text-[13px] text-[#242424] font-['Manrope:Regular',sans-serif]">{passcode}</span>
+                            <span className="text-[0.8125rem] text-[#616161] font-normal mb-1 block">Passcode:</span>
+                            <span className="text-[0.8125rem] text-[#242424] font-normal">{passcode}</span>
                         </div>
                     )}
 
                     {/* Meeting Link - For organizers */}
                     {webLink && (
                         <div className="mt-4">
-                            <span className="text-[13px] text-[#616161] font-['Manrope:Regular',sans-serif] mb-2 block">For organizers:</span>
+                            <span className="text-[0.8125rem] text-[#616161] font-normal mb-2 block">For organizers:</span>
                             <a
                                 href={webLink}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-[13px] text-[#5B5FC7] font-['Manrope:Regular',sans-serif] underline hover:text-[#4A4FC7] transition-colors"
+                                className="text-[0.8125rem] text-[#5B5FC7] font-normal underline hover:text-[#4A4FC7] transition-colors"
                             >
                                 Meeting options
                             </a>
@@ -119,7 +119,7 @@ export function CalendarEventPopup({ event }: CalendarEventPopupProps) {
                         href={joinUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-[#5B5FC7] hover:bg-[#4A4FC7] text-white text-[13px] font-['Manrope:SemiBold',sans-serif] rounded-lg transition-colors"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-[#5B5FC7] hover:bg-[#4A4FC7] text-white text-[0.8125rem] font-semibold rounded-lg transition-colors"
                     >
                         <Video className="w-4 h-4" />
                         Join Meeting
@@ -130,14 +130,14 @@ export function CalendarEventPopup({ event }: CalendarEventPopupProps) {
             {/* Description */}
             {event.description && !isTeamsMeeting && (
                 <div className="mt-4 pt-4 border-t border-[#EEEEEE]">
-                    <p className="text-[13px] text-[#666666] font-['Manrope:Regular',sans-serif] leading-relaxed">{event.description}</p>
+                    <p className="text-[0.8125rem] text-[#666666] font-normal leading-relaxed">{event.description}</p>
                 </div>
             )}
 
             {/* Participants */}
             {event.participants && event.participants.length > 0 && (
                 <div className="mt-4 pt-4 border-t border-[#EEEEEE]">
-                    <p className="text-[12px] font-['Manrope:SemiBold',sans-serif] text-[#999999] mb-2">Participants</p>
+                    <p className="text-xs font-semibold text-[#999999] mb-2">Participants</p>
                     <Avatar.Group maxCount={5} size="small">
                         {event.participants.map((p, idx) => (
                             <Tooltip title={p.name} key={idx}>

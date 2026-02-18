@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Button, Input, Select, Checkbox, DatePicker, App, Avatar } from 'antd';
+import { Button, Input, Select, Checkbox, DatePicker, App, Avatar, Tooltip } from 'antd';
 import { CheckSquare, Calendar, Users, ArrowRight, Layers, UserPlus, X, Building2, GripVertical } from 'lucide-react';
 import { Reorder } from "framer-motion";
 import dayjs from '@/utils/dayjs';
@@ -34,6 +34,7 @@ interface TaskFormProps {
   onSubmit: (data: CreateTaskRequestDto) => Promise<unknown> | void;
   onCancel: () => void;
   isEditing?: boolean;
+  canEditDueDate?: boolean;
   users?: Array<{ id: number; name: string; profile_pic?: string }>;
   requirements?: RequirementDropdownItem[];
   workspaces?: Array<{ id: number; name: string; company_name?: string; partner_name?: string; in_house?: boolean }>;
@@ -66,6 +67,7 @@ export function TaskForm({
   onSubmit,
   onCancel,
   isEditing = false,
+  canEditDueDate = true,
   users = [],
   requirements = [],
   workspaces = [],
@@ -454,15 +456,20 @@ export function TaskForm({
           <span className="text-xs font-bold text-[#111111]">
             Due Date <span className="text-red-500">*</span>
           </span>
-          <DatePicker
-            className="w-full h-11 rounded-lg"
-            value={formData.end_date ? dayjs(formData.end_date) : null}
-            onChange={(date) => {
-              setFormData({ ...formData, end_date: date ? date.toISOString() : '' });
-            }}
-            suffixIcon={<Calendar className="w-4 h-4 text-[#999999]" />}
-            disabledDate={(current) => current && current < dayjs().startOf('day')}
-          />
+          <Tooltip title={!canEditDueDate ? "Only Coordinators and Admins can change the due date" : ""}>
+            <DatePicker
+              className="w-full h-11 rounded-lg"
+              value={formData.end_date ? dayjs(formData.end_date) : null}
+              onChange={(date) => {
+                if (canEditDueDate) {
+                  setFormData({ ...formData, end_date: date ? date.toISOString() : '' });
+                }
+              }}
+              suffixIcon={<Calendar className="w-4 h-4 text-[#999999]" />}
+              disabledDate={(current) => current && current < dayjs().startOf('day')}
+              disabled={!canEditDueDate}
+            />
+          </Tooltip>
         </div>
 
         {/* My Hours: Col Span 6 */}

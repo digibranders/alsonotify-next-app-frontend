@@ -108,7 +108,7 @@ export function TaskActionPanel({ task, currentUser, onAction, onCompleteRequest
               onAction('start');
             }
           }}
-          className={`h-14 rounded-xl px-6 flex items-center gap-3 text-[14px] font-bold shadow-none transition-colors border-none ${
+          className={`h-14 rounded-xl px-6 flex items-center gap-3 text-sm font-bold shadow-none transition-colors border-none ${
              !canAct ? 'bg-gray-100 text-gray-400' :
              actionType === 'start' ? 'bg-[#111111] hover:bg-black' : 
              'bg-[#10B981] hover:bg-[#059669]'
@@ -123,10 +123,10 @@ export function TaskActionPanel({ task, currentUser, onAction, onCompleteRequest
         </Button>
         
         <div className="flex flex-col">
-          <span className="text-[13px] font-bold text-[#111111]">
+          <span className="text-[0.8125rem] font-bold text-[#111111]">
             {canAct ? 'Action Required' : 'Status'}
           </span>
-          <span className="text-[11px] text-[#666666] font-medium">
+          <span className="text-[0.6875rem] text-[#666666] font-medium">
             {canAct ? subLabel : disabledReason}
           </span>
         </div>

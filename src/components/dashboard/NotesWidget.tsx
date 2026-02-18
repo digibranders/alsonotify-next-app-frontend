@@ -96,11 +96,10 @@ export function NotesWidget() {
         notesContent = (
             <>
                 {[1, 2, 3, 4].map((i) => (
-                    <div key={i} className="relative aspect-square">
+                    <div key={i} className="min-h-[140px]">
                         <div className="h-full w-full bg-white rounded-xl border border-[#EEEEEE] p-4 flex flex-col">
                             <div className="flex items-start justify-between mb-2 gap-2 flex-shrink-0 w-full">
                                 <Skeleton className="h-4 w-3/4 rounded-md" />
-                                <Skeleton className="w-[56px] h-6 rounded-md" />
                             </div>
                             <div className="flex-1 flex flex-col gap-2">
                                 <Skeleton className="h-3 w-full rounded-md" />
@@ -114,7 +113,7 @@ export function NotesWidget() {
         );
     } else if (notesList.length === 0) {
         notesContent = (
-            <div className="col-span-4 flex flex-col items-center justify-center h-full text-center text-[#999999] text-[13px]">
+            <div className="col-span-full flex flex-col items-center justify-center h-full text-center text-[#999999] text-[0.8125rem]">
                 <p>No notes yet</p>
                 <button
                     onClick={() => setShowDialog(true)}
@@ -154,7 +153,7 @@ export function NotesWidget() {
                 {/* Header */}
                 <div className="flex items-center justify-between mb-1.5 h-[32px]">
                     <div className="flex items-center gap-2">
-                        <h3 className="font-['Manrope:SemiBold',sans-serif] text-[20px] text-[#111111]">Notes</h3>
+                        <h3 className="font-semibold text-xl text-[#111111]">Notes</h3>
                         <button
                             onClick={() => setShowDialog(true)}
                             className="hover:scale-110 active:scale-95 transition-transform flex items-center justify-center p-0.5"
@@ -164,7 +163,7 @@ export function NotesWidget() {
                     </div>
                     <Link
                         href="/dashboard/notes"
-                        className="flex items-center gap-1 text-[#666666] hover:text-[#ff3b3b] text-[14px] font-['Manrope:SemiBold',sans-serif] transition-colors no-underline [&>span]:text-current [&>svg]:text-current"
+                        className="flex items-center gap-1 text-[#666666] hover:text-[#ff3b3b] text-sm font-semibold transition-colors no-underline [&>span]:text-current [&>svg]:text-current"
                         style={{ color: '#666666' }}
                     >
                         <span>View All</span>
@@ -174,8 +173,8 @@ export function NotesWidget() {
                     </Link>
                 </div>
 
-                {/* Notes Grid - 4 columns */}
-                <div className="grid grid-cols-4 gap-3 flex-1 mt-2 overflow-y-auto pr-1">
+                {/* Notes Grid - responsive: 2 cols on small, 4 cols on large */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 flex-1 mt-2 overflow-y-auto scrollbar-hide">
                     {notesContent}
                 </div>
             </div>
@@ -217,15 +216,14 @@ function NoteCard({ note, onArchive, onDelete, onClick }: {
     const borderColorHover = noteColor;
 
     return (
-        <div className="relative group aspect-square">
+        <div className="relative group min-h-[140px]">
             {/* Main Note Button */}
             <button
                 aria-labelledby={titleId}
                 onClick={() => {
-                    // We don't need to check for action buttons here anymore as they are outside
                     onClick?.(note);
                 }}
-                className="relative h-full w-full bg-white rounded-xl border transition-all duration-300 cursor-pointer p-4 flex flex-col hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#ff3b3b] focus:ring-opacity-50 text-left"
+                className="relative h-full w-full bg-white rounded-xl border overflow-hidden transition-all duration-300 cursor-pointer flex flex-col hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#ff3b3b] focus:ring-opacity-50 text-left"
                 style={{
                     borderColor: borderColorNormal,
                     borderWidth: '1px'
@@ -237,28 +235,37 @@ function NoteCard({ note, onArchive, onDelete, onClick }: {
                     e.currentTarget.style.borderColor = borderColorNormal;
                 }}
             >
+                {/* Color accent bar at top */}
+                <div
+                    className="w-full h-[3px] flex-shrink-0"
+                    style={{ backgroundColor: noteColor }}
+                />
+
+                <div className="flex flex-col flex-1 p-3.5 overflow-hidden">
                 <div className="flex items-start justify-between mb-2 gap-2 flex-shrink-0 w-full pointer-events-none">
-                    <h4 
+                    <h4
                         id={titleId}
-                        className="font-['Manrope:SemiBold',sans-serif] text-[14px] text-[#111111] flex-1 line-clamp-2"
+                        className="font-semibold text-sm text-[#111111] flex-1 line-clamp-2"
                     >
                         {note.title}
                     </h4>
-                    {/* Spacer to preserve layout where action buttons used to be */}
-                    <div className="w-[56px] flex-shrink-0 h-6"></div>
                 </div>
 
                 <div className="flex-1 overflow-hidden min-h-0 w-full pointer-events-none">
                     {(note.type === 'TEXT_NOTE' || (note.type as any) === 'text') && note.content && (
                         <div
-                            className="font-['Inter:Regular',sans-serif] text-[12px] text-[#666666] line-clamp-4 leading-normal prose prose-sm max-w-none [&>p]:m-0 h-full"
+                            className="font-normal text-xs text-[#666666] line-clamp-4 leading-normal prose prose-sm max-w-none [&>p]:m-0 h-full"
                             dangerouslySetInnerHTML={{ __html: sanitizeRichText(note.content) }}
                         />
                     )}
                     {(note.type === 'CHECKLIST_NOTE' || (note.type as any) === 'checklist') && note.items && Array.isArray(note.items) && note.items.length > 0 && (
                         <div className="flex flex-col gap-1.5 h-full overflow-hidden">
                             {note.items
-                                .filter((item: ChecklistItem) => !item.isChecked)
+                                .filter((item: ChecklistItem) => {
+                                    // Backend may send `checked` instead of `isChecked`
+                                    const raw = item as any;
+                                    return raw.checked !== undefined ? !raw.checked : !item.isChecked;
+                                })
                                 .slice(0, 3)
                                 .map((item: ChecklistItem, index: number) => (
                                     <div key={item.id || index} className="flex items-start gap-2 flex-shrink-0">
@@ -267,7 +274,7 @@ function NoteCard({ note, onArchive, onDelete, onClick }: {
                                             disabled
                                             className="mt-0.5 custom-checkbox-wrapper"
                                         />
-                                        <span className="font-['Inter:Regular',sans-serif] text-[12px] text-[#666666] line-clamp-1">
+                                        <span className="font-normal text-xs text-[#666666] line-clamp-1">
                                             {item.text}
                                         </span>
                                     </div>
@@ -275,10 +282,11 @@ function NoteCard({ note, onArchive, onDelete, onClick }: {
                         </div>
                     )}
                 </div>
+                </div>{/* end inner flex-col wrapper */}
             </button>
 
-            {/* Action icons - Floating absolutely over the button in top right */}
-            <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 z-10">
+            {/* Action icons - Floating absolutely over the button, below the color bar */}
+            <div className="absolute top-[17px] right-3 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5 z-10">
                 <button
                     className="p-1.5 hover:bg-[#F7F7F7] rounded-md transition-colors bg-white/80 backdrop-blur-sm"
                     onClick={(e) => {
