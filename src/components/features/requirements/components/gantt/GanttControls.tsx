@@ -10,7 +10,7 @@ export const GanttControls: React.FC = () => {
     <div className="flex items-center gap-4">
       <div className="flex items-center gap-2">
         <BarChart2 className="w-4 h-4 text-[#ff3b3b]" />
-        <span className="text-[12px] font-['Manrope:Bold',sans-serif] text-[#666666] uppercase tracking-widest">Time Scale</span>
+        <span className="text-xs font-bold text-[#666666] uppercase tracking-widest">Time Scale</span>
       </div>
 
       <div className="flex bg-[#F5F5F5] p-1 rounded-[8px] border border-[#EEEEEE]">
@@ -18,7 +18,7 @@ export const GanttControls: React.FC = () => {
           <button
             key={mode}
             onClick={() => setViewMode(mode)}
-            className={`px-5 py-1.5 text-[11px] font-['Manrope:Bold',sans-serif] rounded-[6px] transition-all uppercase tracking-widest ${viewMode === mode
+            className={`px-5 py-1.5 text-[0.6875rem] font-bold rounded-[6px] transition-all uppercase tracking-widest ${viewMode === mode
               ? 'bg-white text-[#ff3b3b] shadow-sm border border-[#EEEEEE]'
               : 'text-[#999999] hover:text-[#666666]'
               }`}

@@ -65,7 +65,7 @@ export function RequirementsList({
     if (requirements.length === 0) {
         return (
             <div className="text-center py-12">
-                <p className="text-[#999999] font-['Inter:Regular',sans-serif]">
+                <p className="text-[#999999] font-normal">
                     No requirements found
                 </p>
             </div>

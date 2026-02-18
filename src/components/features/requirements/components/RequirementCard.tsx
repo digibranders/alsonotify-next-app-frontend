@@ -219,7 +219,7 @@ export function RequirementCard({
                   setIsMenuOpen(false);
                   onEdit?.();
                 }}
-                className="w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded text-[#111111]"
+                className="w-full text-left px-3 py-2 text-[0.8125rem] hover:bg-gray-50 rounded text-[#111111]"
               >
                 Edit Details
               </button>
@@ -228,7 +228,7 @@ export function RequirementCard({
                   setIsMenuOpen(false);
                   onDuplicate?.();
                 }}
-                className="w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded text-[#111111]"
+                className="w-full text-left px-3 py-2 text-[0.8125rem] hover:bg-gray-50 rounded text-[#111111]"
               >
                 Duplicate
               </button>
@@ -239,7 +239,7 @@ export function RequirementCard({
                     setIsMenuOpen(false);
                     onRestore();
                   }}
-                  className="w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded text-green-600 flex items-center gap-2"
+                  className="w-full text-left px-3 py-2 text-[0.8125rem] hover:bg-gray-50 rounded text-green-600 flex items-center gap-2"
                 >
                    <CheckCircle className="w-3.5 h-3.5" />
                    Make Active
@@ -252,7 +252,7 @@ export function RequirementCard({
                     setIsMenuOpen(false);
                     onDelete?.();
                   }}
-                  className={`w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded flex items-center gap-2 ${deleteLabel === 'Archive' ? 'text-[#F59E0B]' : 'text-[#ff3b3b]'}`}
+                  className={`w-full text-left px-3 py-2 text-[0.8125rem] hover:bg-gray-50 rounded flex items-center gap-2 ${deleteLabel === 'Archive' ? 'text-[#F59E0B]' : 'text-[#ff3b3b]'}`}
                 >
                   {deleteIcon || <Trash2 className="w-3.5 h-3.5" />}
                   {deleteLabel || 'Delete'}
@@ -282,7 +282,7 @@ export function RequirementCard({
         {/* Context Row: [TYPE] | [Contact Name] | [Company Name] */}
         <div className="flex items-center gap-2 mb-2">
           {/* Type Badge: For outsourced reqs, receiver sees INHOUSE, sender sees OUTSOURCED */}
-          <span className="px-1.5 py-0.5 rounded text-[9px] font-['Inter:Medium',sans-serif] bg-[#F5F5F5] text-[#666666] uppercase border border-[#EEEEEE] tracking-wide whitespace-nowrap">
+          <span className="px-1.5 py-0.5 rounded text-[0.5625rem] font-medium bg-[#F5F5F5] text-[#666666] uppercase border border-[#EEEEEE] tracking-wide whitespace-nowrap">
             {requirement.type === 'outsourced'
               ? (requirement.isReceiver ? 'client work' : 'outsourced')
               : (['client', 'Client work', 'Client Work'].includes(requirement.type || '') ? 'client work' : 'inhouse')}
@@ -292,7 +292,7 @@ export function RequirementCard({
           {requirement.headerContact && (
             <>
               <span className="text-[#E5E5E5]">|</span>
-              <span className="font-['Manrope:Bold',sans-serif] text-[#111111] text-[11px] truncate max-w-[100px]" title={requirement.headerContact}>
+              <span className="font-bold text-[#111111] text-[0.6875rem] truncate max-w-[100px]" title={requirement.headerContact}>
                 {requirement.headerContact}
               </span>
             </>
@@ -302,7 +302,7 @@ export function RequirementCard({
           {requirement.headerCompany && (
             <>
               <span className="text-[#E5E5E5] shrink-0">|</span>
-              <span className="font-['Manrope:Bold',sans-serif] uppercase tracking-wider text-[#999999] text-[10px] truncate max-w-[100px]" title={requirement.headerCompany}>
+              <span className="font-bold uppercase tracking-wider text-[#999999] text-[0.625rem] truncate max-w-[100px]" title={requirement.headerCompany}>
                 {requirement.headerCompany}
               </span>
             </>
@@ -311,7 +311,7 @@ export function RequirementCard({
 
         {/* Title */}
         <div className="flex justify-between items-start gap-2 pr-16">
-          <h3 className="font-['Manrope:Bold',sans-serif] text-[15px] leading-snug text-[#111111] group-hover:text-[#ff3b3b] transition-colors line-clamp-2">
+          <h3 className="font-bold text-[0.9375rem] leading-snug text-[#111111] group-hover:text-[#ff3b3b] transition-colors line-clamp-2">
             {requirement.title}
           </h3>
         </div>
@@ -320,19 +320,19 @@ export function RequirementCard({
       {/* Tags */}
       <div className="flex flex-wrap gap-1.5 mb-4">
         {requirement.departments && requirement.departments.length > 0 && requirement.departments.slice(0, 3).map((dept: string, i: number) => (
-          <span key={i} className="px-1.5 py-0.5 rounded-md bg-white border border-[#E5E5E5] text-[10px] text-[#666666] font-['Inter:Medium',sans-serif]">
+          <span key={i} className="px-1.5 py-0.5 rounded-md bg-white border border-[#E5E5E5] text-[0.625rem] text-[#666666] font-medium">
             {dept}
           </span>
         ))}
         {requirement.departments && requirement.departments.length > 3 && (
-          <span className="px-1.5 py-0.5 text-[10px] text-[#999999]">+{requirement.departments.length - 3}</span>
+          <span className="px-1.5 py-0.5 text-[0.625rem] text-[#999999]">+{requirement.departments.length - 3}</span>
         )}
       </div>
 
       {/* Date & Description */}
       <div className="mb-4">
         {(requirement.startDate || requirement.end_date) && (
-          <div className="flex items-center gap-2 text-[11px] text-[#666666] font-['Inter:Medium',sans-serif] mb-2 bg-[#F9FAFB] p-1.5 rounded-md w-fit max-w-full">
+          <div className="flex items-center gap-2 text-[0.6875rem] text-[#666666] font-medium mb-2 bg-[#F9FAFB] p-1.5 rounded-md w-fit max-w-full">
             <CalendarIcon className="w-3 h-3 text-[#999999] flex-shrink-0" />
             <span className="truncate">
               {requirement.startDate ? format(new Date(requirement.startDate), 'MMM d') : ''}
@@ -346,7 +346,7 @@ export function RequirementCard({
             )}
           </div>
         )}
-        <p className="text-[13px] text-[#666666] font-['Inter:Regular',sans-serif] line-clamp-3 leading-relaxed mb-0">
+        <p className="text-[0.8125rem] text-[#666666] font-normal line-clamp-3 leading-relaxed mb-0">
           {requirement.description}
         </p>
       </div>
@@ -355,10 +355,10 @@ export function RequirementCard({
       {!isPending && (
         <div className="mb-4 mt-auto">
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[10px] text-[#999999] font-['Inter:Medium',sans-serif]">
+            <span className="text-[0.625rem] text-[#999999] font-medium">
               Progress
             </span>
-            <span className="text-[10px] text-[#111111] font-['Inter:Bold',sans-serif]">
+            <span className="text-[0.625rem] text-[#111111] font-bold">
               {requirement.progress}%
             </span>
           </div>
@@ -378,7 +378,7 @@ export function RequirementCard({
 
       {/* Pending Message */}
       {isPending && (
-        <div className="mt-auto mb-4 min-h-[40px] flex items-center justify-center text-[12px] text-[#999999] italic bg-[#F9FAFB] rounded-lg border border-dashed border-[#E5E7EB] mx-1 px-2 text-center">
+        <div className="mt-auto mb-4 min-h-[40px] flex items-center justify-center text-xs text-[#999999] italic bg-[#F9FAFB] rounded-lg border border-dashed border-[#E5E7EB] mx-1 px-2 text-center">
           {displayStatus}
         </div>
       )}
@@ -399,7 +399,7 @@ export function RequirementCard({
             {(requirement.assignedTo || []).slice(0, 3).map((person: string, i: number) => (
               <div
                 key={i}
-                className="w-5 h-5 rounded-full bg-[#F7F7F7] border border-white flex items-center justify-center text-[8px] font-bold text-[#666666] relative z-[3] hover:z-10 hover:scale-110 transition-all shadow-sm"
+                className="w-5 h-5 rounded-full bg-[#F7F7F7] border border-white flex items-center justify-center text-[0.5rem] font-bold text-[#666666] relative z-[3] hover:z-10 hover:scale-110 transition-all shadow-sm"
                 title={person}
               >
                 {person.charAt(0).toUpperCase()}
@@ -411,7 +411,7 @@ export function RequirementCard({
         {/* Right: Status or Action */}
         <div className="flex items-center gap-3">
           {costDisplay && (
-            <span className={`text-[12px] font-['Manrope:Bold',sans-serif] ${requirement.type === 'outsourced' ? 'text-[#ff3b3b]' : 'text-[#7ccf00]'}`}>
+            <span className={`text-xs font-bold ${requirement.type === 'outsourced' ? 'text-[#ff3b3b]' : 'text-[#7ccf00]'}`}>
               {costDisplay}
             </span>
           )}
@@ -444,7 +444,7 @@ export function RequirementCard({
               {ctaConfig.tab === 'draft' && (
                 <button
                   onClick={(e) => { e.stopPropagation(); onEdit?.(); }}
-                  className="px-3 h-6 flex items-center justify-center rounded-full bg-white border border-[#E5E5E5] text-[#666666] hover:bg-[#F3F4F6] hover:text-[#111111] transition-all shadow-sm text-[10px] font-bold"
+                  className="px-3 h-6 flex items-center justify-center rounded-full bg-white border border-[#E5E5E5] text-[#666666] hover:bg-[#F3F4F6] hover:text-[#111111] transition-all shadow-sm text-[0.625rem] font-bold"
                 >
                   Edit
                 </button>
@@ -463,7 +463,7 @@ export function RequirementCard({
                       onAccept?.();
                     }
                   }}
-                  className={`px-2 h-6 flex items-center justify-center rounded-full bg-[#7ccf00] text-white hover:bg-[#6bb800] transition-all shadow-sm text-[10px] font-bold whitespace-nowrap`}
+                  className={`px-2 h-6 flex items-center justify-center rounded-full bg-[#7ccf00] text-white hover:bg-[#6bb800] transition-all shadow-sm text-[0.625rem] font-bold whitespace-nowrap`}
                   title={ctaConfig.primaryAction.label}
                 >
                   {ctaConfig.primaryAction.label}
@@ -473,7 +473,7 @@ export function RequirementCard({
           ) : (
             <div
               className={`
-                    flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-['Manrope:Bold',sans-serif] border transition-all
+                    flex items-center gap-1.5 px-2 py-0.5 rounded text-[0.625rem] font-bold border transition-all
                     ${statusConfig.className}
                 `}
             >

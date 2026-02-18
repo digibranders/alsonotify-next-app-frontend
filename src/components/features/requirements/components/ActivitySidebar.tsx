@@ -107,7 +107,7 @@ export function ActivitySidebar({ reqId, employeesData, partnersData, tasks }: A
       const isTask = match[0].startsWith('#');
       if (isTask) {
         parts.push(
-          <span key={match.index} className="task-token-highlight cursor-pointer hover:underline text-[#2F80ED] bg-[#EBF3FF] px-1.5 py-0.5 rounded-md text-[12px] font-['Inter:Medium',sans-serif]">
+          <span key={match.index} className="task-token-highlight cursor-pointer hover:underline text-[#2F80ED] bg-[#EBF3FF] px-1.5 py-0.5 rounded-md text-xs font-medium">
             {match[0]}
           </span>
         );

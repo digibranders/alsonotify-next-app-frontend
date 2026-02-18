@@ -31,7 +31,7 @@ const GanttToolbar: React.FC = () => {
                     <ChevronLeft className="w-4 h-4 text-[#444444]" />
                 </button>
 
-                <span className="text-[12px] font-['Manrope:Bold',sans-serif] text-[#111111] uppercase tracking-[0.15em] min-w-[130px] text-center">
+                <span className="text-xs font-bold text-[#111111] uppercase tracking-[0.15em] min-w-[130px] text-center">
                     {format(visibleDate, 'MMMM yyyy')}
                 </span>
 

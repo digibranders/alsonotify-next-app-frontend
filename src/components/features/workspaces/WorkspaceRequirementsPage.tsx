@@ -139,9 +139,12 @@ export function WorkspaceRequirementsPage() {
         req.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         req.description.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesPriority =
-        filters.priority === 'All' || req.priority === filters.priority.toLowerCase();
+        filters.priority === 'All' ||
+        filters.priority.toLowerCase() === req.priority.toLowerCase();
+
       const matchesPartner =
-        filters.partner === 'All' || req.partner_name === filters.partner;
+        filters.partner === 'All' ||
+        filters.partner.split(',').map(p => p.trim()).includes(req.partner_name);
 
       return matchesTab && matchesSearch && matchesPriority && matchesPartner;
     });
@@ -219,12 +222,15 @@ export function WorkspaceRequirementsPage() {
       label: 'Priority',
       options: ['All', 'High', 'Normal'],
       placeholder: 'Priority',
+      defaultValue: 'All'
     },
     {
       id: 'partner',
       label: 'Partner',
       options: allPartners,
       placeholder: 'Partner',
+      multiSelect: true,
+      defaultValue: 'All'
     },
   ];
 
@@ -243,14 +249,14 @@ export function WorkspaceRequirementsPage() {
         <div className="flex items-center justify-between mb-6">
           <Breadcrumb
             separator={
-              <span className="text-[20px] font-['Manrope:SemiBold',sans-serif] text-[#999999]">/
+              <span className="text-xl font-semibold text-[#999999]">/
               </span>
             }
             items={[
               {
                 title: (
                   <span
-                    className="cursor-pointer font-['Manrope:SemiBold',sans-serif] text-[20px] text-[#999999] hover:text-[#666666] transition-colors"
+                    className="cursor-pointer font-semibold text-xl text-[#999999] hover:text-[#666666] transition-colors"
                     onClick={() => router.push('/dashboard/workspace')}
                   >
                     Workspaces
@@ -259,7 +265,7 @@ export function WorkspaceRequirementsPage() {
               },
               {
                 title: (
-                  <span className="font-['Manrope:SemiBold',sans-serif] text-[20px] text-[#111111]">
+                  <span className="font-semibold text-xl text-[#111111]">
                     {workspace.name}
                   </span>
                 ),
@@ -307,34 +313,34 @@ export function WorkspaceRequirementsPage() {
           </div>
           <button
             onClick={() => handleSort('title')}
-            className="text-left text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide hover:text-[#111111] transition-colors flex items-center"
+            className="text-left text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide hover:text-[#111111] transition-colors flex items-center"
           >
             Requirement {getSortIcon('title')}
           </button>
           <button
             onClick={() => handleSort('timeline')}
-            className="text-left text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide hover:text-[#111111] transition-colors flex items-center justify-start"
+            className="text-left text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide hover:text-[#111111] transition-colors flex items-center justify-start"
           >
             Timeline {getSortIcon('timeline')}
           </button>
           <button
             onClick={() => handleSort('budget')}
-            className="text-left text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide hover:text-[#111111] transition-colors flex items-center justify-start"
+            className="text-left text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide hover:text-[#111111] transition-colors flex items-center justify-start"
           >
             Budget {getSortIcon('budget')}
           </button>
-          <div className="text-center text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide">
+          <div className="text-center text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">
             Team
           </div>
           <button
             onClick={() => handleSort('progress')}
-            className="text-center text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide hover:text-[#111111] transition-colors flex items-center justify-center"
+            className="text-center text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide hover:text-[#111111] transition-colors flex items-center justify-center"
           >
             Progress {getSortIcon('progress')}
           </button>
           <button
             onClick={() => handleSort('status')}
-            className="text-center text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide hover:text-[#111111] transition-colors flex items-center justify-center"
+            className="text-center text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide hover:text-[#111111] transition-colors flex items-center justify-center"
           >
             Status {getSortIcon('status')}
           </button>
@@ -344,7 +350,7 @@ export function WorkspaceRequirementsPage() {
         {/* Rows */}
         <div className="space-y-2">
           {filteredAndSortedRequirements.length === 0 ? (
-            <div className="text-center py-12 text-[#999999] text-[13px]">No requirements found</div>
+            <div className="text-center py-12 text-[#999999] text-[0.8125rem]">No requirements found</div>
           ) : (
             filteredAndSortedRequirements.map((req: any) => (
               <RequirementRow key={req.id} req={req} workspaceId={workspaceId} />

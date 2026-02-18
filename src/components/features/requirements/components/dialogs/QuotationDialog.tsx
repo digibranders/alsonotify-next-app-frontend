@@ -83,17 +83,17 @@ export function QuotationDialog({
       okText="Send Quotation"
       cancelText="Cancel"
       okButtonProps={{ className: 'bg-[#111111] hover:bg-[#000000]/90' }}
-      width={400}
+      width="min(400px, 95vw)"
       centered
     >
       <div className="space-y-4 py-4">
-        <p className="text-[13px] text-[#666666] font-['Inter:Regular',sans-serif]">
+        <p className="text-[0.8125rem] text-[#666666] font-normal">
           Please provide the final quotation details for this {pricingModel === 'hourly' ? 'hourly' : 'project'} requirement.
         </p>
         {pricingModel === 'hourly' ? (
           <>
             <div className="space-y-2">
-              <label className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">Confirmed Hourly Rate</label>
+              <label className="text-[0.8125rem] font-bold text-[#111111]">Confirmed Hourly Rate</label>
               <Input
                 type="number"
                 placeholder="0.00"
@@ -104,7 +104,7 @@ export function QuotationDialog({
               />
             </div>
             <div className="space-y-2">
-              <label className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">Estimated Hours</label>
+              <label className="text-[0.8125rem] font-bold text-[#111111]">Estimated Hours</label>
               <Input
                 type="number"
                 placeholder="0"
@@ -114,15 +114,15 @@ export function QuotationDialog({
               />
             </div>
             <div className="pt-2 border-t border-[#EEEEEE] flex justify-between items-center">
-              <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">Total Estimated:</span>
-              <span className="text-[16px] font-['Manrope:Bold',sans-serif] text-[#ff3b3b]">
+              <span className="text-[0.8125rem] font-bold text-[#111111]">Total Estimated:</span>
+              <span className="text-base font-bold text-[#ff3b3b]">
                 {currency} {((parseFloat(rate) || 0) * (parseFloat(hours) || 0)).toFixed(2)}
               </span>
             </div>
           </>
         ) : (
           <div className="space-y-2">
-            <label className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">Total Project Cost</label>
+            <label className="text-[0.8125rem] font-bold text-[#111111]">Total Project Cost</label>
             <Input
               type="number"
               placeholder="0.00"

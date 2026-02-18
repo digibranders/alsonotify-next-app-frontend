@@ -72,12 +72,26 @@ export function WorkspacePage() {
 
     // Filters
     if (filters.organization && filters.organization !== 'All') {
+      const selectedOrgs = filters.organization.split(',');
       const selfLabel = `${companyData?.result?.name || 'Current Company'} (Self)`;
-      if (filters.organization === selfLabel || filters.organization === 'Self') {
-        params.append('in_house', 'true');
-      } else {
-        const partner = partnersData?.result?.find((p: { name?: string; partner_company?: { name?: string }; email?: string }) => (p.name || p.partner_company?.name || p.email) === filters.organization);
-        if (partner) params.append('partner_id', partner.id.toString());
+      const partnerIds: number[] = [];
+
+      selectedOrgs.forEach(orgName => {
+        const trimmedName = orgName.trim();
+        if (trimmedName === selfLabel || trimmedName === 'Self') {
+          params.append('in_house', 'true');
+        } else {
+          const partner = partnersData?.result?.find((p: { id: number; name?: string; partner_company?: { name?: string }; email?: string }) =>
+            (p.name || p.partner_company?.name || p.email) === trimmedName
+          );
+          if (partner) {
+            partnerIds.push(partner.id);
+          }
+        }
+      });
+
+      if (partnerIds.length > 0) {
+        params.append('partner_id', partnerIds.join(','));
       }
     }
 
@@ -179,6 +193,7 @@ export function WorkspacePage() {
         const companyName = typeof p.company === 'string' ? p.company : (p as any).company?.name;
         return companyName || (p as any).partner_company?.name || p.email || p.name || 'Unknown';
       }) || [])],
+      multiSelect: true,
       defaultValue: 'All'
     }
   ];
@@ -215,7 +230,7 @@ export function WorkspacePage() {
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <h2 className="font-['Manrope:SemiBold',sans-serif] text-[20px] text-[#111111]">Workspace</h2>
+            <h2 className="font-semibold text-xl text-[#111111]">Workspace</h2>
             {userRole !== 'Employee' && (
               <button onClick={() => { setSelectedWorkspaceForEdit(null); setIsDialogOpen(true); }} className="hover:scale-110 active:scale-95 transition-transform">
                 <Plus className="size-5 text-[#ff3b3b]" strokeWidth={2} />
@@ -255,7 +270,7 @@ export function WorkspacePage() {
           <div className="flex items-center gap-8 border-b border-[#EEEEEE]">
             <button
               onClick={() => handleTabChange('active')}
-              className={`pb-3 px-1 relative font-['Manrope:SemiBold',sans-serif] text-[14px] transition-colors ${activeTab === 'active'
+              className={`pb-3 px-1 relative font-semibold text-sm transition-colors ${activeTab === 'active'
                 ? 'text-[#ff3b3b]'
                 : 'text-[#666666] hover:text-[#111111]'
                 }`}
@@ -267,7 +282,7 @@ export function WorkspacePage() {
             </button>
             <button
               onClick={() => handleTabChange('archived')}
-              className={`pb-3 px-1 relative font-['Manrope:SemiBold',sans-serif] text-[14px] transition-colors ${activeTab === 'archived'
+              className={`pb-3 px-1 relative font-semibold text-sm transition-colors ${activeTab === 'archived'
                 ? 'text-[#ff3b3b]'
                 : 'text-[#666666] hover:text-[#111111]'
                 }`}
@@ -320,11 +335,11 @@ export function WorkspacePage() {
             <div className="flex flex-col gap-3">
               <div className="grid grid-cols-[40px_1.5fr_1.8fr_0.8fr_0.5fr_40px] gap-4 px-4 py-3 items-center bg-white">
                 <div className="flex justify-center"><Checkbox disabled className="red-checkbox" /></div>
-                <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide">Workspace Name</p>
-                <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide">Requirements</p>
-                <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide">Organization</p>
-                <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide">Status</p>
-                <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide" />
+                <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Workspace Name</p>
+                <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Requirements</p>
+                <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Organization</p>
+                <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Status</p>
+                <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide" />
               </div>
               {Array.from({ length: 10 }).map((_, i) => (
                 <div key={i} className="bg-white border border-[#F3F4F6] rounded-[12px] px-4 py-3 flex items-center animate-pulse">
@@ -377,19 +392,19 @@ export function WorkspacePage() {
                     onChange={toggleSelectAllWorkspaces}
                   />
                 </div>
-                <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide">
+                <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">
                   Workspace Name
                 </p>
-                <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide">
+                <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">
                   Requirements
                 </p>
-                <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide">
+                <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">
                   Organization
                 </p>
-                <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide">
+                <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">
                   Status
                 </p>
-                <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide" />
+                <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide" />
               </div>
 
               {workspaces.map((workspace) => (
@@ -409,7 +424,7 @@ export function WorkspacePage() {
         {!isLoading && workspaces.length === 0 && (
           <div className="text-center py-12">
             <FolderOpen className="w-12 h-12 text-[#DDDDDD] mx-auto mb-3" />
-            <p className="text-[#999999] font-['Manrope:Regular',sans-serif]">
+            <p className="text-[#999999] font-normal">
               No workspaces found
             </p>
           </div>
@@ -445,19 +460,19 @@ function WorkspaceRequirementsSummary({
 }) {
   return (
     <div>
-      <p className="text-[10px] text-[#999999] font-['Manrope:Bold',sans-serif] uppercase tracking-wider text-center mb-3">Requirements</p>
+      <p className="text-[0.625rem] text-[#999999] font-bold uppercase tracking-wider text-center mb-3">Requirements</p>
       <div className="grid grid-cols-3 divide-x divide-[#EEEEEE]">
         <div className="flex flex-col items-center px-1">
-          <span className="text-[10px] text-[#999999] font-['Inter:Medium',sans-serif] uppercase tracking-wider mb-0.5">Total</span>
-          <span className="text-[13px] text-[#111111] font-['Manrope:Bold',sans-serif]">{total}</span>
+          <span className="text-[0.625rem] text-[#999999] font-medium uppercase tracking-wider mb-0.5">Total</span>
+          <span className="text-[0.8125rem] text-[#111111] font-bold">{total}</span>
         </div>
         <div className="flex flex-col items-center px-1">
-          <span className="text-[10px] text-[#999999] font-['Inter:Medium',sans-serif] uppercase tracking-wider mb-0.5">Progress</span>
-          <span className="text-[13px] text-[#0284C7] font-['Manrope:Bold',sans-serif]">{inProgress}</span>
+          <span className="text-[0.625rem] text-[#999999] font-medium uppercase tracking-wider mb-0.5">Progress</span>
+          <span className="text-[0.8125rem] text-[#0284C7] font-bold">{inProgress}</span>
         </div>
         <div className="flex flex-col items-center px-1">
-          <span className="text-[10px] text-[#999999] font-['Inter:Medium',sans-serif] uppercase tracking-wider mb-0.5">Delayed</span>
-          <span className="text-[13px] text-[#DC2626] font-['Manrope:Bold',sans-serif]">{delayed}</span>
+          <span className="text-[0.625rem] text-[#999999] font-medium uppercase tracking-wider mb-0.5">Delayed</span>
+          <span className="text-[0.8125rem] text-[#DC2626] font-bold">{delayed}</span>
         </div>
       </div>
     </div>
@@ -558,10 +573,10 @@ function WorkspaceCard({ workspace, userRole, onClick }: { workspace: Workspace;
 
             {/* Text Details */}
             <div className="flex flex-col pt-0.5 min-w-0">
-              <h3 className="font-['Manrope:Bold',sans-serif] text-[16px] text-[#111111] leading-snug mb-0.5 truncate w-full">
+              <h3 className="font-bold text-base text-[#111111] leading-snug mb-0.5 truncate w-full">
                 {workspace.name}
               </h3>
-              <p className="text-[13px] text-[#666666] font-['Manrope:Medium',sans-serif] truncate">
+              <p className="text-[0.8125rem] text-[#666666] font-medium truncate">
                 {workspace.in_house ? workspace.company_name : workspace.partner_name || 'Organization'}
               </p>
             </div>
@@ -687,7 +702,7 @@ function WorkspaceListItem({
               <FolderOpen className="w-5 h-5 text-[#ff3b3b] group-hover:text-white transition-colors" />
             </div>
             <div className="flex flex-col">
-              <h3 className="font-['Manrope:SemiBold',sans-serif] text-[14px] text-[#111111] line-clamp-1">
+              <h3 className="font-semibold text-sm text-[#111111] line-clamp-1">
                 {workspace.name}
               </h3>
             </div>
@@ -696,26 +711,26 @@ function WorkspaceListItem({
           {/* Requirements Stats */}
           <div className="flex items-center gap-6">
             <div className="flex flex-col">
-              <span className="text-[11px] text-[#999999] font-['Manrope:Regular',sans-serif] mb-0.5">
+              <span className="text-[0.6875rem] text-[#999999] font-normal mb-0.5">
                 Total
               </span>
-              <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">
+              <span className="text-[0.8125rem] font-bold text-[#111111]">
                 {workspace.total_requirements || 0}
               </span>
             </div>
             <div className="flex flex-col">
-              <span className="text-[11px] text-[#999999] font-['Manrope:Regular',sans-serif] mb-0.5">
+              <span className="text-[0.6875rem] text-[#999999] font-normal mb-0.5">
                 Progress
               </span>
-              <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#2F80ED]">
+              <span className="text-[0.8125rem] font-bold text-[#2F80ED]">
                 {workspace.in_progress_requirements || 0}
               </span>
             </div>
             <div className="flex flex-col">
-              <span className="text-[11px] text-[#999999] font-['Manrope:Regular',sans-serif] mb-0.5">
+              <span className="text-[0.6875rem] text-[#999999] font-normal mb-0.5">
                 Delayed
               </span>
-              <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#ff3b3b]">
+              <span className="text-[0.8125rem] font-bold text-[#ff3b3b]">
                 {workspace.delayed_requirements || 0}
               </span>
             </div>
@@ -723,7 +738,7 @@ function WorkspaceListItem({
 
           {/* Organization */}
           <div className="flex items-center">
-            <p className="text-[13px] text-[#666666] font-['Manrope:Medium',sans-serif] truncate">
+            <p className="text-[0.8125rem] text-[#666666] font-medium truncate">
               {workspace.in_house ? workspace.company_name : workspace.partner_name || 'Organization'}
             </p>
           </div>
@@ -731,7 +746,7 @@ function WorkspaceListItem({
           {/* Status */}
           <div className="flex items-center">
             <span
-              className={`inline-flex items-center px-3 py-1 rounded-full text-[12px] font-['Manrope:SemiBold',sans-serif] whitespace-nowrap ${workspace.is_active
+              className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${workspace.is_active
                 ? 'bg-[#ECFDF3] text-[#16A34A]'
                 : 'bg-[#F3F4F6] text-[#6B7280]'
                 }`}

@@ -42,15 +42,15 @@ export function RejectDialog({
       okText="Reject"
       cancelText="Cancel"
       okButtonProps={{ className: 'bg-[#ff3b3b] hover:bg-[#d93232]' }}
-      width={400}
+      width="min(400px, 95vw)"
       centered
     >
       <div className="space-y-4 py-4">
-        <p className="text-[13px] text-[#666666] font-['Inter:Regular',sans-serif]">
+        <p className="text-[0.8125rem] text-[#666666] font-normal">
           Please provide a reason for rejecting this requirement. It will be moved to drafts.
         </p>
         <div className="space-y-2">
-          <label className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">Reason</label>
+          <label className="text-[0.8125rem] font-bold text-[#111111]">Reason</label>
           <TextArea
             placeholder="e.g. Budget too low, Out of scope..."
             className="min-h-[100px] rounded-lg resize-none"

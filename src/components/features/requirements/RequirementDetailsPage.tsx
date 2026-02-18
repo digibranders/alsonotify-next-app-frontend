@@ -164,12 +164,19 @@ export function RequirementDetailsPage() {
   const isReceiver = useMemo(() => !!myCompanyId && requirement?.receiver_company_id === myCompanyId, [myCompanyId, requirement]);
   const isInHouse = useMemo(() => !requirement?.receiver_company_id || requirement?.receiver_company_id === requirement?.sender_company_id, [requirement]);
 
+  // Supervisory roles always see all tabs regardless of company receiver logic
+  const userRole = getRoleFromUser(user);
+  const hasSupervisoryFullAccess = ['Admin', 'Head', 'Coordinator'].includes(userRole);
+
   const visibleTabs: ReqTabId[] = useMemo(() => {
+    if (hasSupervisoryFullAccess) {
+      return ['details', 'tasks', 'gantt', 'kanban', 'pnl', 'documents'];
+    }
     if (isReceiver || isInHouse) {
       return ['details', 'tasks', 'gantt', 'kanban', 'pnl', 'documents'];
     }
     return ['details', 'documents'];
-  }, [isReceiver, isInHouse]);
+  }, [isReceiver, isInHouse, hasSupervisoryFullAccess]);
 
   // If active tab is not visible, switch to 'details' - moved to useEffect for safety
   useEffect(() => {
@@ -354,7 +361,7 @@ export function RequirementDetailsPage() {
               {/* Tasks Section */}
               <div className="bg-white rounded-[16px] p-8 border border-[#EEEEEE] shadow-sm">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-[16px] font-['Manrope:Bold',sans-serif] text-[#111111] flex items-center gap-2">
+                  <h3 className="text-base font-bold text-[#111111] flex items-center gap-2">
                     <ListTodo className="w-5 h-5 text-[#ff3b3b]" />
                     Tasks Breakdown
                   </h3>
@@ -363,7 +370,7 @@ export function RequirementDetailsPage() {
 
                       type="default"
                       size="small"
-                      className="h-8 text-[12px] border-[#EEEEEE]"
+                      className="h-8 text-xs border-[#EEEEEE]"
                       onClick={() => setIsTaskModalOpen(true)}
                     >
                       <Plus className="w-4 h-4 mr-2" /> Add Task
@@ -385,12 +392,12 @@ export function RequirementDetailsPage() {
                         className="border-[#DDDDDD] [&.ant-checkbox-checked]:bg-[#ff3b3b] [&.ant-checkbox-checked]:border-[#ff3b3b]"
                       />
                     </div>
-                    <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide">Task</p>
-                    <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide">Timeline</p>
-                    <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide text-center">Assigned</p>
-                    <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide text-center">Duration</p>
-                    <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide text-center">Progress</p>
-                    <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide text-center">Status</p>
+                    <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Task</p>
+                    <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Timeline</p>
+                    <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide text-center">Assigned</p>
+                    <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide text-center">Duration</p>
+                    <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide text-center">Progress</p>
+                    <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide text-center">Status</p>
                     <p></p>
                   </div>
                 </div>
@@ -443,7 +450,7 @@ export function RequirementDetailsPage() {
                       );
                     })
                   ) : (
-                    <div className="text-center py-8 text-[#999999] text-[13px]">No tasks created yet</div>
+                    <div className="text-center py-8 text-[#999999] text-[0.8125rem]">No tasks created yet</div>
                   )}
                 </div>
 
@@ -487,7 +494,7 @@ export function RequirementDetailsPage() {
               {/* Revisions Section */}
               {revisions.length > 0 && (
                 <div className="bg-white rounded-[16px] p-8 border border-[#EEEEEE] shadow-sm">
-                  <h3 className="text-[16px] font-['Manrope:Bold',sans-serif] text-[#111111] mb-6 flex items-center gap-2">
+                  <h3 className="text-base font-bold text-[#111111] mb-6 flex items-center gap-2">
                     <RotateCcw className="w-5 h-5 text-[#ff3b3b]" />
                     Revisions
                   </h3>
@@ -495,17 +502,17 @@ export function RequirementDetailsPage() {
                     <div className="flex justify-center">
                       <Checkbox disabled className="border-[#DDDDDD]" />
                     </div>
-                    <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide">Revision</p>
+                    <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Revision</p>
                     <div className="flex justify-center">
-                      <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide">Assigned</p>
+                      <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Assigned</p>
                     </div>
                     <div className="flex justify-center">
-                      <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide">Due Date</p>
+                      <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Due Date</p>
                     </div>
                     <div className="flex justify-center">
-                      <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide">Status</p>
+                      <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Status</p>
                     </div>
-                    <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide"></p>
+                    <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide"></p>
                   </div>
                   <div className="space-y-2">
                     {revisions.map((task: Task) => (
@@ -549,7 +556,7 @@ export function RequirementDetailsPage() {
         open={isTaskModalOpen}
         onCancel={() => setIsTaskModalOpen(false)}
         footer={null}
-        width={600}
+        width="min(600px, 95vw)"
         centered
         className="rounded-[16px] overflow-hidden"
         styles={{
