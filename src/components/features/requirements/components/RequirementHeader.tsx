@@ -57,6 +57,18 @@ export function RequirementHeader({
   const [isApprovalModalOpen, setIsApprovalModalOpen] = useState(false);
   const [rejectionTitle, setRejectionTitle] = useState("Reject Requirement");
 
+  const getNextStatus = useCallback((apiAction: string) => {
+    switch (apiAction) {
+      case 'accept_quote': return 'Assigned';
+      case 'send_to_partner': return 'Waiting';
+      case 'start_work': return 'In_Progress';
+      case 'resume': return 'In_Progress';
+      case 'pause': return 'On_Hold';
+      case 'reopen': return 'Assigned';
+      default: return requirement.status;
+    }
+  }, [requirement.status]);
+
   const handleAction = useCallback(async (action: ActionConfig | undefined) => {
     if (!action) return;
 
@@ -104,19 +116,9 @@ export function RequirementHeader({
         message.error(error.message || `Failed to perform action: ${action.label}`);
       }
     }
-  }, [requirement, updateRequirement, message]);
+  }, [requirement, updateRequirement, message, getNextStatus]);
 
-  const getNextStatus = (apiAction: string) => {
-    switch (apiAction) {
-      case 'accept_quote': return 'Assigned';
-      case 'send_to_partner': return 'Waiting';
-      case 'start_work': return 'In_Progress';
-      case 'resume': return 'In_Progress';
-      case 'pause': return 'On_Hold';
-      case 'reopen': return 'Assigned';
-      default: return requirement.status;
-    }
-  };
+
 
   const handleMappingSubmit = useCallback(async (selectedWorkspaceId: number) => {
     try {

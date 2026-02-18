@@ -152,7 +152,7 @@ function ClientFormContent({
     }
 
     return true;
-  }, [formData.email, formData.firstName, isEditing]);
+  },  [formData.email, formData.firstName, isEditing]);
 
   const handleSubmit = () => {
     if (!validateForm()) {
