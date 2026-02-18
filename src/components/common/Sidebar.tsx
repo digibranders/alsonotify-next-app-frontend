@@ -198,7 +198,7 @@ export const Sidebar = React.memo(function Sidebar({ userRole, permissions, coll
   return (
     <div
       className={`bg-white rounded-[24px] ${isCollapsed ? 'px-2' : 'px-6'} py-6 w-full flex flex-col transition-all duration-300 relative group/sidebar`}
-      style={isInDrawer ? { height: '100%' } : { height: 'calc(100vh - 40px)' }}
+      style={isInDrawer ? { height: '100%' } : { height: 'calc(100dvh - 40px)' }}
     >
       {/* Toggle Button - collapse on desktop; close drawer when in drawer */}
       <button
@@ -304,7 +304,7 @@ const NavItem = React.memo(function NavItem({ href, icon, label, active = false,
       {/* Label */}
       {!collapsed && (
         <span className={`
-            font-['Manrope:SemiBold',sans-serif] text-[14px] leading-normal whitespace-nowrap
+            font-semibold text-sm leading-normal whitespace-nowrap
             ${active ? 'text-[#ff3b3b]' : 'text-[#434343]'}
         `}>
           {label}
@@ -317,7 +317,7 @@ const NavItem = React.memo(function NavItem({ href, icon, label, active = false,
 function PremiumCard() {
   return (
     <div className="w-full">
-      <button className="w-full bg-[#ff3b3b] hover:bg-[#e63535] active:bg-[#cc2f2f] text-white font-['Manrope:Bold',sans-serif] text-[14px] px-4 py-3 rounded-full transition-all transform active:scale-[0.98] shadow-sm">
+      <button className="w-full bg-[#ff3b3b] hover:bg-[#e63535] active:bg-[#cc2f2f] text-white font-bold text-sm px-4 py-3 rounded-full transition-all transform active:scale-[0.98] shadow-sm">
         Upgrade Now
       </button>
     </div>

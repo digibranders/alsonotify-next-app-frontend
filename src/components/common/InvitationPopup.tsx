@@ -111,17 +111,17 @@ export function InvitationPopup() {
             onCancel={handleClose}
             footer={null}
             title={
-                <div className="flex items-center gap-2 text-xl font-bold font-['Manrope',sans-serif]">
+                <div className="flex items-center gap-2 text-xl font-bold">
                     <span className="w-2 h-2 rounded-full bg-[#ff3b3b]"></span>
                     Pending Invitations
                 </div>
             }
-            width={500}
+            width="min(500px, 95vw)"
             centered
             className="invitation-popup"
         >
             <div className="py-4 space-y-4">
-                <p className="text-[#666666] text-[15px]">
+                <p className="text-[#666666] text-[0.9375rem]">
                     You have {invites.length} pending invitation{invites.length > 1 ? 's' : ''} to join as a partner.
                 </p>
 
@@ -139,7 +139,7 @@ export function InvitationPopup() {
                                 <div className="flex flex-col min-w-0">
                                     <span className="font-bold text-[#111111] truncate">{invite.inviterName}</span>
                                     {invite.inviterCompany && (
-                                        <span className="text-[12px] text-[#666666] truncate">{invite.inviterCompany}</span>
+                                        <span className="text-xs text-[#666666] truncate">{invite.inviterCompany}</span>
                                     )}
                                 </div>
                             </div>
@@ -167,7 +167,7 @@ export function InvitationPopup() {
                 </div>
 
                 <div className="pt-2 text-center">
-                    <button onClick={handleClose} className="text-[#999999] text-[13px] hover:text-[#111111] transition-colors">
+                    <button onClick={handleClose} className="text-[#999999] text-[0.8125rem] hover:text-[#111111] transition-colors">
                         Remind me later
                     </button>
                 </div>

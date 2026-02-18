@@ -94,7 +94,7 @@ export function FeedbackWidget({ open, onClose }: FeedbackWidgetProps) {
       open={open}
       onCancel={handleClose}
       footer={null}
-      width={520}
+      width="min(520px, 95vw)"
       centered
       closable={false}
       className="feedback-modal [&_.ant-modal-content]:!rounded-2xl [&_.ant-modal-content]:overflow-hidden"
@@ -106,10 +106,10 @@ export function FeedbackWidget({ open, onClose }: FeedbackWidgetProps) {
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-[#EEEEEE]">
           <div>
-            <h2 className="text-[18px] font-['Manrope:Bold',sans-serif] text-[#111111] mb-1">
+            <h2 className="text-lg font-bold text-[#111111] mb-1">
               Give us feedback
             </h2>
-            <p className="text-[13px] font-['Manrope:Regular',sans-serif] text-[#666666]">
+            <p className="text-[0.8125rem] font-normal text-[#666666]">
               Tell us how we can make AlsoNotify better for you.
             </p>
           </div>
@@ -130,7 +130,7 @@ export function FeedbackWidget({ open, onClose }: FeedbackWidgetProps) {
           >
             {/* Category Selection */}
             <div className="mb-5">
-              <label className="block text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111] mb-3">
+              <label className="block text-[0.8125rem] font-bold text-[#111111] mb-3">
                 Category
               </label>
               <div className="grid grid-cols-2 gap-3">
@@ -155,10 +155,10 @@ export function FeedbackWidget({ open, onClose }: FeedbackWidgetProps) {
                         {opt.icon}
                       </div>
                       <div className="min-w-0">
-                        <div className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111] mb-0.5">
+                        <div className="text-[0.8125rem] font-bold text-[#111111] mb-0.5">
                           {opt.label}
                         </div>
-                        <div className="text-[11px] font-['Manrope:Regular',sans-serif] text-[#666666] leading-tight">
+                        <div className="text-[0.6875rem] font-normal text-[#666666] leading-tight">
                           {opt.description}
                         </div>
                       </div>
@@ -172,7 +172,7 @@ export function FeedbackWidget({ open, onClose }: FeedbackWidgetProps) {
             <Form.Item
               name="description"
               label={
-                <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">
+                <span className="text-[0.8125rem] font-bold text-[#111111]">
                   Details
                 </span>
               }
@@ -181,7 +181,7 @@ export function FeedbackWidget({ open, onClose }: FeedbackWidgetProps) {
               <TextArea
                 rows={6}
                 placeholder="Describe the bug or idea with as much detail as possible..."
-                className="rounded-xl border-[#EEEEEE] font-['Manrope:Medium',sans-serif] py-3"
+                className="rounded-xl border-[#EEEEEE] font-medium py-3"
               />
             </Form.Item>
 
@@ -190,7 +190,7 @@ export function FeedbackWidget({ open, onClose }: FeedbackWidgetProps) {
               <Button
                 type="text"
                 onClick={handleClose}
-                className="h-11 px-6 text-[14px] font-['Manrope:SemiBold',sans-serif] text-[#666666] hover:text-[#111111] hover:bg-[#F7F7F7] rounded-xl transition-all"
+                className="h-11 px-6 text-sm font-semibold text-[#666666] hover:text-[#111111] hover:bg-[#F7F7F7] rounded-xl transition-all"
               >
                 Cancel
               </Button>
@@ -198,7 +198,7 @@ export function FeedbackWidget({ open, onClose }: FeedbackWidgetProps) {
                 type="primary"
                 htmlType="submit"
                 loading={isPending}
-                className="h-11 px-6 text-[14px] font-['Manrope:SemiBold',sans-serif] bg-[#111111] hover:bg-[#333333] rounded-xl border-none"
+                className="h-11 px-6 text-sm font-semibold bg-[#111111] hover:bg-[#333333] rounded-xl border-none"
               >
                 Submit Feedback
               </Button>

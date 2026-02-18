@@ -42,7 +42,7 @@ export function DebouncedSearchInput({
                 value={localValue}
                 onChange={handleChange}
                 placeholder={placeholder}
-                className="w-full pl-9 pr-4 py-1.5 bg-white border border-[#EEEEEE] rounded-lg text-[13px] font-['Manrope:Medium',sans-serif] text-[#111111] placeholder:text-[#999999] focus:outline-none focus:border-[#111111]"
+                className="w-full pl-9 pr-4 py-1.5 bg-white border border-[#EEEEEE] rounded-lg text-[0.8125rem] font-medium text-[#111111] placeholder:text-[#999999] focus:outline-none focus:border-[#111111]"
             />
         </div>
     );

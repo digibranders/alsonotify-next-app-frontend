@@ -54,7 +54,7 @@ export default function RegisterSuccess({ email }: RegisterSuccessProps) {
             Verify your email
           </h2>
 
-          <p className="text-[15px] text-[#666666] leading-relaxed">
+          <p className="text-[0.9375rem] text-[#666666] leading-relaxed">
             We've sent a verification link to <span className="font-bold text-[#111111]">{email}</span>.
             <br />
             Please check your inbox to activate your account.
@@ -66,7 +66,7 @@ export default function RegisterSuccess({ email }: RegisterSuccessProps) {
             href={email.includes("@gmail.com") ? "https://mail.google.com" : "https://outlook.live.com/mail/"}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex h-12 px-8 items-center justify-center !bg-[#ff3b3b] hover:!bg-[#E63535] !text-white rounded-[16px] font-bold text-[15px] shadow-lg shadow-[#ff3b3b]/25 transition-all hover:shadow-[#ff3b3b]/40 w-full"
+            className="inline-flex h-12 px-8 items-center justify-center !bg-[#ff3b3b] hover:!bg-[#E63535] !text-white rounded-[16px] font-bold text-[0.9375rem] shadow-lg shadow-[#ff3b3b]/25 transition-all hover:shadow-[#ff3b3b]/40 w-full"
           >
             {/* Open {email.includes("@gmail.com") ? "Gmail" : "Outlook"} */}
             Verify Email
@@ -74,13 +74,13 @@ export default function RegisterSuccess({ email }: RegisterSuccessProps) {
 
           <Link
             href="/login"
-            className="inline-flex h-12 px-8 items-center justify-center bg-transparent hover:bg-[#F5F5F5] text-[#666666] hover:text-[#111111] rounded-[16px] font-bold text-[15px] transition-all w-full"
+            className="inline-flex h-12 px-8 items-center justify-center bg-transparent hover:bg-[#F5F5F5] text-[#666666] hover:text-[#111111] rounded-[16px] font-bold text-[0.9375rem] transition-all w-full"
           >
             Back to Login
           </Link>
         </div>
 
-        <p className="text-[13px] text-[#999999]">
+        <p className="text-[0.8125rem] text-[#999999]">
           Didn't receive the email? <button onClick={handleResend} disabled={resendEmailMutation.isPending} className="text-[#ff3b3b] hover:text-[#E63535] font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed">{resendEmailMutation.isPending ? "Sending..." : "Click to resend"}</button>
         </p>
       </motion.div>

@@ -117,7 +117,7 @@ export function AIAssistantDrawer({ open, onClose }: AIAssistantDrawerProps) {
           <div className="w-8 h-8 bg-gradient-to-br from-[#ff3b3b] to-[#cc2f2f] rounded-full flex items-center justify-center shadow-lg">
             <Sparkle24Filled className="w-4 h-4 text-white fill-white" />
           </div>
-          <span className="font-['Manrope:Bold',sans-serif] text-[16px]">AI Assistant</span>
+          <span className="font-bold text-base">AI Assistant</span>
         </div>
       }
       placement="right"
@@ -144,7 +144,7 @@ export function AIAssistantDrawer({ open, onClose }: AIAssistantDrawerProps) {
               <Sparkle24Filled className="w-6 h-6 text-[#ff3b3b]" />
             </div>
             <div>
-              <h3 className="font-['Manrope:Bold',sans-serif] text-[#111111]">How can I help?</h3>
+              <h3 className="font-bold text-[#111111]">How can I help?</h3>
               <p className="text-sm text-gray-500">Ask about tasks, schedule, or team status</p>
             </div>
 
@@ -170,9 +170,9 @@ export function AIAssistantDrawer({ open, onClose }: AIAssistantDrawerProps) {
               </div>
               <div className={`flex flex-col max-w-[80%] ${msg.type === 'user' ? 'items-end' : 'items-start'}`}>
                 <div className={`px-4 py-2 rounded-2xl ${msg.type === 'user' ? 'bg-[#111111] text-white rounded-tr-sm' : 'bg-white border border-gray-100 shadow-sm text-[#111111] rounded-tl-sm'}`}>
-                  <p className="text-sm font-['Inter:Medium',sans-serif] whitespace-pre-wrap">{msg.content}</p>
+                  <p className="text-sm font-medium whitespace-pre-wrap">{msg.content}</p>
                 </div>
-                <span className="text-[10px] text-gray-400 mt-1 px-1">{formatTime(msg.timestamp)}</span>
+                <span className="text-[0.625rem] text-gray-400 mt-1 px-1">{formatTime(msg.timestamp)}</span>
               </div>
             </div>
           ))

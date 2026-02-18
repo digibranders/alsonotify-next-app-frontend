@@ -71,7 +71,7 @@ export function PageLayout({
           {/* Title Row */}
           <div className={`flex items-center justify-between ${(tabs && tabs.length > 0) || onSearchChange || showFilter || customFilters || secondaryActions || showExport || action ? "mb-4" : "mb-1"}`}>
             <div className="flex items-center gap-2">
-              <h2 className="font-['Manrope:SemiBold',sans-serif] text-[20px] text-[#111111]">
+              <h2 className="font-semibold text-xl text-[#111111]">
                 {title}
               </h2>
               {/* Title Action - Plus icon next to title */}
@@ -99,14 +99,14 @@ export function PageLayout({
                       <button
                         key={tab.id}
                         onClick={() => onTabChange?.(tab.id)}
-                        className={`pb-3 px-1 relative font-['Manrope:SemiBold',sans-serif] text-[14px] transition-colors flex items-center gap-2 ${activeTab === tab.id
+                        className={`pb-3 px-1 relative font-semibold text-sm transition-colors flex items-center gap-2 ${activeTab === tab.id
                           ? 'text-[#ff3b3b]'
                           : 'text-[#666666] hover:text-[#111111]'
                           }`}
                       >
                         {tab.label}
                         {tab.count !== undefined && tab.count > 0 && (
-                          <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-['Manrope:SemiBold',sans-serif] leading-none ${activeTab === tab.id
+                          <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[0.6875rem] font-semibold leading-none ${activeTab === tab.id
                             ? 'bg-[#ff3b3b] text-white'
                             : 'bg-[#F7F7F7] text-[#666666]'
                             }`}>
@@ -133,7 +133,7 @@ export function PageLayout({
                       value={searchValue}
                       onChange={(e) => onSearchChange(e.target.value)}
                       placeholder={searchPlaceholder}
-                      className="pl-10 pr-4 py-2.5 bg-white border border-[#EEEEEE] rounded-full text-[14px] font-['Manrope:Regular',sans-serif] text-[#111111] placeholder:text-[#999999] focus:outline-none focus:border-[#ff3b3b] w-full md:w-[280px]"
+                      className="pl-10 pr-4 py-2.5 bg-white border border-[#EEEEEE] rounded-full text-sm font-normal text-[#111111] placeholder:text-[#999999] focus:outline-none focus:border-[#ff3b3b] w-full md:w-[280px]"
                     />
                   </div>
                 )}
@@ -145,7 +145,7 @@ export function PageLayout({
                     className="flex items-center gap-2 px-4 py-2.5 bg-white border border-[#EEEEEE] rounded-[12px] hover:bg-[#F7F7F7] transition-colors"
                   >
                     <Filter24Filled className="w-4 h-4 text-[#666666]" />
-                    <span className="font-['Manrope:SemiBold',sans-serif] text-[13px] text-[#666666]">
+                    <span className="font-semibold text-[0.8125rem] text-[#666666]">
                       Filter
                     </span>
                   </button>
@@ -162,7 +162,7 @@ export function PageLayout({
                     className="flex items-center gap-2 px-4 py-2.5 bg-white border border-[#EEEEEE] rounded-full hover:bg-[#F7F7F7] transition-colors"
                   >
                     {action.icon}
-                    <span className="font-['Manrope:SemiBold',sans-serif] text-[13px] text-[#666666]">
+                    <span className="font-semibold text-[0.8125rem] text-[#666666]">
                       {action.label}
                     </span>
                   </button>
@@ -175,7 +175,7 @@ export function PageLayout({
                     className="flex items-center gap-2 px-4 py-2.5 bg-white border border-[#EEEEEE] rounded-full hover:bg-[#F7F7F7] transition-colors"
                   >
                     <ArrowDownload24Filled className="w-4 h-4 text-[#666666]" />
-                    <span className="font-['Manrope:SemiBold',sans-serif] text-[13px] text-[#666666]">
+                    <span className="font-semibold text-[0.8125rem] text-[#666666]">
                       Export
                     </span>
                   </button>

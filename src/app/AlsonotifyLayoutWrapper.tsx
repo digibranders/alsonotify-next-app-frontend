@@ -18,6 +18,7 @@ import { FloatingMenuProvider } from '../context/FloatingMenuContext';
 import { FloatingTimerBar } from '../components/common/FloatingTimerBar';
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 import { SidebarProvider, useSidebar } from '../context/SidebarContext';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 interface AlsonotifyLayoutWrapperProps {
   children: ReactNode;
@@ -121,16 +122,16 @@ function AlsonotifyLayoutContent({ children }: Readonly<AlsonotifyLayoutWrapperP
           <div className="w-20 h-20 bg-[#FFF5F5] rounded-full flex items-center justify-center mb-6">
             <Shield24Regular className="w-10 h-10 text-[#FF3B3B]" />
           </div>
-          <h2 className="text-[24px] font-['Manrope:Bold',sans-serif] text-[#111111] mb-2">
+          <h2 className="text-2xl font-bold text-[#111111] mb-2">
             Access Restricted
           </h2>
-          <p className="text-[15px] text-[#666666] font-['Manrope:Medium',sans-serif] max-w-md mb-8">
-            You don't have the necessary permissions to access the <span className="font-['Manrope:Bold',sans-serif] text-[#111111]">{accessState.resource}</span> module. Please contact your administrator if you believe this is an error.
+          <p className="text-[0.9375rem] text-[#666666] font-medium max-w-md mb-8">
+            You don't have the necessary permissions to access the <span className="font-bold text-[#111111]">{accessState.resource}</span> module. Please contact your administrator if you believe this is an error.
           </p>
           <Link href="/dashboard">
             <Button
               type="primary"
-              className="bg-[#111111] hover:bg-black text-white font-['Manrope:SemiBold',sans-serif] h-11 px-8 rounded-full transition-all active:scale-95"
+              className="bg-[#111111] hover:bg-black text-white font-semibold h-11 px-8 rounded-full transition-all active:scale-95"
             >
               Back to Dashboard
             </Button>
@@ -144,9 +145,36 @@ function AlsonotifyLayoutContent({ children }: Readonly<AlsonotifyLayoutWrapperP
 
   if (isLoading) {
     return (
-      <div className="flex h-screen w-full items-center justify-center bg-[#F7F7F7]">
-        {/* You can use a specific loader component or just a spinner */}
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
+      <div className="w-full h-screen bg-[#F7F7F7] p-5 flex overflow-hidden">
+        <div className="flex gap-5 w-full h-full overflow-hidden">
+          {/* Sidebar skeleton */}
+          <div className="hidden lg:block shrink-0 w-[240px] h-full">
+            <div className="bg-white rounded-[24px] px-6 py-6 w-full h-full flex flex-col gap-4">
+              <Skeleton className="h-8 w-32 rounded-lg" />
+              <div className="flex flex-col gap-2 mt-4">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <Skeleton key={i} className="h-9 w-full rounded-full" />
+                ))}
+              </div>
+            </div>
+          </div>
+          {/* Main content skeleton */}
+          <div className="flex-1 flex flex-col gap-5 h-full overflow-hidden">
+            {/* Topbar skeleton */}
+            <Skeleton className="h-12 w-full rounded-full shrink-0" />
+            {/* Page content skeleton */}
+            <div className="flex-1 bg-white rounded-[24px] p-6 flex flex-col gap-4">
+              <Skeleton className="h-7 w-48 rounded-lg" />
+              <Skeleton className="h-4 w-full rounded" />
+              <Skeleton className="h-4 w-3/4 rounded" />
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <Skeleton key={i} className="h-24 rounded-[16px]" />
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }

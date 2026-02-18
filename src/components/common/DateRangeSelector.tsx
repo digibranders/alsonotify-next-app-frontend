@@ -206,7 +206,7 @@ export function DateRangeSelector({
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 className="flex items-center gap-2 px-3 py-1.5 bg-white border border-[#EEEEEE] rounded-lg hover:border-[#111111] hover:text-[#111111] transition-all duration-200 outline-none min-w-[120px] justify-between"
             >
-                <span className="font-['Manrope',sans-serif] font-semibold text-[13px] text-[#111111] truncate">
+                <span className=" font-semibold text-[0.8125rem] text-[#111111] truncate">
                     {getRangeLabel()}
                 </span>
                 <ChevronDown className="w-3.5 h-3.5 text-[#999999] shrink-0" />
@@ -230,7 +230,7 @@ export function DateRangeSelector({
                             <button
                                 key={option.value}
                                 onClick={() => handleRangeTypeChange(option.value)}
-                                className="w-full text-left px-4 py-2.5 font-['Manrope',sans-serif] font-medium text-[13px] text-[#444444] hover:bg-[#F7F7F7] hover:text-[#111111] transition-colors flex items-center justify-between group"
+                                className="w-full text-left px-4 py-2.5 font-medium text-[0.8125rem] text-[#444444] hover:bg-[#F7F7F7] hover:text-[#111111] transition-colors flex items-center justify-between group"
                             >
                                 <span className={selectedRangeType === option.value ? 'text-[#ff3b3b] font-semibold' : ''}>{option.label}</span>
                                 {selectedRangeType === option.value && (
@@ -253,7 +253,7 @@ export function DateRangeSelector({
                         >
                             <ChevronLeft className="w-3.5 h-3.5 text-[#666666]" />
                         </button>
-                        <h4 className="font-['Manrope',sans-serif] font-semibold text-[14px] text-[#111111]">
+                        <h4 className=" font-semibold text-sm text-[#111111]">
                             Select Range
                         </h4>
                     </div>
@@ -265,7 +265,7 @@ export function DateRangeSelector({
                         >
                             <ChevronLeft className="w-4 h-4 text-[#111111]" />
                         </button>
-                        <h4 className="font-['Manrope',sans-serif] font-bold text-[15px] text-[#111111]">
+                        <h4 className=" font-bold text-[0.9375rem] text-[#111111]">
                             {currentMonth.format('MMMM YYYY')}
                         </h4>
                         <button
@@ -278,7 +278,7 @@ export function DateRangeSelector({
 
                     <div className="grid grid-cols-7 gap-1 mb-2">
                         {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map((day) => (
-                            <div key={day} className="text-center text-[11px] font-['Manrope',sans-serif] font-bold text-[#999999] uppercase tracking-wider py-1">
+                            <div key={day} className="text-center text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wider py-1">
                                 {day}
                             </div>
                         ))}
@@ -297,7 +297,7 @@ export function DateRangeSelector({
                                     key={index}
                                     onClick={() => handleDateClick(date)}
                                     className={`
-                                        w-9 h-9 rounded-full text-[12px] font-['Inter',sans-serif] font-medium transition-all duration-200 relative
+                                        w-9 h-9 rounded-full text-xs font-medium transition-all duration-200 relative
                                         ${!isCurrentMonth ? 'invisible pointer-events-none' : 'text-[#111111]'}
                                         ${isSelected
                                             ? 'bg-[#111111] text-white shadow-lg'

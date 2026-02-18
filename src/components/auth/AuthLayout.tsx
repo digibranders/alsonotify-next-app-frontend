@@ -18,9 +18,9 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
     const router = useRouter();
 
     return (
-        <div className="min-h-screen w-full flex bg-white font-['Manrope',sans-serif] overflow-hidden" data-auth-layout>
+        <div className="min-h-screen w-full flex bg-white overflow-hidden" data-auth-layout>
             {/* LEFT SIDE - Brand & Visuals (50% Width) */}
-            <div className="hidden lg:flex flex-1 bg-[#111111] relative flex-col justify-between p-16 text-white isolate overflow-hidden">
+            <div className="hidden md:flex flex-1 bg-[#111111] relative flex-col justify-between p-16 text-white isolate overflow-hidden">
 
                 {/* Animated Background Stars */}
                 <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -84,7 +84,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ duration: 0.8, delay: 0.4 }}
-                        className="text-[18px] text-[#999999] leading-relaxed max-w-md"
+                        className="text-lg text-[#999999] leading-relaxed max-w-md"
                     >
                         Streamline your agency operations with the platform designed for modern teams. Track profitability, manage resources, and scale your business.
                     </motion.p>

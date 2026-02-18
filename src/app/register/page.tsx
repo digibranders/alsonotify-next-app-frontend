@@ -10,6 +10,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import AuthLayout from "@/components/auth/AuthLayout";
 import RegisterSuccess from "@/components/auth/RegisterSuccess";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 function RegisterForm() {
   const router = useRouter();
@@ -114,7 +115,7 @@ function RegisterForm() {
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Account Type Selector */}
           <motion.div variants={itemVariants} className="space-y-3">
-            <label className="text-[11px] font-bold text-[#999999] uppercase tracking-widest">Account Type</label>
+            <label className="text-xs font-bold text-[#999999] uppercase tracking-widest">Account Type</label>
             <div className="grid grid-cols-2 gap-3">
               {(['Organization', 'Individual'] as const).map((type) => (
                 <button
@@ -129,7 +130,7 @@ function RegisterForm() {
                   <div className={`p-2 rounded-full ${formData.accountType === type ? 'bg-[#ff3b3b] text-white' : 'bg-white text-[#999999]'}`}>
                     {type === 'Individual' ? <User className="w-4 h-4" /> : <Building2 className="w-4 h-4" />}
                   </div>
-                  <span className={`text-[13px] font-bold ${formData.accountType === type ? 'text-[#ff3b3b]' : 'text-[#666666]'}`}>{type}</span>
+                  <span className={`text-[0.8125rem] font-bold ${formData.accountType === type ? 'text-[#ff3b3b]' : 'text-[#666666]'}`}>{type}</span>
                   {formData.accountType === type && (
                     <div className="absolute top-3 right-3 text-[#ff3b3b]">
                       <CheckCircle2 className="w-4 h-4" />
@@ -141,9 +142,9 @@ function RegisterForm() {
           </motion.div>
 
           <motion.div variants={itemVariants} className="space-y-5">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-[11px] font-bold text-[#999999] uppercase tracking-widest">First Name</label>
+                <label className="text-xs font-bold text-[#999999] uppercase tracking-widest">First Name</label>
                 <input
                   type="text"
                   placeholder="John"
@@ -154,7 +155,7 @@ function RegisterForm() {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-[11px] font-bold text-[#999999] uppercase tracking-widest">Last Name (Optional)</label>
+                <label className="text-xs font-bold text-[#999999] uppercase tracking-widest">Last Name (Optional)</label>
                 <input
                   type="text"
                   placeholder="Doe"
@@ -166,7 +167,7 @@ function RegisterForm() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-[11px] font-bold text-[#999999] uppercase tracking-widest">Email Address</label>
+              <label className="text-xs font-bold text-[#999999] uppercase tracking-widest">Email Address</label>
               <div className="relative">
                 <input
                   type="email"
@@ -182,7 +183,7 @@ function RegisterForm() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-[11px] font-bold text-[#999999] uppercase tracking-widest">Password</label>
+              <label className="text-xs font-bold text-[#999999] uppercase tracking-widest">Password</label>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
@@ -208,7 +209,7 @@ function RegisterForm() {
             <button
               type="submit"
               disabled={registerMutation.isPending}
-              className="w-full h-12 bg-[#ff3b3b] hover:bg-[#E63535] text-white rounded-[16px] font-bold text-[15px] shadow-lg shadow-[#ff3b3b]/25 transition-all hover:shadow-[#ff3b3b]/40 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full h-12 bg-[#ff3b3b] hover:bg-[#E63535] text-white rounded-[16px] font-bold text-[0.9375rem] shadow-lg shadow-[#ff3b3b]/25 transition-all hover:shadow-[#ff3b3b]/40 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {registerMutation.isPending ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
@@ -223,7 +224,7 @@ function RegisterForm() {
         </form>
 
         <motion.div variants={itemVariants} className="text-center">
-          <p className="text-[14px] text-[#666666]">
+          <p className="text-sm text-[#666666]">
             Already have an account?{" "}
             <Link
               href="/login"
@@ -240,7 +241,7 @@ function RegisterForm() {
 
 export default function RegisterPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-[#F7F7F7]"><Skeleton className="h-[480px] w-[400px] rounded-[24px]" /></div>}>
       <RegisterForm />
     </Suspense>
   );

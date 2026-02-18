@@ -78,15 +78,15 @@ export function ProfileCompletionBanner() {
               strokeLinecap="round"
             />
           </svg>
-          <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[10px] font-bold text-[#2F80ED]">
+          <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-xs font-bold text-[#2F80ED]">
             {profileCompletion}%
           </span>
         </div>
         <div className="flex flex-col">
-          <span className="text-[14px] font-['Manrope:SemiBold',sans-serif] text-[#111111]">
+          <span className="text-sm font-semibold text-[#111111]">
             Complete your profile
           </span>
-          <span className="text-[12px] text-[#666666] font-['Inter:Medium',sans-serif]">
+          <span className="text-xs text-[#666666] font-medium">
             Add your professional documents to verify your account
           </span>
         </div>
@@ -95,7 +95,7 @@ export function ProfileCompletionBanner() {
       <div className="flex items-center gap-3">
         <button
           onClick={handleCompleteNow}
-          className="bg-[#2F80ED] hover:bg-[#2F80ED]/90 text-white text-[13px] h-8 px-4 font-['Manrope:SemiBold',sans-serif] rounded-full shadow-lg shadow-[#2F80ED]/20 flex items-center gap-2 group transition-all"
+          className="bg-[#2F80ED] hover:bg-[#2F80ED]/90 text-white text-[0.8125rem] h-8 px-4 font-semibold rounded-full shadow-lg shadow-[#2F80ED]/20 flex items-center gap-2 group transition-all"
         >
           Complete Now
           <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
