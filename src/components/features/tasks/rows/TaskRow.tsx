@@ -24,6 +24,7 @@ interface TaskRowProps {
   hideRequirements?: boolean;
   onRequestRevision?: () => void;
   isAdmin?: boolean;
+  userRole?: string;
 }
 
 const TaskRowComponent = memo(function TaskRow({
@@ -35,7 +36,8 @@ const TaskRowComponent = memo(function TaskRow({
   onStatusChange,
   currentUserId,
   hideRequirements = false,
-  isAdmin = false
+  isAdmin = false,
+  userRole
 }: TaskRowProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -336,7 +338,7 @@ const TaskRowComponent = memo(function TaskRow({
                   const actions: MenuProps['items'] = [];
 
                   // Admin or Leader Actions
-                  if (isAdmin || isLeader) {
+                  if ((isAdmin || isLeader) && userRole !== 'Employee') {
                     actions.push({
                       key: 'edit',
                       label: 'Edit',
@@ -365,9 +367,33 @@ const TaskRowComponent = memo(function TaskRow({
               trigger={['click']}
               placement="bottomRight"
             >
-              <button className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-[#F7F7F7] transition-colors">
-                <MoreVertical className="w-4 h-4 text-[#666666]" />
-              </button>
+              {/* Only show button if there are menu items */}
+              {(() => {
+                const isLeader = task.leader_id === currentUserId || task.leader_user?.id === currentUserId;
+                const isReview = task.status === 'Review';
+
+                // If it's review and leader, we always have items (Approve/Reject)
+                if (isReview && isLeader) {
+                  return (
+                    <button className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-[#F7F7F7] transition-colors">
+                      <MoreVertical className="w-4 h-4 text-[#666666]" />
+                    </button>
+                  );
+                }
+
+                // Otherwise check for Admin/Leader actions AND Employee restriction
+                const hasActions = (isAdmin || isLeader) && userRole !== 'Employee';
+
+                if (hasActions) {
+                  return (
+                    <button className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-[#F7F7F7] transition-colors">
+                      <MoreVertical className="w-4 h-4 text-[#666666]" />
+                    </button>
+                  );
+                }
+
+                return null;
+              })()}
             </Dropdown>
           </div>
         </div>

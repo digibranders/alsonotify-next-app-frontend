@@ -1141,6 +1141,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
               }
               currentUserId={currentUserId ? Number(currentUserId) : undefined}
               isAdmin={isAdmin}
+              userRole={userRole}
             />
           ))}
         </div>

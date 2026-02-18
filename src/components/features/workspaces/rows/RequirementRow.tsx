@@ -1,7 +1,7 @@
 import { Checkbox, Tooltip, Dropdown, MenuProps, Progress } from 'antd';
 import { Calendar as CalendarIcon, MoreVertical, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import React from 'react';
+import React, { useMemo } from 'react';
 
 interface Requirement {
   id: number;
@@ -23,9 +23,10 @@ interface Requirement {
 interface RequirementRowProps {
   req: Requirement;
   workspaceId: number;
+  userRole?: string;
 }
 
-export const RequirementRow = React.memo(function RequirementRow({ req, workspaceId }: RequirementRowProps) {
+export const RequirementRow = React.memo(function RequirementRow({ req, workspaceId, userRole }: RequirementRowProps) {
   const router = useRouter();
 
   const getStatusIcon = (status: string) => {
@@ -47,12 +48,19 @@ export const RequirementRow = React.memo(function RequirementRow({ req, workspac
     }
   };
 
-  const menuItems: MenuProps['items'] = [
-    { key: 'edit', label: 'Edit Details' },
-    { key: 'priority', label: 'Set Priority' },
-    { type: 'divider' },
-    { key: 'delete', label: 'Delete', danger: true },
-  ];
+  const menuItems: MenuProps['items'] = useMemo(() => {
+    const items: MenuProps['items'] = [];
+
+    if (userRole !== 'Employee') {
+      items.push(
+        { key: 'edit', label: 'Edit Details' },
+        { key: 'priority', label: 'Set Priority' },
+        { type: 'divider' },
+        { key: 'delete', label: 'Delete', danger: true },
+      );
+    }
+    return items;
+  }, [userRole]);
 
   return (
     <div
@@ -70,10 +78,10 @@ export const RequirementRow = React.memo(function RequirementRow({ req, workspac
         <div className="flex items-start gap-3">
           <span
             className={`mt-1 w-2.5 h-2.5 rounded-full ${req.priority === 'high'
-                ? 'bg-[#ff3b3b]'
-                : req.priority === 'low'
-                  ? 'bg-[#FACC15]'
-                  : 'bg-[#F59E0B]'
+              ? 'bg-[#ff3b3b]'
+              : req.priority === 'low'
+                ? 'bg-[#FACC15]'
+                : 'bg-[#F59E0B]'
               }`}
           />
           <div>
@@ -174,11 +182,13 @@ export const RequirementRow = React.memo(function RequirementRow({ req, workspac
 
         {/* Actions */}
         <div className="flex justify-end" onClick={(e) => e.stopPropagation()}>
-          <Dropdown menu={{ items: menuItems }} trigger={['click']} placement="bottomRight">
-            <button className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#F7F7F7] transition-colors">
-              <MoreVertical className="w-4 h-4 text-[#999999]" />
-            </button>
-          </Dropdown>
+          {menuItems && menuItems.length > 0 && (
+            <Dropdown menu={{ items: menuItems }} trigger={['click']} placement="bottomRight">
+              <button className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#F7F7F7] transition-colors">
+                <MoreVertical className="w-4 h-4 text-[#999999]" />
+              </button>
+            </Dropdown>
+          )}
         </div>
       </div>
     </div>
