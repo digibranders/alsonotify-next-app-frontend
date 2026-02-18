@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo , useRef, useEffect } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import {
   CheckCircle,
   ChevronDown,
@@ -88,14 +88,16 @@ export function FinancePage() {
       label: 'Client',
       options: ['All', ...clientOptions],
       placeholder: 'All Partners',
-      defaultValue: 'All'
+      defaultValue: 'All',
+      multiSelect: true
     },
     ...(activeTab === 'history' ? [{
       id: 'status',
       label: 'Status',
       options: ['All', 'Paid', 'Sent', 'Overdue'],
       placeholder: 'All Statuses',
-      defaultValue: 'All'
+      defaultValue: 'All',
+      multiSelect: true
     }] : [])
   ];
 
@@ -127,7 +129,7 @@ export function FinancePage() {
       }
 
       // Filters
-      if (clientFilter !== 'All' && req.client !== clientFilter) return false;
+      if (clientFilter !== 'All' && !clientFilter.split(',').includes(req.client)) return false;
 
       // Date Range (using Due Date)
       if (dateRange && dateRange[0] && dateRange[1]) {
@@ -156,8 +158,8 @@ export function FinancePage() {
 
       if (!matchesSearch) return false;
 
-      if (clientFilter !== 'All' && inv.client !== clientFilter) return false;
-      if (statusFilter !== 'All' && inv.status !== statusFilter) return false;
+      if (clientFilter !== 'All' && !clientFilter.split(',').includes(inv.client)) return false;
+      if (statusFilter !== 'All' && !statusFilter.split(',').includes(inv.status)) return false;
 
       // Date Range (using Invoice Date)
       if (dateRange?.[0] && dateRange[1]) {
@@ -391,37 +393,37 @@ export function FinancePage() {
                 {/* Card 1: Amount Invoiced (Double Width) */}
                 <div className="md:col-span-2 p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex items-center justify-between">
                   <div className="w-1/2 border-r border-[#EEEEEE] pr-4 flex flex-col gap-0.5">
-                    <span className="text-[12px] font-medium text-[#666666]">Amount Invoiced</span>
-                    <span className="text-xl font-['Manrope:Bold',sans-serif] text-[#111111]">${kpiInvoiced.total.toLocaleString()}</span>
+                    <span className="text-xs font-medium text-[#666666]">Amount Invoiced</span>
+                    <span className="text-xl font-bold text-[#111111]">${kpiInvoiced.total.toLocaleString()}</span>
                   </div>
                   <div className="w-1/2 pl-6 flex items-center gap-8">
                     <div className="flex flex-col">
-                      <span className="text-[10px] uppercase tracking-wider font-bold text-[#999999]">Received</span>
-                      <span className="text-[15px] font-['Manrope:Bold',sans-serif] text-[#0F9D58]">${kpiInvoiced.received.toLocaleString()}</span>
+                      <span className="text-[0.625rem] uppercase tracking-wider font-bold text-[#999999]">Received</span>
+                      <span className="text-[0.9375rem] font-bold text-[#0F9D58]">${kpiInvoiced.received.toLocaleString()}</span>
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-[10px] uppercase tracking-wider font-bold text-[#999999]">Due</span>
-                      <span className="text-[15px] font-['Manrope:Bold',sans-serif] text-[#FF3B3B]">${kpiInvoiced.due.toLocaleString()}</span>
+                      <span className="text-[0.625rem] uppercase tracking-wider font-bold text-[#999999]">Due</span>
+                      <span className="text-[0.9375rem] font-bold text-[#FF3B3B]">${kpiInvoiced.due.toLocaleString()}</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Card 2: Amount to be Invoiced (Single Width) */}
                 <div className="p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center">
-                  <span className="text-[12px] font-medium text-[#666666]">Amount to be Invoiced</span>
-                  <span className="text-xl font-['Manrope:Bold',sans-serif] text-[#2196F3]">${kpiToBeInvoiced.toLocaleString()}</span>
+                  <span className="text-xs font-medium text-[#666666]">Amount to be Invoiced</span>
+                  <span className="text-xl font-bold text-[#2196F3]">${kpiToBeInvoiced.toLocaleString()}</span>
                 </div>
 
                 {/* Card 3: Total Expenses (Single Width) */}
                 <div className="p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center">
-                  <span className="text-[12px] font-medium text-[#666666]">Total Expenses</span>
-                  <span className="text-xl font-['Manrope:Bold',sans-serif] text-[#111111]">${kpiTotalExpenses.toLocaleString()}</span>
+                  <span className="text-xs font-medium text-[#666666]">Total Expenses</span>
+                  <span className="text-xl font-bold text-[#111111]">${kpiTotalExpenses.toLocaleString()}</span>
                 </div>
 
                 {/* Card 4: Profit / Loss (Single Width) */}
                 <div className="p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center">
-                  <span className="text-[12px] font-medium text-[#666666]">Profit / Loss</span>
-                  <span className={`text-xl font-['Manrope:Bold',sans-serif] ${kpiProfit >= 0 ? 'text-[#0F9D58]' : 'text-[#FF3B3B]'}`}>
+                  <span className="text-xs font-medium text-[#666666]">Profit / Loss</span>
+                  <span className={`text-xl font-bold ${kpiProfit >= 0 ? 'text-[#0F9D58]' : 'text-[#FF3B3B]'}`}>
                     ${kpiProfit.toLocaleString()}
                   </span>
                 </div>
@@ -483,12 +485,12 @@ export function FinancePage() {
               <table className="w-full">
                 <thead className="bg-[#F9FAFB] border-b border-[#EEEEEE]">
                   <tr>
-                    <th className="px-6 py-4 text-left text-[12px] font-['Manrope:Bold',sans-serif] text-[#666666] uppercase rounded-tl-[16px]">Invoice #</th>
-                    <th className="px-6 py-4 text-left text-[12px] font-['Manrope:Bold',sans-serif] text-[#666666] uppercase">Client</th>
-                    <th className="px-6 py-4 text-left text-[12px] font-['Manrope:Bold',sans-serif] text-[#666666] uppercase">Date</th>
-                    <th className="px-6 py-4 text-left text-[12px] font-['Manrope:Bold',sans-serif] text-[#666666] uppercase">Amount</th>
-                    <th className="px-6 py-4 text-left text-[12px] font-['Manrope:Bold',sans-serif] text-[#666666] uppercase">Status</th>
-                    <th className="px-6 py-4 text-right text-[12px] font-['Manrope:Bold',sans-serif] text-[#666666] uppercase rounded-tr-[16px]">Actions</th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-[#666666] uppercase rounded-tl-[16px]">Invoice #</th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-[#666666] uppercase">Client</th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-[#666666] uppercase">Date</th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-[#666666] uppercase">Amount</th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-[#666666] uppercase">Status</th>
+                    <th className="px-6 py-4 text-right text-xs font-bold text-[#666666] uppercase rounded-tr-[16px]">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#EEEEEE]">
@@ -505,19 +507,19 @@ export function FinancePage() {
                     ))
                   ) : filteredInvoices.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="px-6 py-12 text-center text-[#999999] font-['Manrope:Regular',sans-serif]">
+                      <td colSpan={6} className="px-6 py-12 text-center text-[#999999] font-normal">
                         No invoices found
                       </td>
                     </tr>
                   ) : (
                     filteredInvoices.map(invoice => (
                       <tr key={invoice.id} className="hover:bg-[#F9FAFB] transition-colors">
-                        <td className="px-6 py-4 text-[14px] font-['Manrope:Medium',sans-serif] text-[#111111]">{invoice.invoiceNumber}</td>
-                        <td className="px-6 py-4 text-[14px] font-['Manrope:Regular',sans-serif] text-[#111111]">{invoice.client}</td>
-                        <td className="px-6 py-4 text-[14px] font-['Manrope:Regular',sans-serif] text-[#666666]">{dayjs(invoice.date).format('MMM D, YYYY')}</td>
-                        <td className="px-6 py-4 text-[14px] font-['Manrope:SemiBold',sans-serif] text-[#111111]">${invoice.amount.toLocaleString()}</td>
+                        <td className="px-6 py-4 text-sm font-medium text-[#111111]">{invoice.invoiceNumber}</td>
+                        <td className="px-6 py-4 text-sm font-normal text-[#111111]">{invoice.client}</td>
+                        <td className="px-6 py-4 text-sm font-normal text-[#666666]">{dayjs(invoice.date).format('MMM D, YYYY')}</td>
+                        <td className="px-6 py-4 text-sm font-semibold text-[#111111]">${invoice.amount.toLocaleString()}</td>
                         <td className="px-6 py-4">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[12px] font-medium capitalize ${getStatusColor(invoice.status)}`}>
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${getStatusColor(invoice.status)}`}>
                             {invoice.status}
                           </span>
                         </td>
@@ -564,10 +566,10 @@ function EmptyState({ icon, title, description }: { icon: React.ReactNode, title
         {icon}
       </div>
       <div>
-        <h3 className="text-[16px] font-['Manrope:SemiBold',sans-serif] text-[#111111] mb-2">
+        <h3 className="text-base font-semibold text-[#111111] mb-2">
           {title}
         </h3>
-        <p className="text-[14px] text-[#666666] font-['Manrope:Regular',sans-serif]">
+        <p className="text-sm text-[#666666] font-normal">
           {description}
         </p>
       </div>
@@ -599,24 +601,24 @@ function ClientGroup({
             {collapsed ? <ChevronRight className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
           </button>
 
-          <div className="w-10 h-10 rounded-full bg-[#ff3b3b]/10 flex items-center justify-center text-[#ff3b3b] font-bold text-[14px]">
+          <div className="w-10 h-10 rounded-full bg-[#ff3b3b]/10 flex items-center justify-center text-[#ff3b3b] font-bold text-sm">
             {client.substring(0, 2).toUpperCase()}
           </div>
 
           <div>
-            <h3 className="text-[16px] font-['Manrope:Bold',sans-serif] text-[#111111]">{client}</h3>
-            <p className="text-[12px] text-[#666666]">{reqs.length} requirements ready to bill</p>
+            <h3 className="text-base font-bold text-[#111111]">{client}</h3>
+            <p className="text-xs text-[#666666]">{reqs.length} requirements ready to bill</p>
           </div>
         </div>
 
         <div className="flex items-center gap-6">
           <div className="text-right">
-            <p className="text-[18px] font-['Manrope:Bold',sans-serif] text-[#111111]">${totalAmount.toLocaleString()}</p>
-            <p className="text-[12px] text-[#666666]">Total unbilled</p>
+            <p className="text-lg font-bold text-[#111111]">${totalAmount.toLocaleString()}</p>
+            <p className="text-xs text-[#666666]">Total unbilled</p>
           </div>
           <button
             onClick={onGenerateInvoice}
-            className="px-4 py-2 bg-[#ff3b3b] text-white rounded-full text-[13px] font-bold hover:bg-[#e63535] transition-colors"
+            className="px-4 py-2 bg-[#ff3b3b] text-white rounded-full text-[0.8125rem] font-bold hover:bg-[#e63535] transition-colors"
           >
             Generate Invoice
           </button>
@@ -628,10 +630,10 @@ function ClientGroup({
         <table className="w-full">
           <thead className="bg-white border-b border-[#EEEEEE]">
             <tr>
-              <th className="px-6 py-2 text-left text-[11px] text-[#999999] uppercase font-bold">Requirement</th>
-              <th className="px-6 py-2 text-left text-[11px] text-[#999999] uppercase font-bold">Type</th>
-              <th className="px-6 py-2 text-left text-[11px] text-[#999999] uppercase font-bold">Due Date</th>
-              <th className="px-6 py-2 text-left text-[11px] text-[#999999] uppercase font-bold">Amount</th>
+              <th className="px-6 py-2 text-left text-[0.6875rem] text-[#999999] uppercase font-bold">Requirement</th>
+              <th className="px-6 py-2 text-left text-[0.6875rem] text-[#999999] uppercase font-bold">Type</th>
+              <th className="px-6 py-2 text-left text-[0.6875rem] text-[#999999] uppercase font-bold">Due Date</th>
+              <th className="px-6 py-2 text-left text-[0.6875rem] text-[#999999] uppercase font-bold">Amount</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[#EEEEEE]">
@@ -640,18 +642,18 @@ function ClientGroup({
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
                     <CheckCircle className="w-4 h-4 text-[#7ccf00]" />
-                    <span className="text-[14px] font-medium text-[#111111]">{req.title}</span>
+                    <span className="text-sm font-medium text-[#111111]">{req.title}</span>
                   </div>
                 </td>
                 <td className="px-6 py-4">
-                  <span className="px-2 py-1 rounded-full bg-[#F7F7F7] text-[#666666] text-[11px]">
+                  <span className="px-2 py-1 rounded-full bg-[#F7F7F7] text-[#666666] text-[0.6875rem]">
                     {req.type}
                   </span>
                 </td>
-                <td className="px-6 py-4 text-[13px] text-[#666666]">
+                <td className="px-6 py-4 text-[0.8125rem] text-[#666666]">
                   {dayjs(req.dueDate).format('MMM D, YYYY')}
                 </td>
-                <td className="px-6 py-4 text-[14px] font-bold text-[#111111]">
+                <td className="px-6 py-4 text-sm font-bold text-[#111111]">
                   ${(req.estimatedCost || 0).toLocaleString()}
                 </td>
               </tr>
