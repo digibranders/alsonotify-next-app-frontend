@@ -324,14 +324,14 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
           label: 'Requirement',
           icon: <ScrollText className="w-4 h-4" />,
           onClick: () => setShowRequirementDialog(true),
-          className: "font-['Manrope:Medium',sans-serif]"
+          className: "font-medium"
         },
         {
           key: 'workspace',
           label: 'Workspace',
           icon: <Briefcase className="w-4 h-4" />,
           onClick: () => setShowWorkspaceDialog(true),
-          className: "font-['Manrope:Medium',sans-serif]"
+          className: "font-medium"
         },
       ] : []),
       {
@@ -339,28 +339,28 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
         label: 'Task',
         icon: <ListTodo className="w-4 h-4" />,
         onClick: () => setShowTaskDialog(true),
-        className: "font-['Manrope:Medium',sans-serif]"
+        className: "font-medium"
       },
       {
         key: 'calendar',
         label: 'Schedule Meeting',
         icon: <CalendarDays className="w-4 h-4" />,
         onClick: () => setShowMeetingDialog(true),
-        className: "font-['Manrope:Medium',sans-serif]"
+        className: "font-medium"
       },
       {
         key: 'leave',
         label: 'Apply Leave',
         icon: <CalendarOff className="w-4 h-4" />,
         onClick: () => setShowLeaveDialog(true),
-        className: "font-['Manrope:Medium',sans-serif]"
+        className: "font-medium"
       },
       {
         key: 'notes',
         label: 'Add Note',
         icon: <NotebookPen className="w-4 h-4" />,
         onClick: () => setShowNoteDialog(true),
-        className: "font-['Manrope:Medium',sans-serif]"
+        className: "font-medium"
       },
     ];
 
@@ -368,7 +368,7 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
       {
         key: 'create-new',
         type: 'group',
-        label: <span className="text-[11px] text-[#999999] uppercase tracking-wider font-['Manrope:Medium',sans-serif]">Create New</span>,
+        label: <span className="text-[0.6875rem] text-[#999999] uppercase tracking-wider font-medium">Create New</span>,
         children
       }
     ];
@@ -387,7 +387,7 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
       key: 'account',
       type: 'group',
       label: (
-        <span className="text-[#111111] font-bold font-['Manrope:Bold',sans-serif] text-[14px]">
+        <span className="text-[#111111] font-bold font-bold text-sm">
           {isIndividual ? 'Personal Account' : 'Organization Account'}
         </span>
       ),
@@ -429,7 +429,7 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
       <div className="bg-white rounded-full px-4 py-2 w-full">
         <div className="flex flex-row items-center justify-between w-full">
           {/* Left: Mobile menu button (below lg) + Greeting text */}
-          <div className="flex flex-col font-['Manrope:Regular',sans-serif] font-normal justify-center not-italic text-[#111111] text-nowrap">
+          <div className="flex flex-col font-normal font-normal justify-center not-italic text-[#111111] text-nowrap">
             <div className="flex items-center gap-3">
               {isNarrow && (
                 <button
@@ -449,9 +449,9 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
                 </>
               ) : (
                 <>
-                  <p className="leading-[normal] text-[20px] whitespace-pre">
-                    <span className="font-['Manrope:Regular',sans-serif]">{`👋 ${greeting}! `}</span>
-                    <span className="font-['Manrope:Bold',sans-serif]">{firstName}</span>
+                  <p className="leading-[normal] text-xl whitespace-pre">
+                    <span className="font-normal">{`👋 ${greeting}! `}</span>
+                    <span className="font-semibold">{firstName}</span>
                   </p>
                   <AccessBadge role={mappedRole || userRole} color={roleColor} />
                 </>
@@ -509,7 +509,7 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
                 {/* Notification Badge */}
                 {unreadCount > 0 && (
                   <span className="absolute top-0 right-0 w-3.5 h-3.5 bg-[#ff3b3b] rounded-full border-[1.5px] border-white flex items-center justify-center translate-x-1 -translate-y-1">
-                    <span className="text-[8px] font-['Inter:Bold',sans-serif] text-white leading-none">{unreadCount}</span>
+                    <span className="text-[0.5rem] font-bold text-white leading-none">{unreadCount}</span>
                   </span>
                 )}
               </button>
@@ -553,7 +553,7 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
         open={showTaskDialog}
         onCancel={() => setShowTaskDialog(false)}
         footer={null}
-        width={600}
+        width="min(600px, 95vw)"
         centered
         destroyOnHidden={true} // Ensure form resets on close (replaced deprecated destroyOnClose)
         className="rounded-[16px] overflow-hidden"
@@ -599,9 +599,9 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
 
             return requirementsDropdown;
           })()}
-          workspaces={workspacesData?.result?.workspaces?.map((p) => ({ 
-            id: p.id, 
-            name: p.name, 
+          workspaces={workspacesData?.result?.workspaces?.map((p) => ({
+            id: p.id,
+            name: p.name,
             company_name: p.company_name || p.client?.name || undefined,
             partner_name: p.partner_name,
             in_house: p.in_house
@@ -613,9 +613,9 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
         open={showRequirementDialog}
         onSubmit={handleCreateRequirement}
         onCancel={() => setShowRequirementDialog(false)}
-        workspaces={workspacesData?.result?.workspaces?.map((w) => ({ 
-          id: w.id, 
-          name: w.name, 
+        workspaces={workspacesData?.result?.workspaces?.map((w) => ({
+          id: w.id,
+          name: w.name,
           company_name: w.company_name || w.client?.name || undefined,
           partner_name: w.partner_name,
           in_house: w.in_house

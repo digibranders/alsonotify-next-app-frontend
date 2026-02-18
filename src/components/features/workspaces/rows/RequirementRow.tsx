@@ -78,15 +78,15 @@ export const RequirementRow = React.memo(function RequirementRow({ req, workspac
             }`}
           />
           <div>
-            <h3 className="font-['Manrope:Bold',sans-serif] text-[14px] text-[#111111] group-hover:text-[#ff3b3b] transition-colors mb-1.5">
+            <h3 className="font-bold text-sm text-[#111111] group-hover:text-[#ff3b3b] transition-colors mb-1.5">
               {req.title}
             </h3>
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-[11px] text-[#999999] font-['Manrope:Regular',sans-serif]">
+              <span className="text-[0.6875rem] text-[#999999] font-normal">
                 {req.client}
               </span>
               {req.department && (
-                <span className="px-2 py-0.5 rounded-full bg-[#F7F7F7] text-[10px] font-['Manrope:Medium',sans-serif] text-[#666666]">
+                <span className="px-2 py-0.5 rounded-full bg-[#F7F7F7] text-[0.625rem] font-medium text-[#666666]">
                   {req.department}
                 </span>
               )}
@@ -95,13 +95,13 @@ export const RequirementRow = React.memo(function RequirementRow({ req, workspac
         </div>
 
         {/* Timeline */}
-        <div className="flex items-center gap-2 text-[13px] text-[#666666] font-['Manrope:Medium',sans-serif]">
+        <div className="flex items-center gap-2 text-[0.8125rem] text-[#666666] font-medium">
           <CalendarIcon className="w-4 h-4 text-[#999999]" />
           <span>{req.timeline}</span>
         </div>
 
         {/* Budget */}
-        <div className="text-[13px] font-['Manrope:SemiBold',sans-serif] text-[#16A34A]">
+        <div className="text-[0.8125rem] font-semibold text-[#16A34A]">
           {req.budgetFormatted}
         </div>
 
@@ -120,7 +120,7 @@ export const RequirementRow = React.memo(function RequirementRow({ req, workspac
                 return (
                   <Tooltip key={i} title={person}>
                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#ff3b3b] to-[#ff6b6b] flex items-center justify-center border-2 border-white shadow-sm relative z-[5] hover:z-10 transition-all">
-                      <span className="text-[11px] text-white font-['Manrope:Bold',sans-serif]">
+                      <span className="text-[0.6875rem] text-white font-bold">
                         {initials}
                       </span>
                     </div>
@@ -129,14 +129,14 @@ export const RequirementRow = React.memo(function RequirementRow({ req, workspac
               })}
               {req.assignedTo.length > 4 && (
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#ff3b3b] to-[#ff6b6b] flex items-center justify-center border-2 border-white shadow-sm relative z-[1]">
-                  <span className="text-[11px] text-white font-['Manrope:Bold',sans-serif]">
+                  <span className="text-[0.6875rem] text-white font-bold">
                     +{req.assignedTo.length - 4}
                   </span>
                 </div>
               )}
             </div>
           ) : (
-            <span className="text-[13px] text-[#999999] font-['Manrope:Regular',sans-serif]">
+            <span className="text-[0.8125rem] text-[#999999] font-normal">
               N/A
             </span>
           )}
@@ -146,10 +146,10 @@ export const RequirementRow = React.memo(function RequirementRow({ req, workspac
         <div className="flex items-center gap-2">
           <div className="flex-1 min-w-[80px]">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-[11px] text-[#666666] font-['Manrope:Medium',sans-serif]">
+              <span className="text-[0.6875rem] text-[#666666] font-medium">
                 {req.tasksCompleted}/{req.tasksTotal} Tasks
               </span>
-              <span className="text-[11px] text-[#111111] font-['Manrope:Bold',sans-serif]">
+              <span className="text-[0.6875rem] text-[#111111] font-bold">
                 {req.progress}%
               </span>
             </div>

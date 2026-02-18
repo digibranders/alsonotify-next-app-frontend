@@ -46,7 +46,7 @@ export function WorkspaceForm(props: WorkspaceFormProps) {
             onCancel={onCancel}
             footer={null}
             title={null}
-            width={600}
+            width="min(600px, 95vw)"
             centered
             className="workspace-form-modal rounded-[16px] overflow-hidden"
             closable={true}
@@ -149,10 +149,10 @@ function WorkspaceFormContent({ onCancel, onSuccess, initialData }: WorkspaceFor
             <div className="grid grid-cols-2 gap-6">
                 {/* Workspace Name */}
                 <div className="space-y-2">
-                    <label className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">Workspace Name</label>
+                    <label className="text-[0.8125rem] font-bold text-[#111111]">Workspace Name</label>
                     <Input
                         placeholder="e.g. Website Redesign"
-                        className="h-11 rounded-xl border-[#EEEEEE] font-['Manrope:Medium',sans-serif]"
+                        className="h-11 rounded-xl border-[#EEEEEE] font-medium"
                         value={newWorkspace.name}
                         onChange={(e) => setNewWorkspace({ ...newWorkspace, name: e.target.value })}
                     />
@@ -160,7 +160,7 @@ function WorkspaceFormContent({ onCancel, onSuccess, initialData }: WorkspaceFor
 
                 {/* Organization (Partner Company) */}
                 <div className="space-y-2">
-                    <label className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">Organization</label>
+                    <label className="text-[0.8125rem] font-bold text-[#111111]">Organization</label>
                     <Select
                         showSearch={{
                             filterOption: (input, option) =>
@@ -198,10 +198,10 @@ function WorkspaceFormContent({ onCancel, onSuccess, initialData }: WorkspaceFor
 
                 {/* Description - Full Width */}
                 <div className="col-span-2 space-y-2">
-                    <label className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">Description</label>
+                    <label className="text-[0.8125rem] font-bold text-[#111111]">Description</label>
                     <TextArea
                         placeholder="Describe your workspace..."
-                        className="rounded-xl border-[#EEEEEE] font-['Manrope:Medium',sans-serif] py-3"
+                        className="rounded-xl border-[#EEEEEE] font-medium py-3"
                         rows={4}
                         value={newWorkspace.description}
                         onChange={(e) => setNewWorkspace({ ...newWorkspace, description: e.target.value })}

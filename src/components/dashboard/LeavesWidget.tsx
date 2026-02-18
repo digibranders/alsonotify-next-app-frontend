@@ -106,12 +106,12 @@ export function LeavesWidget({ onNavigate }: { onNavigate?: (page: string) => vo
         {/* Header */}
         <div className="flex items-center justify-between mb-1.5">
           <div className="flex items-center gap-2">
-            <h3 className="font-['Manrope:SemiBold',sans-serif] text-[20px] text-[#111111]">Leaves</h3>
+            <h3 className="font-semibold text-xl text-[#111111]">Leaves</h3>
             <button onClick={() => setShowDialog(true)} className="hover:scale-110 active:scale-95 transition-transform">
               <Plus className="size-5 text-[#FF4500]" strokeWidth={2} />
             </button>
           </div>
-          <button className="flex items-center gap-1 text-[#666666] text-[14px] font-['Manrope:SemiBold',sans-serif] hover:text-[#111111] transition-colors" onClick={() => onNavigate && onNavigate('leaves')}>
+          <button className="flex items-center gap-1 text-[#666666] text-sm font-semibold hover:text-[#111111] transition-colors" onClick={() => onNavigate && onNavigate('leaves')}>
             <span>View All</span>
             <svg className="size-[17px]" fill="none" viewBox="0 0 17 17">
               <path d={svgPaths.p3ac7a560} stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
@@ -147,13 +147,13 @@ export function LeavesWidget({ onNavigate }: { onNavigate?: (page: string) => vo
             </div>
           ) : error ? (
             <div className="flex items-center justify-center py-8">
-              <p className="text-[14px] font-['Manrope:Regular',sans-serif] text-[#666666]">
+              <p className="text-sm font-normal text-[#666666]">
                 Unable to load leaves at the moment. Please try again later.
               </p>
             </div>
           ) : processedLeaves.length === 0 ? (
             <div className="bg-white rounded-[10px] border border-dashed border-[#CCCCCC] py-4 flex items-center justify-center">
-              <p className="text-[14px] font-['Manrope:Regular',sans-serif] text-[#666666]">No leaves to display at the moment</p>
+              <p className="text-sm font-normal text-[#666666]">No leaves to display at the moment</p>
             </div>
           ) : (
             <>
@@ -187,7 +187,7 @@ function LeaveItem({ name, dateRange, duration, avatar, initials }: { name: stri
             {avatar ? (
               <Image src={avatar} alt={name} width={48} height={48} className="w-full h-full object-cover" />
             ) : (
-              <span className="text-[14px] font-['Manrope:Medium',sans-serif] text-[#666666]">
+              <span className="text-sm font-medium text-[#666666]">
                 {initials}
               </span>
             )}
@@ -199,17 +199,17 @@ function LeaveItem({ name, dateRange, duration, avatar, initials }: { name: stri
           <div className="flex items-center justify-between gap-2">
             {/* Name + Date stacked on the left */}
             <div className="flex flex-col min-w-0">
-              <h4 className="font-['Manrope:SemiBold',sans-serif] text-[13px] text-[#111111] line-clamp-1">
+              <h4 className="font-semibold text-[0.8125rem] text-[#111111] line-clamp-1">
                 {name}
               </h4>
-              <span className="text-[#666666] text-[11px] font-['Manrope:Regular',sans-serif] mt-0.5">
+              <span className="text-[#666666] text-[0.6875rem] font-normal mt-0.5">
                 {dateRange}
               </span>
             </div>
 
             {/* Duration Badge vertically centered on the right */}
             <div className="flex-shrink-0 self-center">
-              <span className="inline-block px-2.5 py-1 rounded-full bg-[#EEEEEE] text-[11px] font-['Manrope:Regular',sans-serif] text-[#333333]">
+              <span className="inline-block px-2.5 py-1 rounded-full bg-[#EEEEEE] text-[0.6875rem] font-normal text-[#333333]">
                 {duration}
               </span>
             </div>

@@ -104,7 +104,7 @@ const UserAvatar = ({ name, email }: { name?: string | null; email?: string | nu
 
   return (
     <div
-      className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0"
+      className="w-6 h-6 rounded-full flex items-center justify-center text-[0.625rem] font-bold text-white shrink-0"
       style={{ backgroundColor: bgColor }}
       title={displayName}
     >
@@ -206,7 +206,7 @@ export default function AdminFeedbackPage() {
           <div className="flex items-center justify-center h-[60vh]">
             <div className="text-center">
               <Loader2 className="w-8 h-8 animate-spin text-[#ff3b3b] mx-auto mb-4" />
-              <p className="text-[#666666] text-[14px]">Checking permissions...</p>
+              <p className="text-[#666666] text-sm">Checking permissions...</p>
             </div>
           </div>
         </PageLayout>
@@ -224,10 +224,10 @@ export default function AdminFeedbackPage() {
               <div className="w-20 h-20 rounded-full bg-[#FEE2E2] flex items-center justify-center mx-auto mb-6">
                 <ShieldAlert className="w-10 h-10 text-[#EF4444]" />
               </div>
-              <h2 className="text-[24px] font-['Manrope:Bold',sans-serif] text-[#111111] mb-2">
+              <h2 className="text-2xl font-bold text-[#111111] mb-2">
                 Access Denied
               </h2>
-              <p className="text-[#666666] text-[15px] font-['Manrope:Regular',sans-serif]">
+              <p className="text-[#666666] text-[0.9375rem] font-normal">
                 You are not authorized to access this page. Only Admin users can view and manage feedback.
               </p>
             </div>
@@ -279,7 +279,7 @@ export default function AdminFeedbackPage() {
           />
           
           <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-full border border-[#EEEEEE]">
-            <span className="text-[12px] text-[#666666] font-medium">Include Deleted</span>
+            <span className="text-xs text-[#666666] font-medium">Include Deleted</span>
             <Switch size="small" checked={showDeleted} onChange={setShowDeleted} />
           </div>
         </div>
@@ -289,7 +289,7 @@ export default function AdminFeedbackPage() {
         {/* Banner/Intro */}
         {!isLoading && sortedFeedbacks.length > 0 && (
           <div className="mb-2">
-            <p className="text-[14px] text-[#666666] font-['Manrope:Regular',sans-serif]">
+            <p className="text-sm text-[#666666] font-normal">
               Triage and manage feedback from your team to improve the application.
             </p>
           </div>
@@ -324,7 +324,7 @@ export default function AdminFeedbackPage() {
                       <div className="w-12 shrink-0">
                         <div className="bg-[#F7F7F7] rounded-xl p-2 text-center border border-[#EEEEEE]">
                           <ThumbsUp className="w-4 h-4 text-[#ff3b3b] mx-auto mb-1" />
-                          <span className="text-[14px] font-['Manrope:Bold',sans-serif] text-[#111111]">
+                          <span className="text-sm font-bold text-[#111111]">
                             {item.voteCount || 0}
                           </span>
                         </div>
@@ -333,15 +333,15 @@ export default function AdminFeedbackPage() {
                       {/* Main Content */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-4 mb-2">
-                          <h3 className="text-[16px] font-['Manrope:SemiBold',sans-serif] text-[#111111]">
+                          <h3 className="text-base font-semibold text-[#111111]">
                             {item.title}
                           </h3>
-                          <span className="text-[12px] text-[#999999] shrink-0 font-['Manrope:Regular',sans-serif]">
+                          <span className="text-xs text-[#999999] shrink-0 font-normal">
                             {formatDateTime(item.created_at)}
                           </span>
                         </div>
 
-                        <p className="text-[14px] text-[#666666] line-clamp-2 mb-3 font-['Manrope:Regular',sans-serif]">
+                        <p className="text-sm text-[#666666] line-clamp-2 mb-3 font-normal">
                           {item.description}
                         </p>
 
@@ -349,7 +349,7 @@ export default function AdminFeedbackPage() {
                           <UserAvatar name={item.createdBy?.name} email={item.createdBy?.email} />
                           
                           <div
-                            className="px-2 py-0.5 rounded-lg text-[12px] font-['Manrope:SemiBold',sans-serif] flex items-center gap-1.5"
+                            className="px-2 py-0.5 rounded-lg text-xs font-semibold flex items-center gap-1.5"
                             style={{ backgroundColor: typeConfig.bgColor, color: typeConfig.color }}
                           >
                             {typeConfig.icon}
@@ -357,7 +357,7 @@ export default function AdminFeedbackPage() {
                           </div>
 
                           {item.is_deleted && (
-                            <span className="px-2 py-0.5 rounded-lg text-[12px] font-['Manrope:SemiBold',sans-serif] bg-[#FEE2E2] text-[#EF4444]">
+                            <span className="px-2 py-0.5 rounded-lg text-xs font-semibold bg-[#FEE2E2] text-[#EF4444]">
                               DELETED
                             </span>
                           )}
@@ -441,14 +441,14 @@ export default function AdminFeedbackPage() {
           open={!!selected}
           onCancel={() => setSelected(null)}
           footer={null}
-          width={700}
+          width="min(700px, 95vw)"
           centered
           styles={{
             body: { padding: '24px' }
           }}
           title={
             selected && (
-              <div className="flex items-center gap-2 text-[18px] font-['Manrope:Bold',sans-serif] text-[#111111]">
+              <div className="flex items-center gap-2 text-lg font-bold text-[#111111]">
                 {getFeedbackTypeConfig(selected.type).icon}
                 <span>Feedback Details</span>
               </div>
@@ -459,22 +459,22 @@ export default function AdminFeedbackPage() {
             <div className="pt-2">
               <div className="grid grid-cols-3 gap-8">
                 <div className="col-span-2">
-                  <h2 className="text-[20px] font-['Manrope:Bold',sans-serif] text-[#111111] mb-3 leading-snug">
+                  <h2 className="text-xl font-bold text-[#111111] mb-3 leading-snug">
                     {selected.title}
                   </h2>
-                  <p className="text-[15px] text-[#666666] font-['Manrope:Regular',sans-serif] whitespace-pre-wrap mb-6 leading-relaxed">
+                  <p className="text-[0.9375rem] text-[#666666] font-normal whitespace-pre-wrap mb-6 leading-relaxed">
                     {selected.description}
                   </p>
 
                   <div className="border-t border-[#EEEEEE] pt-6">
-                    <p className="text-[12px] text-[#999999] font-['Manrope:Bold',sans-serif] uppercase tracking-wider mb-3">Reporter</p>
+                    <p className="text-xs text-[#999999] font-bold uppercase tracking-wider mb-3">Reporter</p>
                     <div className="flex items-center gap-3">
                       <UserAvatar name={selected.createdBy?.name} email={selected.createdBy?.email} />
                       <div className="flex flex-col">
-                        <span className="text-[14px] font-['Manrope:SemiBold',sans-serif] text-[#111111]">
+                        <span className="text-sm font-semibold text-[#111111]">
                           {selected.createdBy?.name || 'Anonymous User'}
                         </span>
-                        <span className="text-[12px] text-[#999999] font-['Manrope:Regular',sans-serif]">
+                        <span className="text-xs text-[#999999] font-normal">
                           {selected.createdBy?.email}
                         </span>
                       </div>
@@ -484,9 +484,9 @@ export default function AdminFeedbackPage() {
 
                 <div className="border-l border-[#EEEEEE] pl-8 space-y-6">
                   <div>
-                    <p className="text-[12px] text-[#999999] font-['Manrope:Bold',sans-serif] uppercase tracking-wider mb-2">Status</p>
+                    <p className="text-xs text-[#999999] font-bold uppercase tracking-wider mb-2">Status</p>
                     <div
-                      className="px-2.5 py-1 rounded-lg text-[12px] font-['Manrope:SemiBold',sans-serif] inline-flex items-center gap-1.5"
+                      className="px-2.5 py-1 rounded-lg text-xs font-semibold inline-flex items-center gap-1.5"
                       style={{ 
                         backgroundColor: getStatusConfig(selected.status).bgColor, 
                         color: getStatusConfig(selected.status).color 
@@ -498,9 +498,9 @@ export default function AdminFeedbackPage() {
                   </div>
 
                   <div>
-                    <p className="text-[12px] text-[#999999] font-['Manrope:Bold',sans-serif] uppercase tracking-wider mb-2">Type</p>
+                    <p className="text-xs text-[#999999] font-bold uppercase tracking-wider mb-2">Type</p>
                     <div
-                      className="px-2.5 py-1 rounded-lg text-[12px] font-['Manrope:SemiBold',sans-serif] inline-flex items-center gap-1.5"
+                      className="px-2.5 py-1 rounded-lg text-xs font-semibold inline-flex items-center gap-1.5"
                       style={{ 
                         backgroundColor: getFeedbackTypeConfig(selected.type).bgColor, 
                         color: getFeedbackTypeConfig(selected.type).color 
@@ -512,17 +512,17 @@ export default function AdminFeedbackPage() {
                   </div>
 
                   <div>
-                    <p className="text-[12px] text-[#999999] font-['Manrope:Bold',sans-serif] uppercase tracking-wider mb-2">Date Created</p>
-                    <p className="text-[14px] font-['Manrope:SemiBold',sans-serif] text-[#111111]">
+                    <p className="text-xs text-[#999999] font-bold uppercase tracking-wider mb-2">Date Created</p>
+                    <p className="text-sm font-semibold text-[#111111]">
                       {formatDateTime(selected.created_at)}
                     </p>
                   </div>
 
                   <div>
-                    <p className="text-[12px] text-[#999999] font-['Manrope:Bold',sans-serif] uppercase tracking-wider mb-2">Popularity</p>
+                    <p className="text-xs text-[#999999] font-bold uppercase tracking-wider mb-2">Popularity</p>
                     <div className="flex items-center gap-2">
                       <ThumbsUp className="w-4 h-4 text-[#ff3b3b]" />
-                      <p className="text-[14px] font-['Manrope:Bold',sans-serif] text-[#111111]">
+                      <p className="text-sm font-bold text-[#111111]">
                         {selected.voteCount ?? 0} Upvotes
                       </p>
                     </div>

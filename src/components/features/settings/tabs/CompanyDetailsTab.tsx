@@ -145,7 +145,7 @@ export function CompanyDetailsTab({
         <div className="flex flex-col md:flex-row gap-10">
           {/* Left Column: Header & Logo */}
           <div className="flex-none w-48 flex flex-col justify-between">
-            <h2 className="text-[16px] font-['Manrope:SemiBold',sans-serif] text-[#111111]">Company Information</h2>
+            <h2 className="text-base font-semibold text-[#111111]">Company Information</h2>
 
             <div className="relative group self-start">
               <div className="w-32 h-32 rounded-full border border-[#EEEEEE] bg-[#FAFAFA] flex items-center justify-center overflow-hidden">
@@ -219,16 +219,16 @@ export function CompanyDetailsTab({
             {/* Row 1: Name & Tax ID */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">Company Name</span>
+                <span className="text-[0.8125rem] font-bold text-[#111111]">Company Name</span>
                 <Input
                   value={companyName}
                   onChange={(e) => setCompanyName(e.target.value)}
                   disabled={!isEditing}
-                  className={`h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-['Manrope:Medium',sans-serif] text-[13px] ${!isEditing ? 'bg-[#FAFAFA] text-[#666666]' : 'bg-white'}`}
+                  className={`h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-medium text-[0.8125rem] ${!isEditing ? 'bg-[#FAFAFA] text-[#666666]' : 'bg-white'}`}
                 />
               </div>
               <div className="space-y-2">
-                <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">Country</span>
+                <span className="text-[0.8125rem] font-bold text-[#111111]">Country</span>
                 <Select
                   value={country || undefined}
                   onChange={(v) => setCountry(String(v))}
@@ -254,7 +254,7 @@ export function CompanyDetailsTab({
             {/* Row 2: TimeZone & Currency */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">Time Zone</span>
+                <span className="text-[0.8125rem] font-bold text-[#111111]">Time Zone</span>
                 <Select
                   value={timeZone}
                   onChange={(v) => setTimeZone(String(v))}
@@ -290,7 +290,7 @@ export function CompanyDetailsTab({
                 </Select>
               </div>
               <div className="space-y-2">
-                <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">Currency</span>
+                <span className="text-[0.8125rem] font-bold text-[#111111]">Currency</span>
                 <Select
                   value={currency}
                   onChange={(v) => setCurrency(String(v))}
@@ -309,19 +309,19 @@ export function CompanyDetailsTab({
         {/* Full Width: Address */}
         <div className="mb-6 relative mt-6">
           <div className="space-y-2">
-            <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">Address</span>
+            <span className="text-[0.8125rem] font-bold text-[#111111]">Address</span>
             <TextArea
               value={address}
               onChange={(e) => setAddress(e.target.value)}
               placeholder="Enter company address"
               disabled={!isEditing}
               rows={3}
-              className={`rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-['Manrope:Regular',sans-serif] text-[13px] resize-none p-3 ${!isEditing ? 'bg-[#FAFAFA] text-[#666666]' : 'bg-white'}`}
+              className={`rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-normal text-[0.8125rem] resize-none p-3 ${!isEditing ? 'bg-[#FAFAFA] text-[#666666]' : 'bg-white'}`}
             />
           </div>
           {isEditing && (
             <div className="absolute bottom-3 right-3 p-1.5 bg-[#F7F7F7] rounded-md border border-[#EEEEEE] pointer-events-none">
-              <span className="text-[14px]">📍</span>
+              <span className="text-sm">📍</span>
             </div>
           )}
         </div>
@@ -329,7 +329,7 @@ export function CompanyDetailsTab({
         {/* Full Width: Tax ID with Type */}
         <div className="mb-6">
           <div className="space-y-2">
-            <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">Tax ID</span>
+            <span className="text-[0.8125rem] font-bold text-[#111111]">Tax ID</span>
             <div className="flex gap-4">
               <div className="w-[180px] flex-none">
                 <Select
@@ -361,7 +361,7 @@ export function CompanyDetailsTab({
                   }
                   disabled={!isEditing}
                   status={taxIdError ? 'error' : ''}
-                  className={`h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-['Manrope:Medium',sans-serif] text-[13px] ${!isEditing ? 'bg-[#FAFAFA] text-[#666666]' : 'bg-white'}`}
+                  className={`h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-medium text-[0.8125rem] ${!isEditing ? 'bg-[#FAFAFA] text-[#666666]' : 'bg-white'}`}
                 />
                 {taxIdError && <div className="text-red-500 text-xs mt-1">{taxIdError}</div>}
               </div>
@@ -378,7 +378,7 @@ export function CompanyDetailsTab({
             {/* Departments Column */}
             <section>
               <div className="flex items-center gap-2 mb-6">
-                <h2 className="text-[16px] font-['Manrope:SemiBold',sans-serif] text-[#111111]">
+                <h2 className="text-base font-semibold text-[#111111]">
                   Departments
                 </h2>
                 {!isAddingDept && isEditing && canEditCompany && (
@@ -395,20 +395,20 @@ export function CompanyDetailsTab({
                 {departments.map((dept) => (
                   <div key={dept.id} className="flex items-end gap-6 group">
                     <div className="space-y-2 flex-1">
-                      <span className={`text-[13px] font-['Manrope:Bold',sans-serif] ${!isEditing ? 'text-[#666666]' : 'text-[#111111]'}`}>
+                      <span className={`text-[0.8125rem] font-bold ${!isEditing ? 'text-[#666666]' : 'text-[#111111]'}`}>
                         Department Name
                       </span>
                       <Input
                         value={dept.name}
                         readOnly
                         disabled={!isEditing}
-                        className={`h-11 rounded-lg border-[#EEEEEE] font-['Manrope:Medium',sans-serif] text-[13px] ${!isEditing ? '!bg-[#F7F7F7] !text-[#666666] cursor-not-allowed opacity-100' : 'bg-white'}`}
+                        className={`h-11 rounded-lg border-[#EEEEEE] font-medium text-[0.8125rem] ${!isEditing ? '!bg-[#F7F7F7] !text-[#666666] cursor-not-allowed opacity-100' : 'bg-white'}`}
                         style={!isEditing ? { backgroundColor: '#F7F7F7', color: '#666666' } : undefined}
                       />
                     </div>
                     <div className="flex items-center gap-4 pb-3 h-11">
                       <div className="flex flex-col items-center gap-1">
-                        <span className={`text-[11px] font-['Manrope:Bold',sans-serif] ${!isEditing ? 'text-[#999999]' : 'text-[#666666]'}`}>
+                        <span className={`text-[0.6875rem] font-bold ${!isEditing ? 'text-[#999999]' : 'text-[#666666]'}`}>
                           Active
                         </span>
                         <Switch
@@ -437,7 +437,7 @@ export function CompanyDetailsTab({
                 {isAddingDept && (
                   <div className="flex items-end gap-6 animate-in fade-in slide-in-from-top-2 duration-200">
                     <div className="space-y-2 flex-1">
-                      <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">
+                      <span className="text-[0.8125rem] font-bold text-[#111111]">
                         New Department Name
                       </span>
                       <Input
@@ -445,21 +445,21 @@ export function CompanyDetailsTab({
                         onChange={(e) => setNewDeptName(e.target.value)}
                         placeholder="e.g. Marketing"
                         autoFocus
-                        className="h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-['Manrope:Medium',sans-serif] text-[13px]"
+                        className="h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-medium text-[0.8125rem]"
                         onKeyDown={(e) => e.key === "Enter" && handleAddDepartment()}
                       />
                     </div>
                     <div className="flex items-center gap-2 pb-1 h-11">
                       <Button
                         onClick={handleAddDepartment}
-                        className="h-9 px-4 bg-[#111111] hover:bg-[#000000]/90 text-white text-[12px] font-['Manrope:SemiBold',sans-serif] rounded-full border-none"
+                        className="h-9 px-4 bg-[#111111] hover:bg-[#000000]/90 text-white text-xs font-semibold rounded-full border-none"
                       >
                         Add
                       </Button>
                       <Button
                         type="text"
                         onClick={() => setIsAddingDept(false)}
-                        className="h-9 px-4 text-[#666666] hover:text-[#111111] text-[12px] font-['Manrope:SemiBold',sans-serif] hover:bg-[#F7F7F7] rounded-full"
+                        className="h-9 px-4 text-[#666666] hover:text-[#111111] text-xs font-semibold hover:bg-[#F7F7F7] rounded-full"
                       >
                         Cancel
                       </Button>
@@ -472,7 +472,7 @@ export function CompanyDetailsTab({
             {/* Required Documents Column */}
             <section className="lg:border-l lg:border-[#EEEEEE] lg:pl-12">
               <div className="flex items-center gap-2 mb-6">
-                <h2 className="text-[16px] font-['Manrope:SemiBold',sans-serif] text-[#111111]">
+                <h2 className="text-base font-semibold text-[#111111]">
                   Required Documents
                 </h2>
                 {!isAddingDoc && isEditing && canEditCompany && (
@@ -489,20 +489,20 @@ export function CompanyDetailsTab({
                 {requiredDocuments.map((doc) => (
                   <div key={doc.id} className="flex items-end gap-6 group">
                     <div className="space-y-2 flex-1">
-                      <span className={`text-[13px] font-['Manrope:Bold',sans-serif] ${!isEditing ? 'text-[#666666]' : 'text-[#111111]'}`}>
+                      <span className={`text-[0.8125rem] font-bold ${!isEditing ? 'text-[#666666]' : 'text-[#111111]'}`}>
                         Document Name
                       </span>
                       <Input
                         value={doc.name}
                         readOnly
                         disabled={!isEditing}
-                        className={`h-11 rounded-lg border-[#EEEEEE] font-['Manrope:Medium',sans-serif] text-[13px] ${!isEditing ? '!bg-[#F7F7F7] !text-[#666666] cursor-not-allowed opacity-100' : 'bg-white'}`}
+                        className={`h-11 rounded-lg border-[#EEEEEE] font-medium text-[0.8125rem] ${!isEditing ? '!bg-[#F7F7F7] !text-[#666666] cursor-not-allowed opacity-100' : 'bg-white'}`}
                         style={!isEditing ? { backgroundColor: '#F7F7F7', color: '#666666' } : undefined}
                       />
                     </div>
                     <div className="flex items-center gap-4 pb-3 h-11">
                       <div className="flex flex-col items-center gap-1">
-                        <span className={`text-[11px] font-['Manrope:Bold',sans-serif] ${!isEditing ? 'text-[#999999]' : 'text-[#666666]'}`}>
+                        <span className={`text-[0.6875rem] font-bold ${!isEditing ? 'text-[#999999]' : 'text-[#666666]'}`}>
                           Required
                         </span>
                         <Switch
@@ -531,7 +531,7 @@ export function CompanyDetailsTab({
                 {isAddingDoc && (
                   <div className="flex items-end gap-6 animate-in fade-in slide-in-from-top-2 duration-200">
                     <div className="space-y-2 flex-1">
-                      <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">
+                      <span className="text-[0.8125rem] font-bold text-[#111111]">
                         New Document Name
                       </span>
                       <Input
@@ -539,21 +539,21 @@ export function CompanyDetailsTab({
                         onChange={(e) => setNewDocName(e.target.value)}
                         placeholder="e.g. Passport"
                         autoFocus
-                        className="h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-['Manrope:Medium',sans-serif] text-[13px]"
+                        className="h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-medium text-[0.8125rem]"
                         onKeyDown={(e) => e.key === "Enter" && handleAddDocument()}
                       />
                     </div>
                     <div className="flex items-center gap-2 pb-1 h-11">
                       <Button
                         onClick={handleAddDocument}
-                        className="h-9 px-4 bg-[#111111] hover:bg-[#000000]/90 text-white text-[12px] font-['Manrope:SemiBold',sans-serif] rounded-full border-none"
+                        className="h-9 px-4 bg-[#111111] hover:bg-[#000000]/90 text-white text-xs font-semibold rounded-full border-none"
                       >
                         Add
                       </Button>
                       <Button
                         type="text"
                         onClick={() => setIsAddingDoc(false)}
-                        className="h-9 px-4 text-[#666666] hover:text-[#111111] text-[12px] font-['Manrope:SemiBold',sans-serif] hover:bg-[#F7F7F7] rounded-full"
+                        className="h-9 px-4 text-[#666666] hover:text-[#111111] text-xs font-semibold hover:bg-[#F7F7F7] rounded-full"
                       >
                         Cancel
                       </Button>

@@ -51,22 +51,22 @@ export function EmailInput({ value, onChange, options, ...props }: Readonly<Emai
       >
         <Avatar 
             size={20} 
-            className="text-[10px] bg-blue-100 text-blue-600"
+            className="text-[0.625rem] bg-blue-100 text-blue-600"
         >
             {name?.[0]?.toUpperCase() || '?'}
         </Avatar>
         <div className="flex flex-col leading-none py-0.5">
-           <Text className={`text-[13px] ${isEmailValid ? 'text-[#333]' : 'text-red-500'}`}>
+           <Text className={`text-[0.8125rem] ${isEmailValid ? 'text-[#333]' : 'text-red-500'}`}>
              {option?.name ? option.name : email}
            </Text>
            {option?.name && (
-             <Text className="text-[10px] text-[#888]">{email}</Text>
+             <Text className="text-[0.625rem] text-[#888]">{email}</Text>
            )}
         </div>
         {closable && (
           <span
             onClick={onClose}
-            className="ml-0.5 cursor-pointer text-gray-400 hover:text-gray-600 text-[14px] leading-none"
+            className="ml-0.5 cursor-pointer text-gray-400 hover:text-gray-600 text-sm leading-none"
           >
             ×
           </span>
@@ -91,8 +91,8 @@ export function EmailInput({ value, onChange, options, ...props }: Readonly<Emai
       options={options.map(o => ({
         label: (
             <div className="flex flex-col py-1">
-                <Text strong className="text-[13px]">{o.name}</Text>
-                <Text type="secondary" className="text-[12px]">{o.email}</Text>
+                <Text strong className="text-[0.8125rem]">{o.name}</Text>
+                <Text type="secondary" className="text-xs">{o.email}</Text>
             </div>
         ),
         value: o.email

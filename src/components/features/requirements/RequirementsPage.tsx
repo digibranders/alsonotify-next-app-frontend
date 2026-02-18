@@ -92,14 +92,16 @@ export function RequirementsPage() {
       params.append('partner_id', filters.partner);
     }
     if (filters.type !== 'All') {
-      // Map 'In-house' -> 'inhouse', 'Outsourced' -> 'outsourced', 'Client Work' -> 'client'
-      // Or rely on backend robustness. Let's map explicitly for safety.
       const typeMap: Record<string, string> = {
         'In-house': 'inhouse',
         'Outsourced': 'outsourced',
         'Client Work': 'client'
       };
-      params.append('type', typeMap[filters.type] || filters.type.toLowerCase());
+
+      const selectedTypes = filters.type.split(',').map(t => t.trim());
+      const mappedTypes = selectedTypes.map(t => typeMap[t] || t.toLowerCase());
+
+      params.append('type', mappedTypes.join(','));
     }
     if (filters.department_id !== 'All') {
       params.append('department_id', filters.department_id);
@@ -339,25 +341,6 @@ export function RequirementsPage() {
       };
 
 
-      console.log('RequirementDebug:', {
-        reqId: req.id,
-        rawType: req.type,
-        rawStatus: req.status,
-        myCompanyId,
-
-        reqSenderCompanyId,
-        reqReceiverCompanyId,
-        isSender,
-        isReceiver,
-        headerContact,
-        headerCompany,
-        // Raw data from backend
-        rawContactPerson: req.contact_person,
-        rawCreatedUser: req.created_user,
-        rawCreatedUserData: req.created_user_data,
-        rawSenderCompany: req.sender_company,
-        rawReceiverCompany: req.receiver_company,
-      });
 
       return mappedReq;
 
@@ -688,11 +671,11 @@ export function RequirementsPage() {
 
 
   const filterOptions: FilterOption[] = [
-    { id: 'type', label: 'Type', options: typeOptions, placeholder: 'Type' },
+    { id: 'type', label: 'Type', options: typeOptions, placeholder: 'Type', multiSelect: true },
     { id: 'priority', label: 'Priority', options: priorities, placeholder: 'Priority' },
-    { id: 'partner', label: 'Partner', options: allPartners, placeholder: 'Partner' },
+    { id: 'partner', label: 'Partner', options: allPartners, placeholder: 'Partner', multiSelect: true },
     // Only show Department filter when NOT on Draft or Pending tabs
-    ...(!['draft', 'pending'].includes(activeStatusTab) ? [{ id: 'department_id', label: 'Department', options: allCategories, placeholder: 'Department' }] : []),
+    ...(!['draft', 'pending'].includes(activeStatusTab) ? [{ id: 'department_id', label: 'Department', options: allCategories, placeholder: 'Department', multiSelect: true }] : []),
     // Only show Billing filter when on Completed tab
     ...(activeStatusTab === 'completed' ? [{ id: 'billing', label: 'Billing', options: ['All', 'Ready to Bill', 'Invoiced', 'Paid'], placeholder: 'Billing Status' }] : [])
   ];
@@ -969,7 +952,7 @@ export function RequirementsPage() {
         <div className="flex-1 overflow-y-auto pb-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-4">
-              <span className="text-[12px] text-[#999999] font-['Manrope:Medium',sans-serif]">Sort by:</span>
+              <span className="text-xs text-[#999999] font-medium">Sort by:</span>
               <Select
                 value={sortColumn || undefined}
                 placeholder="Sort by"

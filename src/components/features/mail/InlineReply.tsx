@@ -171,7 +171,7 @@ export const InlineReply = forwardRef<InlineReplyRef, InlineReplyProps>(({ origi
 
         {/* Collapsed View (Placeholder) */}
         {!isFocused && (
-          <div className="py-1.5 text-[#555] text-[14px]">Reply to {originalMessage.from?.emailAddress?.name || "Sender"}...</div>
+          <div className="py-1.5 text-[#555] text-sm">Reply to {originalMessage.from?.emailAddress?.name || "Sender"}...</div>
         )}
 
         {/* Expanded View */}
@@ -179,7 +179,7 @@ export const InlineReply = forwardRef<InlineReplyRef, InlineReplyProps>(({ origi
           <div className="flex flex-col animate-in fade-in duration-200">
             {/* Recipient Header (Collapsed by default, click to expand) */}
             <div
-              className="flex items-center gap-2 mb-2 text-[12px] text-[#555] cursor-pointer hover:bg-black/5 p-1 rounded -ml-1 w-fit"
+              className="flex items-center gap-2 mb-2 text-xs text-[#555] cursor-pointer hover:bg-black/5 p-1 rounded -ml-1 w-fit"
               onClick={() => setShowRecipients(!showRecipients)}
             >
               <span className="font-semibold text-[#111] flex items-center gap-1">
@@ -195,7 +195,7 @@ export const InlineReply = forwardRef<InlineReplyRef, InlineReplyProps>(({ origi
             </div>
 
             {showRecipients && (
-              <div className="mb-2 p-2 bg-[#f0f0f0] rounded text-[12px]">
+              <div className="mb-2 p-2 bg-[#f0f0f0] rounded text-xs">
                 {/* Full recipient editing would go here (To/Cc/Bcc) */}
                 <div>To: {originalMessage.from?.emailAddress?.address}</div>
               </div>
@@ -219,10 +219,10 @@ export const InlineReply = forwardRef<InlineReplyRef, InlineReplyProps>(({ origi
             {files.length > 0 && (
               <div className="mb-2 px-2 flex flex-wrap gap-2">
                 {files.map((file, i) => (
-                  <div key={i} className="flex items-center gap-2 bg-white border border-gray-200 rounded px-2 py-1 text-[12px] shadow-sm">
+                  <div key={i} className="flex items-center gap-2 bg-white border border-gray-200 rounded px-2 py-1 text-xs shadow-sm">
                     <Paperclip size={12} className="text-gray-400" />
                     <span className="truncate max-w-[150px] text-[#333]">{file.name}</span>
-                    <span className="text-gray-400 text-[10px]">{formatBytes(file.size)}</span>
+                    <span className="text-gray-400 text-[0.625rem]">{formatBytes(file.size)}</span>
                     <button
                       onClick={() => removeFile(i)}
                       className="text-gray-400 hover:text-red-500 transition-colors ml-1"

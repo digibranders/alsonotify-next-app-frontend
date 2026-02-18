@@ -55,7 +55,7 @@ export function DocumentCard({ document, onPreview, onDownload, showUpload, onUp
         <div className="flex items-center gap-3 pr-12">
 
           <div className="flex-1 min-w-0">
-            <p className="text-[12px] font-['Manrope:Medium',sans-serif] text-[#666666] leading-tight">
+            <p className="text-xs font-medium text-[#666666] leading-tight">
               Click to upload
             </p>
           </div>
@@ -88,10 +88,10 @@ export function DocumentCard({ document, onPreview, onDownload, showUpload, onUp
           {getFileIcon()}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-[13px] font-['Manrope:SemiBold',sans-serif] text-[#111111] mb-0.5 truncate leading-tight">
+          <p className="text-[0.8125rem] font-semibold text-[#111111] mb-0.5 truncate leading-tight">
             {document.fileName}
           </p>
-          <p className="text-[11px] text-[#666666] font-['Manrope:Regular',sans-serif] leading-tight">
+          <p className="text-[0.6875rem] text-[#666666] font-normal leading-tight">
             {formatFileSize(document.fileSize)} • {formatDate(document.uploadedDate)}
           </p>
         </div>

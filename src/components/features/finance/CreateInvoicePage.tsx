@@ -296,13 +296,13 @@ export function CreateInvoicePage() {
                     >
                         <X className="w-5 h-5" />
                     </button>
-                    <span className="text-[16px] font-['Manrope:SemiBold',sans-serif] text-[#111111]">
+                    <span className="text-base font-semibold text-[#111111]">
                         New Invoice
                     </span>
                 </div>
                 <div className="flex items-center gap-3">
                     <button
-                        className="px-4 py-2 text-[#666666] font-bold text-[13px] hover:text-[#111111] transition-colors"
+                        className="px-4 py-2 text-[#666666] font-bold text-[0.8125rem] hover:text-[#111111] transition-colors"
                         onClick={() => router.back()}
                     >
                         Cancel
@@ -310,7 +310,7 @@ export function CreateInvoicePage() {
                     <button
                         onClick={handleDownloadPDF}
                         disabled={isDownloading}
-                        className="px-4 py-2 border border-[#EEEEEE] bg-white text-[#111111] rounded-full font-bold text-[13px] hover:bg-[#F7F7F7] transition-colors flex items-center gap-2"
+                        className="px-4 py-2 border border-[#EEEEEE] bg-white text-[#111111] rounded-full font-bold text-[0.8125rem] hover:bg-[#F7F7F7] transition-colors flex items-center gap-2"
                     >
                         {isDownloading ? (
                             <span className="w-4 h-4 border-2 border-[#111111] border-t-transparent rounded-full animate-spin"></span>
@@ -321,7 +321,7 @@ export function CreateInvoicePage() {
                     </button>
                     <button
                         onClick={handleSaveInvoice}
-                        className="px-6 py-2 bg-[#ff3b3b] text-white rounded-full font-bold text-[13px] hover:bg-[#e63535] transition-colors flex items-center gap-2"
+                        className="px-6 py-2 bg-[#ff3b3b] text-white rounded-full font-bold text-[0.8125rem] hover:bg-[#e63535] transition-colors flex items-center gap-2"
                     >
                         <Send className="w-4 h-4" />
                         Send Invoice
@@ -336,23 +336,23 @@ export function CreateInvoicePage() {
 
                         {/* Invoice Details */}
                         <section>
-                            <h3 className="text-[14px] font-['Manrope:Bold',sans-serif] text-[#111111] uppercase tracking-wider mb-4">Invoice Details</h3>
+                            <h3 className="text-sm font-bold text-[#111111] uppercase tracking-wider mb-4">Invoice Details</h3>
                             <div className="grid grid-cols-2 gap-6">
                                 <div className="space-y-1.5">
-                                    <label className="block text-[12px] font-medium text-[#666666]">Invoice Number</label>
+                                    <label className="block text-xs font-medium text-[#666666]">Invoice Number</label>
                                     <input
                                         type="text"
                                         value={invoiceId}
                                         readOnly
-                                        className="w-full px-3 py-2.5 bg-[#F9FAFB] border border-[#EEEEEE] rounded-[8px] text-[14px] text-[#666666] font-mono"
+                                        className="w-full px-3 py-2.5 bg-[#F9FAFB] border border-[#EEEEEE] rounded-[8px] text-sm text-[#666666] font-mono"
                                     />
                                 </div>
                                 <div className="space-y-1.5">
-                                    <label className="block text-[12px] font-medium text-[#666666]">Currency</label>
+                                    <label className="block text-xs font-medium text-[#666666]">Currency</label>
                                     <select
                                         value={currencyCode}
                                         onChange={(e) => setCurrencyCode(e.target.value)}
-                                        className="w-full px-3 py-2.5 bg-white border border-[#EEEEEE] rounded-[8px] text-[14px] text-[#111111] focus:ring-1 focus:ring-[#ff3b3b] outline-none appearance-none"
+                                        className="w-full px-3 py-2.5 bg-white border border-[#EEEEEE] rounded-[8px] text-sm text-[#111111] focus:ring-1 focus:ring-[#ff3b3b] outline-none appearance-none"
                                     >
                                         <option value="INR">INR - Indian Rupee</option>
                                         <option value="USD">USD - US Dollar</option>
@@ -365,21 +365,21 @@ export function CreateInvoicePage() {
                                     </select>
                                 </div>
                                 <div className="space-y-1.5">
-                                    <label className="block text-[12px] font-medium text-[#666666]">Issue Date</label>
+                                    <label className="block text-xs font-medium text-[#666666]">Issue Date</label>
                                     <input
                                         type="date"
                                         value={issueDate}
                                         onChange={(e) => setIssueDate(e.target.value)}
-                                        className="w-full px-3 py-2.5 bg-white border border-[#EEEEEE] rounded-[8px] text-[14px] text-[#111111] focus:ring-1 focus:ring-[#ff3b3b] outline-none transition-all"
+                                        className="w-full px-3 py-2.5 bg-white border border-[#EEEEEE] rounded-[8px] text-sm text-[#111111] focus:ring-1 focus:ring-[#ff3b3b] outline-none transition-all"
                                     />
                                 </div>
                                 <div className="space-y-1.5">
-                                    <label className="block text-[12px] font-medium text-[#666666]">Due Date</label>
+                                    <label className="block text-xs font-medium text-[#666666]">Due Date</label>
                                     <input
                                         type="date"
                                         value={dueDate}
                                         onChange={(e) => setDueDate(e.target.value)}
-                                        className="w-full px-3 py-2.5 bg-white border border-[#EEEEEE] rounded-[8px] text-[14px] text-[#111111] focus:ring-1 focus:ring-[#ff3b3b] outline-none transition-all"
+                                        className="w-full px-3 py-2.5 bg-white border border-[#EEEEEE] rounded-[8px] text-sm text-[#111111] focus:ring-1 focus:ring-[#ff3b3b] outline-none transition-all"
                                     />
                                 </div>
                             </div>
@@ -387,15 +387,15 @@ export function CreateInvoicePage() {
 
                         {/* Sender Section (From) */}
                         <section>
-                            <h3 className="text-[14px] font-['Manrope:Bold',sans-serif] text-[#111111] uppercase tracking-wider mb-4">From (Your Details)</h3>
+                            <h3 className="text-sm font-bold text-[#111111] uppercase tracking-wider mb-4">From (Your Details)</h3>
                             <div className="space-y-4 p-4 rounded-[12px] border border-[#EEEEEE] bg-[#F9FAFB]/50">
                                 <div className="space-y-1.5">
-                                    <label className="block text-[12px] font-medium text-[#666666]">Business Name</label>
+                                    <label className="block text-xs font-medium text-[#666666]">Business Name</label>
                                     <input
                                         type="text"
                                         value={senderName}
                                         onChange={(e) => setSenderName(e.target.value)}
-                                        className="w-full px-3 py-2 bg-white border border-[#EEEEEE] rounded-[8px] text-[14px] text-[#111111] focus:ring-1 focus:ring-[#ff3b3b] outline-none transition-all"
+                                        className="w-full px-3 py-2 bg-white border border-[#EEEEEE] rounded-[8px] text-sm text-[#111111] focus:ring-1 focus:ring-[#ff3b3b] outline-none transition-all"
                                     />
                                 </div>
                             </div>
@@ -403,56 +403,56 @@ export function CreateInvoicePage() {
 
                         {/* Customer Section (To) */}
                         <section>
-                            <h3 className="text-[14px] font-['Manrope:Bold',sans-serif] text-[#111111] uppercase tracking-wider mb-4">Bill To</h3>
+                            <h3 className="text-sm font-bold text-[#111111] uppercase tracking-wider mb-4">Bill To</h3>
                             <div className="space-y-4 p-4 rounded-[12px] border border-[#EEEEEE] bg-white hover:border-[#ff3b3b]/30 transition-colors group relative">
                                 <div className="space-y-1.5">
-                                    <label className="block text-[12px] font-medium text-[#666666]">Client Name</label>
+                                    <label className="block text-xs font-medium text-[#666666]">Client Name</label>
                                     <input
                                         type="text"
                                         value={clientName}
                                         onChange={(e) => setClientName(e.target.value)}
-                                        className="w-full px-3 py-2 bg-white border border-[#EEEEEE] rounded-[8px] text-[14px] text-[#111111] focus:ring-1 focus:ring-[#ff3b3b] outline-none"
+                                        className="w-full px-3 py-2 bg-white border border-[#EEEEEE] rounded-[8px] text-sm text-[#111111] focus:ring-1 focus:ring-[#ff3b3b] outline-none"
                                     />
                                 </div>
                                 <div className="space-y-1.5">
-                                    <label className="block text-[12px] font-medium text-[#666666]">Address</label>
+                                    <label className="block text-xs font-medium text-[#666666]">Address</label>
                                     <textarea
                                         rows={2}
                                         value={clientAddress}
                                         onChange={(e) => setClientAddress(e.target.value)}
-                                        className="w-full px-3 py-2 bg-white border border-[#EEEEEE] rounded-[8px] text-[14px] text-[#111111] focus:ring-1 focus:ring-[#ff3b3b] outline-none resize-none"
+                                        className="w-full px-3 py-2 bg-white border border-[#EEEEEE] rounded-[8px] text-sm text-[#111111] focus:ring-1 focus:ring-[#ff3b3b] outline-none resize-none"
                                     />
                                 </div>
                                 <div className="space-y-1.5">
-                                    <label className="block text-[12px] font-medium text-[#666666]">GSTIN / Tax ID</label>
+                                    <label className="block text-xs font-medium text-[#666666]">GSTIN / Tax ID</label>
                                     <input
                                         type="text"
                                         value={clientTaxId}
                                         onChange={(e) => setClientTaxId(e.target.value)}
-                                        className="w-full px-3 py-2 bg-white border border-[#EEEEEE] rounded-[8px] text-[14px] text-[#111111] focus:ring-1 focus:ring-[#ff3b3b] outline-none"
+                                        className="w-full px-3 py-2 bg-white border border-[#EEEEEE] rounded-[8px] text-sm text-[#111111] focus:ring-1 focus:ring-[#ff3b3b] outline-none"
                                     />
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-1.5">
-                                        <label className="block text-[12px] font-medium text-[#666666]">Email</label>
+                                        <label className="block text-xs font-medium text-[#666666]">Email</label>
                                         <input
                                             type="email"
                                             value={clientEmail}
                                             onChange={(e) => setClientEmail(e.target.value)}
-                                            className="w-full px-3 py-2 bg-white border border-[#EEEEEE] rounded-[8px] text-[14px] text-[#111111] focus:ring-1 focus:ring-[#ff3b3b] outline-none"
+                                            className="w-full px-3 py-2 bg-white border border-[#EEEEEE] rounded-[8px] text-sm text-[#111111] focus:ring-1 focus:ring-[#ff3b3b] outline-none"
                                         />
                                     </div>
                                     <div className="space-y-1.5">
-                                        <label className="block text-[12px] font-medium text-[#666666]">Phone</label>
+                                        <label className="block text-xs font-medium text-[#666666]">Phone</label>
                                         <input
                                             type="text"
                                             value={clientPhone}
                                             onChange={(e) => setClientPhone(e.target.value)}
-                                            className="w-full px-3 py-2 bg-white border border-[#EEEEEE] rounded-[8px] text-[14px] text-[#111111] focus:ring-1 focus:ring-[#ff3b3b] outline-none"
+                                            className="w-full px-3 py-2 bg-white border border-[#EEEEEE] rounded-[8px] text-sm text-[#111111] focus:ring-1 focus:ring-[#ff3b3b] outline-none"
                                         />
                                     </div>
                                 </div>
-                                <span className="text-[#ff3b3b] text-[12px] font-bold opacity-0 group-hover:opacity-100 transition-opacity absolute top-4 right-4 cursor-pointer">Change Partner</span>
+                                <span className="text-[#ff3b3b] text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity absolute top-4 right-4 cursor-pointer">Change Partner</span>
                             </div>
                         </section>
 
@@ -461,7 +461,7 @@ export function CreateInvoicePage() {
                         {/* Items Section */}
                         <section>
                             <div className="flex justify-between items-center mb-4">
-                                <h3 className="text-[14px] font-['Manrope:Bold',sans-serif] text-[#111111] uppercase tracking-wider">Items</h3>
+                                <h3 className="text-sm font-bold text-[#111111] uppercase tracking-wider">Items</h3>
                                 <button className="text-[#666666] hover:text-[#111111]">
                                     <Settings className="w-4 h-4" />
                                 </button>
@@ -469,10 +469,10 @@ export function CreateInvoicePage() {
 
                             {/* Table Headers for Editor */}
                             <div className="flex gap-3 mb-2 px-1">
-                                <span className="flex-1 text-[11px] font-bold text-[#999999] uppercase">Description</span>
-                                <span className="w-20 text-[11px] font-bold text-[#999999] uppercase text-right">Qty</span>
-                                <span className="w-32 text-[11px] font-bold text-[#999999] uppercase text-right">Price</span>
-                                <span className="w-28 text-[11px] font-bold text-[#999999] uppercase text-right">Total</span>
+                                <span className="flex-1 text-[0.6875rem] font-bold text-[#999999] uppercase">Description</span>
+                                <span className="w-20 text-[0.6875rem] font-bold text-[#999999] uppercase text-right">Qty</span>
+                                <span className="w-32 text-[0.6875rem] font-bold text-[#999999] uppercase text-right">Price</span>
+                                <span className="w-28 text-[0.6875rem] font-bold text-[#999999] uppercase text-right">Total</span>
                                 <span className="w-8"></span> {/* Spacer for delete icon */}
                             </div>
 
@@ -485,7 +485,7 @@ export function CreateInvoicePage() {
                                                 placeholder="Item description"
                                                 value={item.description}
                                                 onChange={(e) => handleUpdateItem(item.id, 'description', e.target.value)}
-                                                className="w-full px-3 py-2 bg-white border border-[#EEEEEE] rounded-[8px] text-[14px] text-[#111111] placeholder:text-[#999999] focus:ring-1 focus:ring-[#ff3b3b] outline-none transition-all"
+                                                className="w-full px-3 py-2 bg-white border border-[#EEEEEE] rounded-[8px] text-sm text-[#111111] placeholder:text-[#999999] focus:ring-1 focus:ring-[#ff3b3b] outline-none transition-all"
                                             />
                                         </div>
                                         <div className="w-20">
@@ -494,7 +494,7 @@ export function CreateInvoicePage() {
                                                 placeholder="Qty"
                                                 value={item.quantity}
                                                 onChange={(e) => handleUpdateItem(item.id, 'quantity', parseFloat(e.target.value))}
-                                                className="w-full px-3 py-2 bg-white border border-[#EEEEEE] rounded-[8px] text-[14px] text-[#111111] text-right focus:ring-1 focus:ring-[#ff3b3b] outline-none transition-all"
+                                                className="w-full px-3 py-2 bg-white border border-[#EEEEEE] rounded-[8px] text-sm text-[#111111] text-right focus:ring-1 focus:ring-[#ff3b3b] outline-none transition-all"
                                             />
                                         </div>
                                         <div className="w-32">
@@ -503,10 +503,10 @@ export function CreateInvoicePage() {
                                                 placeholder="Price"
                                                 value={item.unitPrice}
                                                 onChange={(e) => handleUpdateItem(item.id, 'unitPrice', parseFloat(e.target.value))}
-                                                className="w-full px-3 py-2 bg-white border border-[#EEEEEE] rounded-[8px] text-[14px] text-[#111111] text-right focus:ring-1 focus:ring-[#ff3b3b] outline-none transition-all"
+                                                className="w-full px-3 py-2 bg-white border border-[#EEEEEE] rounded-[8px] text-sm text-[#111111] text-right focus:ring-1 focus:ring-[#ff3b3b] outline-none transition-all"
                                             />
                                         </div>
-                                        <div className="w-28 pt-2.5 text-right text-[14px] font-bold text-[#111111]">
+                                        <div className="w-28 pt-2.5 text-right text-sm font-bold text-[#111111]">
                                             ₹{(item.quantity * item.unitPrice).toLocaleString()}
                                         </div>
                                         <button
@@ -521,7 +521,7 @@ export function CreateInvoicePage() {
 
                             <button
                                 onClick={handleAddItem}
-                                className="flex items-center gap-2 text-[#ff3b3b] text-[13px] font-bold hover:underline"
+                                className="flex items-center gap-2 text-[#ff3b3b] text-[0.8125rem] font-bold hover:underline"
                             >
                                 <Plus className="w-4 h-4" />
                                 Add item
@@ -530,17 +530,17 @@ export function CreateInvoicePage() {
 
                         {/* Discounts & Tax */}
                         <section className="space-y-4 pt-6 border-t border-[#EEEEEE]">
-                            <div className="flex justify-between items-center text-[14px]">
+                            <div className="flex justify-between items-center text-sm">
                                 <span className="text-[#666666]">Subtotal</span>
                                 <span className="font-bold text-[#111111]">₹{totals.subtotal.toLocaleString()}</span>
                             </div>
 
                             {/* Discount Toggle */}
-                            <div className="flex justify-between items-center text-[14px]">
+                            <div className="flex justify-between items-center text-sm">
                                 <div className="flex items-center gap-2">
                                     <span className="text-[#666666]">Discount</span>
                                     {!showDiscount && (
-                                        <button onClick={() => setShowDiscount(true)} className="text-[#ff3b3b] text-[12px] font-bold hover:underline flex items-center gap-1">
+                                        <button onClick={() => setShowDiscount(true)} className="text-[#ff3b3b] text-xs font-bold hover:underline flex items-center gap-1">
                                             <Plus className="w-3 h-3" /> Add
                                         </button>
                                     )}
@@ -551,7 +551,7 @@ export function CreateInvoicePage() {
                                             type="number"
                                             value={discount}
                                             onChange={(e) => setDiscount(parseFloat(e.target.value) || 0)}
-                                            className="w-24 px-2 py-1 bg-white border border-[#EEEEEE] rounded-[6px] text-right text-[13px]"
+                                            className="w-24 px-2 py-1 bg-white border border-[#EEEEEE] rounded-[6px] text-right text-[0.8125rem]"
                                             autoFocus
                                         />
                                         <button onClick={() => { setDiscount(0); setShowDiscount(false); }} className="text-[#999999] hover:text-[#ff3b3b]">
@@ -564,7 +564,7 @@ export function CreateInvoicePage() {
                             </div>
 
                             {/* Tax Config */}
-                            <div className="flex justify-between items-center text-[14px]">
+                            <div className="flex justify-between items-center text-sm">
                                 <div className="flex items-center gap-2">
                                     <span className="text-[#666666]">Tax ({taxConfig.name} {taxConfig.rate}%)</span>
                                     <select
@@ -575,7 +575,7 @@ export function CreateInvoicePage() {
                                             if (id === 'gst_local') setTaxConfig({ id: 'gst_local', name: 'CGST+SGST', rate: 18 });
                                             if (id === 'none') setTaxConfig({ id: 'none', name: 'None', rate: 0 });
                                         }}
-                                        className="bg-[#F7F7F7] border-none text-[12px] rounded-[4px] px-1 py-0.5 outline-none cursor-pointer hover:bg-[#EEEEEE]"
+                                        className="bg-[#F7F7F7] border-none text-xs rounded-[4px] px-1 py-0.5 outline-none cursor-pointer hover:bg-[#EEEEEE]"
                                     >
                                         <option value="gst_18">IGST (18%)</option>
                                         <option value="gst_local">CGST+SGST (18%)</option>
@@ -585,7 +585,7 @@ export function CreateInvoicePage() {
                                 <span className="font-bold text-[#111111]">₹{totals.totalTax.toLocaleString()}</span>
                             </div>
 
-                            <div className="flex justify-between items-center text-[16px] pt-4 border-t border-[#EEEEEE]">
+                            <div className="flex justify-between items-center text-base pt-4 border-t border-[#EEEEEE]">
                                 <span className="font-bold text-[#111111]">Amount due</span>
                                 <span className="font-bold text-[#111111]">₹{totals.total.toLocaleString()}</span>
                             </div>
@@ -594,20 +594,20 @@ export function CreateInvoicePage() {
                         {/* Payment Details / Footer */}
                         <section className="space-y-6 pt-6">
                             <div>
-                                <label className="block text-[14px] font-bold text-[#111111] mb-2 flex items-center gap-2">
-                                    Memo <span className="text-[11px] font-normal text-[#999999] bg-[#F7F7F7] px-2 py-0.5 rounded-full">Visible to customer</span>
+                                <label className="block text-sm font-bold text-[#111111] mb-2 flex items-center gap-2">
+                                    Memo <span className="text-[0.6875rem] font-normal text-[#999999] bg-[#F7F7F7] px-2 py-0.5 rounded-full">Visible to customer</span>
                                 </label>
                                 <textarea
                                     value={memo}
                                     onChange={(e) => setMemo(e.target.value)}
-                                    className="w-full px-3 py-2 bg-white border border-[#EEEEEE] rounded-[8px] text-[14px] text-[#111111] min-h-[80px] focus:ring-1 focus:ring-[#ff3b3b] outline-none resize-none"
+                                    className="w-full px-3 py-2 bg-white border border-[#EEEEEE] rounded-[8px] text-sm text-[#111111] min-h-[80px] focus:ring-1 focus:ring-[#ff3b3b] outline-none resize-none"
                                 />
                             </div>
 
                             <div>
                                 <div className="flex justify-between items-center mb-2">
-                                    <label className="block text-[14px] font-bold text-[#111111] flex items-center gap-2">
-                                        Payment Details <span className="text-[11px] font-normal text-[#999999] bg-[#F7F7F7] px-2 py-0.5 rounded-full">Footer</span>
+                                    <label className="block text-sm font-bold text-[#111111] flex items-center gap-2">
+                                        Payment Details <span className="text-[0.6875rem] font-normal text-[#999999] bg-[#F7F7F7] px-2 py-0.5 rounded-full">Footer</span>
                                     </label>
 
                                     <div className="flex items-center gap-2">
@@ -615,7 +615,7 @@ export function CreateInvoicePage() {
                                         {paymentPresets.length > 0 && (
                                             <div className="relative group">
                                                 <select
-                                                    className="appearance-none bg-[#F7F7F7] hover:bg-[#EEEEEE] text-[12px] font-medium text-[#111111] pl-3 pr-8 py-1.5 rounded-full outline-none cursor-pointer border border-transparent focus:border-[#ff3b3b] transition-all"
+                                                    className="appearance-none bg-[#F7F7F7] hover:bg-[#EEEEEE] text-xs font-medium text-[#111111] pl-3 pr-8 py-1.5 rounded-full outline-none cursor-pointer border border-transparent focus:border-[#ff3b3b] transition-all"
                                                     onChange={(e) => {
                                                         const preset = paymentPresets.find(p => p.id === e.target.value);
                                                         if (preset) setFooter(preset.content);
@@ -634,7 +634,7 @@ export function CreateInvoicePage() {
                                         {/* Save Button */}
                                         <button
                                             onClick={() => setShowSavePresetDialog(true)}
-                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#F7F7F7] hover:bg-[#EEEEEE] text-[12px] font-medium text-[#111111] rounded-full transition-colors"
+                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#F7F7F7] hover:bg-[#EEEEEE] text-xs font-medium text-[#111111] rounded-full transition-colors"
                                             title="Save as new preset"
                                         >
                                             <Save className="w-3.5 h-3.5" />
@@ -646,14 +646,14 @@ export function CreateInvoicePage() {
                                 {/* Save Dialog Overlay (Inline for simplicity) */}
                                 {showSavePresetDialog && (
                                     <div className="mb-3 p-3 bg-[#F9FAFB] border border-[#EEEEEE] rounded-lg animate-in fade-in slide-in-from-top-1">
-                                        <label className="block text-[12px] font-bold text-[#111111] mb-1.5">Name this payment method</label>
+                                        <label className="block text-xs font-bold text-[#111111] mb-1.5">Name this payment method</label>
                                         <div className="flex gap-2">
                                             <input
                                                 type="text"
                                                 value={newPresetName}
                                                 onChange={(e) => setNewPresetName(e.target.value)}
                                                 placeholder="e.g. Bank Transfer (HDFC)"
-                                                className="flex-1 px-3 py-1.5 bg-white border border-[#EEEEEE] rounded-md text-[13px] outline-none focus:border-[#ff3b3b]"
+                                                className="flex-1 px-3 py-1.5 bg-white border border-[#EEEEEE] rounded-md text-[0.8125rem] outline-none focus:border-[#ff3b3b]"
                                                 autoFocus
                                                 onKeyDown={(e) => {
                                                     if (e.key === 'Enter') handleSavePreset();
@@ -663,13 +663,13 @@ export function CreateInvoicePage() {
                                             <button
                                                 onClick={handleSavePreset}
                                                 disabled={!newPresetName.trim()}
-                                                className="px-3 py-1.5 bg-[#111111] text-white text-[12px] font-bold rounded-md hover:bg-black disabled:opacity-50"
+                                                className="px-3 py-1.5 bg-[#111111] text-white text-xs font-bold rounded-md hover:bg-black disabled:opacity-50"
                                             >
                                                 Save
                                             </button>
                                             <button
                                                 onClick={() => setShowSavePresetDialog(false)}
-                                                className="px-3 py-1.5 bg-white border border-[#EEEEEE] text-[#666666] text-[12px] font-bold rounded-md hover:bg-[#F7F7F7]"
+                                                className="px-3 py-1.5 bg-white border border-[#EEEEEE] text-[#666666] text-xs font-bold rounded-md hover:bg-[#F7F7F7]"
                                             >
                                                 Cancel
                                             </button>
@@ -682,7 +682,7 @@ export function CreateInvoicePage() {
                                         value={footer}
                                         onChange={(e) => setFooter(e.target.value)}
                                         placeholder="Enter bank details, UPI ID, or payment terms..."
-                                        className="w-full px-3 py-2 bg-white border border-[#EEEEEE] rounded-[8px] text-[14px] text-[#111111] min-h-[100px] focus:ring-1 focus:ring-[#ff3b3b] outline-none resize-none"
+                                        className="w-full px-3 py-2 bg-white border border-[#EEEEEE] rounded-[8px] text-sm text-[#111111] min-h-[100px] focus:ring-1 focus:ring-[#ff3b3b] outline-none resize-none"
                                     />
                                     {/* Manage/Delete Preset helper (only visible if content matches a preset) */}
                                     {paymentPresets.some(p => p.content === footer) && (

@@ -163,7 +163,7 @@ export function ManagedPartnersTab({ employeeId }: Readonly<ManagedPartnersTabPr
                 onCancel={() => setIsModalOpen(false)}
                 onOk={handleSave}
                 confirmLoading={isSaving}
-                width={600}
+                width="min(600px, 95vw)"
             >
                 <div className="mb-4">
                     <Input

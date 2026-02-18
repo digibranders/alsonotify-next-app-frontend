@@ -51,7 +51,7 @@ export function FormLayout({
       {/* Fixed Header */}
       <div className="flex-shrink-0 border-b border-[#EEEEEE] px-6 py-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-[17px] font-['Manrope:Bold',sans-serif] text-[#111111]">
+          <div className="flex items-center gap-2 text-[1.0625rem] font-bold text-[#111111]">
             {Icon && (
               <div className="p-1.5 rounded-full bg-[#F7F7F7]">
                 <Icon className="w-4 h-4 text-[#666666]" />
@@ -62,7 +62,7 @@ export function FormLayout({
           {headerExtra}
         </div>
         {subtitle && (
-          <p className="text-[12px] text-[#666666] font-['Manrope:Regular',sans-serif] ml-10 mt-1">
+          <p className="text-xs text-[#666666] font-normal ml-10 mt-1">
             {subtitle}
           </p>
         )}
@@ -82,7 +82,7 @@ export function FormLayout({
             <Button
               type="text"
               onClick={onCancel}
-              className="h-11 px-6 text-[14px] font-['Manrope:SemiBold',sans-serif] text-[#666666] hover:text-[#111111] hover:bg-[#F7F7F7] rounded-xl transition-all"
+              className="h-11 px-6 text-sm font-semibold text-[#666666] hover:text-[#111111] hover:bg-[#F7F7F7] rounded-xl transition-all"
             >
               Cancel
             </Button>
@@ -91,7 +91,7 @@ export function FormLayout({
               onClick={onSubmit}
               loading={isLoading}
               disabled={isLoading || submitDisabled}
-              className="h-11 px-8 rounded-xl bg-[#111111] hover:bg-[#000000] text-white text-[14px] font-['Manrope:SemiBold',sans-serif] border-none shadow-none transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="h-11 px-8 rounded-xl bg-[#111111] hover:bg-[#000000] text-white text-sm font-semibold border-none shadow-none transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {submitLabel || (isEditing ? 'Update' : 'Submit')}
             </Button>

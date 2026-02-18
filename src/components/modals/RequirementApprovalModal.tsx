@@ -68,7 +68,7 @@ export const RequirementApprovalModal = ({
       open={open}
       onCancel={handleClose}
       footer={null}
-      width={500}
+      width="min(500px, 95vw)"
       centered
     >
       <div className="flex flex-col gap-4 py-4">

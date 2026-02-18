@@ -42,20 +42,20 @@ export function IntegrationCard({
                     </div>
                     <div className="flex flex-col items-end gap-2">
                         {connected ? (
-                            <Tag color={isExpired ? "error" : "success"} className="rounded-full px-3 border-none flex items-center gap-1 font-bold text-[10px] uppercase tracking-wider py-0.5">
+                            <Tag color={isExpired ? "error" : "success"} className="rounded-full px-3 border-none flex items-center gap-1 font-bold text-[0.625rem] uppercase tracking-wider py-0.5">
                                 {isExpired ? <AlertCircle className="w-3 h-3" /> : <Check className="w-3 h-3" />}
                                 {isExpired ? "Action Required" : "Connected"}
                             </Tag>
                         ) : (
-                            <Tag className="rounded-full px-3 bg-[#F0F0F0] text-[#999999] border-none font-bold text-[10px] uppercase tracking-wider py-0.5">
+                            <Tag className="rounded-full px-3 bg-[#F0F0F0] text-[#999999] border-none font-bold text-[0.625rem] uppercase tracking-wider py-0.5">
                                 Available
                             </Tag>
                         )}
                     </div>
                 </div>
 
-                <h3 className="text-[16px] font-bold text-[#111111] mb-2">{name}</h3>
-                <p className="text-[13px] text-[#666666] leading-relaxed line-clamp-2 mb-6 h-10">
+                <h3 className="text-base font-bold text-[#111111] mb-2">{name}</h3>
+                <p className="text-[0.8125rem] text-[#666666] leading-relaxed line-clamp-2 mb-6 h-10">
                     {description}
                 </p>
 
@@ -64,7 +64,7 @@ export function IntegrationCard({
                         <Button
                             onClick={onConnect}
                             loading={loading}
-                            className="bg-[#111111] hover:bg-[#333333] text-white font-bold px-6 h-10 rounded-xl text-[12px] border-none flex-1"
+                            className="bg-[#111111] hover:bg-[#333333] text-white font-bold px-6 h-10 rounded-xl text-xs border-none flex-1"
                         >
                             Connect
                         </Button>
@@ -74,7 +74,7 @@ export function IntegrationCard({
                                 <Button
                                     onClick={onConnect}
                                     type="primary"
-                                    className="bg-red-600 hover:bg-red-700 h-10 rounded-xl font-bold text-[12px] flex-1"
+                                    className="bg-red-600 hover:bg-red-700 h-10 rounded-xl font-bold text-xs flex-1"
                                 >
                                     Reconnect
                                 </Button>
@@ -82,7 +82,7 @@ export function IntegrationCard({
                                 <Button
                                     onClick={onRefresh}
                                     icon={<RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />}
-                                    className="h-10 rounded-xl border-[#F0F0F0] text-[#666666] flex-1 text-[12px] font-semibold"
+                                    className="h-10 rounded-xl border-[#F0F0F0] text-[#666666] flex-1 text-xs font-semibold"
                                 >
                                     Sync
                                 </Button>
@@ -110,14 +110,14 @@ export function IntegrationCard({
             {connected && metadata && (
                 <div className="px-6 py-4 bg-[#FAFAFA] border-t border-[#F0F0F0] flex items-center justify-between">
                     <div className="flex flex-col">
-                        <span className="text-[9px] text-[#999999] uppercase tracking-tighter font-bold">Updated</span>
-                        <span className="text-[11px] text-[#333333] font-medium">
+                        <span className="text-[0.5625rem] text-[#999999] uppercase tracking-tighter font-bold">Updated</span>
+                        <span className="text-[0.6875rem] text-[#333333] font-medium">
                             {metadata.updated_at ? new Date(metadata.updated_at).toLocaleDateString() : 'Never'}
                         </span>
                     </div>
                     <div className="flex flex-col items-end">
-                        <span className="text-[9px] text-[#999999] uppercase tracking-tighter font-bold">Admin</span>
-                        <span className="text-[11px] text-[#333333] font-medium truncate max-w-[80px]">{metadata.connected_by || 'Admin'}</span>
+                        <span className="text-[0.5625rem] text-[#999999] uppercase tracking-tighter font-bold">Admin</span>
+                        <span className="text-[0.6875rem] text-[#333333] font-medium truncate max-w-[80px]">{metadata.connected_by || 'Admin'}</span>
                     </div>
                 </div>
             )}

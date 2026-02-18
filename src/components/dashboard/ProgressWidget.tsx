@@ -339,7 +339,7 @@ export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => 
     <div className="bg-white rounded-[24px] p-5 w-full h-full flex flex-col overflow-hidden border border-[#EEEEEE]">
       {/* Header */}
       <div className="flex items-center justify-between mb-2 shrink-0">
-        <h3 className="font-['Manrope:SemiBold',sans-serif] text-[20px] text-[#111111]">Progress</h3>
+        <h3 className="font-semibold text-xl text-[#111111]">Progress</h3>
         {/* Date Range Selector */}
         <div className="relative z-20">
           <DateRangeSelector
@@ -429,7 +429,7 @@ function HoursBar({ data, onClick }: HoursBarProps) {
       <div className="flex items-center gap-3">
         {/* Label Section */}
         <div className="flex items-center gap-2 min-w-[110px]">
-          <h4 className="font-['Manrope',sans-serif] font-semibold text-[12px] text-[#111111]">Hours Capacity</h4>
+          <h4 className=" font-semibold text-xs text-[#111111]">Hours Capacity</h4>
         </div>
 
         {/* Progress Bar Section */}
@@ -445,12 +445,12 @@ function HoursBar({ data, onClick }: HoursBarProps) {
         {/* Stats Section */}
         <div className="flex items-center gap-4 min-w-[170px]">
           <div className="flex items-center gap-1.5">
-            <span className="text-[10px] text-[#666666] font-medium font-['Inter',sans-serif]">Balance:</span>
-            <span className="text-[12px] font-bold text-[#111111] font-['Manrope',sans-serif]">{data.remaining}h</span>
+            <span className="text-[0.625rem] text-[#666666] font-medium">Balance:</span>
+            <span className="text-xs font-bold text-[#111111]">{data.remaining}h</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="text-[10px] text-[#666666] font-medium font-['Inter',sans-serif]">Total:</span>
-            <span className="text-[12px] font-bold text-[#111111] font-['Manrope',sans-serif]">{data.total}h</span>
+            <span className="text-[0.625rem] text-[#666666] font-medium">Total:</span>
+            <span className="text-xs font-bold text-[#111111]">{data.total}h</span>
           </div>
         </div>
 
@@ -529,7 +529,7 @@ function ProgressCard({ title, data, isLoading = false, dateRangeLabel = 'this p
     >
       {/* Card Header */}
       <div className="flex items-center justify-between mb-3 z-10 shrink-0">
-        <h4 className="font-['Manrope',sans-serif] font-semibold text-[16px] text-[#111111]">{title}</h4>
+        <h4 className=" font-semibold text-base text-[#111111]">{title}</h4>
         <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-[#ff3b3b] transition-colors duration-300">
           <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-white transition-colors duration-300" />
         </div>
@@ -579,14 +579,14 @@ function ProgressCard({ title, data, isLoading = false, dateRangeLabel = 'this p
                             <tspan
                               x={viewBox.cx}
                               y={(viewBox.cy || 0) - 8}
-                              className="fill-[#666666] text-[10px] font-medium font-['Manrope',sans-serif]"
+                              className="fill-[#666666] text-[0.625rem] font-medium"
                             >
                               No {itemType}
                             </tspan>
                             <tspan
                               x={viewBox.cx}
                               y={(viewBox.cy || 0) + 8}
-                              className="fill-[#666666] text-[10px] font-medium font-['Manrope',sans-serif]"
+                              className="fill-[#666666] text-[0.625rem] font-medium"
                             >
                               {periodText}
                             </tspan>
@@ -605,14 +605,14 @@ function ProgressCard({ title, data, isLoading = false, dateRangeLabel = 'this p
                           <tspan
                             x={viewBox.cx}
                             y={viewBox.cy}
-                            className="fill-[#111111] text-3xl font-extrabold font-['Manrope',sans-serif] tracking-tight"
+                            className="fill-[#111111] text-3xl font-extrabold tracking-tight"
                           >
                             {data.total || 0}
                           </tspan>
                           <tspan
                             x={viewBox.cx}
                             y={(viewBox.cy || 0) + 20}
-                            className="fill-[#999999] text-[11px] font-semibold font-['Manrope',sans-serif] uppercase tracking-wider"
+                            className="fill-[#999999] text-[0.6875rem] font-semibold uppercase tracking-wider"
                           >
                             Total
                           </tspan>
@@ -645,12 +645,12 @@ function ProgressCard({ title, data, isLoading = false, dateRangeLabel = 'this p
             >
               <div className="flex items-center gap-3">
                 <div className="w-2 h-2 rounded-full shrink-0 ring-2 ring-white shadow-sm" style={{ backgroundColor: item.color }} />
-                <span className={`text-[13px] font-medium font-['Manrope',sans-serif] whitespace-nowrap group-hover/item:text-[#111111] transition-colors ${item.value > 0 ? 'text-[#111111]' : 'text-[#666666]'
+                <span className={`text-[0.8125rem] font-medium whitespace-nowrap group-hover/item:text-[#111111] transition-colors ${item.value > 0 ? 'text-[#111111]' : 'text-[#666666]'
                   }`}>
                   {item.name === 'In Progress' ? 'In Progress' : item.name}
                 </span>
               </div>
-              <span className={`text-[16px] font-bold font-['Manrope',sans-serif] ${item.value > 0 ? 'text-[#111111]' : 'text-[#666666]'
+              <span className={`text-base font-bold ${item.value > 0 ? 'text-[#111111]' : 'text-[#666666]'
                 }`}>
                 {item.value || 0}
               </span>

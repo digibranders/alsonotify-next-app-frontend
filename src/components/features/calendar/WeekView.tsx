@@ -136,11 +136,11 @@ export function WeekView({ currentDate, events, isLoading, onTimeSlotClick }: We
                     <div className="flex-1 grid grid-cols-7">
                         {weekDays.map((d, i) => (
                             <div key={i} className={`py-2 text-center border-r border-[#EEEEEE] last:border-r-0 ${d.isToday ? 'bg-[#ff3b3b]/5' : ''}`}>
-                                <div className={`text-[11px] font-['Manrope:SemiBold',sans-serif] mb-0.5 ${d.isToday ? 'text-[#ff3b3b]' : 'text-[#666666]'}`}>
+                                <div className={`text-[0.6875rem] font-semibold mb-0.5 ${d.isToday ? 'text-[#ff3b3b]' : 'text-[#666666]'}`}>
                                     {d.label.toUpperCase()}
                                 </div>
                                 <div className={`flex items-center justify-center`}>
-                                    <div className={`text-[20px] leading-none font-['Manrope:Bold',sans-serif] w-8 h-8 flex items-center justify-center rounded-full ${d.isToday ? 'bg-[#ff3b3b] text-white' : 'text-[#111111]'}`}>
+                                    <div className={`text-xl leading-none font-bold w-8 h-8 flex items-center justify-center rounded-full ${d.isToday ? 'bg-[#ff3b3b] text-white' : 'text-[#111111]'}`}>
                                         {d.day}
                                     </div>
                                 </div>
@@ -155,7 +155,7 @@ export function WeekView({ currentDate, events, isLoading, onTimeSlotClick }: We
                     <div className="w-16 flex-shrink-0 border-r border-[#EEEEEE] bg-white sticky left-0 z-30 select-none">
                         {hours.map(hour => (
                             <div key={hour} className="h-[60px] relative text-right pr-2">
-                                <span className="text-[11px] text-[#666666] font-['Manrope:Medium',sans-serif] -top-2 relative block transform -translate-y-1/2">
+                                <span className="text-[0.6875rem] text-[#666666] font-medium -top-2 relative block transform -translate-y-1/2">
                                     {hour === 0 ? '' : dayjs().hour(hour).format('h A')}
                                 </span>
                             </div>
@@ -166,7 +166,7 @@ export function WeekView({ currentDate, events, isLoading, onTimeSlotClick }: We
                             className="absolute right-0 w-full h-[2px] z-30 pointer-events-none flex items-center justify-end pr-1"
                             style={{ top: dayjs().hour() * 60 + dayjs().minute() }}
                         >
-                             <div className="text-[10px] font-['Manrope:Bold',sans-serif] text-white bg-[#ff3b3b] px-1.5 py-0.5 rounded-[4px] relative -top-[1px]">
+                             <div className="text-[0.625rem] font-bold text-white bg-[#ff3b3b] px-1.5 py-0.5 rounded-[4px] relative -top-[1px]">
                                 {dayjs().format('h:mm')}
                             </div>
                         </div>
@@ -212,7 +212,7 @@ export function WeekView({ currentDate, events, isLoading, onTimeSlotClick }: We
                                      {allDayEvents.map((ep, idx) => (
                                          <Popover key={ep.id} content={<CalendarEventPopup event={ep} />} trigger="click">
                                              <div 
-                                                className="absolute w-[95%] left-[2.5%] text-[10px] px-2 py-1 rounded-[4px] text-white truncate cursor-pointer z-20 hover:opacity-90"
+                                                className="absolute w-[95%] left-[2.5%] text-[0.625rem] px-2 py-1 rounded-[4px] text-white truncate cursor-pointer z-20 hover:opacity-90"
                                                 style={{ 
                                                     top: `${idx * 22 + 2}px`, 
                                                     height: '20px',
@@ -242,10 +242,10 @@ export function WeekView({ currentDate, events, isLoading, onTimeSlotClick }: We
                                                  }}
                                                  onClick={(e) => e.stopPropagation()}
                                              >
-                                                 <div className="text-[11px] font-['Manrope:SemiBold',sans-serif] text-[#111111] leading-tight truncate">
+                                                 <div className="text-[0.6875rem] font-semibold text-[#111111] leading-tight truncate">
                                                      {event.title}
                                                  </div>
-                                                 <div className="text-[10px] font-['Manrope:Medium',sans-serif] text-[#666666] leading-tight truncate mt-0.5">
+                                                 <div className="text-[0.625rem] font-medium text-[#666666] leading-tight truncate mt-0.5">
                                                      {event.time}
                                                  </div>
                                              </div>

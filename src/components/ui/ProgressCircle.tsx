@@ -17,7 +17,7 @@ export function ProgressCircle({ total, completed, inProgress, delayed, title, s
   return (
     <div className="flex flex-col items-center gap-[24px] relative shrink-0">
       {/* Title */}
-      <div className="flex flex-col font-['Manrope:SemiBold',sans-serif] justify-center leading-[0] not-italic text-[#111111] text-[20px] text-nowrap">
+      <div className="flex flex-col font-semibold justify-center leading-[0] not-italic text-[#111111] text-xl text-nowrap">
         <p className="leading-[normal]">{title}</p>
       </div>
 
@@ -49,10 +49,10 @@ export function ProgressCircle({ total, completed, inProgress, delayed, title, s
 
         {/* Center text */}
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <div className="flex flex-col font-['Manrope:Bold',sans-serif] justify-center leading-[0] not-italic text-[#111111] text-[48px]">
+          <div className="flex flex-col font-bold justify-center leading-[0] not-italic text-[#111111] text-[48px]">
             <p className="leading-[normal]">{total}</p>
           </div>
-          <div className="flex flex-col font-['Manrope:Medium',sans-serif] font-medium justify-center leading-[0] mt-[8px] not-italic text-[#666666] text-[14px] text-nowrap">
+          <div className="flex flex-col font-medium font-medium justify-center leading-[0] mt-[8px] not-italic text-[#666666] text-sm text-nowrap">
             <p className="leading-[normal]">{subtitle}</p>
           </div>
         </div>
@@ -62,16 +62,16 @@ export function ProgressCircle({ total, completed, inProgress, delayed, title, s
       <div className="flex gap-[40px] items-center">
         {/* Completed */}
         <div className="flex flex-col gap-[8px] items-center">
-          <div className="flex flex-col font-['Manrope:Bold',sans-serif] justify-center leading-[0] not-italic text-[#111111] text-[28px]">
+          <div className="flex flex-col font-bold justify-center leading-[0] not-italic text-[#111111] text-[1.75rem]">
             <p className="leading-[normal]">{completed}</p>
           </div>
           <div className="flex gap-[4px] items-center">
             <div className="relative shrink-0 size-[10px]">
-              <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 10 10">
+              <svg className="block size-full" fill="none" viewBox="0 0 10 10">
                 <circle cx="5" cy="5" fill="#0F9D58" r="5" />
               </svg>
             </div>
-            <div className="flex flex-col font-['Manrope:Medium',sans-serif] font-medium justify-center leading-[0] not-italic text-[#666666] text-[14px] text-nowrap">
+            <div className="flex flex-col font-medium font-medium justify-center leading-[0] not-italic text-[#666666] text-sm text-nowrap">
               <p className="leading-[normal] whitespace-pre">Completed</p>
             </div>
           </div>
@@ -79,16 +79,16 @@ export function ProgressCircle({ total, completed, inProgress, delayed, title, s
 
         {/* In Progress */}
         <div className="flex flex-col gap-[8px] items-center">
-          <div className="flex flex-col font-['Manrope:Bold',sans-serif] justify-center leading-[0] not-italic text-[#111111] text-[28px]">
+          <div className="flex flex-col font-bold justify-center leading-[0] not-italic text-[#111111] text-[1.75rem]">
             <p className="leading-[normal]">{inProgress}</p>
           </div>
           <div className="flex gap-[4px] items-center">
             <div className="relative shrink-0 size-[10px]">
-              <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 10 10">
+              <svg className="block size-full" fill="none" viewBox="0 0 10 10">
                 <circle cx="5" cy="5" fill="#2F80ED" r="5" />
               </svg>
             </div>
-            <div className="flex flex-col font-['Manrope:Medium',sans-serif] font-medium justify-center leading-[0] not-italic text-[#666666] text-[14px] text-nowrap">
+            <div className="flex flex-col font-medium font-medium justify-center leading-[0] not-italic text-[#666666] text-sm text-nowrap">
               <p className="leading-[normal] whitespace-pre">In Progress</p>
             </div>
           </div>
@@ -96,16 +96,16 @@ export function ProgressCircle({ total, completed, inProgress, delayed, title, s
 
         {/* Delayed */}
         <div className="flex flex-col gap-[8px] items-center">
-          <div className="flex flex-col font-['Manrope:Bold',sans-serif] justify-center leading-[0] not-italic text-[#111111] text-[28px]">
+          <div className="flex flex-col font-bold justify-center leading-[0] not-italic text-[#111111] text-[1.75rem]">
             <p className="leading-[normal]">{delayed}</p>
           </div>
           <div className="flex gap-[4px] items-center">
             <div className="relative shrink-0 size-[10px]">
-              <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 10 10">
+              <svg className="block size-full" fill="none" viewBox="0 0 10 10">
                 <circle cx="5" cy="5" fill="#ff3b3b" r="5" />
               </svg>
             </div>
-            <div className="flex flex-col font-['Manrope:Medium',sans-serif] font-medium justify-center leading-[0] not-italic text-[#666666] text-[14px] text-nowrap">
+            <div className="flex flex-col font-medium font-medium justify-center leading-[0] not-italic text-[#666666] text-sm text-nowrap">
               <p className="leading-[normal] whitespace-pre">Delayed</p>
             </div>
           </div>

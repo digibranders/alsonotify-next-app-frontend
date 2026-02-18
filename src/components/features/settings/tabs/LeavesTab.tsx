@@ -37,18 +37,18 @@ export function LeavesTab({
       {/* Leaves Column */}
       <div className="space-y-6 sticky top-0 self-start">
         <div className="flex items-center gap-2">
-          <h2 className="text-[16px] font-['Manrope:SemiBold',sans-serif] text-[#111111]">Leaves</h2>
+          <h2 className="text-base font-semibold text-[#111111]">Leaves</h2>
         </div>
 
         {leaves.map((leave) => (
           <div key={leave.id} className="space-y-2">
-            <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">{leave.name}</span>
+            <span className="text-[0.8125rem] font-bold text-[#111111]">{leave.name}</span>
             <div className="flex items-center gap-3">
               <Input
                 value={leave.count}
                 onChange={(e) => handleUpdateLeaveCount(String(leave.id), e.target.value)}
                 disabled={!canEditLeaves || !isEditing}
-                className={`h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-['Manrope:Medium',sans-serif] text-[13px] ${!isEditing ? 'bg-[#F7F7F7] cursor-not-allowed' : 'bg-white'}`}
+                className={`h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-medium text-[0.8125rem] ${!isEditing ? 'bg-[#F7F7F7] cursor-not-allowed' : 'bg-white'}`}
               />
               {canEditLeaves && !isEditing && (
                 <button
@@ -64,8 +64,8 @@ export function LeavesTab({
 
         <div className="pt-6 space-y-6">
           <div className="space-y-2">
-            <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#666666]">Total Leaves</span>
-            <div className="h-11 px-3 flex items-center rounded-lg border border-[#EEEEEE] bg-[#F7F7F7] text-[#666666] font-['Manrope:Medium',sans-serif] text-[13px]">
+            <span className="text-[0.8125rem] font-bold text-[#666666]">Total Leaves</span>
+            <div className="h-11 px-3 flex items-center rounded-lg border border-[#EEEEEE] bg-[#F7F7F7] text-[#666666] font-medium text-[0.8125rem]">
               {leaves.reduce((acc, curr) => acc + curr.count, 0)} days
             </div>
           </div>
@@ -76,7 +76,7 @@ export function LeavesTab({
       {/* Public Holidays Column */}
       <div className="space-y-6 border-l border-[#EEEEEE] pl-12">
         <div className="flex items-center gap-2">
-          <h2 className="text-[16px] font-['Manrope:SemiBold',sans-serif] text-[#111111]">Public Holidays</h2>
+          <h2 className="text-base font-semibold text-[#111111]">Public Holidays</h2>
           {canEditLeaves && (
             <button
               onClick={handleAddHoliday}
@@ -89,20 +89,20 @@ export function LeavesTab({
 
         <div className="space-y-4">
           {isLoadingHolidays ? (
-            <div className="text-center py-4 text-[13px] text-[#999999]">Loading holidays...</div>
+            <div className="text-center py-4 text-[0.8125rem] text-[#999999]">Loading holidays...</div>
           ) : publicHolidays.length > 0 ? (
             publicHolidays.map((holiday) => (
               <div key={holiday.id} className="p-4 border border-[#EEEEEE] rounded-[12px] flex items-center justify-between bg-white hover:shadow-sm transition-shadow">
                 <div>
                   <div className="flex items-center gap-2">
-                    <p className="text-[14px] font-['Manrope:Bold',sans-serif] text-[#111111]">{holiday.name}</p>
+                    <p className="text-sm font-bold text-[#111111]">{holiday.name}</p>
                     {holiday.is_api && (
-                      <span className="px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-600 text-[10px] font-['Manrope:Bold',sans-serif]">
+                      <span className="px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-600 text-[0.625rem] font-bold">
                         Public
                       </span>
                     )}
                   </div>
-                  <p className="text-[12px] text-[#666666] font-['Manrope:Medium',sans-serif]">{new Date(holiday.date).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}</p>
+                  <p className="text-xs text-[#666666] font-medium">{new Date(holiday.date).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}</p>
                 </div>
                 <div className="flex items-center gap-2">
                   {!holiday.is_api && (
@@ -137,7 +137,7 @@ export function LeavesTab({
               </div>
             ))
           ) : (
-            <div className="text-center py-4 text-[13px] text-[#999999]">No holidays added yet</div>
+            <div className="text-center py-4 text-[0.8125rem] text-[#999999]">No holidays added yet</div>
           )}
         </div>
 
@@ -146,7 +146,7 @@ export function LeavesTab({
           <button className="w-8 h-8 flex items-center justify-center rounded-full text-[#999999] hover:bg-[#F7F7F7] disabled:opacity-50" disabled>
             &lt;
           </button>
-          <div className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#ff3b3b] text-[#ff3b3b] font-bold text-[13px]">
+          <div className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#ff3b3b] text-[#ff3b3b] font-bold text-[0.8125rem]">
             1
           </div>
           <button className="w-8 h-8 flex items-center justify-center rounded-full text-[#999999] hover:bg-[#F7F7F7]">

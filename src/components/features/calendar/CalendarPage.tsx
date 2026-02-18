@@ -300,7 +300,7 @@ export function CalendarPage() {
           <div className="flex items-center gap-2">
             <button
               onClick={handleToday}
-              className="h-9 px-4 rounded-[8px] border border-[#EEEEEE] flex items-center justify-center hover:bg-[#F7F7F7] transition-colors font-['Manrope:SemiBold',sans-serif] text-[13px] text-[#111111] focus:ring-2 focus:ring-[#111111] focus:outline-none"
+              className="h-9 px-4 rounded-[8px] border border-[#EEEEEE] flex items-center justify-center hover:bg-[#F7F7F7] transition-colors font-semibold text-[0.8125rem] text-[#111111] focus:ring-2 focus:ring-[#111111] focus:outline-none"
             >
               Today
             </button>
@@ -308,7 +308,7 @@ export function CalendarPage() {
               <ChevronLeft className="w-4 h-4 text-[#666666]" />
             </button>
             <div className="px-4 py-2 bg-[#F7F7F7] rounded-[8px] border border-[#EEEEEE]" role="status">
-              <span className="font-['Manrope:SemiBold',sans-serif] text-[14px] text-[#111111]">
+              <span className="font-semibold text-sm text-[#111111]">
                 {dateLabel}
               </span>
             </div>
@@ -338,7 +338,7 @@ export function CalendarPage() {
                 >
                   <Button
                     type="default"
-                    className="h-9 px-4 text-[13px] font-['Manrope:SemiBold',sans-serif] text-[#111111] border-[#EEEEEE] hover:text-red-500 hover:border-red-200 flex items-center gap-2 group transition-all"
+                    className="h-9 px-4 text-[0.8125rem] font-semibold text-[#111111] border-[#EEEEEE] hover:text-red-500 hover:border-red-200 flex items-center gap-2 group transition-all"
                   >
                     <span className="w-2 h-2 rounded-full bg-green-500 group-hover:bg-red-500 transition-colors" />
                     Connected
@@ -346,7 +346,7 @@ export function CalendarPage() {
                   </Button>
                 </Popconfirm>
               ) : (
-                <Button type="primary" icon={<Video className="w-4 h-4" />} loading={connecting} onClick={connectToTeams} className="h-9 px-4 text-[13px] font-['Manrope:SemiBold',sans-serif] bg-[#111111] hover:bg-[#000000]/90 border-none">Connect to Teams</Button>
+                <Button type="primary" icon={<Video className="w-4 h-4" />} loading={connecting} onClick={connectToTeams} className="h-9 px-4 text-[0.8125rem] font-semibold bg-[#111111] hover:bg-[#000000]/90 border-none">Connect to Teams</Button>
               )}
             </>
           )}
@@ -388,7 +388,7 @@ export function CalendarPage() {
           <div className="flex flex-col gap-4 overflow-y-auto scrollbar-hide">
             {/* Today's Events */}
             <div className="bg-[#F7F7F7] rounded-[16px] p-5">
-              <h4 className="font-['Manrope:SemiBold',sans-serif] text-[14px] text-[#111111] mb-4">
+              <h4 className="font-semibold text-sm text-[#111111] mb-4">
                 Today&apos;s Events
               </h4>
               <div className="space-y-3">
@@ -411,13 +411,13 @@ export function CalendarPage() {
                         <div className="flex items-start gap-3">
                           <div className="w-1 h-full rounded-full mt-1" style={{ backgroundColor: event.color }} />
                           <div className="flex-1">
-                            <div className="font-['Manrope:SemiBold',sans-serif] text-[13px] text-[#111111] mb-1">{event.title}</div>
-                            <div className="flex items-center gap-1 text-[11px] font-['Manrope:Regular',sans-serif] text-[#666666] mb-2">
+                            <div className="font-semibold text-[0.8125rem] text-[#111111] mb-1">{event.title}</div>
+                            <div className="flex items-center gap-1 text-[0.6875rem] font-normal text-[#666666] mb-2">
                               <Clock className="w-3 h-3" />
                               {event.time}
                             </div>
                             {event.location && (
-                              <div className="flex items-center gap-1 text-[11px] font-['Manrope:Regular',sans-serif] text-[#666666]">
+                              <div className="flex items-center gap-1 text-[0.6875rem] font-normal text-[#666666]">
                                 <MapPin className="w-3 h-3" />
                                 {event.location}
                               </div>
@@ -428,7 +428,7 @@ export function CalendarPage() {
                     </Popover>
                   ))
                 ) : (
-                  <div className="text-center py-6 text-[13px] font-['Manrope:Regular',sans-serif] text-[#999999]">
+                  <div className="text-center py-6 text-[0.8125rem] font-normal text-[#999999]">
                     No events today
                   </div>
                 )}
@@ -437,7 +437,7 @@ export function CalendarPage() {
 
             {/* Upcoming Events */}
             <div className="bg-[#F7F7F7] rounded-[16px] p-5 min-h-[300px]">
-              <h4 className="font-['Manrope:SemiBold',sans-serif] text-[14px] text-[#111111] mb-4">Upcoming</h4>
+              <h4 className="font-semibold text-sm text-[#111111] mb-4">Upcoming</h4>
               <div className="space-y-3">
                 {isLoading ? (
                   Array.from({ length: 5 }).map((_, i) => (
@@ -457,8 +457,8 @@ export function CalendarPage() {
                       <div className="flex items-start gap-3">
                         <div className="w-1 h-full rounded-full mt-1" style={{ backgroundColor: event.color }} />
                         <div className="flex-1">
-                          <div className="font-['Manrope:SemiBold',sans-serif] text-[13px] text-[#111111] mb-1">{event.title}</div>
-                          <div className="flex items-center gap-1 text-[11px] font-['Manrope:Regular',sans-serif] text-[#666666]">
+                          <div className="font-semibold text-[0.8125rem] text-[#111111] mb-1">{event.title}</div>
+                          <div className="flex items-center gap-1 text-[0.6875rem] font-normal text-[#666666]">
                             <CalendarIcon className="w-3 h-3" />
                             {event.endDate ? (
                               dayjs(event.date).month() === dayjs(event.endDate).month() ?
@@ -473,7 +473,7 @@ export function CalendarPage() {
                     </div>
                   </Popover>
                 ))) : (
-                  <div className="text-center py-6 text-[13px] font-['Manrope:Regular',sans-serif] text-[#999999]">No upcoming events</div>
+                  <div className="text-center py-6 text-[0.8125rem] font-normal text-[#999999]">No upcoming events</div>
                 )}
               </div>
             </div>

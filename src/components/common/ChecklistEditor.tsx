@@ -239,7 +239,7 @@ export function ChecklistEditor({ items, onChange, placeholder = "List", classNa
                 onChange={(e) => updateItem(item.id, { text: e.target.value })}
                 onKeyDown={(e) => handleKeyDown(e, item, actualIndex)}
                 placeholder={displayIndex === 0 && item.text === '' ? placeholder : ''}
-                className="flex-1 border-none outline-none bg-transparent font-['Manrope:Regular',sans-serif] text-[14px] text-[#111111] placeholder:text-[#999]"
+                className="flex-1 border-none outline-none bg-transparent font-normal text-sm text-[#111111] placeholder:text-[#999]"
                 style={{ padding: '4px 0' }}
               />
             </div>
@@ -250,7 +250,7 @@ export function ChecklistEditor({ items, onChange, placeholder = "List", classNa
       {/* Checked Items Section */}
       {checkedItems.length > 0 && (
         <div className="mt-4 pt-4 border-t border-[#EEEEEE]">
-          <div className="text-[11px] font-['Manrope:Medium',sans-serif] text-[#999] mb-2 uppercase">
+          <div className="text-[0.6875rem] font-medium text-[#999] mb-2 uppercase">
             Completed
           </div>
           <div className="space-y-1">
@@ -273,7 +273,7 @@ export function ChecklistEditor({ items, onChange, placeholder = "List", classNa
                     value={item.text}
                     onChange={(e) => updateItem(item.id, { text: e.target.value })}
                     onKeyDown={(e) => handleKeyDown(e, item, actualIndex)}
-                    className="flex-1 border-none outline-none bg-transparent font-['Manrope:Regular',sans-serif] text-[14px] text-[#666666] line-through"
+                    className="flex-1 border-none outline-none bg-transparent font-normal text-sm text-[#666666] line-through"
                     style={{ padding: '4px 0' }}
                   />
                 </div>

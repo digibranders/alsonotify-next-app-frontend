@@ -99,7 +99,7 @@ export const SubmitForApprovalModal = ({
       open={open}
       onCancel={handleClose}
       footer={null}
-      width={560}
+      width="min(560px, 95vw)"
       centered
     >
       <div className="flex flex-col gap-4 py-4">

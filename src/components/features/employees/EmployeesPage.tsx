@@ -85,13 +85,27 @@ export function EmployeesPage() {
     if (searchQuery) params.append('name', searchQuery);
 
     if (filters.role !== 'All') {
-      const selectedRole = rolesData?.result?.find(r => r.name === filters.role);
-      if (selectedRole) params.append('role_id', selectedRole.id.toString());
+      const selectedNames = filters.role.split(',');
+      const selectedIds = selectedNames.map(name => {
+        const role = rolesData?.result?.find(r => r.name === name.trim());
+        return role?.id;
+      }).filter(Boolean);
+
+      if (selectedIds.length > 0) {
+        params.append('role_id', selectedIds.join(','));
+      }
     }
 
     if (filters.department !== 'All') {
-      const selectedDept = departmentsData?.result?.find(d => d.name === filters.department);
-      if (selectedDept?.id) params.append('department_id', selectedDept.id.toString());
+      const selectedNames = filters.department.split(',');
+      const selectedIds = selectedNames.map(name => {
+        const dept = departmentsData?.result?.find(d => d.name === name.trim());
+        return dept?.id;
+      }).filter(Boolean);
+
+      if (selectedIds.length > 0) {
+        params.append('department_id', selectedIds.join(','));
+      }
     }
 
     if (filters.employmentType !== 'All') {
@@ -169,21 +183,24 @@ export function EmployeesPage() {
       label: 'Designation',
       options: uniqueRoles,
       placeholder: 'Designation',
-      defaultValue: 'All'
+      defaultValue: 'All',
+      multiSelect: true
     },
     {
       id: 'department',
       label: 'Department',
       options: uniqueDepts,
       placeholder: 'Department',
-      defaultValue: 'All'
+      defaultValue: 'All',
+      multiSelect: true
     },
     {
       id: 'employmentType',
       label: 'Employment Type',
       options: ['All', 'Full-time', 'Contract', 'Part-time'],
       placeholder: 'Employment Type',
-      defaultValue: 'All'
+      defaultValue: 'All',
+      multiSelect: true
     },
     {
       id: 'access',
@@ -905,10 +922,10 @@ export function EmployeesPage() {
       setExpandedContent(
         <>
           <div className="flex items-center gap-2 border-r border-white/20 pr-6">
-            <div className="bg-[#ff3b3b] text-white text-[12px] font-bold px-2 py-0.5 rounded-full">
+            <div className="bg-[#ff3b3b] text-white text-xs font-bold px-2 py-0.5 rounded-full">
               {selectedEmployees.length}
             </div>
-            <span className="text-[14px] font-['Manrope:SemiBold',sans-serif]">Selected</span>
+            <span className="text-sm font-semibold">Selected</span>
           </div>
 
           <div className="flex items-center gap-2">
@@ -949,7 +966,7 @@ export function EmployeesPage() {
                           <div className="p-2 rounded-full" style={{ backgroundColor: access.bgColor }}>
                             <IconComponent className="w-4 h-4" style={{ color: access.color }} />
                           </div>
-                          <span className="text-[14px] font-['Manrope:Medium',sans-serif] text-[#111111]">
+                          <span className="text-sm font-medium text-[#111111]">
                             {access.value}
                           </span>
                         </button>
@@ -987,7 +1004,7 @@ export function EmployeesPage() {
                         onClick={() => handleBulkUpdateDepartment(dept)}
                         className="w-full flex items-center gap-3 px-4 py-3 hover:bg-[#F7F7F7] transition-colors text-left"
                       >
-                        <span className="text-[14px] font-['Manrope:Medium',sans-serif] text-[#111111]">
+                        <span className="text-sm font-medium text-[#111111]">
                           {dept}
                         </span>
                       </button>
@@ -1028,7 +1045,7 @@ export function EmployeesPage() {
 
           <button
             onClick={() => setSelectedEmployees([])}
-            className="ml-2 text-[12px] text-[#999999] hover:text-white transition-colors"
+            className="ml-2 text-xs text-[#999999] hover:text-white transition-colors"
           >
             Cancel
           </button>
@@ -1087,13 +1104,13 @@ export function EmployeesPage() {
                 className="red-checkbox"
               />
             </div>
-            <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#6B7280] uppercase tracking-wider">Name</p>
-            <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#6B7280] uppercase tracking-wider">Email Address</p>
-            <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#6B7280] uppercase tracking-wider">Access Level</p>
-            <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#6B7280] uppercase tracking-wider">Type</p>
-            <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#6B7280] uppercase tracking-wider">Hourly Rate</p>
-            <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#6B7280] uppercase tracking-wider">Date of Joining</p>
-            <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#6B7280] uppercase tracking-wider"></p>
+            <p className="text-[0.6875rem] font-bold text-[#6B7280] uppercase tracking-wider">Name</p>
+            <p className="text-[0.6875rem] font-bold text-[#6B7280] uppercase tracking-wider">Email Address</p>
+            <p className="text-[0.6875rem] font-bold text-[#6B7280] uppercase tracking-wider">Access Level</p>
+            <p className="text-[0.6875rem] font-bold text-[#6B7280] uppercase tracking-wider">Type</p>
+            <p className="text-[0.6875rem] font-bold text-[#6B7280] uppercase tracking-wider">Hourly Rate</p>
+            <p className="text-[0.6875rem] font-bold text-[#6B7280] uppercase tracking-wider">Date of Joining</p>
+            <p className="text-[0.6875rem] font-bold text-[#6B7280] uppercase tracking-wider"></p>
           </div>
 
           <div className="space-y-2">
@@ -1132,7 +1149,7 @@ export function EmployeesPage() {
 
           {!isLoading && employees.length === 0 && (
             <div className="text-center py-12">
-              <p className="text-[#999999] font-['Manrope:Regular',sans-serif]">
+              <p className="text-[#999999] font-normal">
                 No employees found
               </p>
             </div>

@@ -245,7 +245,7 @@ export function ProfilePage() {
     ) => {
         return (
             <div className="space-y-2">
-                <div className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">
+                <div className="text-[0.8125rem] font-bold text-[#111111]">
                     {label}
                 </div>
                 <Input
@@ -258,7 +258,7 @@ export function ProfilePage() {
                     placeholder={placeholder}
                     type={type}
                     disabled={!isEditing}
-                    className={`h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] focus:ring-[#ff3b3b]/10 font-['Manrope:Medium',sans-serif] text-[13px] ${!isEditing ? "bg-[#FAFAFA] text-[#666666]" : "bg-white"
+                    className={`h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] focus:ring-[#ff3b3b]/10 font-medium text-[0.8125rem] ${!isEditing ? "bg-[#FAFAFA] text-[#666666]" : "bg-white"
                         }`}
                 />
             </div>
@@ -295,7 +295,7 @@ export function ProfilePage() {
     ) => {
         return (
             <div className="space-y-2">
-                <div className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">
+                <div className="text-[0.8125rem] font-bold text-[#111111]">
                     {label}
                 </div>
                 <Select
@@ -399,10 +399,10 @@ export function ProfilePage() {
                     {/* Profile Completion - Back in header, no background */}
                     <div className="min-w-[180px]">
                         <div className="flex items-center justify-between mb-1.5">
-                            <span className="text-[12px] font-['Manrope:Medium',sans-serif] text-[#666666]">
+                            <span className="text-xs font-medium text-[#666666]">
                                 Profile Completion
                             </span>
-                            <span className={`text-[12px] font-['Manrope:SemiBold',sans-serif] ${profileCompletion === 100
+                            <span className={`text-xs font-semibold ${profileCompletion === 100
                                 ? 'text-[#2ecc71]'
                                 : profileCompletion >= 50
                                     ? 'text-[#3b8eff]'
@@ -433,7 +433,7 @@ export function ProfilePage() {
                             {user?.account_type === "INDIVIDUAL" && (
                                 <Button
                                     onClick={() => setUpgradeModalVisible(true)}
-                                    className="bg-black hover:bg-black/90 text-white font-['Manrope:SemiBold',sans-serif] px-6 h-10 rounded-full text-[13px] flex items-center gap-2 border-none"
+                                    className="bg-black hover:bg-black/90 text-white font-semibold px-6 h-10 rounded-full text-[0.8125rem] flex items-center gap-2 border-none"
                                 >
                                     <Briefcase className="w-4 h-4" />
                                     Upgrade to Organization
@@ -441,7 +441,7 @@ export function ProfilePage() {
                             )}
                             <Button
                                 onClick={handleEdit}
-                                className="bg-[#111111] hover:bg-[#000000]/90 text-white font-['Manrope:SemiBold',sans-serif] px-6 h-10 rounded-full text-[13px] flex items-center gap-2 border-none"
+                                className="bg-[#111111] hover:bg-[#000000]/90 text-white font-semibold px-6 h-10 rounded-full text-[0.8125rem] flex items-center gap-2 border-none"
                             >
                                 <Pencil className="w-4 h-4" />
                                 Edit
@@ -452,14 +452,14 @@ export function ProfilePage() {
                             <Button
                                 onClick={handleCancelEdit}
                                 type="text"
-                                className="text-[#666666] hover:text-[#111111] hover:bg-[#F7F7F7] font-['Manrope:SemiBold',sans-serif] px-6 h-10 rounded-full text-[13px]"
+                                className="text-[#666666] hover:text-[#111111] hover:bg-[#F7F7F7] font-semibold px-6 h-10 rounded-full text-[0.8125rem]"
                             >
                                 Cancel
                             </Button>
                             <Button
                                 onClick={handleSaveChanges}
                                 loading={updateProfileMutation.isPending}
-                                className="bg-[#ff3b3b] hover:bg-[#ff3b3b]/90 text-white font-['Manrope:SemiBold',sans-serif] px-8 h-10 rounded-full shadow-lg shadow-[#ff3b3b]/20 text-[13px] border-none"
+                                className="bg-[#ff3b3b] hover:bg-[#ff3b3b]/90 text-white font-semibold px-8 h-10 rounded-full shadow-lg shadow-[#ff3b3b]/20 text-[0.8125rem] border-none"
                             >
                                 Save Changes
                             </Button>
@@ -522,7 +522,7 @@ export function ProfilePage() {
                     <>
                         {/* Header Info - Static area */}
                         <div className="mb-4">
-                            <p className="text-[13px] text-[#666666] font-['Manrope:Regular',sans-serif]">
+                            <p className="text-[0.8125rem] text-[#666666] font-normal">
                                 Manage your account settings and preferences
                             </p>
                         </div>
@@ -533,7 +533,7 @@ export function ProfilePage() {
                                 <div className="flex flex-col md:flex-row gap-10 items-stretch mb-8">
                                     {/* Left Sidebar: Heading & Avatar */}
                                     <div className="shrink-0 w-32 flex flex-col justify-between">
-                                        <h2 className="text-[16px] font-['Manrope:SemiBold',sans-serif] text-[#111111] whitespace-nowrap self-start">
+                                        <h2 className="text-base font-semibold text-[#111111] whitespace-nowrap self-start">
                                             Personal Details
                                         </h2>
 
@@ -662,7 +662,7 @@ export function ProfilePage() {
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                     {renderField("Email Address", profile.email, "email")}
                                     <div className="space-y-2">
-                                        <div className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">
+                                        <div className="text-[0.8125rem] font-bold text-[#111111]">
                                             Phone Number
                                         </div>
                                         <div className="flex gap-2">
@@ -687,7 +687,7 @@ export function ProfilePage() {
                                                 placeholder="123 456 7890"
                                                 maxLength={15}
                                                 disabled={!isEditing}
-                                                className={`flex-1 h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] focus:ring-[#ff3b3b]/10 font-['Manrope:Medium',sans-serif] text-[13px] ${!isEditing ? "bg-[#FAFAFA] text-[#666666]" : "bg-white"
+                                                className={`flex-1 h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] focus:ring-[#ff3b3b]/10 font-medium text-[0.8125rem] ${!isEditing ? "bg-[#FAFAFA] text-[#666666]" : "bg-white"
                                                     }`}
                                             />
                                         </div>
@@ -700,122 +700,122 @@ export function ProfilePage() {
 
                             {/* Employment Details */}
                             <section className="mb-10">
-                                <h2 className="text-[16px] font-['Manrope:SemiBold',sans-serif] text-[#111111] mb-6">
+                                <h2 className="text-base font-semibold text-[#111111] mb-6">
                                     Employment Details(Contact Your Admin or HR to Update Employment Details)
                                 </h2>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                     {/* Row 1 */}
                                     {/* Employee ID */}
                                     <div className="space-y-2">
-                                        <div className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">
+                                        <div className="text-[0.8125rem] font-bold text-[#111111]">
                                             Employee ID
                                         </div>
                                         <Input
                                             value={profile.employeeId}
                                             disabled={true}
-                                            className="h-11 rounded-lg border-[#EEEEEE] font-['Manrope:Medium',sans-serif] text-[13px] bg-[#FAFAFA] text-[#666666]"
+                                            className="h-11 rounded-lg border-[#EEEEEE] font-medium text-[0.8125rem] bg-[#FAFAFA] text-[#666666]"
                                         />
                                     </div>
                                     {/* Designation */}
                                     <div className="space-y-2">
-                                        <div className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">
+                                        <div className="text-[0.8125rem] font-bold text-[#111111]">
                                             Designation
                                         </div>
                                         <Input
                                             value={profile.designation}
                                             disabled={true}
-                                            className="h-11 rounded-lg border-[#EEEEEE] font-['Manrope:Medium',sans-serif] text-[13px] bg-[#FAFAFA] text-[#666666]"
+                                            className="h-11 rounded-lg border-[#EEEEEE] font-medium text-[0.8125rem] bg-[#FAFAFA] text-[#666666]"
                                         />
                                     </div>
                                     {/* Department */}
                                     <div className="space-y-2">
-                                        <div className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">
+                                        <div className="text-[0.8125rem] font-bold text-[#111111]">
                                             Department
                                         </div>
                                         <Input
                                             value={profile.department}
                                             disabled={true}
-                                            className="h-11 rounded-lg border-[#EEEEEE] font-['Manrope:Medium',sans-serif] text-[13px] bg-[#FAFAFA] text-[#666666]"
+                                            className="h-11 rounded-lg border-[#EEEEEE] font-medium text-[0.8125rem] bg-[#FAFAFA] text-[#666666]"
                                         />
                                     </div>
 
                                     {/* Row 2 */}
                                     {/* Employment Type */}
                                     <div className="space-y-2">
-                                        <div className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">
+                                        <div className="text-[0.8125rem] font-bold text-[#111111]">
                                             Employment Type
                                         </div>
                                         <Input
                                             value={profile.employmentType}
                                             disabled={true}
-                                            className="h-11 rounded-lg border-[#EEEEEE] font-['Manrope:Medium',sans-serif] text-[13px] bg-[#FAFAFA] text-[#666666]"
+                                            className="h-11 rounded-lg border-[#EEEEEE] font-medium text-[0.8125rem] bg-[#FAFAFA] text-[#666666]"
                                         />
                                     </div>
                                     {/* Date of Joining */}
                                     <div className="space-y-2">
-                                        <div className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">
+                                        <div className="text-[0.8125rem] font-bold text-[#111111]">
                                             Date of Joining
                                         </div>
                                         <Input
                                             value={profile.dateOfJoining}
                                             type="date"
                                             disabled={true}
-                                            className="h-11 rounded-lg border-[#EEEEEE] font-['Manrope:Medium',sans-serif] text-[13px] bg-[#FAFAFA] text-[#666666]"
+                                            className="h-11 rounded-lg border-[#EEEEEE] font-medium text-[0.8125rem] bg-[#FAFAFA] text-[#666666]"
                                         />
                                     </div>
                                     {/* Experience */}
                                     <div className="space-y-2">
-                                        <div className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">
+                                        <div className="text-[0.8125rem] font-bold text-[#111111]">
                                             Experience (Years)
                                         </div>
                                         <Input
                                             value={profile.experience}
                                             disabled={true}
-                                            className="h-11 rounded-lg border-[#EEEEEE] font-['Manrope:Medium',sans-serif] text-[13px] bg-[#FAFAFA] text-[#666666]"
+                                            className="h-11 rounded-lg border-[#EEEEEE] font-medium text-[0.8125rem] bg-[#FAFAFA] text-[#666666]"
                                         />
                                     </div>
 
                                     {/* Row 3 */}
                                     {/* Working Hours */}
                                     <div className="space-y-2">
-                                        <div className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">
+                                        <div className="text-[0.8125rem] font-bold text-[#111111]">
                                             Working Hours
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <Input
                                                 value={profile.startTime}
                                                 disabled={true}
-                                                className="h-11 rounded-lg border-[#EEEEEE] font-['Manrope:Medium',sans-serif] text-[13px] bg-[#FAFAFA] text-[#666666] min-w-0"
+                                                className="h-11 rounded-lg border-[#EEEEEE] font-medium text-[0.8125rem] bg-[#FAFAFA] text-[#666666] min-w-0"
                                             />
                                             <span className="text-[#666666] text-sm shrink-0">to</span>
                                             <Input
                                                 value={profile.endTime}
                                                 disabled={true}
-                                                className="h-11 rounded-lg border-[#EEEEEE] font-['Manrope:Medium',sans-serif] text-[13px] bg-[#FAFAFA] text-[#666666] min-w-0"
+                                                className="h-11 rounded-lg border-[#EEEEEE] font-medium text-[0.8125rem] bg-[#FAFAFA] text-[#666666] min-w-0"
                                             />
                                         </div>
                                     </div>
                                     {/* Leaves Balance */}
                                     <div className="space-y-2">
-                                        <div className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">
+                                        <div className="text-[0.8125rem] font-bold text-[#111111]">
                                             Leaves Balance
                                         </div>
                                         <Input
                                             value={profile.leaves}
                                             disabled={true}
-                                            className="h-11 rounded-lg border-[#EEEEEE] font-['Manrope:Medium',sans-serif] text-[13px] bg-[#FAFAFA] text-[#666666]"
+                                            className="h-11 rounded-lg border-[#EEEEEE] font-medium text-[0.8125rem] bg-[#FAFAFA] text-[#666666]"
                                         />
                                     </div>
                                     {/* Salary */}
                                     <div className="space-y-2">
-                                        <div className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">
+                                        <div className="text-[0.8125rem] font-bold text-[#111111]">
                                             Salary (Yearly)
                                         </div>
                                         <Input
                                             value={profile.salary}
                                             disabled={true}
                                             prefix="$"
-                                            className="h-11 rounded-lg border-[#EEEEEE] font-['Manrope:Medium',sans-serif] text-[13px] bg-[#FAFAFA] text-[#666666]"
+                                            className="h-11 rounded-lg border-[#EEEEEE] font-medium text-[0.8125rem] bg-[#FAFAFA] text-[#666666]"
                                         />
                                     </div>
                                 </div>
@@ -825,7 +825,7 @@ export function ProfilePage() {
 
                             {/* Address Information */}
                             <section className="mb-10">
-                                <h2 className="text-[16px] font-['Manrope:SemiBold',sans-serif] text-[#111111] mb-6">
+                                <h2 className="text-base font-semibold text-[#111111] mb-6">
                                     Address Information
                                 </h2>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -850,7 +850,7 @@ export function ProfilePage() {
 
                             {/* Emergency Contact Information */}
                             <section className="mb-10">
-                                <h2 className="text-[16px] font-['Manrope:SemiBold',sans-serif] text-[#111111] mb-6">
+                                <h2 className="text-base font-semibold text-[#111111] mb-6">
                                     Emergency Contact Information
                                 </h2>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -876,7 +876,7 @@ export function ProfilePage() {
 
                             {/* Professional Documents */}
                             <section className="mb-10">
-                                <h2 className="text-[16px] font-['Manrope:SemiBold',sans-serif] text-[#111111] mb-6">
+                                <h2 className="text-base font-semibold text-[#111111] mb-6">
                                     Professional Documents
                                 </h2>
                                 {documentTypes && documentTypes.length > 0 ? (
@@ -904,11 +904,11 @@ export function ProfilePage() {
                                             return (
                                                 <div key={docType.id} className="space-y-3">
                                                     <div className="flex items-center gap-2">
-                                                        <div className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">
+                                                        <div className="text-[0.8125rem] font-bold text-[#111111]">
                                                             {docType.name}
                                                         </div>
                                                         {!docType.required && (
-                                                            <span className="text-[11px] text-[#999999] font-['Manrope:Regular',sans-serif]">
+                                                            <span className="text-[0.6875rem] text-[#999999] font-normal">
                                                                 Optional
                                                             </span>
                                                         )}
@@ -927,10 +927,10 @@ export function ProfilePage() {
                                 ) : (
                                     <div className="border border-[#EEEEEE] border-dashed rounded-lg p-8 bg-[#FAFAFA] text-center">
                                         <FileText className="w-12 h-12 text-[#CCCCCC] mx-auto mb-3" />
-                                        <p className="text-[13px] font-['Manrope:Medium',sans-serif] text-[#666666] mb-1">
+                                        <p className="text-[0.8125rem] font-medium text-[#666666] mb-1">
                                             No documents configured
                                         </p>
-                                        <p className="text-[11px] text-[#999999] font-['Manrope:Regular',sans-serif]">
+                                        <p className="text-[0.6875rem] text-[#999999] font-normal">
                                             Add required documents in Settings to manage employee files.
                                         </p>
                                     </div>
@@ -950,41 +950,41 @@ export function ProfilePage() {
                             {/* Password */}
                             {/* Password */}
                             <section className="mb-10">
-                                <h2 className="text-[16px] font-['Manrope:SemiBold',sans-serif] text-[#111111] mb-6">
+                                <h2 className="text-base font-semibold text-[#111111] mb-6">
                                     Change Password
                                 </h2>
                                 <div className="grid grid-cols-1 gap-6 max-w-md">
                                     <div className="space-y-2">
-                                        <div className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">
+                                        <div className="text-[0.8125rem] font-bold text-[#111111]">
                                             Current Password
                                         </div>
                                         <Input.Password
                                             value={passwordForm.currentPassword}
                                             onChange={(e) => setPasswordForm(prev => ({ ...prev, currentPassword: e.target.value }))}
                                             placeholder="Enter current password"
-                                            className="h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-['Manrope:Medium',sans-serif] text-[13px] bg-white"
+                                            className="h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-medium text-[0.8125rem] bg-white"
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <div className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">
+                                        <div className="text-[0.8125rem] font-bold text-[#111111]">
                                             New Password
                                         </div>
                                         <Input.Password
                                             value={passwordForm.newPassword}
                                             onChange={(e) => setPasswordForm(prev => ({ ...prev, newPassword: e.target.value }))}
                                             placeholder="Enter new password"
-                                            className="h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-['Manrope:Medium',sans-serif] text-[13px] bg-white"
+                                            className="h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-medium text-[0.8125rem] bg-white"
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <div className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">
+                                        <div className="text-[0.8125rem] font-bold text-[#111111]">
                                             Confirm New Password
                                         </div>
                                         <Input.Password
                                             value={passwordForm.confirmPassword}
                                             onChange={(e) => setPasswordForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
                                             placeholder="Confirm new password"
-                                            className="h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-['Manrope:Medium',sans-serif] text-[13px] bg-white"
+                                            className="h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-medium text-[0.8125rem] bg-white"
                                         />
                                     </div>
                                     <div>
@@ -1020,7 +1020,7 @@ export function ProfilePage() {
                                                 }
                                             }}
                                             loading={updatePasswordMutation.isPending}
-                                            className="bg-[#111111] h-10 px-6 rounded-lg font-['Manrope:SemiBold',sans-serif] w-full sm:w-auto"
+                                            className="bg-[#111111] h-10 px-6 rounded-lg font-semibold w-full sm:w-auto"
                                         >
                                             Update Password
                                         </Button>
@@ -1032,7 +1032,7 @@ export function ProfilePage() {
 
                             {/* Notification Preferences */}
                             <section className="mb-6">
-                                <h2 className="text-[16px] font-['Manrope:SemiBold',sans-serif] text-[#111111] mb-6">
+                                <h2 className="text-base font-semibold text-[#111111] mb-6">
                                     Notification Preferences
                                 </h2>
                                 <div className="space-y-6">
@@ -1043,10 +1043,10 @@ export function ProfilePage() {
                                                 <Bell className="w-5 h-5 text-[#ff3b3b]" />
                                             </div>
                                             <div>
-                                                <div className="text-[14px] font-['Manrope:SemiBold',sans-serif] text-[#111111] mb-1">
+                                                <div className="text-sm font-semibold text-[#111111] mb-1">
                                                     Email Notifications
                                                 </div>
-                                                <div className="text-[13px] font-['Manrope:Regular',sans-serif] text-[#666666]">
+                                                <div className="text-[0.8125rem] font-normal text-[#666666]">
                                                     Receive updates via email for important activities.
                                                 </div>
                                             </div>
@@ -1077,10 +1077,10 @@ export function ProfilePage() {
                                                 <Shield className="w-5 h-5 text-[#ff3b3b]" />
                                             </div>
                                             <div>
-                                                <div className="text-[14px] font-['Manrope:SemiBold',sans-serif] text-[#111111] mb-1">
+                                                <div className="text-sm font-semibold text-[#111111] mb-1">
                                                     Security Alerts
                                                 </div>
-                                                <div className="text-[13px] font-['Manrope:Regular',sans-serif] text-[#666666]">
+                                                <div className="text-[0.8125rem] font-normal text-[#666666]">
                                                     Get notified about new sign-ins and suspicious activity.
                                                 </div>
                                             </div>

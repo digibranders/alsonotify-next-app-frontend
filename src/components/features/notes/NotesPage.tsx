@@ -348,10 +348,10 @@ export function NotesPage() {
               <div className="w-16 h-16 bg-[#FFF4F4] rounded-full flex items-center justify-center mb-4">
                 <div className="text-[#ff3b3b]"><FileText className="size-8" /></div>
               </div>
-              <h3 className="text-[16px] font-['Manrope:SemiBold',sans-serif] text-[#111111] mb-1">
+              <h3 className="text-base font-semibold text-[#111111] mb-1">
                 {activeTab === 'archive' ? 'Archive is empty' : 'No notes found'}
               </h3>
-              <p className="text-[13px] font-['Manrope:Regular',sans-serif] text-[#666666]">
+              <p className="text-[0.8125rem] font-normal text-[#666666]">
                 {activeTab === 'archive' ? 'Archived notes will appear here' : 'Create your first note to get started'}
               </p>
             </div>
@@ -486,7 +486,7 @@ function NoteCard({ note, onArchive, onUnarchive, onDelete, onClick }: NoteCardP
         {/* Header with action buttons */}
         <div className="flex items-start justify-between mb-3 gap-2 flex-shrink-0">
           {/* Title */}
-          <h4 className="font-['Manrope:SemiBold',sans-serif] text-[16px] text-[#111111] flex-1 leading-tight">
+          <h4 className="font-semibold text-base text-[#111111] flex-1 leading-tight">
             {note.title}
           </h4>
 
@@ -532,7 +532,7 @@ function NoteCard({ note, onArchive, onUnarchive, onDelete, onClick }: NoteCardP
         <div className="flex-1 overflow-hidden min-h-0">
           {normalizeNoteType(note.type) === 'text' && note.content && (
             <div
-              className="font-['Inter:Regular',sans-serif] text-[13px] text-[#666666] line-clamp-[8] leading-relaxed prose prose-sm max-w-none [&>p]:mb-2 [&>p]:last:mb-0 h-full"
+              className="font-normal text-[0.8125rem] text-[#666666] line-clamp-[8] leading-relaxed prose prose-sm max-w-none [&>p]:mb-2 [&>p]:last:mb-0 h-full"
               dangerouslySetInnerHTML={{ __html: sanitizeRichText(note.content) }}
             />
           )}
@@ -557,7 +557,7 @@ function NoteCard({ note, onArchive, onUnarchive, onDelete, onClick }: NoteCardP
                         disabled
                         className="mt-0.5 custom-checkbox-wrapper"
                       />
-                      <span className="font-['Inter:Regular',sans-serif] text-[13px] flex-1 leading-tight text-[#666666]">
+                      <span className="font-normal text-[0.8125rem] flex-1 leading-tight text-[#666666]">
                         {itemText}
                       </span>
                     </div>
@@ -575,7 +575,7 @@ function NoteCard({ note, onArchive, onUnarchive, onDelete, onClick }: NoteCardP
 
                 return (
                   <div className="mt-2 pt-2 border-t border-[#EEEEEE] flex-shrink-0">
-                    <div className="text-[11px] font-['Manrope:Medium',sans-serif] text-[#999] mb-1 uppercase">
+                    <div className="text-[0.6875rem] font-medium text-[#999] mb-1 uppercase">
                       Completed ({completedItems.length})
                     </div>
                     {completedItems.slice(0, 2).map((item, index) => {
@@ -587,7 +587,7 @@ function NoteCard({ note, onArchive, onUnarchive, onDelete, onClick }: NoteCardP
                             disabled
                             className="mt-0.5 custom-checkbox-wrapper"
                           />
-                          <span className="font-['Inter:Regular',sans-serif] text-[13px] flex-1 leading-tight line-through text-[#999999]">
+                          <span className="font-normal text-[0.8125rem] flex-1 leading-tight line-through text-[#999999]">
                             {itemText}
                           </span>
                         </div>

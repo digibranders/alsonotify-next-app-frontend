@@ -236,7 +236,7 @@ export function NoteComposerModal({ open, onClose, onSave, initialNote }: Readon
       open={open}
       onCancel={handleClose}
       footer={null}
-      width={500}
+      width="min(500px, 95vw)"
       centered
       className="rounded-[16px] overflow-hidden"
       destroyOnHidden
@@ -267,11 +267,11 @@ export function NoteComposerModal({ open, onClose, onSave, initialNote }: Readon
             <div className="flex flex-col space-y-4">
               {/* Title Input */}
               <div>
-                <span className="text-[14px] font-['Manrope:Medium',sans-serif] text-[#666666] mb-2 block">Title</span>
+                <span className="text-sm font-medium text-[#666666] mb-2 block">Title</span>
                 <Input
                   ref={titleInputRef}
                   placeholder="Note title"
-                  className="rounded-lg font-['Manrope:Medium',sans-serif]"
+                  className="rounded-lg font-medium"
                   value={title}
                   onChange={(e) => {
                     setTitle(e.target.value);
@@ -285,7 +285,7 @@ export function NoteComposerModal({ open, onClose, onSave, initialNote }: Readon
                 <Button
                   type="text"
                   onClick={handleTypeToggle}
-                  className="text-[13px] font-['Manrope:Medium',sans-serif] text-[#666666] hover:text-[#111111] p-0 h-auto"
+                  className="text-[0.8125rem] font-medium text-[#666666] hover:text-[#111111] p-0 h-auto"
                 >
                   {noteType === 'TEXT_NOTE' ? (
                     <>
@@ -355,7 +355,7 @@ export function NoteComposerModal({ open, onClose, onSave, initialNote }: Readon
 
               {/* Color Picker */}
               <div>
-                <span className="text-[14px] font-['Manrope:Medium',sans-serif] text-[#666666] mb-2 block">Color</span>
+                <span className="text-sm font-medium text-[#666666] mb-2 block">Color</span>
                 <div className="flex gap-2 flex-wrap">
                   {NOTE_COLORS.map((c) => (
                     <button

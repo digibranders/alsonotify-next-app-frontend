@@ -109,11 +109,11 @@ export function DayView({ currentDate, events, isLoading, onTimeSlotClick }: Day
                     <div className="w-16 flex-shrink-0 border-r border-[#EEEEEE] bg-white"></div>
                     <div className="flex-1 px-4 py-2 bg-white flex justify-center border-l-0">
                         <div className="text-center">
-                            <div className={`text-[11px] font-['Manrope:SemiBold',sans-serif] mb-0.5 ${isToday ? 'text-[#ff3b3b]' : 'text-[#666666]'}`}>
+                            <div className={`text-[0.6875rem] font-semibold mb-0.5 ${isToday ? 'text-[#ff3b3b]' : 'text-[#666666]'}`}>
                                 {currentDate.format('dddd').toUpperCase()}
                             </div>
                             <div className={`flex items-center justify-center`}>
-                                <div className={`text-[20px] leading-none font-['Manrope:Bold',sans-serif] w-8 h-8 flex items-center justify-center rounded-full ${isToday ? 'bg-[#ff3b3b] text-white' : 'text-[#111111]'}`}>
+                                <div className={`text-xl leading-none font-bold w-8 h-8 flex items-center justify-center rounded-full ${isToday ? 'bg-[#ff3b3b] text-white' : 'text-[#111111]'}`}>
                                     {currentDate.format('D')}
                                 </div>
                             </div>
@@ -133,13 +133,13 @@ export function DayView({ currentDate, events, isLoading, onTimeSlotClick }: Day
                 {allDayEvents.length > 0 && (
                     <div className="border-b border-[#EEEEEE] flex">
                         <div className="w-16 flex-shrink-0 border-r border-[#EEEEEE] bg-white flex items-center justify-center">
-                            <span className="text-[10px] text-[#666666] font-['Manrope:Medium',sans-serif]">All day</span>
+                            <span className="text-[0.625rem] text-[#666666] font-medium">All day</span>
                         </div>
                         <div className="flex-1 p-2 space-y-1">
                             {allDayEvents.map(event => (
                                 <Popover key={event.id} content={<CalendarEventPopup event={event} />} trigger="click">
                                     <div
-                                        className="px-3 py-1.5 rounded-[6px] text-white text-[13px] font-['Manrope:Medium',sans-serif] cursor-pointer inline-block mr-2 mb-1"
+                                        className="px-3 py-1.5 rounded-[6px] text-white text-[0.8125rem] font-medium cursor-pointer inline-block mr-2 mb-1"
                                         style={{ backgroundColor: event.color }}
                                     >
                                         {event.title}
@@ -156,7 +156,7 @@ export function DayView({ currentDate, events, isLoading, onTimeSlotClick }: Day
                     <div className="w-16 flex-shrink-0 border-r border-[#EEEEEE] bg-white sticky left-0 z-30 select-none">
                         {hours.map(hour => (
                             <div key={hour} className="h-[60px] relative text-right pr-2">
-                                <span className="text-[11px] text-[#666666] font-['Manrope:Medium',sans-serif] -top-2 relative block transform -translate-y-1/2">
+                                <span className="text-[0.6875rem] text-[#666666] font-medium -top-2 relative block transform -translate-y-1/2">
                                     {hour === 0 ? '' : dayjs().hour(hour).format('h A')}
                                 </span>
                             </div>
@@ -167,7 +167,7 @@ export function DayView({ currentDate, events, isLoading, onTimeSlotClick }: Day
                             className="absolute right-0 w-full h-[2px] z-30 pointer-events-none flex items-center justify-end pr-1"
                             style={{ top: dayjs().hour() * 60 + dayjs().minute() }}
                         >
-                            <div className="text-[10px] font-['Manrope:Bold',sans-serif] text-white bg-[#ff3b3b] px-1.5 py-0.5 rounded-[4px] relative -top-[1px]">
+                            <div className="text-[0.625rem] font-bold text-white bg-[#ff3b3b] px-1.5 py-0.5 rounded-[4px] relative -top-[1px]">
                                 {dayjs().format('h:mm')}
                             </div>
                         </div>
@@ -221,16 +221,16 @@ export function DayView({ currentDate, events, isLoading, onTimeSlotClick }: Day
                                     >
                                         <div className="flex items-start justify-between">
                                             <div>
-                                                <div className="text-[14px] font-['Manrope:Bold',sans-serif] text-[#111111]">
+                                                <div className="text-sm font-bold text-[#111111]">
                                                     {event.title}
                                                 </div>
-                                                <div className="text-[13px] font-['Manrope:Regular',sans-serif] text-[#666666] mt-1">
+                                                <div className="text-[0.8125rem] font-normal text-[#666666] mt-1">
                                                     {event.time} {event.location ? ` | ${event.location}` : ''}
                                                 </div>
                                             </div>
                                         </div>
                                         {event.description && (
-                                            <div className="mt-2 text-[12px] text-[#666666] line-clamp-2">
+                                            <div className="mt-2 text-xs text-[#666666] line-clamp-2">
                                                 {event.description}
                                             </div>
                                         )}

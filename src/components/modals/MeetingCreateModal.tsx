@@ -148,7 +148,7 @@ export function MeetingCreateModal({
       open={open}
       onCancel={handleCancel}
       footer={null}
-      width={600}
+      width="min(600px, 95vw)"
       centered
       className="rounded-[16px] overflow-hidden"
       closeIcon={<X className="w-5 h-5 text-[#666666]" />}
@@ -173,19 +173,19 @@ export function MeetingCreateModal({
       >
         <div className="space-y-5">
           <div className="space-y-2">
-            <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">
+            <span className="text-[0.8125rem] font-bold text-[#111111]">
               <span className="text-[#ff3b3b]">*</span> Title
             </span>
             <Input
               placeholder="Event title"
-              className={`h-11 rounded-lg border border-[#EEEEEE] focus:border-[#EEEEEE] font-['Manrope:Medium',sans-serif] ${formData.title ? 'bg-white' : 'bg-[#F9FAFB]'}`}
+              className={`h-11 rounded-lg border border-[#EEEEEE] focus:border-[#EEEEEE] font-medium ${formData.title ? 'bg-white' : 'bg-[#F9FAFB]'}`}
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
             />
           </div>
 
           <div className="space-y-2">
-            <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">
+            <span className="text-[0.8125rem] font-bold text-[#111111]">
               <span className="text-[#ff3b3b]">*</span> Start Date & Time
             </span>
             <DatePicker
@@ -201,7 +201,7 @@ export function MeetingCreateModal({
           </div>
 
           <div className="space-y-2">
-            <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">
+            <span className="text-[0.8125rem] font-bold text-[#111111]">
               <span className="text-[#ff3b3b]">*</span> End Time
             </span>
             <div className="flex items-center gap-3">
@@ -219,7 +219,7 @@ export function MeetingCreateModal({
               </Select>
               <Input
                 placeholder="Custom time"
-                className={`flex-1 h-11 rounded-lg border border-[#EEEEEE] focus:border-[#EEEEEE] font-['Manrope:Medium',sans-serif] ${formData.customTime ? 'bg-white' : 'bg-[#F9FAFB]'}`}
+                className={`flex-1 h-11 rounded-lg border border-[#EEEEEE] focus:border-[#EEEEEE] font-medium ${formData.customTime ? 'bg-white' : 'bg-[#F9FAFB]'}`}
                 value={formData.customTime}
                 onChange={(e) => setFormData({ ...formData, customTime: e.target.value })}
                 suffix={<Clock className="w-4 h-4 text-[#666666]" />}
@@ -247,12 +247,12 @@ export function MeetingCreateModal({
           />
 
           <div className="space-y-2">
-            <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">
+            <span className="text-[0.8125rem] font-bold text-[#111111]">
               Description
             </span>
             <TextArea
               placeholder="Agenda, notes, etc."
-              className={`min-h-[120px] rounded-lg border border-[#EEEEEE] focus:border-[#EEEEEE] font-['Manrope:Medium',sans-serif] resize-none ${formData.description ? 'bg-white' : 'bg-[#F9FAFB]'}`}
+              className={`min-h-[120px] rounded-lg border border-[#EEEEEE] focus:border-[#EEEEEE] font-medium resize-none ${formData.description ? 'bg-white' : 'bg-[#F9FAFB]'}`}
               rows={4}
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -373,7 +373,7 @@ function AttendeesField({
 
   return (
     <div className="relative space-y-2">
-      <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">
+      <span className="text-[0.8125rem] font-bold text-[#111111]">
         Attendees
       </span>
 
@@ -382,7 +382,7 @@ function AttendeesField({
           {attendees.map((attendee, idx) => (
             <span
               key={idx}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white border border-[#EEEEEE] rounded-full text-[13px] text-[#111111] font-['Manrope:Medium',sans-serif] hover:border-[#ff3b3b]/30 transition-colors"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white border border-[#EEEEEE] rounded-full text-[0.8125rem] text-[#111111] font-medium hover:border-[#ff3b3b]/30 transition-colors"
             >
               <span>{attendee.name || attendee.email}</span>
               <button
@@ -400,7 +400,7 @@ function AttendeesField({
       <div className="relative">
         <Input
           placeholder="Type email address and press Enter"
-          className={`h-11 rounded-lg border border-[#EEEEEE] focus:border-[#EEEEEE] font-['Manrope:Medium',sans-serif] ${inputValue ? 'bg-white' : 'bg-[#F9FAFB]'}`}
+          className={`h-11 rounded-lg border border-[#EEEEEE] focus:border-[#EEEEEE] font-medium ${inputValue ? 'bg-white' : 'bg-[#F9FAFB]'}`}
           value={inputValue}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
@@ -430,11 +430,11 @@ function AttendeesField({
               >
                 <div className="flex items-center gap-2">
                   <div className="flex-1">
-                    <div className="text-[13px] font-['Manrope:Medium',sans-serif] text-[#111111]">
+                    <div className="text-[0.8125rem] font-medium text-[#111111]">
                       {suggestion.name || suggestion.email}
                     </div>
                     {suggestion.name && suggestion.email && (
-                      <div className="text-[11px] font-['Manrope:Regular',sans-serif] text-[#666666]">
+                      <div className="text-[0.6875rem] font-normal text-[#666666]">
                         {suggestion.email}
                       </div>
                     )}

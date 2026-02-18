@@ -61,9 +61,9 @@ export function KanbanBoardTab({ tasks, revisions }: KanbanBoardTabProps) {
               <div className="flex items-center justify-between mb-4">
                 <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${style.bg} w-fit`}>
                   <div className={`w-2 h-2 rounded-full ${style.dotBg}`} />
-                  <span className={`text-[12px] font-['Manrope:Bold',sans-serif] ${style.color}`}>{style.label}</span>
+                  <span className={`text-xs font-bold ${style.color}`}>{style.label}</span>
                 </div>
-                <span className="text-[12px] font-['Inter:SemiBold',sans-serif] text-[#999999]">{columnTasks.length}</span>
+                <span className="text-xs font-semibold text-[#999999]">{columnTasks.length}</span>
               </div>
 
               {/* Column Content */}
@@ -80,25 +80,25 @@ export function KanbanBoardTab({ tasks, revisions }: KanbanBoardTabProps) {
                       >
                         {/* Task ID Badge */}
                         <div className="flex items-center justify-between mb-2">
-                          <span className={`text-[10px] px-1.5 py-0.5 rounded font-mono ${isRevision ? 'bg-[#FFF5F5] text-[#ff3b3b]' : 'bg-[#F7F7F7] text-[#999999]'
+                          <span className={`text-[0.625rem] px-1.5 py-0.5 rounded font-mono ${isRevision ? 'bg-[#FFF5F5] text-[#ff3b3b]' : 'bg-[#F7F7F7] text-[#999999]'
                             }`}>
                             #{task.id}
                           </span>
                           {task.is_high_priority && (
-                            <span className="text-[9px] font-['Manrope:Bold',sans-serif] text-[#ff3b3b] uppercase">
+                            <span className="text-[0.5625rem] font-bold text-[#ff3b3b] uppercase">
                               High Priority
                             </span>
                           )}
                         </div>
 
                         {/* Task Title */}
-                        <h4 className="text-[13px] font-['Manrope:SemiBold',sans-serif] text-[#111111] mb-3 line-clamp-2">
+                        <h4 className="text-[0.8125rem] font-semibold text-[#111111] mb-3 line-clamp-2">
                           {task.name}
                         </h4>
 
                         {/* Due Date */}
                         {task.end_date && (
-                          <div className="flex items-center gap-1.5 mb-3 text-[11px] text-[#666666]">
+                          <div className="flex items-center gap-1.5 mb-3 text-[0.6875rem] text-[#666666]">
                             <Clock className="w-3 h-3" />
                             <span>Due {format(new Date(task.end_date), 'MMM d')}</span>
                           </div>
@@ -107,11 +107,11 @@ export function KanbanBoardTab({ tasks, revisions }: KanbanBoardTabProps) {
                         {/* Assignee */}
                         <div className="flex items-center gap-2 pt-2 border-t border-[#EEEEEE]">
                           <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#ff3b3b] to-[#ff6b6b] flex items-center justify-center shadow-sm">
-                            <span className="text-[9px] text-white font-['Manrope:Bold',sans-serif]">
+                            <span className="text-[0.5625rem] text-white font-bold">
                               {assignee.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
                             </span>
                           </div>
-                          <span className="text-[11px] text-[#666666] font-['Inter:Medium',sans-serif] truncate">
+                          <span className="text-[0.6875rem] text-[#666666] font-medium truncate">
                             {assignee.name}
                           </span>
                         </div>
@@ -120,7 +120,7 @@ export function KanbanBoardTab({ tasks, revisions }: KanbanBoardTabProps) {
                   })
                 ) : (
                   <div className="flex items-center justify-center h-24 border-2 border-dashed border-[#DDDDDD] rounded-[12px]">
-                    <p className="text-[12px] text-[#999999] font-['Inter:Regular',sans-serif]">No tasks</p>
+                    <p className="text-xs text-[#999999] font-normal">No tasks</p>
                   </div>
                 )}
               </div>

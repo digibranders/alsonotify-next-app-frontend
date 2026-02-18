@@ -13,6 +13,7 @@ export function AntDesignProvider({ children }: { children: ReactNode }) {
             // Preserve Tailwind CSS color tokens
             colorPrimary: "var(--primary)",
             borderRadius: 8,
+            fontFamily: "var(--font-manrope), sans-serif",
           },
         }}
       >

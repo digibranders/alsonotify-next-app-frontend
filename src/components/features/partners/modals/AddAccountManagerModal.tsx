@@ -86,7 +86,7 @@ export function AddAccountManagerModal({
             open={isOpen}
             onCancel={onClose}
             title="Add Account Manager"
-            width={600}
+            width="min(600px, 95vw)"
             footer={[
                 <button
                     key="cancel"
@@ -153,7 +153,7 @@ export function AddAccountManagerModal({
                                                 className="w-full h-full object-cover"
                                             />
                                         ) : (
-                                            <span className="text-[12px] font-bold text-[#999999]">
+                                            <span className="text-xs font-bold text-[#999999]">
                                                 {getInitials(employee.name || '')}
                                             </span>
                                         )}
@@ -162,16 +162,16 @@ export function AddAccountManagerModal({
                                     {/* Info */}
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-2 mb-0.5">
-                                            <h4 className="text-[13px] font-['Manrope:SemiBold',sans-serif] text-[#111111] truncate">
+                                            <h4 className="text-[0.8125rem] font-semibold text-[#111111] truncate">
                                                 {employee.name}
                                             </h4>
                                             {employee.roleName && (
-                                                <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase bg-[#F5F5F5] text-[#666666]">
+                                                <span className="px-2 py-0.5 rounded-full text-[0.5625rem] font-bold uppercase bg-[#F5F5F5] text-[#666666]">
                                                     {employee.roleName}
                                                 </span>
                                             )}
                                         </div>
-                                        <div className="flex items-center gap-2 text-[11px] text-[#666666]">
+                                        <div className="flex items-center gap-2 text-[0.6875rem] text-[#666666]">
                                             {employee.designation && (
                                                 <span className="truncate">{employee.designation}</span>
                                             )}
@@ -191,7 +191,7 @@ export function AddAccountManagerModal({
 
                 {selectedEmployeeIds.length > 0 && (
                     <div className="pt-3 border-t border-[#EEEEEE]">
-                        <p className="text-[12px] text-[#666666]">
+                        <p className="text-xs text-[#666666]">
                             {selectedEmployeeIds.length} employee{selectedEmployeeIds.length !== 1 ? 's' : ''} selected
                         </p>
                     </div>

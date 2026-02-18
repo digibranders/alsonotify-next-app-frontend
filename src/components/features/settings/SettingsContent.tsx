@@ -359,11 +359,11 @@ export function SettingsContent({
         (activeTab === 'working-hours' && canEditWorkingHours);
 
     return (
-        <div className="w-full h-full bg-white rounded-[24px] border border-[#EEEEEE] p-8 flex flex-col overflow-hidden relative font-['Manrope',sans-serif]">
+        <div className="w-full h-full bg-white rounded-[24px] border border-[#EEEEEE] p-8 flex flex-col overflow-hidden relative">
             {/* Header */}
             <div className="flex-none mb-6">
                 <div className="flex items-center justify-between mb-6">
-                    <h1 className="text-[20px] font-['Manrope:SemiBold',sans-serif] text-[#111111]">
+                    <h1 className="text-xl font-semibold text-[#111111]">
                         {isIndividual ? 'Settings' : 'Company Settings'}
                     </h1>
                     {isEditableTab && hasEditPermission && (
@@ -387,7 +387,7 @@ export function SettingsContent({
                             <button
                                 key={tab}
                                 onClick={() => handleTabChange(tab)}
-                                className={`pb-3 px-1 relative font-['Manrope:SemiBold',sans-serif] text-[14px] transition-colors whitespace-nowrap ${activeTab === tab ? 'text-[#ff3b3b]' : 'text-[#666666] hover:text-[#111111]'}`}
+                                className={`pb-3 px-1 relative font-semibold text-sm transition-colors whitespace-nowrap ${activeTab === tab ? 'text-[#ff3b3b]' : 'text-[#666666] hover:text-[#111111]'}`}
                             >
                                 {tab.charAt(0).toUpperCase() + tab.slice(1).replace('-', ' ')}
                                 <div className={`absolute bottom-0 left-0 right-0 h-[2px] bg-[#ff3b3b] transition-opacity duration-150 ${activeTab === tab ? 'opacity-100' : 'opacity-0'}`} />

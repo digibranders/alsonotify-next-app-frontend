@@ -6,7 +6,6 @@ export const navPermissionMap: Record<string, string> = {
     workspace: 'NAV_WORKSPACE',
     tasks: 'NAV_TASKS',
     reports: 'NAV_REPORTS',
-    workload: 'NAV_WORKLOAD',
     calendar: 'NAV_CALENDAR',
     leaves: 'NAV_LEAVES',
     invoices: 'NAV_INVOICES',

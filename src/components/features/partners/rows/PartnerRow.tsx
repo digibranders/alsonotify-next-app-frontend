@@ -59,17 +59,17 @@ export function PartnerRow({
                 {/* Business / Name */}
                 <div className="flex items-center gap-3">
                     <div className={`
-             w-9 h-9 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0
+             w-9 h-9 rounded-full flex items-center justify-center text-[0.6875rem] font-bold shrink-0
              ${isOrg ? 'bg-[#FEF2F2] text-[#DC2626]' : 'bg-[#EFF6FF] text-[#2563EB]'}
            `}>
                         {getInitials(partner.company)}
                     </div>
                     <div className="flex flex-col">
-                        <span className="font-['Manrope:Bold',sans-serif] text-[14px] text-[#111111] group-hover:text-[#ff3b3b] transition-colors">
+                        <span className="font-bold text-sm text-[#111111] group-hover:text-[#ff3b3b] transition-colors">
                             {partner.company}
                         </span>
                         {isOrg && (
-                            <span className="text-[11px] text-[#999999] font-['Manrope:Regular',sans-serif]">
+                            <span className="text-[0.6875rem] text-[#999999] font-normal">
                                 Organization
                             </span>
                         )}
@@ -78,7 +78,7 @@ export function PartnerRow({
 
                 {/* Contact Person */}
                 <div>
-                    <span className="font-['Manrope:Medium',sans-serif] text-[13px] text-[#111111]">
+                    <span className="font-medium text-[0.8125rem] text-[#111111]">
                         {partner.name}
                     </span>
                 </div>
@@ -86,7 +86,7 @@ export function PartnerRow({
                 {/* Type */}
                 <div>
                     <span className={`
-             inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold capitalize
+             inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[0.6875rem] font-bold capitalize
              ${!isOrg ? 'bg-[#EFF6FF] text-[#2563EB]' : 'bg-[#FEF2F2] text-[#DC2626]'}
            `}>
                         {isOrg ? <Building className="w-3 h-3" /> : <User className="w-3 h-3" />}
@@ -97,14 +97,14 @@ export function PartnerRow({
                 {/* Email */}
                 <div onClick={(e) => e.stopPropagation()} className="flex items-center gap-2 text-[#666666] overflow-hidden">
                     <Mail className="w-3.5 h-3.5 shrink-0" />
-                    <span className="text-[13px] font-['Manrope:Medium',sans-serif] truncate block text-[#111111]">
+                    <span className="text-[0.8125rem] font-medium truncate block text-[#111111]">
                         {partner.email}
                     </span>
                 </div>
 
                 {/* Onboarding */}
                 <div>
-                    <span className="text-[13px] text-[#111111] font-['Inter:Medium',sans-serif]">
+                    <span className="text-[0.8125rem] text-[#111111] font-medium">
                         {partner.onboarding}
                     </span>
                 </div>
@@ -125,7 +125,7 @@ export function PartnerRow({
                 {/* Country */}
                 <div className="flex items-center gap-2 text-[#666666]">
                     <Globe className="w-3.5 h-3.5 shrink-0" />
-                    <span className="text-[13px] font-['Inter:Medium',sans-serif]">
+                    <span className="text-[0.8125rem] font-medium">
                         {(() => {
                             if (!partner.country) return 'N/A';
                             try {
@@ -147,7 +147,7 @@ export function PartnerRow({
                                     label: 'View Details',
                                     icon: <EyeOutlined className="w-3.5 h-3.5" />,
                                     onClick: onEdit,
-                                    className: "text-[13px] font-['Manrope:Medium',sans-serif]"
+                                    className: "text-[0.8125rem] font-medium"
                                 },
                                 ...(partner.status !== 'pending' ? [{
                                     key: 'status',
@@ -155,13 +155,13 @@ export function PartnerRow({
                                     icon: partner.status === 'active' ? <Trash2 className="w-3.5 h-3.5" /> : <Globe className="w-3.5 h-3.5" />,
                                     onClick: () => onStatusUpdate(partner.status === 'active' ? 'inactive' : 'active'),
                                     danger: partner.status === 'active',
-                                    className: "text-[13px] font-['Manrope:Medium',sans-serif]"
+                                    className: "text-[0.8125rem] font-medium"
                                 }] : [{
                                     key: 'pending',
                                     label: 'Invitation Pending',
                                     icon: <Globe className="w-3.5 h-3.5" />,
                                     disabled: true,
-                                    className: "text-[13px] font-['Manrope:Medium',sans-serif]"
+                                    className: "text-[0.8125rem] font-medium"
                                 }])
                             ] as MenuProps['items']
                         }}

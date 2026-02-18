@@ -199,13 +199,13 @@ export function RequirementHeader({
         <div className="flex items-center gap-2">
           {workspace ? (
             <Breadcrumb
-              separator={<span className="text-[20px] font-['Manrope:SemiBold',sans-serif] text-[#999999]">/</span>}
+              separator={<span className="text-xl font-semibold text-[#999999]">/</span>}
               items={[
                 {
                   title: (
                     <span
                       onClick={() => router.push(`/dashboard/workspace/${workspace.id}/requirements`)}
-                      className="cursor-pointer font-['Manrope:SemiBold',sans-serif] text-[20px] text-[#999999] hover:text-[#666666] transition-colors"
+                      className="cursor-pointer font-semibold text-xl text-[#999999] hover:text-[#666666] transition-colors"
                     >
                       {workspace.name}
                     </span>
@@ -213,7 +213,7 @@ export function RequirementHeader({
                 },
                 {
                   title: (
-                    <span className="font-['Manrope:SemiBold',sans-serif] text-[20px] text-[#111111] line-clamp-1 max-w-[300px]">
+                    <span className="font-semibold text-xl text-[#111111] line-clamp-1 max-w-[300px]">
                       {requirement.title || requirement.name || 'Untitled Requirement'}
                     </span>
                   ),
@@ -231,7 +231,7 @@ export function RequirementHeader({
             {ctaConfig?.secondaryAction && (
               <Button
                 size="middle"
-                className={`rounded-full px-5 font-['Manrope:SemiBold',sans-serif] ${ctaConfig.secondaryAction.type === 'danger' ? 'text-[#ff3b3b] border-[#ff3b3b]' : ''
+                className={`rounded-full px-5 font-semibold ${ctaConfig.secondaryAction.type === 'danger' ? 'text-[#ff3b3b] border-[#ff3b3b]' : ''
                   }`}
                 onClick={() => handleAction(ctaConfig.secondaryAction)}
               >
@@ -247,7 +247,7 @@ export function RequirementHeader({
                   type="primary"
                   size="middle"
                   disabled={submitApprovalDisabled}
-                  className="bg-[#111111] hover:!bg-[#333333] border-none rounded-full px-6 font-['Manrope:SemiBold',sans-serif] flex items-center gap-2 disabled:opacity-50"
+                  className="bg-[#111111] hover:!bg-[#333333] border-none rounded-full px-6 font-semibold flex items-center gap-2 disabled:opacity-50"
                   onClick={() => handleAction(ctaConfig.primaryAction)}
                 >
                   {ctaConfig.primaryAction.label}
@@ -259,7 +259,7 @@ export function RequirementHeader({
 
           <StatusBadge status={requirementStatus} showLabel />
           {requirement.is_high_priority && (
-            <span className="px-3 py-1.5 rounded-full text-[11px] font-['Manrope:SemiBold',sans-serif] uppercase tracking-wide bg-[#FFF5F5] text-[#ff3b3b]">
+            <span className="px-3 py-1.5 rounded-full text-[0.6875rem] font-semibold uppercase tracking-wide bg-[#FFF5F5] text-[#ff3b3b]">
               HIGH PRIORITY
             </span>
           )}
@@ -268,7 +268,7 @@ export function RequirementHeader({
               const name = typeof person === 'string' ? person : person?.name || 'U';
               return (
                 <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-gradient-to-br from-[#ff3b3b] to-[#ff6b6b] flex items-center justify-center shadow-sm" title={name}>
-                  <span className="text-[10px] text-white font-['Manrope:Bold',sans-serif]">
+                  <span className="text-[0.625rem] text-white font-bold">
                     {name.split(' ').map((n: string) => n[0]).join('').toUpperCase()}
                   </span>
                 </div>

@@ -79,12 +79,12 @@ export function TodoWidget({ onNavigate }: { onNavigate?: (page: string) => void
         {/* Header */}
         <div className="flex items-center justify-between mb-1.5">
           <div className="flex items-center gap-2">
-            <h3 className="font-['Manrope:SemiBold',sans-serif] text-[20px] text-[#111111]">Notes</h3>
+            <h3 className="font-semibold text-xl text-[#111111]">Notes</h3>
             <button onClick={() => setShowDialog(true)} className="hover:scale-110 active:scale-95 transition-transform">
               <Plus className="size-5 text-[#ff3b3b]" strokeWidth={2} />
             </button>
           </div>
-          <button className="flex items-center gap-1 text-[#666666] text-[14px] font-['Manrope:SemiBold',sans-serif] hover:text-[#111111] transition-colors" onClick={() => onNavigate && onNavigate('notes')}>
+          <button className="flex items-center gap-1 text-[#666666] text-sm font-semibold hover:text-[#111111] transition-colors" onClick={() => onNavigate && onNavigate('notes')}>
             <span>View All</span>
             <svg className="size-[17px]" fill="none" viewBox="0 0 17 17">
               <path d={svgPaths.p3ac7a560} stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
@@ -102,22 +102,22 @@ export function TodoWidget({ onNavigate }: { onNavigate?: (page: string) => void
 
       {/* Add Note Modal */}
       <Modal
-        title={<div className="font-['Manrope:Bold',sans-serif] text-[24px]">Add Note</div>}
+        title={<div className="font-bold text-2xl">Add Note</div>}
         open={showDialog}
         onCancel={() => setShowDialog(false)}
         footer={null}
-        width={500}
+        width="min(500px, 95vw)"
         centered
         className="rounded-[16px] overflow-hidden"
       >
-        <div className="font-['Inter:Regular',sans-serif] text-[14px] text-[#666666] mb-4">Create a new sticky note for quick reminders and tasks.</div>
+        <div className="font-normal text-sm text-[#666666] mb-4">Create a new sticky note for quick reminders and tasks.</div>
         <div className="space-y-4">
           <div>
-            <label className="text-[14px] font-['Inter:Medium',sans-serif] text-[#666666] mb-2 block">Title</label>
+            <label className="text-sm font-medium text-[#666666] mb-2 block">Title</label>
             <Input placeholder="Note title" className="rounded-lg h-9" />
           </div>
           <div>
-            <label className="text-[14px] font-['Inter:Medium',sans-serif] text-[#666666] mb-2 flex items-center justify-between">
+            <label className="text-sm font-medium text-[#666666] mb-2 flex items-center justify-between">
               <span>Content</span>
               <div className="flex gap-1">
                 <button className="p-1 hover:bg-[#F7F7F7] rounded transition-colors" title="Bold">
@@ -137,7 +137,7 @@ export function TodoWidget({ onNavigate }: { onNavigate?: (page: string) => void
             <TextArea placeholder="Note content..." className="rounded-lg min-h-[120px]" />
           </div>
           <div>
-            <label className="text-[14px] font-['Inter:Medium',sans-serif] text-[#666666] mb-2 block">Color</label>
+            <label className="text-sm font-medium text-[#666666] mb-2 block">Color</label>
             <div className="flex gap-2">
               {['#ff3b3b', '#3b8eff', '#9b59b6', '#FFA500', '#2ecc71', '#e74c3c'].map((color) => (
                 <button
@@ -149,10 +149,10 @@ export function TodoWidget({ onNavigate }: { onNavigate?: (page: string) => void
             </div>
           </div>
           <div className="flex gap-3 pt-4">
-            <Button onClick={() => setShowDialog(false)} className="flex-1 rounded-full h-10 font-['Manrope:SemiBold',sans-serif]">
+            <Button onClick={() => setShowDialog(false)} className="flex-1 rounded-full h-10 font-semibold">
               Cancel
             </Button>
-            <Button type="primary" onClick={() => setShowDialog(false)} className="flex-1 rounded-full bg-[#ff3b3b] hover:bg-[#cc2f2f] h-10 font-['Manrope:SemiBold',sans-serif] border-none text-white">
+            <Button type="primary" onClick={() => setShowDialog(false)} className="flex-1 rounded-full bg-[#ff3b3b] hover:bg-[#cc2f2f] h-10 font-semibold border-none text-white">
               Add Note
             </Button>
           </div>
@@ -177,12 +177,12 @@ function NoteCard({ note, onToggleItem }: {
   const items: MenuProps['items'] = [
     {
       key: 'archive',
-      label: <span className="text-[13px] font-['Inter:Medium',sans-serif]">Archive</span>,
+      label: <span className="text-[0.8125rem] font-medium">Archive</span>,
       icon: <Archive className="size-3.5" />,
     },
     {
       key: 'delete',
-      label: <span className="text-[13px] font-['Inter:Medium',sans-serif] text-[#ff3b3b]">Delete</span>,
+      label: <span className="text-[0.8125rem] font-medium text-[#ff3b3b]">Delete</span>,
       icon: <Trash2 className="size-3.5 text-[#ff3b3b]" />,
       danger: true,
     },
@@ -195,7 +195,7 @@ function NoteCard({ note, onToggleItem }: {
         {/* Header with action buttons */}
         <div className="flex items-start justify-between mb-2 gap-2">
           {/* Title */}
-          <h4 className="font-['Manrope:SemiBold',sans-serif] text-[14px] text-[#111111] flex-1 group-hover:text-[#ff3b3b] transition-colors">
+          <h4 className="font-semibold text-sm text-[#111111] flex-1 group-hover:text-[#ff3b3b] transition-colors">
             {note.title}
           </h4>
 
@@ -212,7 +212,7 @@ function NoteCard({ note, onToggleItem }: {
 
         {/* Content */}
         {note.type === 'text' && note.content && (
-          <p className="font-['Inter:Regular',sans-serif] text-[12px] text-[#666666] line-clamp-4 whitespace-pre-line">
+          <p className="font-normal text-xs text-[#666666] line-clamp-4 whitespace-pre-line">
             {note.content}
           </p>
         )}
@@ -226,13 +226,13 @@ function NoteCard({ note, onToggleItem }: {
                   onChange={() => onToggleItem(note.id, index)}
                   className="custom-checkbox-wrapper"
                 />
-                <span className={`font-['Inter:Regular',sans-serif] text-[11px] flex-1 leading-tight ${item.checked ? 'line-through text-[#999999]' : 'text-[#666666]'}`}>
+                <span className={`font-normal text-[0.6875rem] flex-1 leading-tight ${item.checked ? 'line-through text-[#999999]' : 'text-[#666666]'}`}>
                   {item.text}
                 </span>
               </div>
             ))}
             {note.items.length > 3 && (
-              <span className="font-['Inter:Regular',sans-serif] text-[10px] text-[#999999]">
+              <span className="font-normal text-[0.625rem] text-[#999999]">
                 +{note.items.length - 3} more
               </span>
             )}

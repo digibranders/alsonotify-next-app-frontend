@@ -106,7 +106,7 @@ function EmailComposeForm({
     >
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-2.5 bg-blue-50 border-b border-[#f0f0f0] shrink-0">
-        <span className="font-['Manrope:Bold'] text-[14px] text-[#111]">New Message</span>
+        <span className="font-bold text-sm text-[#111]">New Message</span>
         <div className="flex items-center gap-1">
           <button className="p-1 hover:bg-black/5 rounded text-[#555]" onClick={toggleMaximize}>
             {isMaximized ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
@@ -121,7 +121,7 @@ function EmailComposeForm({
       <div className="flex-col shrink-0">
         {/* To */}
         <div className="flex items-start px-2 py-1 border-b border-[#f0f0f0] group focus-within:ring-1 focus-within:ring-blue-100 z-10 relative">
-          <span className="text-[14px] text-[#555] pt-1.5 pl-2 w-[40px] shrink-0">To</span>
+          <span className="text-sm text-[#555] pt-1.5 pl-2 w-[40px] shrink-0">To</span>
           <div className="flex-1 min-w-0">
             <EmailInput
               value={to}
@@ -131,15 +131,15 @@ function EmailComposeForm({
             />
           </div>
           <div className="pt-1.5 pr-2 flex items-center gap-2">
-            {!showCc && <span role="button" onClick={() => setShowCc(true)} className="text-[13px] text-[#555] hover:underline cursor-pointer">Cc</span>}
-            {!showBcc && <span role="button" onClick={() => setShowBcc(true)} className="text-[13px] text-[#555] hover:underline cursor-pointer">Bcc</span>}
+            {!showCc && <span role="button" onClick={() => setShowCc(true)} className="text-[0.8125rem] text-[#555] hover:underline cursor-pointer">Cc</span>}
+            {!showBcc && <span role="button" onClick={() => setShowBcc(true)} className="text-[0.8125rem] text-[#555] hover:underline cursor-pointer">Bcc</span>}
           </div>
         </div>
 
         {/* Cc */}
         {showCc && (
           <div className="flex items-center px-2 py-1 border-b border-[#f0f0f0]">
-            <span className="text-[14px] text-[#555] pl-2 w-[40px] shrink-0">Cc</span>
+            <span className="text-sm text-[#555] pl-2 w-[40px] shrink-0">Cc</span>
             <EmailInput
               value={cc}
               onChange={setCc}
@@ -151,7 +151,7 @@ function EmailComposeForm({
         {/* Bcc */}
         {showBcc && (
           <div className="flex items-center px-2 py-1 border-b border-[#f0f0f0]">
-            <span className="text-[14px] text-[#555] pl-2 w-[40px] shrink-0">Bcc</span>
+            <span className="text-sm text-[#555] pl-2 w-[40px] shrink-0">Bcc</span>
             <EmailInput
               value={bcc}
               onChange={setBcc}
@@ -167,7 +167,7 @@ function EmailComposeForm({
             onChange={e => setSubject(e.target.value)}
             placeholder="Subject"
             variant="borderless"
-            className="px-4 py-2.5 text-[14px] !border-0 !shadow-none !bg-transparent hover:!bg-transparent focus:!bg-transparent"
+            className="px-4 py-2.5 text-sm !border-0 !shadow-none !bg-transparent hover:!bg-transparent focus:!bg-transparent"
           />
         </div>
       </div>
@@ -190,10 +190,10 @@ function EmailComposeForm({
       {files.length > 0 && (
         <div className="shrink-0 px-4 py-2 border-t border-[#f0f0f0] bg-gray-50 flex flex-wrap gap-2 max-h-[100px] overflow-auto">
           {files.map((file, i) => (
-            <div key={i} className="flex items-center gap-2 bg-white border border-gray-200 rounded px-2 py-1 text-[12px] shadow-sm">
+            <div key={i} className="flex items-center gap-2 bg-white border border-gray-200 rounded px-2 py-1 text-xs shadow-sm">
               <Paperclip size={12} className="text-gray-400" />
               <span className="truncate max-w-[150px] text-[#333]">{file.name}</span>
-              <span className="text-gray-400 text-[10px]">{formatBytes(file.size)}</span>
+              <span className="text-gray-400 text-[0.625rem]">{formatBytes(file.size)}</span>
               <button
                 onClick={() => removeFile(i)}
                 className="text-gray-400 hover:text-red-500 transition-colors ml-1"

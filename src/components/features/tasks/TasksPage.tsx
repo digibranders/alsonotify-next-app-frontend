@@ -500,7 +500,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
   }, [requirementsDropdown]);
 
   const filterOptions: FilterOption[] = [
-    { id: 'user', label: 'User', options: users, defaultValue: 'All' },
+    { id: 'user', label: 'User', options: users, defaultValue: 'All', multiSelect: true },
     { id: 'company', label: 'Company', options: companies, placeholder: 'Company' },
     { id: 'workspace', label: 'Workspace', options: workspaces, placeholder: 'Workspace' },
     { id: 'requirement', label: 'Requirement', options: requirementsList, placeholder: 'Requirement' },
@@ -825,10 +825,10 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
       setExpandedContent(
         <>
           <div className="flex items-center gap-2 border-r border-white/20 pr-6">
-            <div className="bg-[#ff3b3b] text-white text-[12px] font-bold px-2 py-0.5 rounded-full">
+            <div className="bg-[#ff3b3b] text-white text-xs font-bold px-2 py-0.5 rounded-full">
               {selectedTasks.length}
             </div>
-            <span className="text-[14px] font-['Manrope:SemiBold',sans-serif]">Selected</span>
+            <span className="text-sm font-semibold">Selected</span>
           </div>
 
           <div className="flex items-center gap-2">
@@ -857,7 +857,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
             </Tooltip>
           </div>
 
-          <button onClick={() => setSelectedTasks([])} className="ml-2 text-[12px] text-[#999999] hover:text-white transition-colors">
+          <button onClick={() => setSelectedTasks([])} className="ml-2 text-xs text-[#999999] hover:text-white transition-colors">
             Cancel
           </button>
         </>
@@ -915,7 +915,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
           setEditingTask(null);
         }}
         footer={null}
-        width={600}
+        width="min(600px, 95vw)"
         centered
         className="rounded-[16px] overflow-hidden"
         styles={{
@@ -944,6 +944,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
             description: editingTask.description || '',
           } : undefined}
           isEditing={!!editingTask}
+          canEditDueDate={isAdmin || ['coordinator'].includes(userRole?.toLowerCase() ?? '')}
           onSubmit={(data) => {
             if (editingTask) {
               // Update task
@@ -995,7 +996,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
           onCancel={handleCancelTimerWarning}
           footer={null}
           closable={false}
-          width={560}
+          width="min(560px, 95vw)"
           centered
           className="rounded-[16px] overflow-hidden"
         >
@@ -1042,7 +1043,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
             className="flex items-center gap-1 group outline-none cursor-pointer"
             onClick={() => handleSort('name')}
           >
-            <span className={`text-[11px] font-['Manrope:Bold',sans-serif] uppercase tracking-wide transition-colors ${sortColumn === 'name' ? 'text-[#111111]' : 'text-[#999999] group-hover:text-[#666666]'}`}>
+            <span className={`text-[0.6875rem] font-bold uppercase tracking-wide transition-colors ${sortColumn === 'name' ? 'text-[#111111]' : 'text-[#999999] group-hover:text-[#666666]'}`}>
               Task
             </span>
             {getSortIcon('name')}
@@ -1052,7 +1053,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
             className="flex items-center gap-1 group outline-none cursor-pointer"
             onClick={() => handleSort('project')}
           >
-            <span className={`text-[11px] font-['Manrope:Bold',sans-serif] uppercase tracking-wide transition-colors ${sortColumn === 'project' ? 'text-[#111111]' : 'text-[#999999] group-hover:text-[#666666]'}`}>
+            <span className={`text-[0.6875rem] font-bold uppercase tracking-wide transition-colors ${sortColumn === 'project' ? 'text-[#111111]' : 'text-[#999999] group-hover:text-[#666666]'}`}>
               Requirements
             </span>
             {getSortIcon('project')}
@@ -1062,7 +1063,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
             className="flex items-center gap-1 group outline-none cursor-pointer"
             onClick={() => handleSort('timeline')}
           >
-            <span className={`text-[11px] font-['Manrope:Bold',sans-serif] uppercase tracking-wide transition-colors ${sortColumn === 'timeline' ? 'text-[#111111]' : 'text-[#999999] group-hover:text-[#666666]'}`}>
+            <span className={`text-[0.6875rem] font-bold uppercase tracking-wide transition-colors ${sortColumn === 'timeline' ? 'text-[#111111]' : 'text-[#999999] group-hover:text-[#666666]'}`}>
               Due Date
             </span>
             {getSortIcon('timeline')}
@@ -1072,7 +1073,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
             className="flex items-center gap-1 group outline-none cursor-pointer"
             onClick={() => handleSort('assignedTo')}
           >
-            <span className={`text-[11px] font-['Manrope:Bold',sans-serif] uppercase tracking-wide transition-colors ${sortColumn === 'assignedTo' ? 'text-[#111111]' : 'text-[#999999] group-hover:text-[#666666]'}`}>
+            <span className={`text-[0.6875rem] font-bold uppercase tracking-wide transition-colors ${sortColumn === 'assignedTo' ? 'text-[#111111]' : 'text-[#999999] group-hover:text-[#666666]'}`}>
               Assigned
             </span>
             {getSortIcon('assignedTo')}
@@ -1082,13 +1083,13 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
             className="flex items-center gap-1 group outline-none cursor-pointer justify-center"
             onClick={() => handleSort('timeSpent')}
           >
-            <span className={`text-[11px] font-['Manrope:Bold',sans-serif] uppercase tracking-wide transition-colors ${sortColumn === 'timeSpent' ? 'text-[#111111]' : 'text-[#999999] group-hover:text-[#666666]'}`}>
+            <span className={`text-[0.6875rem] font-bold uppercase tracking-wide transition-colors ${sortColumn === 'timeSpent' ? 'text-[#111111]' : 'text-[#999999] group-hover:text-[#666666]'}`}>
               Duration
             </span>
             {getSortIcon('timeSpent')}
           </button>
 
-          <div className="text-center text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide">
+          <div className="text-center text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">
             Progress
           </div>
 
@@ -1096,7 +1097,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
             className="flex items-center gap-1 group outline-none cursor-pointer"
             onClick={() => handleSort('status')}
           >
-            <span className={`text-[11px] font-['Manrope:Bold',sans-serif] uppercase tracking-wide transition-colors ${sortColumn === 'status' ? 'text-[#111111]' : 'text-[#999999] group-hover:text-[#666666]'}`}>
+            <span className={`text-[0.6875rem] font-bold uppercase tracking-wide transition-colors ${sortColumn === 'status' ? 'text-[#111111]' : 'text-[#999999] group-hover:text-[#666666]'}`}>
               Status
             </span>
             {getSortIcon('status')}
@@ -1147,7 +1148,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
 
         {!isLoading && filteredTasks.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-[#999999] font-['Manrope:Regular',sans-serif]">
+            <p className="text-[#999999] font-normal">
               No tasks found
             </p>
           </div>

@@ -30,14 +30,14 @@ export function TimerWarningModal({
                     <Button
                         onClick={onCancel}
                         disabled={isLoading}
-                        className="h-11 px-6 rounded-lg border border-[#EEEEEE] text-[#666666] font-['Manrope:SemiBold',sans-serif] text-[14px] hover:bg-[#F7F7F7] hover:border-[#DDDDDD] transition-all"
+                        className="h-11 px-6 rounded-lg border border-[#EEEEEE] text-[#666666] font-semibold text-sm hover:bg-[#F7F7F7] hover:border-[#DDDDDD] transition-all"
                     >
                         Cancel
                     </Button>
                     <Button
                         onClick={onEditAnyway}
                         disabled={isLoading}
-                        className="h-11 px-6 rounded-lg border border-[#FF9800] text-[#FF9800] font-['Manrope:SemiBold',sans-serif] text-[14px] hover:bg-[#FFF3E0] transition-all"
+                        className="h-11 px-6 rounded-lg border border-[#FF9800] text-[#FF9800] font-semibold text-sm hover:bg-[#FFF3E0] transition-all"
                     >
                         Edit Anyway
                     </Button>
@@ -45,7 +45,7 @@ export function TimerWarningModal({
                         onClick={onPauseAndEdit}
                         loading={isLoading}
                         disabled={isLoading}
-                        className="h-11 px-6 rounded-lg bg-[#111111] text-white font-['Manrope:SemiBold',sans-serif] text-[14px] hover:bg-[#000000] transition-all shadow-sm border-none"
+                        className="h-11 px-6 rounded-lg bg-[#111111] text-white font-semibold text-sm hover:bg-[#000000] transition-all shadow-sm border-none"
                     >
                         Pause & Edit
                     </Button>
@@ -57,11 +57,11 @@ export function TimerWarningModal({
                 <div className="flex items-start gap-3 p-4 bg-[#FFF3E0] border border-[#FFE0B2] rounded-lg">
                     <AlertTriangle className="w-5 h-5 text-[#FF9800] flex-shrink-0 mt-0.5" />
                     <div className="flex-1 space-y-1">
-                        <p className="text-[14px] font-['Manrope:SemiBold',sans-serif] text-[#111111]">
+                        <p className="text-sm font-semibold text-[#111111]">
                             Active Timer Detected
                         </p>
-                        <p className="text-[13px] font-['Manrope:Regular',sans-serif] text-[#666666]">
-                            The timer for <span className="font-['Manrope:SemiBold',sans-serif] text-[#111111]">{taskName}</span> is currently running.
+                        <p className="text-[0.8125rem] font-normal text-[#666666]">
+                            The timer for <span className="font-semibold text-[#111111]">{taskName}</span> is currently running.
                             Editing task details while the timer is active may cause inconsistencies in time tracking.
                         </p>
                     </div>
@@ -69,15 +69,15 @@ export function TimerWarningModal({
 
                 {/* Recommendation */}
                 <div className="space-y-2">
-                    <p className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">
+                    <p className="text-[0.8125rem] font-bold text-[#111111]">
                         Recommended Actions:
                     </p>
                     <ul className="space-y-1.5 ml-4">
-                        <li className="text-[13px] font-['Manrope:Regular',sans-serif] text-[#666666] list-disc">
-                            <span className="font-['Manrope:SemiBold',sans-serif] text-[#111111]">Pause & Edit:</span> Stops the timer and opens the edit modal
+                        <li className="text-[0.8125rem] font-normal text-[#666666] list-disc">
+                            <span className="font-semibold text-[#111111]">Pause & Edit:</span> Stops the timer and opens the edit modal
                         </li>
-                        <li className="text-[13px] font-['Manrope:Regular',sans-serif] text-[#666666] list-disc">
-                            <span className="font-['Manrope:SemiBold',sans-serif] text-[#111111]">Edit Anyway:</span> Keeps the timer running while you edit (not recommended)
+                        <li className="text-[0.8125rem] font-normal text-[#666666] list-disc">
+                            <span className="font-semibold text-[#111111]">Edit Anyway:</span> Keeps the timer running while you edit (not recommended)
                         </li>
                     </ul>
                 </div>

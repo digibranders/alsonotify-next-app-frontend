@@ -9,6 +9,8 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 const manrope = Manrope({
   subsets: ['latin'],
   display: 'swap',
+  variable: '--font-manrope',
+  weight: ['300', '400', '500', '600', '700', '800'],
 });
 
 export const metadata: Metadata = {
@@ -26,7 +28,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={manrope.className} suppressHydrationWarning>
+      <body className={`${manrope.variable} ${manrope.className}`} suppressHydrationWarning>
         <BrowserPolyfills />
         <ReactQueryProvider>
           <AntDesignProvider>

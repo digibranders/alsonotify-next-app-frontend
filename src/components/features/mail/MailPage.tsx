@@ -532,7 +532,7 @@ export function MailPage() {
                   {current?.subject || "(no subject)"}
                 </Title>
 
-                <div className="mt-2 text-[12px] text-[#666] space-y-1">
+                <div className="mt-2 text-xs text-[#666] space-y-1">
                   <div className="truncate">
                     <Text type="secondary">From:</Text>{" "}
                     <span className="text-[#444]">{formatFrom(current)}</span>
@@ -673,7 +673,7 @@ export function MailPage() {
               </div>
             )
           ) : (
-            <div className="rounded-[12px] bg-white p-4 ring-1 ring-black/5 whitespace-pre-wrap text-[13px] leading-6">
+            <div className="rounded-[12px] bg-white p-4 ring-1 ring-black/5 whitespace-pre-wrap text-[0.8125rem] leading-6">
               {textBody}
             </div>
           )}
@@ -698,7 +698,7 @@ export function MailPage() {
                 >
                   <div className="min-w-0">
                     <div className="font-semibold truncate">{a.name}</div>
-                    <div className="text-[12px] text-[#777]">
+                    <div className="text-xs text-[#777]">
                       {a.contentType || "file"} • {formatBytes(a.size || 0)}
                     </div>
                   </div>
@@ -827,9 +827,9 @@ export function MailPage() {
             <div className="bg-[#F7F7F7] rounded-[16px] overflow-hidden flex flex-col min-h-0">
               {/* sticky header */}
               <div className="sticky top-0 z-10 bg-[#F7F7F7] p-4 pb-3">
-                <Input placeholder="Search (later)" disabled />
+                {/* Search input — not yet implemented */}
                 {typeof currentFolderTotals.unread === "number" || typeof totalCount === "number" ? (
-                  <div className="mt-2 flex items-center justify-between text-[12px] text-[#777]">
+                  <div className="mt-2 flex items-center justify-between text-xs text-[#777]">
                     <span>
                       {typeof currentFolderTotals.unread === "number" ? `Unread: ${currentFolderTotals.unread}` : ""}
                     </span>
@@ -879,7 +879,7 @@ export function MailPage() {
                                 </Tag>
                               ) : null}
                             </div>
-                            <span className="text-[12px] text-[#777] whitespace-nowrap">
+                            <span className="text-xs text-[#777] whitespace-nowrap">
                               {m.receivedDateTime ? dayjs(m.receivedDateTime).format("MMM D, h:mm A") : ""}
                             </span>
                           </div>
@@ -891,7 +891,7 @@ export function MailPage() {
                             {m.hasAttachments ? <Paperclip className="w-4 h-4 opacity-60 shrink-0" /> : null}
                           </div>
 
-                          <div className="text-[12px] text-[#777] truncate mt-1">{m.bodyPreview || ""}</div>
+                          <div className="text-xs text-[#777] truncate mt-1">{m.bodyPreview || ""}</div>
                         </div>
                       </button>
                     ))}
@@ -940,7 +940,7 @@ export function MailPage() {
         closable={false}
         open={composeOpen}
         onCancel={() => setComposeOpen(false)}
-        width={680}
+        width="min(680px, 95vw)"
         destroyOnHidden
         centered
         styles={{
@@ -958,7 +958,7 @@ export function MailPage() {
 
           {/* To */}
           <div className="flex items-start gap-3 border-b border-gray-100 pb-2">
-            <span className="text-gray-400 text-[11px] font-bold tracking-wide w-10 mt-1.5">TO</span>
+            <span className="text-gray-400 text-[0.6875rem] font-bold tracking-wide w-10 mt-1.5">TO</span>
             <div className="flex-1">
               <Select
                 mode="tags"
@@ -971,7 +971,7 @@ export function MailPage() {
                 tokenSeparators={[",", " "]}
               />
               {composeToHasInvalid ? (
-                <div className="text-[12px] text-red-500 mt-1">One or more recipients look invalid.</div>
+                <div className="text-xs text-red-500 mt-1">One or more recipients look invalid.</div>
               ) : null}
             </div>
 
@@ -989,7 +989,7 @@ export function MailPage() {
           {showComposeCc ? (
             <div className="mt-2 space-y-2">
               <div className="flex items-start gap-3 border-b border-gray-100 pb-2">
-                <span className="text-gray-400 text-[11px] font-bold tracking-wide w-10 mt-1.5">CC</span>
+                <span className="text-gray-400 text-[0.6875rem] font-bold tracking-wide w-10 mt-1.5">CC</span>
                 <Select
                   mode="tags"
                   open={false}
@@ -1002,7 +1002,7 @@ export function MailPage() {
               </div>
 
               <div className="flex items-start gap-3 border-b border-gray-100 pb-2">
-                <span className="text-gray-400 text-[11px] font-bold tracking-wide w-10 mt-1.5">BCC</span>
+                <span className="text-gray-400 text-[0.6875rem] font-bold tracking-wide w-10 mt-1.5">BCC</span>
                 <Select
                   mode="tags"
                   open={false}
@@ -1018,13 +1018,13 @@ export function MailPage() {
 
           {/* subject */}
           <div className="flex items-center gap-3 border-b border-gray-100 pb-2 pt-3">
-            <span className="text-gray-400 text-[11px] font-bold tracking-wide w-10">SUB</span>
+            <span className="text-gray-400 text-[0.6875rem] font-bold tracking-wide w-10">SUB</span>
             <Input
               variant="borderless"
               value={composeSubject}
               onChange={(e) => setComposeSubject(e.target.value)}
               placeholder="Subject"
-              className="p-0 flex-1 text-[14px] font-medium"
+              className="p-0 flex-1 text-sm font-medium"
             />
           </div>
 
@@ -1035,7 +1035,7 @@ export function MailPage() {
             onChange={(e) => setComposeBody(e.target.value)}
             placeholder="Type your message..."
             autoSize={{ minRows: 10, maxRows: 18 }}
-            className="px-0 mt-3 text-[14px] resize-none"
+            className="px-0 mt-3 text-sm resize-none"
             style={{ lineHeight: 1.6 }}
           />
 
@@ -1052,7 +1052,7 @@ export function MailPage() {
                 Attach files {composeFiles.length ? `(${composeFiles.length})` : ""}
               </Button>
             </Upload>
-            <div className="text-[12px] text-[#777] mt-2">
+            <div className="text-xs text-[#777] mt-2">
               Max file size: {MAX_MB} MB each
             </div>
           </div>
@@ -1100,7 +1100,7 @@ export function MailPage() {
         closable={false}
         open={!!replyOpen}
         onCancel={() => setReplyOpen(null)}
-        width={600}
+        width="min(600px, 95vw)"
         centered
         destroyOnHidden
         styles={{
@@ -1135,7 +1135,7 @@ export function MailPage() {
           {/* forward to */}
           {replyOpen === "forward" ? (
             <div className="flex items-start gap-3 border-b border-gray-100 pb-2 mb-3">
-              <span className="text-gray-400 text-[11px] font-bold tracking-wide uppercase w-8 mt-1.5">To</span>
+              <span className="text-gray-400 text-[0.6875rem] font-bold tracking-wide uppercase w-8 mt-1.5">To</span>
               <div className="flex-1">
                 <Select
                   mode="tags"
@@ -1148,7 +1148,7 @@ export function MailPage() {
                   tokenSeparators={[",", " "]}
                 />
                 {forwardToHasInvalid ? (
-                  <div className="text-[12px] text-red-500 mt-1">One or more recipients look invalid.</div>
+                  <div className="text-xs text-red-500 mt-1">One or more recipients look invalid.</div>
                 ) : null}
               </div>
             </div>
@@ -1160,7 +1160,7 @@ export function MailPage() {
             onChange={(e) => setReplyText(e.target.value)}
             autoSize={{ minRows: 8, maxRows: 16 }}
             placeholder="Write your response..."
-            className="px-0 text-[14px] resize-none"
+            className="px-0 text-sm resize-none"
             style={{ lineHeight: 1.6 }}
           />
 
@@ -1177,7 +1177,7 @@ export function MailPage() {
                 Attach files {quickFiles.length ? `(${quickFiles.length})` : ""}
               </Button>
             </Upload>
-            <div className="text-[12px] text-[#777] mt-2">
+            <div className="text-xs text-[#777] mt-2">
               Max file size: {MAX_MB} MB each
             </div>
           </div>

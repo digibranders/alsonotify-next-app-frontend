@@ -93,7 +93,7 @@ export default function PasswordResetPage() {
             <motion.div variants={itemVariants} className="mt-8">
               <button
                 onClick={() => router.push("/login")}
-                className="w-full h-12 bg-[#ff3b3b] hover:bg-[#E63535] text-white rounded-[16px] font-bold text-[15px] shadow-lg shadow-[#ff3b3b]/25 transition-all hover:shadow-[#ff3b3b]/40 hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2"
+                className="w-full h-12 bg-[#ff3b3b] hover:bg-[#E63535] text-white rounded-[16px] font-bold text-[0.9375rem] shadow-lg shadow-[#ff3b3b]/25 transition-all hover:shadow-[#ff3b3b]/40 hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2"
               >
                 Back to Login
               </button>
@@ -114,7 +114,7 @@ export default function PasswordResetPage() {
             <form onSubmit={handleSubmit} className="space-y-6">
               <motion.div variants={itemVariants} className="space-y-5">
                 <div className="space-y-2">
-                  <label className="text-[11px] font-bold text-[#999999] uppercase tracking-widest">
+                  <label className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-widest">
                     New Password <span className="text-[#ff3b3b]">*</span>
                   </label>
                   <div className="relative">
@@ -138,7 +138,7 @@ export default function PasswordResetPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[11px] font-bold text-[#999999] uppercase tracking-widest">
+                  <label className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-widest">
                     Confirm New Password <span className="text-[#ff3b3b]">*</span>
                   </label>
                   <div className="relative">
@@ -167,7 +167,7 @@ export default function PasswordResetPage() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="h-12 px-8 bg-[#ff3b3b] hover:bg-[#E63535] text-white rounded-[16px] font-bold text-[15px] shadow-lg shadow-[#ff3b3b]/25 transition-all hover:shadow-[#ff3b3b]/40 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 w-full"
+                  className="h-12 px-8 bg-[#ff3b3b] hover:bg-[#E63535] text-white rounded-[16px] font-bold text-[0.9375rem] shadow-lg shadow-[#ff3b3b]/25 transition-all hover:shadow-[#ff3b3b]/40 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 w-full"
                 >
                   {isLoading ? (
                     <Loader2 className="w-4 h-4 animate-spin" />

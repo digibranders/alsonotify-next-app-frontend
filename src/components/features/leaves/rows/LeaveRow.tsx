@@ -88,7 +88,7 @@ export function LeaveRow({
         <div className="flex justify-center">
           <Avatar
             size={40}
-            className="bg-gradient-to-br from-[#ff3b3b] to-[#ff6b6b] text-[14px] font-['Manrope:Bold',sans-serif]"
+            className="bg-gradient-to-br from-[#ff3b3b] to-[#ff6b6b] text-sm font-bold"
           >
             {getInitials(leave.employeeName)}
           </Avatar>
@@ -96,24 +96,24 @@ export function LeaveRow({
 
         {/* Employee */}
         <div className="flex flex-col min-w-0">
-          <span className="font-['Manrope:Bold',sans-serif] text-[14px] text-[#111111] truncate group-hover:text-[#ff3b3b] transition-colors">
+          <span className="font-bold text-sm text-[#111111] truncate group-hover:text-[#ff3b3b] transition-colors">
             {leave.employeeName}
           </span>
-          <span className="text-[11px] text-[#999999] font-['Manrope:Regular',sans-serif]">
+          <span className="text-[0.6875rem] text-[#999999] font-normal">
             Applied on {leave.appliedOn}
           </span>
         </div>
 
         {/* Leave Type */}
         <div className="flex justify-center">
-          <span className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-['Manrope:SemiBold',sans-serif] ${typeConfig.bgColor} ${typeConfig.textColor}`}>
+          <span className={`inline-block px-2.5 py-0.5 rounded-full text-[0.6875rem] font-semibold ${typeConfig.bgColor} ${typeConfig.textColor}`}>
             {typeConfig.label}
           </span>
         </div>
 
         {/* Duration */}
         <div className="flex flex-col">
-          <div className="flex items-center gap-1.5 text-[13px] font-['Manrope:Medium',sans-serif] text-[#111111]">
+          <div className="flex items-center gap-1.5 text-[0.8125rem] font-medium text-[#111111]">
             <Calendar className="w-3.5 h-3.5 text-[#666666]" />
             <span>{leave.startDate} - {leave.endDate}</span>
           </div>
@@ -122,7 +122,7 @@ export function LeaveRow({
         {/* Days */}
         <div className="flex items-center justify-center gap-1.5 text-center">
           <Clock className="w-3.5 h-3.5 text-[#666666]" />
-          <span className="text-[13px] font-['Manrope:SemiBold',sans-serif] text-[#111111]">
+          <span className="text-[0.8125rem] font-semibold text-[#111111]">
             {leave.days} {leave.days === 1 ? 'Day' : 'Days'}
           </span>
         </div>
@@ -131,7 +131,7 @@ export function LeaveRow({
         <div className="flex justify-center">
           <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full ${statusConfig[leave.status].bgColor} ${statusConfig[leave.status].color}`}>
             <StatusIcon className="w-3.5 h-3.5" />
-            <span className="text-[11px] font-['Manrope:Bold',sans-serif] uppercase tracking-wider">
+            <span className="text-[0.6875rem] font-bold uppercase tracking-wider">
               {statusConfig[leave.status].label}
             </span>
           </div>
@@ -174,7 +174,7 @@ export function LeaveRow({
                 borderRadius: '8px',
                 padding: '12px',
                 fontSize: '12px',
-                fontFamily: 'Manrope:Regular, sans-serif'
+                fontFamily: 'inherit'
               }
             }}
           >

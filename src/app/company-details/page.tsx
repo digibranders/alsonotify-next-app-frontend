@@ -14,6 +14,7 @@ import { trimStr } from "@/utils/trim";
 import { industryToBusinessType, commonCountries, commonTimezones } from "@/data/defaultData";
 import AuthLayout from "@/components/auth/AuthLayout";
 import PhoneNumberInput from "@/components/ui/PhoneNumberInput";
+import { Skeleton } from "@/components/ui/Skeleton";
 import { fileService } from "@/services/file.service";
 import { useUpdateProfile, useUpdateCompany } from "@/hooks/useUser";
 import { getErrorMessage } from "@/types/api-utils";
@@ -199,7 +200,6 @@ function CompanyDetailsForm() {
 
     const businessType = industryToBusinessType[companyData.industry] || 21;
     try {
-      console.log("Submitting complete signup mutation...");
       const response = await completeSignupMutation.mutateAsync({
         registerToken: token,
         companyName,
@@ -212,10 +212,8 @@ function CompanyDetailsForm() {
         phone,
       });
 
-      console.log("Complete Signup Response:", response);
 
       if (response && response.success) {
-        console.log("Signup success, processing uploads...");
         const user = response.result.user;
         const companyId = user?.company_id || (user?.companies && user.companies[0]?.id);
         const userId = user?.id;
@@ -264,7 +262,6 @@ function CompanyDetailsForm() {
           }
         }
 
-        console.log("Redirecting to dashboard...");
         router.push("/dashboard");
       } else {
         console.error("Signup response indicated failure or missing data:", response);
@@ -395,7 +392,7 @@ function CompanyDetailsForm() {
                 {!isIndividual && (
                   <motion.div variants={itemVariants} className="grid grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <label htmlFor="company-name" className="text-[11px] font-bold text-[#999999] uppercase tracking-widest">
+                      <label htmlFor="company-name" className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-widest">
                         Company Name <span className="text-[#ff3b3b]">*</span>
                       </label>
                       <input
@@ -411,7 +408,7 @@ function CompanyDetailsForm() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <label htmlFor="website" className="text-[11px] font-bold text-[#999999] uppercase tracking-widest">
+                      <label htmlFor="website" className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-widest">
                         Website
                       </label>
                       <input
@@ -431,7 +428,7 @@ function CompanyDetailsForm() {
                 {!isIndividual && (
                   <motion.div variants={itemVariants} className="grid grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <label className="text-[11px] font-bold text-[#999999] uppercase tracking-widest">
+                      <label className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-widest">
                         Industry <span className="text-[#ff3b3b]">*</span>
                       </label>
                       <Select
@@ -455,7 +452,7 @@ function CompanyDetailsForm() {
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[11px] font-bold text-[#999999] uppercase tracking-widest">
+                      <label className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-widest">
                         Company Size
                       </label>
                       <Select
@@ -483,7 +480,7 @@ function CompanyDetailsForm() {
 
                 <motion.div variants={itemVariants} className="grid grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="text-[11px] font-bold text-[#999999] uppercase tracking-widest">
+                    <label className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-widest">
                       Country <span className="text-[#ff3b3b]">*</span>
                     </label>
                     <Select
@@ -507,7 +504,7 @@ function CompanyDetailsForm() {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[11px] font-bold text-[#999999] uppercase tracking-widest">
+                    <label className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-widest">
                       Timezone <span className="text-[#ff3b3b]">*</span>
                     </label>
                     <Select
@@ -566,7 +563,7 @@ function CompanyDetailsForm() {
                     <div className="flex-1 space-y-6">
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <label className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wider">
+                          <label className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wider">
                             First Name <span className="text-[#ff3b3b]">*</span>
                           </label>
                           <Input
@@ -575,11 +572,11 @@ function CompanyDetailsForm() {
                             onChange={(e) =>
                               setAdminData({ ...adminData, firstName: e.target.value })
                             }
-                            className="h-12 bg-white/50 border-[#EEEEEE] focus:border-[#ff3b3b] focus:ring-1 focus:ring-[#ff3b3b] rounded-xl font-['Manrope:Medium',sans-serif]"
+                            className="h-12 bg-white/50 border-[#EEEEEE] focus:border-[#ff3b3b] focus:ring-1 focus:ring-[#ff3b3b] rounded-xl font-medium"
                           />
                         </div>
                         <div className="space-y-2">
-                          <label className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wider">
+                          <label className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wider">
                             Last Name
                           </label>
                           <Input
@@ -588,14 +585,14 @@ function CompanyDetailsForm() {
                             onChange={(e) =>
                               setAdminData({ ...adminData, lastName: e.target.value })
                             }
-                            className="h-12 bg-white/50 border-[#EEEEEE] focus:border-[#ff3b3b] focus:ring-1 focus:ring-[#ff3b3b] rounded-xl font-['Manrope:Medium',sans-serif]"
+                            className="h-12 bg-white/50 border-[#EEEEEE] focus:border-[#ff3b3b] focus:ring-1 focus:ring-[#ff3b3b] rounded-xl font-medium"
                           />
                         </div>
                       </div>
 
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <label className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wider">
+                          <label className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wider">
                             Country <span className="text-[#ff3b3b]">*</span>
                           </label>
                           <Select
@@ -614,7 +611,7 @@ function CompanyDetailsForm() {
                           </Select>
                         </div>
                         <div className="space-y-2">
-                          <label className="text-[11px] font-bold text-[#999999] uppercase tracking-widest">
+                          <label className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-widest">
                             Phone Number
                           </label>
                           <PhoneNumberInput
@@ -646,7 +643,7 @@ function CompanyDetailsForm() {
                     !companyData.country ||
                     !companyData.timezone))
               }
-              className="h-12 px-8 bg-[#ff3b3b] hover:bg-[#E63535] text-white rounded-[16px] font-bold text-[15px] shadow-lg shadow-[#ff3b3b]/25 transition-all hover:shadow-[#ff3b3b]/40 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="h-12 px-8 bg-[#ff3b3b] hover:bg-[#E63535] text-white rounded-[16px] font-bold text-[0.9375rem] shadow-lg shadow-[#ff3b3b]/25 transition-all hover:shadow-[#ff3b3b]/40 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {completeSignupMutation.isPending ? (
                 <>
@@ -699,7 +696,7 @@ function CompanyDetailsForm() {
 
 export default function CompanyDetailsPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-[#F7F7F7]"><Skeleton className="h-[480px] w-[400px] rounded-[24px]" /></div>}>
       <CompanyDetailsForm />
     </Suspense>
   );

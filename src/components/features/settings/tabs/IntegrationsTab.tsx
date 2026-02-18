@@ -101,8 +101,8 @@ export function IntegrationsTab() {
       {/* Header with Search */}
       {/* <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
         <div>
-          <h1 className="text-[28px] font-bold text-[#111111] tracking-tight">Integrations</h1>
-          <p className="text-[14px] text-[#666666] mt-1">Enhance your workflow by connecting your favorite enterprise tools.</p>
+          <h1 className="text-[1.75rem] font-bold text-[#111111] tracking-tight">Integrations</h1>
+          <p className="text-sm text-[#666666] mt-1">Enhance your workflow by connecting your favorite enterprise tools.</p>
         </div>
         <div className="relative group min-w-[300px]">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#999999] group-focus-within:text-[#111111] transition-colors" />
@@ -119,7 +119,7 @@ export function IntegrationsTab() {
         <section className="mb-12 animate-in slide-in-from-top-4 duration-500">
           <div className="flex items-center gap-2 mb-6 ml-1">
             <Check className="w-4 h-4 text-green-500" />
-            <h2 className="text-[14px] font-extrabold text-[#111111] uppercase tracking-wider">Installed Connections</h2>
+            <h2 className="text-sm font-extrabold text-[#111111] uppercase tracking-wider">Installed Connections</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <IntegrationCard
@@ -146,7 +146,7 @@ export function IntegrationsTab() {
       <section>
         {/* <div className="flex items-center gap-2 mb-6 ml-1">
           <Sparkles className="w-4 h-4 text-amber-500" />
-          <h2 className="text-[14px] font-extrabold text-[#111111] uppercase tracking-wider">Recommended Categories</h2>
+          <h2 className="text-sm font-extrabold text-[#111111] uppercase tracking-wider">Recommended Categories</h2>
         </div> */}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -172,7 +172,7 @@ export function IntegrationsTab() {
               onConnect={() => { }}
               onDisconnect={() => { }}
             />
-            <div className="absolute top-4 right-4 bg-white/80 backdrop-blur-sm px-2 py-1 rounded text-[10px] font-bold uppercase tracking-widest text-[#111111] z-10 border border-[#eee]">Soon</div>
+            <div className="absolute top-4 right-4 bg-white/80 backdrop-blur-sm px-2 py-1 rounded text-[0.625rem] font-bold uppercase tracking-widest text-[#111111] z-10 border border-[#eee]">Soon</div>
           </div>
 
           <div className="opacity-60 grayscale pointer-events-none relative">
@@ -185,7 +185,7 @@ export function IntegrationsTab() {
               onConnect={() => { }}
               onDisconnect={() => { }}
             />
-            <div className="absolute top-4 right-4 bg-white/80 backdrop-blur-sm px-2 py-1 rounded text-[10px] font-bold uppercase tracking-widest text-[#111111] z-10 border border-[#eee]">Soon</div>
+            <div className="absolute top-4 right-4 bg-white/80 backdrop-blur-sm px-2 py-1 rounded text-[0.625rem] font-bold uppercase tracking-widest text-[#111111] z-10 border border-[#eee]">Soon</div>
           </div> */}
         </div>
       </section>
@@ -197,13 +197,13 @@ export function IntegrationsTab() {
             <Layout className="w-7 h-7 text-blue-500" />
           </div>
           <div>
-            <h4 className="text-[16px] font-bold text-[#111111] mb-2">Manage Personal Calendars</h4>
-            <p className="text-[14px] text-[#666666] leading-relaxed max-w-lg">
+            <h4 className="text-base font-bold text-[#111111] mb-2">Manage Personal Calendars</h4>
+            <p className="text-sm text-[#666666] leading-relaxed max-w-lg">
               These connections are for the **entire organization**. Individual employees can still connect their private calendars separately on the Calendar page.
             </p>
           </div>
         </div>
-        <a href="/dashboard/calendar" className="bg-[#111111] text-white px-8 h-12 rounded-full flex items-center justify-center font-bold text-[13px] hover:bg-[#333333] transition-all whitespace-nowrap">
+        <a href="/dashboard/calendar" className="bg-[#111111] text-white px-8 h-12 rounded-full flex items-center justify-center font-bold text-[0.8125rem] hover:bg-[#333333] transition-all whitespace-nowrap">
           Go to My Calendar
         </a>
       </div>

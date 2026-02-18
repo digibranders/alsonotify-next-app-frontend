@@ -77,7 +77,7 @@ export function LeaveApplyModal({
       open={open}
       onCancel={handleCancel}
       footer={null}
-      width={600}
+      width="min(600px, 95vw)"
       centered
       className="rounded-[16px] overflow-hidden"
       destroyOnHidden
@@ -110,11 +110,11 @@ export function LeaveApplyModal({
           <div className="grid grid-cols-2 gap-4">
             <Form.Item
               name="start_date"
-              label={<span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">Start Date</span>}
+              label={<span className="text-[0.8125rem] font-bold text-[#111111]">Start Date</span>}
               rules={[{ required: true, message: 'Please select start date' }]}
             >
               <DatePicker
-                className="w-full h-11 rounded-lg border-[#EEEEEE] font-['Manrope:Medium',sans-serif]"
+                className="w-full h-11 rounded-lg border-[#EEEEEE] font-medium"
                 placeholder="Select date"
                 format="YYYY-MM-DD"
               />
@@ -122,11 +122,11 @@ export function LeaveApplyModal({
 
             <Form.Item
               name="end_date"
-              label={<span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">End Date</span>}
+              label={<span className="text-[0.8125rem] font-bold text-[#111111]">End Date</span>}
               rules={[{ required: true, message: 'Please select end date' }]}
             >
               <DatePicker
-                className="w-full h-11 rounded-lg border-[#EEEEEE] font-['Manrope:Medium',sans-serif]"
+                className="w-full h-11 rounded-lg border-[#EEEEEE] font-medium"
                 placeholder="Select date"
                 format="YYYY-MM-DD"
               />
@@ -135,7 +135,7 @@ export function LeaveApplyModal({
 
           <Form.Item
             name="day_type"
-            label={<span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">Day Type</span>}
+            label={<span className="text-[0.8125rem] font-bold text-[#111111]">Day Type</span>}
             rules={[{ required: true, message: 'Please select day type' }]}
           >
             <Select
@@ -152,7 +152,7 @@ export function LeaveApplyModal({
 
           <Form.Item
             name="leave_type"
-            label={<span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">Leave Type</span>}
+            label={<span className="text-[0.8125rem] font-bold text-[#111111]">Leave Type</span>}
             rules={[{ required: true, message: 'Please select leave type' }]}
           >
             <Select
@@ -169,11 +169,11 @@ export function LeaveApplyModal({
 
           <Form.Item
             name="reason"
-            label={<span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">Reason</span>}
+            label={<span className="text-[0.8125rem] font-bold text-[#111111]">Reason</span>}
             rules={[{ required: true, message: 'Please enter reason' }]}
           >
             <Input
-              className="h-11 rounded-lg border-[#EEEEEE] font-['Manrope:Medium',sans-serif]"
+              className="h-11 rounded-lg border-[#EEEEEE] font-medium"
               placeholder="Type or select a reason"
             />
           </Form.Item>

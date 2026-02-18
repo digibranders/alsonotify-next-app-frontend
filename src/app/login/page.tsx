@@ -9,6 +9,7 @@ import { trimStr } from "@/utils/trim";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import AuthLayout from "@/components/auth/AuthLayout";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 function LoginForm() {
   const { message } = App.useApp();
@@ -75,7 +76,7 @@ function LoginForm() {
         <form onSubmit={handleSubmit} className="space-y-6">
           <motion.div variants={itemVariants} className="space-y-5">
             <div className="space-y-2">
-              <label className="text-[11px] font-bold text-[#999999] uppercase tracking-widest">Email Address</label>
+              <label className="text-xs font-bold text-[#999999] uppercase tracking-widest">Email Address</label>
               <div className="relative">
                 <input
                   type="email"
@@ -92,10 +93,10 @@ function LoginForm() {
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <label className="text-[11px] font-bold text-[#999999] uppercase tracking-widest">Password</label>
+                <label className="text-xs font-bold text-[#999999] uppercase tracking-widest">Password</label>
                 <Link 
                   href="/forgot-password" 
-                  className="text-[12px] font-semibold text-[#ff3b3b] hover:text-[#E63535]"
+                  className="text-xs font-semibold text-[#ff3b3b] hover:text-[#E63535]"
                   tabIndex={4}
                 >
                   Forgot password?
@@ -128,7 +129,7 @@ function LoginForm() {
             <button
               type="submit"
               disabled={loginMutation.isPending}
-              className="w-full h-12 bg-[#ff3b3b] hover:bg-[#E63535] text-white rounded-[16px] font-bold text-[15px] shadow-lg shadow-[#ff3b3b]/25 transition-all hover:shadow-[#ff3b3b]/40 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full h-12 bg-[#ff3b3b] hover:bg-[#E63535] text-white rounded-[16px] font-bold text-[0.9375rem] shadow-lg shadow-[#ff3b3b]/25 transition-all hover:shadow-[#ff3b3b]/40 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               tabIndex={3}
             >
               {loginMutation.isPending ? (
@@ -144,7 +145,7 @@ function LoginForm() {
         </form>
 
         <motion.div variants={itemVariants} className="text-center">
-          <p className="text-[14px] text-[#666666]">
+          <p className="text-sm text-[#666666]">
             Don't have an account?{" "}
             <Link
               href="/register"
@@ -162,7 +163,7 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-[#F7F7F7]"><Skeleton className="h-[480px] w-[400px] rounded-[24px]" /></div>}>
       <LoginForm />
     </Suspense>
   );

@@ -50,10 +50,10 @@ function EmptyState({ message = "No notifications" }: { message?: string }) {
       <div className="w-12 h-12 rounded-full bg-[#F7F7F7] flex items-center justify-center mb-3">
         <BellOff className="w-5 h-5 text-[#999999]" />
       </div>
-      <p className="font-['Manrope:SemiBold',sans-serif] text-[14px] text-[#111111] mb-1">
+      <p className="font-semibold text-sm text-[#111111] mb-1">
         All caught up!
       </p>
-      <p className="font-['Inter:Regular',sans-serif] text-[12px] text-[#999999]">
+      <p className="font-normal text-xs text-[#999999]">
         {message}
       </p>
     </div>
@@ -145,7 +145,7 @@ function NotificationItemComponent({
   return (
     <div
       onClick={handleClick}
-      className={`group relative px-5 py-4 border-b border-[#EEEEEE] cursor-pointer transition-all duration-200 hover:bg-[#F9F9F9] ${notification.unread ? 'bg-[#ff3b3b]/[0.02]' : 'bg-white'
+      className={`group relative px-5 py-4 border-b border-[#EEEEEE] cursor-pointer transition-all duration-200 hover:bg-[#F9F9F9] ${notification.unread ? 'bg-[#ff3b3b]/[0.06]' : 'bg-white'
         }`}
     >
       {notification.unread && (
@@ -159,15 +159,15 @@ function NotificationItemComponent({
 
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2 mb-1">
-            <h4 className={`text-[14px] leading-tight truncate ${notification.unread ? "font-['Manrope:Bold',sans-serif] text-[#111111]" : "font-['Manrope:Medium',sans-serif] text-[#666666]"}`}>
+            <h4 className={`text-sm leading-tight truncate ${notification.unread ? "font-bold text-[#111111]" : "font-medium text-[#666666]"}`}>
               {notification.title}
             </h4>
-            <span className="text-[11px] text-[#999999] whitespace-nowrap font-['Inter:Regular',sans-serif] shrink-0">
+            <span className="text-[0.6875rem] text-[#999999] whitespace-nowrap font-normal shrink-0">
               {notification.time}
             </span>
           </div>
 
-          <p className="text-[13px] text-[#666666] font-['Inter:Regular',sans-serif] leading-relaxed mb-3 line-clamp-2">
+          <p className="text-[0.8125rem] text-[#666666] font-normal leading-relaxed mb-3 line-clamp-2">
             {notification.message}
           </p>
 
@@ -338,11 +338,11 @@ export function NotificationPanel({
       {/* Header */}
       <div className="p-5 border-b border-[#EEEEEE] flex flex-row items-center justify-between bg-white shrink-0 z-10">
         <div className="flex items-center gap-3">
-          <h3 className="font-['Manrope:Bold',sans-serif] text-[18px] text-[#111111]">
+          <h3 className="font-bold text-lg text-[#111111]">
             Notifications
           </h3>
           {unreadCount > 0 && (
-            <span className="px-2.5 py-0.5 rounded-full bg-[#ff3b3b] text-white text-[11px] font-['Manrope:Bold',sans-serif]">
+            <span className="px-2.5 py-0.5 rounded-full bg-[#ff3b3b] text-white text-[0.6875rem] font-bold">
               {unreadCount} New
             </span>
           )}
@@ -350,7 +350,7 @@ export function NotificationPanel({
         {notifications.length > 0 && (
           <button
             onClick={onMarkAllRead}
-            className="text-[12px] font-['Manrope:SemiBold',sans-serif] text-[#999999] hover:text-[#ff3b3b] transition-colors"
+            className="text-xs font-semibold text-[#999999] hover:text-[#ff3b3b] transition-colors"
           >
             Clear all
           </button>
@@ -364,7 +364,7 @@ export function NotificationPanel({
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`flex-1 rounded-md text-[12px] font-['Inter:Medium',sans-serif] transition-all ${activeTab === tab.key
+              className={`flex-1 rounded-md text-xs font-medium transition-all ${activeTab === tab.key
                 ? 'bg-white text-[#111111] shadow-sm'
                 : 'text-[#666666] hover:text-[#111111]'
                 }`}

@@ -6,13 +6,13 @@ import type { Components } from 'react-markdown';
  */
 export const chatMarkdownComponents: Components = {
   p: ({ children }) => (
-    <p className="mb-2 last:mb-0 text-[14px] font-['Manrope:Medium',sans-serif] leading-relaxed">{children}</p>
+    <p className="mb-2 last:mb-0 text-sm font-medium leading-relaxed">{children}</p>
   ),
   ul: ({ children }) => (
-    <ul className="mb-2 pl-4 list-disc space-y-1 text-[14px] font-['Manrope:Medium',sans-serif]">{children}</ul>
+    <ul className="mb-2 pl-4 list-disc space-y-1 text-sm font-medium">{children}</ul>
   ),
   ol: ({ children }) => (
-    <ol className="mb-2 pl-4 list-decimal space-y-1 text-[14px] font-['Manrope:Medium',sans-serif]">{children}</ol>
+    <ol className="mb-2 pl-4 list-decimal space-y-1 text-sm font-medium">{children}</ol>
   ),
   li: ({ children }) => (
     <li className="pl-1">{children}</li>
@@ -25,7 +25,7 @@ export const chatMarkdownComponents: Components = {
   ),
   table: ({ children }) => (
     <div className="my-2 overflow-x-auto rounded-lg border border-[#EEEEEE]">
-      <table className="w-full text-[13px] text-left">{children}</table>
+      <table className="w-full text-[0.8125rem] text-left">{children}</table>
     </div>
   ),
   thead: ({ children }) => <thead className="bg-[#F7F7F7] font-semibold text-[#111111]">{children}</thead>,

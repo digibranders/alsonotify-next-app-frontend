@@ -309,7 +309,7 @@ export function DocumentsTab({ activityData }: DocumentsTabProps) {
         return (
             <div className="max-w-5xl mx-auto space-y-8">
                 <div className="bg-white rounded-[16px] p-8 border border-[#EEEEEE] shadow-sm">
-                    <h3 className="text-[16px] font-['Manrope:Bold',sans-serif] text-[#111111] mb-6 flex items-center gap-2">
+                    <h3 className="text-base font-bold text-[#111111] mb-6 flex items-center gap-2">
                         <Paperclip className="w-5 h-5 text-[#ff3b3b]" />
                         Documents
                     </h3>
@@ -317,8 +317,8 @@ export function DocumentsTab({ activityData }: DocumentsTabProps) {
                         <div className="w-16 h-16 bg-[#F7F7F7] rounded-full flex items-center justify-center mx-auto mb-4">
                             <Paperclip className="w-8 h-8 text-[#999999]" />
                         </div>
-                        <h4 className="text-[16px] font-['Manrope:SemiBold',sans-serif] text-[#111111] mb-2">No documents found</h4>
-                        <p className="text-[14px] text-[#666666] font-['Inter:Regular',sans-serif] max-w-sm mx-auto">
+                        <h4 className="text-base font-semibold text-[#111111] mb-2">No documents found</h4>
+                        <p className="text-sm text-[#666666] font-normal max-w-sm mx-auto">
                             Files shared in the Activity & Chat section will automatically appear here.
                         </p>
                     </div>
@@ -331,10 +331,10 @@ export function DocumentsTab({ activityData }: DocumentsTabProps) {
         <>
             <div className="max-w-5xl mx-auto space-y-8">
                 <div className="bg-white rounded-[16px] p-4 md:p-8 border border-[#EEEEEE] shadow-sm">
-                    <h3 className="text-[14px] md:text-[16px] font-['Manrope:Bold',sans-serif] text-[#111111] mb-4 md:mb-6 flex items-center gap-2">
+                    <h3 className="text-sm md:text-base font-bold text-[#111111] mb-4 md:mb-6 flex items-center gap-2">
                         <Paperclip className="w-4 h-4 md:w-5 md:h-5 text-[#ff3b3b]" />
                         Documents
-                        <span className="text-[11px] md:text-[12px] font-['Inter:Regular',sans-serif] text-[#999999] ml-1">
+                        <span className="text-[0.6875rem] md:text-xs font-normal text-[#999999] ml-1">
                             ({allDocuments.length})
                         </span>
                     </h3>
@@ -344,12 +344,12 @@ export function DocumentsTab({ activityData }: DocumentsTabProps) {
                             <table className="w-full text-left border-collapse min-w-[600px]">
                                 <thead>
                                     <tr className="bg-[#F7F7F7] border-b border-[#EEEEEE]">
-                                        <th className="py-2 px-3 md:py-3 md:px-4 text-[10px] md:text-[12px] font-['Manrope:Bold',sans-serif] text-[#666666] uppercase tracking-wider w-[40%] whitespace-nowrap">File Name</th>
-                                        <th className="py-2 px-3 md:py-3 md:px-4 text-[10px] md:text-[12px] font-['Manrope:Bold',sans-serif] text-[#666666] uppercase tracking-wider whitespace-nowrap">Sender</th>
-                                        <th className="py-2 px-3 md:py-3 md:px-4 text-[10px] md:text-[12px] font-['Manrope:Bold',sans-serif] text-[#666666] uppercase tracking-wider whitespace-nowrap">Size</th>
-                                        <th className="py-2 px-3 md:py-3 md:px-4 text-[10px] md:text-[12px] font-['Manrope:Bold',sans-serif] text-[#666666] uppercase tracking-wider whitespace-nowrap">Date</th>
-                                        <th className="py-2 px-3 md:py-3 md:px-4 text-[10px] md:text-[12px] font-['Manrope:Bold',sans-serif] text-[#666666] uppercase tracking-wider whitespace-nowrap">Type</th>
-                                        <th className="py-2 px-3 md:py-3 md:px-4 text-[10px] md:text-[12px] font-['Manrope:Bold',sans-serif] text-[#666666] uppercase tracking-wider text-right whitespace-nowrap">Actions</th>
+                                        <th className="py-2 px-3 md:py-3 md:px-4 text-[0.625rem] md:text-xs font-bold text-[#666666] uppercase tracking-wider w-[40%] whitespace-nowrap">File Name</th>
+                                        <th className="py-2 px-3 md:py-3 md:px-4 text-[0.625rem] md:text-xs font-bold text-[#666666] uppercase tracking-wider whitespace-nowrap">Sender</th>
+                                        <th className="py-2 px-3 md:py-3 md:px-4 text-[0.625rem] md:text-xs font-bold text-[#666666] uppercase tracking-wider whitespace-nowrap">Size</th>
+                                        <th className="py-2 px-3 md:py-3 md:px-4 text-[0.625rem] md:text-xs font-bold text-[#666666] uppercase tracking-wider whitespace-nowrap">Date</th>
+                                        <th className="py-2 px-3 md:py-3 md:px-4 text-[0.625rem] md:text-xs font-bold text-[#666666] uppercase tracking-wider whitespace-nowrap">Type</th>
+                                        <th className="py-2 px-3 md:py-3 md:px-4 text-[0.625rem] md:text-xs font-bold text-[#666666] uppercase tracking-wider text-right whitespace-nowrap">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -360,22 +360,22 @@ export function DocumentsTab({ activityData }: DocumentsTabProps) {
                                                     <div className="w-6 h-6 md:w-8 md:h-8 rounded bg-[#FFF5F5] flex items-center justify-center text-[#ff3b3b] shrink-0">
                                                         <FileText className="w-3 h-3 md:w-4 md:h-4" />
                                                     </div>
-                                                    <span className="text-[11px] md:text-[13px] font-['Manrope:SemiBold',sans-serif] text-[#111111] truncate max-w-[150px] md:max-w-[200px]" title={doc.name}>
+                                                    <span className="text-[0.6875rem] md:text-[0.8125rem] font-semibold text-[#111111] truncate max-w-[150px] md:max-w-[200px]" title={doc.name}>
                                                         {doc.name}
                                                     </span>
                                                 </div>
                                             </td>
                                             <td className="py-2 px-3 md:py-3 md:px-4">
-                                                <span className="text-[11px] md:text-[13px] font-['Manrope:Medium',sans-serif] text-[#444444] whitespace-nowrap">{doc.uploadedBy}</span>
+                                                <span className="text-[0.6875rem] md:text-[0.8125rem] font-medium text-[#444444] whitespace-nowrap">{doc.uploadedBy}</span>
                                             </td>
                                             <td className="py-2 px-3 md:py-3 md:px-4">
-                                                <span className="text-[11px] md:text-[13px] font-['Inter:Regular',sans-serif] text-[#666666] whitespace-nowrap">{doc.size}</span>
+                                                <span className="text-[0.6875rem] md:text-[0.8125rem] font-normal text-[#666666] whitespace-nowrap">{doc.size}</span>
                                             </td>
                                             <td className="py-2 px-3 md:py-3 md:px-4">
-                                                <span className="text-[11px] md:text-[13px] font-['Inter:Regular',sans-serif] text-[#666666] whitespace-nowrap">{doc.date}</span>
+                                                <span className="text-[0.6875rem] md:text-[0.8125rem] font-normal text-[#666666] whitespace-nowrap">{doc.date}</span>
                                             </td>
                                             <td className="py-2 px-3 md:py-3 md:px-4">
-                                                <span className="text-[9px] md:text-[11px] font-['Manrope:Bold',sans-serif] px-1.5 py-0.5 md:px-2 md:py-1 bg-[#F7F7F7] rounded text-[#666666] uppercase inline-block whitespace-nowrap">
+                                                <span className="text-[0.5625rem] md:text-[0.6875rem] font-bold px-1.5 py-0.5 md:px-2 md:py-1 bg-[#F7F7F7] rounded text-[#666666] uppercase inline-block whitespace-nowrap">
                                                     {doc.type}
                                                 </span>
                                             </td>

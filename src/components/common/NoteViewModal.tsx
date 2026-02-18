@@ -211,7 +211,7 @@ export function NoteViewModal({ open, note, onClose }: NoteViewModalProps) {
       open={open}
       onCancel={handleClose}
       footer={null}
-      width={500}
+      width="min(500px, 95vw)"
       centered
       className="rounded-[16px] overflow-hidden"
       destroyOnHidden
@@ -237,7 +237,7 @@ export function NoteViewModal({ open, note, onClose }: NoteViewModalProps) {
               setHasChanges(true);
             }}
             placeholder="Title"
-            className="text-[20px] font-['Manrope:SemiBold',sans-serif] border-none p-0 shadow-none focus:shadow-none hover:border-none"
+            className="text-xl font-semibold border-none p-0 shadow-none focus:shadow-none hover:border-none"
             style={{ fontSize: '20px', fontWeight: 600 }}
           />
         </div>
@@ -247,7 +247,7 @@ export function NoteViewModal({ open, note, onClose }: NoteViewModalProps) {
           <Button
             type="text"
             onClick={handleTypeToggle}
-            className="text-[13px] font-['Manrope:Medium',sans-serif] text-[#666666] hover:text-[#111111] p-0 h-auto"
+            className="text-[0.8125rem] font-medium text-[#666666] hover:text-[#111111] p-0 h-auto"
           >
             {isTextNote ? (
               <>
@@ -345,7 +345,7 @@ export function NoteViewModal({ open, note, onClose }: NoteViewModalProps) {
           <Button
             type="text"
             onClick={handleClose}
-            className="h-[44px] px-4 text-[14px] font-['Manrope:SemiBold',sans-serif] text-[#666666] hover:text-[#111111] hover:bg-[#F7F7F7] transition-colors rounded-lg"
+            className="h-[44px] px-4 text-sm font-semibold text-[#666666] hover:text-[#111111] hover:bg-[#F7F7F7] transition-colors rounded-lg"
           >
             Close
           </Button>

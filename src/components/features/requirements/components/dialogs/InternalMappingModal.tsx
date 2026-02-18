@@ -48,15 +48,15 @@ export function InternalMappingModal({
         okText="Activate Requirement"
         cancelText="Cancel"
         okButtonProps={{ className: 'bg-[#111111] hover:bg-[#000000]/90 text-white border-none' }}
-        width={400}
+        width="min(400px, 95vw)"
         centered
       >
         <div className="space-y-4 py-4">
-          <p className="text-[13px] text-[#666666] font-['Inter:Regular',sans-serif]">
+          <p className="text-[0.8125rem] text-[#666666] font-normal">
             Select one of your internal workspaces to map this requirement to.
           </p>
           <div className="space-y-2">
-            <label className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">Internal Workspace</label>
+            <label className="text-[0.8125rem] font-bold text-[#111111]">Internal Workspace</label>
             <Select
               className="w-full h-11"
               placeholder="Select workspace"
