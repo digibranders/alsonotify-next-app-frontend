@@ -451,7 +451,7 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
                 <>
                   <p className="leading-[normal] text-xl whitespace-pre">
                     <span className="font-normal">{`👋 ${greeting}! `}</span>
-                    <span className="font-bold">{firstName}</span>
+                    <span className="font-semibold">{firstName}</span>
                   </p>
                   <AccessBadge role={mappedRole || userRole} color={roleColor} />
                 </>
@@ -599,9 +599,9 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
 
             return requirementsDropdown;
           })()}
-          workspaces={workspacesData?.result?.workspaces?.map((p) => ({ 
-            id: p.id, 
-            name: p.name, 
+          workspaces={workspacesData?.result?.workspaces?.map((p) => ({
+            id: p.id,
+            name: p.name,
             company_name: p.company_name || p.client?.name || undefined,
             partner_name: p.partner_name,
             in_house: p.in_house
@@ -613,9 +613,9 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
         open={showRequirementDialog}
         onSubmit={handleCreateRequirement}
         onCancel={() => setShowRequirementDialog(false)}
-        workspaces={workspacesData?.result?.workspaces?.map((w) => ({ 
-          id: w.id, 
-          name: w.name, 
+        workspaces={workspacesData?.result?.workspaces?.map((w) => ({
+          id: w.id,
+          name: w.name,
           company_name: w.company_name || w.client?.name || undefined,
           partner_name: w.partner_name,
           in_house: w.in_house
