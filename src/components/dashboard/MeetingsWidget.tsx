@@ -342,7 +342,7 @@ function MeetingItem({
         onOpenChange={setShowDetails}
         trigger="click"
         placement="right"
-        styles={{ body: { padding: 0 } }}
+        styles={{ container: { padding: 0 } }}
         content={
           <div className="w-[300px] bg-white rounded-[12px] shadow-lg border border-[#EEEEEE] overflow-hidden">
             {/* Header */}

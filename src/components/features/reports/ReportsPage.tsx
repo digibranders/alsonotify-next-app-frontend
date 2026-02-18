@@ -84,7 +84,7 @@ function TableHeader({
         )}
       </button>
       {tooltip && (
-        <Tooltip title={tooltip} styles={{ root: { maxWidth: 260 }, body: { fontSize: 11, lineHeight: '1.4' } }}>
+        <Tooltip title={tooltip} styles={{ root: { maxWidth: 280 }, container: { fontSize: 11, lineHeight: '1.4' } }}>
           <Info className="w-3 h-3 text-[#CCCCCC] hover:text-[#999999] cursor-help flex-shrink-0 transition-colors" />
         </Tooltip>
       )}
@@ -593,7 +593,7 @@ export function ReportsPage() {
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'requirement' ? '' : 'hidden'}`}>
                   <div className="flex items-center gap-1">
                     <span className="text-xs font-medium text-[#666666]">Total Requirements</span>
-                    <Tooltip title={tooltip} styles={{ root: { maxWidth: 260 }, body: { fontSize: 11, lineHeight: '1.4' } }}>
+                    <Tooltip title="Total number of active requirements assigned to or received by your company in the selected date range. Excludes Draft, Waiting, Submitted, Rejected, and Completed statuses." styles={{ root: { maxWidth: 260 }, container: { fontSize: 11, lineHeight: '1.4' } }}>
                       <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
                     </Tooltip>
                   </div>
@@ -602,7 +602,7 @@ export function ReportsPage() {
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'requirement' ? '' : 'hidden'}`}>
                   <div className="flex items-center gap-1">
                     <span className="text-xs font-medium text-[#666666]">On Time Completed</span>
-                    <Tooltip title="Requirements completed without exceeding their allotted hours budget. Formula: Completed requirements − over-budget completions." styles={{ root: { maxWidth: 260 }, body: { fontSize: 11, lineHeight: '1.4' } }}>
+                    <Tooltip title="Requirements completed without exceeding their allotted hours budget. Formula: Completed requirements − over-budget completions." styles={{ root: { maxWidth: 280 }, container: { fontSize: 11, lineHeight: '1.4' } }}>
                       <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
                     </Tooltip>
                   </div>
@@ -611,7 +611,7 @@ export function ReportsPage() {
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'requirement' ? '' : 'hidden'}`}>
                   <div className="flex items-center gap-1">
                     <span className="text-xs font-medium text-[#666666]">In Progress</span>
-                    <Tooltip title="Requirements currently active — includes statuses: Assigned, In Progress, Review, Revision, Impediment, Stuck, Delayed, On Hold." styles={{ root: { maxWidth: 260 }, body: { fontSize: 11, lineHeight: '1.4' } }}>
+                    <Tooltip title="Requirements currently active — includes statuses: Assigned, In Progress, Review, Revision, Impediment, Stuck, Delayed, On Hold." styles={{ root: { maxWidth: 280 }, container: { fontSize: 11, lineHeight: '1.4' } }}>
                       <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
                     </Tooltip>
                   </div>
@@ -622,7 +622,7 @@ export function ReportsPage() {
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'requirement' ? '' : 'hidden'}`}>
                   <div className="flex items-center gap-1">
                     <span className="text-xs font-medium text-[#666666]">Delayed</span>
-                    <Tooltip title="Active requirements whose end date has already passed. The +Xh shows total extra hours logged beyond the allotted budget on over-budget completions." styles={{ root: { maxWidth: 260 }, body: { fontSize: 11, lineHeight: '1.4' } }}>
+                    <Tooltip title="Active requirements whose end date has already passed. The +Xh shows total extra hours logged beyond the allotted budget on over-budget completions." styles={{ root: { maxWidth: 280 }, container: { fontSize: 11, lineHeight: '1.4' } }}>
                       <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
                     </Tooltip>
                   </div>
@@ -634,7 +634,7 @@ export function ReportsPage() {
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'requirement' ? '' : 'hidden'}`}>
                   <div className="flex items-center gap-1">
                     <span className="text-xs font-medium text-[#666666]">Efficiency</span>
-                    <Tooltip title="Delivery efficiency score. Formula: (On Time Completed ÷ Total Requirements) × 100. A higher % means more requirements are being delivered on time and within budget." styles={{ root: { maxWidth: 260 }, body: { fontSize: 11, lineHeight: '1.4' } }}>
+                    <Tooltip title="Delivery efficiency score. Formula: (On Time Completed ÷ Total Requirements) × 100. A higher % means more requirements are being delivered on time and within budget." styles={{ root: { maxWidth: 280 }, container: { fontSize: 11, lineHeight: '1.4' } }}>
                       <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
                     </Tooltip>
                   </div>
@@ -676,7 +676,7 @@ export function ReportsPage() {
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'task' ? '' : 'hidden'}`}>
                   <div className="flex items-center gap-1">
                     <span className="text-xs font-medium text-[#666666]">In Progress</span>
-                    <Tooltip title="Tasks currently being worked on. Includes statuses: Assigned, In Progress, Review, Stuck, and Impediment." styles={{ root: { maxWidth: 260 }, body: { fontSize: 11, lineHeight: '1.4' } }}>
+                    <Tooltip title="Tasks currently being worked on. Includes statuses: Assigned, In Progress, Review, Stuck, and Impediment." styles={{ root: { maxWidth: 280 }, container: { fontSize: 11, lineHeight: '1.4' } }}>
                       <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
                     </Tooltip>
                   </div>
@@ -687,7 +687,7 @@ export function ReportsPage() {
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'task' ? '' : 'hidden'}`}>
                   <div className="flex items-center gap-1">
                     <span className="text-xs font-medium text-[#666666]">Delayed</span>
-                    <Tooltip title="Tasks with status set to Delayed, or incomplete tasks whose due date has already passed. The +Xh shows total extra hours logged beyond estimated on over-budget completed tasks." styles={{ root: { maxWidth: 260 }, body: { fontSize: 11, lineHeight: '1.4' } }}>
+                    <Tooltip title="Tasks with status set to Delayed, or incomplete tasks whose due date has already passed. The +Xh shows total extra hours logged beyond estimated on over-budget completed tasks." styles={{ root: { maxWidth: 280 }, container: { fontSize: 11, lineHeight: '1.4' } }}>
                       <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
                     </Tooltip>
                   </div>
@@ -699,7 +699,7 @@ export function ReportsPage() {
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'task' ? '' : 'hidden'}`}>
                   <div className="flex items-center gap-1">
                     <span className="text-xs font-medium text-[#666666]">Efficiency</span>
-                    <Tooltip title="Task delivery efficiency. Formula: (On Time Completed ÷ Total Tasks) × 100. A higher % means more tasks are being completed within their estimated hours." styles={{ root: { maxWidth: 260 }, body: { fontSize: 11, lineHeight: '1.4' } }}>
+                    <Tooltip title="Task delivery efficiency. Formula: (On Time Completed ÷ Total Tasks) × 100. A higher % means more tasks are being completed within their estimated hours." styles={{ root: { maxWidth: 280 }, container: { fontSize: 11, lineHeight: '1.4' } }}>
                       <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
                     </Tooltip>
                   </div>
@@ -723,7 +723,7 @@ export function ReportsPage() {
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'member' ? '' : 'hidden'}`}>
                   <div className="flex items-center gap-1">
                     <span className="text-xs font-medium text-[#666666]">Total Expenses</span>
-                    <Tooltip title="Total cost incurred by all employees in the selected period. Formula: Sum of (hours logged × hourly rate) for each employee. Hourly rate is taken from their profile, or derived from annual salary ÷ annual working hours." styles={{ root: { maxWidth: 280 }, body: { fontSize: 11, lineHeight: '1.4' } }}>
+                    <Tooltip title="Total cost incurred by all employees in the selected period. Formula: Sum of (hours logged × hourly rate) for each employee. Hourly rate is taken from their profile, or derived from annual salary ÷ annual working hours." styles={{ root: { maxWidth: 280 }, container: { fontSize: 11, lineHeight: '1.4' } }}>
                       <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
                     </Tooltip>
                   </div>
@@ -732,7 +732,7 @@ export function ReportsPage() {
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'member' ? '' : 'hidden'}`}>
                   <div className="flex items-center gap-1">
                     <span className="text-xs font-medium text-[#666666]">Total Revenue</span>
-                    <Tooltip title="Revenue generated from client and outsourced requirements in the selected period. Each employee's share is proportional to their logged hours on that requirement vs. the total hours logged by all team members. Based on the requirement's quoted price (or budget if no quote yet). In-house work generates $0 revenue." styles={{ root: { maxWidth: 280 }, body: { fontSize: 11, lineHeight: '1.4' } }}>
+                    <Tooltip title="Revenue generated from client and outsourced requirements in the selected period. Each employee's share is proportional to their logged hours on that requirement vs. the total hours logged by all team members. Based on the requirement's quoted price (or budget if no quote yet). In-house work generates $0 revenue." styles={{ root: { maxWidth: 280 }, container: { fontSize: 11, lineHeight: '1.4' } }}>
                       <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
                     </Tooltip>
                   </div>
@@ -741,7 +741,7 @@ export function ReportsPage() {
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'member' ? '' : 'hidden'}`}>
                   <div className="flex items-center gap-1">
                     <span className="text-xs font-medium text-[#666666]">Net Profit</span>
-                    <Tooltip title="Total Revenue minus Total Expenses across all employees in the selected period. A positive value means your team is generating more revenue than it costs to run. A negative value indicates a cost overrun." styles={{ root: { maxWidth: 280 }, body: { fontSize: 11, lineHeight: '1.4' } }}>
+                    <Tooltip title="Total Revenue minus Total Expenses across all employees in the selected period. A positive value means your team is generating more revenue than it costs to run. A negative value indicates a cost overrun." styles={{ root: { maxWidth: 280 }, container: { fontSize: 11, lineHeight: '1.4' } }}>
                       <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
                     </Tooltip>
                   </div>
@@ -752,7 +752,7 @@ export function ReportsPage() {
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'member' ? '' : 'hidden'}`}>
                   <div className="flex items-center gap-1">
                     <span className="text-xs font-medium text-[#666666]">Avg. Rate/Hr</span>
-                    <Tooltip title="Average hourly cost rate across all employees matching the current filters. Based on each employee's set hourly rate, or calculated from their annual salary divided by annual working hours." styles={{ root: { maxWidth: 280 }, body: { fontSize: 11, lineHeight: '1.4' } }}>
+                    <Tooltip title="Average hourly cost rate across all employees matching the current filters. Based on each employee's set hourly rate, or calculated from their annual salary divided by annual working hours." styles={{ root: { maxWidth: 280 }, container: { fontSize: 11, lineHeight: '1.4' } }}>
                       <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
                     </Tooltip>
                   </div>
@@ -763,7 +763,7 @@ export function ReportsPage() {
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'member' ? '' : 'hidden'}`}>
                   <div className="flex items-center gap-1">
                     <span className="text-xs font-medium text-[#666666]">Occupancy</span>
-                    <Tooltip title="Average workforce utilization. Formula: (Hours logged ÷ Available working hours in period) × 100. Available hours are based on each employee's working schedule minus public holidays. ≥70% is considered healthy." styles={{ root: { maxWidth: 280 }, body: { fontSize: 11, lineHeight: '1.4' } }}>
+                    <Tooltip title="Average workforce utilization. Formula: (Hours logged ÷ Available working hours in period) × 100. Available hours are based on each employee's working schedule minus public holidays. ≥70% is considered healthy." styles={{ root: { maxWidth: 280 }, container: { fontSize: 11, lineHeight: '1.4' } }}>
                       <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
                     </Tooltip>
                   </div>
@@ -774,7 +774,7 @@ export function ReportsPage() {
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'member' ? '' : 'hidden'}`}>
                   <div className="flex items-center gap-1">
                     <span className="text-xs font-medium text-[#666666]">Efficiency</span>
-                    <Tooltip title="Average on-time delivery rate across all employees. Formula: (Tasks completed on or before their due date ÷ Total tasks assigned) × 100. Only tasks started within the selected date range are counted. ≥75% is considered good." styles={{ root: { maxWidth: 280 }, body: { fontSize: 11, lineHeight: '1.4' } }}>
+                    <Tooltip title="Average on-time delivery rate across all employees. Formula: (Tasks completed on or before their due date ÷ Total tasks assigned) × 100. Only tasks started within the selected date range are counted. ≥75% is considered good." styles={{ root: { maxWidth: 280 }, container: { fontSize: 11, lineHeight: '1.4' } }}>
                       <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
                     </Tooltip>
                   </div>
