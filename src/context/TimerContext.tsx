@@ -53,7 +53,6 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
         else setIsSyncing(true);
 
         const source = isBackground ? 'Background/Event' : 'Manual/Initial';
-        console.log(`[${new Date().toISOString()}] Syncing Timer (${source})...`);
 
         try {
             const { result } = await getCurrentActiveTimer();
@@ -68,7 +67,6 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
 
                 setTimerState(prev => {
                     const localElapsed = Math.floor((now.getTime() - start.getTime()) / 1000);
-                    console.log(`[TimerSync] Active Worklog: ${timer.worklog_id}, Task: ${timer.task_id}, Start: ${timer.start_datetime}, Calculated Elapsed: ${localElapsed}s`);
 
                     // Avoid unnecessary re-renders if state matches, but update elapsed
                     if (prev.worklogId === timer.worklog_id && prev.isRunning) {
@@ -100,7 +98,6 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
                     // CRITICAL FIX: If we are in optimistic start state (worklogId === -1), 
                     // DO NOT stop just because server hasn't caught up yet.
                     if (prev.worklogId === -1) {
-                        console.log(`[${new Date().toISOString()}] Sync ignored - preserving optimistic timer state for Task ${prev.taskId}`);
                         return prev;
                     }
 
@@ -112,7 +109,6 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
                             return prev;
                         }
 
-                        console.log(`[${new Date().toISOString()}] Remote Stop Confirmed (Debounce ${consecutiveNullsRef.current}). Stopping local timer.`);
                         return {
                             isRunning: false,
                             taskId: null,
@@ -145,13 +141,11 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
         // 2. Event Handlers
         const handleVisibilityChange = () => {
             if (document.visibilityState === 'visible') {
-                console.log("Tab Active: Syncing Timer...");
                 syncTimer(true);
             }
         };
 
         const handleOnline = () => {
-            console.log("Network Online: Syncing Timer...");
             syncTimer(true);
         };
 
