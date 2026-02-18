@@ -167,13 +167,13 @@ export function MeetingsWidget({ onNavigate }: { onNavigate?: (page: string) => 
         {/* Header */}
         <div className="flex items-center justify-between mb-1.5">
           <div className="flex items-center gap-2">
-            <h3 className="font-['Manrope:SemiBold',sans-serif] text-[20px] text-[#111111]">Meetings</h3>
+            <h3 className="font-semibold text-xl text-[#111111]">Meetings</h3>
             <button onClick={() => setShowDialog(true)} className="hover:scale-110 active:scale-95 transition-transform">
               <Plus className="size-5 text-[#ff3b3b]" strokeWidth={2} />
             </button>
           </div>
           <div className="flex items-center gap-2">
-            <button className="flex items-center gap-1 text-[#666666] text-[14px] font-['Manrope:SemiBold',sans-serif] hover:text-[#111111] transition-colors" onClick={() => onNavigate && onNavigate('calendar')}>
+            <button className="flex items-center gap-1 text-[#666666] text-sm font-semibold hover:text-[#111111] transition-colors" onClick={() => onNavigate && onNavigate('calendar')}>
               <span>View All</span>
               <svg className="size-[17px]" fill="none" viewBox="0 0 17 17">
                 <path d={svgPaths.p3ac7a560} stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
@@ -190,11 +190,11 @@ export function MeetingsWidget({ onNavigate }: { onNavigate?: (page: string) => 
                 <div key={i} className="flex flex-col p-3 rounded-[16px] border border-gray-100 bg-white">
                   <div className="flex justify-between items-start mb-3">
                     <div className="flex flex-col gap-2">
-                       <Skeleton className="h-4 w-32 rounded-md" />
-                       <div className="flex items-center gap-2">
-                         <Skeleton className="h-3 w-16 rounded-md" />
-                         <Skeleton className="h-3 w-12 rounded-md" />
-                       </div>
+                      <Skeleton className="h-4 w-32 rounded-md" />
+                      <div className="flex items-center gap-2">
+                        <Skeleton className="h-3 w-16 rounded-md" />
+                        <Skeleton className="h-3 w-12 rounded-md" />
+                      </div>
                     </div>
                     <Skeleton className="w-8 h-8 rounded-full" />
                   </div>
@@ -211,13 +211,13 @@ export function MeetingsWidget({ onNavigate }: { onNavigate?: (page: string) => 
             </div>
           ) : isError && !eventsData ? (
             <div className="flex items-center justify-center py-8">
-              <p className="text-[14px] font-['Manrope:Regular',sans-serif] text-[#666666]">
+              <p className="text-sm font-normal text-[#666666]">
                 Unable to load meetings at the moment. Please connect to Teams.
               </p>
             </div>
           ) : processedMeetings.length === 0 ? (
             <div className="bg-white rounded-[10px] border border-dashed border-[#CCCCCC] py-4 flex items-center justify-center">
-              <p className="text-[14px] font-['Manrope:Regular',sans-serif] text-[#888888]">No upcoming meetings</p>
+              <p className="text-sm font-normal text-[#888888]">No upcoming meetings</p>
             </div>
           ) : (
             <div className="flex flex-col gap-2.5">
@@ -342,15 +342,15 @@ function MeetingItem({
         onOpenChange={setShowDetails}
         trigger="click"
         placement="right"
-        overlayInnerStyle={{ padding: 0 }}
+        styles={{ body: { padding: 0 } }}
         content={
           <div className="w-[300px] bg-white rounded-[12px] shadow-lg border border-[#EEEEEE] overflow-hidden">
             {/* Header */}
             <div className="px-4 py-3 bg-[#FAFAFA] border-b border-[#EEEEEE]">
-              <h4 className="font-['Manrope:SemiBold',sans-serif] text-[14px] text-[#111111] mb-1.5 line-clamp-2 leading-tight">
+              <h4 className="font-semibold text-sm text-[#111111] mb-1.5 line-clamp-2 leading-tight">
                 {title}
               </h4>
-              <div className="flex items-center gap-1.5 text-[#666666] text-[11px] font-['Manrope:Regular',sans-serif]">
+              <div className="flex items-center gap-1.5 text-[#666666] text-[0.6875rem] font-normal">
                 <Clock className="size-3" strokeWidth={2} />
                 <span>{time}</span>
                 <span className="text-[#CCCCCC]">•</span>
@@ -362,15 +362,15 @@ function MeetingItem({
             <div className="px-4 py-3 space-y-2.5 bg-white">
               {/* Host */}
               <div className="flex items-center gap-2">
-                <span className="text-[11px] font-['Manrope:Medium',sans-serif] text-[#999999] uppercase tracking-wide min-w-[45px]">Host</span>
-                <span className="text-[12px] font-['Manrope:Regular',sans-serif] text-[#111111]">{organizer}</span>
+                <span className="text-[0.6875rem] font-medium text-[#999999] uppercase tracking-wide min-w-[45px]">Host</span>
+                <span className="text-xs font-normal text-[#111111]">{organizer}</span>
               </div>
 
               {/* Date & Time */}
               {startDateTime && endDateTime && (
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-['Manrope:Medium',sans-serif] text-[#999999] uppercase tracking-wide min-w-[45px]">When</span>
-                  <span className="text-[12px] font-['Manrope:Regular',sans-serif] text-[#111111]">
+                  <span className="text-[0.6875rem] font-medium text-[#999999] uppercase tracking-wide min-w-[45px]">When</span>
+                  <span className="text-xs font-normal text-[#111111]">
                     {dayjs(startDateTime).format('MMM D, YYYY')} • {time} - {dayjs(endDateTime).format('h:mm A')}
                   </span>
                 </div>
@@ -379,9 +379,9 @@ function MeetingItem({
               {/* Attendees - Compact */}
               {allAttendees && allAttendees.length > 0 && (
                 <div className="flex items-start gap-2">
-                  <span className="text-[11px] font-['Manrope:Medium',sans-serif] text-[#999999] uppercase tracking-wide min-w-[45px] pt-0.5">With</span>
+                  <span className="text-[0.6875rem] font-medium text-[#999999] uppercase tracking-wide min-w-[45px] pt-0.5">With</span>
                   <div className="flex-1">
-                    <div className="text-[12px] font-['Manrope:Regular',sans-serif] text-[#111111] leading-relaxed">
+                    <div className="text-xs font-normal text-[#111111] leading-relaxed">
                       {allAttendees.slice(0, 3).map((a) => a.name).join(', ')}
                       {allAttendees.length > 3 && (
                         <span className="text-[#999999]"> +{allAttendees.length - 3} more</span>
@@ -403,7 +403,7 @@ function MeetingItem({
                     }
                     setShowDetails(false);
                   }}
-                  className="w-full h-9 rounded-lg bg-[#111111] hover:bg-[#000000]/90 text-white text-[13px] font-['Manrope:SemiBold',sans-serif] transition-all active:scale-95 border-none flex items-center justify-center gap-2 shadow-sm"
+                  className="w-full h-9 rounded-lg bg-[#111111] hover:bg-[#000000]/90 text-white text-[0.8125rem] font-semibold transition-all active:scale-95 border-none flex items-center justify-center gap-2 shadow-sm"
                   icon={<Video className="w-3.5 h-3.5" />}
                 >
                   Join {platform} Meeting
@@ -424,11 +424,11 @@ function MeetingItem({
                 ? 'bg-[#ff3b3b]'
                 : 'bg-[#E5E5E5]'
                 }`}>
-                <span className={`text-[10px] font-['Manrope:Medium',sans-serif] uppercase leading-none mb-0.5 ${isRedDate ? 'text-white' : 'text-[#666666]'
+                <span className={`text-[0.625rem] font-medium uppercase leading-none mb-0.5 ${isRedDate ? 'text-white' : 'text-[#666666]'
                   }`}>
                   {date.month}
                 </span>
-                <span className={`text-[20px] font-['Manrope:Bold',sans-serif] leading-none ${isRedDate ? 'text-white' : 'text-[#111111]'
+                <span className={`text-xl font-bold leading-none ${isRedDate ? 'text-white' : 'text-[#111111]'
                   }`}>
                   {date.day}
                 </span>
@@ -439,13 +439,13 @@ function MeetingItem({
             <div className="flex-1 min-w-0">
               {/* Title & Platform Tag */}
               <div className="flex items-start justify-between gap-2 mb-1">
-                <h4 className="font-['Manrope:SemiBold',sans-serif] text-[13px] text-[#111111] line-clamp-1 flex-1">
+                <h4 className="font-semibold text-[0.8125rem] text-[#111111] line-clamp-1 flex-1">
                   {truncateTitle(title)}
                 </h4>
                 {joinUrl ? (
                   <button
                     onClick={handleJoinClick}
-                    className="px-1.5 py-0.5 rounded-full text-[9px] font-['Manrope:Medium',sans-serif] flex-shrink-0 flex items-center gap-0.5 hover:opacity-80 transition-opacity cursor-pointer"
+                    className="px-1.5 py-0.5 rounded-full text-[0.5625rem] font-medium flex-shrink-0 flex items-center gap-0.5 hover:opacity-80 transition-opacity cursor-pointer"
                     style={{ backgroundColor: platformColor.bg, color: platformColor.text }}
                     title={`Join ${platform} meeting`}
                   >
@@ -456,7 +456,7 @@ function MeetingItem({
                   </button>
                 ) : (
                   <span
-                    className="px-1.5 py-0.5 rounded-full text-[9px] font-['Manrope:Medium',sans-serif] flex-shrink-0 flex items-center gap-0.5"
+                    className="px-1.5 py-0.5 rounded-full text-[0.5625rem] font-medium flex-shrink-0 flex items-center gap-0.5"
                     style={{ backgroundColor: platformColor.bg, color: platformColor.text }}
                   >
                     <svg className="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20">
@@ -470,12 +470,12 @@ function MeetingItem({
               {/* Time, Duration, Host & Attendees - All in one line */}
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 flex-1 min-w-0">
-                  <div className="flex items-center gap-1 text-[#666666] text-[11px] font-['Manrope:Regular',sans-serif]">
+                  <div className="flex items-center gap-1 text-[#666666] text-[0.6875rem] font-normal">
                     <Clock className="size-3.5" strokeWidth={2} />
                     <span>{time}</span>
                   </div>
                   <div className="w-1 h-1 rounded-full bg-[#CCCCCC]" />
-                  <span className="text-[#666666] text-[11px] font-['Manrope:Regular',sans-serif]">Host: {truncateOrganizer(organizer)}</span>
+                  <span className="text-[#666666] text-[0.6875rem] font-normal">Host: {truncateOrganizer(organizer)}</span>
                 </div>
 
                 {/* Attendees - Aligned to the right on same line */}
@@ -487,14 +487,14 @@ function MeetingItem({
                         key={index}
                         className="w-6 h-6 rounded-full border-2 border-white bg-gradient-to-br from-[#ff3b3b] to-[#ff6b6b] flex items-center justify-center shadow-sm relative z-[5] hover:z-10 transition-all"
                       >
-                        <span className="text-[9px] text-white font-['Manrope:Bold',sans-serif]">{initials}</span>
+                        <span className="text-[0.5625rem] text-white font-bold">{initials}</span>
                       </div>
                     );
                   })}
                   {totalAttendees > attendees.length && (
                     <div className={`w-6 h-6 rounded-full border-2 border-white flex items-center justify-center shadow-sm relative z-[1] ${isRedDate ? 'bg-[#ff3b3b]' : 'bg-[#E5E5E5]'
                       }`}>
-                      <span className={`text-[9px] font-['Manrope:SemiBold',sans-serif] ${isRedDate ? 'text-white' : 'text-[#666666]'
+                      <span className={`text-[0.5625rem] font-semibold ${isRedDate ? 'text-white' : 'text-[#666666]'
                         }`}>
                         +{totalAttendees - attendees.length}
                       </span>
