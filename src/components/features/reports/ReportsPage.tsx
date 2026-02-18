@@ -267,6 +267,32 @@ export function ReportsPage() {
     }
   };
 
+  // Helper to wait for element to exist in DOM
+  const waitForElement = (id: string, timeout = 3000): Promise<HTMLElement | null> => {
+    return new Promise((resolve) => {
+      if (document.getElementById(id)) {
+        return resolve(document.getElementById(id));
+      }
+
+      const observer = new MutationObserver(() => {
+        if (document.getElementById(id)) {
+          observer.disconnect();
+          resolve(document.getElementById(id));
+        }
+      });
+
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true,
+      });
+
+      setTimeout(() => {
+        observer.disconnect();
+        resolve(document.getElementById(id));
+      }, timeout);
+    });
+  };
+
   const handleDownloadPDF = async () => {
     if (isDownloading) return;
     setIsDownloading(true);
@@ -285,8 +311,8 @@ export function ReportsPage() {
 
       setExportData(allData);
 
-      // 3. Wait for render (short timeout to ensure DOM is updated)
-      await new Promise(resolve => setTimeout(resolve, 100));
+      // 3. Wait for render (using MutationObserver instead of fixed timeout)
+      await waitForElement('pdf-report-container');
 
       const fileName = `alsonotify_${activeTab}_report_${getDayjsInTimezone().format('YYYY-MM-DD')}.pdf`;
       const { generatePdf } = await import('./ReportsPdfGeneration');
@@ -305,6 +331,9 @@ export function ReportsPage() {
     if (!selectedMember) return;
     setIsDownloadingIndividual(true);
     try {
+      // Ensure element is present (it should be since drawer is open, but safe to wait)
+      await waitForElement('pdf-individual-report-container');
+
       const fileName = `alsonotify_employee_${selectedMember.member.replace(/\s+/g, '_')}_${getDayjsInTimezone().format('YYYY-MM-DD')}.pdf`;
       const { generatePdf } = await import('./ReportsPdfGeneration');
       await generatePdf(fileName, 'pdf-individual-report-container');

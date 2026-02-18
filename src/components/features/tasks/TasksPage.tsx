@@ -154,6 +154,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
   const apiUser = userDetailsData?.result || {};
   const userRole = getRoleFromUser(apiUser);
   const isAdmin = userRole?.toLowerCase() === 'admin';
+  const isCoordinator = userRole?.toLowerCase() === 'coordinator';
 
   const initialFilters = {
     user: 'All',
@@ -163,8 +164,8 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
     requirement: 'All'
   };
 
-  // Only auto-apply user filter for non-admin users
-  if (!isAdmin && currentUserName) {
+  // Only auto-apply user filter for non-admin and non-coordinator users
+  if (!isAdmin && !isCoordinator && currentUserName) {
     initialFilters.user = currentUserName;
   }
 

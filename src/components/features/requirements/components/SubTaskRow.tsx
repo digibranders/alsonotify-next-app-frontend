@@ -48,7 +48,7 @@ export function SubTaskRow({
         {/* Task Info */}
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <h3 className="font-bold text-sm text-[#111111] group-hover:text-[#ff3b3b] transition-colors">
+            <h3 className="font-semibold text-sm text-[#111111] group-hover:text-[#ff3b3b] transition-colors">
               {task.name}
             </h3>
           </div>

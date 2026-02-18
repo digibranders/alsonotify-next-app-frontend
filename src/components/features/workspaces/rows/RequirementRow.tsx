@@ -69,16 +69,15 @@ export const RequirementRow = React.memo(function RequirementRow({ req, workspac
         {/* Requirement + client */}
         <div className="flex items-start gap-3">
           <span
-            className={`mt-1 w-2.5 h-2.5 rounded-full ${
-              req.priority === 'high'
+            className={`mt-1 w-2.5 h-2.5 rounded-full ${req.priority === 'high'
                 ? 'bg-[#ff3b3b]'
                 : req.priority === 'low'
-                ? 'bg-[#FACC15]'
-                : 'bg-[#F59E0B]'
-            }`}
+                  ? 'bg-[#FACC15]'
+                  : 'bg-[#F59E0B]'
+              }`}
           />
           <div>
-            <h3 className="font-bold text-sm text-[#111111] group-hover:text-[#ff3b3b] transition-colors mb-1.5">
+            <h3 className="font-semibold text-sm text-[#111111] group-hover:text-[#ff3b3b] transition-colors mb-1.5">
               {req.title}
             </h3>
             <div className="flex items-center gap-2 flex-wrap">
@@ -160,8 +159,8 @@ export const RequirementRow = React.memo(function RequirementRow({ req, workspac
                 req.status === 'completed'
                   ? '#0F9D58'
                   : req.status === 'delayed'
-                  ? '#EB5757'
-                  : '#2F80ED'
+                    ? '#EB5757'
+                    : '#2F80ED'
               }
               railColor="#F7F7F7"
               size="small"
@@ -175,11 +174,11 @@ export const RequirementRow = React.memo(function RequirementRow({ req, workspac
 
         {/* Actions */}
         <div className="flex justify-end" onClick={(e) => e.stopPropagation()}>
-            <Dropdown menu={{ items: menuItems }} trigger={['click']} placement="bottomRight">
-                <button className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#F7F7F7] transition-colors">
-                    <MoreVertical className="w-4 h-4 text-[#999999]" />
-                </button>
-            </Dropdown>
+          <Dropdown menu={{ items: menuItems }} trigger={['click']} placement="bottomRight">
+            <button className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#F7F7F7] transition-colors">
+              <MoreVertical className="w-4 h-4 text-[#999999]" />
+            </button>
+          </Dropdown>
         </div>
       </div>
     </div>

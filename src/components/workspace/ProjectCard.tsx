@@ -249,7 +249,7 @@ export function WorkspaceDetailsPage({ id }: { id: string }) {
           <Breadcrumb
             items={[
               { title: <a onClick={() => router.push('/dashboard/workspace')} className="cursor-pointer font-medium">Workspaces</a> },
-              { title: <span className="font-bold text-[#111111]">{workspace.name}</span> }
+              { title: <span className="font-semibold text-[#111111]">{workspace.name}</span> }
             ]}
             separator={<ChevronRight className="w-4 h-4 text-[#999999]" />}
           />
@@ -262,7 +262,7 @@ export function WorkspaceDetailsPage({ id }: { id: string }) {
                 <FolderOpen className="w-8 h-8 text-[#ff3b3b]" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-[#111111] mb-2">{workspace.name}</h1>
+                <h1 className="text-2xl font-semibold text-[#111111] mb-2">{workspace.name}</h1>
                 <div className="flex items-center gap-4 text-[0.8125rem] text-[#666666]">
                   <span className="flex items-center gap-1.5 font-medium">
                     <UserPlus className="w-4 h-4" />
