@@ -17,6 +17,9 @@ module.exports = {
             },
         },
         extend: {
+            fontFamily: {
+                manrope: ['var(--font-manrope)', 'sans-serif'],
+            },
             colors: {
                 border: "var(--border)",
                 input: "var(--input)",

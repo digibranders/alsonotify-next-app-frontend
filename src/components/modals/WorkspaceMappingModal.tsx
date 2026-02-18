@@ -39,7 +39,7 @@ export const WorkspaceMappingModal = ({
         <Modal
             title={
                 <div className="flex flex-col gap-1 mb-4">
-                    <span className="text-lg font-['Manrope:Bold',sans-serif]">Map to Workspace</span>
+                    <span className="text-lg font-bold">Map to Workspace</span>
                     <span className="text-xs text-[#666666] font-normal">
                         Select an internal workspace to link this requirement to.
                     </span>
@@ -48,7 +48,7 @@ export const WorkspaceMappingModal = ({
             open={open}
             onCancel={onClose}
             footer={null}
-            width={450}
+            width="min(450px, 95vw)"
             centered
         >
             <div className="flex flex-col gap-6">

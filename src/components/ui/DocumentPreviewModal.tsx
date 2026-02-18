@@ -18,7 +18,7 @@ export function DocumentPreviewModal({ open, onClose, document }: DocumentPrevie
       open={open}
       onCancel={onClose}
       footer={null}
-      width={1100}
+      width="min(1100px, 95vw)"
       centered
       className="rounded-[12px] overflow-hidden"
       closeIcon={<X className="w-5 h-5 text-[#666666]" />}
@@ -168,7 +168,7 @@ function DocumentPreviewContent({ document }: { document: UserDocument }) {
             <a
               href={document.fileUrl}
               download={document.fileName}
-              className="inline-block px-6 py-2 bg-[#ff3b3b] hover:bg-[#ff3b3b]/90 text-white rounded-full text-[13px] font-semibold transition-colors"
+              className="inline-block px-6 py-2 bg-[#ff3b3b] hover:bg-[#ff3b3b]/90 text-white rounded-full text-[0.8125rem] font-semibold transition-colors"
             >
               Download File
             </a>
@@ -192,7 +192,7 @@ function DocumentPreviewContent({ document }: { document: UserDocument }) {
             <a
               href={document.fileUrl}
               download={document.fileName}
-              className="inline-block px-6 py-2 bg-[#ff3b3b] hover:bg-[#ff3b3b]/90 text-white rounded-full text-[13px] font-semibold transition-colors"
+              className="inline-block px-6 py-2 bg-[#ff3b3b] hover:bg-[#ff3b3b]/90 text-white rounded-full text-[0.8125rem] font-semibold transition-colors"
             >
               Download File
             </a>
@@ -216,7 +216,7 @@ function DocumentPreviewContent({ document }: { document: UserDocument }) {
             <a
               href={document.fileUrl}
               download={document.fileName}
-              className="inline-block px-6 py-2 bg-[#ff3b3b] hover:bg-[#ff3b3b]/90 text-white rounded-full text-[13px] font-semibold transition-colors"
+              className="inline-block px-6 py-2 bg-[#ff3b3b] hover:bg-[#ff3b3b]/90 text-white rounded-full text-[0.8125rem] font-semibold transition-colors"
             >
               Download File
             </a>
@@ -240,7 +240,7 @@ function DocumentPreviewContent({ document }: { document: UserDocument }) {
             <a
               href={document.fileUrl}
               download={document.fileName}
-              className="inline-block px-6 py-2 bg-[#ff3b3b] hover:bg-[#ff3b3b]/90 text-white rounded-full text-[13px] font-semibold transition-colors"
+              className="inline-block px-6 py-2 bg-[#ff3b3b] hover:bg-[#ff3b3b]/90 text-white rounded-full text-[0.8125rem] font-semibold transition-colors"
             >
               Download File
             </a>
@@ -264,7 +264,7 @@ function DocumentPreviewContent({ document }: { document: UserDocument }) {
             <a
               href={document.fileUrl}
               download={document.fileName}
-              className="inline-block px-6 py-2 bg-[#ff3b3b] hover:bg-[#ff3b3b]/90 text-white rounded-full text-[13px] font-semibold transition-colors"
+              className="inline-block px-6 py-2 bg-[#ff3b3b] hover:bg-[#ff3b3b]/90 text-white rounded-full text-[0.8125rem] font-semibold transition-colors"
             >
               Download File
             </a>
@@ -288,7 +288,7 @@ function DocumentPreviewContent({ document }: { document: UserDocument }) {
             <a
               href={document.fileUrl}
               download={document.fileName}
-              className="inline-block px-6 py-2 bg-[#ff3b3b] hover:bg-[#ff3b3b]/90 text-white rounded-full text-[13px] font-semibold transition-colors"
+              className="inline-block px-6 py-2 bg-[#ff3b3b] hover:bg-[#ff3b3b]/90 text-white rounded-full text-[0.8125rem] font-semibold transition-colors"
             >
               Download File
             </a>
@@ -317,7 +317,7 @@ function DocumentPreviewContent({ document }: { document: UserDocument }) {
 
       return (
         <div className="w-full h-full bg-[#F9FAFB] rounded-lg overflow-hidden border border-gray-200">
-          <div className="max-h-[82vh] overflow-auto p-4 font-mono text-[12px] whitespace-pre-wrap selection:bg-blue-100">
+          <div className="max-h-[82vh] overflow-auto p-4 font-mono text-xs whitespace-pre-wrap selection:bg-blue-100">
             {textContent}
           </div>
         </div>
@@ -327,16 +327,16 @@ function DocumentPreviewContent({ document }: { document: UserDocument }) {
     return (
       <div className="w-full h-full flex flex-col items-center justify-center bg-[#F9FAFB] rounded-lg p-8">
         <div className="text-center">
-          <p className="text-[16px] font-['Manrope:SemiBold',sans-serif] text-[#111111] mb-2">
+          <p className="text-base font-semibold text-[#111111] mb-2">
             {document.fileName}
           </p>
-          <p className="text-[13px] text-[#666666] font-['Manrope:Regular',sans-serif] mb-4">
+          <p className="text-[0.8125rem] text-[#666666] font-normal mb-4">
             Preview not available for this file type. Please download to view.
           </p>
           <a
             href={document.fileUrl}
             download={document.fileName}
-            className="inline-block px-6 py-2 bg-[#ff3b3b] hover:bg-[#ff3b3b]/90 text-white rounded-full text-[13px] font-['Manrope:SemiBold',sans-serif] transition-colors"
+            className="inline-block px-6 py-2 bg-[#ff3b3b] hover:bg-[#ff3b3b]/90 text-white rounded-full text-[0.8125rem] font-semibold transition-colors"
           >
             Download File
           </a>
@@ -349,10 +349,10 @@ function DocumentPreviewContent({ document }: { document: UserDocument }) {
     <div className="bg-white p-2 md:p-3">
       <div className="mb-2 px-2 flex items-center justify-between">
         <div>
-          <h3 className="text-[15px] font-bold text-[#111111] mb-0">
+          <h3 className="text-[0.9375rem] font-bold text-[#111111] mb-0">
             {document.fileName}
           </h3>
-          <p className="text-[11px] text-[#666666] font-medium uppercase tracking-wider">
+          <p className="text-[0.6875rem] text-[#666666] font-medium uppercase tracking-wider">
             {document.documentTypeName}
           </p>
         </div>

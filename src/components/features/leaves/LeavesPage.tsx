@@ -54,7 +54,7 @@ export function LeavesPage() {
   const processedLeaves: Leave[] = useMemo(() => {
     if (!leavesData?.result) return [];
     return leavesData.result.map((leave: LeaveType) => {
-      const daysValue = typeof leave.days === 'number' ? leave.days : (Number.parseFloat(leave.days as any) || leave.days_count || 0);
+      const daysValue = typeof leave.days === 'number' ? leave.days : (Number.parseFloat(leave.days as unknown as string) || leave.days_count || 0);
       return {
         id: String(leave.id),
         employeeName: leave.user?.name || 'Unknown Employee',
@@ -76,8 +76,11 @@ export function LeavesPage() {
       const matchesSearch = searchQuery === '' ||
         leave.employeeName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         leave.reason.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesLeaveType = filters.leaveType === 'All' || leave.leaveType === filters.leaveType.toLowerCase();
-      const matchesEmployee = filters.employee === 'All' || leave.employeeName === filters.employee;
+      const matchesLeaveType = filters.leaveType === 'All' ||
+        filters.leaveType.toLowerCase().split(',').map(t => t.trim()).includes(leave.leaveType);
+
+      const matchesEmployee = filters.employee === 'All' ||
+        filters.employee.split(',').map(e => e.trim()).includes(leave.employeeName);
       return matchesTab && matchesSearch && matchesLeaveType && matchesEmployee;
     });
   }, [processedLeaves, activeTab, searchQuery, filters]);
@@ -86,9 +89,9 @@ export function LeavesPage() {
   const stats = useMemo(() => {
     const counts = { all: processedLeaves.length, pending: 0, approved: 0, rejected: 0 };
     processedLeaves.forEach(l => {
-        if (l.status === 'pending') counts.pending++;
-        else if (l.status === 'approved') counts.approved++;
-        else if (l.status === 'rejected') counts.rejected++;
+      if (l.status === 'pending') counts.pending++;
+      else if (l.status === 'approved') counts.approved++;
+      else if (l.status === 'rejected') counts.rejected++;
     });
     return counts;
   }, [processedLeaves]);
@@ -114,24 +117,24 @@ export function LeavesPage() {
 
   const handleApprove = async (leaveId: number) => {
     await updateStatusMutation.mutateAsync({ id: leaveId, status: 'APPROVED' });
-    
+
   };
 
   const handleReject = async (leaveId: number) => {
     await updateStatusMutation.mutateAsync({ id: leaveId, status: 'REJECTED' });
-    
+
   };
 
   const handleApplyLeave = async (values: ApplyLeaveFormValues) => {
-      await applyLeaveMutation.mutateAsync({
-        start_date: values.start_date.format('YYYY-MM-DD'),
-        end_date: values.end_date.format('YYYY-MM-DD'),
-        day_type: values.day_type,
-        leave_type: values.leave_type,
-        reason: values.reason,
-      });
-      form.resetFields();
-      setIsApplyLeaveModalOpen(false);
+    await applyLeaveMutation.mutateAsync({
+      start_date: values.start_date.format('YYYY-MM-DD'),
+      end_date: values.end_date.format('YYYY-MM-DD'),
+      day_type: values.day_type,
+      leave_type: values.leave_type,
+      reason: values.reason,
+    });
+    form.resetFields();
+    setIsApplyLeaveModalOpen(false);
   };
 
   // Filter options
@@ -146,8 +149,8 @@ export function LeavesPage() {
   }, [processedLeaves]);
 
   const filterOptions: FilterOption[] = [
-    { id: 'leaveType', label: 'Leave Type', options: leaveTypes, placeholder: 'Leave Type', defaultValue: 'All' },
-    { id: 'employee', label: 'Employee', options: employees, placeholder: 'Employee', defaultValue: 'All' }
+    { id: 'leaveType', label: 'Leave Type', options: leaveTypes, placeholder: 'Leave Type', defaultValue: 'All', multiSelect: true },
+    { id: 'employee', label: 'Employee', options: employees, placeholder: 'Employee', defaultValue: 'All', multiSelect: true }
   ];
 
   const handleFilterChange = (filterId: string, value: string) => {
@@ -169,7 +172,7 @@ export function LeavesPage() {
         { id: 'rejected', label: 'Rejected' },
       ]}
       activeTab={activeTab}
-      onTabChange={(tabId) => setActiveTab(tabId as any)}
+      onTabChange={(tabId) => setActiveTab(tabId as LeaveTab)}
       searchPlaceholder="Search leave requests..."
       searchValue={searchQuery}
       onSearchChange={setSearchQuery}
@@ -197,14 +200,14 @@ export function LeavesPage() {
               className="red-checkbox"
             />
           </div>
-          <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide"></p>
-          <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide">Employee</p>
-          <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide text-center">Type</p>
-          <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide">Duration</p>
-          <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide text-center">Days</p>
-          <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide text-center">Status</p>
-          <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide text-right pr-4">Actions</p>
-          <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wide text-right"></p>
+          <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide"></p>
+          <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Employee</p>
+          <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide text-center">Type</p>
+          <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Duration</p>
+          <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide text-center">Days</p>
+          <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide text-center">Status</p>
+          <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide text-right pr-4">Actions</p>
+          <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide text-right"></p>
         </div>
 
         {isLoading ? (
@@ -259,7 +262,7 @@ export function LeavesPage() {
         open={isApplyLeaveModalOpen}
         onCancel={() => { form.resetFields(); setIsApplyLeaveModalOpen(false); }}
         footer={null}
-        width={600}
+        width="min(600px, 95vw)"
         centered
         className="rounded-[16px] overflow-hidden"
         destroyOnHidden={true}
@@ -268,14 +271,14 @@ export function LeavesPage() {
           <div className="grid grid-cols-2 gap-4">
             <Form.Item
               name="start_date"
-              label={<span className="text-[14px] font-['Manrope:Medium',sans-serif] text-[#666666]">Start Date</span>}
+              label={<span className="text-sm font-medium text-[#666666]">Start Date</span>}
               rules={[{ required: true, message: 'Please select start date' }]}
             >
               <DatePicker className="w-full h-10 rounded-lg" format="YYYY-MM-DD" disabledDate={(current) => current && current < dayjs().startOf('day')} />
             </Form.Item>
             <Form.Item
               name="end_date"
-              label={<span className="text-[14px] font-['Manrope:Medium',sans-serif] text-[#666666]">End Date</span>}
+              label={<span className="text-sm font-medium text-[#666666]">End Date</span>}
               rules={[{ required: true, message: 'Please select end date' }]}
             >
               <DatePicker className="w-full h-10 rounded-lg" format="YYYY-MM-DD" disabledDate={(current) => current && current < dayjs().startOf('day')} />
@@ -283,7 +286,7 @@ export function LeavesPage() {
           </div>
           <Form.Item
             name="day_type"
-            label={<span className="text-[14px] font-['Manrope:Medium',sans-serif] text-[#666666]">Day Type</span>}
+            label={<span className="text-sm font-medium text-[#666666]">Day Type</span>}
             rules={[{ required: true, message: 'Please select day type' }]}
           >
             <Select className="w-full h-10 rounded-lg" placeholder="Select day type">
@@ -292,7 +295,7 @@ export function LeavesPage() {
           </Form.Item>
           <Form.Item
             name="leave_type"
-            label={<span className="text-[14px] font-['Manrope:Medium',sans-serif] text-[#666666]">Leave Type</span>}
+            label={<span className="text-sm font-medium text-[#666666]">Leave Type</span>}
             rules={[{ required: true, message: 'Please select leave type' }]}
           >
             <Select className="w-full h-10 rounded-lg" placeholder="Select leave type">
@@ -301,7 +304,7 @@ export function LeavesPage() {
           </Form.Item>
           <Form.Item
             name="reason"
-            label={<span className="text-[14px] font-['Manrope:Medium',sans-serif] text-[#666666]">Reason</span>}
+            label={<span className="text-sm font-medium text-[#666666]">Reason</span>}
             rules={[{ required: true, message: 'Please enter reason' }]}
           >
             <TextArea rows={4} className="rounded-lg" placeholder="Type or select a reason" />
