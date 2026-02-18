@@ -50,7 +50,7 @@ export function WorklogModal({
           <Button
             onClick={onCancel}
             disabled={isSubmitting}
-            className="h-11 px-6 rounded-lg border border-[#EEEEEE] text-[#666666] font-['Manrope:SemiBold',sans-serif] text-[14px] hover:bg-[#F7F7F7] hover:border-[#DDDDDD] transition-all"
+            className="h-11 px-6 rounded-lg border border-[#EEEEEE] text-[#666666] font-semibold text-sm hover:bg-[#F7F7F7] hover:border-[#DDDDDD] transition-all"
           >
             Cancel
           </Button>
@@ -58,7 +58,7 @@ export function WorklogModal({
             onClick={handleSubmit}
             loading={isSubmitting}
             disabled={isSubmitting}
-            className={`h-11 px-6 rounded-lg text-white font-['Manrope:SemiBold',sans-serif] text-[14px] transition-all shadow-sm border-none ${
+            className={`h-11 px-6 rounded-lg text-white font-semibold text-sm transition-all shadow-sm border-none ${
               actionType === 'stuck' 
                 ? 'bg-gradient-to-r from-[#ff3b3b] to-[#cc2f2f] hover:from-[#cc2f2f] hover:to-[#aa2525]' 
                 : 'bg-[#111111] hover:bg-[#000000]'
@@ -72,14 +72,14 @@ export function WorklogModal({
       <div className="space-y-5">
         {/* Worklog Description */}
         <div className="space-y-2">
-          <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">
+          <span className="text-[0.8125rem] font-bold text-[#111111]">
             Worklog Description <span className="text-red-500">*</span>
           </span>
           <TextArea
             placeholder={actionType === 'stuck' 
               ? "Describe what's blocking you or what challenge you're facing..."
               : "Describe what you completed or worked on..."}
-            className="min-h-[120px] rounded-lg border-[#EEEEEE] focus:border-[#111111] font-['Manrope:Regular',sans-serif] text-[14px] resize-none"
+            className="min-h-[120px] rounded-lg border-[#EEEEEE] focus:border-[#111111] font-normal text-sm resize-none"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={5}

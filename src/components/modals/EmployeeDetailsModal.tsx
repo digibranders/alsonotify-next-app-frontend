@@ -80,7 +80,7 @@ export function EmployeeDetailsModal({
       open={open}
       onCancel={onClose}
       footer={null}
-      width={700}
+      width="min(700px, 95vw)"
       centered
       className="rounded-[16px] overflow-hidden"
       closeIcon={<X className="w-5 h-5 text-[#666666]" />}
@@ -103,13 +103,13 @@ export function EmployeeDetailsModal({
                 />
               </div>
               <div>
-                <h2 className="text-[18px] font-['Manrope:Bold',sans-serif] text-[#111111] leading-tight">
+                <h2 className="text-lg font-bold text-[#111111] leading-tight">
                   {employee.name}
                 </h2>
                 <div className="flex items-center gap-2 mt-0.5">
                   <AccessBadge role={employee.access} color={employee.roleColor} />
                   <span
-                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-['Manrope:SemiBold',sans-serif] ${employee.status === 'active'
+                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[0.5625rem] font-semibold ${employee.status === 'active'
                       ? 'bg-[#ECFDF3] text-[#12B76A]'
                       : 'bg-[#FEF3F2] text-[#F04438]'
                       }`}
@@ -179,7 +179,7 @@ export function EmployeeDetailsModal({
           <section>
             <div className="flex items-center gap-2 mb-4">
               <div className="w-1 h-4 bg-[#111111] rounded-full"></div>
-              <h3 className="text-[14px] font-['Manrope:Bold',sans-serif] text-[#111111]">Basic Information</h3>
+              <h3 className="text-sm font-bold text-[#111111]">Basic Information</h3>
             </div>
             <div className="grid grid-cols-2 gap-y-5 gap-x-12 pl-3">
               <DetailItem label="Email Address" value={employee.email} icon={<Mail className="w-3.5 h-3.5" />} />
@@ -189,10 +189,10 @@ export function EmployeeDetailsModal({
             </div>
             {employee.bio && (
               <div className="mt-5 pl-3">
-                <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wider mb-2">
+                <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wider mb-2">
                   Professional Bio
                 </p>
-                <p className="text-[13px] text-[#444444] leading-relaxed font-['Manrope:Regular',sans-serif] bg-[#F9FAFB] p-4 rounded-xl border border-[#EEEEEE]">
+                <p className="text-[0.8125rem] text-[#444444] leading-relaxed font-normal bg-[#F9FAFB] p-4 rounded-xl border border-[#EEEEEE]">
                   {employee.bio}
                 </p>
               </div>
@@ -203,8 +203,8 @@ export function EmployeeDetailsModal({
           <section>
             <div className="flex items-center gap-2 mb-4">
               <div className="w-1 h-4 bg-[#111111] rounded-full"></div>
-              <h3 className="text-[14px] font-['Manrope:Bold',sans-serif] text-[#111111]">Employment & HR Details</h3>
-              <div className="text-[13px] text-[#666666]">Leaves: <span className="text-[#111111] font-medium">{employee.leaves_count}</span></div>
+              <h3 className="text-sm font-bold text-[#111111]">Employment & HR Details</h3>
+              <div className="text-[0.8125rem] text-[#666666]">Leaves: <span className="text-[#111111] font-medium">{employee.leaves_count}</span></div>
             </div>
             <div className="grid grid-cols-3 gap-4 mb-6 pl-3">
               <StatCard label="Experience" value={experience} icon={<Briefcase className="w-4 h-4 text-gray-400" />} />
@@ -229,13 +229,13 @@ export function EmployeeDetailsModal({
                     <ShieldAlert className="w-5 h-5" />
                   </div>
                   <div>
-                    <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#B42318] uppercase tracking-wider">Emergency Contact</p>
-                    <p className="text-[14px] font-['Manrope:SemiBold',sans-serif] text-[#912018]">{employee.emergencyContactName || 'N/A'}</p>
+                    <p className="text-[0.6875rem] font-bold text-[#B42318] uppercase tracking-wider">Emergency Contact</p>
+                    <p className="text-sm font-semibold text-[#912018]">{employee.emergencyContactName || 'N/A'}</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-[13px] text-[#666666] mb-1">Working Hours: <span className="text-[#111111] font-medium">{workingHours}</span></div>
-                  <p className="text-[13px] font-['Manrope:Medium',sans-serif] text-[#B42318]">{employee.emergencyContactPhone || '-'}</p>
+                  <div className="text-[0.8125rem] text-[#666666] mb-1">Working Hours: <span className="text-[#111111] font-medium">{workingHours}</span></div>
+                  <p className="text-[0.8125rem] font-medium text-[#B42318]">{employee.emergencyContactPhone || '-'}</p>
                 </div>
               </div>
             )}
@@ -245,12 +245,12 @@ export function EmployeeDetailsModal({
           <section>
             <div className="flex items-center gap-2 mb-4">
               <div className="w-1 h-4 bg-[#111111] rounded-full"></div>
-              <h3 className="text-[14px] font-['Manrope:Bold',sans-serif] text-[#111111]">Skills & Documents</h3>
+              <h3 className="text-sm font-bold text-[#111111]">Skills & Documents</h3>
             </div>
             <div className="space-y-6 pl-3">
               {/* Skillsets */}
               <div>
-                <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wider mb-3">
+                <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wider mb-3">
                   Professional Skillsets
                 </p>
                 <div className="flex flex-wrap gap-2">
@@ -258,20 +258,20 @@ export function EmployeeDetailsModal({
                     skills.map((skill, index) => (
                       <span
                         key={index}
-                        className="px-3 py-1 bg-[#F9FAFB] text-[#111111] text-[12px] font-['Manrope:Medium',sans-serif] rounded-full border border-[#EEEEEE]"
+                        className="px-3 py-1 bg-[#F9FAFB] text-[#111111] text-xs font-medium rounded-full border border-[#EEEEEE]"
                       >
                         {skill}
                       </span>
                     ))
                   ) : (
-                    <span className="text-[12px] text-[#999999] italic">No skills specified</span>
+                    <span className="text-xs text-[#999999] italic">No skills specified</span>
                   )}
                 </div>
               </div>
 
               {/* Documents */}
               <div>
-                <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wider mb-3">
+                <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wider mb-3">
                   Uploaded Documents
                 </p>
                 {documents && documents.length > 0 ? (
@@ -290,7 +290,7 @@ export function EmployeeDetailsModal({
                 ) : (
                   <div className="border border-[#EEEEEE] border-dashed rounded-xl p-6 bg-[#FAFAFA] text-center">
                     <FileText className="w-8 h-8 text-[#CCCCCC] mx-auto mb-2" />
-                    <p className="text-[12px] font-['Manrope:Medium',sans-serif] text-[#666666]">
+                    <p className="text-xs font-medium text-[#666666]">
                       No documents available
                     </p>
                   </div>
@@ -304,7 +304,7 @@ export function EmployeeDetailsModal({
         <div className="flex-shrink-0 border-t border-[#EEEEEE] px-6 py-4 flex items-center justify-end bg-white gap-3 rounded-b-[16px]">
           <Button
             onClick={onClose}
-            className="h-10 px-6 text-[14px] font-['Manrope:SemiBold',sans-serif] text-[#666666] border border-[#EEEEEE] hover:bg-[#F9FAFB] rounded-lg"
+            className="h-10 px-6 text-sm font-semibold text-[#666666] border border-[#EEEEEE] hover:bg-[#F9FAFB] rounded-lg"
           >
             Close
           </Button>
@@ -314,7 +314,7 @@ export function EmployeeDetailsModal({
               onClose();
               onEdit();
             }}
-            className="h-10 px-8 rounded-lg bg-[#111111] hover:bg-[#000000] text-white text-[14px] font-['Manrope:SemiBold',sans-serif] border-none active:scale-95 transition-transform"
+            className="h-10 px-8 rounded-lg bg-[#111111] hover:bg-[#000000] text-white text-sm font-semibold border-none active:scale-95 transition-transform"
           >
             Edit Profile
           </Button>
@@ -340,10 +340,10 @@ function DetailItem({ label, value, icon }: { label: string; value: string | nul
         {icon}
       </div>
       <div>
-        <p className="text-[11px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wider mb-0.5">
+        <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wider mb-0.5">
           {label}
         </p>
-        <p className="text-[14px] font-['Manrope:Medium',sans-serif] text-[#111111]">
+        <p className="text-sm font-medium text-[#111111]">
           {value || 'N/A'}
         </p>
       </div>
@@ -358,8 +358,8 @@ function StatCard({ label, value, icon }: { label: string; value: string; icon: 
         {icon}
       </div>
       <div>
-        <p className="text-[11px] font-['Manrope:Medium',sans-serif] text-[#666666] mb-0.5">{label}</p>
-        <p className="text-[16px] font-['Manrope:Bold',sans-serif] text-[#111111]">{value}</p>
+        <p className="text-[0.6875rem] font-medium text-[#666666] mb-0.5">{label}</p>
+        <p className="text-base font-bold text-[#111111]">{value}</p>
       </div>
     </div>
   );

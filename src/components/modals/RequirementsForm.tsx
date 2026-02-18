@@ -67,7 +67,7 @@ export function RequirementsForm(props: Readonly<RequirementsFormProps>) {
                 onCancel={onCancel}
                 footer={null}
                 title={null}
-                width={700}
+                width="min(700px, 95vw)"
                 centered
                 destroyOnHidden={true}
                 className="rounded-[16px] overflow-hidden"
@@ -262,7 +262,7 @@ function RequirementsFormContent({
             <Button
                 type="text"
                 onClick={onCancel}
-                className="h-11 px-6 text-[14px] font-['Manrope:SemiBold',sans-serif] text-[#666666] hover:text-[#111111] hover:bg-[#F7F7F7] rounded-xl transition-all"
+                className="h-11 px-6 text-sm font-semibold text-[#666666] hover:text-[#111111] hover:bg-[#F7F7F7] rounded-xl transition-all"
             >
                 Cancel
             </Button>
@@ -272,7 +272,7 @@ function RequirementsFormContent({
                     onClick={onSaveDraft}
                     loading={isLoading}
                     disabled={isLoading}
-                    className="h-11 px-6 text-[14px] font-['Manrope:SemiBold',sans-serif] rounded-xl border border-[#EEEEEE] hover:border-[#111111] hover:text-[#111111] transition-all"
+                    className="h-11 px-6 text-sm font-semibold rounded-xl border border-[#EEEEEE] hover:border-[#111111] hover:text-[#111111] transition-all"
                 >
                     Save draft
                 </Button>
@@ -282,7 +282,7 @@ function RequirementsFormContent({
                 onClick={isEditing ? onSaveDraft : onSendRequirement}
                 loading={isLoading}
                 disabled={isLoading}
-                className="h-11 px-8 rounded-xl bg-[#111111] hover:bg-[#000000] text-white text-[14px] font-['Manrope:SemiBold',sans-serif] border-none shadow-none transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="h-11 px-8 rounded-xl bg-[#111111] hover:bg-[#000000] text-white text-sm font-semibold border-none shadow-none transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
             >
                 {sendButtonLabel}
             </Button>
@@ -302,7 +302,7 @@ function RequirementsFormContent({
         >
             <div className="grid grid-cols-2 gap-x-6 gap-y-4 mb-4">
                 <div className="space-y-1.5">
-                    <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">Requirement Title</span>
+                    <span className="text-[0.8125rem] font-bold text-[#111111]">Requirement Title</span>
                     <Input
                         placeholder="Enter requirement title"
                         className="h-11 rounded-lg border border-[#EEEEEE]"
@@ -311,7 +311,7 @@ function RequirementsFormContent({
                     />
                 </div>
                 <div className="space-y-1.5">
-                    <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">Workspace</span>
+                    <span className="text-[0.8125rem] font-bold text-[#111111]">Workspace</span>
                     <Select
                         showSearch={{
                             filterOption: (input, option) =>
@@ -340,7 +340,7 @@ function RequirementsFormContent({
                                     <Option key={String(w.id)} value={String(w.id)} label={w.name}>
                                         <div className="flex flex-col py-1">
                                             <span className="font-medium text-[#111111] leading-tight">{w.name}</span>
-                                            <span className="text-[10px] text-[#999999] leading-tight">
+                                            <span className="text-[0.625rem] text-[#999999] leading-tight">
                                                 {w.in_house ? w.company_name : w.partner_name || 'Organization'}
                                             </span>
                                         </div>
@@ -363,7 +363,7 @@ function RequirementsFormContent({
 
             <div className="grid grid-cols-2 gap-x-6 gap-y-4 mb-4">
                 <div className="space-y-1.5">
-                    <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">Requirement Type</span>
+                    <span className="text-[0.8125rem] font-bold text-[#111111]">Requirement Type</span>
                     <Select
                         className="w-full h-11"
                         placeholder="Select type"
@@ -386,7 +386,7 @@ function RequirementsFormContent({
                 {/* Removed Partner Company selection */}
 
                 <div className="space-y-1.5" id="contact-person-selection">
-                    <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">Contact Person</span>
+                    <span className="text-[0.8125rem] font-bold text-[#111111]">Contact Person</span>
                     <Select
                         showSearch={{
                             filterOption: (input, option) =>
@@ -410,7 +410,7 @@ function RequirementsFormContent({
                                 <Option key={e.id} value={e.id} label={e.name}>
                                     <div className="flex flex-col py-1">
                                         <span className="font-semibold">{e.name}</span>
-                                        {e.designation && <span className="text-[10px] text-gray-400 font-normal">{e.designation}</span>}
+                                        {e.designation && <span className="text-[0.625rem] text-gray-400 font-normal">{e.designation}</span>}
                                     </div>
                                 </Option>
                             ))
@@ -420,9 +420,9 @@ function RequirementsFormContent({
                                     <div className="flex flex-col py-1">
                                         <div className="flex items-center gap-1">
                                             <span className="font-semibold">{c.name}</span>
-                                            {c.role && <span className="text-gray-500 text-[11px]">({c.role})</span>}
+                                            {c.role && <span className="text-gray-500 text-[0.6875rem]">({c.role})</span>}
                                         </div>
-                                        <span className="text-[10px] text-gray-400 font-normal mt-0.5">{c.company_name}</span>
+                                        <span className="text-[0.625rem] text-gray-400 font-normal mt-0.5">{c.company_name}</span>
                                     </div>
                                 </Option>
                             ))
@@ -434,7 +434,7 @@ function RequirementsFormContent({
 
             <div className="grid grid-cols-2 gap-x-6 gap-y-4 mb-4">
                 <div className="space-y-1.5">
-                    <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">Due Date</span>
+                    <span className="text-[0.8125rem] font-bold text-[#111111]">Due Date</span>
                     <DatePicker
                         placeholder="Select due date"
                         className="w-full h-11 rounded-lg border-[#EEEEEE]"
@@ -445,7 +445,7 @@ function RequirementsFormContent({
                 </div>
                 {(formData.type === 'client') && (
                     <div className="space-y-1.5">
-                        <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">Quotation price</span>
+                        <span className="text-[0.8125rem] font-bold text-[#111111]">Quotation price</span>
                         <Input
                             type="number"
                             placeholder="Enter quotation price"
@@ -459,11 +459,11 @@ function RequirementsFormContent({
 
             <div className="space-y-1.5 mb-4">
                 <div className="flex justify-between items-center">
-                    <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">Description</span>
+                    <span className="text-[0.8125rem] font-bold text-[#111111]">Description</span>
                     <Checkbox
                         checked={formData.is_high_priority}
                         onChange={(e) => setFormData({ ...formData, is_high_priority: e.target.checked })}
-                        className="font-semibold text-[13px] text-[#111111]"
+                        className="font-semibold text-[0.8125rem] text-[#111111]"
                     >
                         High Priority
                     </Checkbox>
@@ -478,7 +478,7 @@ function RequirementsFormContent({
             </div>
 
             <div className="space-y-1.5">
-                <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">Upload Documents</span>
+                <span className="text-[0.8125rem] font-bold text-[#111111]">Upload Documents</span>
                 <label
                     className="border-2 border-dashed border-[#EEEEEE] rounded-xl p-3 flex flex-col items-center justify-center text-center hover:border-[#ff3b3b]/30 hover:bg-[#FFFAFA] transition-colors cursor-pointer bg-white group"
                 >
@@ -494,19 +494,19 @@ function RequirementsFormContent({
                     </div>
                     {selectedFiles.length > 0 ? (
                         <div className="space-y-1">
-                            <p className="text-[12px] font-['Manrope:Bold',sans-serif] text-[#111111] mb-0.5">
+                            <p className="text-xs font-bold text-[#111111] mb-0.5">
                                 {selectedFiles.length} file(s) selected
                             </p>
-                            <div className="text-[10px] text-[#666666] font-['Inter:Regular',sans-serif]">
+                            <div className="text-[0.625rem] text-[#666666] font-normal">
                                 {selectedFiles.map(f => f.name).join(', ')}
                             </div>
                         </div>
                     ) : (
                         <>
-                            <p className="text-[12px] font-['Manrope:Bold',sans-serif] text-[#111111] mb-0.5">
+                            <p className="text-xs font-bold text-[#111111] mb-0.5">
                                 Choose files or drop them here
                             </p>
-                            <p className="text-[10px] text-[#999999] font-['Inter:Regular',sans-serif]">
+                            <p className="text-[0.625rem] text-[#999999] font-normal">
                                 pdf, docx, xlsx - Up to 50MB
                             </p>
                         </>

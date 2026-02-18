@@ -137,13 +137,6 @@ export function TaskForm({
       missingFields.push('At least one squad member');
     }
 
-    console.log('🚀 Form submission validation:', {
-      formData,
-      missingFields,
-      workspace_id: formData.workspace_id,
-      workspace_id_type: typeof formData.workspace_id,
-      workspace_id_parsed: formData.workspace_id ? parseInt(formData.workspace_id) : undefined
-    });
 
     if (missingFields.length > 0) {
       message.error(`Please fill in required fields: ${missingFields.join(', ')}`);
@@ -165,7 +158,6 @@ export function TaskForm({
       member_id: formData.assigned_members.length > 0 ? formData.assigned_members[0] : undefined
     };
 
-    console.log('📤 Sending to backend:', backendData);
 
     try {
       await onSubmit(backendData);
@@ -220,14 +212,14 @@ export function TaskForm({
           <Button
             type="text"
             onClick={handleReset}
-            className="h-[40px] px-4 text-[14px] font-semibold text-[#666666] hover:text-[#111111] hover:bg-[#F7F7F7] transition-colors rounded-lg"
+            className="h-[40px] px-4 text-sm font-semibold text-[#666666] hover:text-[#111111] hover:bg-[#F7F7F7] transition-colors rounded-lg"
           >
             Reset Data
           </Button>
           <Button
             type="primary"
             onClick={handleSubmit}
-            className="h-[40px] px-8 rounded-lg bg-[#111111] hover:bg-[#000000]/90 text-white text-[14px] font-semibold transition-transform active:scale-95 border-none"
+            className="h-[40px] px-8 rounded-lg bg-[#111111] hover:bg-[#000000]/90 text-white text-sm font-semibold transition-transform active:scale-95 border-none"
           >
             {isEditing ? 'Update Task' : 'Submit'}
           </Button>
@@ -240,7 +232,7 @@ export function TaskForm({
         {/* Task Title and Priority Row */}
         <div className="col-span-12 flex gap-4 items-start">
           <div className="flex-1 space-y-1.5">
-            <span className="text-[12px] font-bold text-[#111111]">
+            <span className="text-xs font-bold text-[#111111]">
               Task Title <span className="text-red-500">*</span>
             </span>
             <Input
@@ -254,7 +246,7 @@ export function TaskForm({
           </div>
 
           <div className="w-[102px] space-y-1.5 flex-none">
-            <span className="text-[12px] font-bold text-[#111111]">Priority</span>
+            <span className="text-xs font-bold text-[#111111]">Priority</span>
             <div
               className={`h-11 rounded-lg border flex items-center justify-center px-3 cursor-pointer transition-colors ${formData.is_high_priority ? 'border-red-200 bg-red-50/50' : 'border-[#EEEEEE] hover:border-gray-300 bg-white'}`}
               onClick={() => setFormData({ ...formData, is_high_priority: !formData.is_high_priority })}
@@ -271,7 +263,7 @@ export function TaskForm({
 
         {/* Workspace: Col Span 6 */}
         <div className="col-span-12 sm:col-span-6 space-y-1.5">
-          <span className="text-[12px] font-bold text-[#111111]">
+          <span className="text-xs font-bold text-[#111111]">
             Workspace <span className="text-red-500">*</span>
           </span>
           <Select
@@ -298,7 +290,7 @@ export function TaskForm({
                 <Option key={ws.id} value={ws.id.toString()} label={ws.name}>
                   <div className="flex flex-col py-1">
                     <span className="font-medium text-[#111111] leading-tight">{ws.name}</span>
-                    <span className="text-[10px] text-[#999999] leading-tight">
+                    <span className="text-[0.625rem] text-[#999999] leading-tight">
                       {ws.in_house ? ws.company_name : ws.partner_name || 'Organization'}
                     </span>
                   </div>
@@ -312,7 +304,7 @@ export function TaskForm({
 
         {/* Requirement: Col Span 6 */}
         <div className="col-span-12 sm:col-span-6 space-y-1.5">
-          <span className="text-[12px] font-bold text-[#111111]">
+          <span className="text-xs font-bold text-[#111111]">
             Requirement
           </span>
           <Select
@@ -353,7 +345,7 @@ export function TaskForm({
       {/* --- SQUAD BUILDER SECTION (Compact) --- */}
       <div className="mb-5 border border-[#EEEEEE] rounded-xl p-4 bg-[#FAFAFA]">
         <div className="flex justify-between items-center mb-3">
-          <h3 className="text-[13px] font-bold text-[#111111] flex items-center gap-2">
+          <h3 className="text-[0.8125rem] font-bold text-[#111111] flex items-center gap-2">
             <Users className="w-4 h-4" /> Squad Assembly
           </h3>
 
@@ -362,14 +354,14 @@ export function TaskForm({
             <button
               type="button"
               onClick={() => setFormData({ ...formData, execution_mode: "parallel" })}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] text-[11px] font-medium transition-all ${formData.execution_mode === "parallel" ? 'bg-[#E6F4FF] text-[#0091FF]' : 'text-gray-500 hover:bg-gray-50'}`}
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] text-[0.6875rem] font-medium transition-all ${formData.execution_mode === "parallel" ? 'bg-[#E6F4FF] text-[#0091FF]' : 'text-gray-500 hover:bg-gray-50'}`}
             >
               <Layers className="w-3 h-3" /> Parallel
             </button>
             <button
               type="button"
               onClick={() => setFormData({ ...formData, execution_mode: "sequential" })}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] text-[11px] font-medium transition-all ${formData.execution_mode === "sequential" ? 'bg-[#FFF2E8] text-[#FA541C]' : 'text-gray-500 hover:bg-gray-50'}`}
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] text-[0.6875rem] font-medium transition-all ${formData.execution_mode === "sequential" ? 'bg-[#FFF2E8] text-[#FA541C]' : 'text-gray-500 hover:bg-gray-50'}`}
             >
               <ArrowRight className="w-3 h-3" /> Sequential
             </button>
@@ -381,7 +373,7 @@ export function TaskForm({
           <Select
             className="w-full"
             placeholder={
-              <div className="flex items-center gap-2 text-gray-400 text-[13px]">
+              <div className="flex items-center gap-2 text-gray-400 text-[0.8125rem]">
                 <UserPlus className="w-4 h-4" /> <span>Add squad members...</span>
               </div>
             }
@@ -423,13 +415,13 @@ export function TaskForm({
                         {/* Drag Handle (Only for Sequential) */}
                         {isSequential && <GripVertical className="w-4 h-4 text-gray-400 cursor-grab active:cursor-grabbing" />}
 
-                        <div className="flex items-center justify-center w-5 h-5 rounded-full bg-gray-100 text-[9px] font-bold text-gray-500">
+                        <div className="flex items-center justify-center w-5 h-5 rounded-full bg-gray-100 text-[0.5625rem] font-bold text-gray-500">
                           {isSequential ? index + 1 : '•'}
                         </div>
-                        <Avatar size="small" shape="circle" className="w-6 h-6 text-[10px]" src={user.profile_pic}>{user.name.charAt(0)}</Avatar>
-                        <span className="text-[13px] font-semibold text-gray-800">{user.name}</span>
+                        <Avatar size="small" shape="circle" className="w-6 h-6 text-[0.625rem]" src={user.profile_pic}>{user.name.charAt(0)}</Avatar>
+                        <span className="text-[0.8125rem] font-semibold text-gray-800">{user.name}</span>
                         {String(user.id) !== currentUserId && (
-                          <span className="xs:inline hidden text-[9px] text-amber-500 bg-amber-50 px-1.5 py-0.5 rounded-full border border-amber-100">
+                          <span className="xs:inline hidden text-[0.5625rem] text-amber-500 bg-amber-50 px-1.5 py-0.5 rounded-full border border-amber-100">
                             Estimate Pending
                           </span>
                         )}
@@ -447,7 +439,7 @@ export function TaskForm({
               })}
             </Reorder.Group>
             {formData.assigned_members.length === 0 && (
-              <div className="text-center py-4 text-gray-400 text-[12px] border border-dashed border-gray-300 rounded-lg">
+              <div className="text-center py-4 text-gray-400 text-xs border border-dashed border-gray-300 rounded-lg">
                 No active agents assigned.
               </div>
             )}
@@ -459,7 +451,7 @@ export function TaskForm({
       <div className="grid grid-cols-12 gap-x-4 gap-y-4 mb-5">
         {/* Due Date: Col Span 6 */}
         <div className="col-span-12 sm:col-span-6 space-y-1.5">
-          <span className="text-[12px] font-bold text-[#111111]">
+          <span className="text-xs font-bold text-[#111111]">
             Due Date <span className="text-red-500">*</span>
           </span>
           <DatePicker
@@ -475,7 +467,7 @@ export function TaskForm({
 
         {/* My Hours: Col Span 6 */}
         <div className="col-span-12 sm:col-span-6 space-y-1.5">
-          <span className={`text-[12px] font-bold ${formData.assigned_members.includes(parseInt(currentUserId)) ? 'text-[#111111]' : 'text-gray-400'}`}>
+          <span className={`text-xs font-bold ${formData.assigned_members.includes(parseInt(currentUserId)) ? 'text-[#111111]' : 'text-gray-400'}`}>
             My Hours <span className={`${formData.assigned_members.includes(parseInt(currentUserId)) ? 'text-red-500' : 'hidden'}`}>*</span>
           </span>
           <Input
@@ -495,10 +487,10 @@ export function TaskForm({
 
       {/* Collapsible Description */}
       <div className="space-y-1.5">
-        <span className="text-[12px] font-bold text-[#111111]">Description</span>
+        <span className="text-xs font-bold text-[#111111]">Description</span>
         <TextArea
           placeholder="Describe the mission objectives..."
-          className="font-['Manrope:Regular',sans-serif] rounded-lg border border-[#EEEEEE]"
+          className="font-normal rounded-lg border border-[#EEEEEE]"
           rows={formData.description ? 3 : 1}
           onFocus={(e) => e.target.rows = 3}
           value={formData.description}

@@ -44,7 +44,7 @@ export const RequirementRejectionModal = ({
             open={open}
             onCancel={onClose}
             footer={null}
-            width={450}
+            width="min(450px, 95vw)"
             centered
         >
             <div className="flex flex-col gap-4 py-2">

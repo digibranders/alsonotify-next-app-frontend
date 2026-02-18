@@ -79,7 +79,7 @@ export const RevisionModal = ({ open, onClose, task, onSuccess }: RevisionModalP
         <Modal
             title={
                 <div className="flex flex-col gap-1 mb-4">
-                    <span className="text-lg font-['Manrope:Bold',sans-serif]">Request Revision</span>
+                    <span className="text-lg font-bold">Request Revision</span>
                     <span className="text-xs text-[#666666] font-normal">
                         For: <span className="font-semibold text-[#111111]">{task.name}</span>
                     </span>
@@ -88,7 +88,7 @@ export const RevisionModal = ({ open, onClose, task, onSuccess }: RevisionModalP
             open={open}
             onCancel={handleClose}
             footer={null}
-            width={500}
+            width="min(500px, 95vw)"
             centered
         >
             <div className="flex flex-col gap-4">
