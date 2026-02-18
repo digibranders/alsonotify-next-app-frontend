@@ -207,75 +207,81 @@ export function RequirementCard({
       `}
     >
       {/* Top Right Controls: More Options */}
-      <div className="absolute top-4 right-4 z-20 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-        {/* More Options Menu */}
-        <Popover
-          open={isMenuOpen}
-          onOpenChange={setIsMenuOpen}
-          content={
-            <div className="w-40" onClick={(e) => e.stopPropagation()}>
-              <button
-                onClick={() => {
-                  setIsMenuOpen(false);
-                  onEdit?.();
-                }}
-                className="w-full text-left px-3 py-2 text-[0.8125rem] hover:bg-gray-50 rounded text-[#111111]"
-              >
-                Edit Details
-              </button>
-              <button
-                onClick={() => {
-                  setIsMenuOpen(false);
-                  onDuplicate?.();
-                }}
-                className="w-full text-left px-3 py-2 text-[0.8125rem] hover:bg-gray-50 rounded text-[#111111]"
-              >
-                Duplicate
-              </button>
+      {(onEdit || onDuplicate || onRestore || onDelete) && (
+        <div className="absolute top-4 right-4 z-20 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+          {/* More Options Menu */}
+          <Popover
+            open={isMenuOpen}
+            onOpenChange={setIsMenuOpen}
+            content={
+              <div className="w-40" onClick={(e) => e.stopPropagation()}>
+                {onEdit && (
+                  <button
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      onEdit?.();
+                    }}
+                    className="w-full text-left px-3 py-2 text-[0.8125rem] hover:bg-gray-50 rounded text-[#111111]"
+                  >
+                    Edit Details
+                  </button>
+                )}
+                {onDuplicate && (
+                  <button
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      onDuplicate?.();
+                    }}
+                    className="w-full text-left px-3 py-2 text-[0.8125rem] hover:bg-gray-50 rounded text-[#111111]"
+                  >
+                    Duplicate
+                  </button>
+                )}
 
-              {onRestore && (
-                <button
-                  onClick={() => {
-                    setIsMenuOpen(false);
-                    onRestore();
-                  }}
-                  className="w-full text-left px-3 py-2 text-[0.8125rem] hover:bg-gray-50 rounded text-green-600 flex items-center gap-2"
-                >
-                   <CheckCircle className="w-3.5 h-3.5" />
-                   Make Active
-                </button>
-              )}
+                {onRestore && (
+                  <button
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      onRestore();
+                    }}
+                    className="w-full text-left px-3 py-2 text-[0.8125rem] hover:bg-gray-50 rounded text-green-600 flex items-center gap-2"
+                  >
+                    <CheckCircle className="w-3.5 h-3.5" />
+                    Make Active
+                  </button>
+                )}
 
-              {onDelete && (
-                <button
-                  onClick={() => {
-                    setIsMenuOpen(false);
-                    onDelete?.();
-                  }}
-                  className={`w-full text-left px-3 py-2 text-[0.8125rem] hover:bg-gray-50 rounded flex items-center gap-2 ${deleteLabel === 'Archive' ? 'text-[#F59E0B]' : 'text-[#ff3b3b]'}`}
-                >
-                  {deleteIcon || <Trash2 className="w-3.5 h-3.5" />}
-                  {deleteLabel || 'Delete'}
-                </button>
-              )}
-            </div>
-          }
-          trigger="click"
-          placement="bottomRight"
-          overlayClassName="requirement-card-popover"
-          arrow={false}
-        >
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              // Popover handles state
-            }}
-            className="h-6 w-6 flex items-center justify-center rounded-full hover:bg-[#F7F7F7] text-[#999999] hover:text-[#111111] transition-all opacity-0 group-hover:opacity-100"
+                {onDelete && (
+                  <button
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      onDelete?.();
+                    }}
+                    className={`w-full text-left px-3 py-2 text-[0.8125rem] hover:bg-gray-50 rounded flex items-center gap-2 ${deleteLabel === 'Archive' ? 'text-[#F59E0B]' : 'text-[#ff3b3b]'}`}
+                  >
+                    {deleteIcon || <Trash2 className="w-3.5 h-3.5" />}
+                    {deleteLabel || 'Delete'}
+                  </button>
+                )}
+              </div>
+            }
+            trigger="click"
+            placement="bottomRight"
+            overlayClassName="requirement-card-popover"
+            arrow={false}
           >
-            <MoreHorizontal className="w-4 h-4" />
-          </button>
-        </Popover>
-      </div>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                // Popover handles state
+              }}
+              className="h-6 w-6 flex items-center justify-center rounded-full hover:bg-[#F7F7F7] text-[#999999] hover:text-[#111111] transition-all opacity-0 group-hover:opacity-100"
+            >
+              <MoreHorizontal className="w-4 h-4" />
+            </button>
+          </Popover>
+        </div>
+      )}
 
       {/* Header */}
       <div className="mb-3">

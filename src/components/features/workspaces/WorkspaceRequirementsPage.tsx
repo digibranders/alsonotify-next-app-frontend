@@ -10,6 +10,8 @@ import { Breadcrumb, Checkbox } from 'antd';
 import { TabBar } from '../../layout/TabBar';
 import { FilterBar, FilterOption } from '../../ui/FilterBar';
 import { useWorkspace, useRequirements } from '@/hooks/useWorkspace';
+import { useUserDetails } from '@/hooks/useUser';
+import { getRoleFromUser } from '@/utils/roleUtils';
 import { format } from 'date-fns';
 import { RequirementRow } from './rows/RequirementRow';
 
@@ -20,6 +22,8 @@ export function WorkspaceRequirementsPage() {
 
   const { data: workspaceData, isLoading: isLoadingWorkspace } = useWorkspace(workspaceId);
   const { data: requirementsData, isLoading: isLoadingRequirements } = useRequirements(workspaceId);
+  const { data: userData } = useUserDetails();
+  const userRole = getRoleFromUser(userData?.result);
 
   const [activeTab, setActiveTab] = useState<'all' | 'in-progress' | 'completed' | 'delayed'>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -353,7 +357,7 @@ export function WorkspaceRequirementsPage() {
             <div className="text-center py-12 text-[#999999] text-[0.8125rem]">No requirements found</div>
           ) : (
             filteredAndSortedRequirements.map((req: any) => (
-              <RequirementRow key={req.id} req={req} workspaceId={workspaceId} />
+              <RequirementRow key={req.id} req={req} workspaceId={workspaceId} userRole={userRole} />
             ))
           )}
         </div>
