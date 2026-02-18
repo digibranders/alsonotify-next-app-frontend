@@ -75,7 +75,7 @@
         "vitest": "^4.0.16"
     },
     "scripts": {
-        "dev": "next dev",
+        "dev": "next dev --turbo",
         "build": "next build",
         "start": "next start",
         "lint": "eslint src",

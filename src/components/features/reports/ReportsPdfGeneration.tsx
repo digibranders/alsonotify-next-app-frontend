@@ -1,6 +1,6 @@
 import React from 'react';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
+// Imports removed to be dynamic
+
 import dayjs from '@/utils/dayjs';
 import BrandLogo from '@/assets/images/logo.png';
 import { RequirementReport, TaskReport, EmployeeReport, ReportKPI, EmployeeKPI, TaskReportsResponse } from '../../../services/report';
@@ -385,6 +385,9 @@ export const generatePdf = async (fileName: string, containerId: string = 'pdf-r
     }
 
     try {
+        const jsPDF = (await import('jspdf')).default;
+        const html2canvas = (await import('html2canvas')).default;
+
         const pdf = new jsPDF('p', 'mm', 'a4');
         const pdfWidth = pdf.internal.pageSize.getWidth();
         const pdfHeight = pdf.internal.pageSize.getHeight();

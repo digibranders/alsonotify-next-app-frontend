@@ -65,7 +65,7 @@ export function PartnerRow({
                         {getInitials(partner.company)}
                     </div>
                     <div className="flex flex-col">
-                        <span className="font-bold text-sm text-[#111111] group-hover:text-[#ff3b3b] transition-colors">
+                        <span className="font-semibold text-sm text-[#111111] group-hover:text-[#ff3b3b] transition-colors">
                             {partner.company}
                         </span>
                         {isOrg && (

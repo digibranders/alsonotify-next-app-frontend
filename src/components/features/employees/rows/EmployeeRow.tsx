@@ -90,7 +90,7 @@ export function EmployeeRow({
         {/* Employee Info - Name, Role & Dept */}
         <div>
           <div className="flex items-center gap-2">
-            <span className="font-bold text-sm text-[#111111] group-hover:text-[#ff3b3b] transition-colors">
+            <span className="font-semibold text-sm text-[#111111] group-hover:text-[#ff3b3b] transition-colors">
               {employee.name}
             </span>
           </div>
