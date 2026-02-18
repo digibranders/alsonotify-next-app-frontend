@@ -456,18 +456,18 @@ export function TaskForm({
           <span className="text-xs font-bold text-[#111111]">
             Due Date <span className="text-red-500">*</span>
           </span>
-          <Tooltip title={!canEditDueDate ? "Only Coordinators and Admins can change the due date" : ""}>
+          <Tooltip title={isEditing && !canEditDueDate ? "Only Coordinators and Admins can change the due date" : ""}>
             <DatePicker
               className="w-full h-11 rounded-lg"
               value={formData.end_date ? dayjs(formData.end_date) : null}
               onChange={(date) => {
-                if (canEditDueDate) {
+                if (!isEditing || canEditDueDate) {
                   setFormData({ ...formData, end_date: date ? date.toISOString() : '' });
                 }
               }}
               suffixIcon={<Calendar className="w-4 h-4 text-[#999999]" />}
               disabledDate={(current) => current && current < dayjs().startOf('day')}
-              disabled={!canEditDueDate}
+              disabled={isEditing && !canEditDueDate}
             />
           </Tooltip>
         </div>
