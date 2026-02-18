@@ -65,7 +65,7 @@ function TableHeader({
         onClick={() => sortKey && onSort?.(sortKey)}
         disabled={!sortKey}
       >
-        <span className={`text-[11px] font-['Manrope:Bold',sans-serif] uppercase tracking-wide transition-colors ${isSorted ? 'text-[#111111]' : 'text-[#999999] group-hover:text-[#666666]'}`}>
+        <span className={`text-[0.6875rem] font-bold uppercase tracking-wide transition-colors ${isSorted ? 'text-[#111111]' : 'text-[#999999] group-hover:text-[#666666]'}`}>
           {label}
         </span>
         {sortKey && isSorted && currentSort && (
@@ -208,17 +208,96 @@ export function ReportsPage() {
     setSearchQuery('');
   };
 
+  // --- Export Logic ---
+  const [exportData, setExportData] = useState<{
+    requirements: RequirementReport[];
+    tasks: TaskReport[];
+    employees: EmployeeReport[];
+  } | null>(null);
+
+  const fetchAllDataForExport = async () => {
+    const limit = 1000; // Safe cap for export
+    const skip = 0;
+
+    if (activeTab === 'requirement') {
+      const typeMap: Record<string, string> = {
+        'In-house': 'inhouse',
+        'Outsourced': 'outsourced',
+        'Client Work': 'client'
+      };
+
+      const res = await getRequirementReports({
+        search: searchQuery,
+        partner_id: filters.partner,
+        status: filters.status,
+        type: typeMap[filters.type] || filters.type,
+        priority: filters.priority,
+        department_id: filters.department_id,
+        start_date: dateRange && dateRange[0] ? dateRange[0].toISOString() : undefined,
+        end_date: dateRange && dateRange[1] ? dateRange[1].toISOString() : undefined,
+        limit,
+        skip
+      });
+      return { requirements: res.data, tasks: [], employees: [] };
+    }
+    else if (activeTab === 'task') {
+      const res = await getTaskReports({
+        search: searchQuery,
+        leader_id: filters.leader,
+        assigned_id: filters.assigned,
+        status: filters.status,
+        start_date: dateRange && dateRange[0] ? dateRange[0].toISOString() : undefined,
+        end_date: dateRange && dateRange[1] ? dateRange[1].toISOString() : undefined,
+        limit,
+        skip
+      });
+      return { requirements: [], tasks: res.data, employees: [] };
+    }
+    else {
+      const res = await getEmployeeReports({
+        search: searchQuery,
+        department_id: filters.department_id,
+        member_id: filters.member,
+        start_date: dateRange && dateRange[0] ? dateRange[0].toISOString() : undefined,
+        end_date: dateRange && dateRange[1] ? dateRange[1].toISOString() : undefined,
+        limit,
+        skip
+      });
+      return { requirements: [], tasks: [], employees: res.data };
+    }
+  };
+
   const handleDownloadPDF = async () => {
+    if (isDownloading) return;
     setIsDownloading(true);
+
     try {
+      // 1. Fetch ALL data
+      const allData = await fetchAllDataForExport();
+
+      // 2. Set data to state to render the hidden PDF component
+      // We need sort the data same as UI if sortConfig is present
+      if (sortConfig) {
+        if (activeTab === 'requirement') allData.requirements = sortData(allData.requirements);
+        if (activeTab === 'task') allData.tasks = sortData(allData.tasks);
+        if (activeTab === 'member') allData.employees = sortData(allData.employees);
+      }
+
+      setExportData(allData);
+
+      // 3. Wait for render (short timeout to ensure DOM is updated)
+      await new Promise(resolve => setTimeout(resolve, 100));
+
       const fileName = `alsonotify_${activeTab}_report_${getDayjsInTimezone().format('YYYY-MM-DD')}.pdf`;
       const { generatePdf } = await import('./ReportsPdfGeneration');
+
       await generatePdf(fileName, 'pdf-report-container');
     } catch (error) {
       console.error('PDF Generation failed:', error);
-      alert("Failed to generate PDF. Please check console for details.");
+      alert("Failed to generate PDF. Please try again.");
     } finally {
       setIsDownloading(false);
+      setExportData(null); // Cleanup
     }
   };
 
@@ -379,7 +458,7 @@ export function ReportsPage() {
   const filterOptions: FilterOption[] = useMemo(() => {
     if (activeTab === 'requirement') {
       return [
-        { id: 'partner', label: 'Partner', options: partnerOptions, defaultValue: 'All', placeholder: 'Select Partner' },
+        { id: 'partner', label: 'Partner', options: partnerOptions, defaultValue: 'All', placeholder: 'Select Partner', multiSelect: true },
         {
           id: 'status', label: 'Status', options: [
             { label: 'All', value: 'All' },
@@ -406,8 +485,8 @@ export function ReportsPage() {
       ];
     } else if (activeTab === 'task') {
       return [
-        { id: 'leader', label: 'Leader', options: employeeOptions, defaultValue: 'All', placeholder: 'Select Leader' },
-        { id: 'assigned', label: 'Member', options: employeeOptions, defaultValue: 'All', placeholder: 'Select Member' },
+        { id: 'leader', label: 'Leader', options: employeeOptions, defaultValue: 'All', placeholder: 'Select Leader', multiSelect: true },
+        { id: 'assigned', label: 'Member', options: employeeOptions, defaultValue: 'All', placeholder: 'Select Member', multiSelect: true },
         {
           id: 'status', label: 'Status', options: [
             { label: 'All', value: 'All' },
@@ -423,7 +502,7 @@ export function ReportsPage() {
       ];
     } else {
       return [
-        { id: 'member', label: 'Member', options: employeeOptions, defaultValue: 'All', placeholder: 'Select Member' },
+        { id: 'member', label: 'Member', options: employeeOptions, defaultValue: 'All', placeholder: 'Select Member', multiSelect: true },
         { id: 'department_id', label: 'Department', options: departmentOptions, defaultValue: 'All', placeholder: 'Select Department' }
       ];
     }
@@ -473,7 +552,7 @@ export function ReportsPage() {
           <Button
             onClick={handleExport}
             icon={<Download className="w-4 h-4" />}
-            className="font-['Manrope:SemiBold',sans-serif] text-[13px] rounded-full"
+            className="font-semibold text-[0.8125rem] rounded-full"
             disabled={isDownloading}
           >
             {isDownloading ? 'Generating...' : 'Download'}
@@ -513,53 +592,53 @@ export function ReportsPage() {
               <>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'requirement' ? '' : 'hidden'}`}>
                   <div className="flex items-center gap-1">
-                    <span className="text-[12px] font-medium text-[#666666]">Total Requirements</span>
+                    <span className="text-xs font-medium text-[#666666]">Total Requirements</span>
                     <Tooltip title="Total number of active requirements assigned to or received by your company in the selected date range. Excludes Draft, Waiting, Submitted, Rejected, and Completed statuses." overlayStyle={{ maxWidth: 260 }} overlayInnerStyle={{ fontSize: 11, lineHeight: '1.4' }}>
                       <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
                     </Tooltip>
                   </div>
-                  <span className="text-xl font-['Manrope:Bold',sans-serif] text-[#111111]">{kpi.totalRequirements}</span>
+                  <span className="text-xl font-bold text-[#111111]">{kpi.totalRequirements}</span>
                 </div>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'requirement' ? '' : 'hidden'}`}>
                   <div className="flex items-center gap-1">
-                    <span className="text-[12px] font-medium text-[#666666]">On Time Completed</span>
+                    <span className="text-xs font-medium text-[#666666]">On Time Completed</span>
                     <Tooltip title="Requirements completed without exceeding their allotted hours budget. Formula: Completed requirements − over-budget completions." overlayStyle={{ maxWidth: 260 }} overlayInnerStyle={{ fontSize: 11, lineHeight: '1.4' }}>
                       <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
                     </Tooltip>
                   </div>
-                  <span className="text-xl font-['Manrope:Bold',sans-serif] text-[#0F9D58]">{kpi.onTimeCompleted}</span>
+                  <span className="text-xl font-bold text-[#0F9D58]">{kpi.onTimeCompleted}</span>
                 </div>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'requirement' ? '' : 'hidden'}`}>
                   <div className="flex items-center gap-1">
-                    <span className="text-[12px] font-medium text-[#666666]">In Progress</span>
+                    <span className="text-xs font-medium text-[#666666]">In Progress</span>
                     <Tooltip title="Requirements currently active — includes statuses: Assigned, In Progress, Review, Revision, Impediment, Stuck, Delayed, On Hold." overlayStyle={{ maxWidth: 260 }} overlayInnerStyle={{ fontSize: 11, lineHeight: '1.4' }}>
                       <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
                     </Tooltip>
                   </div>
                   <div className="flex items-baseline gap-2">
-                    <span className="text-xl font-['Manrope:Bold',sans-serif] text-[#111111]">{kpi.inProgress}</span>
+                    <span className="text-xl font-bold text-[#111111]">{kpi.inProgress}</span>
                   </div>
                 </div>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'requirement' ? '' : 'hidden'}`}>
                   <div className="flex items-center gap-1">
-                    <span className="text-[12px] font-medium text-[#666666]">Delayed</span>
+                    <span className="text-xs font-medium text-[#666666]">Delayed</span>
                     <Tooltip title="Active requirements whose end date has already passed. The +Xh shows total extra hours logged beyond the allotted budget on over-budget completions." overlayStyle={{ maxWidth: 260 }} overlayInnerStyle={{ fontSize: 11, lineHeight: '1.4' }}>
                       <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
                     </Tooltip>
                   </div>
                   <div className="flex items-baseline gap-2">
-                    <span className="text-xl font-['Manrope:Bold',sans-serif] text-[#FF3B3B]">{kpi.delayed}</span>
+                    <span className="text-xl font-bold text-[#FF3B3B]">{kpi.delayed}</span>
                     <span className="text-sm font-medium text-[#FF3B3B]">(+{kpi.totalExtraHrs}h)</span>
                   </div>
                 </div>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'requirement' ? '' : 'hidden'}`}>
                   <div className="flex items-center gap-1">
-                    <span className="text-[12px] font-medium text-[#666666]">Efficiency</span>
+                    <span className="text-xs font-medium text-[#666666]">Efficiency</span>
                     <Tooltip title="Delivery efficiency score. Formula: (On Time Completed ÷ Total Requirements) × 100. A higher % means more requirements are being delivered on time and within budget." overlayStyle={{ maxWidth: 260 }} overlayInnerStyle={{ fontSize: 11, lineHeight: '1.4' }}>
                       <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
                     </Tooltip>
                   </div>
-                  <span className="text-xl font-['Manrope:Bold',sans-serif] text-[#2196F3]">
+                  <span className="text-xl font-bold text-[#2196F3]">
                     {kpi.efficiency}%
                   </span>
                 </div>
@@ -578,53 +657,53 @@ export function ReportsPage() {
               <>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'task' ? '' : 'hidden'}`}>
                   <div className="flex items-center gap-1">
-                    <span className="text-[12px] font-medium text-[#666666]">Total Tasks</span>
-                    <Tooltip title="Total active tasks in the selected date range. Excludes sub-tasks (unless they are revision tasks) and inactive/deleted tasks." overlayStyle={{ maxWidth: 260 }} overlayInnerStyle={{ fontSize: 11, lineHeight: '1.4' }}>
+                    <span className="text-xs font-medium text-[#666666]">Total Tasks</span>
+                    <Tooltip title="Total active tasks in the selected date range. Excludes sub-tasks (unless they are revision tasks) and inactive/deleted tasks." styles={{ root: { maxWidth: 260 }, container: { fontSize: 11, lineHeight: '1.4' } }}>
                       <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
                     </Tooltip>
                   </div>
-                  <span className="text-xl font-['Manrope:Bold',sans-serif] text-[#111111]">{taskKPI.totalTasks}</span>
+                  <span className="text-xl font-bold text-[#111111]">{taskKPI.totalTasks}</span>
                 </div>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'task' ? '' : 'hidden'}`}>
                   <div className="flex items-center gap-1">
-                    <span className="text-[12px] font-medium text-[#666666]">On Time Completed</span>
-                    <Tooltip title="Tasks marked Completed where actual logged hours did not exceed the estimated hours. Over-budget completions are counted separately as delayed." overlayStyle={{ maxWidth: 260 }} overlayInnerStyle={{ fontSize: 11, lineHeight: '1.4' }}>
+                    <span className="text-xs font-medium text-[#666666]">On Time Completed</span>
+                    <Tooltip title="Tasks marked Completed where actual logged hours did not exceed the estimated hours. Over-budget completions are counted separately as delayed." styles={{ root: { maxWidth: 260 }, container: { fontSize: 11, lineHeight: '1.4' } }}>
                       <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
                     </Tooltip>
                   </div>
-                  <span className="text-xl font-['Manrope:Bold',sans-serif] text-[#0F9D58]">{taskKPI.onTimeCompleted}</span>
+                  <span className="text-xl font-bold text-[#0F9D58]">{taskKPI.onTimeCompleted}</span>
                 </div>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'task' ? '' : 'hidden'}`}>
                   <div className="flex items-center gap-1">
-                    <span className="text-[12px] font-medium text-[#666666]">In Progress</span>
+                    <span className="text-xs font-medium text-[#666666]">In Progress</span>
                     <Tooltip title="Tasks currently being worked on. Includes statuses: Assigned, In Progress, Review, Stuck, and Impediment." overlayStyle={{ maxWidth: 260 }} overlayInnerStyle={{ fontSize: 11, lineHeight: '1.4' }}>
                       <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
                     </Tooltip>
                   </div>
                   <div className="flex items-baseline gap-2">
-                    <span className="text-xl font-['Manrope:Bold',sans-serif] text-[#111111]">{taskKPI.inProgress}</span>
+                    <span className="text-xl font-bold text-[#111111]">{taskKPI.inProgress}</span>
                   </div>
                 </div>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'task' ? '' : 'hidden'}`}>
                   <div className="flex items-center gap-1">
-                    <span className="text-[12px] font-medium text-[#666666]">Delayed</span>
+                    <span className="text-xs font-medium text-[#666666]">Delayed</span>
                     <Tooltip title="Tasks with status set to Delayed, or incomplete tasks whose due date has already passed. The +Xh shows total extra hours logged beyond estimated on over-budget completed tasks." overlayStyle={{ maxWidth: 260 }} overlayInnerStyle={{ fontSize: 11, lineHeight: '1.4' }}>
                       <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
                     </Tooltip>
                   </div>
                   <div className="flex items-baseline gap-2">
-                    <span className="text-xl font-['Manrope:Bold',sans-serif] text-[#FF3B3B]">{taskKPI.delayed}</span>
+                    <span className="text-xl font-bold text-[#FF3B3B]">{taskKPI.delayed}</span>
                     <span className="text-sm font-medium text-[#FF3B3B]">(+{taskKPI.totalExtraHrs}h)</span>
                   </div>
                 </div>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'task' ? '' : 'hidden'}`}>
                   <div className="flex items-center gap-1">
-                    <span className="text-[12px] font-medium text-[#666666]">Efficiency</span>
+                    <span className="text-xs font-medium text-[#666666]">Efficiency</span>
                     <Tooltip title="Task delivery efficiency. Formula: (On Time Completed ÷ Total Tasks) × 100. A higher % means more tasks are being completed within their estimated hours." overlayStyle={{ maxWidth: 260 }} overlayInnerStyle={{ fontSize: 11, lineHeight: '1.4' }}>
                       <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
                     </Tooltip>
                   </div>
-                  <span className="text-xl font-['Manrope:Bold',sans-serif] text-[#2196F3]">
+                  <span className="text-xl font-bold text-[#2196F3]">
                     {taskKPI.efficiency}%
                   </span>
                 </div>
@@ -643,63 +722,63 @@ export function ReportsPage() {
               <>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'member' ? '' : 'hidden'}`}>
                   <div className="flex items-center gap-1">
-                    <span className="text-[12px] font-medium text-[#666666]">Total Expenses</span>
+                    <span className="text-xs font-medium text-[#666666]">Total Expenses</span>
                     <Tooltip title="Total cost incurred by all employees in the selected period. Formula: Sum of (hours logged × hourly rate) for each employee. Hourly rate is taken from their profile, or derived from annual salary ÷ annual working hours." overlayStyle={{ maxWidth: 280 }} overlayInnerStyle={{ fontSize: 11, lineHeight: '1.4' }}>
                       <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
                     </Tooltip>
                   </div>
-                  <span className="text-xl font-['Manrope:Bold',sans-serif] text-[#111111]">${employeeKPI.totalExpenses.toLocaleString()}</span>
+                  <span className="text-xl font-bold text-[#111111]">${employeeKPI.totalExpenses.toLocaleString()}</span>
                 </div>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'member' ? '' : 'hidden'}`}>
                   <div className="flex items-center gap-1">
-                    <span className="text-[12px] font-medium text-[#666666]">Total Revenue</span>
+                    <span className="text-xs font-medium text-[#666666]">Total Revenue</span>
                     <Tooltip title="Revenue generated from client and outsourced requirements in the selected period. Each employee's share is proportional to their logged hours on that requirement vs. the total hours logged by all team members. Based on the requirement's quoted price (or budget if no quote yet). In-house work generates $0 revenue." overlayStyle={{ maxWidth: 280 }} overlayInnerStyle={{ fontSize: 11, lineHeight: '1.4' }}>
                       <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
                     </Tooltip>
                   </div>
-                  <span className="text-xl font-['Manrope:Bold',sans-serif] text-[#0F9D58]">${employeeKPI.totalRevenue.toLocaleString()}</span>
+                  <span className="text-xl font-bold text-[#0F9D58]">${employeeKPI.totalRevenue.toLocaleString()}</span>
                 </div>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'member' ? '' : 'hidden'}`}>
                   <div className="flex items-center gap-1">
-                    <span className="text-[12px] font-medium text-[#666666]">Net Profit</span>
+                    <span className="text-xs font-medium text-[#666666]">Net Profit</span>
                     <Tooltip title="Total Revenue minus Total Expenses across all employees in the selected period. A positive value means your team is generating more revenue than it costs to run. A negative value indicates a cost overrun." overlayStyle={{ maxWidth: 280 }} overlayInnerStyle={{ fontSize: 11, lineHeight: '1.4' }}>
                       <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
                     </Tooltip>
                   </div>
-                  <span className={`text-xl font-['Manrope:Bold',sans-serif] ${employeeKPI.netProfit >= 0 ? 'text-[#0F9D58]' : 'text-[#FF3B3B]'}`}>
+                  <span className={`text-xl font-bold ${employeeKPI.netProfit >= 0 ? 'text-[#0F9D58]' : 'text-[#FF3B3B]'}`}>
                     ${employeeKPI.netProfit.toLocaleString()}
                   </span>
                 </div>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'member' ? '' : 'hidden'}`}>
                   <div className="flex items-center gap-1">
-                    <span className="text-[12px] font-medium text-[#666666]">Avg. Rate/Hr</span>
+                    <span className="text-xs font-medium text-[#666666]">Avg. Rate/Hr</span>
                     <Tooltip title="Average hourly cost rate across all employees matching the current filters. Based on each employee's set hourly rate, or calculated from their annual salary divided by annual working hours." overlayStyle={{ maxWidth: 280 }} overlayInnerStyle={{ fontSize: 11, lineHeight: '1.4' }}>
                       <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
                     </Tooltip>
                   </div>
-                  <span className="text-xl font-['Manrope:Bold',sans-serif] text-[#2196F3]">
+                  <span className="text-xl font-bold text-[#2196F3]">
                     ${employeeKPI.avgRatePerHr.toLocaleString()}
                   </span>
                 </div>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'member' ? '' : 'hidden'}`}>
                   <div className="flex items-center gap-1">
-                    <span className="text-[12px] font-medium text-[#666666]">Occupancy</span>
+                    <span className="text-xs font-medium text-[#666666]">Occupancy</span>
                     <Tooltip title="Average workforce utilization. Formula: (Hours logged ÷ Available working hours in period) × 100. Available hours are based on each employee's working schedule minus public holidays. ≥70% is considered healthy." overlayStyle={{ maxWidth: 280 }} overlayInnerStyle={{ fontSize: 11, lineHeight: '1.4' }}>
                       <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
                     </Tooltip>
                   </div>
-                  <span className={`text-xl font-['Manrope:Bold',sans-serif] ${employeeKPI.avgOccupancy >= 70 ? 'text-[#0F9D58]' : 'text-[#FF3B3B]'}`}>
+                  <span className={`text-xl font-bold ${employeeKPI.avgOccupancy >= 70 ? 'text-[#0F9D58]' : 'text-[#FF3B3B]'}`}>
                     {employeeKPI.avgOccupancy}%
                   </span>
                 </div>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'member' ? '' : 'hidden'}`}>
                   <div className="flex items-center gap-1">
-                    <span className="text-[12px] font-medium text-[#666666]">Efficiency</span>
+                    <span className="text-xs font-medium text-[#666666]">Efficiency</span>
                     <Tooltip title="Average on-time delivery rate across all employees. Formula: (Tasks completed on or before their due date ÷ Total tasks assigned) × 100. Only tasks started within the selected date range are counted. ≥75% is considered good." overlayStyle={{ maxWidth: 280 }} overlayInnerStyle={{ fontSize: 11, lineHeight: '1.4' }}>
                       <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
                     </Tooltip>
                   </div>
-                  <span className={`text-xl font-['Manrope:Bold',sans-serif] ${employeeKPI.avgEfficiency >= 75 ? 'text-[#0F9D58]' : 'text-[#FF3B3B]'}`}>
+                  <span className={`text-xl font-bold ${employeeKPI.avgEfficiency >= 75 ? 'text-[#0F9D58]' : 'text-[#FF3B3B]'}`}>
                     {employeeKPI.avgEfficiency}%
                   </span>
                 </div>
@@ -746,22 +825,22 @@ export function ReportsPage() {
                     key={row.id}
                     className="group bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[50px_2fr_1fr_1.2fr_1.5fr_100px_100px] gap-4 px-4 py-3 items-center hover:border-[#ff3b3b]/20 hover:shadow-lg transition-all duration-300"
                   >
-                    <div className="pl-2 text-[13px] text-[#999999] font-['Inter:Medium',sans-serif]">{idx + 1}</div>
+                    <div className="pl-2 text-[0.8125rem] text-[#999999] font-medium">{idx + 1}</div>
 
                     <div className="flex flex-col justify-center gap-0.5">
-                      <span className="text-[14px] text-[#111111] font-['Manrope:Bold',sans-serif] leading-tight truncate" title={row.requirement}>{row.requirement}</span>
-                      <span className="text-[10px] uppercase tracking-wider text-[#999999] font-['Manrope:Bold',sans-serif] truncate" title={row.partner}>{row.partner}</span>
+                      <span className="text-sm text-[#111111] font-bold leading-tight truncate" title={row.requirement}>{row.requirement}</span>
+                      <span className="text-[0.625rem] uppercase tracking-wider text-[#999999] font-bold truncate" title={row.partner}>{row.partner}</span>
                     </div>
 
-                    <div className="text-[13px] text-[#666666] font-['Inter:Regular',sans-serif]">{row.manager || 'Unassigned'}</div>
+                    <div className="text-[0.8125rem] text-[#666666] font-normal">{row.manager || 'Unassigned'}</div>
 
                     <div className="flex flex-col gap-0.5">
-                      <span className="text-[13px] text-[#111111] font-medium">{formatWithTimezone(row.startDate, 'MMM DD')}</span>
-                      <span className="text-[11px] text-[#999999]">to {formatWithTimezone(row.endDate, 'MMM DD')}</span>
+                      <span className="text-[0.8125rem] text-[#111111] font-medium">{formatWithTimezone(row.startDate, 'MMM DD')}</span>
+                      <span className="text-[0.6875rem] text-[#999999]">to {formatWithTimezone(row.endDate, 'MMM DD')}</span>
                     </div>
 
                     <div className="flex flex-col gap-1.5 justify-center h-full">
-                      <div className="flex justify-between text-[11px]">
+                      <div className="flex justify-between text-[0.6875rem]">
                         <span className="font-medium text-[#111111]">{row.engagedHrs}h</span>
                         <span className="text-[#999999]">of {row.allottedHrs}h</span>
                       </div>
@@ -773,14 +852,14 @@ export function ReportsPage() {
                       </div>
                     </div>
 
-                    <div className="text-[13px] text-[#111111] font-['Manrope:Bold',sans-serif]">${row.revenue?.toLocaleString() || 0}</div>
+                    <div className="text-[0.8125rem] text-[#111111] font-bold">${row.revenue?.toLocaleString() || 0}</div>
 
                     <div><StatusBadge status={row.status} /></div>
                   </div>
                 ))}
 
                 {filteredRequirements.length === 0 && (
-                  <div className="text-center py-12 text-[#999999] text-[13px]">No requirements found matching your filters.</div>
+                  <div className="text-center py-12 text-[#999999] text-[0.8125rem]">No requirements found matching your filters.</div>
                 )}
 
                 {/* Pagination moved outside */}
@@ -824,17 +903,17 @@ export function ReportsPage() {
                     key={row.id}
                     className="group bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[50px_2fr_1.5fr_1fr_1fr_1fr_100px] gap-4 px-4 py-3 items-center hover:border-[#ff3b3b]/20 hover:shadow-lg transition-all duration-300"
                   >
-                    <div className="pl-2 text-[13px] text-[#999999] font-['Inter:Medium',sans-serif]">{idx + 1}</div>
-                    <div className="text-[13px] text-[#111111] font-['Manrope:SemiBold',sans-serif]">{row.task}</div>
-                    <div className="text-[13px] text-[#666666] font-['Inter:Regular',sans-serif]">{row.requirement}</div>
-                    <div className="text-[13px] text-[#666666] font-['Inter:Regular',sans-serif]">{row.leader}</div>
-                    <div className="text-[13px] text-[#666666] font-['Inter:Regular',sans-serif]">{row.assigned}</div>
-                    <div className="text-[13px] text-[#111111] font-['Manrope:Bold',sans-serif]">{row.engagedHrs}h / {row.allottedHrs}h</div>
+                    <div className="pl-2 text-[0.8125rem] text-[#999999] font-medium">{idx + 1}</div>
+                    <div className="text-[0.8125rem] text-[#111111] font-semibold">{row.task}</div>
+                    <div className="text-[0.8125rem] text-[#666666] font-normal">{row.requirement}</div>
+                    <div className="text-[0.8125rem] text-[#666666] font-normal">{row.leader}</div>
+                    <div className="text-[0.8125rem] text-[#666666] font-normal">{row.assigned}</div>
+                    <div className="text-[0.8125rem] text-[#111111] font-bold">{row.engagedHrs}h / {row.allottedHrs}h</div>
                     <div className="flex justify-center"><StatusBadge status={row.status} /></div>
                   </div>
                 ))}
                 {filteredTasks.length === 0 && (
-                  <div className="text-center py-12 text-[#999999] text-[13px]">No tasks found matching your filters.</div>
+                  <div className="text-center py-12 text-[#999999] text-[0.8125rem]">No tasks found matching your filters.</div>
                 )}
                 {/* Pagination moved outside */}
               </div>
@@ -873,18 +952,18 @@ export function ReportsPage() {
                     className="group bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[50px_2fr_2fr_0.8fr_1fr_1fr_1fr] gap-4 px-4 py-3 items-center hover:border-[#ff3b3b]/20 hover:shadow-lg transition-all duration-300 cursor-pointer"
                     onClick={() => setSelectedMemberId(String(row.id))}
                   >
-                    <div className="pl-2 text-[13px] text-[#999999] font-['Inter:Medium',sans-serif]">{idx + 1}</div>
+                    <div className="pl-2 text-[0.8125rem] text-[#999999] font-medium">{idx + 1}</div>
 
                     <div className="flex flex-col justify-center">
-                      <span className="text-[14px] text-[#111111] font-['Manrope:Bold',sans-serif]">{row.member}</span>
-                      <span className="text-[12px] text-[#666666] font-['Inter:Regular',sans-serif]">{row.designation} <span className="text-[#E5E5E5] mx-1">|</span> {row.department}</span>
+                      <span className="text-sm text-[#111111] font-bold">{row.member}</span>
+                      <span className="text-xs text-[#666666] font-normal">{row.designation} <span className="text-[#E5E5E5] mx-1">|</span> {row.department}</span>
                     </div>
 
                     <div className="flex flex-col">
-                      <span className="text-[14px] text-[#111111] font-['Manrope:Bold',sans-serif]">
-                        {row.taskStats.assigned} <span className="text-[#666666] font-['Inter:Regular',sans-serif] text-[13px]">Assigned</span>
+                      <span className="text-sm text-[#111111] font-bold">
+                        {row.taskStats.assigned} <span className="text-[#666666] font-normal text-[0.8125rem]">Assigned</span>
                       </span>
-                      <div className="flex gap-3 mt-1 text-[11px] font-medium text-[#666666]">
+                      <div className="flex gap-3 mt-1 text-[0.6875rem] font-medium text-[#666666]">
                         <div className="flex items-center gap-1.5">
                           <div className="w-1.5 h-1.5 rounded-full bg-[#0F9D58]"></div>
                           <span>{row.taskStats.completed}</span>
@@ -902,7 +981,7 @@ export function ReportsPage() {
 
                     {/* Load / Utilization */}
                     <div className="flex flex-col gap-1.5 justify-center">
-                      <div className="flex justify-between text-[11px]">
+                      <div className="flex justify-between text-[0.6875rem]">
                         <span className="font-medium text-[#111111]">{row.utilization}%</span>
                       </div>
                       <div className="w-full h-1.5 bg-[#F0F0F0] rounded-full overflow-hidden">
@@ -913,15 +992,15 @@ export function ReportsPage() {
                       </div>
                     </div>
 
-                    <div className="text-[13px] text-[#111111] font-['Manrope:Bold',sans-serif]">${row.expenses?.toLocaleString() || 0}</div>
-                    <div className="text-[13px] text-[#111111] font-['Manrope:Bold',sans-serif]">${row.revenue?.toLocaleString() || 0}</div>
-                    <div className={`text-[13px] font-['Manrope:Bold',sans-serif] ${row.profit >= 0 ? 'text-[#0F9D58]' : 'text-[#FF3B3B]'}`}>
+                    <div className="text-[0.8125rem] text-[#111111] font-bold">${row.expenses?.toLocaleString() || 0}</div>
+                    <div className="text-[0.8125rem] text-[#111111] font-bold">${row.revenue?.toLocaleString() || 0}</div>
+                    <div className={`text-[0.8125rem] font-bold ${row.profit >= 0 ? 'text-[#0F9D58]' : 'text-[#FF3B3B]'}`}>
                       {row.profit >= 0 ? '+' : ''}${row.profit?.toLocaleString() || 0}
                     </div>
                   </div>
                 ))}
                 {filteredEmployees.length === 0 && (
-                  <div className="text-center py-12 text-[#999999] text-[13px]">No employees found matching your filters.</div>
+                  <div className="text-center py-12 text-[#999999] text-[0.8125rem]">No employees found matching your filters.</div>
                 )}
 
                 {/* Pagination moved outside */}
@@ -958,14 +1037,16 @@ export function ReportsPage() {
         />
 
         {/* Hidden PDF Template Component */}
-        <ReportsPdfTemplate
-          activeTab={activeTab}
-          data={activeTab === 'requirement' ? filteredRequirements : activeTab === 'task' ? filteredTasks : filteredEmployees}
-          kpis={activeTab === 'requirement' ? kpi : activeTab === 'task' ? taskKPI : employeeKPI}
-          dateRange={dateRange}
-          companyName={companyName}
-          timezone={companyTimezone}
-        />
+        {(isDownloading && exportData) && (
+          <ReportsPdfTemplate
+            activeTab={activeTab}
+            data={activeTab === 'requirement' ? exportData.requirements : activeTab === 'task' ? exportData.tasks : exportData.employees}
+            kpis={activeTab === 'requirement' ? kpi : activeTab === 'task' ? taskKPI : employeeKPI}
+            dateRange={dateRange}
+            companyName={companyName}
+            timezone={companyTimezone}
+          />
+        )}
 
         {/* Hidden Individual Employee PDF Template */}
         {selectedMember && (
