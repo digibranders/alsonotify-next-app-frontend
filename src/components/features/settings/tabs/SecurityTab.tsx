@@ -27,14 +27,14 @@ export function SecurityTab({
 }: Readonly<SecurityTabProps>) {
   return (
     <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 max-w-2xl">
-      <h2 className="text-[16px] font-['Manrope:SemiBold',sans-serif] text-[#111111] mb-6">Security Settings</h2>
+      <h2 className="text-base font-semibold text-[#111111] mb-6">Security Settings</h2>
 
       <Divider />
 
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-[14px] font-['Manrope:Bold',sans-serif] text-[#111111]">Two-Factor Authentication</h3>
-          <p className="text-[12px] text-[#666666]">Add an extra layer of security to your account.</p>
+          <h3 className="text-sm font-bold text-[#111111]">Two-Factor Authentication</h3>
+          <p className="text-xs text-[#666666]">Add an extra layer of security to your account.</p>
         </div>
         <Switch checked={security.twoFactor} onChange={(v) => setSecurity({ ...security, twoFactor: v })} />
       </div>
@@ -43,11 +43,11 @@ export function SecurityTab({
         <>
           <Divider />
           <div className="mt-8">
-            <h3 className="text-[14px] font-['Manrope:Bold',sans-serif] text-[#111111] mb-4 flex items-center gap-2">
+            <h3 className="text-sm font-bold text-[#111111] mb-4 flex items-center gap-2">
               <People24Filled className="w-4 h-4 text-[#ff3b3b]" color="#ff3b3b" /> Default Employee Password
             </h3>
             <div className="max-w-md">
-              <p className="text-[12px] text-[#666666] mb-3">This password will be pre-filled when creating new employees.</p>
+              <p className="text-xs text-[#666666] mb-3">This password will be pre-filled when creating new employees.</p>
               <Input
                 placeholder="Default Password"
                 value={defaultEmployeePassword}
@@ -66,8 +66,8 @@ export function SecurityTab({
         <div className="flex items-center gap-3">
           <div className="p-2 bg-[#ff3b3b]/10 rounded-full"><AlertTriangle className="w-5 h-5 text-[#ff3b3b]" /></div>
           <div>
-            <h3 className="text-[14px] font-['Manrope:Bold',sans-serif] text-[#ff3b3b]">Delete Account</h3>
-            <p className="text-[12px] text-[#ff3b3b]/80">Permanently delete your account and all data.</p>
+            <h3 className="text-sm font-bold text-[#ff3b3b]">Delete Account</h3>
+            <p className="text-xs text-[#ff3b3b]/80">Permanently delete your account and all data.</p>
           </div>
         </div>
         <Button danger type="primary">Delete Account</Button>

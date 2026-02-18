@@ -47,8 +47,8 @@ export function AccessManagementTab({
     <div className="bg-white rounded-[24px] p-8 border border-[#EEEEEE] mb-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
       <div className="flex items-center justify-between mb-10">
         <div>
-          <h2 className="text-[18px] font-['Manrope:Bold',sans-serif] text-[#111111]">Access Management</h2>
-          <p className="text-[13px] text-[#666666] mt-1 font-['Manrope:Regular',sans-serif]">
+          <h2 className="text-lg font-bold text-[#111111]">Access Management</h2>
+          <p className="text-[0.8125rem] text-[#666666] mt-1 font-normal">
             Manage roles and define specific permissions for your team.
           </p>
         </div>
@@ -59,7 +59,7 @@ export function AccessManagementTab({
               setRoleFormName('');
               setIsRoleModalOpen(true);
             }}
-            className="bg-[#111111] hover:bg-[#000000]/90 text-white font-['Manrope:SemiBold',sans-serif] px-6 h-11 rounded-full text-[13px] flex items-center gap-2 border-none transition-all shadow-md active:scale-95"
+            className="bg-[#111111] hover:bg-[#000000]/90 text-white font-semibold px-6 h-11 rounded-full text-[0.8125rem] flex items-center gap-2 border-none transition-all shadow-md active:scale-95"
           >
             <Plus className="w-4 h-4" />
             Add Role
@@ -67,11 +67,11 @@ export function AccessManagementTab({
         )}
       </div>
 
-      <div className="flex gap-8 h-[calc(100vh-500px)] min-h-[500px]">
+      <div className="flex gap-8 h-[calc(100vh-320px)] min-h-[300px]">
         {/* Roles List - Sticky */}
         <div className="w-1/3 flex flex-col">
           <div className="flex items-center h-10 mb-2 px-1">
-            <span className="text-[12px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wider">
+            <span className="text-xs font-bold text-[#999999] uppercase tracking-wider">
               Roles
             </span>
           </div>
@@ -80,7 +80,7 @@ export function AccessManagementTab({
               {rolesData?.result
                 ?.filter((role: RoleDto) => role.name !== 'Super Admin')
                 ?.sort((a: RoleDto, b: RoleDto) => {
-                  const order = ['Admin', 'Head', 'Finance', 'HR', 'Manager', 'Employee'];
+                  const order = ['Admin', 'Head', 'Coordinator', 'Finance', 'HR', 'Manager', 'Employee'];
                   const aIdx = order.indexOf(a.name);
                   const bIdx = order.indexOf(b.name);
                   if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
@@ -99,7 +99,7 @@ export function AccessManagementTab({
                   >
                     <div className="flex items-center gap-3">
                       <Lock className={`w-4 h-4 ${selectedRoleId === role.id ? 'text-white/70' : 'text-[#666666]'}`} />
-                      <span className="text-[14px] font-['Manrope:Medium',sans-serif]">{role.name}</span>
+                      <span className="text-sm font-medium">{role.name}</span>
                     </div>
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       {canEditAccessManagement && (
@@ -120,7 +120,7 @@ export function AccessManagementTab({
                   </div>
                 ))}
               {isLoadingRoles && (
-                <div className="py-8 text-center text-[#999999] text-[13px]">Loading roles...</div>
+                <div className="py-8 text-center text-[#999999] text-[0.8125rem]">Loading roles...</div>
               )}
             </div>
           </div>
@@ -131,7 +131,7 @@ export function AccessManagementTab({
           {selectedRoleId ? (
             <div className="flex flex-col h-full">
               <div className="flex items-center justify-between h-10 mb-2 px-1">
-                <span className="text-[12px] font-['Manrope:Bold',sans-serif] text-[#999999] uppercase tracking-wider">
+                <span className="text-xs font-bold text-[#999999] uppercase tracking-wider">
                   Permissions for {rolesData?.result?.find((r: RoleDto) => r.id === selectedRoleId)?.name}
                 </span>
                 {canEditAccessManagement && (
@@ -143,7 +143,7 @@ export function AccessManagementTab({
                       });
                     }}
                     loading={updatePermissionsMutation.isPending}
-                    className="bg-[#ff3b3b] hover:bg-[#ff3b3b]/90 text-white font-['Manrope:SemiBold',sans-serif] px-6 h-9 rounded-full text-[12px] border-none shadow-sm active:scale-95 transition-all"
+                    className="bg-[#ff3b3b] hover:bg-[#ff3b3b]/90 text-white font-semibold px-6 h-9 rounded-full text-xs border-none shadow-sm active:scale-95 transition-all"
                   >
                     Save Permissions
                   </Button>
@@ -152,7 +152,7 @@ export function AccessManagementTab({
 
               <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-6">
                 {isLoadingPermissions ? (
-                  <div className="py-20 text-center text-[#999999] text-[13px]">
+                  <div className="py-20 text-center text-[#999999] text-[0.8125rem]">
                     Loading permissions...
                   </div>
                 ) : (
@@ -174,7 +174,7 @@ export function AccessManagementTab({
                         key: mod.module,
                         header: (
                           <div className="flex items-center justify-between w-full pr-4">
-                            <span className="text-[14px] font-['Manrope:SemiBold',sans-serif] text-[#111111]">
+                            <span className="text-sm font-semibold text-[#111111]">
                               {mod.module}
                             </span>
                             <div onClick={(e) => e.stopPropagation()}>
@@ -195,7 +195,7 @@ export function AccessManagementTab({
                         ),
                         label: (
                           <div className="flex items-center justify-between w-full pr-4">
-                            <span className="text-[14px] font-['Manrope:SemiBold',sans-serif] text-[#111111]">
+                            <span className="text-sm font-semibold text-[#111111]">
                               {mod.module}
                             </span>
                             <div onClick={(e) => e.stopPropagation()}>
@@ -233,7 +233,7 @@ export function AccessManagementTab({
                                   }`}>
                                   {selectedPermissionIds.has(act.id) && <Check className="w-2.5 h-2.5 text-white stroke-[4]" />}
                                 </div>
-                                <span className="text-[13px] text-[#666666] font-['Manrope:Medium',sans-serif]">
+                                <span className="text-[0.8125rem] text-[#666666] font-medium">
                                   {act.name}
                                 </span>
                               </div>
@@ -252,8 +252,8 @@ export function AccessManagementTab({
               <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mb-4 shadow-sm">
                 <Shield className="w-6 h-6 text-[#999999]" />
               </div>
-              <h3 className="text-[15px] font-['Manrope:SemiBold',sans-serif] text-[#111111]">Select a role</h3>
-              <p className="text-[13px] text-[#666666] mt-1 max-w-[240px]">
+              <h3 className="text-[0.9375rem] font-semibold text-[#111111]">Select a role</h3>
+              <p className="text-[0.8125rem] text-[#666666] mt-1 max-w-[240px]">
                 Select a role from the left to view and manage its permissions.
               </p>
             </div>

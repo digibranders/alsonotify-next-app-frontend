@@ -6,6 +6,7 @@ import { usePublicHolidays, useCreateHoliday, useUpdateHoliday } from '@/hooks/u
 import { useAccountType } from '@/utils/accountTypeUtils';
 import { getRoleFromUser } from '@/utils/roleUtils';
 import { SettingsContent } from './SettingsContent';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 
 export type SettingsTab = 'company' | 'leaves' | 'working-hours' | 'integrations' | 'notifications' | 'security' | 'access-management';
@@ -48,7 +49,28 @@ export function SettingsPage() {
 
   // Wait for critical data
   if (isLoadingCompany || isLoadingUser) {
-    return <div className="flex items-center justify-center h-full">Loading...</div>;
+    return (
+      <div className="flex h-full gap-6 p-6 bg-white rounded-[24px]">
+        {/* Tab list skeleton */}
+        <div className="flex flex-col gap-2 w-48 shrink-0">
+          {Array.from({ length: 7 }).map((_, i) => (
+            <Skeleton key={i} className="h-9 w-full rounded-lg" />
+          ))}
+        </div>
+        {/* Content area skeleton */}
+        <div className="flex-1 flex flex-col gap-4">
+          <Skeleton className="h-7 w-40 rounded-lg" />
+          <Skeleton className="h-4 w-full rounded" />
+          <Skeleton className="h-4 w-2/3 rounded" />
+          <div className="grid grid-cols-2 gap-4 mt-2">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="h-12 rounded-lg" />
+            ))}
+          </div>
+          <Skeleton className="h-10 w-28 rounded-lg mt-2" />
+        </div>
+      </div>
+    );
   }
 
   return (

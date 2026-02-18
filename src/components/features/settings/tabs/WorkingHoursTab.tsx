@@ -36,15 +36,15 @@ export function WorkingHoursTab({
 }: WorkingHoursTabProps) {
   return (
     <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 max-w-2xl">
-      <h2 className="text-[16px] font-['Manrope:SemiBold',sans-serif] text-[#111111] mb-6">Working Hours</h2>
+      <h2 className="text-base font-semibold text-[#111111] mb-6">Working Hours</h2>
 
       <div className="space-y-8">
         {/* Working Days */}
         <div className="space-y-3">
-          <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">Working Days</span>
+          <span className="text-[0.8125rem] font-bold text-[#111111]">Working Days</span>
           <div className="min-h-[48px] p-2 rounded-lg border border-[#EEEEEE] flex flex-wrap gap-2">
             {workingDays.map(day => (
-              <div key={day} className={`h-8 px-3 bg-[#F0F0F0] rounded-md flex items-center gap-2 text-[13px] font-['Manrope:Medium',sans-serif] text-[#111111] ${!isEditing ? 'opacity-70' : ''}`}>
+              <div key={day} className={`h-8 px-3 bg-[#F0F0F0] rounded-md flex items-center gap-2 text-[0.8125rem] font-medium text-[#111111] ${!isEditing ? 'opacity-70' : ''}`}>
                 {day}
                 {canEditWorkingHours && isEditing && (
                   <button onClick={() => toggleWorkingDay(day)} className="hover:text-[#ff3b3b]">
@@ -63,13 +63,13 @@ export function WorkingHoursTab({
                     <button
                       key={day}
                       onClick={() => toggleWorkingDay(day)}
-                      className="w-full text-left px-3 py-2 text-[12px] hover:bg-[#F7F7F7] rounded-md"
+                      className="w-full text-left px-3 py-2 text-xs hover:bg-[#F7F7F7] rounded-md"
                     >
                       {day}
                     </button>
                   ))}
                   {daysOfWeek.filter(d => !workingDays.includes(d)).length === 0 && (
-                    <div className="px-3 py-2 text-[12px] text-[#999999]">All days selected</div>
+                    <div className="px-3 py-2 text-xs text-[#999999]">All days selected</div>
                   )}
                 </div>
               </div>
@@ -77,7 +77,7 @@ export function WorkingHoursTab({
             {canEditWorkingHours && !isEditing && (
               <button
                 onClick={onEdit}
-                className="h-8 px-3 text-[#ff3b3b] hover:bg-[#FFF5F5] rounded-md transition-colors text-[12px] font-['Manrope:SemiBold',sans-serif] flex items-center gap-1"
+                className="h-8 px-3 text-[#ff3b3b] hover:bg-[#FFF5F5] rounded-md transition-colors text-xs font-semibold flex items-center gap-1"
               >
                 <Plus className="w-3 h-3" />
                 Edit
@@ -88,7 +88,7 @@ export function WorkingHoursTab({
 
         {/* Working Hours */}
         <div className="space-y-3">
-          <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">Working Hours</span>
+          <span className="text-[0.8125rem] font-bold text-[#111111]">Working Hours</span>
           <div className="flex items-center gap-4">
             <div className="relative flex-1">
               <Input
@@ -96,17 +96,17 @@ export function WorkingHoursTab({
                 value={workStartTime}
                 onChange={(e) => setWorkStartTime(e.target.value)}
                 disabled={!canEditWorkingHours || !isEditing}
-                className={`h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-['Manrope:Medium',sans-serif] text-[13px] ${!isEditing ? 'bg-[#F7F7F7] cursor-not-allowed' : 'bg-white'}`}
+                className={`h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-medium text-[0.8125rem] ${!isEditing ? 'bg-[#F7F7F7] cursor-not-allowed' : 'bg-white'}`}
               />
             </div>
-            <span className="text-[13px] text-[#666666] font-['Manrope:Medium',sans-serif]">to</span>
+            <span className="text-[0.8125rem] text-[#666666] font-medium">to</span>
             <div className="relative flex-1">
               <Input
                 type="time"
                 value={workEndTime}
                 onChange={(e) => setWorkEndTime(e.target.value)}
                 disabled={!canEditWorkingHours || !isEditing}
-                className={`h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-['Manrope:Medium',sans-serif] text-[13px] ${!isEditing ? 'bg-[#F7F7F7] cursor-not-allowed' : 'bg-white'}`}
+                className={`h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-medium text-[0.8125rem] ${!isEditing ? 'bg-[#F7F7F7] cursor-not-allowed' : 'bg-white'}`}
               />
             </div>
           </div>
@@ -114,13 +114,13 @@ export function WorkingHoursTab({
 
         {/* Break Time */}
         <div className="space-y-3">
-          <span className="text-[13px] font-['Manrope:Bold',sans-serif] text-[#111111]">Break Time (in minutes)</span>
+          <span className="text-[0.8125rem] font-bold text-[#111111]">Break Time (in minutes)</span>
           <Input
             type="number"
             value={breakTime}
             onChange={(e) => setBreakTime(e.target.value)}
             disabled={!canEditWorkingHours || !isEditing}
-            className={`h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-['Manrope:Medium',sans-serif] text-[13px] ${!isEditing ? 'bg-[#F7F7F7] cursor-not-allowed' : 'bg-white'}`}
+            className={`h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-medium text-[0.8125rem] ${!isEditing ? 'bg-[#F7F7F7] cursor-not-allowed' : 'bg-white'}`}
           />
         </div>
 

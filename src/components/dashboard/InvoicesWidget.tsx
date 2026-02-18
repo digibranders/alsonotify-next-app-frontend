@@ -12,8 +12,8 @@ export function InvoicesWidget() {
     <div className="bg-white rounded-[24px] p-6 w-full h-full flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between mb-2">
-        <h3 className="font-['Manrope:SemiBold',sans-serif] text-[20px] text-[#111111]">Invoices</h3>
-        <button className="flex items-center gap-1 text-[#666666] text-[14px] font-['Manrope:SemiBold',sans-serif] hover:text-[#111111] transition-colors">
+        <h3 className="font-semibold text-xl text-[#111111]">Invoices</h3>
+        <button className="flex items-center gap-1 text-[#666666] text-sm font-semibold hover:text-[#111111] transition-colors">
           <span>View All</span>
           <svg className="size-[17px]" fill="none" viewBox="0 0 17 17">
             <path d={svgPaths.p3ac7a560} stroke="#666666" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
@@ -27,7 +27,7 @@ export function InvoicesWidget() {
       {/* Invoices List */}
       <div className="flex flex-col gap-3 flex-1 overflow-y-auto">
         {invoices.map((invoice, index) => (
-          <InvoiceItem key={index} {...invoice} />
+          <InvoiceItem key={invoice.id} {...invoice} />
         ))}
       </div>
     </div>
@@ -60,14 +60,14 @@ function InvoiceItem({ id, client, amount, status}: { id: string; client: string
 
       {/* Invoice Details */}
       <div className="flex-1">
-        <p className="font-['Manrope:SemiBold',sans-serif] text-[14px] text-[#111111] mb-1">{id}</p>
-        <p className="font-['Manrope:Regular',sans-serif] text-[12px] text-[#666666]">{client}</p>
+        <p className="font-semibold text-sm text-[#111111] mb-1">{id}</p>
+        <p className="font-normal text-xs text-[#666666]">{client}</p>
       </div>
 
       {/* Amount & Status */}
       <div className="flex flex-col items-end gap-2">
-        <p className="font-['Manrope:Bold',sans-serif] text-[14px] text-[#111111]">{amount}</p>
-        <span className={`text-[11px] font-['Manrope:Medium',sans-serif] px-2 py-1 rounded ${getStatusColor()}`}>
+        <p className="font-bold text-sm text-[#111111]">{amount}</p>
+        <span className={`text-[0.6875rem] font-medium px-2 py-1 rounded ${getStatusColor()}`}>
           {status}
         </span>
       </div>
