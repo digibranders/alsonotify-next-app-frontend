@@ -26,6 +26,8 @@ export function useWebSocket() {
     }
   };
 
+  const connectRef = useRef<() => void>(() => {});
+
   const connect = useCallback(() => {
     if (unmountedRef.current) return;
 
@@ -90,9 +92,13 @@ export function useWebSocket() {
         MAX_RETRY_DELAY
       );
       retryCountRef.current += 1;
-      retryTimerRef.current = setTimeout(connect, delay);
+      retryTimerRef.current = setTimeout(() => connectRef.current(), delay);
     };
   }, [queryClient]);
+
+  useEffect(() => {
+    connectRef.current = connect;
+  }, [connect]);
 
   useEffect(() => {
     unmountedRef.current = false;
