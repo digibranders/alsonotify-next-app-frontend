@@ -128,7 +128,7 @@ const TaskRowComponent = memo(function TaskRow({
           }
       `}
       >
-        <div className={`grid gap-4 items-center ${hideRequirements ? 'grid-cols-[40px_2.5fr_1.1fr_1fr_0.8fr_1.5fr_0.6fr_40px]' : 'grid-cols-[40px_2.5fr_1.2fr_1.1fr_1fr_0.8fr_1.5fr_0.6fr_40px]'}`}>
+        <div className={`grid gap-4 items-center ${hideRequirements ? 'grid-cols-[40px_2.5fr_1fr_1fr_1fr_1.4fr_60px_40px]' : 'grid-cols-[40px_2.5fr_1.2fr_1fr_1fr_1fr_1.4fr_60px_40px]'}`}>
           {/* Checkbox */}
           <div className="flex justify-center" onClick={(e) => e.stopPropagation()}>
             <Checkbox
@@ -142,47 +142,53 @@ const TaskRowComponent = memo(function TaskRow({
           </div>
 
           {/* Task Info */}
-          <div className="flex flex-col gap-0.5">
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-sm !text-[#111111] group-hover:text-[#ff3b3b] transition-colors">
-                {task.name}
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              {/* <span className="text-[0.6875rem] text-[#999999] font-normal">
-                #{task.taskId}
-              </span> */}
-              <span
-                className="text-[0.6875rem] !text-[#111111] font-medium"
-              >
-                {task.client}
-              </span>
+          <div className="flex flex-col gap-0.5 min-w-0">
+            <div className="flex items-center gap-1.5 min-w-0">
+              <Tooltip title={task.name} placement="topLeft" mouseEnterDelay={0.5}>
+                <span className="font-bold text-sm !text-[#111111] group-hover:text-[#ff3b3b] transition-colors truncate cursor-help">
+                  {task.name}
+                </span>
+              </Tooltip>
               {task.is_high_priority && (
                 <Tooltip title="High Priority">
                   <div className="w-1.5 h-1.5 bg-[#ff3b3b] rounded-full shadow-sm blink-animation flex-shrink-0" />
                 </Tooltip>
               )}
             </div>
+            <div className="flex items-center gap-2">
+              {/* <span className="text-[0.6875rem] text-[#999999] font-normal">
+                #{task.taskId}
+              </span> */}
+              <span
+                className="text-[0.6875rem] text-[#999999] font-medium truncate"
+              >
+                {task.client}
+              </span>
+            </div>
           </div>
 
           {/* Project (Mapped to Requirements Header) */}
           {!hideRequirements && (
-            <div>
-              <Link
-                href="/dashboard/workspace"
-                onClick={(e) => e.stopPropagation()}
-                className="text-[0.8125rem] !text-[#111111] visited:!text-[#111111] font-medium truncate hover:text-[#ff3b3b] hover:underline"
-              >
-                {task.project}
-              </Link>
+            <div className="min-w-0">
+              <Tooltip title={task.project} placement="topLeft" mouseEnterDelay={0.5}>
+                <Link
+                  href="/dashboard/workspace"
+                  onClick={(e) => e.stopPropagation()}
+                  className="text-sm !text-[#111111] visited:!text-[#111111] font-medium truncate block hover:text-[#ff3b3b] hover:underline cursor-help"
+                >
+                  {task.project}
+                </Link>
+              </Tooltip>
             </div>
           )}
 
           {/* Timeline */}
           <div className="flex flex-col gap-0.5">
-            <span className="text-[0.8125rem] font-medium text-[#111111]">
-              {task.timelineDate}
-            </span>
+            <Tooltip title={task.dueDate !== 'TBD' ? task.dueDate : undefined}>
+              <span className="text-sm font-medium text-[#111111] w-fit">
+                {task.timelineDate}
+              </span>
+            </Tooltip>
             <span
               className={`text-[0.6875rem] font-normal ${task.status === 'Delayed' || task.status === 'Impediment' || task.status === 'Stuck'
                 ? 'text-[#dc2626]'
@@ -224,19 +230,14 @@ const TaskRowComponent = memo(function TaskRow({
 
           {/* Duration Text */}
           <div className="flex justify-center items-center">
-            <span className={`text-[0.6875rem] font-medium ${textColor}`}>
+            <span className={`text-sm font-medium whitespace-nowrap ${textColor}`}>
               {formatHours(totalHours)}h / {formatDuration(task.estTime)}h
             </span>
           </div>
 
           {/* Progress Bar - Always Show */}
-          <div className="flex flex-col gap-1 w-full justify-center">
-            <div className="flex flex-col gap-0.5">
-              <div className="flex justify-end">
-                <span className={`text-[0.625rem] font-bold ${textColor}`}>
-                  {Math.round(percentage)}%
-                </span>
-              </div>
+          <div className="flex items-center gap-2 w-full min-w-0">
+            <div className="flex-1 min-w-0">
               <SegmentedProgressBar
                 members={liveMembers.sort((a, b) => {
                   if (task.execution_mode === 'sequential') {
@@ -249,10 +250,13 @@ const TaskRowComponent = memo(function TaskRow({
                 executionMode={task.execution_mode || 'parallel'}
               />
             </div>
+            <span className={`text-[0.6875rem] font-bold whitespace-nowrap ${textColor}`}>
+              {Math.round(percentage)}%
+            </span>
           </div>
 
           {/* Status (Aggregated) or Estimate Button */}
-          <div className="flex items-center" onClick={(e) => e.stopPropagation()}>
+          <div className="flex items-center min-w-0" onClick={(e) => e.stopPropagation()}>
             {isPendingEstimate ? (
               // ESTIMATE Button when pending
               <Popover
@@ -296,7 +300,7 @@ const TaskRowComponent = memo(function TaskRow({
                 }
               >
                 <button
-                  className="px-2 py-1 bg-yellow-400 hover:bg-yellow-500 text-black text-[0.625rem] font-bold rounded-full flex items-center shadow-sm transition-colors"
+                  className="px-2.5 py-1 bg-yellow-400 hover:bg-yellow-500 text-black text-[0.625rem] font-bold rounded-full flex items-center shadow-sm transition-colors whitespace-nowrap"
                 >
                   ESTIMATE
                 </button>

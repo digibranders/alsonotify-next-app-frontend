@@ -1022,7 +1022,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
       {/* Tasks List */}
       <div className="flex-1 overflow-y-auto relative">
         {/* Table Header */}
-        <div className="sticky top-0 z-20 bg-white grid grid-cols-[40px_2.5fr_1.2fr_1.1fr_1fr_0.8fr_1.5fr_0.6fr_40px] gap-4 px-4 py-3 mb-2 items-center">
+        <div className="sticky top-0 z-20 bg-white grid grid-cols-[40px_2.5fr_1.2fr_1fr_1fr_1fr_1.4fr_60px_40px] gap-4 px-4 py-3 mb-2 items-center">
           <div className="flex justify-center">
             <Checkbox
               checked={sortedTasks.length > 0 && selectedTasks.length === sortedTasks.length}
@@ -1101,7 +1101,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
         <div className="space-y-2">
           {isLoading ? (
             Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[40px_2.5fr_1.2fr_1.1fr_1fr_0.8fr_1.5fr_0.6fr_40px] gap-4 px-4 py-4 items-center">
+              <div key={i} className="bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[40px_2.5fr_1.2fr_1fr_1fr_1fr_1.4fr_60px_40px] gap-4 px-4 py-4 items-center">
                 <div className="flex justify-center"><Skeleton className="h-4 w-4 rounded" /></div>
                 <div className="space-y-2">
                   <Skeleton className="h-4 w-3/4" />
