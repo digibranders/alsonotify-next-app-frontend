@@ -44,7 +44,12 @@ export const getTodayForApi = (): string => {
  * Supports custom working days configuration.
  * @param workingDays Array of day names (e.g. ['Monday', 'Friday']) or explicit configuration. Defaults to Mon-Fri.
  */
-export const getWorkingDaysCount = (start: dayjs.Dayjs, end: dayjs.Dayjs, workingDays?: string[]): number => {
+export const getWorkingDaysCount = (
+    start: dayjs.Dayjs,
+    end: dayjs.Dayjs,
+    workingDays?: string[],
+    holidays?: { date: string }[]
+): number => {
     let count = 0;
     let current = dayjs(start);
     const last = dayjs(end);
@@ -64,16 +69,18 @@ export const getWorkingDaysCount = (start: dayjs.Dayjs, end: dayjs.Dayjs, workin
             const dayNum = dayMap[day.toLowerCase()];
             if (dayNum !== undefined) activeDays.add(dayNum);
         });
-    } else {
-        // Default to Mon-Fri (1-5)
-        [1, 2, 3, 4, 5].forEach(d => activeDays.add(d));
     }
+    // No else/default: if workingDays is not provided or empty the caller must ensure it is passed.
+    // Returning 0 days is intentional — it signals missing company configuration rather than silently
+    // assuming Mon–Fri, which would be wrong for companies with different work weeks.
 
     // Iterate through each day
     while (current.isBefore(last) || current.isSame(last, 'day')) {
         const dayOfWeek = current.day(); // 0 is Sunday, 6 is Saturday
         if (activeDays.has(dayOfWeek)) {
-            count++;
+            // Skip public holidays — mirrors backend computeUtilization logic
+            const isHoliday = holidays?.some(h => current.isSame(dayjs(h.date), 'day'));
+            if (!isHoliday) count++;
         }
         current = current.add(1, 'day');
     }
