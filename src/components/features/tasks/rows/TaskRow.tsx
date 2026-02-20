@@ -326,8 +326,10 @@ const TaskRowComponent = memo(function TaskRow({
                     activeMemberIds[0] === leaderId &&
                     currentUserId === leaderId;
 
+                  const actions: MenuProps['items'] = [];
+
                   if (isReview && isLeader) {
-                    return [
+                    actions.push(
                       {
                         key: 'approve',
                         label: 'Approve & Complete',
@@ -342,26 +344,26 @@ const TaskRowComponent = memo(function TaskRow({
                         onClick: () => setRevisionModalOpen(true),
                         className: "text-[0.8125rem] font-medium text-[#ff3b3b]"
                       }
-                    ];
+                    );
                   }
 
                   // Scenario 1: Self-assigned task — leader can mark complete directly
                   if (isSelfAssigned) {
-                    return [
-                      {
-                        key: 'mark_complete',
-                        label: 'Mark Complete',
-                        icon: <CheckCircle className="w-3.5 h-3.5" />,
-                        onClick: () => onStatusChange?.('Completed'),
-                        className: "text-[0.8125rem] font-medium text-[#16a34a]"
-                      }
-                    ];
+                    actions.push({
+                      key: 'mark_complete',
+                      label: 'Mark Complete',
+                      icon: <CheckCircle className="w-3.5 h-3.5" />,
+                      onClick: () => onStatusChange?.('Completed'),
+                      className: "text-[0.8125rem] font-medium text-[#16a34a]"
+                    });
                   }
-
-                  const actions: MenuProps['items'] = [];
 
                   // Admin or Leader Actions
                   if ((isAdmin || isLeader) && userRole !== 'Employee') {
+                    if (actions.length > 0) {
+                      actions.push({ type: 'divider' });
+                    }
+
                     actions.push({
                       key: 'edit',
                       label: 'Edit',
