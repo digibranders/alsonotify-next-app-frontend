@@ -26,10 +26,13 @@ import { ApiResponse } from '@/types/api';
 import { RequirementDto } from '@/types/dto/requirement.dto';
 import { useAccountType } from '@/utils/accountTypeUtils';
 import { getWorkingDaysCount } from '@/utils/date';
+import { useTimezone } from '@/hooks/useTimezone';
 
 export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => void }) {
+  const { getDayjsInTimezone } = useTimezone();
+
   const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null] | null>(() => {
-    const now = dayjs();
+    const now = getDayjsInTimezone();
     return [now.startOf('month'), now.endOf('month')];
   });
 

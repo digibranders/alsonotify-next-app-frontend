@@ -271,7 +271,8 @@ export function FloatingTimerBar() {
       try {
         await startTimer(currentDisplayTaskId, taskName, projectName);
         message.success("Timer started");
-      } catch (e) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
+      } catch (e: any) {
         // message handled in context or here
         message.error("Failed to start timer");
       }
@@ -370,6 +371,7 @@ export function FloatingTimerBar() {
       }
 
       setSelectedTaskId(null);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       console.error("Failed to update member status", e);
       if (e.message?.includes('Review to Review')) {

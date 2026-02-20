@@ -242,8 +242,8 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
     }
 
     if (dateRange && dateRange[0] && dateRange[1]) {
-      params['start_date[start]'] = dateRange[0].format('YYYY-MM-DD');
-      params['start_date[end]'] = dateRange[1].format('YYYY-MM-DD');
+      params['start_date[start]'] = dateRange[0].toISOString();
+      params['start_date[end]'] = dateRange[1].toISOString();
     }
 
     return toQueryParams(params);
@@ -280,8 +280,8 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
       params.name = searchQuery;
     }
     if (dateRange && dateRange[0] && dateRange[1]) {
-      params['start_date[start]'] = dateRange[0].format('YYYY-MM-DD');
-      params['start_date[end]'] = dateRange[1].format('YYYY-MM-DD');
+      params['start_date[start]'] = dateRange[0].toISOString();
+      params['start_date[end]'] = dateRange[1].toISOString();
     }
 
     return toQueryParams(params);
