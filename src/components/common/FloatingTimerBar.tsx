@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useMemo, useRef } from "react";
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import {
   Play,
   Pause,
@@ -37,6 +37,7 @@ interface TaskOption {
 
 export function FloatingTimerBar() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { message } = App.useApp();
   const queryClient = useQueryClient();
   const [isOnline, setIsOnline] = useState(true);
@@ -133,9 +134,12 @@ export function FloatingTimerBar() {
   // When our own Complete modal is open (showCompleteModal), do NOT hide the bar — otherwise
   // the MutationObserver would set isFormOpen true → bar returns null → modal unmounts →
   // observer sets isFormOpen false → bar re-renders with modal → infinite loop.
+  const activeTab = searchParams.get('tab');
   const isHidden = (pathname && (
     HIDDEN_ROUTES.some(route => pathname.startsWith(route)) ||
-    pathname.includes('/dashboard/requirements/')
+    pathname.includes('/dashboard/requirements/') ||
+    // Hide when these tabs are active
+    ['gantt', 'kanban', 'pnl'].includes(activeTab || '')
   )) || (isFormOpen && !showCompleteModal);
 
   // Sync selected task with running timer ONLY if user hasn't actively selected another one?

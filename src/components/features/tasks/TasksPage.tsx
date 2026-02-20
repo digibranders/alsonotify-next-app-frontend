@@ -839,13 +839,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
                 <CheckSquare className="w-4 h-4" />
               </button>
             </Tooltip>
-            {/* Assign To - Future implementation 
-              <Tooltip title="Assign To">
-                <button className="p-2 hover:bg-white/10 rounded-full transition-colors">
-                  <Users className="w-4 h-4" />
-                </button>
-              </Tooltip>
-              */}
+
             <Tooltip title="Delete">
               <button
                 onClick={handleBulkDelete}

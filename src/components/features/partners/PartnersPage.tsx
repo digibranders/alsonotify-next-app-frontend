@@ -408,6 +408,100 @@ export function PartnersPageContent() {
         }
     };
 
+    const handleBulkDeactivate = useCallback(() => {
+        const deactivatable = selectedPartners
+            .map(id => paginatedPartners.find(p => p.id === id))
+            .filter((p): p is Partner => !!p && !!p.association_id);
+        const skipped = selectedPartners.length - deactivatable.length;
+
+        if (deactivatable.length === 0) {
+            message.warning('None of the selected partners can be deactivated (no valid association)');
+            return;
+        }
+
+        modal.confirm({
+            title: 'Deactivate Partners',
+            content: skipped > 0
+                ? `${deactivatable.length} partner(s) will be deactivated. ${skipped} selection(s) without a valid association will be skipped.`
+                : `Are you sure you want to deactivate ${deactivatable.length} partner(s)?`,
+            okText: 'Deactivate',
+            okType: 'danger',
+            cancelText: 'Cancel',
+            onOk: async () => {
+                try {
+                    await Promise.all(
+                        deactivatable.map(p =>
+                            updatePartnerStatus({ association_id: p.association_id!, is_active: false })
+                        )
+                    );
+                    message.success(`${deactivatable.length} partner(s) deactivated`);
+                    setSelectedPartners([]);
+                    fetchPartners();
+                } catch {
+                    message.error('Failed to deactivate some partners');
+                }
+            },
+        });
+    }, [selectedPartners, paginatedPartners, modal, message, fetchPartners]);
+
+    const handleBulkExportToCSV = useCallback(() => {
+        const selectedPartnersData = paginatedPartners.filter(p => selectedPartners.includes(p.id));
+
+        if (selectedPartnersData.length === 0) {
+            message.warning('Please select at least one partner');
+            return;
+        }
+
+        const headers = ['Name', 'Company', 'Type', 'Email', 'Country', 'Status'];
+
+        const getCountryName = (code: string): string => {
+            if (!code) return 'N/A';
+            try {
+                return new Intl.DisplayNames(['en'], { type: 'region' }).of(code) || code;
+            } catch {
+                return code;
+            }
+        };
+
+        const rows = selectedPartnersData.map(p => [
+            p.name || '',
+            p.company || '',
+            p.type || '',
+            p.email || '',
+            getCountryName(p.country || ''),
+            p.status || '',
+        ]);
+
+        const escapeCSV = (cell: unknown): string => {
+            const str = String(cell ?? '');
+            if (str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r')) {
+                return `"${str.replace(/"/g, '""')}"`;
+            }
+            return str;
+        };
+
+        const csvContent = [
+            headers.join(','),
+            ...rows.map(row => row.map(escapeCSV).join(','))
+        ].join('\n');
+
+        try {
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `partners_export_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            message.success(`Exported ${selectedPartnersData.length} partner(s) to CSV`);
+        } catch {
+            message.error('Failed to export partners to CSV');
+        }
+    }, [selectedPartners, paginatedPartners, message]);
+
     // Tab-specific Filter Options
     const requestsFilterOptions: FilterOption[] = [
         { id: 'requestType', label: 'Show', options: ['All', 'Received', 'Sent'], defaultValue: 'All' }
@@ -436,13 +530,13 @@ export function PartnersPageContent() {
 
                     <div className="flex items-center gap-2">
                         <Tooltip title="Export" placement="top" styles={{ root: { marginBottom: '8px' } }}>
-                            <button className="p-2 hover:bg-white/10 rounded-full transition-colors">
+                            <button onClick={handleBulkExportToCSV} className="p-2 hover:bg-white/10 rounded-full transition-colors">
                                 <Download className="w-4 h-4" />
                             </button>
                         </Tooltip>
 
                         <Tooltip title="Deactivate" placement="top" styles={{ root: { marginBottom: '8px' } }}>
-                            <button className="p-2 hover:bg-white/10 rounded-full transition-colors text-[#ff3b3b]">
+                            <button onClick={handleBulkDeactivate} className="p-2 hover:bg-white/10 rounded-full transition-colors text-[#ff3b3b]">
                                 <Trash2 className="w-4 h-4" />
                             </button>
                         </Tooltip>
@@ -460,7 +554,7 @@ export function PartnersPageContent() {
         return () => {
             setExpandedContent(null);
         };
-    }, [selectedPartners, setExpandedContent]);
+    }, [selectedPartners, handleBulkExportToCSV, handleBulkDeactivate, setExpandedContent]);
 
     return (
         <PageLayout

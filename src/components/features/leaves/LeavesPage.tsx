@@ -1,12 +1,18 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { PageLayout } from '../../layout/PageLayout';
 import { FilterBar, FilterOption } from '../../ui/FilterBar';
-import { Modal, Form, DatePicker, Select, Input, Button, Checkbox } from 'antd';
+import { Modal, Form, DatePicker, Select, Input, Button, Checkbox, App, Tooltip } from 'antd';
 import { Skeleton } from '../../ui/Skeleton';
 import { useCompanyLeaves, useUpdateLeaveStatus, useApplyForLeave } from '../../../hooks/useLeave';
-import { LeaveType } from '../../../services/leave';
+import { LeaveType, updateLeaveStatus } from '../../../services/leave';
 import { LeaveRow, Leave } from './rows/LeaveRow';
 import { useTabSync } from '@/hooks/useTabSync';
+import { CheckCircle2, XCircle } from 'lucide-react';
+import { useFloatingMenu } from '../../../context/FloatingMenuContext';
+import { useUserDetails } from '../../../hooks/useUser';
+import { getRoleFromUser } from '../../../utils/roleUtils';
+import { useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '../../../lib/queryKeys';
 import dayjs from 'dayjs';
 import type { Dayjs } from 'dayjs';
 
@@ -29,6 +35,18 @@ export function LeavesPage() {
   const [selectedLeaves, setSelectedLeaves] = useState<string[]>([]);
   const [isApplyLeaveModalOpen, setIsApplyLeaveModalOpen] = useState(false);
   const [form] = Form.useForm<ApplyLeaveFormValues>();
+
+  const { message, modal } = App.useApp();
+  const messageRef = useRef(message);
+  const modalRef = useRef(modal);
+  useEffect(() => { messageRef.current = message; modalRef.current = modal; }, [message, modal]);
+
+  const queryClient = useQueryClient();
+  const { setExpandedContent } = useFloatingMenu();
+
+  const { data: userDetailsData } = useUserDetails();
+  const userRole = getRoleFromUser(userDetailsData?.result);
+  const canApprove = ['Admin', 'HR', 'Manager'].includes(userRole);
 
   const { data: leavesData, isLoading, error } = useCompanyLeaves();
   const updateStatusMutation = useUpdateLeaveStatus();
@@ -124,6 +142,97 @@ export function LeavesPage() {
     await updateStatusMutation.mutateAsync({ id: leaveId, status: 'REJECTED' });
 
   };
+
+  const handleBulkApprove = useCallback(async () => {
+    const pendingSelected = selectedLeaves.filter(id => {
+      const leave = processedLeaves.find(l => l.id === id);
+      return leave?.status === 'pending';
+    });
+    if (pendingSelected.length === 0) {
+      messageRef.current.warning('No pending leave requests in the current selection');
+      return;
+    }
+    modalRef.current.confirm({
+      title: 'Bulk Approve Leaves',
+      content: `Approve ${pendingSelected.length} pending leave request(s)?`,
+      okText: 'Approve',
+      okType: 'primary',
+      cancelText: 'Cancel',
+      onOk: async () => {
+        try {
+          await Promise.all(pendingSelected.map(id => updateLeaveStatus(Number(id), 'APPROVED')));
+          queryClient.invalidateQueries({ queryKey: queryKeys.leaves.company() });
+          queryClient.invalidateQueries({ queryKey: queryKeys.leaves.all() });
+          messageRef.current.success(`${pendingSelected.length} leave request(s) approved`);
+          setSelectedLeaves([]);
+        } catch {
+          messageRef.current.error('Failed to approve some leave requests');
+        }
+      },
+    });
+  }, [selectedLeaves, processedLeaves, queryClient]);
+
+  const handleBulkReject = useCallback(async () => {
+    const pendingSelected = selectedLeaves.filter(id => {
+      const leave = processedLeaves.find(l => l.id === id);
+      return leave?.status === 'pending';
+    });
+    if (pendingSelected.length === 0) {
+      messageRef.current.warning('No pending leave requests in the current selection');
+      return;
+    }
+    modalRef.current.confirm({
+      title: 'Bulk Reject Leaves',
+      content: `Reject ${pendingSelected.length} pending leave request(s)?`,
+      okText: 'Reject',
+      okType: 'danger',
+      cancelText: 'Cancel',
+      onOk: async () => {
+        try {
+          await Promise.all(pendingSelected.map(id => updateLeaveStatus(Number(id), 'REJECTED')));
+          queryClient.invalidateQueries({ queryKey: queryKeys.leaves.company() });
+          queryClient.invalidateQueries({ queryKey: queryKeys.leaves.all() });
+          messageRef.current.success(`${pendingSelected.length} leave request(s) rejected`);
+          setSelectedLeaves([]);
+        } catch {
+          messageRef.current.error('Failed to reject some leave requests');
+        }
+      },
+    });
+  }, [selectedLeaves, processedLeaves, queryClient]);
+
+  useEffect(() => {
+    if (selectedLeaves.length > 0 && canApprove) {
+      setExpandedContent(
+        <>
+          <div className="flex items-center gap-2 border-r border-white/20 pr-6">
+            <div className="bg-[#ff3b3b] text-white text-xs font-bold px-2 py-0.5 rounded-full">
+              {selectedLeaves.length}
+            </div>
+            <span className="text-sm font-semibold">Selected</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Tooltip title="Approve Selected" placement="top" styles={{ root: { marginBottom: '8px' } }}>
+              <button onClick={handleBulkApprove} className="p-2 hover:bg-white/10 rounded-full transition-colors">
+                <CheckCircle2 className="w-4 h-4" />
+              </button>
+            </Tooltip>
+            <Tooltip title="Reject Selected" placement="top" styles={{ root: { marginBottom: '8px' } }}>
+              <button onClick={handleBulkReject} className="p-2 hover:bg-white/10 rounded-full transition-colors text-[#ff3b3b]">
+                <XCircle className="w-4 h-4" />
+              </button>
+            </Tooltip>
+          </div>
+          <button onClick={() => setSelectedLeaves([])} className="ml-2 text-xs text-[#999999] hover:text-white transition-colors">
+            Cancel
+          </button>
+        </>
+      );
+    } else {
+      setExpandedContent(null);
+    }
+    return () => { setExpandedContent(null); };
+  }, [selectedLeaves, canApprove, handleBulkApprove, handleBulkReject, setExpandedContent]);
 
   const handleApplyLeave = async (values: ApplyLeaveFormValues) => {
     await applyLeaveMutation.mutateAsync({

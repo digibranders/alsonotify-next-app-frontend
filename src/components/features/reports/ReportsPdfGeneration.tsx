@@ -4,6 +4,7 @@ import React from 'react';
 import dayjs from '@/utils/dayjs';
 import BrandLogo from '@/assets/images/logo.png';
 import { RequirementReport, TaskReport, EmployeeReport, ReportKPI, EmployeeKPI, TaskReportsResponse } from '../../../services/report';
+import { getCurrencySymbol } from '@/utils/currencyUtils';
 
 // --- Types ---
 export interface MemberRow {
@@ -17,6 +18,7 @@ export interface MemberRow {
     costPerHour: number;
     billablePerHour: number;
     utilization: number;
+    efficiency: number;
 }
 
 export interface WorklogRow {
@@ -36,6 +38,7 @@ interface ReportsPdfTemplateProps {
     dateRange: [dayjs.Dayjs | null, dayjs.Dayjs | null] | null;
     companyName?: string;
     timezone?: string;
+    currency?: string;
 }
 
 // --- Pagination Constants ---
@@ -78,7 +81,8 @@ const getStatusColor = (status: string) => {
 
 // --- Components ---
 
-export const ReportsPdfTemplate = ({ activeTab, data, kpis, dateRange, companyName, timezone }: ReportsPdfTemplateProps) => {
+export const ReportsPdfTemplate = ({ activeTab, data, kpis, dateRange, companyName, timezone, currency }: ReportsPdfTemplateProps) => {
+    const currSym = getCurrencySymbol(currency || 'USD');
     const generatedDate = dayjs().tz(timezone || 'Asia/Kolkata').format('MMM DD, YYYY');
     const periodStart = dateRange && dateRange[0] ? dateRange[0].format('MMM DD, YYYY') : 'Start';
     const periodEnd = dateRange && dateRange[1] ? dateRange[1].format('MMM DD, YYYY') : 'End';
@@ -142,14 +146,14 @@ export const ReportsPdfTemplate = ({ activeTab, data, kpis, dateRange, companyNa
                     {pageIndex === 0 && (
                         <div style={{
                             display: 'grid',
-                            gridTemplateColumns: activeTab === 'member' ? 'repeat(3, 1fr)' : 'repeat(4, 1fr)',
+                            gridTemplateColumns: activeTab === 'member' ? 'repeat(3, 1fr)' : 'repeat(5, 1fr)',
                             gap: '15px',
                             marginBottom: '30px',
                             flexShrink: 0
                         }}>
                             {activeTab === 'requirement' && renderRequirementKPIs(kpis as ReportKPI)}
                             {activeTab === 'task' && renderTaskKPIs(kpis as TaskReportsResponse['kpi'])}
-                            {activeTab === 'member' && renderEmployeeKPIs(kpis as EmployeeKPI)}
+                            {activeTab === 'member' && renderEmployeeKPIs(kpis as EmployeeKPI, currSym)}
                         </div>
                     )}
 
@@ -169,9 +173,9 @@ export const ReportsPdfTemplate = ({ activeTab, data, kpis, dateRange, companyNa
                                     const globalIdx = (pageIndex === 0 ? idx : PAGE_1_ROWS + (pageIndex - 1) * PAGE_N_ROWS + idx);
                                     return (
                                         <tr key={idx} style={idx % 2 === 0 ? {} : { backgroundColor: '#F9FAFB' }}>
-                                            {activeTab === 'requirement' && renderReqRow(row as unknown as RequirementReport, globalIdx, timezone)}
+                                            {activeTab === 'requirement' && renderReqRow(row as unknown as RequirementReport, globalIdx, timezone, currSym)}
                                             {activeTab === 'task' && renderTaskRow(row as unknown as TaskReport, globalIdx)}
-                                            {activeTab === 'member' && renderEmpRow(row as unknown as EmployeeReport, globalIdx)}
+                                            {activeTab === 'member' && renderEmpRow(row as unknown as EmployeeReport, globalIdx, currSym)}
                                         </tr>
                                     );
                                 })}
@@ -204,12 +208,12 @@ export const ReportsPdfTemplate = ({ activeTab, data, kpis, dateRange, companyNa
 };
 
 
-export const IndividualEmployeePdfTemplate = ({ member, worklogs, dateRange, companyName, timezone }: { member: MemberRow, worklogs: WorklogRow[], dateRange: [dayjs.Dayjs | null, dayjs.Dayjs | null] | null, companyName?: string, timezone?: string }) => {
+export const IndividualEmployeePdfTemplate = ({ member, worklogs, dateRange, companyName, timezone, currency }: { member: MemberRow, worklogs: WorklogRow[], dateRange: [dayjs.Dayjs | null, dayjs.Dayjs | null] | null, companyName?: string, timezone?: string, currency?: string }) => {
     const generatedDate = dayjs().tz(timezone || 'Asia/Kolkata').format('MMM DD, YYYY');
     const periodStart = dateRange && dateRange[0] ? dateRange[0].format('MMM DD, YYYY') : 'Start';
     const periodEnd = dateRange && dateRange[1] ? dateRange[1].format('MMM DD, YYYY') : 'End';
-    const taskEfficiency = member.taskStats.assigned > 0 ? Math.round((member.taskStats.completed / member.taskStats.assigned) * 100) : 0;
-    const workEfficiency = member.utilization;
+    const taskEfficiency = member.efficiency;
+    const occupancy = member.utilization;
 
     // Chunk worklogs
     // Page 1: Profile + KPIs + History Header + ~5 rows
@@ -292,15 +296,15 @@ export const IndividualEmployeePdfTemplate = ({ member, worklogs, dateRange, com
                                     <span style={{ fontSize: '20px', fontFamily: "'Manrope', sans-serif", fontWeight: 700, color: '#111111' }}>{member.actualEngagedHrs}h</span>
                                 </div>
                                 <div style={{ flex: 1, padding: '12px', borderRadius: '12px', border: '1px solid #EEEEEE', backgroundColor: '#FAFAFA', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                    <span style={{ fontSize: '10px', fontWeight: 500, color: '#666666', textTransform: 'uppercase' }}>Task Yield</span>
-                                    <span style={{ fontSize: '20px', fontFamily: "'Manrope', sans-serif", fontWeight: 700, color: taskEfficiency >= 90 ? '#0F9D58' : taskEfficiency >= 75 ? '#2196F3' : '#FF3B3B' }}>
+                                    <span style={{ fontSize: '10px', fontWeight: 500, color: '#666666', textTransform: 'uppercase' }}>Efficiency</span>
+                                    <span style={{ fontSize: '20px', fontFamily: "'Manrope', sans-serif", fontWeight: 700, color: taskEfficiency >= 75 ? '#0F9D58' : taskEfficiency >= 50 ? '#2196F3' : '#FF3B3B' }}>
                                         {taskEfficiency}%
                                     </span>
                                 </div>
                                 <div style={{ flex: 1, padding: '12px', borderRadius: '12px', border: '1px solid #EEEEEE', backgroundColor: '#FAFAFA', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                    <span style={{ fontSize: '10px', fontWeight: 500, color: '#666666', textTransform: 'uppercase' }}>Work Efficiency</span>
-                                    <span style={{ fontSize: '20px', fontFamily: "'Manrope', sans-serif", fontWeight: 700, color: workEfficiency >= 90 ? '#0F9D58' : workEfficiency >= 75 ? '#2196F3' : '#FF3B3B' }}>
-                                        {workEfficiency}%
+                                    <span style={{ fontSize: '10px', fontWeight: 500, color: '#666666', textTransform: 'uppercase' }}>Occupancy</span>
+                                    <span style={{ fontSize: '20px', fontFamily: "'Manrope', sans-serif", fontWeight: 700, color: occupancy >= 70 ? '#0F9D58' : '#FF3B3B' }}>
+                                        {occupancy}%
                                     </span>
                                 </div>
                             </div>
@@ -444,7 +448,8 @@ function renderTaskHeader() {
             <Th style={{ width: '50px' }}>No</Th>
             <Th>Task</Th>
             <Th>Requirement</Th>
-            <Th>Assigned To</Th>
+            <Th>Leader</Th>
+            <Th>Assigned</Th>
             <Th>Duration</Th>
             <Th>Status</Th>
         </>
@@ -455,16 +460,17 @@ function renderEmpHeader() {
     return (
         <>
             <Th style={{ width: '50px' }}>No</Th>
-            <Th style={{ width: '20%' }}>Employee</Th>
-            <Th style={{ width: '25%' }}>Tasks Performance</Th>
-            <Th style={{ width: '20%' }}>Load</Th>
-            <Th style={{ width: '15%' }}>Expenses</Th>
-            <Th style={{ width: '15%' }}>Net Profit</Th>
+            <Th style={{ width: '18%' }}>Employee</Th>
+            <Th style={{ width: '22%' }}>Tasks Performance</Th>
+            <Th style={{ width: '15%' }}>Load</Th>
+            <Th style={{ width: '12%' }}>Expenses</Th>
+            <Th style={{ width: '12%' }}>Revenue</Th>
+            <Th style={{ width: '12%' }}>Net Profit</Th>
         </>
     )
 }
 
-function renderReqRow(row: RequirementReport, idx: number, timezone?: string) {
+function renderReqRow(row: RequirementReport, idx: number, timezone?: string, currSym: string = '$') {
     return (
         <>
             <Td>{idx + 1}</Td>
@@ -488,7 +494,7 @@ function renderReqRow(row: RequirementReport, idx: number, timezone?: string) {
                     <ProgressBar filled={row.engagedHrs} total={row.allottedHrs} color={row.engagedHrs > row.allottedHrs ? '#FF3B3B' : '#111111'} />
                 </div>
             </Td>
-            <Td style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700 }}>${row.revenue?.toLocaleString()}</Td>
+            <Td style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700 }}>{currSym}{(row.revenue || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}</Td>
             <Td>
                 <div style={{
                     display: 'inline-block',
@@ -513,6 +519,7 @@ function renderTaskRow(row: TaskReport, idx: number) {
             <Td>{idx + 1}</Td>
             <Td style={{ fontWeight: 600, color: '#111' }}>{row.task}</Td>
             <Td style={{ color: '#666' }}>{row.requirement}</Td>
+            <Td style={{ color: '#666' }}>{row.leader}</Td>
             <Td>{row.assigned}</Td>
             <Td style={{ fontWeight: 700 }}>{row.engagedHrs}h / {row.allottedHrs}h</Td>
             <Td>
@@ -533,7 +540,7 @@ function renderTaskRow(row: TaskReport, idx: number) {
     )
 }
 
-function renderEmpRow(row: EmployeeReport, idx: number) {
+function renderEmpRow(row: EmployeeReport, idx: number, currSym: string = '$') {
     return (
         <>
             <Td>{idx + 1}</Td>
@@ -559,9 +566,10 @@ function renderEmpRow(row: EmployeeReport, idx: number) {
                     <ProgressBar filled={row.utilization} total={100} color={row.utilization > 100 ? '#FF3B3B' : '#111111'} />
                 </div>
             </Td>
-            <Td style={{ color: '#666' }}>${row.hourlyCost?.toLocaleString()}/hr</Td>
+            <Td style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, color: '#111111' }}>{currSym}{(row.expenses || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}</Td>
+            <Td style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, color: '#111111' }}>{currSym}{(row.revenue || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}</Td>
             <Td style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, color: row.profit >= 0 ? '#0F9D58' : '#FF3B3B' }}>
-                ${row.profit?.toLocaleString()}
+                {row.profit >= 0 ? '+' : ''}{currSym}{(row.profit || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}
             </Td>
         </>
     )
@@ -642,9 +650,10 @@ function renderRequirementKPIs(kpi: ReportKPI) {
         <>
             <KPICard label="Total Requirements" value={kpi.totalRequirements} />
             <KPICard label="On Time Completed" value={kpi.onTimeCompleted} color="#0F9D58" />
+            <KPICard label="In Progress" value={kpi.inProgress} />
             <KPICard
                 label="Delayed"
-                value={kpi.delayedCompleted}
+                value={kpi.delayed}
                 color="#FF3B3B"
                 subValue={kpi.totalExtraHrs > 0 ? <span style={{ fontSize: '12px', fontWeight: 500, color: '#666' }}>(+{kpi.totalExtraHrs}h)</span> : null}
             />
@@ -659,25 +668,26 @@ function renderTaskKPIs(kpis: TaskReportsResponse['kpi']) {
         <>
             <KPICard label="Total Tasks" value={kpis.totalTasks} />
             <KPICard label="On Time Completed" value={kpis.onTimeCompleted} color="#0F9D58" />
+            <KPICard label="In Progress" value={kpis.inProgress} />
             <KPICard
                 label="Delayed"
-                value={kpis.delayedCompleted}
+                value={kpis.delayed}
                 color="#FF3B3B"
                 subValue={kpis.totalExtraHrs > 0 ? <span style={{ fontSize: '12px', fontWeight: 500, color: '#666' }}>(+{kpis.totalExtraHrs}h)</span> : null}
             />
-            <KPICard label="Avg. Efficiency" value={`${kpis.efficiency}%`} color="#2196F3" />
+            <KPICard label="Efficiency" value={`${kpis.efficiency}%`} color="#2196F3" />
         </>
     )
 }
 
-function renderEmployeeKPIs(kpi: EmployeeKPI) {
+function renderEmployeeKPIs(kpi: EmployeeKPI, currSym: string = '$') {
     if (!kpi) return null;
     return (
         <>
-            <KPICard label="Total Expenses" value={`$${kpi.totalExpenses?.toLocaleString()}`} />
-            <KPICard label="Total Revenue" value={`$${kpi.totalRevenue?.toLocaleString()}`} color="#0F9D58" />
-            <KPICard label="Net Profit" value={`$${kpi.netProfit?.toLocaleString()}`} color={kpi.netProfit >= 0 ? "#0F9D58" : "#FF3B3B"} />
-            <KPICard label="Avg. Rate/Hr" value={`$${kpi.avgRatePerHr?.toLocaleString()}`} color="#2196F3" />
+            <KPICard label="Total Expenses" value={`${currSym}${(kpi.totalExpenses || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}`} />
+            <KPICard label="Total Revenue" value={`${currSym}${(kpi.totalRevenue || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}`} color="#0F9D58" />
+            <KPICard label="Net Profit" value={`${kpi.netProfit >= 0 ? '' : '-'}${currSym}${Math.abs(kpi.netProfit || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}`} color={kpi.netProfit >= 0 ? "#0F9D58" : "#FF3B3B"} />
+            <KPICard label="Avg. Rate/Hr" value={`${currSym}${(kpi.avgRatePerHr || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}`} color="#2196F3" />
             <KPICard label="Occupancy" value={`${kpi.avgOccupancy}%`} color={kpi.avgOccupancy >= 70 ? "#0F9D58" : "#FF3B3B"} />
             <KPICard label="Efficiency" value={`${kpi.avgEfficiency}%`} color={kpi.avgEfficiency >= 75 ? "#0F9D58" : "#FF3B3B"} />
         </>
