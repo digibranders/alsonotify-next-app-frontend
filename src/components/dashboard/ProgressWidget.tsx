@@ -27,6 +27,7 @@ import { RequirementDto } from '@/types/dto/requirement.dto';
 import { useAccountType } from '@/utils/accountTypeUtils';
 import { getWorkingDaysCount } from '@/utils/date';
 import { useTimezone } from '@/hooks/useTimezone';
+import { usePublicHolidays } from '@/hooks/useHoliday';
 
 export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => void }) {
   const { getDayjsInTimezone } = useTimezone();
@@ -41,6 +42,9 @@ export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => 
 
   // Fetch company settings for working hours
   const { data: companyData } = useCurrentUserCompany();
+
+  // Fetch public holidays — used to subtract holidays from capacity (mirrors backend computeUtilization)
+  const { data: holidaysData } = usePublicHolidays();
 
   // Construct query string for tasks based on date range
   const taskQueryString = useMemo(() => {
@@ -314,19 +318,21 @@ export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => 
       breakTimeMinutes = Number(companySettings.break_time);
     }
 
-    // C. Working Days Logic (Company > Default Mon-Fri)
-    // Note: User-specific working days aren't standard in profile yet, so we rely on Company Settings.
-    let workingDaysConfig: string[] | undefined = undefined;
-    if (Array.isArray(companySettings?.working_days) && companySettings.working_days.length > 0) {
-      workingDaysConfig = companySettings.working_days;
-    }
+    // C. Working Days Logic — always from company settings (source of truth for the org's work week).
+    // Individual user profiles only store start_time/end_time, never working_days.
+    // If working_days is missing, total remains 0 — admin must configure company working hours.
+    const workingDaysConfig: string[] | undefined =
+      Array.isArray(companySettings?.working_days) && companySettings.working_days.length > 0
+        ? companySettings.working_days
+        : undefined;
 
     // D. Final Calculation
     const netDailyHours = Math.max(0, grossDailyHours - (breakTimeMinutes / 60));
 
-    if (dateRange && dateRange[0] && dateRange[1] && netDailyHours > 0) {
-      // Calculate precise working days based on configuration
-      const workDays = getWorkingDaysCount(dateRange[0], dateRange[1], workingDaysConfig);
+    if (dateRange && dateRange[0] && dateRange[1] && netDailyHours > 0 && workingDaysConfig) {
+      // Calculate precise working days from company config, excluding public holidays
+      const holidays = (holidaysData?.result ?? []) as { date: string }[];
+      const workDays = getWorkingDaysCount(dateRange[0], dateRange[1], workingDaysConfig, holidays);
       total = Math.round(workDays * netDailyHours);
     }
 
@@ -334,7 +340,7 @@ export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => 
     const remaining = Math.max(0, total - allotted);
 
     return { allotted, total, percentage, remaining };
-  }, [tasksData, isLoadingTasks, dateRange, currentUserId, companyData?.result?.working_hours, userDetailsData?.result]);
+  }, [tasksData, isLoadingTasks, dateRange, currentUserId, companyData?.result?.working_hours, userDetailsData?.result, holidaysData]);
 
   const isLoading = isLoadingTasks || isLoadingWorkspaces || isLoadingRequirements;
 

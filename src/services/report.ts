@@ -145,6 +145,7 @@ export interface EmployeeReport {
     profit: number;
     margin: number;
     engagedHrs: number;
+    totalWorkingHrs: number;
     taskStats: {
         assigned: number;
         completed: number;

@@ -543,9 +543,7 @@ export function ReportsPage() {
   // Adapt EmployeeReport to the shape expected by the drawer (MemberRow-like)
   const selectedMember = selectedMemberData ? {
     ...selectedMemberData,
-    totalWorkingHrs: selectedMemberData.utilization > 0
-      ? parseFloat((selectedMemberData.engagedHrs / (selectedMemberData.utilization / 100)).toFixed(2))
-      : 0,
+    totalWorkingHrs: selectedMemberData.totalWorkingHrs, // backend-computed periodCapacity (holiday + break aware)
     actualEngagedHrs: selectedMemberData.engagedHrs, // already 2dp from backend
     costPerHour: selectedMemberData.hourlyCost,
     billablePerHour: 0, // Not in API yet
