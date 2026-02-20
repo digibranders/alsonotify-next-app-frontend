@@ -1,5 +1,5 @@
 import React from 'react';
-import { Drawer } from 'antd';
+import { Drawer, Tooltip } from 'antd';
 import { Download, Loader2 } from 'lucide-react';
 import { MemberWorklog, EmployeeReport } from '../../../../services/report';
 import { useResizable } from '@/hooks/useResizable';
@@ -129,21 +129,29 @@ const EmployeeDetailsDrawer: React.FC<EmployeeDetailsDrawerProps> = ({
                             <table className="w-full text-left border-collapse min-w-[600px]">
                                 <thead className="bg-[#FAFAFA] border-b border-[#EEEEEE]">
                                     <tr>
-                                        <th className="py-2 px-3 text-[0.6875rem] font-bold text-[#666666] uppercase w-[100px]">Date</th>
-                                        <th className="py-2 px-3 text-[0.6875rem] font-bold text-[#666666] uppercase w-[150px]">Task</th>
-                                        <th className="py-2 px-3 text-[0.6875rem] font-bold text-[#666666] uppercase min-w-[200px]">Details</th>
-                                        <th className="py-2 px-3 text-[0.6875rem] font-bold text-[#666666] uppercase w-[120px] text-right">Time</th>
-                                        <th className="py-2 px-3 text-[0.6875rem] font-bold text-[#666666] uppercase w-[80px] text-right">Duration</th>
+                                        <th className="py-2 px-3 text-[0.6875rem] font-bold text-[#666666] uppercase w-[100px] text-center">Date</th>
+                                        <th className="py-2 px-3 text-[0.6875rem] font-bold text-[#666666] uppercase min-w-[200px] text-center">Task</th>
+                                        <th className="py-2 px-3 text-[0.6875rem] font-bold text-[#666666] uppercase min-w-[200px] text-center">Details</th>
+                                        <th className="py-2 px-3 text-[0.6875rem] font-bold text-[#666666] uppercase w-[120px] text-center">Time</th>
+                                        <th className="py-2 px-3 text-[0.6875rem] font-bold text-[#666666] uppercase w-[80px] text-center">Duration</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {worklogs.map((log) => (
                                         <tr key={log.id} className="border-b border-[#EEEEEE] last:border-0 hover:bg-[#FAFAFA] transition-colors group h-9">
-                                            <td className="px-3 text-xs font-medium text-[#111111] whitespace-nowrap">{log.date}</td>
-                                            <td className="px-3 text-xs font-medium text-[#111111] truncate max-w-[150px]" title={log.task}>{log.task}</td>
-                                            <td className="px-3 text-xs text-[#666666] truncate max-w-[250px]" title={log.details}>{log.details}</td>
-                                            <td className="px-3 text-[0.6875rem] text-[#666666] text-right whitespace-nowrap">{log.startTime} - {log.endTime}</td>
-                                            <td className="px-3 text-right">
+                                            <td className="px-3 text-xs font-medium text-[#111111] whitespace-nowrap text-left">{log.date}</td>
+                                            <td className="px-3 text-xs font-medium text-[#111111] text-left">
+                                                <Tooltip title={log.task} placement="topLeft">
+                                                    <div className="truncate max-w-[200px] cursor-help">{log.task}</div>
+                                                </Tooltip>
+                                            </td>
+                                            <td className="px-3 text-xs text-[#666666] text-left">
+                                                <Tooltip title={log.details} placement="topLeft">
+                                                    <div className="truncate max-w-[250px] cursor-help">{log.details === '-' ? '-' : log.details}</div>
+                                                </Tooltip>
+                                            </td>
+                                            <td className="px-3 text-[0.6875rem] text-[#666666] whitespace-nowrap text-left">{log.startTime} - {log.endTime}</td>
+                                            <td className="px-3 text-left">
                                                 <span className="text-[0.6875rem] font-bold text-[#111111] bg-[#EEEEEE] px-1.5 py-0.5 rounded group-hover:bg-white group-hover:shadow-sm transition-all">{log.engagedTime}</span>
                                             </td>
                                         </tr>

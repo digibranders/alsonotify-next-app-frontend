@@ -44,8 +44,6 @@ export const SubmitForApprovalModal = ({
           requirement.id,
           (percent) => onProgress?.({ percent })
         );
-        // Store the attachment ID in the file object for later retrieval
-        (file as any).__attachmentId = result.id;
         onSuccess?.(result);
       } catch (err: any) {
         onError?.(err);
@@ -62,7 +60,7 @@ export const SubmitForApprovalModal = ({
     try {
       const attachment_ids = fileList
         .filter((f) => f.status === "done")
-        .map((f) => (f.originFileObj as any)?.__attachmentId)
+        .map((f) => f.response?.id)
         .filter(Boolean) as number[];
 
       await onSubmit({
@@ -150,6 +148,14 @@ export const SubmitForApprovalModal = ({
             fileList={fileList}
             onChange={({ fileList: newList }) => setFileList(newList)}
             customRequest={handleUpload}
+            beforeUpload={(file) => {
+              const isLt50M = file.size / 1024 / 1024 <= 50;
+              if (!isLt50M) {
+                message.error('File must be smaller than 50MB!');
+                return Upload.LIST_IGNORE;
+              }
+              return true;
+            }}
             multiple
           >
             <Button icon={<UploadOutlined />} disabled={uploading}>
