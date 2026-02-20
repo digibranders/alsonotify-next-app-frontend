@@ -84,11 +84,21 @@ export function ChatPanel({
         direction: 'left',
     });
 
+    const isAtBottomRef = useRef(true);
+
     useEffect(() => {
-        if (scrollRef.current) {
+        if (scrollRef.current && isAtBottomRef.current) {
             scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
         }
     }, [activityData]);
+
+    const handleScroll = () => {
+        if (scrollRef.current) {
+            const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
+            // Consider "at bottom" if within 50px of the bottom to account for slight rounding errors
+            isAtBottomRef.current = scrollHeight - scrollTop - clientHeight < 50;
+        }
+    };
 
     useEffect(() => {
         const handleViewInChat = (e: Event) => {
@@ -261,7 +271,7 @@ export function ChatPanel({
 
             {/* Activity Feed */}
             {!isCollapsed && (
-                <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-6">
+                <div ref={scrollRef} onScroll={handleScroll} className="flex-1 overflow-y-auto p-6 space-y-6">
                     {isLoadingActivities ? (
                         <div className="flex justify-center items-center h-full">
                             <Loader2 className="w-6 h-6 animate-spin text-[#ff3b3b]" />
