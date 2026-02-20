@@ -126,14 +126,14 @@ const EmployeeDetailsDrawer: React.FC<EmployeeDetailsDrawerProps> = ({
                     <div>
                         <h3 className="text-[0.8125rem] font-bold text-[#111111] uppercase tracking-wide mb-3">Work History</h3>
                         <div className="border border-[#EEEEEE] rounded-lg overflow-x-auto">
-                            <table className="w-full text-left border-collapse min-w-[600px]">
+                            <table className="w-full text-left border-collapse min-w-[31.25rem]">
                                 <thead className="bg-[#FAFAFA] border-b border-[#EEEEEE]">
                                     <tr>
-                                        <th className="py-2 px-3 text-[0.6875rem] font-bold text-[#666666] uppercase w-[100px] text-center">Date</th>
-                                        <th className="py-2 px-3 text-[0.6875rem] font-bold text-[#666666] uppercase min-w-[200px] text-center">Task</th>
-                                        <th className="py-2 px-3 text-[0.6875rem] font-bold text-[#666666] uppercase min-w-[200px] text-center">Details</th>
-                                        <th className="py-2 px-3 text-[0.6875rem] font-bold text-[#666666] uppercase w-[120px] text-center">Time</th>
-                                        <th className="py-2 px-3 text-[0.6875rem] font-bold text-[#666666] uppercase w-[80px] text-center">Duration</th>
+                                        <th className="py-2 px-3 text-[0.6875rem] font-bold text-[#666666] uppercase w-[5.625rem] text-center">Date</th>
+                                        <th className="py-2 px-3 text-[0.6875rem] font-bold text-[#666666] uppercase min-w-[7.5rem] w-[8.75rem] text-center">Task</th>
+                                        <th className="py-2 px-3 text-[0.6875rem] font-bold text-[#666666] uppercase min-w-[9.375rem] w-auto text-center">Details</th>
+                                        <th className="py-2 px-3 text-[0.6875rem] font-bold text-[#666666] uppercase w-[6.875rem] text-center">Time</th>
+                                        <th className="py-2 px-3 text-[0.6875rem] font-bold text-[#666666] uppercase w-[4.375rem] text-center">Duration</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -142,12 +142,12 @@ const EmployeeDetailsDrawer: React.FC<EmployeeDetailsDrawerProps> = ({
                                             <td className="px-3 text-xs font-medium text-[#111111] whitespace-nowrap text-left">{log.date}</td>
                                             <td className="px-3 text-xs font-medium text-[#111111] text-left">
                                                 <Tooltip title={log.task} placement="topLeft">
-                                                    <div className="truncate max-w-[200px] cursor-help">{log.task}</div>
+                                                    <div className="truncate max-w-[8.75rem] cursor-help">{log.task}</div>
                                                 </Tooltip>
                                             </td>
                                             <td className="px-3 text-xs text-[#666666] text-left">
                                                 <Tooltip title={log.details} placement="topLeft">
-                                                    <div className="truncate max-w-[250px] cursor-help">{log.details === '-' ? '-' : log.details}</div>
+                                                    <div className="truncate max-w-[12.5rem] cursor-help">{log.details === '-' ? '-' : log.details}</div>
                                                 </Tooltip>
                                             </td>
                                             <td className="px-3 text-[0.6875rem] text-[#666666] whitespace-nowrap text-left">{log.startTime} - {log.endTime}</td>

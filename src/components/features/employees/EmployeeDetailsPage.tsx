@@ -239,10 +239,10 @@ export function EmployeeDetailsPage() {
     const file = event.target.files?.[0];
     if (!file || !uploadingDocType) return;
 
-    // Validate file size (50MB limit)
-    const maxSize = 50 * 1024 * 1024; // 50MB
+    // Validate file size (20MB limit)
+    const maxSize = 20 * 1024 * 1024; // 20MB
     if (file.size > maxSize) {
-      message.error(`File size must be less than 50MB. Selected file is ${(file.size / (1024 * 1024)).toFixed(1)}MB`);
+      message.error(`File size must be less than 20MB. Selected file is ${(file.size / (1024 * 1024)).toFixed(1)}MB`);
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
