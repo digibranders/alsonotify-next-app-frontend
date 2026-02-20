@@ -547,7 +547,8 @@ export function ReportsPage() {
     actualEngagedHrs: selectedMemberData.engagedHrs, // already 2dp from backend
     costPerHour: selectedMemberData.hourlyCost,
     billablePerHour: 0, // Not in API yet
-    efficiency: selectedMemberData.efficiency
+    efficiency: selectedMemberData.efficiency,
+    utilization: selectedMemberData.utilization
   } : null;
 
   // Placeholder task filtering for member drawer - Mock worklogs as we don't have an endpoint for user worklogs yet
