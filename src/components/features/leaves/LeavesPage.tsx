@@ -9,7 +9,7 @@ import { LeaveRow, Leave } from './rows/LeaveRow';
 import { useTabSync } from '@/hooks/useTabSync';
 import { CheckCircle2, XCircle } from 'lucide-react';
 import { useFloatingMenu } from '../../../context/FloatingMenuContext';
-import { useUserDetails } from '../../../hooks/useUser';
+import { useUserDetails, useCurrentUserCompany } from '../../../hooks/useUser';
 import { getRoleFromUser } from '../../../utils/roleUtils';
 import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '../../../lib/queryKeys';
@@ -47,6 +47,7 @@ export function LeavesPage() {
   const { data: userDetailsData } = useUserDetails();
   const userRole = getRoleFromUser(userDetailsData?.result);
   const canApprove = ['Admin', 'HR', 'Manager'].includes(userRole);
+  const { data: companyData } = useCurrentUserCompany();
 
   const { data: leavesData, isLoading, error } = useCompanyLeaves();
   const updateStatusMutation = useUpdateLeaveStatus();
@@ -60,12 +61,12 @@ export function LeavesPage() {
     if (upper === 'REJECTED') return 'rejected';
     return 'pending';
   };
-  const normalizeLeaveType = (type: string): 'sick' | 'casual' | 'vacation' => {
+  const normalizeLeaveType = (type: string): string => {
     const lower = type.toLowerCase();
     if (lower.includes('sick')) return 'sick';
     if (lower.includes('casual')) return 'casual';
     if (lower.includes('vacation')) return 'vacation';
-    return 'casual';
+    return type; // Fallback to raw dynamic type instead of formatting as casual
   };
 
   // Process leaves data
@@ -125,12 +126,11 @@ export function LeavesPage() {
 
   // Get unique leave types for the apply leave form dropdown
   const availableLeaveTypes = useMemo(() => {
-    if (!leavesData?.result) return ['Sick Leave', 'Casual Leave', 'Vacation'];
-    const types = new Set(leavesData.result.map((leave: LeaveType) => leave.leave_type));
-    return Array.from(types).filter(Boolean).length > 0
-      ? Array.from(types).filter(Boolean)
-      : ['Sick Leave', 'Casual Leave', 'Vacation'];
-  }, [leavesData]);
+    if (companyData?.result?.leaves && companyData.result.leaves.length > 0) {
+      return companyData.result.leaves.map((l: { name: string }) => l.name);
+    }
+    return ['Sick Leave', 'Casual Leave', 'Vacation'];
+  }, [companyData]);
 
 
   const handleApprove = async (leaveId: number) => {

@@ -5,6 +5,7 @@ import { Skeleton } from '../ui/Skeleton';
 import Image from "next/image";
 import dayjs from "dayjs";
 import { useCompanyLeaves } from "../../hooks/useLeave";
+import { useCurrentUserCompany } from "@/hooks/useUser";
 import { LeaveType } from "../../services/leave";
 import { LeaveApplyModal } from "../modals/LeaveApplyModal";
 
@@ -53,6 +54,7 @@ const formatDuration = (days: number): string => {
 export function LeavesWidget({ onNavigate }: { onNavigate?: (page: string) => void }) {
   const [showDialog, setShowDialog] = useState(false);
   const { data, isLoading, error, refetch } = useCompanyLeaves();
+  const { data: companyData } = useCurrentUserCompany();
 
   // Process and filter leaves
   const processedLeaves = useMemo(() => {
@@ -77,9 +79,9 @@ export function LeavesWidget({ onNavigate }: { onNavigate?: (page: string) => vo
       // Calculate total duration: from start date (inclusive) to end date (inclusive)
       const startDate = dayjs(leave.start_date).startOf("day");
       const endDate = dayjs(leave.end_date).startOf("day");
-      
+
       const totalDuration = Math.max(1, endDate.diff(startDate, "day") + 1);
-      
+
       return {
         id: leave.id,
         name: leave.user?.name || "Unknown Employee",
@@ -91,14 +93,13 @@ export function LeavesWidget({ onNavigate }: { onNavigate?: (page: string) => vo
     });
   }, [data]);
 
-  // Get unique leave types for the form dropdown
+  // Get unique leave types for the form dropdown from company settings
   const availableLeaveTypes = useMemo(() => {
-    if (!data?.result) return ['Sick Leave', 'Casual Leave', 'Vacation'];
-    const types = new Set(data.result.map((leave: LeaveType) => leave.leave_type));
-    return Array.from(types).filter(Boolean).length > 0
-      ? Array.from(types).filter(Boolean) as string[]
-      : ['Sick Leave', 'Casual Leave', 'Vacation'];
-  }, [data]);
+    if (companyData?.result?.leaves && companyData.result.leaves.length > 0) {
+      return companyData.result.leaves.map((l: { name: string }) => l.name);
+    }
+    return ['Sick Leave', 'Casual Leave', 'Vacation'];
+  }, [companyData]);
 
   return (
     <>

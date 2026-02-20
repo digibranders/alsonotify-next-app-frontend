@@ -6,7 +6,7 @@ import { getRoleFromUser } from "../../../../utils/roleUtils";
 export interface Leave {
   id: string;
   employeeName: string;
-  leaveType: 'sick' | 'casual' | 'vacation';
+  leaveType: string;
   startDate: string;
   endDate: string;
   days: number;

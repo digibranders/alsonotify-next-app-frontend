@@ -7,7 +7,7 @@ import dayjs from 'dayjs';
 import { RoleDto } from '@/types/dto/user.dto';
 import { SettingsTab } from './SettingsPage';
 import { ApiResponse } from '@/types/api';
-import {  Department, Holiday, Employee , CompanyUpdateInput } from '@/types/domain';
+import { Department, Holiday, Employee, CompanyUpdateInput } from '@/types/domain';
 import { CompanyProfile, CompanyLeaveSetting } from '@/types/auth';
 import { UseMutateAsyncFunction, UseMutateFunction } from '@tanstack/react-query';
 
@@ -268,6 +268,16 @@ export function SettingsContent({
         setLeaves(leaves.map(l => l.id === id ? { ...l, count: parseInt(count) || 0 } : l));
     };
 
+    const handleAddLeaveType = (name: string) => {
+        if (!name.trim()) return;
+        const newId = `leave-${Date.now()}`;
+        setLeaves([...leaves, { id: newId, name: name.trim(), count: 0 }]);
+    };
+
+    const handleDeleteLeaveType = (id: string | number) => {
+        setLeaves(leaves.filter(l => l.id !== id));
+    };
+
     const handleSaveChanges = useCallback(async () => {
         try {
             const payload: CompanyUpdateInput & { departments?: { id?: number; name: string; is_active: boolean }[] } = getCompanyDetailsPayload() as CompanyUpdateInput;
@@ -430,6 +440,8 @@ export function SettingsContent({
                         isEditing={isEditing}
                         leaves={leaves}
                         handleUpdateLeaveCount={handleUpdateLeaveCount}
+                        handleAddLeaveType={handleAddLeaveType}
+                        handleDeleteLeaveType={handleDeleteLeaveType}
                         publicHolidays={publicHolidays}
                         canEditLeaves={canEditLeaves}
                         onEdit={handleEdit}
