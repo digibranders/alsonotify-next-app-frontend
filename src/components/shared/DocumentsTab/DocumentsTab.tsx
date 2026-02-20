@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { Paperclip, FileText, Eye, Download, Loader2 } from 'lucide-react';
+import { Paperclip, FileText, Eye, Download, Loader2, MessageSquare } from 'lucide-react';
 import { App } from 'antd';
 import { DocumentPreviewModal } from '@/components/ui/DocumentPreviewModal';
 import { UserDocument } from '@/types/domain';
@@ -305,6 +305,14 @@ export function DocumentsTab({ activityData }: DocumentsTabProps) {
         }
     }, [downloadingIds]);
 
+    const handleViewInChat = useCallback((doc: DocumentItem) => {
+        // Dispatch custom event that ChatPanel will listen for
+        const event = new CustomEvent('view-in-chat', {
+            detail: { activityId: doc.activityId }
+        });
+        window.dispatchEvent(event);
+    }, []);
+
     if (allDocuments.length === 0) {
         return (
             <div className="max-w-5xl mx-auto space-y-8">
@@ -406,6 +414,14 @@ export function DocumentsTab({ activityData }: DocumentsTabProps) {
                                                         ) : (
                                                             <Download className="w-3 h-3 md:w-4 md:h-4" />
                                                         )}
+                                                    </button>
+                                                    <button
+                                                        className="p-1 md:p-1.5 rounded hover:bg-[#F0F0FF] text-[#2F80ED] transition-colors flex items-center gap-1"
+                                                        onClick={() => handleViewInChat(doc)}
+                                                        title="View in Chat"
+                                                        type="button"
+                                                    >
+                                                        <MessageSquare className="w-3 h-3 md:w-4 md:h-4" />
                                                     </button>
                                                 </div>
                                             </td>

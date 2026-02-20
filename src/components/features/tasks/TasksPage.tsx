@@ -371,17 +371,16 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
 
       const estTime = t.estimated_time || 0;
       const timeSpent = t.time_spent || 0;
-      const isOverEstimate = estTime > 0 && timeSpent > estTime;
 
       const baseStatus = normalizeBackendStatus(t.status || 'Assigned');
-      const isDelayedByTime = isTimeOverdue || isOverEstimate;
-      // If task is delayed by time but status is not already Delayed/Impediment/Stuck, mark as Delayed
+      const isDelayedByTime = isTimeOverdue;
+      // Only override to 'Delayed' when the task is genuinely idle (Assigned/In_Progress).
+      // Never mask Review, Stuck, Impediment or Completed — those are meaningful workflow states.
+      const OVERRIDABLE_BY_TIME: readonly ITaskStatus[] = ['Assigned', 'In_Progress'];
       const uiStatus: ITaskStatus =
-        baseStatus === 'Completed'
-          ? 'Completed'
-          : isDelayedByTime && !['Delayed', 'Impediment', 'Stuck'].includes(baseStatus)
-            ? 'Delayed'
-            : baseStatus;
+        isDelayedByTime && OVERRIDABLE_BY_TIME.includes(baseStatus)
+          ? 'Delayed'
+          : baseStatus;
 
       // New logic: Use requirement sender company, fallback to current user's company or In-House
 
@@ -1023,7 +1022,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
       {/* Tasks List */}
       <div className="flex-1 overflow-y-auto relative">
         {/* Table Header */}
-        <div className="sticky top-0 z-20 bg-white grid grid-cols-[40px_2.5fr_1.2fr_1.1fr_1fr_0.8fr_1.5fr_0.6fr_40px] gap-4 px-4 py-3 mb-2 items-center">
+        <div className="sticky top-0 z-20 bg-white grid grid-cols-[40px_2.5fr_1.2fr_1fr_1fr_1fr_1.4fr_60px_40px] gap-4 px-4 py-3 mb-2 items-center">
           <div className="flex justify-center">
             <Checkbox
               checked={sortedTasks.length > 0 && selectedTasks.length === sortedTasks.length}
@@ -1102,7 +1101,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
         <div className="space-y-2">
           {isLoading ? (
             Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[40px_2.5fr_1.2fr_1.1fr_1fr_0.8fr_1.5fr_0.6fr_40px] gap-4 px-4 py-4 items-center">
+              <div key={i} className="bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[40px_2.5fr_1.2fr_1fr_1fr_1fr_1.4fr_60px_40px] gap-4 px-4 py-4 items-center">
                 <div className="flex justify-center"><Skeleton className="h-4 w-4 rounded" /></div>
                 <div className="space-y-2">
                   <Skeleton className="h-4 w-3/4" />

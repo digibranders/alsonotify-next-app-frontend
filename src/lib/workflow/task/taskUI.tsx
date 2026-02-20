@@ -1,5 +1,5 @@
 import React from 'react';
-import { Clock, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { Clock, CheckCircle2, AlertCircle, Loader2, Eye } from 'lucide-react';
 import { TaskStatus } from '../types/task.types';
 
 export interface TaskUIConfig {
@@ -26,7 +26,7 @@ export const TASK_STATUS_UI_CONFIG: Record<TaskStatus, TaskUIConfig> = {
   Review: {
     label: 'In Review',
     color: 'bg-[#F3E5F5] text-[#9C27B0]',
-    icon: <Loader2 className="w-3.5 h-3.5" />,
+    icon: <Eye className="w-3.5 h-3.5" />,
   },
   Completed: {
     label: 'Completed',

@@ -74,6 +74,7 @@ export function ChatPanel({
     const [downloadingIds, setDownloadingIds] = useState<Set<number>>(new Set());
     const [previewingIds, setPreviewingIds] = useState<Set<number>>(new Set());
     const [isCollapsed, setIsCollapsed] = useState(false);
+    const [highlightedActivityId, setHighlightedActivityId] = useState<number | null>(null);
 
     // Resizable state
     const { width, isResizing, startResizing } = useResizable({
@@ -88,6 +89,44 @@ export function ChatPanel({
             scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
         }
     }, [activityData]);
+
+    useEffect(() => {
+        const handleViewInChat = (e: Event) => {
+            const customEvent = e as CustomEvent<{ activityId: number }>;
+            const { activityId } = customEvent.detail;
+
+            // 1. Expand panel if collapsed
+            if (isCollapsed) {
+                setIsCollapsed(false);
+            }
+
+            // 2. Set highlight state
+            setHighlightedActivityId(activityId);
+
+            // 3. Scroll to the element after a short delay to ensure rendering/uncollapsing
+            setTimeout(() => {
+                const element = document.getElementById(`chat-activity-${activityId}`);
+                if (element && scrollRef.current) {
+                    // Calculate position to center the element
+                    const container = scrollRef.current;
+                    const scrollTop = element.offsetTop - (container.clientHeight / 2) + (element.clientHeight / 2);
+
+                    container.scrollTo({
+                        top: Math.max(0, scrollTop),
+                        behavior: 'smooth'
+                    });
+                }
+            }, 100);
+
+            // 4. Remove highlight after 3 seconds
+            setTimeout(() => {
+                setHighlightedActivityId(null);
+            }, 3000);
+        };
+
+        window.addEventListener('view-in-chat', handleViewInChat);
+        return () => window.removeEventListener('view-in-chat', handleViewInChat);
+    }, [isCollapsed]);
 
     // File type detection utility
     const determineFileType = useCallback((
@@ -228,7 +267,12 @@ export function ChatPanel({
                             <Loader2 className="w-6 h-6 animate-spin text-[#ff3b3b]" />
                         </div>
                     ) : activityData.map((activity) => (
-                        <div key={activity.id} className="flex gap-3">
+                        <div
+                            key={activity.id}
+                            id={`chat-activity-${activity.id}`}
+                            className={`flex gap-3 p-2 -mx-2 rounded-lg transition-colors duration-500 ease-in-out ${highlightedActivityId === activity.id ? 'bg-[#ff3b3b]/10 shadow-[inset_0_0_0_1px_rgba(255,59,59,0.2)]' : ''
+                                }`}
+                        >
                             <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${activity.isSystem
                                 ? 'bg-[#F0F0F0]'
                                 : 'bg-gradient-to-br from-[#666666] to-[#999999]'
