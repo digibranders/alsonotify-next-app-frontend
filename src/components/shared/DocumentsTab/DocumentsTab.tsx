@@ -228,7 +228,7 @@ export function DocumentsTab({ activityData }: DocumentsTabProps) {
                 documentTypeId: 'requirement-attachment',
                 documentTypeName: 'Requirement Attachment',
                 fileName: doc.name,
-                fileSize: parseInt(doc.size.replace(/[^\d]/g, '')) * 1024 || 0, // Convert KB back to bytes
+                fileSize: Math.round(parseFloat(doc.size) * 1024) || 0, // Convert KB back to bytes safely
                 fileUrl: blobUrl, // Use blob URL instead of direct URL
                 uploadedDate: new Date().toISOString(),
                 fileType,

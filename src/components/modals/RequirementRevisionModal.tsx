@@ -61,7 +61,6 @@ export const RequirementRevisionModal = ({
           requirementId,
           (percent) => onProgress?.({ percent })
         );
-        (file as any).__attachmentId = result.id;
         onSuccess?.(result);
       } catch (err: any) {
         onError?.(err);
@@ -78,7 +77,7 @@ export const RequirementRevisionModal = ({
     try {
       const newUploadedIds = newFileList
         .filter((f) => f.status === "done")
-        .map((f) => (f.originFileObj as any)?.__attachmentId)
+        .map((f) => f.response?.id)
         .filter(Boolean) as number[];
 
       const allAttachmentIds = [...selectedExistingIds, ...newUploadedIds];
@@ -169,6 +168,14 @@ export const RequirementRevisionModal = ({
             fileList={newFileList}
             onChange={({ fileList }) => setNewFileList(fileList)}
             customRequest={handleUpload}
+            beforeUpload={(file) => {
+              const isLt50M = file.size / 1024 / 1024 <= 50;
+              if (!isLt50M) {
+                message.error('File must be smaller than 50MB!');
+                return Upload.LIST_IGNORE;
+              }
+              return true;
+            }}
             multiple
           >
             <Button icon={<UploadOutlined />} disabled={uploading}>
