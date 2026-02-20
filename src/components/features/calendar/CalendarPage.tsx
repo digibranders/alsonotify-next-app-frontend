@@ -64,19 +64,16 @@ export function CalendarPage() {
   const { data: holidays, isLoading: isLoadingHolidays } = usePublicHolidays();
   const { data: teamsStatus, isLoading: isLoadingTeamsStatus, refetch: refetchTeamsStatus } = useTeamsConnectionStatus();
   const { mutate: disconnectTeams, isPending: isDisconnecting } = useDisconnectTeams();
-  const { data: leavesData } = useCompanyLeaves();
 
   const isLoading = isLoadingTasks || isLoadingMeetings || isLoadingLeaves || isLoadingHolidays;
   const isConnected = teamsStatus?.result?.connected ?? false;
 
   const availableLeaveTypes = useMemo((): string[] => {
-    if (!leavesData?.result) return ['Sick Leave', 'Casual Leave', 'Vacation'];
-    if (!leavesData?.result) return ['Sick Leave', 'Casual Leave', 'Vacation'];
-    const types = new Set((leavesData.result as LeaveType[]).map((leave) => leave.leave_type));
-    return Array.from(types).filter(Boolean).length > 0
-      ? Array.from(types).filter((t): t is string => Boolean(t))
-      : ['Sick Leave', 'Casual Leave', 'Vacation'];
-  }, [leavesData]);
+    if (companyData?.result?.leaves && companyData.result.leaves.length > 0) {
+      return companyData.result.leaves.map((l: { name: string }) => l.name);
+    }
+    return ['Sick Leave', 'Casual Leave', 'Vacation'];
+  }, [companyData]);
 
   const connectToTeams = useCallback(async () => {
     try {
@@ -85,7 +82,8 @@ export function CalendarPage() {
       if (response?.result) {
         window.location.href = response.result;
       }
-    } catch (error) {
+    } catch (err) {
+      console.error(err);
       message.error("Failed to connect to Microsoft Teams");
     } finally {
       setConnecting(false);

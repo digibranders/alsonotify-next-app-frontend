@@ -28,7 +28,7 @@ import { WorkspaceForm } from '../modals/WorkspaceForm';
 import { NotificationPanel } from './NotificationPanel';
 import { Skeleton } from '../ui/Skeleton';
 import { FeedbackWidget } from './FeedbackWidget';
-import { useUserDetails } from '@/hooks/useUser';
+import { useUserDetails, useCurrentUserCompany } from '@/hooks/useUser';
 import { isSuperAdmin } from '@/utils/roleUtils';
 import { useAccountType } from '@/utils/accountTypeUtils';
 import { useNotifications, useMarkAllNotificationsRead, useMarkNotificationRead } from '../../hooks/useNotification';
@@ -76,6 +76,14 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
 
   // Fetch user details
   const { data: userDetailsData, isLoading: isLoadingUserDetails } = useUserDetails();
+  const { data: companyData } = useCurrentUserCompany();
+
+  const availableLeaveTypes = useMemo(() => {
+    if (companyData?.result?.leaves && companyData.result.leaves.length > 0) {
+      return companyData.result.leaves.map((l: { name: string }) => l.name);
+    }
+    return ['Sick Leave', 'Casual Leave', 'Vacation'];
+  }, [companyData]);
 
   // Fetch notifications
   const { data: notificationsData } = useNotifications();
@@ -619,7 +627,7 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
       <LeaveApplyModal
         open={showLeaveDialog}
         onCancel={() => setShowLeaveDialog(false)}
-        availableLeaveTypes={['Sick Leave', 'Casual Leave', 'Vacation']} // We can fetch this if needed
+        availableLeaveTypes={availableLeaveTypes}
       />
 
       <AIAssistantDrawer

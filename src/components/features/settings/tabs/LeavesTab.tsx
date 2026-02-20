@@ -1,11 +1,14 @@
 import { Plus, Edit, Trash2, Lock } from 'lucide-react';
-import { Input } from "antd";
+import { Input, Button } from "antd";
+import { useState } from 'react';
 import { CompanyLeaveSetting } from '@/types/auth';
 import { Holiday } from '@/types/domain';
 
 interface LeavesTabProps {
   leaves: CompanyLeaveSetting[];
   handleUpdateLeaveCount: (id: string, count: string) => void;
+  handleAddLeaveType: (name: string) => void;
+  handleDeleteLeaveType: (id: string | number) => void;
   canEditLeaves: boolean;
   isEditing: boolean;
   onEdit: () => void;
@@ -21,6 +24,8 @@ interface LeavesTabProps {
 export function LeavesTab({
   leaves,
   handleUpdateLeaveCount,
+  handleAddLeaveType,
+  handleDeleteLeaveType,
   canEditLeaves,
   isEditing,
   onEdit,
@@ -32,6 +37,13 @@ export function LeavesTab({
   handleEditHoliday,
   handleDeleteHoliday,
 }: LeavesTabProps) {
+  const [newLeaveName, setNewLeaveName] = useState('');
+
+  const onAddLeaveTypeClick = () => {
+    handleAddLeaveType(newLeaveName);
+    setNewLeaveName('');
+  };
+
   return (
     <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 grid grid-cols-2 gap-12">
       {/* Leaves Column */}
@@ -41,8 +53,19 @@ export function LeavesTab({
         </div>
 
         {leaves.map((leave) => (
-          <div key={leave.id} className="space-y-2">
-            <span className="text-[0.8125rem] font-bold text-[#111111]">{leave.name}</span>
+          <div key={leave.id} className="space-y-2 group/leave">
+            <div className="flex items-center justify-between">
+              <span className="text-[0.8125rem] font-bold text-[#111111]">{leave.name}</span>
+              {canEditLeaves && isEditing && leaves.length > 1 && (
+                <button
+                  onClick={() => handleDeleteLeaveType(leave.id)}
+                  className="p-1 text-[#ff3b3b] hover:bg-[#FFF5F5] rounded transition-colors opacity-0 group-hover/leave:opacity-100"
+                  title="Delete Leave Type"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
             <div className="flex items-center gap-3">
               <Input
                 value={leave.count}
@@ -61,6 +84,27 @@ export function LeavesTab({
             </div>
           </div>
         ))}
+
+        {canEditLeaves && isEditing && (
+          <div className="pt-4 border-t border-[#EEEEEE] space-y-3">
+            <span className="text-[0.8125rem] font-bold text-[#111111]">Add Custom Leave Type</span>
+            <div className="flex flex-col gap-2">
+              <Input
+                placeholder="E.g., Birthday Leave, Paternity Leave"
+                value={newLeaveName}
+                onChange={(e) => setNewLeaveName(e.target.value)}
+                className="h-11 rounded-lg border-[#EEEEEE] font-medium text-[0.8125rem]"
+              />
+              <Button
+                onClick={onAddLeaveTypeClick}
+                disabled={!newLeaveName.trim()}
+                className="bg-[#111111] text-white hover:bg-[#000000]/90 h-10 rounded-lg justify-self-start self-start w-auto px-6"
+              >
+                Add
+              </Button>
+            </div>
+          </div>
+        )}
 
         <div className="pt-6 space-y-6">
           <div className="space-y-2">
