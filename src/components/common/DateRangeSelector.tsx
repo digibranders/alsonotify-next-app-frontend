@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDown, ChevronLeft, ChevronRight, CheckSquare } from 'lucide-react';
 import dayjs, { Dayjs } from 'dayjs';
@@ -6,6 +5,7 @@ import isoWeek from 'dayjs/plugin/isoWeek';
 import quarterOfYear from 'dayjs/plugin/quarterOfYear';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+import { useTimezone } from '@/hooks/useTimezone';
 
 dayjs.extend(isoWeek);
 dayjs.extend(quarterOfYear);
@@ -27,6 +27,7 @@ export function DateRangeSelector({
     className = '',
     availablePresets
 }: DateRangeSelectorProps) {
+    const { getDayjsInTimezone } = useTimezone();
     const [selectedRangeType, setSelectedRangeType] = useState<string>(defaultRangeType);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [calendarOpen, setCalendarOpen] = useState(false);
@@ -34,7 +35,7 @@ export function DateRangeSelector({
     // Internal state for manual selection in calendar
     const [startDate, setStartDate] = useState<Dayjs | null>(value?.[0] || null);
     const [endDate, setEndDate] = useState<Dayjs | null>(value?.[1] || null);
-    const [currentMonth, setCurrentMonth] = useState<Dayjs>(dayjs());
+    const [currentMonth, setCurrentMonth] = useState<Dayjs>(getDayjsInTimezone());
 
     const dropdownRef = useRef<HTMLDivElement>(null);
     const calendarRef = useRef<HTMLDivElement>(null);
@@ -73,13 +74,13 @@ export function DateRangeSelector({
             } else {
                 setStartDate(null);
                 setEndDate(null);
-                setCurrentMonth(dayjs());
+                setCurrentMonth(getDayjsInTimezone());
             }
             return;
         }
 
         setCalendarOpen(false);
-        const now = dayjs();
+        const now = getDayjsInTimezone();
         let newRange: [Dayjs, Dayjs] | null = null;
 
         switch (type) {
@@ -167,15 +168,18 @@ export function DateRangeSelector({
 
     const handleDateClick = (date: Dayjs) => {
         if (!startDate || (startDate && endDate)) {
-            setStartDate(date);
+            setStartDate(date.startOf('day'));
             setEndDate(null);
         } else if (startDate && !endDate) {
             let finalStart = startDate;
-            let finalEnd = date;
+            let finalEnd = date.endOf('day');
+
             if (date.isBefore(startDate)) {
-                finalStart = date;
-                finalEnd = startDate;
+                finalStart = date.startOf('day');
+                // startDate was already set as a "start", so we need to move it to end of day
+                finalEnd = startDate.endOf('day');
             }
+
             setStartDate(finalStart);
             setEndDate(finalEnd);
             onChange([finalStart, finalEnd]);
@@ -289,7 +293,7 @@ export function DateRangeSelector({
                             const isCurrentMonth = date.month() === currentMonth.month();
                             const isInRange = isDateInRange(date);
                             const isStartOrEnd = isDateStartOrEnd(date);
-                            const isToday = date.isSame(dayjs(), 'day');
+                            const isToday = date.isSame(getDayjsInTimezone(), 'day');
                             const isSelected = isStartOrEnd;
 
                             return (

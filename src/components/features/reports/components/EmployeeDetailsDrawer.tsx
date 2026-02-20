@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Drawer, Tooltip } from 'antd';
 import { Download, Loader2 } from 'lucide-react';
 import { MemberWorklog, EmployeeReport } from '../../../../services/report';
@@ -32,6 +32,40 @@ const EmployeeDetailsDrawer: React.FC<EmployeeDetailsDrawerProps> = ({
         maxWidth: typeof window !== 'undefined' ? window.innerWidth * 0.9 : 1200,
         direction: 'left'
     });
+
+    const [taskColWidth, setTaskColWidth] = useState(140);
+    const [detailsColWidth, setDetailsColWidth] = useState(250);
+
+    const handleColumnResizeStart = (e: React.MouseEvent, column: 'task' | 'details') => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const startX = e.clientX;
+        const initialWidth = column === 'task' ? taskColWidth : detailsColWidth;
+
+        const onMouseMove = (moveEvent: MouseEvent) => {
+            const deltaX = moveEvent.clientX - startX;
+            const newWidth = Math.max(100, initialWidth + deltaX);
+
+            if (column === 'task') {
+                setTaskColWidth(newWidth);
+            } else {
+                setDetailsColWidth(newWidth);
+            }
+        };
+
+        const onMouseUp = () => {
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+            document.body.style.cursor = 'default';
+            document.body.style.userSelect = 'auto';
+        };
+
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+        document.body.style.cursor = 'col-resize';
+        document.body.style.userSelect = 'none';
+    };
 
     if (!member) return null;
 
@@ -130,8 +164,26 @@ const EmployeeDetailsDrawer: React.FC<EmployeeDetailsDrawerProps> = ({
                                 <thead className="bg-[#FAFAFA] border-b border-[#EEEEEE]">
                                     <tr>
                                         <th className="py-2 px-3 text-[0.6875rem] font-bold text-[#666666] uppercase w-[5.625rem] text-center">Date</th>
-                                        <th className="py-2 px-3 text-[0.6875rem] font-bold text-[#666666] uppercase min-w-[7.5rem] w-[8.75rem] text-center">Task</th>
-                                        <th className="py-2 px-3 text-[0.6875rem] font-bold text-[#666666] uppercase min-w-[9.375rem] w-auto text-center">Details</th>
+                                        <th
+                                            className="py-2 px-3 text-[0.6875rem] font-bold text-[#666666] uppercase text-center relative group"
+                                            style={{ width: taskColWidth, minWidth: taskColWidth, maxWidth: taskColWidth }}
+                                        >
+                                            Task
+                                            <div
+                                                className="absolute top-0 right-0 w-1.5 h-full cursor-col-resize hover:bg-[#111111]/10 z-10 transition-colors"
+                                                onMouseDown={(e) => handleColumnResizeStart(e, 'task')}
+                                            />
+                                        </th>
+                                        <th
+                                            className="py-2 px-3 text-[0.6875rem] font-bold text-[#666666] uppercase text-center relative group"
+                                            style={{ width: detailsColWidth, minWidth: detailsColWidth, maxWidth: detailsColWidth }}
+                                        >
+                                            Details
+                                            <div
+                                                className="absolute top-0 right-0 w-1.5 h-full cursor-col-resize hover:bg-[#111111]/10 z-10 transition-colors"
+                                                onMouseDown={(e) => handleColumnResizeStart(e, 'details')}
+                                            />
+                                        </th>
                                         <th className="py-2 px-3 text-[0.6875rem] font-bold text-[#666666] uppercase w-[6.875rem] text-center">Time</th>
                                         <th className="py-2 px-3 text-[0.6875rem] font-bold text-[#666666] uppercase w-[4.375rem] text-center">Duration</th>
                                     </tr>
@@ -140,14 +192,14 @@ const EmployeeDetailsDrawer: React.FC<EmployeeDetailsDrawerProps> = ({
                                     {worklogs.map((log) => (
                                         <tr key={log.id} className="border-b border-[#EEEEEE] last:border-0 hover:bg-[#FAFAFA] transition-colors group h-9">
                                             <td className="px-3 text-xs font-medium text-[#111111] whitespace-nowrap text-left">{log.date}</td>
-                                            <td className="px-3 text-xs font-medium text-[#111111] text-left">
+                                            <td className="px-3 text-xs font-medium text-[#111111] text-left" style={{ width: taskColWidth, minWidth: taskColWidth, maxWidth: taskColWidth }}>
                                                 <Tooltip title={log.task} placement="topLeft">
-                                                    <div className="truncate max-w-[8.75rem] cursor-help">{log.task}</div>
+                                                    <div className="truncate cursor-help" style={{ maxWidth: taskColWidth - 24 }}>{log.task}</div>
                                                 </Tooltip>
                                             </td>
-                                            <td className="px-3 text-xs text-[#666666] text-left">
+                                            <td className="px-3 text-xs text-[#666666] text-left" style={{ width: detailsColWidth, minWidth: detailsColWidth, maxWidth: detailsColWidth }}>
                                                 <Tooltip title={log.details} placement="topLeft">
-                                                    <div className="truncate max-w-[12.5rem] cursor-help">{log.details === '-' ? '-' : log.details}</div>
+                                                    <div className="truncate cursor-help" style={{ maxWidth: detailsColWidth - 24 }}>{log.details === '-' ? '-' : log.details}</div>
                                                 </Tooltip>
                                             </td>
                                             <td className="px-3 text-[0.6875rem] text-[#666666] whitespace-nowrap text-left">{log.startTime} - {log.endTime}</td>
