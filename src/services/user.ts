@@ -58,14 +58,16 @@ export const inviteUser = async (email: string, requestSentFor: string) => {
 
 // Search partners dropdown
 export const searchPartners = async (search?: string): Promise<ApiResponse<{ label: string; value: number }[]>> => {
-  const params = search ? { search } : {};
+  const params: Record<string, string | number> = { limit: 1000 };
+  if (search) params.name = search;
   const { data } = await axiosApi.get<ApiResponse<{ label: string; value: number }[]>>(`/user/partners/dropdown`, { params });
   return data;
 };
 
 // Search employees dropdown
 export const searchEmployees = async (search?: string): Promise<ApiResponse<{ label: string; value: number }[]>> => {
-  const params = search ? { search } : {};
+  const params: Record<string, string | number> = { limit: 1000 };
+  if (search) params.name = search;
   const { data } = await axiosApi.get<ApiResponse<{ label: string; value: number }[]>>(`/user/user-dropdown`, { params });
   return data;
 };
@@ -102,7 +104,7 @@ export const updateCurrentUserCompany = async (params: CompanyUpdateInput): Prom
 };
 
 export const getCompanyEmployees = async (companyId: number, roles?: string, partnerId?: number): Promise<ApiResponse<{ label: string; value: number }[]>> => {
-  const params: any = { company_id: companyId };
+  const params: Record<string, string | number> = { company_id: companyId };
   if (roles) params.roles = roles;
   if (partnerId) params.partner_id = partnerId;
   const { data } = await axiosApi.get<ApiResponse<{ label: string; value: number }[]>>(`/user/company-employees`, { params });
