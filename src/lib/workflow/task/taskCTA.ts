@@ -20,12 +20,14 @@ import type {
  * @property isMember - Whether the user is assigned to this task
  * @property isCurrentTurn - Whether it's this user's turn (sequential mode)
  * @property executionMode - How the task is being executed (parallel/sequential)
+ * @property isSelfAssigned - Scenario 1: leader is the only member (sole executor)
  */
 export interface TaskCTAContext {
   readonly isLeader: boolean;
   readonly isMember: boolean;
   readonly isCurrentTurn: boolean;
   readonly executionMode: ExecutionMode;
+  readonly isSelfAssigned: boolean;
 }
 
 /**
@@ -55,7 +57,7 @@ export function getTaskCTAConfig(
   status: TaskStatus,
   context: TaskCTAContext
 ): TaskCTAConfig {
-  const { isLeader, isMember, isCurrentTurn, executionMode } = context;
+  const { isLeader, isMember, isCurrentTurn, executionMode, isSelfAssigned } = context;
 
   // Sequential mode: if not current turn, limit actions
   const canAct = executionMode === 'parallel' || isCurrentTurn;
@@ -65,7 +67,7 @@ export function getTaskCTAConfig(
       return getAssignedCTA(isMember, canAct);
 
     case 'In_Progress':
-      return getInProgressCTA(isMember, canAct);
+      return getInProgressCTA(isMember, canAct, isSelfAssigned);
 
     case 'Review':
       return getReviewCTA(isLeader, isMember, canAct);
@@ -119,14 +121,18 @@ function getAssignedCTA(isMember: boolean, canAct: boolean): TaskCTAConfig {
 
 /**
  * CTA for In_Progress status.
- * Member can complete, submit for review, or mark as blocked.
+ *
+ * - Scenario 1 (isSelfAssigned): Leader is sole member → "Mark Complete" (auto-completes, no review)
+ * - Scenarios 2 & 3: Leader assigned others (or is also a member) → "Submit for Review"
  */
-function getInProgressCTA(isMember: boolean, canAct: boolean): TaskCTAConfig {
+function getInProgressCTA(isMember: boolean, canAct: boolean, isSelfAssigned: boolean): TaskCTAConfig {
   if (isMember && canAct) {
     return {
       displayStatus: 'In Progress',
       tab: 'active',
-      primaryAction: createAction('Submit for Review', 'primary', 'submit_review'),
+      primaryAction: isSelfAssigned
+        ? createAction('Mark Complete', 'primary', 'mark_complete')
+        : createAction('Submit for Review', 'primary', 'submit_review'),
       secondaryAction: createAction('Mark Blocked', 'danger', 'mark_blocked'),
     };
   }

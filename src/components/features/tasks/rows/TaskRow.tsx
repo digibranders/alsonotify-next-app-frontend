@@ -313,6 +313,18 @@ const TaskRowComponent = memo(function TaskRow({
                 items: (() => {
                   const isLeader = task.leader_id === currentUserId || task.leader_user?.id === currentUserId;
                   const isReview = task.status === 'Review';
+                  const isInProgress = task.status === 'In_Progress';
+
+                  // Scenario 1: Leader is the ONLY active member — self-assigned, no review needed
+                  const activeMemberIds = (task.task_members || []).map((m: { user_id: number }) => m.user_id);
+                  const leaderId = task.leader_id ?? task.leader_user?.id;
+                  const isSelfAssigned =
+                    isInProgress &&
+                    isLeader &&
+                    leaderId !== undefined &&
+                    activeMemberIds.length === 1 &&
+                    activeMemberIds[0] === leaderId &&
+                    currentUserId === leaderId;
 
                   if (isReview && isLeader) {
                     return [
@@ -333,7 +345,18 @@ const TaskRowComponent = memo(function TaskRow({
                     ];
                   }
 
-
+                  // Scenario 1: Self-assigned task — leader can mark complete directly
+                  if (isSelfAssigned) {
+                    return [
+                      {
+                        key: 'mark_complete',
+                        label: 'Mark Complete',
+                        icon: <CheckCircle className="w-3.5 h-3.5" />,
+                        onClick: () => onStatusChange?.('Completed'),
+                        className: "text-[0.8125rem] font-medium text-[#16a34a]"
+                      }
+                    ];
+                  }
 
                   const actions: MenuProps['items'] = [];
 

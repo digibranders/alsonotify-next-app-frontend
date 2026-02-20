@@ -371,17 +371,16 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
 
       const estTime = t.estimated_time || 0;
       const timeSpent = t.time_spent || 0;
-      const isOverEstimate = estTime > 0 && timeSpent > estTime;
 
       const baseStatus = normalizeBackendStatus(t.status || 'Assigned');
-      const isDelayedByTime = isTimeOverdue || isOverEstimate;
-      // If task is delayed by time but status is not already Delayed/Impediment/Stuck, mark as Delayed
+      const isDelayedByTime = isTimeOverdue;
+      // Only override to 'Delayed' when the task is genuinely idle (Assigned/In_Progress).
+      // Never mask Review, Stuck, Impediment or Completed — those are meaningful workflow states.
+      const OVERRIDABLE_BY_TIME: readonly ITaskStatus[] = ['Assigned', 'In_Progress'];
       const uiStatus: ITaskStatus =
-        baseStatus === 'Completed'
-          ? 'Completed'
-          : isDelayedByTime && !['Delayed', 'Impediment', 'Stuck'].includes(baseStatus)
-            ? 'Delayed'
-            : baseStatus;
+        isDelayedByTime && OVERRIDABLE_BY_TIME.includes(baseStatus)
+          ? 'Delayed'
+          : baseStatus;
 
       // New logic: Use requirement sender company, fallback to current user's company or In-House
 
