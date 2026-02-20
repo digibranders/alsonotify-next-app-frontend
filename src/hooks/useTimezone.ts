@@ -26,6 +26,7 @@ export const useTimezone = () => {
         companyName,
         companyId: companyData?.result?.id,
         companyTimezone,
+        companyCurrency: companyData?.result?.currency || 'USD',
         formatWithTimezone,
         getDayjsInTimezone,
         dayjs: dayjs // Exporting the configured dayjs instance
