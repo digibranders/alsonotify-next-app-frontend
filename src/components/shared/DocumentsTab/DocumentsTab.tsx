@@ -357,7 +357,7 @@ export function DocumentsTab({ activityData }: DocumentsTabProps) {
                                         <th className="py-2 px-3 md:py-3 md:px-4 text-[0.625rem] md:text-xs font-bold text-[#666666] uppercase tracking-wider whitespace-nowrap">Size</th>
                                         <th className="py-2 px-3 md:py-3 md:px-4 text-[0.625rem] md:text-xs font-bold text-[#666666] uppercase tracking-wider whitespace-nowrap">Date</th>
                                         <th className="py-2 px-3 md:py-3 md:px-4 text-[0.625rem] md:text-xs font-bold text-[#666666] uppercase tracking-wider whitespace-nowrap">Type</th>
-                                        <th className="py-2 px-3 md:py-3 md:px-4 text-[0.625rem] md:text-xs font-bold text-[#666666] uppercase tracking-wider text-right whitespace-nowrap">Actions</th>
+                                        <th className="py-2 px-3 md:py-3 md:px-4 text-[0.625rem] md:text-xs font-bold text-[#666666] uppercase tracking-wider text-center whitespace-nowrap">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -387,8 +387,8 @@ export function DocumentsTab({ activityData }: DocumentsTabProps) {
                                                     {doc.type}
                                                 </span>
                                             </td>
-                                            <td className="py-2 px-3 md:py-3 md:px-4 text-right">
-                                                <div className="flex items-center justify-end gap-1 md:gap-2">
+                                            <td className="py-2 px-3 md:py-3 md:px-4 text-center">
+                                                <div className="flex items-center justify-center gap-1 md:gap-2">
                                                     <button
                                                         className="p-1 md:p-1.5 rounded hover:bg-[#F0F0F0] text-[#666666] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
                                                         onClick={() => handlePreview(doc)}
