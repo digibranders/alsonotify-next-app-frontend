@@ -38,16 +38,6 @@ export const TASK_STATUS_UI_CONFIG: Record<TaskStatus, TaskUIConfig> = {
     color: 'bg-[#FFF5F5] text-[#ff3b3b]',
     icon: <AlertCircle className="w-3.5 h-3.5" />,
   },
-  Stuck: {
-    label: 'Stuck',
-    color: 'bg-[#FFF3E0] text-[#EF6C00]',
-    icon: <AlertCircle className="w-3.5 h-3.5" />,
-  },
-  Impediment: {
-    label: 'Impediment',
-    color: 'bg-[#FFF5F5] text-[#ff3b3b]',
-    icon: <AlertCircle className="w-3.5 h-3.5" />,
-  },
 };
 
 /**
@@ -74,8 +64,6 @@ export function getTaskStatusUI(status?: string): TaskUIConfig {
   if (normalized.includes('review')) return TASK_STATUS_UI_CONFIG.Review;
   if (normalized.includes('complete') || normalized.includes('done')) return TASK_STATUS_UI_CONFIG.Completed;
   if (normalized.includes('delay')) return TASK_STATUS_UI_CONFIG.Delayed;
-  if (normalized.includes('stuck')) return TASK_STATUS_UI_CONFIG.Stuck;
-  if (normalized.includes('impediment')) return TASK_STATUS_UI_CONFIG.Impediment;
 
   // Fallback
   return TASK_STATUS_UI_CONFIG.Assigned;

@@ -13,11 +13,9 @@ import type { TaskStatus, TaskMemberInfo, TaskInfo } from '../types/task.types';
  * Aggregates member statuses to determine the overall task status.
  *
  * Priority order (highest urgency first):
- * Stuck > Impediment > In_Progress > Completed (all) > Review > Delayed > Assigned
+ * In_Progress > Completed (all) > Review > Delayed > Assigned
  *
  * Logic:
- * - If ANY member is Stuck → Task is Stuck
- * - If ANY member is Impediment → Task is Impediment
  * - If ANY member is In_Progress → Task is In_Progress (active work happening)
  * - If ALL members are Completed → Task is Completed
  * - If ANY member is Review → Task is Review
@@ -43,32 +41,22 @@ export function aggregateMemberStatuses(members: readonly TaskMemberInfo[]): Tas
 
   const statuses = members.map((m) => m.status);
 
-  // Priority 1: Stuck (highest urgency - blocked and needs help)
-  if (statuses.some((s) => s === 'Stuck')) {
-    return 'Stuck';
-  }
-
-  // Priority 2: Impediment (blocked by external factor)
-  if (statuses.some((s) => s === 'Impediment')) {
-    return 'Impediment';
-  }
-
-  // Priority 3: In_Progress (any active member makes task active)
+  // Priority 1: In_Progress (any active member makes task active)
   if (statuses.some((s) => s === 'In_Progress')) {
     return 'In_Progress';
   }
 
-  // Priority 4: Completed (ALL members must be done)
+  // Priority 2: Completed (ALL members must be done)
   if (statuses.every((s) => s === 'Completed')) {
     return 'Completed';
   }
 
-  // Priority 5: Review (any member in review)
+  // Priority 3: Review (any member in review)
   if (statuses.some((s) => s === 'Review')) {
     return 'Review';
   }
 
-  // Priority 6: Delayed (if not in progress but delayed)
+  // Priority 4: Delayed (if not in progress but delayed)
   if (statuses.some((s) => s === 'Delayed')) {
     return 'Delayed';
   }

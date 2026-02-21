@@ -15,17 +15,11 @@ export const TASK_TRANSITIONS: Readonly<Record<TaskStatus, readonly TaskStatus[]
   // From Assigned: can start work or mark as delayed
   Assigned: ['In_Progress', 'Delayed'],
 
-  // From In_Progress: can complete, submit for review, or mark as blocked/delayed
-  In_Progress: ['Completed', 'Review', 'Stuck', 'Impediment', 'Delayed'],
+  // From In_Progress: can complete, submit for review, or mark as delayed
+  In_Progress: ['Completed', 'Review', 'Delayed'],
 
-  // From Review: can approve (Completed), send back to work, or mark as stuck
-  Review: ['Completed', 'In_Progress', 'Stuck'],
-
-  // From Stuck: can resume work or escalate to impediment
-  Stuck: ['In_Progress', 'Impediment'],
-
-  // From Impediment: can resume work or de-escalate to stuck
-  Impediment: ['In_Progress', 'Stuck'],
+  // From Review: can approve (Completed), or send back to work
+  Review: ['Completed', 'In_Progress'],
 
   // From Delayed: can reassign or start work
   Delayed: ['Assigned', 'In_Progress'],

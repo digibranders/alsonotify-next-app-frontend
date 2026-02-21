@@ -206,10 +206,13 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
 
     // Map Active Tab to Backend Status Filter
     if (activeTab === 'In_Progress') {
+      // "In progress tab will have all tasks that are in progress, but not delayed"
       params.status = 'ACTIVE';
     } else if (activeTab === 'Completed') {
-      params.status = 'Completed';
+      // "the completed tasks will have all the tasks that are marked completed means in review and approved"
+      params.status = 'Completed'; 
     } else if (activeTab === 'Delayed') {
+      // "Delayed tab will have tasks that are in progress but delayed means either crossed deadline or crossed the estimated time."
       params.status = 'OVERDUE';
     } else if (filters.status !== 'All') {
       params.status = filters.status;
@@ -773,21 +776,22 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
     const firstTask = statsData?.result?.[0] as unknown as { status_counts?: Record<string, number> };
     const backendCounts = firstTask?.status_counts || {};
 
-    // Calculate total from counts if available
-    const calculatedTotal = (backendCounts.All) ||
-      ((backendCounts.Assigned || 0) + (backendCounts.In_Progress || 0) +
-        (backendCounts.Completed || 0) + (backendCounts.Delayed || 0) +
-        (backendCounts.Impediment || 0) + (backendCounts.Stuck || 0) +
-        (backendCounts.Review || 0));
+    // Definition mapping (same as ProgressWidget and Backend queryParams)
+    // 1. In Progress: Non-overdue Active/Assigned/Review
+    const inProgressCount = (backendCounts.In_Progress || 0) + (backendCounts.Assigned || 0) + (backendCounts.Review || 0);
+    
+    // 2. Delayed: Specifically tasks flagged as Overdue by backend (missed end_date)
+    // Note: Cross-referencing estimated_time usually happens client-side in results or specifically by backend if implemented.
+    const delayedCount = backendCounts.Overdue || 0;
+
+    // 3. Completed: Review + Completed
+    const completedCount = (backendCounts.Completed || 0) + (backendCounts.Review || 0);
 
     return {
-      all: backendCounts.All || calculatedTotal || totalTasks,
-      // In Progress = all tasks except Assigned and Completed
-      'In_Progress': (backendCounts.In_Progress || 0) + (backendCounts.Delayed || 0) +
-        (backendCounts.Impediment || 0) + (backendCounts.Stuck || 0) + (backendCounts.Review || 0),
-      'Completed': backendCounts.Completed || 0,
-      // Use explicit Overdue count from backend if available, fallback to Delayed status + Impediment + Stuck
-      'Delayed': backendCounts.Overdue ?? ((backendCounts.Delayed || 0) + (backendCounts.Impediment || 0) + (backendCounts.Stuck || 0)),
+      all: backendCounts.All || totalTasks,
+      'In_Progress': inProgressCount,
+      'Completed': completedCount,
+      'Delayed': delayedCount,
     };
   }, [statsData, totalTasks]);
 

@@ -44,8 +44,6 @@ export const WORKSPACE_STATUSES = [
   'Rejected',
   'Review',
   'Revision',
-  'Impediment',
-  'Stuck',
 ] as const;
 export type WorkspaceStatus = (typeof WORKSPACE_STATUSES)[number];
 

@@ -140,14 +140,6 @@ function getSenderCTA(
         primaryAction: createAction('Resume', 'primary', 'none', 'resume'),
       };
 
-    case 'Impediment':
-    case 'Stuck':
-      return {
-        displayStatus: status === 'Impediment' ? 'Blocked (External)' : 'Blocked (Internal)',
-        isPending: false,
-        tab,
-      };
-
     case 'Delayed':
       return {
         displayStatus: 'Delayed',
@@ -291,22 +283,6 @@ function getReceiverCTA(
     case 'On_Hold':
       return {
         displayStatus: 'On Hold',
-        isPending: false,
-        tab,
-        primaryAction: createAction('Resume Work', 'primary', 'none', 'resume'),
-      };
-
-    case 'Impediment':
-      return {
-        displayStatus: 'Blocked (External)',
-        isPending: false,
-        tab,
-        primaryAction: createAction('Resume Work', 'primary', 'none', 'resume'),
-      };
-
-    case 'Stuck':
-      return {
-        displayStatus: 'Blocked (Internal)',
         isPending: false,
         tab,
         primaryAction: createAction('Resume Work', 'primary', 'none', 'resume'),
@@ -462,15 +438,6 @@ function getInternalCTA(
     case 'On_Hold':
       return {
         displayStatus: 'On Hold',
-        isPending: false,
-        tab,
-        primaryAction: createAction('Resume', 'primary', 'none', 'resume'),
-      };
-
-    case 'Impediment':
-    case 'Stuck':
-      return {
-        displayStatus: status === 'Impediment' ? 'Blocked (External)' : 'Blocked (Internal)',
         isPending: false,
         tab,
         primaryAction: createAction('Resume', 'primary', 'none', 'resume'),

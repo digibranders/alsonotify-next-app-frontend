@@ -205,7 +205,7 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
 
         // Filter: Only include active requirements
         // The getRequirementsByWorkspaceId returns ALL requirements, so we filter by status
-        const activeStatuses = ['Assigned', 'In_Progress', 'Review', 'Revision', 'On_Hold', 'Impediment', 'Stuck'];
+        const activeStatuses = ['Assigned', 'In_Progress', 'Review', 'Revision', 'On_Hold'];
         const filteredRequirements = allRequirements.filter(req => {
           return activeStatuses.includes(req.status);
         });

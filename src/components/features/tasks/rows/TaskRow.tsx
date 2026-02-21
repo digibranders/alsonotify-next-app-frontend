@@ -109,7 +109,7 @@ const TaskRowComponent = memo(function TaskRow({
   // Progress/Styling Logic
   const percentage = task.estTime > 0 ? (totalSeconds / (task.estTime * 3600)) * 100 : 0;
   const isOvertime = percentage > 100;
-  const isBlockedOrDelayed = ['Stuck', 'Impediment', 'Delayed'].includes(task.status || '');
+  const isBlockedOrDelayed = task.status === 'Delayed';
   const showRed = isOvertime || isBlockedOrDelayed;
   const textColor = showRed ? 'text-[#ff3b3b]' : 'text-[#666666]';
 
@@ -190,7 +190,7 @@ const TaskRowComponent = memo(function TaskRow({
               </span>
             </Tooltip>
             <span
-              className={`text-[0.6875rem] font-normal ${task.status === 'Delayed' || task.status === 'Impediment' || task.status === 'Stuck'
+              className={`text-[0.6875rem] font-normal ${task.status === 'Delayed'
                 ? 'text-[#dc2626]'
                 : task.status === 'Review'
                   ? 'text-[#fbbf24]'

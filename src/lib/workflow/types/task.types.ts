@@ -15,9 +15,7 @@ export const TASK_STATUSES = [
   'In_Progress',
   'Completed',
   'Delayed',
-  'Impediment',
   'Review',
-  'Stuck',
 ] as const;
 
 /**

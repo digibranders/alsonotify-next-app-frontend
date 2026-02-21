@@ -72,12 +72,6 @@ export function getTaskCTAConfig(
     case 'Review':
       return getReviewCTA(isLeader, isMember, canAct);
 
-    case 'Stuck':
-      return getStuckCTA(isMember, canAct);
-
-    case 'Impediment':
-      return getImpedimentCTA(isMember, canAct);
-
     case 'Delayed':
       return getDelayedCTA(isMember, canAct);
 
@@ -133,7 +127,7 @@ function getInProgressCTA(isMember: boolean, canAct: boolean, isSelfAssigned: bo
       primaryAction: isSelfAssigned
         ? createAction('Mark Complete', 'primary', 'mark_complete')
         : createAction('Submit for Review', 'primary', 'submit_review'),
-      secondaryAction: createAction('Mark Blocked', 'danger', 'mark_blocked'),
+      secondaryAction: createAction('Pause', 'secondary', 'pause'),
     };
   }
 
@@ -178,46 +172,6 @@ function getReviewCTA(isLeader: boolean, isMember: boolean, canAct: boolean): Ta
   return {
     displayStatus: 'In Review',
     tab: 'pending',
-  };
-}
-
-/**
- * CTA for Stuck status.
- * Member can resume work or escalate to impediment.
- */
-function getStuckCTA(isMember: boolean, canAct: boolean): TaskCTAConfig {
-  if (isMember && canAct) {
-    return {
-      displayStatus: 'Blocked (Internal)',
-      tab: 'delayed',
-      primaryAction: createAction('Resume Work', 'primary', 'resume'),
-      secondaryAction: createAction('Escalate', 'danger', 'escalate'),
-    };
-  }
-
-  return {
-    displayStatus: 'Blocked',
-    tab: 'delayed',
-  };
-}
-
-/**
- * CTA for Impediment status.
- * Member can resume work or de-escalate to stuck.
- */
-function getImpedimentCTA(isMember: boolean, canAct: boolean): TaskCTAConfig {
-  if (isMember && canAct) {
-    return {
-      displayStatus: 'Blocked (External)',
-      tab: 'delayed',
-      primaryAction: createAction('Resume Work', 'primary', 'resume'),
-      secondaryAction: createAction('De-escalate', 'secondary', 'deescalate'),
-    };
-  }
-
-  return {
-    displayStatus: 'Impediment',
-    tab: 'delayed',
   };
 }
 
@@ -290,24 +244,17 @@ export function getTaskTab(status: TaskStatus): Tab {
   switch (status) {
     case 'Assigned':
       return 'pending';
-
     case 'In_Progress':
       return 'active';
-
     case 'Review':
       return 'pending';
-
-    case 'Stuck':
-    case 'Impediment':
     case 'Delayed':
       return 'delayed';
-
     case 'Completed':
       return 'completed';
-
     default: {
       const _exhaustive: never = status;
-      throw new Error(`Unhandled task status: ${_exhaustive}`);
+      throw new Error('Unhandled task status: ' + (_exhaustive as string));
     }
   }
 }

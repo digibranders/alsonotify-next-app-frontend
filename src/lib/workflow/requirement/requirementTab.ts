@@ -195,8 +195,6 @@ function getInhouseTab(status: WorkflowStatus, context: TabContext): Tab {
     status === 'In_Progress' ||
     status === 'Submitted' ||
     status === 'Revision' ||
-    status === 'Impediment' ||
-    status === 'Stuck' ||
     status === 'Review'
   ) {
     return 'active';
