@@ -776,12 +776,11 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
     const firstTask = statsData?.result?.[0] as unknown as { status_counts?: Record<string, number> };
     const backendCounts = firstTask?.status_counts || {};
 
-    // Definition mapping (same as ProgressWidget and Backend queryParams)
-    // 1. In Progress: Non-overdue Active/Assigned/Review
-    const inProgressCount = (backendCounts.In_Progress || 0) + (backendCounts.Assigned || 0) + (backendCounts.Review || 0);
+    // Definition mapping:
+    // 1. In Progress: Assigned + In_Progress only (Review belongs in Completed)
+    const inProgressCount = (backendCounts.In_Progress || 0) + (backendCounts.Assigned || 0);
     
     // 2. Delayed: Specifically tasks flagged as Overdue by backend (missed end_date)
-    // Note: Cross-referencing estimated_time usually happens client-side in results or specifically by backend if implemented.
     const delayedCount = backendCounts.Overdue || 0;
 
     // 3. Completed: Review + Completed
