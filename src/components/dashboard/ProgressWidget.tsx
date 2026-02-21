@@ -112,8 +112,8 @@ export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => 
       : (backendCounts['In_Progress'] ?? 0) + (backendCounts['Assigned'] ?? 0);
     // Delayed: tasks past deadline, not Completed or Review (backend Overdue)
     const delayed = backendCounts['Overdue'] ?? 0;
-    // Completed: Review + Completed
-    const completed = (backendCounts['Completed'] ?? 0) + (backendCounts['Review'] ?? 0);
+    // Completed: only fully approved tasks (Review is a separate stage, not shown on dashboard)
+    const completed = backendCounts['Completed'] ?? 0;
     // Total: all tasks in the current date-range scope
     const total = backendCounts['All'] ?? 0;
 
