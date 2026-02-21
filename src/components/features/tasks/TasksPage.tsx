@@ -16,6 +16,7 @@ import { useTasks, useCreateTask, useDeleteTask, useUpdateTask, useUpdateTaskSta
 import { useWorkspaces, useWorkspaceRequirementsDropdown } from '@/hooks/useWorkspace';
 import { useEmployeesDropdown, useUserDetails, useCurrentUserCompany } from '@/hooks/useUser';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { useTimezone } from '@/hooks/useTimezone';
 import { getTaskStatusUI, TASK_STATUSES } from '@/lib/workflow';
 import { getRoleFromUser } from '@/utils/roleUtils';
 import { Skeleton } from '../../ui/Skeleton';
@@ -46,7 +47,7 @@ import { getErrorMessage } from '@/types/api-utils';
 type UITask = Task;
 type ITaskStatus = TaskStatus;
 
-type StatusTab = 'all' | 'In_Progress' | 'Completed' | 'Delayed';
+type StatusTab = 'all' | 'In_Progress' | 'Completed' | 'Delayed' | 'Review';
 
 // Container component to handle data fetching before rendering main content
 export function TasksPage() {
@@ -94,6 +95,7 @@ interface TasksPageContentProps {
 }
 
 function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, companyData }: TasksPageContentProps) {
+  const { getDayjsInTimezone } = useTimezone();
   const router = useRouter();
   const searchParams = useSearchParams();
   const { message, modal } = App.useApp();
@@ -146,7 +148,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
   // Use standardized tab sync hook for consistent URL handling
   const [activeTab, setActiveTabInternal] = useTabSync<StatusTab>({
     defaultTab: 'all',
-    validTabs: ['all', 'In_Progress', 'Completed', 'Delayed']
+    validTabs: ['all', 'In_Progress', 'Completed', 'Delayed', 'Review']
   });
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -184,8 +186,11 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
     skip: 0,
   });
 
-  // Date Picker State
-  const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null] | null>(null);
+  // Date Picker State — default to current month so it matches the dashboard widget scope
+  const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null] | null>(() => {
+    const now = getDayjsInTimezone();
+    return [now.startOf('month'), now.endOf('month')];
+  });
 
   // Modal State
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -214,6 +219,9 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
     } else if (activeTab === 'Delayed') {
       // "Delayed tab will have tasks that are in progress but delayed means either crossed deadline or crossed the estimated time."
       params.status = 'OVERDUE';
+    } else if (activeTab === 'Review') {
+      // Review tab: tasks in the Review stage, regardless of due date.
+      params.status = 'REVIEW';
     } else if (filters.status !== 'All') {
       params.status = filters.status;
     }
@@ -785,14 +793,18 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
     // 2. Delayed: tasks past deadline, not Completed or Review (mirrors OVERDUE tab filter)
     const delayedCount = backendCounts['Overdue'] ?? 0;
 
-    // 3. Completed: Review + Completed
-    const completedCount = (backendCounts['Completed'] ?? 0) + (backendCounts['Review'] ?? 0);
+    // 3. Completed: only fully approved tasks (Review is its own tab)
+    const completedCount = backendCounts['Completed'] ?? 0;
+
+    // 4. Review: tasks in the Review stage (already in groupBy output)
+    const reviewCount = backendCounts['Review'] ?? 0;
 
     return {
       all: backendCounts.All || totalTasks,
       'In_Progress': inProgressCount,
       'Completed': completedCount,
       'Delayed': delayedCount,
+      'Review': reviewCount,
     };
   }, [statsData, totalTasks]);
 
@@ -899,6 +911,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
         { id: 'In_Progress', label: 'In Progress' },
         { id: 'Completed', label: 'Completed' },
         { id: 'Delayed', label: 'Delayed', count: stats.Delayed },
+        { id: 'Review', label: 'Review', count: stats['Review'] },
       ]}
       activeTab={activeTab}
       onTabChange={(tabId) => handleTabChange(tabId as StatusTab)}
