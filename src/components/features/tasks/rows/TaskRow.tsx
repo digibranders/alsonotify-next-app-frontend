@@ -332,7 +332,8 @@ const TaskRowComponent = memo(function TaskRow({
 
                   const actions: MenuProps['items'] = [];
 
-                  if (isReview && isLeader) {
+                  // Leaders and admins can approve or request revision on Review tasks
+                  if (isReview && (isLeader || isAdmin)) {
                     actions.push(
                       {
                         key: 'approve',
