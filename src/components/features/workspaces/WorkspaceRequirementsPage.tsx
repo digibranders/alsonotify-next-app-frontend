@@ -955,6 +955,7 @@ export function WorkspaceRequirementsPage() {
                     setEditingReq(undefined);
                 }}
                 isEditing={!!editingReq}
+                disableWorkspaceSelect={true}
                 initialData={editingReq ? {
                     title: editingReq.title || '',
                     workspace: String(editingReq.workspace_id || workspaceId),
@@ -974,7 +975,13 @@ export function WorkspaceRequirementsPage() {
                     budget: String(editingReq.budget || ''),
                     quoted_price: String(editingReq.quoted_price || ''),
                     currency: editingReq.currency || 'USD',
-                } : undefined}
+                } : {
+                    title: '',
+                    workspace: String(workspaceId),
+                    type: 'inhouse',
+                    description: '',
+                    dueDate: '',
+                }}
                 onSubmit={handleSaveDraft}
                 onSubmitAndSend={handleSendRequirement}
                 workspaces={workspacesData?.result?.workspaces?.map((w) => ({

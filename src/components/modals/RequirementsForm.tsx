@@ -42,6 +42,7 @@ interface RequirementsFormProps {
     isLoading?: boolean;
     isEditing?: boolean;
     open?: boolean; // Added for Modal support
+    disableWorkspaceSelect?: boolean;
 }
 
 const defaultFormData: RequirementFormData = {
@@ -96,6 +97,7 @@ function RequirementsFormContent({
     workspaces,
     isLoading = false,
     isEditing = false,
+    disableWorkspaceSelect = false,
 }: Readonly<RequirementsFormProps>) {
     useAuth();
     // useEmployeesDropdown fetches /user/user-dropdown with limit=1000 — same hook as TasksPage
@@ -308,10 +310,10 @@ function RequirementsFormContent({
                 <div className="space-y-1.5">
                     <span className="text-[0.8125rem] font-bold text-[#111111]">Workspace</span>
                     <Select
-                        showSearch={{
-                            filterOption: (input, option) =>
-                                (option?.children as unknown as string).toLowerCase().includes(input.toLowerCase())
-                        }}
+                        showSearch
+                        filterOption={(input, option) =>
+                            (String(option?.label ?? '')).toLowerCase().includes(input.toLowerCase())
+                        }
                         className="w-full h-11"
                         placeholder="Select workspace"
                         value={formData.workspace ? String(formData.workspace) : undefined}
@@ -324,7 +326,7 @@ function RequirementsFormContent({
                         }}
                         popupStyle={{ zIndex: 2000 }}
                         suffixIcon={<ChevronDown className="w-4 h-4 text-gray-400" />}
-                        disabled={false}
+                        disabled={disableWorkspaceSelect}
                     >
                         {workspaces && workspaces.length > 0 ? (
                             <>
