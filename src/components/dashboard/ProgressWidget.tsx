@@ -105,9 +105,11 @@ export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => 
     const backendCounts = firstTask?.status_counts ?? {};
 
     // Mirror TasksPage.stats definitions exactly:
-    // In Progress: tasks that pass the ACTIVE filter (Assigned/In_Progress, not overdue).
-    // Use the dedicated 'Active' count from backend so widget always matches the tab row count.
-    const inProgress = backendCounts['Active'] ?? 0;
+    // In Progress: use dedicated 'Active' count if backend supports it (mirrors ACTIVE tab filter:
+    // Assigned/In_Progress with end_date >= today). Fall back to raw sum if key is absent (old backend).
+    const inProgress = 'Active' in backendCounts
+      ? (backendCounts['Active'] ?? 0)
+      : (backendCounts['In_Progress'] ?? 0) + (backendCounts['Assigned'] ?? 0);
     // Delayed: tasks past deadline, not Completed or Review (backend Overdue)
     const delayed = backendCounts['Overdue'] ?? 0;
     // Completed: Review + Completed
