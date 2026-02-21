@@ -132,6 +132,12 @@ export function RequirementsPage() {
       params.append('status', statusMap[activeStatusTab]);
     }
 
+    // Send tab context so the backend can apply smart filtering
+    // (e.g. outsourced+Assigned+unmapped workspace belongs in pending, not active)
+    if (activeStatusTab === 'active' || activeStatusTab === 'pending') {
+      params.append('tab', activeStatusTab);
+    }
+
     params.append('is_archived', activeStatusTab === 'archived' ? 'true' : 'false');
 
     return params.toString();
