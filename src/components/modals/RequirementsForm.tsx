@@ -311,9 +311,7 @@ function RequirementsFormContent({
                     <span className="text-[0.8125rem] font-bold text-[#111111]">Workspace</span>
                     <Select
                         showSearch
-                        filterOption={(input, option) =>
-                            (String(option?.label ?? '')).toLowerCase().includes(input.toLowerCase())
-                        }
+                        optionFilterProp="label"
                         className="w-full h-11"
                         placeholder="Select workspace"
                         value={formData.workspace ? String(formData.workspace) : undefined}
@@ -327,34 +325,35 @@ function RequirementsFormContent({
                         popupStyle={{ zIndex: 2000 }}
                         suffixIcon={<ChevronDown className="w-4 h-4 text-gray-400" />}
                         disabled={disableWorkspaceSelect}
-                    >
-                        {workspaces && workspaces.length > 0 ? (
-                            <>
-                                <Option key="create_new" value="create_new" className="text-[#ff3b3b] font-medium border-b border-gray-100 pb-2 mb-2">
-                                    + Create New Workspace
-                                </Option>
-                                {workspaces.map((w) => (
-                                    <Option key={String(w.id)} value={String(w.id)} label={w.name}>
-                                        <div className="flex flex-col py-1">
-                                            <span className="font-medium text-[#111111] leading-tight">{w.name}</span>
-                                            <span className="text-[0.625rem] text-[#999999] leading-tight">
-                                                {w.in_house ? w.company_name : w.partner_name || 'Organization'}
-                                            </span>
-                                        </div>
-                                    </Option>
-                                ))}
-                            </>
-                        ) : (
-                            <>
-                                <Option key="create_new" value="create_new" className="text-[#ff3b3b] font-medium border-b border-gray-100 pb-2 mb-2">
-                                    + Create New Workspace
-                                </Option>
-                                <Option value="none" disabled>
-                                    No workspaces available
-                                </Option>
-                            </>
-                        )}
-                    </Select>
+                        options={[
+                            {
+                                key: 'create_new',
+                                value: 'create_new',
+                                label: '+ Create New Workspace',
+                                className: 'text-[#ff3b3b] font-medium border-b border-gray-100 pb-2 mb-2',
+                            },
+                            ...((workspaces || []).map((w) => ({
+                                key: String(w.id),
+                                value: String(w.id),
+                                label: w.name,
+                                children: (
+                                    <div className="flex flex-col py-1">
+                                        <span className="font-medium text-[#111111] leading-tight">{w.name}</span>
+                                        <span className="text-[0.625rem] text-[#999999] leading-tight">
+                                            {w.in_house ? w.company_name : w.partner_name || 'Organization'}
+                                        </span>
+                                    </div>
+                                ),
+                            }))),
+                            ...(!workspaces || workspaces.length === 0 ? [
+                                {
+                                    value: 'none',
+                                    label: 'No workspaces available',
+                                    disabled: true,
+                                }
+                            ] : []),
+                        ]}
+                    />
                 </div>
             </div>
 
@@ -386,9 +385,7 @@ function RequirementsFormContent({
                     <span className="text-[0.8125rem] font-bold text-[#111111]">Contact Person</span>
                     <Select
                         showSearch
-                        filterOption={(input, option) =>
-                            (String(option?.label ?? '')).toLowerCase().includes(input.toLowerCase())
-                        }
+                        optionFilterProp="label"
                         className="w-full h-11"
                         placeholder={`Select ${formData.type === 'inhouse' ? 'employee' : 'contact person'}`}
                         value={typeof formData.contact_person_id === 'number' ? formData.contact_person_id : undefined}
@@ -401,29 +398,34 @@ function RequirementsFormContent({
                         suffixIcon={<ChevronDown className="w-4 h-4 text-gray-400" />}
                         optionLabelProp="label"
                         popupStyle={{ zIndex: 2000 }}
-                    >
-                        {formData.type === 'inhouse' ? (
-                            employees.map((e) => (
-                                <Option key={e.id} value={e.id} label={e.name}>
-                                    <div className="flex flex-col py-1">
-                                        <span className="font-semibold">{e.name}</span>
-                                    </div>
-                                </Option>
-                            ))
-                        ) : (
-                            outsourcedContacts.map((c) => (
-                                <Option key={c.id} value={c.id} label={c.name}>
-                                    <div className="flex flex-col py-1">
-                                        <div className="flex items-center gap-1">
-                                            <span className="font-semibold">{c.name}</span>
-                                            {c.role && <span className="text-gray-500 text-[0.6875rem]">({c.role})</span>}
+                        options={
+                            formData.type === 'inhouse'
+                                ? employees.map((e) => ({
+                                    key: e.id,
+                                    value: e.id,
+                                    label: e.name,
+                                    children: (
+                                        <div className="flex flex-col py-1">
+                                            <span className="font-semibold">{e.name}</span>
                                         </div>
-                                        <span className="text-[0.625rem] text-gray-400 font-normal mt-0.5">{c.company_name}</span>
-                                    </div>
-                                </Option>
-                            ))
-                        )}
-                    </Select>
+                                    ),
+                                }))
+                                : outsourcedContacts.map((c) => ({
+                                    key: c.id,
+                                    value: c.id,
+                                    label: c.name,
+                                    children: (
+                                        <div className="flex flex-col py-1">
+                                            <div className="flex items-center gap-1">
+                                                <span className="font-semibold">{c.name}</span>
+                                                {c.role && <span className="text-gray-500 text-[0.6875rem]">({c.role})</span>}
+                                            </div>
+                                            <span className="text-[0.625rem] text-gray-400 font-normal mt-0.5">{c.company_name}</span>
+                                        </div>
+                                    ),
+                                }))
+                        }
+                    />
                 </div>
             </div>
 
