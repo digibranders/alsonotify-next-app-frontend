@@ -776,15 +776,15 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
     const firstTask = statsData?.result?.[0] as unknown as { status_counts?: Record<string, number> };
     const backendCounts = firstTask?.status_counts || {};
 
-    // Definition mapping:
-    // 1. In Progress: Assigned + In_Progress only (Review belongs in Completed)
-    const inProgressCount = (backendCounts.In_Progress || 0) + (backendCounts.Assigned || 0);
-    
-    // 2. Delayed: Specifically tasks flagged as Overdue by backend (missed end_date)
-    const delayedCount = backendCounts.Overdue || 0;
+    // 1. In Progress: uses dedicated 'Active' count mirroring the ACTIVE tab filter exactly
+    //    (Assigned/In_Progress with end_date >= today, not overdue).
+    const inProgressCount = backendCounts['Active'] ?? 0;
+
+    // 2. Delayed: tasks past deadline, not Completed or Review (mirrors OVERDUE tab filter)
+    const delayedCount = backendCounts['Overdue'] ?? 0;
 
     // 3. Completed: Review + Completed
-    const completedCount = (backendCounts.Completed || 0) + (backendCounts.Review || 0);
+    const completedCount = (backendCounts['Completed'] ?? 0) + (backendCounts['Review'] ?? 0);
 
     return {
       all: backendCounts.All || totalTasks,
