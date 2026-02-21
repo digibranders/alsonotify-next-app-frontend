@@ -776,9 +776,11 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
     const firstTask = statsData?.result?.[0] as unknown as { status_counts?: Record<string, number> };
     const backendCounts = firstTask?.status_counts || {};
 
-    // 1. In Progress: uses dedicated 'Active' count mirroring the ACTIVE tab filter exactly
-    //    (Assigned/In_Progress with end_date >= today, not overdue).
-    const inProgressCount = backendCounts['Active'] ?? 0;
+    // 1. In Progress: use dedicated 'Active' count if backend supports it (mirrors ACTIVE tab filter:
+    //    Assigned/In_Progress with end_date >= today). Fall back to raw sum if key is absent (old backend).
+    const inProgressCount = 'Active' in backendCounts
+      ? (backendCounts['Active'] ?? 0)
+      : (backendCounts['In_Progress'] ?? 0) + (backendCounts['Assigned'] ?? 0);
 
     // 2. Delayed: tasks past deadline, not Completed or Review (mirrors OVERDUE tab filter)
     const delayedCount = backendCounts['Overdue'] ?? 0;
