@@ -46,8 +46,17 @@ export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => 
   // Fetch public holidays — used to subtract holidays from capacity (mirrors backend computeUtilization)
   const { data: holidaysData } = usePublicHolidays();
 
-  // Construct query string for tasks based on date range
-  const taskQueryString = useMemo(() => {
+  // Stats query: limit=1 to get status_counts from the backend without pulling all records.
+  const taskStatsQueryString = useMemo(() => {
+    let query = "limit=1&skip=0";
+    if (dateRange && dateRange[0] && dateRange[1]) {
+      query += `&start_date[start]=${dateRange[0].startOf('day').toISOString()}&start_date[end]=${dateRange[1].endOf('day').toISOString()}`;
+    }
+    return query;
+  }, [dateRange]);
+
+  // Hours query: fetches actual task records needed to sum estimated_time for allotted capacity.
+  const taskHoursQueryString = useMemo(() => {
     let query = "limit=1000&skip=0";
     if (dateRange && dateRange[0] && dateRange[1]) {
       query += `&start_date[start]=${dateRange[0].startOf('day').toISOString()}&start_date[end]=${dateRange[1].endOf('day').toISOString()}`;
@@ -76,57 +85,35 @@ export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => 
   };
 
 
-  // Fetch all tasks
-  const { data: tasksData, isLoading: isLoadingTasks } = useTasks(taskQueryString);
+  // Stats query — provides status_counts for the task progress card.
+  const { data: tasksData, isLoading: isLoadingTasks } = useTasks(taskStatsQueryString);
+  // Hours query — provides all task records for allotted hours calculation.
+  const { data: tasksHoursData, isLoading: isLoadingTasksHours } = useTasks(taskHoursQueryString);
 
   // Fetch all workspaces to get requirements
   const { data: workspacesData, isLoading: isLoadingWorkspaces } = useWorkspaces("");
 
-  // Calculate task statistics
+  // Calculate task statistics using backend status_counts — identical methodology
+  // to TasksPage.stats so widget counts always match the tab counts.
   const taskData = useMemo(() => {
-    if (!tasksData?.result || isLoadingTasks) {
+    if (isLoadingTasks) {
       return { completed: 0, total: 0, percentage: 0, inProgress: 0, delayed: 0 };
     }
 
-    const tasks = tasksData.result;
-    let completed = 0;
-    let inProgress = 0;
-    let delayed = 0;
+    // status_counts is embedded in the first result by the backend (same pattern as TasksPage)
+    const firstTask = tasksData?.result?.[0] as unknown as { status_counts?: Record<string, number> } | undefined;
+    const backendCounts = firstTask?.status_counts ?? {};
 
-    tasks.forEach((task) => {
-      const status = task.status?.toLowerCase() || '';
+    // Mirror TasksPage.stats definitions exactly:
+    // In Progress: non-overdue active work (Assigned + In_Progress + Review)
+    const inProgress = (backendCounts['In_Progress'] ?? 0) + (backendCounts['Assigned'] ?? 0) + (backendCounts['Review'] ?? 0);
+    // Delayed: tasks that missed their end_date and are not Completed (backend Overdue)
+    const delayed = backendCounts['Overdue'] ?? 0;
+    // Completed: Review + Completed (matches Tasks "Completed" tab)
+    const completed = (backendCounts['Completed'] ?? 0) + (backendCounts['Review'] ?? 0);
+    // Total: all tasks in the current date-range scope
+    const total = backendCounts['All'] ?? 0;
 
-      // Calculate strict delay based on due date (matches TasksPage logic)
-      // Calculate strict delay based on due date (matches TasksPage logic)
-      let isOverdue = false;
-      if (task.end_date) {
-        const endDate = dayjs(task.end_date);
-        if (endDate.isValid() && endDate.isBefore(dayjs().startOf('day'))) {
-          isOverdue = true;
-        }
-      }
-
-      // Calculate if time spent exceeds estimated time
-      const estTime = Number(task.estimated_time || 0);
-      const timeSpent = Number(task.time_spent || 0);
-      const isOverEstimate = estTime > 0 && timeSpent > estTime;
-
-      const isDelayed = isOverdue || isOverEstimate;
-
-      // Completion status: Review or Completed
-      const isCompleted = status === 'completed' || status === 'review';
-
-      if (isCompleted) {
-        completed++;
-      } else if (isDelayed) {
-        delayed++;
-      } else {
-        // Everything else that is not completed or delayed is "In Progress"
-        inProgress++;
-      }
-    });
-
-    const total = tasks.length;
     const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
 
     return { completed, total, percentage, inProgress, delayed };
@@ -229,9 +216,9 @@ export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => 
   const hoursData = useMemo(() => {
     // 1. Calculate Allotted Hours (Sum of estimated time of fetched tasks ASSIGNED TO CURRENT USER)
     // Always calculate allotted if tasks exist, regardless of capacity
-    const allotted = (!tasksData?.result || isLoadingTasks || !currentUserId)
+    const allotted = (!tasksHoursData?.result || isLoadingTasksHours || !currentUserId)
       ? 0
-      : Math.round((tasksData.result as Task[]).reduce((acc: number, task: Task) => {
+      : Math.round((tasksHoursData.result as Task[]).reduce((acc: number, task: Task) => {
         // Filter: Check if task is assigned to current user
         let isAssigned = false;
 
@@ -324,7 +311,7 @@ export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => 
     const remaining = Math.max(0, total - allotted);
 
     return { allotted, total, percentage, remaining };
-  }, [tasksData, isLoadingTasks, dateRange, currentUserId, companyData?.result?.working_hours, userDetailsData?.result, holidaysData]);
+  }, [tasksHoursData, isLoadingTasksHours, dateRange, currentUserId, companyData?.result?.working_hours, userDetailsData?.result, holidaysData]);
 
   const isLoading = isLoadingTasks || isLoadingWorkspaces || isLoadingRequirements;
 
