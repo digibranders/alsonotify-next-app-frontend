@@ -105,11 +105,11 @@ export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => 
     const backendCounts = firstTask?.status_counts ?? {};
 
     // Mirror TasksPage.stats definitions exactly:
-    // In Progress: non-overdue active work (Assigned + In_Progress + Review)
-    const inProgress = (backendCounts['In_Progress'] ?? 0) + (backendCounts['Assigned'] ?? 0) + (backendCounts['Review'] ?? 0);
+    // In Progress: Assigned + In_Progress only (Review belongs in Completed)
+    const inProgress = (backendCounts['In_Progress'] ?? 0) + (backendCounts['Assigned'] ?? 0);
     // Delayed: tasks that missed their end_date and are not Completed (backend Overdue)
     const delayed = backendCounts['Overdue'] ?? 0;
-    // Completed: Review + Completed (matches Tasks "Completed" tab)
+    // Completed: Review + Completed
     const completed = (backendCounts['Completed'] ?? 0) + (backendCounts['Review'] ?? 0);
     // Total: all tasks in the current date-range scope
     const total = backendCounts['All'] ?? 0;

@@ -4,7 +4,7 @@ import dayjs from '@/utils/dayjs';
 import { formatDateForApi, getTodayForApi } from '@/utils/date';
 import { Input, DatePicker, Checkbox, App, Button, Modal, Select } from 'antd';
 import { Upload as UploadIcon, FileText, ChevronDown } from 'lucide-react';
-import { useEmployees } from '@/hooks/useUser';
+import { useEmployeesDropdown } from '@/hooks/useUser';
 import { getOutsourcedContacts } from '@/services/user';
 import { FormLayout } from '@/components/common/FormLayout';
 import { trimStr } from '@/utils/trim';
@@ -98,21 +98,16 @@ function RequirementsFormContent({
     isEditing = false,
 }: Readonly<RequirementsFormProps>) {
     useAuth();
-    const { data: employeesData, isLoading: isLoadingEmployees } = useEmployees();
+    // useEmployeesDropdown fetches /user/user-dropdown with limit=1000 — same hook as TasksPage
+    // useEmployees fetches /user? (paginated) with complex DTO mapping that can yield empty results
+    const { data: employeesDropdownData, isLoading: isLoadingEmployees } = useEmployeesDropdown();
     const { message } = App.useApp();
 
-    // Process employees
-    const employees = useMemo(() => (employeesData?.result || [])
-        .filter((item: any) => item.user_employee?.is_active !== false)
-        .map((item: any) => {
-            const id = item.user_id ?? item.id;
-            return {
-                id: (typeof id === 'number' ? id : undefined) as number | undefined,
-                name: (item.name || 'Unknown Employee') as string,
-                designation: item.designation as string | undefined
-            };
-        })
-        .filter((e: { id?: number }) => e.id !== undefined), [employeesData]);
+    // employeesDropdownData is already { id: number; name: string }[] via the hook's select transform
+    const employees = useMemo(
+        () => employeesDropdownData ?? [],
+        [employeesDropdownData]
+    );
 
     // Initialize state directly (runs once on mount)
     const [formData, setFormData] = useState<RequirementFormData>(() => {
@@ -388,29 +383,28 @@ function RequirementsFormContent({
                 <div className="space-y-1.5" id="contact-person-selection">
                     <span className="text-[0.8125rem] font-bold text-[#111111]">Contact Person</span>
                     <Select
-                        showSearch={{
-                            filterOption: (input, option) =>
-                                (String(option?.label ?? '')).toLowerCase().includes(input.toLowerCase())
-                        }}
+                        showSearch
+                        filterOption={(input, option) =>
+                            (String(option?.label ?? '')).toLowerCase().includes(input.toLowerCase())
+                        }
                         className="w-full h-11"
                         placeholder={`Select ${formData.type === 'inhouse' ? 'employee' : 'contact person'}`}
                         value={typeof formData.contact_person_id === 'number' ? formData.contact_person_id : undefined}
-                        onChange={(v, option: any) => setFormData({
+                        onChange={(v, option) => setFormData({
                             ...formData,
                             contact_person_id: typeof v === 'number' ? v : undefined,
-                            contactPerson: option?.label
+                            contactPerson: (option as { label?: string } | null)?.label
                         })}
                         loading={formData.type === 'inhouse' ? isLoadingEmployees : isLoadingOutsourcedContacts}
                         suffixIcon={<ChevronDown className="w-4 h-4 text-gray-400" />}
-                        disabled={false} // Always enabled now
                         optionLabelProp="label"
+                        popupStyle={{ zIndex: 2000 }}
                     >
                         {formData.type === 'inhouse' ? (
-                            employees.map((e: any) => (
+                            employees.map((e) => (
                                 <Option key={e.id} value={e.id} label={e.name}>
                                     <div className="flex flex-col py-1">
                                         <span className="font-semibold">{e.name}</span>
-                                        {e.designation && <span className="text-[0.625rem] text-gray-400 font-normal">{e.designation}</span>}
                                     </div>
                                 </Option>
                             ))
