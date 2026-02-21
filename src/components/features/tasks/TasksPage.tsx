@@ -816,9 +816,11 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
     }
   };
 
-  // ✅ FIX BUG #2 Frontend: Permission check for status changes
   const canChangeTaskStatus = useCallback((task: UITask): boolean => {
     if (!currentUserId) return false;
+
+    // Admins can change status on any task (approve / revision included)
+    if (isAdmin) return true;
 
     // Check if user is task leader
     const isLeader = task.leader_id === Number(currentUserId);
@@ -829,7 +831,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
     );
 
     return isLeader || (isMember ?? false);
-  }, [currentUserId]);
+  }, [currentUserId, isAdmin]);
 
   const { setExpandedContent } = useFloatingMenu();
 
