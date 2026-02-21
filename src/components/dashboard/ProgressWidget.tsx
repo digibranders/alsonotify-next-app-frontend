@@ -97,10 +97,10 @@ export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => 
       const status = task.status?.toLowerCase() || '';
 
       // Calculate strict delay based on due date (matches TasksPage logic)
+      // Calculate strict delay based on due date (matches TasksPage logic)
       let isOverdue = false;
       if (task.end_date) {
         const endDate = dayjs(task.end_date);
-        // Check if end date is before today (start of day)
         if (endDate.isValid() && endDate.isBefore(dayjs().startOf('day'))) {
           isOverdue = true;
         }
@@ -111,26 +111,18 @@ export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => 
       const timeSpent = Number(task.time_spent || 0);
       const isOverEstimate = estTime > 0 && timeSpent > estTime;
 
-      // Check for completion first
-      const isCompleted = status.includes('completed') || status === 'done';
+      const isDelayed = isOverdue || isOverEstimate;
+
+      // Completion status: Review or Completed
+      const isCompleted = status === 'completed' || status === 'review';
 
       if (isCompleted) {
         completed++;
-      } else if (isOverdue || isOverEstimate) {
-        // STRICTLY time-based: Delayed (Missed due date OR crossed estimated time)
-        // Stuck/Impediment statuses are NOT counted here unless time criteria are met.
+      } else if (isDelayed) {
         delayed++;
       } else {
-        // Default everything else to In Progress
-        // Exclude Stuck/Impediment/Blocked from In Progress count as per user request
-        const isStuckOrImpediment =
-          status.includes('stuck') ||
-          status.includes('impediment') ||
-          status.includes('blocked');
-
-        if (!isStuckOrImpediment) {
-          inProgress++;
-        }
+        // Everything else that is not completed or delayed is "In Progress"
+        inProgress++;
       }
     });
 
@@ -208,27 +200,19 @@ export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => 
       let isOverdue = false;
       if (req.end_date) {
         const endDate = dayjs(req.end_date);
-        // Check if end date is before today (start of day)
         if (endDate.isValid() && endDate.isBefore(dayjs().startOf('day'))) {
           isOverdue = true;
         }
       }
 
-      // Requirement statuses
-      const isCompleted = status.includes('completed');
+      const isCompleted = status === 'completed' || status === 'review';
 
       if (isCompleted) {
         completed++;
       } else if (isOverdue) {
-        // STRICTLY time-based: Delayed (Missed due date)
         delayed++;
       } else {
-        // Exclude Stuck/Impediment from In Progress count
-        const isStuckOrImpediment = status.includes('stuck') || status.includes('impediment');
-
-        if (!isStuckOrImpediment) {
-          inProgress++;
-        }
+        inProgress++;
       }
     });
 

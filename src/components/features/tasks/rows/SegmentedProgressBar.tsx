@@ -31,9 +31,9 @@ export function SegmentedProgressBar({ members, totalEstimate }: Readonly<Segmen
         // 1. Red: Member Overtime OR specific block status
         // Note: We check member.status for specific blocks if available, or fallback to check if overtime.
         const isOvertime = ratio > 1; // spent > est
-        const isMemberBlocked = ['Impediment', 'Stuck', 'Delayed'].includes(member.status);
+        const isMemberDelayed = member.status === 'Delayed';
 
-        if (isMemberBlocked || isOvertime) {
+        if (isMemberDelayed || isOvertime) {
             return 'bg-[#ff3b3b]'; // Red
         }
 

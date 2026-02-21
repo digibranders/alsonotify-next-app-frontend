@@ -494,8 +494,6 @@ export function ReportsPage() {
             { label: 'In Progress', value: 'In_Progress' },
             { label: 'Review', value: 'Review' },
             { label: 'Revision', value: 'Revision' },
-            { label: 'Impediment', value: 'Impediment' },
-            { label: 'Stuck', value: 'Stuck' },
             { label: 'Delayed', value: 'Delayed' },
             { label: 'Assigned', value: 'Assigned' }
           ], defaultValue: 'All'
@@ -523,8 +521,6 @@ export function ReportsPage() {
             { label: 'In Progress', value: 'In Progress' },
             { label: 'Delayed', value: 'Delayed' },
             { label: 'In Review', value: 'Review' },
-            { label: 'Stuck', value: 'Stuck' },
-            { label: 'Impediment', value: 'Impediment' },
           ], defaultValue: 'All'
         },
       ];

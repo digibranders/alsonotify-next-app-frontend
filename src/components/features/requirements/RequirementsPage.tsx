@@ -121,7 +121,7 @@ export function RequirementsPage() {
 
     // Status Tab mapping to Backend Status
     const statusMap: Record<string, string> = {
-      'active': 'Assigned,In_Progress,Review,Revision,Impediment,Stuck,Delayed,On_Hold',
+      'active': 'Assigned,In_Progress,Review,Revision,Delayed,On_Hold',
       'pending': 'Waiting,Submitted,Rejected',
       'draft': 'Draft',
       'completed': 'Completed',
@@ -174,8 +174,6 @@ export function RequirementsPage() {
       case 'Review':
       case 'Submitted':
       case 'Revision':
-      case 'Impediment':
-      case 'Stuck':
         return 'in-progress';
 
       case 'rejected':

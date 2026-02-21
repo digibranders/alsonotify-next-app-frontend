@@ -22,8 +22,6 @@ export const REQUIREMENT_STATUSES = [
   'Rejected',
   'Review',
   'Revision',
-  'Impediment',
-  'Stuck',
   'Delayed',
 ] as const;
 

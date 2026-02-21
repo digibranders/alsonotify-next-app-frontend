@@ -18,8 +18,8 @@ export const INTERNAL_TRANSITIONS: Readonly<Record<RequirementStatus, readonly R
   // From Assigned: can start work, pause, or delay
   Assigned: ['In_Progress', 'On_Hold', 'Delayed'],
 
-  // From In_Progress: can submit for review, complete, mark as blocked, pause, or delay
-  In_Progress: ['Review', 'Completed', 'Impediment', 'Stuck', 'On_Hold', 'Delayed'],
+  // From In_Progress: can submit for review, complete, pause, or delay
+  In_Progress: ['Review', 'Completed', 'On_Hold', 'Delayed'],
 
   // From Review: can approve (Completed), need revisions, reassign, or reject
   Review: ['Assigned', 'Completed', 'Revision'],
@@ -32,10 +32,6 @@ export const INTERNAL_TRANSITIONS: Readonly<Record<RequirementStatus, readonly R
 
   // From Delayed: can resume to various states
   Delayed: ['In_Progress', 'Assigned', 'On_Hold'],
-
-  // From Impediment/Stuck: can only resume to In_Progress once unblocked
-  Impediment: ['In_Progress'],
-  Stuck: ['In_Progress'],
 
   // From Completed: can reopen for revisions or reassign
   Completed: ['Revision', 'Assigned'],
@@ -85,8 +81,6 @@ export const SENDER_TRANSITIONS: Readonly<Record<RequirementStatus, readonly Req
 
   // Sender cannot transition from these states (receiver's domain)
   Revision: [],
-  Impediment: [],
-  Stuck: [],
 } as const;
 
 /**
@@ -106,18 +100,14 @@ export const RECEIVER_TRANSITIONS: Readonly<Record<RequirementStatus, readonly R
   // After quote accepted (Assigned): can start work (In_Progress)
   Assigned: ['In_Progress'],
 
-  // WORK FLOW: In_Progress -> Submit Work for Review (Review) or mark blocked/delayed
-  In_Progress: ['Review', 'Impediment', 'Stuck', 'On_Hold', 'Delayed'],
+  // WORK FLOW: In_Progress -> Submit Work for Review (Review) or delay
+  In_Progress: ['Review', 'On_Hold', 'Delayed'],
 
   // From Delayed: can resume to In_Progress
   Delayed: ['In_Progress'],
 
   // Revision flow: Resubmit Work (Review) or continue working
   Revision: ['Review', 'In_Progress'],
-
-  // Unblock flows
-  Impediment: ['In_Progress'],
-  Stuck: ['In_Progress'],
 
   // Resume from pause
   On_Hold: ['In_Progress'],
