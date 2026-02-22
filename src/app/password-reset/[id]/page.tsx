@@ -115,8 +115,7 @@ export default function PasswordResetPage() {
               <motion.div variants={itemVariants} className="space-y-5">
                 <div className="space-y-2">
                   <label className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-widest">
-                    New Password <span className="text-[#ff3b3b]">*</span>
-                  </label>
+                      New Password <span className="text-[#ff3b3b]">*</span>                 </label>
                   <div className="relative">
                     <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#999999]" />
                     <input
