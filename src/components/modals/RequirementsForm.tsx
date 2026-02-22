@@ -191,6 +191,14 @@ function RequirementsFormContent({
             message.error('Please select a workspace');
             return null;
         }
+        if (!formData.type) {
+            message.error('Requirement type is required');
+            return null;
+        }
+        if (!formData.contact_person_id) {
+            message.error('Contact person is required');
+            return null;
+        }
 
         // Determine receiver/sender company
         let receiverCompanyId = formData.receiver_company_id;
@@ -299,7 +307,7 @@ function RequirementsFormContent({
         >
             <div className="grid grid-cols-2 gap-x-6 gap-y-4 mb-4">
                 <div className="space-y-1.5">
-                    <span className="text-[0.8125rem] font-bold text-[#111111]">Requirement Title</span>
+                    <span className="text-[0.8125rem] font-bold text-[#111111]">Requirement Title <span className="text-[#ff3b3b]">*</span></span>
                     <Input
                         placeholder="Enter requirement title"
                         className="h-11 rounded-lg border border-[#EEEEEE]"
@@ -308,7 +316,7 @@ function RequirementsFormContent({
                     />
                 </div>
                 <div className="space-y-1.5">
-                    <span className="text-[0.8125rem] font-bold text-[#111111]">Workspace</span>
+                    <span className="text-[0.8125rem] font-bold text-[#111111]">Workspace <span className="text-[#ff3b3b]">*</span></span>
                     <Select
                         showSearch
                         optionFilterProp="label"
@@ -359,7 +367,7 @@ function RequirementsFormContent({
 
             <div className="grid grid-cols-2 gap-x-6 gap-y-4 mb-4">
                 <div className="space-y-1.5">
-                    <span className="text-[0.8125rem] font-bold text-[#111111]">Requirement Type</span>
+                    <span className="text-[0.8125rem] font-bold text-[#111111]">Requirement Type <span className="text-[#ff3b3b]">*</span></span>
                     <Select
                         className="w-full h-11"
                         placeholder="Select type"
@@ -382,7 +390,7 @@ function RequirementsFormContent({
                 {/* Removed Partner Company selection */}
 
                 <div className="space-y-1.5" id="contact-person-selection">
-                    <span className="text-[0.8125rem] font-bold text-[#111111]">Contact Person</span>
+                    <span className="text-[0.8125rem] font-bold text-[#111111]">Contact Person <span className="text-[#ff3b3b]">*</span></span>
                     <Select
                         showSearch
                         optionFilterProp="label"

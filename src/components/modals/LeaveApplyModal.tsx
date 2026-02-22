@@ -110,7 +110,7 @@ export function LeaveApplyModal({
           <div className="grid grid-cols-2 gap-4">
             <Form.Item
               name="start_date"
-              label={<span className="text-[0.8125rem] font-bold text-[#111111]">Start Date</span>}
+              label={<span className="text-[0.8125rem] font-bold text-[#111111]">Start Date <span className="text-[#ff3b3b]">*</span></span>}
               rules={[{ required: true, message: 'Please select start date' }]}
             >
               <DatePicker
@@ -122,7 +122,7 @@ export function LeaveApplyModal({
 
             <Form.Item
               name="end_date"
-              label={<span className="text-[0.8125rem] font-bold text-[#111111]">End Date</span>}
+              label={<span className="text-[0.8125rem] font-bold text-[#111111]">End Date <span className="text-[#ff3b3b]">*</span></span>}
               rules={[{ required: true, message: 'Please select end date' }]}
             >
               <DatePicker
@@ -135,7 +135,7 @@ export function LeaveApplyModal({
 
           <Form.Item
             name="day_type"
-            label={<span className="text-[0.8125rem] font-bold text-[#111111]">Day Type</span>}
+            label={<span className="text-[0.8125rem] font-bold text-[#111111]">Day Type <span className="text-[#ff3b3b]">*</span></span>}
             rules={[{ required: true, message: 'Please select day type' }]}
           >
             <Select
@@ -152,7 +152,7 @@ export function LeaveApplyModal({
 
           <Form.Item
             name="leave_type"
-            label={<span className="text-[0.8125rem] font-bold text-[#111111]">Leave Type</span>}
+            label={<span className="text-[0.8125rem] font-bold text-[#111111]">Leave Type <span className="text-[#ff3b3b]">*</span></span>}
             rules={[{ required: true, message: 'Please select leave type' }]}
           >
             <Select
@@ -169,7 +169,7 @@ export function LeaveApplyModal({
 
           <Form.Item
             name="reason"
-            label={<span className="text-[0.8125rem] font-bold text-[#111111]">Reason</span>}
+            label={<span className="text-[0.8125rem] font-bold text-[#111111]">Reason <span className="text-[#ff3b3b]">*</span></span>}
             rules={[{ required: true, message: 'Please enter reason' }]}
           >
             <Input

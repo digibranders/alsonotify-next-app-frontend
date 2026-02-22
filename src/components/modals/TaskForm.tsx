@@ -348,7 +348,7 @@ export function TaskForm({
       <div className="mb-5 border border-[#EEEEEE] rounded-xl p-4 bg-[#FAFAFA]">
         <div className="flex justify-between items-center mb-3">
           <h3 className="text-[0.8125rem] font-bold text-[#111111] flex items-center gap-2">
-            <Users className="w-4 h-4" /> Squad Assembly
+            <Users className="w-4 h-4" /> Members <span className="text-red-500">*</span>
           </h3>
 
           {/* Execution Mode Toggle */}

@@ -173,7 +173,7 @@ export function FeedbackWidget({ open, onClose }: FeedbackWidgetProps) {
               name="description"
               label={
                 <span className="text-[0.8125rem] font-bold text-[#111111]">
-                  Details
+                  Details <span className="text-[#ff3b3b]">*</span>
                 </span>
               }
               rules={[{ required: true, whitespace: true, message: 'Please describe your feedback' }]}

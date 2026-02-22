@@ -149,7 +149,7 @@ function WorkspaceFormContent({ onCancel, onSuccess, initialData }: WorkspaceFor
             <div className="grid grid-cols-2 gap-6">
                 {/* Workspace Name */}
                 <div className="space-y-2">
-                    <label className="text-[0.8125rem] font-bold text-[#111111]">Workspace Name</label>
+                    <label className="text-[0.8125rem] font-bold text-[#111111]">Workspace Name <span className="text-[#ff3b3b]">*</span></label>
                     <Input
                         placeholder="e.g. Website Redesign"
                         className="h-11 rounded-xl border-[#EEEEEE] font-medium"
