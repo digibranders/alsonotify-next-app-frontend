@@ -64,7 +64,7 @@ export const useEmployeesDropdown = (search?: string) => {
       // We import searchEmployees dynamically or assume it's available.
       // Based on file read, searchEmployees IS in services/user.ts
       const { searchEmployees } = await import('../services/user');
-      return searchEmployees(search);
+      return searchEmployees(search || "limit=1000");
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
     select: (data) => (data.result || []).map((item: any) => ({

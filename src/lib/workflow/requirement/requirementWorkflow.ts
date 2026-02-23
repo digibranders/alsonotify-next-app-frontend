@@ -5,7 +5,7 @@
  */
 
 import { REQUIREMENT_STATUSES } from '../types/requirement.types';
-import type { RequirementStatus, UserRole } from '../types/requirement.types';
+import type { RequirementStatus, UserRole, RequirementType } from '../types/requirement.types';
 
 /**
  * Internal requirement transitions.
@@ -123,14 +123,100 @@ export const RECEIVER_TRANSITIONS: Readonly<Record<RequirementStatus, readonly R
 } as const;
 
 /**
+ * Client Work Sender (B / Client) transitions.
+ * B accepts the quote (Waiting → Assigned) or declines (Waiting → Rejected).
+ * After assignment, B reviews and approves completed work.
+ */
+export const CLIENT_SENDER_TRANSITIONS: Readonly<Record<RequirementStatus, readonly RequirementStatus[]>> = {
+  // From Waiting: B can accept directly (KEY: unlike outsourced, no Submitted step)
+  Waiting: ['Assigned', 'Rejected', 'On_Hold', 'Delayed'],
+
+  // From Assigned: can pause, delay, or monitor progress
+  Assigned: ['On_Hold', 'In_Progress', 'Delayed'],
+
+  // From On_Hold: can resume to various states
+  On_Hold: ['In_Progress', 'Assigned', 'Waiting'],
+
+  // From Delayed: can resume to various states
+  Delayed: ['In_Progress', 'Assigned', 'Waiting', 'On_Hold'],
+
+  // From In_Progress: can pause or delay
+  In_Progress: ['On_Hold', 'Delayed'],
+
+  // WORK FLOW: Review (Work Received) -> Approve (Completed) or Request Revision
+  Review: ['Completed', 'Revision'],
+
+  // From Completed: can reopen if quality issues found
+  Completed: ['Revision'],
+
+  // From Rejected: can restart workflow
+  Rejected: ['Waiting'],
+
+  // B should not transition from these states
+  Draft: [],
+  Submitted: [],
+  Revision: [],
+} as const;
+
+/**
+ * Client Work Receiver (A / Worker) transitions.
+ * A starts from Assigned (no quote step). A does the work and submits.
+ */
+export const CLIENT_RECEIVER_TRANSITIONS: Readonly<Record<RequirementStatus, readonly RequirementStatus[]>> = {
+  // From Assigned: start work immediately (no map workspace step — already mapped at creation)
+  Assigned: ['In_Progress'],
+
+  // From In_Progress: submit for review, pause, or delay
+  In_Progress: ['Review', 'On_Hold', 'Delayed'],
+
+  // From Review: pull back work if needed
+  Review: ['In_Progress'],
+
+  // From Revision: resubmit or continue working
+  Revision: ['Review', 'In_Progress'],
+
+  // From Delayed: can resume to In_Progress
+  Delayed: ['In_Progress'],
+
+  // Resume from pause
+  On_Hold: ['In_Progress'],
+
+  // A should not transition from these states
+  Draft: [],
+  Waiting: [],
+  Submitted: [],
+  Rejected: [],
+  Completed: [],
+} as const;
+
+/**
  * Get the transition map for a given role.
  *
  * @param role - The user's role relative to the requirement
+ * @param requirementType - Optional requirement type for client-specific transitions
  * @returns The appropriate transition map
  */
 function getTransitionMapForRole(
-  role: UserRole
+  role: UserRole,
+  requirementType?: RequirementType
 ): Readonly<Record<RequirementStatus, readonly RequirementStatus[]>> {
+  // Client work uses different sender/receiver transitions
+  if (requirementType === 'client') {
+    switch (role) {
+      case 'sender':
+        return CLIENT_SENDER_TRANSITIONS;
+      case 'receiver':
+        return CLIENT_RECEIVER_TRANSITIONS;
+      case 'internal':
+        return INTERNAL_TRANSITIONS;
+      default: {
+        const _exhaustive: never = role;
+        throw new Error(`Unknown role: ${_exhaustive}`);
+      }
+    }
+  }
+
+  // Standard outsourced/inhouse transitions
   switch (role) {
     case 'internal':
       return INTERNAL_TRANSITIONS;
@@ -151,19 +237,22 @@ function getTransitionMapForRole(
  * @param from - Current requirement status
  * @param to - Target requirement status
  * @param role - User's role relative to this requirement
+ * @param requirementType - Optional requirement type (for client-specific transitions)
  * @returns true if the transition is allowed
  *
  * @example
  * isTransitionValid('Waiting', 'Submitted', 'receiver') // true - receiver can submit quote
  * isTransitionValid('Waiting', 'Completed', 'receiver') // false - cannot skip to completed
  * isTransitionValid('Review', 'Completed', 'sender')    // true - sender can approve work
+ * isTransitionValid('Waiting', 'Assigned', 'sender', 'client') // true - client sender can accept directly
  */
 export function isTransitionValid(
   from: RequirementStatus,
   to: RequirementStatus,
-  role: UserRole
+  role: UserRole,
+  requirementType?: RequirementType
 ): boolean {
-  const transitions = getTransitionMapForRole(role);
+  const transitions = getTransitionMapForRole(role, requirementType);
   const allowedTransitions = transitions[from];
   return allowedTransitions.includes(to);
 }

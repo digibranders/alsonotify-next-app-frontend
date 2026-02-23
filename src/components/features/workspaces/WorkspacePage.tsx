@@ -40,7 +40,7 @@ export function WorkspacePage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedWorkspaceForEdit, setSelectedWorkspaceForEdit] = useState<Workspace | null>(null);
 
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(12);
 
   const handleTabChange = (tab: 'active' | 'archived') => {
     const params = new URLSearchParams(searchParams.toString());

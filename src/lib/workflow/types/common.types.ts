@@ -19,6 +19,7 @@ export type Tab = 'draft' | 'pending' | 'active' | 'completed' | 'delayed' | 'ar
  * - reject: Reject a requirement or quote with reason
  * - mapping: Map a requirement to a workspace
  * - edit: Edit requirement details
+ * - client_accept: Accept client work and map workspace (combined action for B)
  * - none: No modal needed, direct API action
  */
-export type ModalType = 'quotation' | 'reject' | 'mapping' | 'edit' | 'submit_approval' | 'approval' | 'revision' | 'none';
+export type ModalType = 'quotation' | 'reject' | 'mapping' | 'edit' | 'submit_approval' | 'approval' | 'revision' | 'client_accept' | 'none';

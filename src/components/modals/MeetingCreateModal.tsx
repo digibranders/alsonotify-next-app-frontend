@@ -36,7 +36,7 @@ export function MeetingCreateModal({
   const [submitting, setSubmitting] = useState(false);
 
   // Fetch employees for autocomplete (only when modal is open)
-  const { data: employeesData } = useEmployees(open ? 'limit=100' : '');
+  const { data: employeesData } = useEmployees(open ? 'limit=1000' : '');
 
   const [formData, setFormData] = useState({
     title: '',
@@ -131,7 +131,7 @@ export function MeetingCreateModal({
       await createCalendarEvent(payload);
       message.success("Event created successfully!");
       handleCancel();
-      
+
       queryClient.invalidateQueries({ queryKey: queryKeys.calendar.eventsRoot() });
       if (onSuccess) onSuccess();
     } catch (error: unknown) {
@@ -153,7 +153,7 @@ export function MeetingCreateModal({
       className="rounded-[16px] overflow-hidden"
       closeIcon={<X className="w-5 h-5 text-[#666666]" />}
       styles={{
-        body: { 
+        body: {
           padding: 0,
           maxHeight: '80vh',
           overflow: 'hidden',

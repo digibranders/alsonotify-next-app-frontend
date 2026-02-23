@@ -83,25 +83,7 @@ export function TaskForm({
     return '';
   }, [currentUser]);
 
-  const sortedUsers = useMemo(() => {
-    if (!users) return [];
 
-    // Fallback if no user object exists
-    if (!currentUser) return users;
-
-    // Check if the current user is an admin
-    const isAdmin = getRoleFromUser(currentUser) === 'Admin';
-    if (isAdmin) return users;
-
-    // Sort so the current user is first if not admin
-    const currentIdNum = parseInt(currentUserId);
-    return [...users].sort((a, b) => {
-      // Prioritize the current user
-      if (a.id === currentIdNum) return -1;
-      if (b.id === currentIdNum) return 1;
-      return 0; // maintain original sorting for other users
-    });
-  }, [users, currentUser, currentUserId]);
 
   // Compute initial state once on mount (or when key changes)
   const [formData, setFormData] = useState<TaskFormData>(() => {
@@ -130,15 +112,66 @@ export function TaskForm({
     };
   });
 
-  // Filter requirements based on selected workspace
+  const sortedUsers = useMemo(() => {
+    // 1. Start with the provided users list
+    const allUsers = [...(users || [])];
+
+    // 2. Ensure the currently selected leader and assigned members are in the list
+    // This is a safety measure in case the 'users' prop is filtered or limited.
+    const selectedIds = new Set<number>();
+    if (formData.leader_id) selectedIds.add(parseInt(formData.leader_id));
+    formData.assigned_members.forEach(id => selectedIds.add(id));
+
+    selectedIds.forEach(id => {
+      if (!allUsers.find(u => u.id === id)) {
+        // If missing, we add a placeholder. In a real scenario, we'd hope 
+        // the parent passes all necessary user objects or we fetch them.
+        allUsers.push({ id, name: `User #${id}` });
+      }
+    });
+
+    // 3. Apply sorting (Current user first for non-admins)
+    if (!currentUser) return allUsers;
+
+    const isAdmin = getRoleFromUser(currentUser) === 'Admin';
+    if (isAdmin) return allUsers;
+
+    const currentIdNum = parseInt(currentUserId);
+    return [...allUsers].sort((a, b) => {
+      if (a.id === currentIdNum) return -1;
+      if (b.id === currentIdNum) return 1;
+      return 0;
+    });
+  }, [users, currentUser, currentUserId, formData.leader_id, formData.assigned_members]);
+
+
+  // Filter requirements based on selected workspace.
+  // IMPORTANT: Always include the currently-selected requirement (if any) so that
+  // an already-linked requirement is never hidden when editing a task.
   const filteredRequirements = useMemo(() => {
-    if (!formData.workspace_id) return [];
+    const selectedReqId = formData.requirement_id ? parseInt(formData.requirement_id) : null;
+
+    // If no workspace selected, only show the already-selected requirement (if any)
+    if (!formData.workspace_id) {
+      if (!selectedReqId) return [];
+      return requirements.filter((req) => req.id === selectedReqId);
+    }
+
     const workspaceIdNum = parseInt(formData.workspace_id);
-    return requirements.filter((req) => {
+    const filtered = requirements.filter((req) => {
       // Match if requirement's workspace_id or receiver_workspace_id matches selected workspace
       return req.workspace_id === workspaceIdNum || req.receiver_workspace_id === workspaceIdNum;
     });
-  }, [formData.workspace_id, requirements]);
+
+    // Safety net for edit mode: ensure the currently-selected requirement is always present
+    // in the list even if the workspace filter does not include it (e.g. collaborative/outsourced reqs)
+    if (selectedReqId && !filtered.some((r) => r.id === selectedReqId)) {
+      const selectedReq = requirements.find((r) => r.id === selectedReqId);
+      if (selectedReq) return [...filtered, selectedReq];
+    }
+
+    return filtered;
+  }, [formData.workspace_id, formData.requirement_id, requirements]);
 
   const handleSubmit = async () => {
     // Validate required fields
@@ -340,7 +373,7 @@ export function TaskForm({
                 requirement_id: String(val)
               }));
             }}
-            disabled={disabledFields.requirement || !formData.workspace_id}
+            disabled={disabledFields.requirement || (!formData.workspace_id && !formData.requirement_id)}
             suffixIcon={<div className="text-gray-400">⌄</div>}
             allowClear
             onClear={() => setFormData(prev => ({ ...prev, requirement_id: "" }))}

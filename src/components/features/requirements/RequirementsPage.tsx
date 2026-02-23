@@ -7,7 +7,7 @@ import { DateRangeSelector } from '../../common/DateRangeSelector';
 
 
 import { PaginationBar } from '../../ui/PaginationBar';
-import { Select, App } from 'antd';
+import { App } from 'antd';
 import { useWorkspaces, useCreateRequirement, useUpdateRequirement, useDeleteRequirement, useAllRequirements, useCollaborativeRequirements } from '@/hooks/useWorkspace';
 import { useUserDetails, usePartners, useCompanyDepartments } from '@/hooks/useUser';
 import { fileService } from '@/services/file.service';
@@ -18,11 +18,10 @@ import { Dayjs } from 'dayjs';
 
 
 
-const { Option } = Select;
-
 import { RequirementsForm } from '../../modals/RequirementsForm';
 import { QuotationDialog, RejectDialog, InternalMappingModal } from './components/dialogs';
 import { RequirementsList } from './components/RequirementsList';
+import { SortByDropdown } from './components/SortByDropdown';
 
 import { Requirement, Workspace, RequirementType } from '@/types/domain';
 import { RequirementDto, CreateRequirementRequestDto, UpdateRequirementRequestDto } from '@/types/dto/requirement.dto';
@@ -57,7 +56,7 @@ export function RequirementsPage() {
 
   // Pagination & Filtering State
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(12);
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState<Record<string, string>>({
     type: 'All',
@@ -949,30 +948,17 @@ export function RequirementsPage() {
           searchPlaceholder="Search requirements..."
           searchValue={searchQuery}
           onSearchChange={setSearchQuery}
+          extraContent={
+            <SortByDropdown
+              value={sortColumn}
+              onChange={handleSort}
+            />
+          }
         />
       </div>
 
       <div className="flex-1 min-h-0 relative flex flex-col">
         <div className="flex-1 overflow-y-auto pb-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-4">
-              <span className="text-xs text-[#999999] font-medium">Sort by:</span>
-              <Select
-                value={sortColumn || undefined}
-                placeholder="Sort by"
-                onChange={handleSort}
-                className="w-40 h-8"
-                variant="borderless"
-              >
-                <Option value="title">Requirement</Option>
-                <Option value="timeline">Timeline</Option>
-                <Option value="budget">Budget</Option>
-                <Option value="progress">Progress</Option>
-                <Option value="status">Status</Option>
-              </Select>
-            </div>
-          </div>
-
           <RequirementsList
             isLoading={isLoading}
             requirements={sortedRequirements}

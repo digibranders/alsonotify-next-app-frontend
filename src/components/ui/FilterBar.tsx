@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, type ReactNode } from 'react';
 import { ChevronDown24Filled } from '@fluentui/react-icons';
 import { X } from 'lucide-react';
 import { DebouncedSearchInput } from '@/components/common/DebouncedSearchInput';
@@ -21,6 +21,7 @@ interface FilterBarProps {
   searchValue?: string;
   onSearchChange?: (value: string) => void;
   showClearButton?: boolean;
+  extraContent?: ReactNode;
 }
 
 export function FilterBar({
@@ -31,7 +32,8 @@ export function FilterBar({
   searchPlaceholder = 'Search...',
   searchValue = '',
   onSearchChange,
-  showClearButton = true
+  showClearButton = true,
+  extraContent
 }: Readonly<FilterBarProps>) {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const dropdownRefs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -187,6 +189,9 @@ export function FilterBar({
           </button>
         )
       }
+
+      {/* Extra content slot (e.g. Sort By) */}
+      {extraContent}
 
       {/* Search Bar - Always at the right */}
       {
