@@ -83,25 +83,7 @@ export function TaskForm({
     return '';
   }, [currentUser]);
 
-  const sortedUsers = useMemo(() => {
-    if (!users) return [];
 
-    // Fallback if no user object exists
-    if (!currentUser) return users;
-
-    // Check if the current user is an admin
-    const isAdmin = getRoleFromUser(currentUser) === 'Admin';
-    if (isAdmin) return users;
-
-    // Sort so the current user is first if not admin
-    const currentIdNum = parseInt(currentUserId);
-    return [...users].sort((a, b) => {
-      // Prioritize the current user
-      if (a.id === currentIdNum) return -1;
-      if (b.id === currentIdNum) return 1;
-      return 0; // maintain original sorting for other users
-    });
-  }, [users, currentUser, currentUserId]);
 
   // Compute initial state once on mount (or when key changes)
   const [formData, setFormData] = useState<TaskFormData>(() => {
@@ -129,6 +111,39 @@ export function TaskForm({
       execution_mode: base.execution_mode || "parallel",
     };
   });
+
+  const sortedUsers = useMemo(() => {
+    // 1. Start with the provided users list
+    const allUsers = [...(users || [])];
+
+    // 2. Ensure the currently selected leader and assigned members are in the list
+    // This is a safety measure in case the 'users' prop is filtered or limited.
+    const selectedIds = new Set<number>();
+    if (formData.leader_id) selectedIds.add(parseInt(formData.leader_id));
+    formData.assigned_members.forEach(id => selectedIds.add(id));
+
+    selectedIds.forEach(id => {
+      if (!allUsers.find(u => u.id === id)) {
+        // If missing, we add a placeholder. In a real scenario, we'd hope 
+        // the parent passes all necessary user objects or we fetch them.
+        allUsers.push({ id, name: `User #${id}` });
+      }
+    });
+
+    // 3. Apply sorting (Current user first for non-admins)
+    if (!currentUser) return allUsers;
+
+    const isAdmin = getRoleFromUser(currentUser) === 'Admin';
+    if (isAdmin) return allUsers;
+
+    const currentIdNum = parseInt(currentUserId);
+    return [...allUsers].sort((a, b) => {
+      if (a.id === currentIdNum) return -1;
+      if (b.id === currentIdNum) return 1;
+      return 0;
+    });
+  }, [users, currentUser, currentUserId, formData.leader_id, formData.assigned_members]);
+
 
   // Filter requirements based on selected workspace.
   // IMPORTANT: Always include the currently-selected requirement (if any) so that
