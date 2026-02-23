@@ -26,7 +26,7 @@ interface RequirementHeaderProps {
   activeTab: ReqTabId;
   setActiveTab: (tab: ReqTabId) => void;
   ctaConfig?: RequirementCTAConfig;
-  myWorkspacesData?: ApiResponse<{ workspaces: Workspace[] }>;
+  workspacesData?: ApiResponse<{ workspaces: Workspace[] }>;
   updateRequirement: (data: UpdateRequirementRequestDto) => Promise<any>;
   visibleTabs?: ReqTabId[];
   allTasksCompleted?: boolean;
@@ -41,7 +41,7 @@ export function RequirementHeader({
   activeTab,
   setActiveTab,
   ctaConfig,
-  myWorkspacesData,
+  workspacesData,
   updateRequirement,
   visibleTabs = ['details', 'tasks', 'gantt', 'kanban', 'pnl', 'documents'],
   allTasksCompleted = false,
@@ -284,7 +284,7 @@ export function RequirementHeader({
         open={isMappingModalOpen}
         onClose={() => setIsMappingModalOpen(false)}
         onSubmit={handleMappingSubmit}
-        workspaces={myWorkspacesData?.result?.workspaces || []}
+        workspaces={workspacesData?.result?.workspaces || []}
       />
 
       <RequirementRevisionModal

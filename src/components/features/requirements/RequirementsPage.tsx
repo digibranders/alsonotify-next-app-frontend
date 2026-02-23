@@ -51,7 +51,7 @@ export function RequirementsPage() {
   const createRequirementMutation = useCreateRequirement();
   const updateRequirementMutation = useUpdateRequirement();
 
-  const { data: workspacesData, isLoading: isLoadingWorkspaces } = useWorkspaces();
+  const { data: workspacesData, isLoading: isLoadingWorkspaces } = useWorkspaces('limit=1000');
   const { data: userData } = useUserDetails();
   const currentUser = userData?.result;
 

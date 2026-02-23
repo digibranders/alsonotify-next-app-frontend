@@ -110,7 +110,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
   const deleteTaskMutation = useDeleteTask();
   const updateTaskMutation = useUpdateTask();
   const updateTaskStatusMutation = useUpdateTaskStatus();
-  const { data: workspacesData } = useWorkspaces();
+  const { data: workspacesData } = useWorkspaces('limit=1000');
 
   // Use new centralized hooks for dropdowns (already passed via props but using hook for consistency/updates?)
   // Actually, strictly we should use the props to avoid re-suspend issues, 
@@ -215,7 +215,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
       params.status = 'ACTIVE';
     } else if (activeTab === 'Completed') {
       // "the completed tasks will have all the tasks that are marked completed means in review and approved"
-      params.status = 'Completed'; 
+      params.status = 'Completed';
     } else if (activeTab === 'Delayed') {
       // "Delayed tab will have tasks that are in progress but delayed means either crossed deadline or crossed the estimated time."
       params.status = 'OVERDUE';
@@ -1154,7 +1154,6 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
               }
               currentUserId={currentUserId ? Number(currentUserId) : undefined}
               isAdmin={isAdmin}
-              userRole={userRole}
             />
           ))}
         </div>

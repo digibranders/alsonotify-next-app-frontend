@@ -24,7 +24,6 @@ interface TaskRowProps {
   hideRequirements?: boolean;
   onRequestRevision?: () => void;
   isAdmin?: boolean;
-  userRole?: string;
 }
 
 const TaskRowComponent = memo(function TaskRow({
@@ -36,8 +35,7 @@ const TaskRowComponent = memo(function TaskRow({
   onStatusChange,
   currentUserId,
   hideRequirements = false,
-  isAdmin = false,
-  userRole
+  isAdmin = false
 }: TaskRowProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -364,7 +362,7 @@ const TaskRowComponent = memo(function TaskRow({
                   }
 
                   // Admin or Leader Actions
-                  if ((isAdmin || isLeader) && userRole !== 'Employee') {
+                  if (isAdmin || isLeader) {
                     if (actions.length > 0) {
                       actions.push({ type: 'divider' });
                     }
@@ -411,8 +409,8 @@ const TaskRowComponent = memo(function TaskRow({
                   );
                 }
 
-                // Otherwise check for Admin/Leader actions AND Employee restriction
-                const hasActions = (isAdmin || isLeader) && userRole !== 'Employee';
+                // Otherwise check for Admin/Leader actions
+                const hasActions = isAdmin || isLeader;
 
                 if (hasActions) {
                   return (

@@ -30,7 +30,7 @@ import {
   mapRequirementToType,
 } from './utils/requirementState.utils';
 import { getRoleFromUser } from '@/utils/roleUtils';
-import { ReqTabId , RequirementHeader } from './components/RequirementHeader';
+import { ReqTabId, RequirementHeader } from './components/RequirementHeader';
 
 
 // Extracted components
@@ -74,7 +74,7 @@ export function RequirementDetailsPage() {
   const [ganttView, setGanttView] = useState<'day' | 'week' | 'month'>('week');
 
   const { mutateAsync: updateRequirement } = useUpdateRequirement();
-  const { data: myWorkspacesData } = useWorkspaces();
+  const { data: workspacesData, isLoading: isLoadingWorkspaces } = useWorkspaces('limit=1000');
   const { data: partnersData } = usePartners();
   const { mutate: requestRevision } = useRequestRevision();
 
@@ -342,7 +342,7 @@ export function RequirementDetailsPage() {
           requirementStatus={requirementStatus}
           assignedTo={assignedTo}
           router={router}
-          myWorkspacesData={myWorkspacesData}
+          workspacesData={workspacesData}
           updateRequirement={updateRequirement}
           activeTab={activeTab}
           setActiveTab={setActiveTab}
