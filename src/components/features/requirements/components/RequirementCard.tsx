@@ -69,11 +69,12 @@ export function RequirementCard({
 
 
     if (status === 'draft' || status === 'Draft') {
+      const isOutsourced = type === 'outsourced';
       return {
         isPending: true,
         displayStatus: 'Draft',
         primaryAction: {
-          label: 'Send to Partner',
+          label: isOutsourced ? 'Send to Partner' : 'Submit for Work',
           modal: 'none' as const
         },
         secondaryAction: undefined,

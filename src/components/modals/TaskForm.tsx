@@ -59,6 +59,7 @@ const defaultFormData: TaskFormData = {
 };
 
 import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { getRoleFromUser } from '@/utils/roleUtils';
 
 // ... imports
 
@@ -81,6 +82,26 @@ export function TaskForm({
     if (currentUser?.id) return String(currentUser.id);
     return '';
   }, [currentUser]);
+
+  const sortedUsers = useMemo(() => {
+    if (!users) return [];
+
+    // Fallback if no user object exists
+    if (!currentUser) return users;
+
+    // Check if the current user is an admin
+    const isAdmin = getRoleFromUser(currentUser) === 'Admin';
+    if (isAdmin) return users;
+
+    // Sort so the current user is first if not admin
+    const currentIdNum = parseInt(currentUserId);
+    return [...users].sort((a, b) => {
+      // Prioritize the current user
+      if (a.id === currentIdNum) return -1;
+      if (b.id === currentIdNum) return 1;
+      return 0; // maintain original sorting for other users
+    });
+  }, [users, currentUser, currentUserId]);
 
   // Compute initial state once on mount (or when key changes)
   const [formData, setFormData] = useState<TaskFormData>(() => {
@@ -390,7 +411,7 @@ export function TaskForm({
               }
             }}
           >
-            {users
+            {sortedUsers
               .filter(u => !formData.assigned_members.includes(u.id))
               .map((user) => (
                 <Option key={user.id} value={user.id.toString()} label={user.name}>
