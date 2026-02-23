@@ -32,7 +32,7 @@ export const REQUIREMENT_STATUSES = [
  * Workflow stages:
  * - Quote Flow: Waiting → Submitted → Assigned (or Rejected)
  * - Work Flow: Assigned → In_Progress → Review → Completed (or Revision)
- * - Blocking: Impediment, Stuck, On_Hold, Delayed
+ * - Blocking: On_Hold, Delayed
  * - Terminal: Completed
  */
 export type RequirementStatus = (typeof REQUIREMENT_STATUSES)[number];

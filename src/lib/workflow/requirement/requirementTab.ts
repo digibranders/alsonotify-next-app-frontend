@@ -117,7 +117,7 @@ type WorkflowStatus = Exclude<RequirementStatus, 'Delayed' | 'Completed'>;
  * - Assigned with mapped workspace
  * - In_Progress
  * - Revision
- * - Impediment/Stuck (still active work)
+ * - Review (waiting on leader)
  */
 function getOutsourcedTab(
   status: WorkflowStatus,
@@ -140,8 +140,8 @@ function getOutsourcedTab(
   }
 
   // Active work states (On_Hold is handled in main function)
-  // Remaining statuses: Assigned, In_Progress, Review, Revision, Impediment, Stuck
-  // CHANGED: Review now stays in Active tab for manual submission workflow
+  // Exclude completed or cancelled status
+  // Remaining statuses: Assigned, In_Progress, Review, Revision
   return 'active';
 }
 

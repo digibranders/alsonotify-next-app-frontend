@@ -38,10 +38,10 @@ const { Option } = Select;
 type RequirementTab = 'active' | 'pending' | 'draft' | 'delayed' | 'completed' | 'archived';
 
 const TAB_STATUS_SETS: Record<string, string[]> = {
-    active:    ['Assigned', 'In_Progress', 'Review', 'Revision', 'Delayed', 'On_Hold'],
-    pending:   ['Waiting', 'Submitted', 'Rejected', 'rejected'],
-    draft:     ['Draft'],
-    delayed:   ['Delayed', 'On_Hold'],
+    active: ['Assigned', 'In_Progress', 'Review', 'Revision', 'Delayed', 'On_Hold'],
+    pending: ['Waiting', 'Submitted', 'Rejected', 'rejected'],
+    draft: ['Draft'],
+    delayed: ['Delayed', 'On_Hold'],
     completed: ['Completed'],
 };
 
@@ -61,7 +61,7 @@ export function WorkspaceRequirementsPage() {
     const { data: workspaceData, isLoading: isLoadingWorkspace } = useWorkspace(workspaceId);
     const { data: requirementsData, isLoading: isLoadingRequirements } = useRequirements(workspaceId);
     const { data: userData } = useUserDetails();
-    const { data: workspacesData } = useWorkspaces();
+    const { data: workspacesData, isLoading: isLoadingWorkspaces } = useWorkspaces('limit=1000');
     const { data: partnersData } = usePartners();
     const { data: departmentsData } = useCompanyDepartments();
     useCollaborativeRequirements();
@@ -814,12 +814,12 @@ export function WorkspaceRequirementsPage() {
     }
 
     const tabs = [
-        { id: 'active',    label: 'Active' },
-        { id: 'pending',   label: 'Pending' },
-        { id: 'draft',     label: 'Drafts' },
-        { id: 'delayed',   label: 'Delayed' },
+        { id: 'active', label: 'Active' },
+        { id: 'pending', label: 'Pending' },
+        { id: 'draft', label: 'Drafts' },
+        { id: 'delayed', label: 'Delayed' },
         { id: 'completed', label: 'Completed' },
-        { id: 'archived',  label: 'Archive' },
+        { id: 'archived', label: 'Archive' },
     ];
 
     return (
@@ -998,7 +998,7 @@ export function WorkspaceRequirementsPage() {
                 open={isQuotationOpen}
                 onOpenChange={setIsQuotationOpen}
                 onConfirm={handleQuotationConfirm}
-                pricingModel={requirementsRef.current.find(r => r.id === pendingReqId)?.pricing_model as 'hourly' | 'project' | undefined}
+                pricingModel={requirements.find(r => r.id === pendingReqId)?.pricing_model as 'hourly' | 'project' | undefined}
             />
             <RejectDialog
                 open={isRejectOpen}

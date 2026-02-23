@@ -53,7 +53,7 @@ interface ProjectTaskUI {
 export function WorkspaceDetailsPage({ id }: { id: string }) {
   const router = useRouter();
   const { modal, message } = App.useApp();
-  const { data: workspacesData } = useWorkspaces();
+  const { data: workspacesData } = useWorkspaces('limit=1000');
   const { data: tasksData, isLoading: tasksLoading } = useWorkspaceTasks(Number(id));
   const { data: employeesData } = useEmployees();
   const createTaskMutation = useCreateTask();

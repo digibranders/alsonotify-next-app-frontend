@@ -35,11 +35,6 @@ export function StatusBadge({ status, showLabel = false }: StatusBadgeProps) {
       icon = <Clock className="w-3.5 h-3.5" />;
       label = "To Do";
       break;
-    case 'impediment':
-      color = "bg-[#FFF5F5] text-[#ff3b3b]";
-      icon = <AlertCircle className="w-3.5 h-3.5" />;
-      label = "Impediment";
-      break;
   }
 
   if (showLabel) {

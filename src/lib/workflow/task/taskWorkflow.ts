@@ -55,7 +55,7 @@ export function isTaskTransitionValid(from: TaskStatus, to: TaskStatus): boolean
  *
  * @example
  * getAllowedTaskTransitions('Assigned')    // ['In_Progress', 'Delayed']
- * getAllowedTaskTransitions('In_Progress') // ['Completed', 'Review', 'Stuck', 'Impediment', 'Delayed']
+ * getAllowedTaskTransitions('In_Progress') // ['Completed', 'Review', 'Delayed']
  */
 export function getAllowedTaskTransitions(status: TaskStatus): readonly TaskStatus[] {
   return TASK_TRANSITIONS[status];
