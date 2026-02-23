@@ -19,6 +19,7 @@ import { Dayjs } from 'dayjs';
 
 
 import { RequirementsForm } from '../../modals/RequirementsForm';
+import { ClientAcceptModal } from '../../modals/ClientAcceptModal';
 import { QuotationDialog, RejectDialog, InternalMappingModal } from './components/dialogs';
 import { RequirementsList } from './components/RequirementsList';
 import { SortByDropdown } from './components/SortByDropdown';
@@ -241,7 +242,23 @@ export function RequirementsPage() {
       let headerContact: string | undefined;
       let headerCompany: string | undefined;
 
-      if (req.type === 'outsourced') {
+      const isClientWork = ['client', 'Client work', 'Client Work'].includes(req.type || '');
+
+      if (isClientWork) {
+        if (isReceiver) {
+          // A (Receiver/Worker) sees B (Client) details
+          headerContact = req.contact_person?.name || (req as any).sender_company?.name || 'Client';
+          headerCompany = (req as any).sender_company?.name;
+        } else if (isSender) {
+          // B (Sender/Client) sees A (Worker) details
+          headerContact = req.created_user_data?.name || (req as any).receiver_company?.name || 'Worker';
+          headerCompany = (req as any).receiver_company?.name;
+        }
+
+        if (headerContact && headerCompany && headerContact === headerCompany) {
+          headerCompany = undefined;
+        }
+      } else if (req.type === 'outsourced') {
         if (isSender) {
           const contactName = req.contact_person?.name;
           const creatorName = (typeof req.created_user === 'object' ? (req.created_user as any)?.name : undefined) || req.created_user_data?.name;
@@ -365,6 +382,7 @@ export function RequirementsPage() {
   const [isQuotationOpen, setIsQuotationOpen] = useState(false);
   const [isRejectOpen, setIsRejectOpen] = useState(false);
   const [isMappingOpen, setIsMappingOpen] = useState(false);
+  const [isClientAcceptOpen, setIsClientAcceptOpen] = useState(false);
   const [pendingReqId, setPendingReqId] = useState<number | null>(null);
 
   const { mutate: deleteRequirement } = useDeleteRequirement();
@@ -765,7 +783,7 @@ export function RequirementsPage() {
       if (req.isSender) {
         // Partner B (Sender in client work context) accepts and maps
         if (req.rawStatus === 'Waiting') {
-          setIsMappingOpen(true);
+          setIsClientAcceptOpen(true);
           return;
         }
       }
@@ -1085,27 +1103,6 @@ export function RequirementsPage() {
         onOpenChange={setIsMappingOpen}
         onConfirm={(workspace_id) => {
           if (!pendingReqId) return;
-          const req = requirements.find(r => r.id === pendingReqId);
-          const isClientWork = ['client', 'Client work', 'Client Work'].includes(req?.type || '');
-
-          if (isClientWork) {
-            approveRequirementMutation.mutate({
-              requirement_id: pendingReqId,
-              status: 'Assigned',
-              workspace_id: workspace_id
-            }, {
-              onSuccess: () => {
-                messageApi.success("Requirement accepted and workspace mapped!");
-                setIsMappingOpen(false);
-                setPendingReqId(null);
-              },
-              onError: (err: unknown) => {
-                messageApi.error(getErrorMessage(err, "Failed to accept requirement"));
-              }
-            });
-            return;
-          }
-
           updateRequirementMutation.mutate({
             id: pendingReqId,
             workspace_id: allRequirements.find(r => r.id === pendingReqId)?.workspace_id || 0, // Required field
@@ -1120,6 +1117,29 @@ export function RequirementsPage() {
           });
         }}
         workspaces={workspacesData?.result?.workspaces?.map((w: { id: number; name: string }) => ({ id: w.id, name: w.name })) || []}
+      />
+
+      <ClientAcceptModal
+        open={isClientAcceptOpen}
+        onClose={() => {
+          setIsClientAcceptOpen(false);
+          setPendingReqId(null);
+        }}
+        onConfirm={async (workspaceId) => {
+          if (!pendingReqId) return;
+          await approveRequirementMutation.mutateAsync({
+            requirement_id: pendingReqId,
+            status: 'Assigned',
+            workspace_id: workspaceId
+          });
+          messageApi.success("Requirement accepted and workspace mapped!");
+        }}
+        workspaces={workspacesData?.result?.workspaces?.map((w: any) => ({ id: w.id, name: w.name })) || []}
+        quotedPrice={requirements.find(r => r.id === pendingReqId)?.quoted_price ?? undefined}
+        currency={requirements.find(r => r.id === pendingReqId)?.currency ?? undefined}
+        requirementName={requirements.find(r => r.id === pendingReqId)?.title ?? undefined}
+        creatorName={requirements.find(r => r.id === pendingReqId)?.headerContact ?? undefined}
+        loading={approveRequirementMutation.isPending}
       />
     </PageLayout>
   );
