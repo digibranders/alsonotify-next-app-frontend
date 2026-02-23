@@ -24,7 +24,7 @@ export const TASK_STATUSES = [
  *
  * Workflow stages:
  * - Normal Flow: Assigned → In_Progress → Review → Completed
- * - Blocking: Stuck, Impediment
+ * - Blocking:
  * - Scheduling: Delayed
  */
 export type TaskStatus = (typeof TASK_STATUSES)[number];

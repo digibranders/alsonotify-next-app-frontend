@@ -386,7 +386,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
       const baseStatus = normalizeBackendStatus(t.status || 'Assigned');
       const isDelayedByTime = isTimeOverdue;
       // Only override to 'Delayed' when the task is genuinely idle (Assigned/In_Progress).
-      // Never mask Review, Stuck, Impediment or Completed — those are meaningful workflow states.
+      // Never mask Review or Completed — those are meaningful workflow states.
       const OVERRIDABLE_BY_TIME: readonly ITaskStatus[] = ['Assigned', 'In_Progress'];
       const uiStatus: ITaskStatus =
         isDelayedByTime && OVERRIDABLE_BY_TIME.includes(baseStatus)

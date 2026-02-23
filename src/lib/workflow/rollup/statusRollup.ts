@@ -74,7 +74,6 @@ export function aggregateMemberStatuses(members: readonly TaskMemberInfo[]): Tas
  * 3. In_Progress - If any task is in progress
  * 4. Assigned - Default (no work started)
  *
- * Note: Stuck/Impediment at task level does NOT change requirement status.
  * The requirement stays at its current progress level.
  *
  * @param tasks - Array of tasks with their statuses and revision flags
