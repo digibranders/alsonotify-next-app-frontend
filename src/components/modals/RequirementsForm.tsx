@@ -2,13 +2,15 @@ import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import dayjs from '@/utils/dayjs';
 import { formatDateForApi, getTodayForApi } from '@/utils/date';
-import { Input, DatePicker, Checkbox, App, Button, Modal, Select } from 'antd';
+import { Input, DatePicker, Checkbox, App, Button, Modal, Select, Space } from 'antd';
 import { Upload as UploadIcon, FileText, ChevronDown } from 'lucide-react';
 import { useEmployeesDropdown } from '@/hooks/useUser';
 import { getOutsourcedContacts } from '@/services/user';
 import { FormLayout } from '@/components/common/FormLayout';
 import { trimStr } from '@/utils/trim';
 import { WorkspaceForm } from './WorkspaceForm';
+import { useCurrentUserCompany } from '@/hooks/useUser';
+import { currencies } from '@/utils/currencyUtils';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -103,6 +105,7 @@ function RequirementsFormContent({
     // useEmployeesDropdown fetches /user/user-dropdown with limit=1000 — same hook as TasksPage
     // useEmployees fetches /user? (paginated) with complex DTO mapping that can yield empty results
     const { data: employeesDropdownData, isLoading: isLoadingEmployees } = useEmployeesDropdown();
+    const { data: companyData } = useCurrentUserCompany();
     const { message } = App.useApp();
 
     // employeesDropdownData is already { id: number; name: string }[] via the hook's select transform
@@ -118,11 +121,22 @@ function RequirementsFormContent({
                 ...defaultFormData,
                 ...initialData,
                 contact_person_id: initialData.contact_person_id ?? undefined,
-                workspace: initialData.workspace ?? undefined
+                workspace: initialData.workspace ?? undefined,
+                currency: initialData.currency || 'USD'
             };
         }
-        return defaultFormData;
+        return {
+            ...defaultFormData,
+            currency: companyData?.result?.currency || 'USD'
+        };
     });
+
+    // Update currency when company data loads for new forms
+    useEffect(() => {
+        if (!initialData && companyData?.result?.currency && !formData.currency) {
+            setFormData(prev => ({ ...prev, currency: companyData.result.currency }));
+        }
+    }, [companyData, initialData, formData.currency]);
 
 
     const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -227,7 +241,7 @@ function RequirementsFormContent({
             sender_company_id: isClientWork ? senderCompanyId : undefined,
             budget: Number(formData.budget) || 0,
             quoted_price: isClientWork ? (Number(formData.quoted_price) || undefined) : undefined,
-            currency: formData.currency || 'USD',
+            currency: formData.currency,
             end_date: formData.dueDate ? formatDateForApi(formData.dueDate) : undefined,
             start_date: getTodayForApi(),
             status: isClientWork ? 'Waiting' : undefined,
@@ -240,7 +254,7 @@ function RequirementsFormContent({
         if (!payload) return;
         try {
             onSubmit(payload, selectedFiles);
-        } catch (err) {
+        } catch {
             message.error('Failed to save draft');
         }
     }, [buildPayload, onSubmit, selectedFiles, message, isLoading]);
@@ -255,7 +269,7 @@ function RequirementsFormContent({
         }
         try {
             onSubmitAndSend(payload, selectedFiles);
-        } catch (err) {
+        } catch {
             message.error('Failed to send requirement');
         }
     }, [buildPayload, onSubmit, onSubmitAndSend, selectedFiles, message, isLoading]);
@@ -454,13 +468,25 @@ function RequirementsFormContent({
                 {(formData.type === 'client') && (
                     <div className="space-y-1.5">
                         <span className="text-[0.8125rem] font-bold text-[#111111]">Quotation price</span>
-                        <Input
-                            type="number"
-                            placeholder="Enter quotation price"
-                            className="h-11 rounded-lg border border-[#EEEEEE]"
-                            value={formData.quoted_price}
-                            onChange={(e) => setFormData({ ...formData, quoted_price: e.target.value })}
-                        />
+                        <Space.Compact className="w-full">
+                            <Select
+                                value={formData.currency}
+                                onChange={(v) => setFormData({ ...formData, currency: v })}
+                                className="w-24 h-11"
+                                popupStyle={{ zIndex: 2000 }}
+                            >
+                                {currencies.map(c => (
+                                    <Option key={c} value={c}>{c}</Option>
+                                ))}
+                            </Select>
+                            <Input
+                                type="number"
+                                placeholder="0.00"
+                                className="h-11 border border-[#EEEEEE]"
+                                value={formData.quoted_price}
+                                onChange={(e) => setFormData({ ...formData, quoted_price: e.target.value })}
+                            />
+                        </Space.Compact>
                     </div>
                 )}
             </div>
@@ -525,8 +551,9 @@ function RequirementsFormContent({
             <WorkspaceForm
                 open={isWorkspaceCreateOpen}
                 onCancel={() => setIsWorkspaceCreateOpen(false)}
-                onSuccess={(data: any) => {
-                    const newWorkspaceId = data?.result?.id || data?.id;
+                onSuccess={(data: unknown) => {
+                    const typedData = data as { result?: { id?: number }; id?: number };
+                    const newWorkspaceId = typedData?.result?.id || typedData?.id;
                     if (newWorkspaceId) {
                         setFormData(prev => ({ ...prev, workspace: String(newWorkspaceId) }));
                     }

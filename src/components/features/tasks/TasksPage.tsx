@@ -1102,7 +1102,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
           </button>
 
           <div className="text-center text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">
-            Progress
+            Elapsed
           </div>
 
           <button

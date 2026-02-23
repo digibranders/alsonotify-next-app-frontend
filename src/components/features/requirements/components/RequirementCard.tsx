@@ -292,7 +292,9 @@ export function RequirementCard({
           <span className="px-1.5 py-0.5 rounded text-[0.5625rem] font-medium bg-[#F5F5F5] text-[#666666] uppercase border border-[#EEEEEE] tracking-wide whitespace-nowrap">
             {requirement.type === 'outsourced'
               ? (requirement.isReceiver ? 'client work' : 'outsourced')
-              : (['client', 'Client work', 'Client Work'].includes(requirement.type || '') ? 'client work' : 'inhouse')}
+              : (['client', 'Client work', 'Client Work'].includes(requirement.type || '')
+                ? (requirement.isSender ? 'outsourced' : 'client work')
+                : 'inhouse')}
           </span>
 
           {/* Contact Person Name - only show if available */}
@@ -465,8 +467,8 @@ export function RequirementCard({
                     const { modal } = ctaConfig.primaryAction!;
                     if (modal === 'edit') {
                       onEdit?.();
-                    } else if (modal === 'quotation' || modal === 'mapping' || modal === 'none') {
-                      // quotation, mapping, and none (direct API) all use onAccept
+                    } else if (modal === 'quotation' || modal === 'mapping' || modal === 'none' || modal === 'client_accept') {
+                      // quotation, mapping, client_accept and none (direct API) all use onAccept
                       onAccept?.();
                     }
                   }}

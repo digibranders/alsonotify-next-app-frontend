@@ -121,6 +121,7 @@ export interface SubmitForReviewRequestDto {
 export interface ApproveRequirementRequestDto {
   requirement_id: number;
   status: 'Assigned' | 'Rejected' | 'Completed' | 'Revision';
+  workspace_id?: number;
   rejection_reason?: string | null;
   approval_remark?: string | null;
   approval_rating?: number | null;

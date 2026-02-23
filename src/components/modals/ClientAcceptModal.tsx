@@ -87,7 +87,7 @@ export function ClientAcceptModal({
           <Card
             className="bg-[#F9F9F9] border-[#EEEEEE]"
             size="small"
-            bordered
+            variant="outlined"
           >
             <div className="space-y-3">
               <div>

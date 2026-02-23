@@ -8,7 +8,7 @@ import { DateRangeSelector } from '../../common/DateRangeSelector';
 
 import { PaginationBar } from '../../ui/PaginationBar';
 import { App } from 'antd';
-import { useWorkspaces, useCreateRequirement, useUpdateRequirement, useDeleteRequirement, useAllRequirements, useCollaborativeRequirements } from '@/hooks/useWorkspace';
+import { useWorkspaces, useCreateRequirement, useUpdateRequirement, useDeleteRequirement, useAllRequirements, useCollaborativeRequirements, useApproveRequirement } from '@/hooks/useWorkspace';
 import { useUserDetails, usePartners, useCompanyDepartments } from '@/hooks/useUser';
 import { fileService } from '@/services/file.service';
 import { format } from 'date-fns';
@@ -19,6 +19,7 @@ import { Dayjs } from 'dayjs';
 
 
 import { RequirementsForm } from '../../modals/RequirementsForm';
+import { ClientAcceptModal } from '../../modals/ClientAcceptModal';
 import { QuotationDialog, RejectDialog, InternalMappingModal } from './components/dialogs';
 import { RequirementsList } from './components/RequirementsList';
 import { SortByDropdown } from './components/SortByDropdown';
@@ -49,6 +50,7 @@ export function RequirementsPage() {
 
   const createRequirementMutation = useCreateRequirement();
   const updateRequirementMutation = useUpdateRequirement();
+  const approveRequirementMutation = useApproveRequirement();
 
   const { data: workspacesData, isLoading: isLoadingWorkspaces } = useWorkspaces('limit=1000');
   const { data: userData } = useUserDetails();
@@ -240,7 +242,23 @@ export function RequirementsPage() {
       let headerContact: string | undefined;
       let headerCompany: string | undefined;
 
-      if (req.type === 'outsourced') {
+      const isClientWork = ['client', 'Client work', 'Client Work'].includes(req.type || '');
+
+      if (isClientWork) {
+        if (isReceiver) {
+          // A (Receiver/Worker) sees B (Client) details
+          headerContact = req.contact_person?.name || (req as any).sender_company?.name || 'Client';
+          headerCompany = (req as any).sender_company?.name;
+        } else if (isSender) {
+          // B (Sender/Client) sees A (Worker) details
+          headerContact = req.created_user_data?.name || (req as any).receiver_company?.name || 'Worker';
+          headerCompany = (req as any).receiver_company?.name;
+        }
+
+        if (headerContact && headerCompany && headerContact === headerCompany) {
+          headerCompany = undefined;
+        }
+      } else if (req.type === 'outsourced') {
         if (isSender) {
           const contactName = req.contact_person?.name;
           const creatorName = (typeof req.created_user === 'object' ? (req.created_user as any)?.name : undefined) || req.created_user_data?.name;
@@ -364,6 +382,7 @@ export function RequirementsPage() {
   const [isQuotationOpen, setIsQuotationOpen] = useState(false);
   const [isRejectOpen, setIsRejectOpen] = useState(false);
   const [isMappingOpen, setIsMappingOpen] = useState(false);
+  const [isClientAcceptOpen, setIsClientAcceptOpen] = useState(false);
   const [pendingReqId, setPendingReqId] = useState<number | null>(null);
 
   const { mutate: deleteRequirement } = useDeleteRequirement();
@@ -536,6 +555,15 @@ export function RequirementsPage() {
           return;
         }
         const reqId = response.result.id;
+
+        // Skip immediate status update for client work to avoid 'Invalid transition' error.
+        // Client work is created with 'Waiting' status by the backend when requested by frontend.
+        if (data.type === 'client') {
+          messageApi.success("Client work logged successfully");
+          setIsDialogOpen(false);
+          return;
+        }
+
         updateRequirementMutation.mutate(
           { id: reqId, workspace_id: data.workspace_id, status: targetStatus } as UpdateRequirementRequestDto,
           {
@@ -749,6 +777,23 @@ export function RequirementsPage() {
     }
 
     // Intelligent routing based on requirement type, status, and user role
+    const isClientWork = ['client', 'Client work', 'Client Work'].includes(req.type || '');
+
+    if (isClientWork) {
+      if (req.isSender) {
+        // Partner B (Sender in client work context) accepts and maps
+        if (req.rawStatus === 'Waiting') {
+          setIsClientAcceptOpen(true);
+          return;
+        }
+      }
+      if (req.isReceiver) {
+        // Creator A (Receiver in client work context) - wait for B
+        messageApi.info("Awaiting client acceptance.");
+        return;
+      }
+    }
+
     if (req.type === 'outsourced') {
       // RECEIVER ACTIONS (Company B - Vendor)
       if (req.isReceiver) {
@@ -1072,6 +1117,29 @@ export function RequirementsPage() {
           });
         }}
         workspaces={workspacesData?.result?.workspaces?.map((w: { id: number; name: string }) => ({ id: w.id, name: w.name })) || []}
+      />
+
+      <ClientAcceptModal
+        open={isClientAcceptOpen}
+        onClose={() => {
+          setIsClientAcceptOpen(false);
+          setPendingReqId(null);
+        }}
+        onConfirm={async (workspaceId) => {
+          if (!pendingReqId) return;
+          await approveRequirementMutation.mutateAsync({
+            requirement_id: pendingReqId,
+            status: 'Assigned',
+            workspace_id: workspaceId
+          });
+          messageApi.success("Requirement accepted and workspace mapped!");
+        }}
+        workspaces={workspacesData?.result?.workspaces?.map((w: any) => ({ id: w.id, name: w.name })) || []}
+        quotedPrice={requirements.find(r => r.id === pendingReqId)?.quoted_price ?? undefined}
+        currency={requirements.find(r => r.id === pendingReqId)?.currency ?? undefined}
+        requirementName={requirements.find(r => r.id === pendingReqId)?.title ?? undefined}
+        creatorName={requirements.find(r => r.id === pendingReqId)?.headerContact ?? undefined}
+        loading={approveRequirementMutation.isPending}
       />
     </PageLayout>
   );
