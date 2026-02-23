@@ -78,7 +78,7 @@ export default function UpgradeToOrgModal({ visible, onCancel, currentUser }: Up
       <Form layout="vertical" form={form} onFinish={onFinish}>
         <Form.Item
           name="companyName"
-          label="Company Name"
+          label={<span className="text-[0.8125rem] font-bold">Company Name <span className="text-[#ff3b3b]">*</span></span>}
           rules={[{ required: true, message: "Please enter company name" }]}
         >
           <Input placeholder="Enter company name" />
@@ -86,7 +86,7 @@ export default function UpgradeToOrgModal({ visible, onCancel, currentUser }: Up
 
         <Form.Item
           name="businessType"
-          label="Business Type"
+          label={<span className="text-[0.8125rem] font-bold">Business Type <span className="text-[#ff3b3b]">*</span></span>}
           rules={[{ required: true, message: "Select business type" }]}
         >
           <Select placeholder="Select business type" showSearch>
@@ -101,7 +101,7 @@ export default function UpgradeToOrgModal({ visible, onCancel, currentUser }: Up
         <div className="grid grid-cols-2 gap-4">
           <Form.Item
             name="country"
-            label="Country"
+            label={<span className="text-[0.8125rem] font-bold">Country <span className="text-[#ff3b3b]">*</span></span>}
             rules={[{ required: true, message: "Select country" }]}
           >
             <Select showSearch placeholder="Select country" optionFilterProp="children">
@@ -115,7 +115,7 @@ export default function UpgradeToOrgModal({ visible, onCancel, currentUser }: Up
 
           <Form.Item
             name="timezone"
-            label="Timezone"
+            label={<span className="text-[0.8125rem] font-bold">Timezone <span className="text-[#ff3b3b]">*</span></span>}
             rules={[{ required: true, message: "Select timezone" }]}
           >
             <Select showSearch placeholder="Select timezone">

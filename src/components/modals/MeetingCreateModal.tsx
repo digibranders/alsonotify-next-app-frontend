@@ -174,7 +174,7 @@ export function MeetingCreateModal({
         <div className="space-y-5">
           <div className="space-y-2">
             <span className="text-[0.8125rem] font-bold text-[#111111]">
-              <span className="text-[#ff3b3b]">*</span> Title
+              Title <span className="text-[#ff3b3b]">*</span>
             </span>
             <Input
               placeholder="Event title"
@@ -186,7 +186,7 @@ export function MeetingCreateModal({
 
           <div className="space-y-2">
             <span className="text-[0.8125rem] font-bold text-[#111111]">
-              <span className="text-[#ff3b3b]">*</span> Start Date & Time
+              Start Date & Time <span className="text-[#ff3b3b]">*</span>
             </span>
             <DatePicker
               showTime
@@ -202,7 +202,7 @@ export function MeetingCreateModal({
 
           <div className="space-y-2">
             <span className="text-[0.8125rem] font-bold text-[#111111]">
-              <span className="text-[#ff3b3b]">*</span> End Time
+              End Time <span className="text-[#ff3b3b]">*</span>
             </span>
             <div className="flex items-center gap-3">
               <Select
