@@ -465,8 +465,8 @@ export function RequirementCard({
                     const { modal } = ctaConfig.primaryAction!;
                     if (modal === 'edit') {
                       onEdit?.();
-                    } else if (modal === 'quotation' || modal === 'mapping' || modal === 'none') {
-                      // quotation, mapping, and none (direct API) all use onAccept
+                    } else if (modal === 'quotation' || modal === 'mapping' || modal === 'none' || modal === 'client_accept') {
+                      // quotation, mapping, client_accept and none (direct API) all use onAccept
                       onAccept?.();
                     }
                   }}

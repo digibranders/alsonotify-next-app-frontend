@@ -8,7 +8,7 @@ import { DateRangeSelector } from '../../common/DateRangeSelector';
 
 import { PaginationBar } from '../../ui/PaginationBar';
 import { App } from 'antd';
-import { useWorkspaces, useCreateRequirement, useUpdateRequirement, useDeleteRequirement, useAllRequirements, useCollaborativeRequirements } from '@/hooks/useWorkspace';
+import { useWorkspaces, useCreateRequirement, useUpdateRequirement, useDeleteRequirement, useAllRequirements, useCollaborativeRequirements, useApproveRequirement } from '@/hooks/useWorkspace';
 import { useUserDetails, usePartners, useCompanyDepartments } from '@/hooks/useUser';
 import { fileService } from '@/services/file.service';
 import { format } from 'date-fns';
@@ -49,6 +49,7 @@ export function RequirementsPage() {
 
   const createRequirementMutation = useCreateRequirement();
   const updateRequirementMutation = useUpdateRequirement();
+  const approveRequirementMutation = useApproveRequirement();
 
   const { data: workspacesData, isLoading: isLoadingWorkspaces } = useWorkspaces('limit=1000');
   const { data: userData } = useUserDetails();
@@ -536,6 +537,15 @@ export function RequirementsPage() {
           return;
         }
         const reqId = response.result.id;
+
+        // Skip immediate status update for client work to avoid 'Invalid transition' error.
+        // Client work is created with 'Waiting' status by the backend when requested by frontend.
+        if (data.type === 'client') {
+          messageApi.success("Client work logged successfully");
+          setIsDialogOpen(false);
+          return;
+        }
+
         updateRequirementMutation.mutate(
           { id: reqId, workspace_id: data.workspace_id, status: targetStatus } as UpdateRequirementRequestDto,
           {
@@ -749,6 +759,23 @@ export function RequirementsPage() {
     }
 
     // Intelligent routing based on requirement type, status, and user role
+    const isClientWork = ['client', 'Client work', 'Client Work'].includes(req.type || '');
+
+    if (isClientWork) {
+      if (req.isSender) {
+        // Partner B (Sender in client work context) accepts and maps
+        if (req.rawStatus === 'Waiting') {
+          setIsMappingOpen(true);
+          return;
+        }
+      }
+      if (req.isReceiver) {
+        // Creator A (Receiver in client work context) - wait for B
+        messageApi.info("Awaiting client acceptance.");
+        return;
+      }
+    }
+
     if (req.type === 'outsourced') {
       // RECEIVER ACTIONS (Company B - Vendor)
       if (req.isReceiver) {
@@ -1058,6 +1085,27 @@ export function RequirementsPage() {
         onOpenChange={setIsMappingOpen}
         onConfirm={(workspace_id) => {
           if (!pendingReqId) return;
+          const req = requirements.find(r => r.id === pendingReqId);
+          const isClientWork = ['client', 'Client work', 'Client Work'].includes(req?.type || '');
+
+          if (isClientWork) {
+            approveRequirementMutation.mutate({
+              requirement_id: pendingReqId,
+              status: 'Assigned',
+              workspace_id: workspace_id
+            }, {
+              onSuccess: () => {
+                messageApi.success("Requirement accepted and workspace mapped!");
+                setIsMappingOpen(false);
+                setPendingReqId(null);
+              },
+              onError: (err: unknown) => {
+                messageApi.error(getErrorMessage(err, "Failed to accept requirement"));
+              }
+            });
+            return;
+          }
+
           updateRequirementMutation.mutate({
             id: pendingReqId,
             workspace_id: allRequirements.find(r => r.id === pendingReqId)?.workspace_id || 0, // Required field
