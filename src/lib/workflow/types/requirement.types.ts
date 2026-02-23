@@ -63,6 +63,16 @@ export interface RequirementFlags {
 export type UserRole = 'sender' | 'receiver' | 'internal';
 
 /**
+ * RequirementType - The category/type of a requirement.
+ *
+ * - inhouse: Internal requirement within the same company
+ * - outsourced: Requirement sent to an external partner/vendor
+ * - client: Client work requirement where company does work for a client
+ */
+export type RequirementType = 'inhouse' | 'outsourced' | 'client';
+
+
+/**
  * ActionType - Categories of actions that can be performed on a requirement.
  */
 export type ActionType = 'primary' | 'secondary' | 'danger' | 'info';

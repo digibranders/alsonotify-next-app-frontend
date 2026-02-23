@@ -130,15 +130,33 @@ export function TaskForm({
     };
   });
 
-  // Filter requirements based on selected workspace
+  // Filter requirements based on selected workspace.
+  // IMPORTANT: Always include the currently-selected requirement (if any) so that
+  // an already-linked requirement is never hidden when editing a task.
   const filteredRequirements = useMemo(() => {
-    if (!formData.workspace_id) return [];
+    const selectedReqId = formData.requirement_id ? parseInt(formData.requirement_id) : null;
+
+    // If no workspace selected, only show the already-selected requirement (if any)
+    if (!formData.workspace_id) {
+      if (!selectedReqId) return [];
+      return requirements.filter((req) => req.id === selectedReqId);
+    }
+
     const workspaceIdNum = parseInt(formData.workspace_id);
-    return requirements.filter((req) => {
+    const filtered = requirements.filter((req) => {
       // Match if requirement's workspace_id or receiver_workspace_id matches selected workspace
       return req.workspace_id === workspaceIdNum || req.receiver_workspace_id === workspaceIdNum;
     });
-  }, [formData.workspace_id, requirements]);
+
+    // Safety net for edit mode: ensure the currently-selected requirement is always present
+    // in the list even if the workspace filter does not include it (e.g. collaborative/outsourced reqs)
+    if (selectedReqId && !filtered.some((r) => r.id === selectedReqId)) {
+      const selectedReq = requirements.find((r) => r.id === selectedReqId);
+      if (selectedReq) return [...filtered, selectedReq];
+    }
+
+    return filtered;
+  }, [formData.workspace_id, formData.requirement_id, requirements]);
 
   const handleSubmit = async () => {
     // Validate required fields
@@ -340,7 +358,7 @@ export function TaskForm({
                 requirement_id: String(val)
               }));
             }}
-            disabled={disabledFields.requirement || !formData.workspace_id}
+            disabled={disabledFields.requirement || (!formData.workspace_id && !formData.requirement_id)}
             suffixIcon={<div className="text-gray-400">⌄</div>}
             allowClear
             onClear={() => setFormData(prev => ({ ...prev, requirement_id: "" }))}

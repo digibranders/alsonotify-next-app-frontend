@@ -142,7 +142,7 @@ export const useWorkspaceRequirementsDropdown = (workspaceId?: number) => {
       if (workspaceId) {
         workspaces = [{ id: workspaceId }];
       } else {
-        const wsResponse = await getWorkspace("");
+        const wsResponse = await getWorkspace("limit=1000");
         workspaces = wsResponse.result?.workspaces || [];
       }
 
