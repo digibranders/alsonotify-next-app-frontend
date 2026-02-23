@@ -22,7 +22,6 @@ import { RequirementsForm } from '../../modals/RequirementsForm';
 import { ClientAcceptModal } from '../../modals/ClientAcceptModal';
 import { QuotationDialog, RejectDialog, InternalMappingModal } from './components/dialogs';
 import { RequirementsList } from './components/RequirementsList';
-import { SortByDropdown } from './components/SortByDropdown';
 
 import { Requirement, Workspace, RequirementType } from '@/types/domain';
 import { RequirementDto, CreateRequirementRequestDto, UpdateRequirementRequestDto } from '@/types/dto/requirement.dto';
@@ -242,6 +241,7 @@ export function RequirementsPage() {
       let headerContact: string | undefined;
       let headerCompany: string | undefined;
 
+      const creatorName = (typeof req.created_user === 'object' ? (req.created_user as any)?.name : undefined) || req.created_user_data?.name;
       const isClientWork = ['client', 'Client work', 'Client Work'].includes(req.type || '');
 
       if (isClientWork) {
@@ -251,7 +251,7 @@ export function RequirementsPage() {
           headerCompany = (req as any).sender_company?.name;
         } else if (isSender) {
           // B (Sender/Client) sees A (Worker) details
-          headerContact = req.created_user_data?.name || (req as any).receiver_company?.name || 'Worker';
+          headerContact = creatorName || req.contact_person?.name || (req as any).receiver_company?.name || 'Worker';
           headerCompany = (req as any).receiver_company?.name;
         }
 
@@ -261,7 +261,6 @@ export function RequirementsPage() {
       } else if (req.type === 'outsourced') {
         if (isSender) {
           const contactName = req.contact_person?.name;
-          const creatorName = (typeof req.created_user === 'object' ? (req.created_user as any)?.name : undefined) || req.created_user_data?.name;
           const receiverCompanyName = (req as any).receiver_company?.name;
 
           const isContactExternal = !!contactName && !!creatorName && contactName !== creatorName;
@@ -274,8 +273,7 @@ export function RequirementsPage() {
             headerCompany = undefined;
           }
         } else if (isReceiver) {
-          headerContact = req.created_user_data?.name ||
-            (typeof req.created_user === 'object' ? (req.created_user as any)?.name : undefined) ||
+          headerContact = creatorName ||
             req.contact_person?.name ||
             (req as any).sender_company?.name ||
             'Sender';
@@ -293,8 +291,7 @@ export function RequirementsPage() {
         }
       } else {
         if (isReceiver && (req as any).sender_company) {
-          headerContact = req.created_user_data?.name ||
-            (typeof req.created_user === 'object' ? (req.created_user as any)?.name : undefined) ||
+          headerContact = creatorName ||
             req.contact_person?.name ||
             (req as any).sender_company?.name ||
             'Sender';
@@ -387,8 +384,6 @@ export function RequirementsPage() {
 
   const { mutate: deleteRequirement } = useDeleteRequirement();
 
-  const [sortColumn, setSortColumn] = useState<string | null>(null);
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingReq, setEditingReq] = useState<Requirement | undefined>(undefined);
@@ -609,63 +604,6 @@ export function RequirementsPage() {
   // The 'requirements' array contains the server-provided data for the current tab and filters.
   // Delayed status
 
-  // 3. Apply Sorting
-  const sortedRequirements = useMemo(() => {
-    const list = [...requirements];
-
-    if (sortColumn) {
-      list.sort((a, b) => {
-        let aVal: string | number = '';
-        let bVal: string | number = '';
-
-        switch (sortColumn) {
-          case 'title':
-            aVal = (a.title || '').toLowerCase();
-            bVal = (b.title || '').toLowerCase();
-            break;
-          case 'timeline':
-            // Use end_date/dueDate for sorting timeline
-            aVal = a.dueDate && a.dueDate !== 'TBD' ? new Date(a.dueDate).getTime() : 0;
-            bVal = b.dueDate && b.dueDate !== 'TBD' ? new Date(b.dueDate).getTime() : 0;
-            break;
-          case 'budget':
-            aVal = a.quoted_price || a.estimated_cost || a.budget || 0;
-            bVal = b.quoted_price || b.estimated_cost || b.budget || 0;
-            break;
-          case 'progress':
-            aVal = a.progress || 0;
-            bVal = b.progress || 0;
-            break;
-          case 'status':
-            aVal = a.status || '';
-            bVal = b.status || '';
-            break;
-          default:
-            // Sort key not in typed union; narrow when requirement DTO is extended.
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            aVal = (a as any)[sortColumn];
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            bVal = (b as any)[sortColumn];
-        }
-
-        if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
-        if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
-        return 0;
-      });
-    }
-
-    return list;
-  }, [requirements, sortColumn, sortDirection]);
-
-  const handleSort = (column: string) => {
-    if (sortColumn === column) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortColumn(column);
-      setSortDirection('asc');
-    }
-    setCurrentPage(1);
-  };
 
 
   // Get unique partners for filter options
@@ -993,12 +931,6 @@ export function RequirementsPage() {
           searchPlaceholder="Search requirements..."
           searchValue={searchQuery}
           onSearchChange={setSearchQuery}
-          extraContent={
-            <SortByDropdown
-              value={sortColumn}
-              onChange={handleSort}
-            />
-          }
         />
       </div>
 
@@ -1006,7 +938,7 @@ export function RequirementsPage() {
         <div className="flex-1 overflow-y-auto pb-6">
           <RequirementsList
             isLoading={isLoading}
-            requirements={sortedRequirements}
+            requirements={requirements}
             currentUser={currentUser}
             userRole={userRole}
             activeStatusTab={activeStatusTab}
