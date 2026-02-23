@@ -14,7 +14,7 @@ import { useTimer } from '@/context/TimerContext';
 
 import { useTasks, useCreateTask, useDeleteTask, useUpdateTask, useUpdateTaskStatus } from '@/hooks/useTask';
 import { useWorkspaces, useWorkspaceRequirementsDropdown } from '@/hooks/useWorkspace';
-import { useEmployeesDropdown, useUserDetails, useCurrentUserCompany } from '@/hooks/useUser';
+import { useEmployeesDropdown, useUserDetails, useCurrentUserCompany, useSearchPartners } from '@/hooks/useUser';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useTimezone } from '@/hooks/useTimezone';
 import { getTaskStatusUI, TASK_STATUSES } from '@/lib/workflow';
@@ -117,6 +117,8 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
   // but react-query handles this fine. To be safe/clean, let's use the props.
   // Transforming props to memoized data:
   const usersDropdown = useMemo(() => usersDropdownData || [], [usersDropdownData]);
+  const { data: partnersResponse } = useSearchPartners();
+  const partnersDropdown = useMemo(() => partnersResponse || [], [partnersResponse]);
 
   const { data: requirementsDropdownData } = useWorkspaceRequirementsDropdown();
   const requirementsDropdown = useMemo(() => requirementsDropdownData || [], [requirementsDropdownData]);
@@ -228,9 +230,13 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
 
     // Add filters
     if (filters.user !== 'All') {
-      const selectedUser = usersDropdown.find(u => u.name === filters.user);
-      if (selectedUser?.id) {
-        params.member_id = selectedUser.id;
+      const selectedNames = filters.user.split(',').filter(Boolean);
+      const selectedIds = selectedNames
+        .map(name => usersDropdown.find(u => u.name === name)?.id)
+        .filter((id): id is number => id !== undefined);
+
+      if (selectedIds.length > 0) {
+        params.member_id = selectedIds.join(',');
       }
     }
     if (filters.workspace !== 'All') {
@@ -247,6 +253,12 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
         params.requirement_id = selectedReq.id;
       }
     }
+    if (filters.company !== 'All') {
+      const selectedPartner = partnersDropdown.find(p => p.label === filters.company);
+      if (selectedPartner?.value) {
+        params.sender_company_id = selectedPartner.value;
+      }
+    }
 
     if (searchQuery) {
       params.name = searchQuery;
@@ -258,7 +270,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
     }
 
     return toQueryParams(params);
-  }, [pagination.limit, pagination.skip, filters, searchQuery, dateRange, workspacesData, usersDropdown, requirementsDropdown, activeTab]);
+  }, [pagination.limit, pagination.skip, filters, searchQuery, dateRange, workspacesData, usersDropdown, requirementsDropdown, activeTab, partnersDropdown]);
 
   // Build query params for STATS (without status filter to get global counts)
   const statsQueryParams = useMemo(() => {
@@ -268,9 +280,13 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
     };
 
     if (filters.user !== 'All') {
-      const selectedUser = usersDropdown.find(u => u.name === filters.user);
-      if (selectedUser?.id) {
-        params.member_id = selectedUser.id;
+      const selectedNames = filters.user.split(',').filter(Boolean);
+      const selectedIds = selectedNames
+        .map(name => usersDropdown.find(u => u.name === name)?.id)
+        .filter((id): id is number => id !== undefined);
+
+      if (selectedIds.length > 0) {
+        params.member_id = selectedIds.join(',');
       }
     }
     if (filters.workspace !== 'All') {
@@ -287,6 +303,12 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
         params.requirement_id = selectedReq.id;
       }
     }
+    if (filters.company !== 'All') {
+      const selectedPartner = partnersDropdown.find(p => p.label === filters.company);
+      if (selectedPartner?.value) {
+        params.sender_company_id = selectedPartner.value;
+      }
+    }
     if (searchQuery) {
       params.name = searchQuery;
     }
@@ -296,7 +318,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
     }
 
     return toQueryParams(params);
-  }, [filters.workspace, filters.user, filters.requirement, searchQuery, dateRange, workspacesData, usersDropdown, requirementsDropdown]);
+  }, [filters.workspace, filters.user, filters.requirement, filters.company, searchQuery, dateRange, workspacesData, usersDropdown, requirementsDropdown, partnersDropdown]);
 
   // Fetch tasks with query params
   const { data: tasksData, isLoading } = useTasks(queryParams);
@@ -490,9 +512,8 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
   }, [usersDropdown]);
 
   const companies = useMemo(() => {
-    const companyNames = tasks.map(t => t.client).filter((name): name is string => typeof name === 'string' && name !== 'In-House');
-    return ['All', ...Array.from(new Set(companyNames))];
-  }, [tasks]);
+    return ['All', ...partnersDropdown.map(p => p.label).sort()];
+  }, [partnersDropdown]);
 
   const workspaces = useMemo(() => {
     if (!workspacesData?.result?.workspaces) return ['All'];
@@ -715,11 +736,8 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
   // Workspace filtering is now done server-side via query params
   // Client-side filtering is now minimal (mostly for things backend doesn't handle yet)
   const filteredTasks = useMemo(() => {
-    return tasks.filter(task => {
-      const matchesCompany = filters.company === 'All' || task.client === filters.company;
-      return matchesCompany;
-    });
-  }, [tasks, filters]);
+    return tasks;
+  }, [tasks]);
 
   const sortedTasks = useMemo(() => {
     const sorted = [...filteredTasks];
