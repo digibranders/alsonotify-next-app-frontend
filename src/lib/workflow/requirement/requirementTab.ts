@@ -93,7 +93,11 @@ export function getRequirementTab(
     return getOutsourcedTab(workflowStatus, role, context);
   }
 
-  // Inhouse/Client logic (client is treated same as inhouse)
+  if (type === 'client') {
+    return getClientWorkTab(workflowStatus, role, context);
+  }
+
+  // Inhouse logic
   return getInhouseTab(workflowStatus, context);
 }
 
@@ -174,6 +178,31 @@ function getRejectedTab(role: UserRole, context: TabContext): Tab {
   // Receiver or internal is viewing
   // Always show in pending - either needs to revise quote or waiting for sender
   return 'pending';
+}
+
+/**
+ * Determines tab for client work requirements.
+ *
+ * Client Work Tab Rules:
+ * - Waiting → pending (B needs to accept quote)
+ * - Rejected → pending (negotiation needed)
+ * - Assigned with workspace_id null (B hasn't mapped yet) → pending
+ * - Assigned with workspace_id set (both mapped) → active
+ * - In_Progress, Review, Revision → active
+ */
+function getClientWorkTab(status: WorkflowStatus, role: UserRole, context: TabContext): Tab {
+  // Quote flow: B needs to accept
+  if (status === 'Waiting' || status === 'Rejected') {
+    return 'pending';
+  }
+
+  // Assigned: pending until B has mapped their workspace (workspace_id set)
+  if (status === 'Assigned' && !context.isWorkspaceMapped) {
+    return 'pending';
+  }
+
+  // Active work states
+  return 'active';
 }
 
 /**

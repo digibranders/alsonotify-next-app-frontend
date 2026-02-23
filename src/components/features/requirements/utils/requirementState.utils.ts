@@ -91,7 +91,14 @@ export function mapRequirementToContext(
   currentUserId?: number,
   role?: UserRole
 ): RequirementContext {
-  const isWorkspaceMapped = !!req.receiver_workspace_id;
+  const reqType = mapRequirementToType(req);
+
+  // For client work: "fully workspace mapped" means B's workspace_id is set
+  // For outsourced: "fully workspace mapped" means B's receiver_workspace_id is set
+  const isWorkspaceMapped = reqType === 'client'
+    ? !!req.workspace_id  // B's workspace (set at acceptance for client work)
+    : !!req.receiver_workspace_id; // B's workspace (set for outsourced)
+
   const hasQuotedPrice = !!req.quoted_price;
 
   // Determine rejection source: if updated_user matches currentUserId and role is sender,

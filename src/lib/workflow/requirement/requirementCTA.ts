@@ -45,12 +45,246 @@ export function getRequirementCTAConfig(
     return getInternalCTA(status, context);
   }
 
+  // Client work requirements - dedicated logic for client work sender/receiver
+  if (type === 'client') {
+    return getClientWorkCTA(status, role, context);
+  }
+
   // Outsourced requirements - role-based logic
   if (role === 'receiver') {
     return getReceiverCTA(status, context, type);
   }
 
   return getSenderCTA(status, context, type);
+}
+
+// =============================================================================
+// Client Work CTA Logic
+// =============================================================================
+
+/**
+ * Gets CTA configuration for client work requirements.
+ *
+ * Role semantics in client work:
+ * - role === 'receiver': This is A (the creator/worker)
+ * - role === 'sender': This is B (the client/contact person who pays)
+ */
+function getClientWorkCTA(
+  status: RequirementStatus,
+  role: UserRole,
+  context: RequirementContext
+): RequirementCTAConfig {
+  const tabContext: TabContext = { ...context };
+  const tab = getRequirementTab(status, 'client', role, tabContext);
+
+  // B (sender/client) perspective
+  if (role === 'sender') {
+    return getClientWorkSenderCTA(status, context, tab);
+  }
+
+  // A (receiver/worker) perspective
+  return getClientWorkReceiverCTA(status, context, tab);
+}
+
+/**
+ * Client Work CTAs for B (sender/client role).
+ * B needs to accept the quote (Waiting → Assigned) and map their workspace.
+ * After that, B reviews work and approves.
+ */
+function getClientWorkSenderCTA(
+  status: RequirementStatus,
+  context: RequirementContext,
+  tab: RequirementCTAConfig['tab']
+): RequirementCTAConfig {
+  switch (status) {
+    case 'Waiting':
+      return {
+        displayStatus: 'Action Needed: Review & Accept Quote',
+        isPending: true,
+        tab,
+        primaryAction: createAction('Accept & Map Workspace', 'primary', 'client_accept'),
+        secondaryAction: createAction('Decline', 'danger', 'reject'),
+      };
+
+    case 'Rejected':
+      return {
+        displayStatus: 'Client Work Declined',
+        isPending: true,
+        tab,
+      };
+
+    case 'Assigned':
+      if (!context.isWorkspaceMapped) {
+        return {
+          displayStatus: 'Awaiting Workspace Mapping...',
+          isPending: true,
+          tab,
+        };
+      }
+      return {
+        displayStatus: 'Work Assigned - In Progress',
+        isPending: false,
+        tab,
+      };
+
+    case 'In_Progress':
+      return {
+        displayStatus: 'Work In Progress...',
+        isPending: false,
+        tab,
+        secondaryAction: createAction('Pause', 'secondary', 'none', 'pause'),
+      };
+
+    case 'Review':
+      return {
+        displayStatus: 'Work Completed. Review Needed.',
+        isPending: true,
+        tab,
+        primaryAction: createAction('Approve Work', 'primary', 'approval'),
+        secondaryAction: createAction('Request Revision', 'danger', 'revision'),
+      };
+
+    case 'Revision':
+      return {
+        displayStatus: 'Revision In Progress...',
+        isPending: false,
+        tab,
+      };
+
+    case 'Completed':
+      return {
+        displayStatus: 'Completed',
+        isPending: false,
+        tab,
+        secondaryAction: createAction('Reopen', 'secondary', 'none', 'reopen'),
+      };
+
+    case 'On_Hold':
+      return {
+        displayStatus: 'On Hold',
+        isPending: false,
+        tab,
+        primaryAction: createAction('Resume', 'primary', 'none', 'resume'),
+      };
+
+    case 'Delayed':
+      return {
+        displayStatus: 'Delayed',
+        isPending: false,
+        tab,
+        primaryAction: createAction('Resume', 'primary', 'none', 'resume'),
+      };
+
+    case 'Draft':
+    case 'Submitted':
+      return {
+        displayStatus: 'Pending',
+        isPending: true,
+        tab,
+      };
+
+    default: {
+      const _exhaustive: never = status;
+      throw new Error(`Unhandled status for client work sender: ${_exhaustive}`);
+    }
+  }
+}
+
+/**
+ * Client Work CTAs for A (receiver/worker role).
+ * A already mapped workspace at creation. No "Map Workspace" CTA needed.
+ * A starts from Assigned and follows normal worker transitions.
+ */
+function getClientWorkReceiverCTA(
+  status: RequirementStatus,
+  context: RequirementContext,
+  tab: RequirementCTAConfig['tab']
+): RequirementCTAConfig {
+  switch (status) {
+    case 'Waiting':
+      return {
+        displayStatus: 'Quote Sent. Awaiting Client Acceptance...',
+        isPending: true,
+        tab,
+      };
+
+    case 'Rejected':
+      return {
+        displayStatus: 'Client Declined',
+        isPending: true,
+        tab,
+      };
+
+    case 'Assigned':
+      // A already mapped their workspace at creation; no mapping CTA needed
+      return {
+        displayStatus: 'Ready to Start',
+        isPending: false,
+        tab,
+        primaryAction: createAction('Start Work', 'primary', 'none', 'start_work'),
+      };
+
+    case 'In_Progress':
+      return {
+        displayStatus: 'Work In Progress',
+        isPending: false,
+        tab,
+        primaryAction: createAction('Submit for Approval', 'primary', 'submit_approval'),
+        secondaryAction: createAction('Mark Blocked', 'danger', 'none', 'mark_blocked'),
+      };
+
+    case 'Review':
+      return {
+        displayStatus: 'Work Submitted. Pending Review...',
+        isPending: true,
+        tab,
+        secondaryAction: createAction('Pull Back', 'secondary', 'none', 'pull_back'),
+      };
+
+    case 'Revision':
+      return {
+        displayStatus: 'Revision Requested',
+        isPending: false,
+        tab,
+        primaryAction: createAction('Resubmit Work', 'primary', 'none', 'resubmit'),
+      };
+
+    case 'Completed':
+      return {
+        displayStatus: 'Completed',
+        isPending: false,
+        tab,
+      };
+
+    case 'On_Hold':
+      return {
+        displayStatus: 'On Hold',
+        isPending: false,
+        tab,
+        primaryAction: createAction('Resume Work', 'primary', 'none', 'resume'),
+      };
+
+    case 'Delayed':
+      return {
+        displayStatus: 'Delayed',
+        isPending: false,
+        tab,
+        primaryAction: createAction('Resume Work', 'primary', 'none', 'resume'),
+      };
+
+    case 'Draft':
+    case 'Submitted':
+      return {
+        displayStatus: 'Pending',
+        isPending: true,
+        tab,
+      };
+
+    default: {
+      const _exhaustive: never = status;
+      throw new Error(`Unhandled status for client work receiver: ${_exhaustive}`);
+    }
+  }
 }
 
 // =============================================================================

@@ -230,7 +230,7 @@ function RequirementsFormContent({
             currency: formData.currency || 'USD',
             end_date: formData.dueDate ? formatDateForApi(formData.dueDate) : undefined,
             start_date: getTodayForApi(),
-            status: isClientWork ? 'Submitted' : undefined,
+            status: isClientWork ? 'Waiting' : undefined,
         };
     }, [formData, outsourcedContacts, message]);
 
@@ -271,7 +271,7 @@ function RequirementsFormContent({
             >
                 Cancel
             </Button>
-            {!isEditing && (
+            {!isEditing && formData.type !== 'client' && (
                 <Button
                     type="default"
                     onClick={onSaveDraft}
@@ -390,7 +390,9 @@ function RequirementsFormContent({
                 {/* Removed Partner Company selection */}
 
                 <div className="space-y-1.5" id="contact-person-selection">
-                    <span className="text-[0.8125rem] font-bold text-[#111111]">Contact Person <span className="text-[#ff3b3b]">*</span></span>
+                    <span className="text-[0.8125rem] font-bold text-[#111111]">
+                        {formData.type === 'client' ? 'Client Contact Person' : 'Contact Person'} <span className="text-[#ff3b3b]">*</span>
+                    </span>
                     <Select
                         showSearch
                         optionFilterProp="label"
