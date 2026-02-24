@@ -96,7 +96,7 @@ export function TaskForm({
 
     // 3. Resolve Leader ID (Current user or preserved)
     // Note: handleSubmit overrides this with currentUserId anyway
-    const leaderId = currentUserId || base.leader_id;
+    const leaderId = base.leader_id || currentUserId;
 
     // 4. Resolve Assigned Members
     // If editing: use existing assigned_members or fallback to member_id
@@ -204,10 +204,10 @@ export function TaskForm({
       name: trimStr(formData.name),
       workspace_id: formData.workspace_id ? parseInt(formData.workspace_id) : undefined,
       requirement_id: formData.requirement_id ? parseInt(formData.requirement_id) : undefined,
-      leader_id: parseInt(currentUserId),
+      leader_id: formData.leader_id ? parseInt(formData.leader_id) : parseInt(currentUserId),
       end_date: formData.end_date ? formatDateForApi(formData.end_date) : undefined,
       start_date: formData.start_date ? formatDateForApi(formData.start_date) : getTodayForApi(),
-      estimated_time: (formData.estimated_time && isCurrentUserAssigned) ? parseFloat(formData.estimated_time) : 0,
+      estimated_time: (formData.estimated_time !== "" && formData.estimated_time !== undefined && isCurrentUserAssigned) ? parseFloat(formData.estimated_time) : undefined,
       is_high_priority: formData.is_high_priority,
       description: trimStr(formData.description) || "",
       execution_mode: formData.execution_mode,
