@@ -554,7 +554,8 @@ export function PartnersPageContent() {
         return () => {
             setExpandedContent(null);
         };
-    }, [selectedPartners, handleBulkExportToCSV, handleBulkDeactivate, setExpandedContent]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectedPartners, setExpandedContent]);
 
     return (
         <PageLayout

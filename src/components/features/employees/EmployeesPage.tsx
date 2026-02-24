@@ -1058,7 +1058,7 @@ export function EmployeesPage() {
     return () => {
       setExpandedContent(null);
     };
-  }, [selectedEmployees, showAccessDropdown, showDepartmentDropdown, uniqueDepts, handleExportToCSV, setExpandedContent]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [selectedEmployees, showAccessDropdown, showDepartmentDropdown, uniqueDepts, setExpandedContent]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <PageLayout

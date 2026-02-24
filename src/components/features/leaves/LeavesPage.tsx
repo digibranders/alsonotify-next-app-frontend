@@ -232,7 +232,8 @@ export function LeavesPage() {
       setExpandedContent(null);
     }
     return () => { setExpandedContent(null); };
-  }, [selectedLeaves, canApprove, handleBulkApprove, handleBulkReject, setExpandedContent]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedLeaves, canApprove, setExpandedContent]);
 
   const handleApplyLeave = async (values: ApplyLeaveFormValues) => {
     await applyLeaveMutation.mutateAsync({

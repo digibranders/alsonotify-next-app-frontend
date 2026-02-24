@@ -1,6 +1,6 @@
 
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
-import { ArrowUp, ArrowDown, CheckSquare, Trash2 } from 'lucide-react';
+import { ArrowUp, ArrowDown, Trash2 } from 'lucide-react';
 import { PageLayout } from '../../layout/PageLayout';
 import { PaginationBar } from '../../ui/PaginationBar';
 import { FilterBar, FilterOption } from '../../ui/FilterBar';
@@ -708,23 +708,6 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
     });
   }, [selectedTasks, deleteTaskMutation]);
 
-  /**
-   * Handles bulk completion of selected tasks.
-   * Updates status to 'Completed' for all selected items concurrently.
-   */
-  const handleBulkComplete = useCallback(async () => {
-    try {
-      await Promise.all(
-        selectedTasks.map(id =>
-          updateTaskStatusMutation.mutateAsync({ id: Number.parseInt(id), status: 'Completed' })
-        )
-      );
-      messageRef.current.success(`${selectedTasks.length} tasks marked as completed`);
-      setSelectedTasks([]);
-    } catch (error) {
-      messageRef.current.error('Failed to complete some tasks');
-    }
-  }, [selectedTasks, updateTaskStatusMutation]);
 
   // Get total count from API response
   const totalTasks = useMemo(() => {
@@ -867,15 +850,6 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
           </div>
 
           <div className="flex items-center gap-2">
-            <Tooltip title="Mark as Completed">
-              <button
-                onClick={handleBulkComplete}
-                className="p-2 hover:bg-white/10 rounded-full transition-colors"
-              >
-                <CheckSquare className="w-4 h-4" />
-              </button>
-            </Tooltip>
-
             <Tooltip title="Delete">
               <button
                 onClick={handleBulkDelete}
@@ -898,7 +872,8 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
     return () => {
       setExpandedContent(null);
     };
-  }, [selectedTasks, handleBulkComplete, handleBulkDelete, setExpandedContent]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedTasks, setExpandedContent]);
 
   const toggleSelect = useCallback((id: string) => {
     if (selectedTasks.includes(id)) {
