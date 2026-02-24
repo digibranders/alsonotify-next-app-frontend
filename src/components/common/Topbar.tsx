@@ -116,17 +116,8 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
   // Form States
 
 
-  // Get greeting based on local time - client side only
-  const [greeting, setGreeting] = useState(() => getGreeting());
+  const [greeting] = useState(() => getGreeting());
 
-  useEffect(() => {
-    // Already initialized in useState, but keep interval for updates
-    const interval = setInterval(() => {
-      setGreeting(getGreeting());
-    }, 60000);
-
-    return () => clearInterval(interval);
-  }, []);
 
   // Removed localUser state and localStorage sync to prevent PII exposure
   // We now rely entirely on React Query state which is hydrated from the API
