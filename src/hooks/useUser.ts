@@ -17,6 +17,7 @@ import {
   upsertRole,
   getRolePermissions,
   updateRolePermissions,
+  searchEmployees,
   // updatePassword,
 } from "../services/user";
 import { UserDto, RoleDto, CreateEmployeeRequestDto, UpdateEmployeeRequestDto, UpdateUserProfileRequestDto } from "../types/dto/user.dto";
@@ -60,16 +61,12 @@ export const useSearchPartners = (search?: string) => {
 export const useEmployeesDropdown = (search?: string) => {
   return useQuery({
     queryKey: queryKeys.users.employees('dropdown', search),
-    queryFn: async () => {
-      // We import searchEmployees dynamically or assume it's available.
-      // Based on file read, searchEmployees IS in services/user.ts
-      const { searchEmployees } = await import('../services/user');
-      return searchEmployees(search || "limit=1000");
-    },
+    queryFn: () => searchEmployees(search),
     staleTime: 5 * 60 * 1000, // 5 minutes
     select: (data) => (data.result || []).map((item: any) => ({
-      id: item.value,
-      name: item.label
+      id: item.id ?? item.value,
+      name: item.name || item.label || item.first_name || `User #${item.id ?? item.value}`,
+      profile_pic: item.profile_pic || item.profile_image
     }))
   });
 };

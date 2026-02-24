@@ -337,10 +337,10 @@ export function TaskForm({
             }}
             disabled={disabledFields.workspace}
             suffixIcon={<Building2 className="w-4 h-4 text-[#999999]" />}
-            showSearch={{
-              filterOption: (input, option) =>
-                String(option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-            }}
+            showSearch
+            filterOption={(input, option) =>
+              String(option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+            }
           >
             {workspaces.length > 0 ? (
               workspaces.map((ws) => (
@@ -378,10 +378,10 @@ export function TaskForm({
             suffixIcon={<div className="text-gray-400">⌄</div>}
             allowClear
             onClear={() => setFormData(prev => ({ ...prev, requirement_id: "" }))}
-            showSearch={{
-              filterOption: (input, option) =>
-                String(option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-            }}
+            showSearch
+            filterOption={(input, option) =>
+              String(option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+            }
           >
             {filteredRequirements.length > 0 ? (
               filteredRequirements.map((req) => (
@@ -438,11 +438,10 @@ export function TaskForm({
             onChange={(val) => val && addMember(parseInt(val))}
             suffixIcon={null}
             styles={{ popup: { root: { borderRadius: '8px', padding: '8px' } } }}
-            showSearch={{
-              filterOption: (input, option) => {
-                const label = String(option?.label ?? '').toLowerCase();
-                return label.includes(input.toLowerCase());
-              }
+            showSearch
+            filterOption={(input, option) => {
+              const label = String(option?.label ?? '').toLowerCase();
+              return label.includes(input.toLowerCase());
             }}
           >
             {sortedUsers
@@ -461,7 +460,7 @@ export function TaskForm({
           <div className="space-y-2">
             <Reorder.Group axis="y" values={formData.assigned_members} onReorder={handleReorder}>
               {formData.assigned_members.map((memberId, index) => {
-                const user = users.find(u => u.id === memberId);
+                const user = sortedUsers.find(u => u.id === memberId);
                 if (!user) return null;
                 const isSequential = formData.execution_mode === 'sequential';
 
