@@ -8,17 +8,17 @@ import {
 import { Checkbox, Button, App, Input, Modal } from 'antd';
 import { Skeleton } from '../../ui/Skeleton';
 import { useWorkspace, useRequirements, useUpdateRequirement, useWorkspaces } from '@/hooks/useWorkspace';
-import { useTasks, useRequestRevision, useCreateTask } from '@/hooks/useTask';
+import { useTasks, useRequestRevision, useCreateTask, useUpdateTask } from '@/hooks/useTask';
 import { TaskForm } from '../../modals/TaskForm';
-import { CreateTaskRequestDto } from '@/types/dto/task.dto';
+import { CreateTaskRequestDto, UpdateTaskRequestDto } from '@/types/dto/task.dto';
 import { getErrorMessage } from '@/types/api-utils';
-import { useEmployees, usePartners, useCurrentUserCompany } from '@/hooks/useUser';
+import { useEmployees, useEmployeesDropdown, usePartners, useCurrentUserCompany } from '@/hooks/useUser';
 import { useRequirementActivities } from '@/hooks/useRequirementActivity';
 import { useAuth } from '@/hooks/useAuth';
 import { format } from 'date-fns';
 import { getTodayForApi } from '@/utils/date';
 import { TaskRow } from '@/components/features/tasks/rows/TaskRow';
-import { Requirement, Task, Employee } from '@/types/domain';
+import { Requirement, Task } from '@/types/domain';
 import {
   getRequirementCTAConfig,
   type RequirementStatus,
@@ -52,11 +52,14 @@ export function RequirementDetailsPage() {
   const { data: requirementsData, isLoading: isLoadingRequirements } = useRequirements(workspaceId);
   const { data: tasksData } = useTasks(`workspace_id=${workspaceId}`);
   const createTaskMutation = useCreateTask();
+  const updateTaskMutation = useUpdateTask();
 
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
 
 
   const { data: employeesData } = useEmployees();
+  const { data: employeesDropdownData } = useEmployeesDropdown();
   const { data: companyData } = useCurrentUserCompany();
   const { user } = useAuth();
 
@@ -71,10 +74,9 @@ export function RequirementDetailsPage() {
     validTabs: ['details', 'tasks', 'gantt', 'kanban', 'pnl', 'documents']
   });
   const [selectedTasks, setSelectedTasks] = useState<string[]>([]);
-  const [ganttView, setGanttView] = useState<'day' | 'week' | 'month'>('week');
 
   const { mutateAsync: updateRequirement } = useUpdateRequirement();
-  const { data: workspacesData, isLoading: isLoadingWorkspaces } = useWorkspaces('limit=1000');
+  const { data: workspacesData } = useWorkspaces('limit=1000');
   const { data: partnersData } = usePartners();
   const { mutate: requestRevision } = useRequestRevision();
 
@@ -440,6 +442,10 @@ export function RequirementDetailsPage() {
                               setSelectedTasks([...selectedTasks, String(task.id)]);
                             }
                           }}
+                          onEdit={() => {
+                            setEditingTask(task);
+                            setIsTaskModalOpen(true);
+                          }}
                           onStatusChange={() => { }}
                           hideRequirements={true}
                           onRequestRevision={getRoleFromUser(user) !== 'Employee' ? () => {
@@ -554,7 +560,7 @@ export function RequirementDetailsPage() {
 
       <Modal
         open={isTaskModalOpen}
-        onCancel={() => setIsTaskModalOpen(false)}
+        onCancel={() => { setIsTaskModalOpen(false); setEditingTask(null); }}
         footer={null}
         width="min(600px, 95vw)"
         centered
@@ -568,8 +574,22 @@ export function RequirementDetailsPage() {
         }}
       >
         <TaskForm
-          isEditing={false}
-          initialData={{
+          key={editingTask ? `edit-${editingTask.id}` : `new-task`}
+          isEditing={!!editingTask}
+          canEditDueDate={userRole?.toLowerCase() === 'admin' || userRole?.toLowerCase() === 'coordinator'}
+          initialData={editingTask ? {
+            name: editingTask.name || '',
+            workspace_id: editingTask.workspace_id ? String(editingTask.workspace_id) : String(workspaceId),
+            requirement_id: editingTask.requirement_id ? String(editingTask.requirement_id) : String(reqId),
+            assigned_members: editingTask.task_members?.map(m => m.user?.id || m.user_id) || [],
+            execution_mode: editingTask.execution_mode || 'parallel',
+            member_id: editingTask.member_id ? String(editingTask.member_id) : '',
+            leader_id: editingTask.leader_id ? String(editingTask.leader_id) : '',
+            end_date: editingTask.end_date || '',
+            estimated_time: (editingTask as unknown as Record<string, unknown>).estimated_time ? String((editingTask as unknown as Record<string, unknown>).estimated_time) : '',
+            is_high_priority: editingTask.is_high_priority || false,
+            description: editingTask.description || '',
+          } : {
             name: '',
             workspace_id: String(workspaceId),
             requirement_id: String(reqId),
@@ -596,13 +616,25 @@ export function RequirementDetailsPage() {
             receiver_workspace_id: r.receiver_workspace_id || null,
             receiver_company_id: r.receiver_company_id || null
           })) : []}
-          users={employeesData?.result ? (employeesData.result as Employee[]).map((u: Employee) => ({
-            id: u.user_id || u.id || 0,
-            name: u.name || 'Unknown User',
-            profile_pic: u.profile_pic || undefined
-          })) : []}
-          onCancel={() => setIsTaskModalOpen(false)}
+          users={employeesDropdownData || []}
+          onCancel={() => { setIsTaskModalOpen(false); setEditingTask(null); }}
           onSubmit={(data: CreateTaskRequestDto) => {
+            if (editingTask) {
+              return updateTaskMutation.mutateAsync({
+                id: Number(editingTask.id),
+                ...data,
+              } as UpdateTaskRequestDto, {
+                onSuccess: () => {
+                  message.success("Task updated successfully!");
+                  setIsTaskModalOpen(false);
+                  setEditingTask(null);
+                },
+                onError: (error) => {
+                  message.error(getErrorMessage(error, "Failed to update task"));
+                }
+              });
+            }
+
             const assignedMembers = data.assigned_members || [];
             const payload: CreateTaskRequestDto = {
               name: data.name,
@@ -626,6 +658,7 @@ export function RequirementDetailsPage() {
               onSuccess: () => {
                 message.success("Task created successfully!");
                 setIsTaskModalOpen(false);
+                setEditingTask(null);
               },
               onError: (error) => {
                 const errorMessage = getErrorMessage(error, "Failed to create task");
