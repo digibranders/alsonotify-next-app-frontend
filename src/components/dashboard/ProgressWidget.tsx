@@ -406,8 +406,7 @@ function HoursBar({ data, onClick }: HoursBarProps) {
 
   return (
     <div
-      className="group bg-[#fafafa] rounded-[14px] border border-gray-100 p-3 hover:shadow-md hover:border-[#ff3b3b]/15 transition-all duration-300 cursor-pointer"
-      onClick={onClick}
+      className="bg-[#fafafa] rounded-[14px] border border-gray-100 p-3 hover:shadow-md hover:border-[#ff3b3b]/15 transition-all duration-300"
     >
       <div className="flex items-center gap-3">
         {/* Label Section */}
@@ -442,8 +441,14 @@ function HoursBar({ data, onClick }: HoursBarProps) {
         </div>
 
         {/* Arrow Icon */}
-        <div className="w-6 h-6 rounded-full bg-white border border-gray-100 flex items-center justify-center group-hover:bg-[#ff3b3b] group-hover:border-[#ff3b3b] transition-all duration-300 shrink-0">
-          <ArrowRight className="w-3 h-3 text-gray-400 group-hover:text-white transition-colors duration-300" />
+        <div
+          onClick={(e) => {
+            e.stopPropagation();
+            if (onClick) onClick();
+          }}
+          className="group/arrow w-6 h-6 rounded-full bg-white border border-gray-100 flex items-center justify-center hover:bg-[#ff3b3b] hover:border-[#ff3b3b] transition-all duration-300 shrink-0 cursor-pointer"
+        >
+          <ArrowRight className="w-3 h-3 text-gray-400 group-hover/arrow:text-white transition-colors duration-300" />
         </div>
       </div>
     </div>
@@ -513,14 +518,19 @@ function ProgressCard({ title, data, isLoading = false, dateRangeLabel = 'this p
 
   return (
     <div
-      className="group relative flex flex-col bg-white rounded-[20px] border border-gray-100 p-4 hover:shadow-lg hover:border-[#ff3b3b]/10 transition-all duration-300 cursor-pointer h-full min-h-[140px]"
-      onClick={onClick}
+      className="relative flex flex-col bg-white rounded-[20px] border border-gray-100 p-4 transition-all duration-300 h-full min-h-[140px]"
     >
       {/* Card Header */}
       <div className="flex items-center justify-between mb-3 z-10 shrink-0">
         <h4 className="font-semibold text-base text-[#111111]">{title}</h4>
-        <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-[#ff3b3b] transition-colors duration-300 shrink-0">
-          <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-white transition-colors duration-300" />
+        <div
+          onClick={(e) => {
+            e.stopPropagation();
+            if (onClick) onClick();
+          }}
+          className="group/arrow w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center hover:bg-[#ff3b3b] transition-colors duration-300 shrink-0 cursor-pointer"
+        >
+          <ArrowRight className="w-4 h-4 text-gray-400 group-hover/arrow:text-white transition-colors duration-300" />
         </div>
       </div>
 
