@@ -63,7 +63,7 @@ export function FilterBar({
   }
 
   return (
-    <div className="flex items-center gap-3 pb-4 border-b border-[#EEEEEE]">
+    <div className="flex items-center gap-3 pb-4 border-b border-[#EEEEEE] flex-wrap">
       {/* Filter Dropdowns */}
       {filters.map((filter) => {
         // Helper to get value and label from an option

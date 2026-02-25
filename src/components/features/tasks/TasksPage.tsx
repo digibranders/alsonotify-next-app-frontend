@@ -10,6 +10,7 @@ import { useFloatingMenu } from '../../../context/FloatingMenuContext';
 import { TaskForm } from '../../modals/TaskForm';
 import { TimerWarningModal } from '../../modals/TimerWarningModal';
 import { TaskRow } from './rows/TaskRow';
+import { MobileTaskCard } from './rows/MobileTaskCard';
 import { useTimer } from '@/context/TimerContext';
 
 import { useTasks, useCreateTask, useDeleteTask, useUpdateTask, useUpdateTaskStatus } from '@/hooks/useTask';
@@ -1034,8 +1035,8 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
 
       {/* Tasks List */}
       <div className="flex-1 overflow-y-auto relative">
-        {/* Table Header */}
-        <div className="sticky top-0 z-20 bg-white grid grid-cols-[40px_2.5fr_1.2fr_1fr_1fr_1fr_1.4fr_60px_40px] gap-4 px-4 py-3 mb-2 items-center">
+        {/* Table Header (Hidden on Mobile) */}
+        <div className="sticky top-0 z-20 bg-white hidden md:grid grid-cols-[40px_2.5fr_1.2fr_1fr_1fr_1fr_1.4fr_60px_40px] gap-4 px-4 py-3 mb-2 items-center">
           <div className="flex justify-center">
             <Checkbox
               checked={sortedTasks.length > 0 && selectedTasks.length === sortedTasks.length}
@@ -1130,24 +1131,47 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
               </div>
             ))
           ) : sortedTasks.map((task) => (
-            <TaskRow
-              key={task.id}
-              task={{
-                ...task,
-                status: task.status as TaskStatus
-              }}
-              selected={selectedTasks.includes(task.id)}
-              onSelect={() => toggleSelect(task.id)}
-              onEdit={() => handleEditTask(task)}
-              onDelete={() => handleDeleteTask(task.id)}
-              onStatusChange={
-                canChangeTaskStatus(task)
-                  ? (status) => updateTaskStatusMutation.mutate({ id: Number(task.id), status })
-                  : undefined  // ✅ FIX BUG #2: Disable status change if no permission
-              }
-              currentUserId={currentUserId ? Number(currentUserId) : undefined}
-              isAdmin={isAdmin}
-            />
+            <div key={task.id}>
+              {/* Mobile View */}
+              <MobileTaskCard
+                className="md:hidden"
+                task={{
+                  ...task,
+                  status: task.status as TaskStatus
+                }}
+                selected={selectedTasks.includes(task.id)}
+                onSelect={() => toggleSelect(task.id)}
+                onEdit={() => handleEditTask(task)}
+                onDelete={() => handleDeleteTask(task.id)}
+                onStatusChange={
+                  canChangeTaskStatus(task)
+                    ? (status) => updateTaskStatusMutation.mutate({ id: Number(task.id), status })
+                    : undefined
+                }
+                currentUserId={currentUserId ? Number(currentUserId) : undefined}
+                isAdmin={isAdmin}
+              />
+              {/* Desktop View */}
+              <div className="hidden md:block">
+                <TaskRow
+                  task={{
+                    ...task,
+                    status: task.status as TaskStatus
+                  }}
+                  selected={selectedTasks.includes(task.id)}
+                  onSelect={() => toggleSelect(task.id)}
+                  onEdit={() => handleEditTask(task)}
+                  onDelete={() => handleDeleteTask(task.id)}
+                  onStatusChange={
+                    canChangeTaskStatus(task)
+                      ? (status) => updateTaskStatusMutation.mutate({ id: Number(task.id), status })
+                      : undefined
+                  }
+                  currentUserId={currentUserId ? Number(currentUserId) : undefined}
+                  isAdmin={isAdmin}
+                />
+              </div>
+            </div>
           ))}
         </div>
 
