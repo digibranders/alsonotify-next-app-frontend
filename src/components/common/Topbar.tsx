@@ -415,23 +415,25 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
               )}
               {isLoadingUserDetails ? (
                 <>
-                  <Skeleton className="h-7 w-48 rounded-lg" />
-                  <Skeleton className="h-5 w-16 rounded-full" />
+                  <Skeleton className="h-7 w-48 rounded-lg hidden md:block" />
+                  <Skeleton className="h-5 w-16 rounded-full hidden md:block" />
                 </>
               ) : (
                 <>
-                  <p className="leading-[normal] text-xl whitespace-pre">
+                  <p className="leading-[normal] text-xl whitespace-pre hidden md:block">
                     <span className="font-normal">{`👋 ${greeting}! `}</span>
                     <span className="font-semibold">{firstName}</span>
                   </p>
-                  <AccessBadge role={mappedRole || userRole} color={roleColor} />
+                  <div className="hidden md:block">
+                    <AccessBadge role={mappedRole || userRole} color={roleColor} />
+                  </div>
                 </>
               )}
             </div>
           </div>
 
           {/* Right: CTAs, icons & profile section */}
-          <div className="flex flex-row gap-6 items-center">
+          <div className="flex flex-row gap-2 md:gap-6 items-center">
             {/* Add Button with Dropdown */}
             <Dropdown menu={{ items: addMenuItems }} placement="bottomRight" trigger={['click']}>
               <Button
@@ -455,7 +457,7 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
             {/* Feedback Toggle */}
             <button
               onClick={() => setShowFeedbackDialog(true)}
-              className="w-9 h-9 rounded-full bg-[#F7F7F7] hover:bg-[#EEEEEE] flex items-center justify-center transition-colors cursor-pointer"
+              className="hidden md:flex w-9 h-9 rounded-full bg-[#F7F7F7] hover:bg-[#EEEEEE] items-center justify-center transition-colors cursor-pointer"
               title="Give Feedback"
             >
               <svg
