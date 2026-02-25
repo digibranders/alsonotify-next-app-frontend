@@ -426,7 +426,13 @@ function HoursBar({ data, onClick }: HoursBarProps) {
         </div>
 
         {/* Stats Section */}
-        <div className="flex items-center gap-3 shrink-0">
+        <div
+          onClick={(e) => {
+            e.stopPropagation();
+            if (onClick) onClick();
+          }}
+          className="flex items-center gap-3 shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
+        >
           <div className="flex items-center gap-1">
             <span className="text-[0.625rem] text-[#888888] font-medium">Balance:</span>
             <span className={`text-xs font-bold ${isOverCapacity ? 'text-[#ff3b3b]' : 'text-[#111111]'}`}>
@@ -600,6 +606,11 @@ function ProgressCard({ title, data, isLoading = false, dateRangeLabel = 'this p
                           y={viewBox.cy}
                           textAnchor="middle"
                           dominantBaseline="middle"
+                          style={{ cursor: onClick ? 'pointer' : 'default' }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (onClick) onClick();
+                          }}
                         >
                           <tspan
                             x={viewBox.cx}
