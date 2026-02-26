@@ -138,7 +138,7 @@ export const useWorkspaceRequirementsDropdown = (workspaceId?: number) => {
       // 1. Fetch all workspaces dynamically to avoid hook dependency race condition
       const { getWorkspace, getRequirementsDropdownByWorkspaceId } = await import('../services/workspace');
 
-      let workspaces: { id: number }[] = [];
+      let workspaces: { id: number }[];
       if (workspaceId) {
         workspaces = [{ id: workspaceId }];
       } else {

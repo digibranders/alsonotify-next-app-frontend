@@ -81,6 +81,7 @@ export function DateRangeSelector({
 
         setCalendarOpen(false);
         const now = getDayjsInTimezone();
+        // eslint-disable-next-line no-useless-assignment
         let newRange: [Dayjs, Dayjs] | null = null;
 
         switch (type) {
