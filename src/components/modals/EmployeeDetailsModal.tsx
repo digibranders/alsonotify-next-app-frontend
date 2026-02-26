@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { Modal, Button, App } from 'antd';
 import { Briefcase, Mail, Phone, Calendar, DollarSign, Clock, CalendarDays, X, FileText, Users, Globe, ShieldAlert, Linkedin, Github } from 'lucide-react';
 import { AccessBadge } from '../ui/AccessBadge';
@@ -6,6 +6,10 @@ import { UserDocument } from '@/types/domain';
 import { Employee } from '@/types/domain';
 import { DocumentCard } from '@/components/ui/DocumentCard';
 import { DocumentPreviewModal } from '@/components/ui/DocumentPreviewModal';
+import { useQueryClient } from '@tanstack/react-query';
+import { useEmployee } from '@/hooks/useUser';
+import { fileService } from '@/services/file.service';
+import { queryKeys } from '@/lib/queryKeys';
 
 interface EmployeeDetailsModalProps {
   open: boolean;
@@ -21,42 +25,48 @@ export function EmployeeDetailsModal({
   onEdit,
 }: EmployeeDetailsModalProps) {
   const { message } = App.useApp();
+  const queryClient = useQueryClient();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadingDocType, setUploadingDocType] = useState<string | null>(null);
+
+  // Fetch fresh data if employee exists
+  const { data: employeeData } = useEmployee(employee?.id || 0);
+  const currentEmployee = employeeData?.result || employee;
+
   // Documents state
   const [selectedDocument, setSelectedDocument] = useState<UserDocument | null>(null);
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
 
   const documents = useMemo(() => {
-    return employee?.documents || [];
-  }, [employee]);
+    return currentEmployee?.documents || [];
+  }, [currentEmployee]);
 
-  if (!employee) return null;
-
-
+  if (!currentEmployee) return null;
 
   // Parse skillsets
-  const skills = employee.skillsets && employee.skillsets !== 'None'
-    ? employee.skillsets.split(',').map(s => s.trim()).filter(s => s.length > 0)
+  const skills = currentEmployee.skillsets && currentEmployee.skillsets !== 'None'
+    ? currentEmployee.skillsets.split(',').map(s => s.trim()).filter(s => s.length > 0)
     : [];
 
   // Format hourly rate
-  const hourlyRate = employee.hourly_rate && employee.hourly_rate !== 'N/A'
-    ? employee.hourly_rate
+  const hourlyRate = currentEmployee.hourly_rate && currentEmployee.hourly_rate !== 'N/A'
+    ? currentEmployee.hourly_rate
     : 'N/A';
 
   // Format experience
-  const experience = employee.experience ? `${employee.experience} Years` : 'N/A';
+  const experience = currentEmployee.experience ? `${currentEmployee.experience} Years` : 'N/A';
 
   // Format working hours
   const workingHours = (() => {
-    const wh = employee.working_hours;
+    const wh = currentEmployee.working_hours;
     if (wh && typeof wh === 'object' && 'start_time' in wh && 'end_time' in wh) {
       return `${wh.start_time} - ${wh.end_time}`;
     }
-    return (typeof employee.working_hours === 'number' || typeof employee.working_hours === 'string') ? `${employee.working_hours}h / week` : 'N/A';
+    return (typeof currentEmployee.working_hours === 'number' || typeof currentEmployee.working_hours === 'string') ? `${currentEmployee.working_hours}h / week` : 'N/A';
   })();
 
   // Format leaves
-  const leavesTaken = employee.leaves_count ? `${employee.leaves_count} Days` : '0 Days';
+  const leavesTaken = currentEmployee.leaves_count ? `${currentEmployee.leaves_count} Days` : '0 Days';
 
   const handleDocumentPreview = (document: UserDocument) => {
     setSelectedDocument(document);
@@ -72,7 +82,55 @@ export function EmployeeDetailsModal({
   };
 
   const handleDocumentUpload = (documentTypeId: string) => {
-    message.info(`Upload functionality for document type ${documentTypeId} - To be implemented`);
+    setUploadingDocType(documentTypeId);
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !uploadingDocType || !currentEmployee) return;
+
+    // Validate file size (20MB limit)
+    const maxSize = 20 * 1024 * 1024; // 20MB
+    if (file.size > maxSize) {
+      message.error(`File size must be less than 20MB. Selected file is ${(file.size / (1024 * 1024)).toFixed(1)}MB`);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+      return;
+    }
+
+    try {
+      message.loading({ content: 'Uploading document...', key: 'doc-upload' });
+
+      // Find the document type name from the list
+      const doc = documents.find(d => d.documentTypeId === uploadingDocType);
+      const docTypeName = doc?.documentTypeName || 'Supporting Docs'; // Fallback
+
+      await fileService.uploadEmployeeDocument(
+        file,
+        Number(currentEmployee.id),
+        docTypeName
+      );
+
+      message.success({ content: 'Document uploaded successfully!', key: 'doc-upload' });
+
+      // Refresh employee data
+      queryClient.invalidateQueries({ queryKey: queryKeys.users.detail(Number(currentEmployee.id)) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.users.employeesRoot() });
+
+    } catch (error) {
+      console.error(error);
+      message.error({ content: 'Failed to upload document.', key: 'doc-upload' });
+    } finally {
+      // Reset input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+      setUploadingDocType(null);
+    }
   };
 
   return (
@@ -97,25 +155,25 @@ export function EmployeeDetailsModal({
             <div className="flex items-center gap-3">
               <div className="w-11 h-11 rounded-full overflow-hidden border border-[#EEEEEE] bg-[#F7F7F7] flex-shrink-0">
                 <img
-                  src={employee.profile_pic || `https://ui-avatars.com/api/?name=${encodeURIComponent(employee.name)}&background=f7f7f7&color=666`}
-                  alt={employee.name}
+                  src={currentEmployee.profile_pic || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentEmployee.name)}&background=f7f7f7&color=666`}
+                  alt={currentEmployee.name}
                   className="w-full h-full object-cover"
                 />
               </div>
               <div>
                 <h2 className="text-lg font-bold text-[#111111] leading-tight">
-                  {employee.name}
+                  {currentEmployee.name}
                 </h2>
                 <div className="flex items-center gap-2 mt-0.5">
-                  <AccessBadge role={employee.access} color={employee.roleColor} />
+                  <AccessBadge role={currentEmployee.access} color={currentEmployee.roleColor} />
                   <span
-                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[0.5625rem] font-semibold ${employee.status === 'active'
+                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[0.5625rem] font-semibold ${currentEmployee.status === 'active'
                       ? 'bg-[#ECFDF3] text-[#12B76A]'
                       : 'bg-[#FEF3F2] text-[#F04438]'
                       }`}
                   >
                     <span className="w-1 h-1 rounded-full bg-current"></span>
-                    {employee.status === 'active' ? 'Active' : 'Inactive'}
+                    {currentEmployee.status === 'active' ? 'Active' : 'Inactive'}
                   </span>
                 </div>
               </div>
@@ -125,46 +183,46 @@ export function EmployeeDetailsModal({
               <Button
                 type="text"
                 icon={<Mail className="w-4 h-4 text-[#666666]" />}
-                onClick={() => window.location.href = `mailto:${employee.email}`}
+                onClick={() => window.location.href = `mailto:${currentEmployee.email}`}
                 className="hover:bg-[#F7F7F7] rounded-full w-8 h-8 flex items-center justify-center p-0"
-                aria-label={`Send email to ${employee.name}`}
+                aria-label={`Send email to ${currentEmployee.name}`}
               />
               <Button
                 type="text"
                 icon={<Phone className="w-4 h-4 text-[#666666]" />}
-                onClick={() => window.location.href = `tel:${employee.phone}`}
+                onClick={() => window.location.href = `tel:${currentEmployee.phone}`}
                 className="hover:bg-[#F7F7F7] rounded-full w-8 h-8 flex items-center justify-center p-0"
-                aria-label={`Call ${employee.name}`}
+                aria-label={`Call ${currentEmployee.name}`}
               />
 
-              {(employee.linkedin || employee.github || employee.portfolio) && (
+              {(currentEmployee.linkedin || currentEmployee.github || currentEmployee.portfolio) && (
                 <>
                   <div className="mx-1.5 w-[1px] h-4 bg-[#EEEEEE]"></div>
-                  {employee.linkedin && (
+                  {currentEmployee.linkedin && (
                     <Button
                       type="text"
                       icon={<Linkedin className="w-4 h-4 text-[#0077B5]" />}
-                      onClick={() => window.open((employee.linkedin || '').startsWith('http') ? (employee.linkedin || '') : `https://linkedin.com/in/${employee.linkedin}`, '_blank')}
+                      onClick={() => window.open((currentEmployee.linkedin || '').startsWith('http') ? (currentEmployee.linkedin || '') : `https://linkedin.com/in/${currentEmployee.linkedin}`, '_blank')}
                       className="hover:bg-[#F7F7F7] rounded-full w-8 h-8 flex items-center justify-center p-0"
-                      aria-label={`Visit ${employee.name}'s LinkedIn profile`}
+                      aria-label={`Visit ${currentEmployee.name}'s LinkedIn profile`}
                     />
                   )}
-                  {employee.github && (
+                  {currentEmployee.github && (
                     <Button
                       type="text"
                       icon={<Github className="w-4 h-4 text-[#111111]" />}
-                      onClick={() => window.open((employee.github || '').startsWith('http') ? (employee.github || '') : `https://github.com/${employee.github}`, '_blank')}
+                      onClick={() => window.open((currentEmployee.github || '').startsWith('http') ? (currentEmployee.github || '') : `https://github.com/${currentEmployee.github}`, '_blank')}
                       className="hover:bg-[#F7F7F7] rounded-full w-8 h-8 flex items-center justify-center p-0"
-                      aria-label={`Visit ${employee.name}'s GitHub profile`}
+                      aria-label={`Visit ${currentEmployee.name}'s GitHub profile`}
                     />
                   )}
-                  {employee.portfolio && (
+                  {currentEmployee.portfolio && (
                     <Button
                       type="text"
                       icon={<Globe className="w-4 h-4 text-[#666666]" />}
-                      onClick={() => window.open((employee.portfolio || '').startsWith('http') ? (employee.portfolio || '') : `https://${employee.portfolio}`, '_blank')}
+                      onClick={() => window.open((currentEmployee.portfolio || '').startsWith('http') ? (currentEmployee.portfolio || '') : `https://${currentEmployee.portfolio}`, '_blank')}
                       className="hover:bg-[#F7F7F7] rounded-full w-8 h-8 flex items-center justify-center p-0"
-                      aria-label={`Visit ${employee.name}'s portfolio`}
+                      aria-label={`Visit ${currentEmployee.name}'s portfolio`}
                     />
                   )}
                 </>
@@ -182,18 +240,18 @@ export function EmployeeDetailsModal({
               <h3 className="text-sm font-bold text-[#111111]">Basic Information</h3>
             </div>
             <div className="grid grid-cols-2 gap-y-5 gap-x-12 pl-3">
-              <DetailItem label="Email Address" value={employee.email} icon={<Mail className="w-3.5 h-3.5" />} />
-              <DetailItem label="Phone Number" value={employee.phone} icon={<Phone className="w-3.5 h-3.5" />} />
-              <DetailItem label="Department" value={employee.department} icon={<Users className="w-3.5 h-3.5" />} />
-              <DetailItem label="Designation" value={employee.role} icon={<Briefcase className="w-3.5 h-3.5" />} />
+              <DetailItem label="Email Address" value={currentEmployee.email} icon={<Mail className="w-3.5 h-3.5" />} />
+              <DetailItem label="Phone Number" value={currentEmployee.phone} icon={<Phone className="w-3.5 h-3.5" />} />
+              <DetailItem label="Department" value={currentEmployee.department} icon={<Users className="w-3.5 h-3.5" />} />
+              <DetailItem label="Designation" value={currentEmployee.role} icon={<Briefcase className="w-3.5 h-3.5" />} />
             </div>
-            {employee.bio && (
+            {currentEmployee.bio && (
               <div className="mt-5 pl-3">
                 <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wider mb-2">
                   Professional Bio
                 </p>
                 <p className="text-[0.8125rem] text-[#444444] leading-relaxed font-normal bg-[#F9FAFB] p-4 rounded-xl border border-[#EEEEEE]">
-                  {employee.bio}
+                  {currentEmployee.bio}
                 </p>
               </div>
             )}
@@ -204,7 +262,7 @@ export function EmployeeDetailsModal({
             <div className="flex items-center gap-2 mb-4">
               <div className="w-1 h-4 bg-[#111111] rounded-full"></div>
               <h3 className="text-sm font-bold text-[#111111]">Employment & HR Details</h3>
-              <div className="text-[0.8125rem] text-[#666666]">Leaves: <span className="text-[#111111] font-medium">{employee.leaves_count}</span></div>
+              <div className="text-[0.8125rem] text-[#666666]">Leaves: <span className="text-[#111111] font-medium">{currentEmployee.leaves_count}</span></div>
             </div>
             <div className="grid grid-cols-3 gap-4 mb-6 pl-3">
               <StatCard label="Experience" value={experience} icon={<Briefcase className="w-4 h-4 text-gray-400" />} />
@@ -212,17 +270,17 @@ export function EmployeeDetailsModal({
               <StatCard label="Working Hours" value={workingHours} icon={<Clock className="w-4 h-4 text-gray-400" />} />
             </div>
             <div className="grid grid-cols-2 gap-y-5 gap-x-12 pl-3">
-              <DetailItem label="Date of Joining" value={employee.formattedDateOfJoining || employee.date_of_joining || 'N/A'} icon={<Calendar className="w-3.5 h-3.5" />} />
-              <DetailItem label="Annual Salary" value={employee.salary ? `${employee.currency || '$'} ${Number(employee.salary).toLocaleString()}` : 'N/A'} icon={<DollarSign className="w-3.5 h-3.5" />} />
-              <DetailItem label="Hourly Cost" value={employee.hourly_rates ? `$${employee.hourly_rates}/Hr` : (hourlyRate || 'N/A')} icon={<DollarSign className="w-3.5 h-3.5" />} />
-              <DetailItem label="Employment Type" value={employee.employment_type || 'Full Time'} icon={<Briefcase className="w-3.5 h-3.5" />} />
-              {employee.timezone && (
-                <DetailItem label="Local Timezone" value={employee.timezone} icon={<Globe className="w-3.5 h-3.5" />} />
+              <DetailItem label="Date of Joining" value={currentEmployee.formattedDateOfJoining || currentEmployee.date_of_joining || 'N/A'} icon={<Calendar className="w-3.5 h-3.5" />} />
+              <DetailItem label="Annual Salary" value={currentEmployee.salary ? `${currentEmployee.currency || '$'} ${Number(currentEmployee.salary).toLocaleString()}` : 'N/A'} icon={<DollarSign className="w-3.5 h-3.5" />} />
+              <DetailItem label="Hourly Cost" value={currentEmployee.hourly_rates ? `$${currentEmployee.hourly_rates}/Hr` : (hourlyRate || 'N/A')} icon={<DollarSign className="w-3.5 h-3.5" />} />
+              <DetailItem label="Employment Type" value={currentEmployee.employment_type || 'Full Time'} icon={<Briefcase className="w-3.5 h-3.5" />} />
+              {currentEmployee.timezone && (
+                <DetailItem label="Local Timezone" value={currentEmployee.timezone} icon={<Globe className="w-3.5 h-3.5" />} />
               )}
             </div>
 
             {/* Emergency Contact Sub-section */}
-            {(employee.emergencyContactName || employee.emergencyContactPhone) && (
+            {(currentEmployee.emergencyContactName || currentEmployee.emergencyContactPhone) && (
               <div className="mt-6 ml-3 p-4 bg-[#FEF3F2] rounded-xl border border-[#FEE4E2] flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-[#F04438] shadow-sm">
@@ -230,12 +288,12 @@ export function EmployeeDetailsModal({
                   </div>
                   <div>
                     <p className="text-[0.6875rem] font-bold text-[#B42318] uppercase tracking-wider">Emergency Contact</p>
-                    <p className="text-sm font-semibold text-[#912018]">{employee.emergencyContactName || 'N/A'}</p>
+                    <p className="text-sm font-semibold text-[#912018]">{currentEmployee.emergencyContactName || 'N/A'}</p>
                   </div>
                 </div>
                 <div className="text-right">
                   <div className="text-[0.8125rem] text-[#666666] mb-1">Working Hours: <span className="text-[#111111] font-medium">{workingHours}</span></div>
-                  <p className="text-[0.8125rem] font-medium text-[#B42318]">{employee.emergencyContactPhone || '-'}</p>
+                  <p className="text-[0.8125rem] font-medium text-[#B42318]">{currentEmployee.emergencyContactPhone || '-'}</p>
                 </div>
               </div>
             )}
@@ -328,6 +386,14 @@ export function EmployeeDetailsModal({
           setSelectedDocument(null);
         }}
         document={selectedDocument}
+      />
+
+      <input
+        type="file"
+        ref={fileInputRef}
+        className="hidden"
+        onChange={handleFileChange}
+        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.csv,.xls,.xlsx"
       />
     </Modal>
   );
