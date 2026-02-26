@@ -32,6 +32,7 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useNotifications } from '@/hooks/useNotification';
+import { useIsNarrow } from '@/hooks/useBreakpoint';
 import type { NotificationTypeValue, NotificationMetadata } from '@/services/notification';
 import type { LucideIcon } from 'lucide-react';
 
@@ -340,6 +341,7 @@ export function NotificationPanel({
 }: NotificationPanelProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('all');
+  const isMobile = useIsNarrow('md');
 
   const { data: notificationsData, isLoading: isHookLoading } = useNotifications(activeTab);
 
@@ -378,7 +380,7 @@ export function NotificationPanel({
       onClose={onClose}
       placement="right"
       styles={{
-        wrapper: { width: 460 },
+        wrapper: { width: isMobile ? '100%' : 460 },
         body: { padding: 0, display: 'flex', flexDirection: 'column', height: '100%' },
         header: { display: 'none' },
       }}
@@ -394,14 +396,23 @@ export function NotificationPanel({
             </span>
           )}
         </div>
-        {notifications.length > 0 && (
+        <div className="flex items-center gap-4">
+          {notifications.length > 0 && (
+            <button
+              onClick={onMarkAllRead}
+              className="text-xs font-semibold text-[#999999] hover:text-[#ff3b3b] transition-colors"
+            >
+              Mark all read
+            </button>
+          )}
           <button
-            onClick={onMarkAllRead}
-            className="text-xs font-semibold text-[#999999] hover:text-[#ff3b3b] transition-colors"
+            onClick={onClose}
+            className="p-1 -mr-2 rounded-full hover:bg-gray-100 transition-colors text-gray-500"
+            aria-label="Close"
           >
-            Mark all read
+            <X className="w-5 h-5" />
           </button>
-        )}
+        </div>
       </div>
 
       {/* Tabs */}
