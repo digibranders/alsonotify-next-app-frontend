@@ -48,8 +48,11 @@ export function TaskActionPanel({ task, currentUser, onAction, onCompleteRequest
   }
 
   // LOGIC MATRIX
-  let canAct = false;
+  // eslint-disable-next-line no-useless-assignment
+  let canAct: boolean = false;
+  // eslint-disable-next-line no-useless-assignment
   let actionType: 'start' | 'complete' | null = null;
+  // eslint-disable-next-line no-useless-assignment
   let label = '';
   let subLabel = '';
   let Icon = PlayCircle;
@@ -74,7 +77,7 @@ export function TaskActionPanel({ task, currentUser, onAction, onCompleteRequest
       canAct = false;
       label = 'Waiting for Turn';
       const activeMember = task.task_members?.find(m => m.is_current_turn);
-      disabledReason = activeMember 
+      disabledReason = activeMember
         ? `Waiting for member #${activeMember.queue_order || '?'}` // Could use name if joined
         : 'Waiting for previous steps';
       Icon = Lock;
@@ -108,20 +111,19 @@ export function TaskActionPanel({ task, currentUser, onAction, onCompleteRequest
               onAction('start');
             }
           }}
-          className={`h-14 rounded-xl px-6 flex items-center gap-3 text-sm font-bold shadow-none transition-colors border-none ${
-             !canAct ? 'bg-gray-100 text-gray-400' :
-             actionType === 'start' ? 'bg-[#111111] hover:bg-black' : 
-             'bg-[#10B981] hover:bg-[#059669]'
-          }`}
+          className={`h-14 rounded-xl px-6 flex items-center gap-3 text-sm font-bold shadow-none transition-colors border-none ${!canAct ? 'bg-gray-100 text-gray-400' :
+            actionType === 'start' ? 'bg-[#111111] hover:bg-black' :
+              'bg-[#10B981] hover:bg-[#059669]'
+            }`}
         >
           {isLoading ? 'Updating...' : (
-             <>
-               <Icon className="w-5 h-5" />
-               {label}
-             </>
+            <>
+              <Icon className="w-5 h-5" />
+              {label}
+            </>
           )}
         </Button>
-        
+
         <div className="flex flex-col">
           <span className="text-[0.8125rem] font-bold text-[#111111]">
             {canAct ? 'Action Required' : 'Status'}

@@ -7,10 +7,10 @@ interface AccessBadgeProps {
 }
 
 export function AccessBadge({ role, color, className }: AccessBadgeProps) {
-  let textColor = "#666666";
-  let iconColor = "#666666";
-  let bgColor = "#F7F7F7";
-  let IconComponent = User;
+  let textColor: string;
+  let iconColor: string;
+  let bgColor: string;
+  let IconComponent: typeof User;
 
   // Use custom color if provided and not a core role with specific branding
   if (color && !["Admin", "Manager", "Leader", "Employee"].includes(role)) {

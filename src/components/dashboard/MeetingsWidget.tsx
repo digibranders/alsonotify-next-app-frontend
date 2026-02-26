@@ -75,6 +75,7 @@ export function MeetingsWidget({ onNavigate }: { onNavigate?: (page: string) => 
         const durationMinutes = endTime.diff(startTime, 'minute');
 
         // Format duration
+        // eslint-disable-next-line no-useless-assignment
         let duration = '';
         if (durationMinutes < 60) {
           duration = `${durationMinutes} mins`;

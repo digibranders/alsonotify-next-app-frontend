@@ -72,10 +72,10 @@ export const fileService = {
         });
 
         if (uploadError.message === 'Network Error') {
-          throw new Error('Upload blocked by browser or network. Please check: 1. CORS is configured on S3 bucket. 2. No ad-blockers/extensions are blocking the request.');
+          throw new Error('Upload blocked by browser or network. Please check: 1. CORS is configured on S3 bucket. 2. No ad-blockers/extensions are blocking the request.', { cause: uploadError });
         }
 
-        throw new Error(`S3 Upload Failed: ${uploadError.message}`);
+        throw new Error(`S3 Upload Failed: ${uploadError.message}`, { cause: uploadError });
       }
 
       // 3. Confirm with Backend
@@ -169,7 +169,7 @@ export const fileService = {
         });
 
         if (uploadError.message === 'Network Error') {
-          throw new Error('Upload blocked by browser or network. Check S3 CORS config.');
+          throw new Error('Upload blocked by browser or network. Check S3 CORS config.', { cause: uploadError });
         }
         throw uploadError;
       }

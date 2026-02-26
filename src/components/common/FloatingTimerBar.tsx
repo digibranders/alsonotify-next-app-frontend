@@ -195,6 +195,7 @@ export function FloatingTimerBar() {
       .map((t) => {
         const memberRecord = t.task_members?.find(m => m.user_id === userId);
         const secondsSpent = memberRecord?.seconds_spent || 0;
+        // eslint-disable-next-line no-useless-assignment
         let estimatedTime = 0;
         const totalTaskEstimate = Number(t.estimated_time || 0);
 

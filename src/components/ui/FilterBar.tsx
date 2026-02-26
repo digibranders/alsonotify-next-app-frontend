@@ -81,7 +81,7 @@ export function FilterBar({
         const hasSelection = !isDefault;
 
         // Display Label Logic
-        let displayLabel = '';
+        let displayLabel: string;
         if (isDefault) {
           displayLabel = filter.placeholder || filter.label;
         } else if (isMulti) {

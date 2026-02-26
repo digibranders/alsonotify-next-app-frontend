@@ -428,8 +428,8 @@ export function WorkspaceRequirementsPage() {
         const list = [...filteredRequirements];
         if (sortColumn) {
             list.sort((a, b) => {
-                let aVal: string | number = '';
-                let bVal: string | number = '';
+                let aVal: string | number;
+                let bVal: string | number;
                 switch (sortColumn) {
                     case 'title':
                         aVal = (a.title || '').toLowerCase();

@@ -28,7 +28,7 @@ export function useResizable({
     const resize = useCallback(
         (e: MouseEvent) => {
             if (isResizing) {
-                let newWidth = width;
+                let newWidth: number;
                 if (direction === 'left') {
                     // Panel is on the right, handle is on the left
                     // newWidth = window.innerWidth - mouseX
@@ -44,7 +44,7 @@ export function useResizable({
                 }
             }
         },
-        [isResizing, minWidth, maxWidth, direction, width]
+        [isResizing, minWidth, maxWidth, direction]
     );
 
     useEffect(() => {
