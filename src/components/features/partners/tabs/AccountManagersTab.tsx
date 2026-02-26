@@ -12,7 +12,7 @@ import {
     AccountManager as AccountManagerType 
 } from '@/services/user';
 
-import { debounce } from 'lodash';
+import { debounce } from '@/lib/utils';
 
 export function AccountManagersTab() {
     const { message, modal } = App.useApp();

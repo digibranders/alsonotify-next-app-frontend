@@ -58,17 +58,25 @@ export function SegmentedProgressBar({ members, totalEstimate }: Readonly<Segmen
     };
 
     // Calculate total estimate from members for segmentation
-    const totalMemberEstimate = members.reduce((sum, m) => sum + (Number(m.estimated_time) || 0), 0);
+    const sumMemberEstimates = members.reduce((sum, m) => sum + (Number(m.estimated_time) || 0), 0);
+    const scale = sumMemberEstimates > 0 ? totalEstimate / sumMemberEstimates : 1;
 
     const segments = members.map((member) => {
-        const est = Number(member.estimated_time || 0);
+        let est = Number(member.estimated_time || 0);
+
+        // Scale the member's estimate so they collectively match totalEstimate
+        if (sumMemberEstimates === 0) {
+            est = totalEstimate / members.length;
+        } else {
+            est = est * scale;
+        }
+
         const spent = Number(member.seconds_spent || 0) / 3600; // hours
 
-        // Use totalMemberEstimate for width calculation to ensure segments sum to 100%
-        // If totalMemberEstimate is 0, avoid division by zero (though usually blocked by early return if no estimates)
-        const widthPercent = totalMemberEstimate > 0 ? (est / totalMemberEstimate) * 100 : 0;
+        // Use totalEstimate for width calculation to ensure segments sum to 100%
+        const widthPercent = (est / totalEstimate) * 100;
 
-        // Progress ratio for overlay (still relative to OWN estimate)
+        // Progress ratio for overlay (relative to scaled estimate)
         const progressRatio = est > 0 ? spent / est : 0;
         const overlayPercent = Math.min(progressRatio * 100, 100);
 
