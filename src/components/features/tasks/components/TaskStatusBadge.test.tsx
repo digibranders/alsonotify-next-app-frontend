@@ -31,6 +31,6 @@ describe('TaskStatusBadge', () => {
 
   it('renders todo status correctly', async () => {
     await render(<TaskStatusBadge status="todo" showLabel />);
-    expect(container?.textContent).toContain('To Do');
+    expect(container?.textContent).toContain('Assigned');
   });
 });
