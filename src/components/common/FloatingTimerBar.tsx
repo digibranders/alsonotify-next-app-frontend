@@ -194,12 +194,24 @@ export function FloatingTimerBar() {
       })
       .map((t) => {
         const memberRecord = t.task_members?.find(m => m.user_id === userId);
-        // If leader but not member, they might not have seconds_spent record yet, default to 0 or task global time?
-        // Usually safe to default to 0 for personal tracking, or t.time_spent for task total. 
-        // Showing personal time (0) is safer for the "My Timer" context.
         const secondsSpent = memberRecord?.seconds_spent || 0;
-        const estimatedTime = memberRecord ? (memberRecord.estimated_time || t.estimated_time || 0) : (t.estimated_time || 0);
+        let estimatedTime = 0;
+        const totalTaskEstimate = Number(t.estimated_time || 0);
 
+        if (memberRecord) {
+          const rawMemberEst = Number(memberRecord.estimated_time || 0);
+          const taskMembers = t.task_members || [];
+          const sumMemberEstimates = taskMembers.reduce((sum: number, m: { estimated_time?: number | null }) => sum + (Number(m.estimated_time) || 0), 0);
+          const scale = sumMemberEstimates > 0 ? totalTaskEstimate / sumMemberEstimates : 1;
+
+          if (sumMemberEstimates === 0 && taskMembers.length > 0) {
+            estimatedTime = totalTaskEstimate / taskMembers.length;
+          } else {
+            estimatedTime = rawMemberEst * scale;
+          }
+        } else {
+          estimatedTime = totalTaskEstimate;
+        }
         // Calculate Can Start
         let canStart = true;
         let startTooltip = undefined;
