@@ -524,7 +524,7 @@ function ProgressCard({ title, data, isLoading = false, dateRangeLabel = 'this p
 
   return (
     <div
-      className="relative flex flex-col bg-white rounded-[20px] border border-gray-100 p-4 transition-all duration-300 h-full min-h-[140px]"
+      className="relative flex flex-col bg-white rounded-[20px] border border-gray-100 p-4 transition-all duration-300 hover:shadow-md hover:border-[#ff3b3b]/15 h-full min-h-[140px]"
     >
       {/* Card Header */}
       <div className="flex items-center justify-between mb-3 z-10 shrink-0">
