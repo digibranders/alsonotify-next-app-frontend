@@ -5,6 +5,7 @@ import { Search, Plus, Trash2, Building2 } from 'lucide-react';
 import { usePartners } from '@/hooks/useUser';
 import { Partner } from '@/types/domain';
 import api from '@/config/axios';
+import { getPartnerId, getPartnerName, isValidPartner } from '@/utils/partnerUtils';
 
 interface ManagedPartnersTabProps {
     employeeId: number;
@@ -12,7 +13,7 @@ interface ManagedPartnersTabProps {
 
 export function ManagedPartnersTab({ employeeId }: Readonly<ManagedPartnersTabProps>) {
     const { data: partnersData } = usePartners();
-    const allPartners = (partnersData?.result as unknown as Partner[]) || [];
+    const allPartners = ((partnersData?.result as unknown as Partner[]) || []).filter(isValidPartner);
     const [assignedPartners, setAssignedPartners] = useState<Partner[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedPartnerIds, setSelectedPartnerIds] = useState<number[]>([]);
@@ -45,7 +46,7 @@ export function ManagedPartnersTab({ employeeId }: Readonly<ManagedPartnersTabPr
                         logo_url: p.logo
                     }));
                     setAssignedPartners(mapped);
-                    setSelectedPartnerIds(mapped.map((p: any) => p.id));
+                    setSelectedPartnerIds(mapped.map((p: any) => getPartnerId(p) || 0));
                 }
             } catch (error) {
                 console.error("Failed to fetch assigned partners", error);
@@ -83,7 +84,7 @@ export function ManagedPartnersTab({ employeeId }: Readonly<ManagedPartnersTabPr
     };
 
     const filteredPartners = allPartners?.filter(p =>
-        p.name.toLowerCase().includes(searchTerm.toLowerCase())
+        getPartnerName(p).toLowerCase().includes(searchTerm.toLowerCase())
     ) || [];
 
     const columns = [
@@ -94,7 +95,7 @@ export function ManagedPartnersTab({ employeeId }: Readonly<ManagedPartnersTabPr
             render: (text: string, record: Partner) => (
                 <div className="flex items-center gap-3">
                     <Avatar shape="square" src={record.logo_url} icon={<Building2 size={16} />} />
-                    <span className="font-medium">{text}</span>
+                    <span className="font-medium">{getPartnerName(record)}</span>
                 </div>
             )
         },
@@ -112,7 +113,8 @@ export function ManagedPartnersTab({ employeeId }: Readonly<ManagedPartnersTabPr
                         // The design says "Assign Partner" modal.
                         // Maybe direct delete is better for UX here.
                         // For now, let's re-open modal or just use the modal for all management to keep it simple sync.
-                        const newIds = assignedPartners.filter(p => p.id !== record.id).map(p => p.id);
+                        const recId = getPartnerId(record);
+                        const newIds = assignedPartners.filter(p => getPartnerId(p) !== recId).map(p => getPartnerId(p) || 0);
                         // We can implement a direct remove function
                         setSelectedPartnerIds(newIds);
                         // Trigger save immediately for direct remove? 
@@ -152,7 +154,7 @@ export function ManagedPartnersTab({ employeeId }: Readonly<ManagedPartnersTabPr
             <Table
                 dataSource={assignedPartners}
                 columns={columns}
-                rowKey="id"
+                rowKey={(record) => getPartnerId(record) || record.id}
                 loading={isLoadingAssigned}
                 pagination={false}
             />
@@ -187,11 +189,11 @@ export function ManagedPartnersTab({ employeeId }: Readonly<ManagedPartnersTabPr
                             title: 'Company', dataIndex: 'name', render: (t, r) => (
                                 <div className="flex items-center gap-3">
                                     <Avatar shape="square" src={r.logo_url} icon={<Building2 size={16} />} />
-                                    <span>{t}</span>
+                                    <span>{getPartnerName(r)}</span>
                                 </div>
                             )
                         }]}
-                        rowKey="id"
+                        rowKey={(record) => getPartnerId(record) || record.id}
                         pagination={false}
                         size="small"
                     />

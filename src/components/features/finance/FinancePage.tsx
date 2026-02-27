@@ -27,6 +27,7 @@ import {
 } from '../../../data/mockFinanceData';
 import { useCurrentUserCompany, usePartners } from '@/hooks/useUser';
 import { InvoicePreview } from './InvoicePreview';
+import { getPartnerName } from '@/utils/partnerUtils';
 
 // --- Main Component ---
 
@@ -225,9 +226,7 @@ export function FinancePage() {
       // 1. Prepare Data
       const companyData = companyRes?.result;
       const partnerData = partnersRes?.result?.find(p =>
-        String(p.id) === invoice.client ||
-        p.name === invoice.client ||
-        (typeof p.company === 'object' ? p.company.name === invoice.client : p.company === invoice.client)
+        getPartnerName(p) === invoice.client
       );
 
       // Calculate totals from items

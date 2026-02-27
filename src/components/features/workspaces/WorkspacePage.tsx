@@ -19,6 +19,7 @@ import { WorkspaceDto } from '@/types/dto/workspace.dto';
 
 import { Workspace, Partner } from '@/types/domain';
 import { getRoleFromUser } from '@/utils/roleUtils';
+import { getPartnerCompanyId, getPartnerName, isValidPartner } from '@/utils/partnerUtils';
 
 export function WorkspacePage() {
   const { data: userData } = useUserDetails();
@@ -82,10 +83,11 @@ export function WorkspacePage() {
           params.append('in_house', 'true');
         } else {
           const partner = partnersData?.result?.find((p: { id: number; name?: string; partner_company?: { name?: string }; email?: string }) =>
-            (p.name || p.partner_company?.name || p.email) === trimmedName
+            getPartnerName(p) === trimmedName
           );
           if (partner) {
-            partnerIds.push(partner.id);
+            const partnerId = getPartnerCompanyId(partner);
+            if (partnerId) partnerIds.push(partnerId);
           }
         }
       });
@@ -189,9 +191,8 @@ export function WorkspacePage() {
     {
       id: 'organization',
       label: 'Organization',
-      options: ['All', `${companyData?.result?.name || 'Current Company'} (Self)`, ...((partnersData?.result as unknown as Partner[])?.map((p) => {
-        const companyName = typeof p.company === 'string' ? p.company : (p as any).company?.name;
-        return companyName || (p as any).partner_company?.name || p.email || p.name || 'Unknown';
+      options: ['All', `${companyData?.result?.name || 'Current Company'} (Self)`, ...((partnersData?.result as unknown as Partner[])?.filter(isValidPartner).map((p) => {
+        return getPartnerName(p);
       }) || [])],
       multiSelect: true,
       defaultValue: 'All'

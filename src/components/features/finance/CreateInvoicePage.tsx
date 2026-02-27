@@ -19,6 +19,7 @@ import { useCurrentUserCompany, usePartners } from '@/hooks/useUser';
 import { InvoicePreview } from './InvoicePreview';
 import { useInvoicePresets, InvoicePaymentPreset } from '@/hooks/useInvoicePresets';
 import { trimStr } from '@/utils/trim';
+import { getPartnerId, getPartnerName } from '@/utils/partnerUtils';
 
 interface LineItem {
     id: string;
@@ -69,7 +70,7 @@ export function CreateInvoicePage() {
     const partnerData = useMemo(() => {
         if (!partnersRes?.result || !clientId) return null;
         // clientId might be a name or ID from searchParams, let's find matching partner
-        return partnersRes.result.find(p => String(p.id) === clientId || p.name === clientId || (typeof p.company === 'object' ? p.company.name === clientId : p.company === clientId));
+        return partnersRes.result.find(p => String(getPartnerId(p)) === clientId || getPartnerName(p) === clientId);
     }, [partnersRes, clientId]);
 
     // --- Invoice Number Logic (CTO Design: INV-YYYYMM-XXXX) ---
@@ -110,7 +111,7 @@ export function CreateInvoicePage() {
 
     useEffect(() => {
         if (partnerData) {
-            setClientName(typeof partnerData.company === 'object' ? partnerData.company.name : partnerData.company || partnerData.name || '');
+            setClientName(getPartnerName(partnerData));
             setClientAddress(`${partnerData.address_line_1 || ''}\n${partnerData.address_line_2 || ''}`.trim());
             setClientEmail(partnerData.email || '');
             setClientPhone((partnerData as any).phone || '');

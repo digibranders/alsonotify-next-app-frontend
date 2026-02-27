@@ -11,6 +11,7 @@ import { trimStr } from '@/utils/trim';
 import { WorkspaceForm } from './WorkspaceForm';
 import { useCurrentUserCompany } from '@/hooks/useUser';
 import { currencies } from '@/utils/currencyUtils';
+import { getPartnerCompanyId, getPartnerName, isValidPartner } from '@/utils/partnerUtils';
 
 const { TextArea } = Input;
 const { Option } = Select;

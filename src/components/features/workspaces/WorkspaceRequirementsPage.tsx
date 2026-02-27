@@ -32,6 +32,7 @@ import {
     mapRequirementToType,
 } from '../requirements/utils/requirementState.utils';
 import { getRoleFromUser } from '@/utils/roleUtils';
+import { getPartnerCompanyId, getPartnerName, isValidPartner } from '@/utils/partnerUtils';
 
 const { Option } = Select;
 
@@ -290,10 +291,12 @@ export function WorkspaceRequirementsPage() {
     // Filter options
     const allPartners = useMemo(() => {
         const partners = partnersData?.result || [];
-        const options = partners.map((p: any) => ({
-            label: p.name,
-            value: String(p.company_id || p.company?.id || p.id),
-        }));
+        const options = partners
+            .filter(isValidPartner)
+            .map((p: any) => ({
+                label: getPartnerName(p),
+                value: String(getPartnerCompanyId(p)),
+            }));
         return [{ label: 'All', value: 'All' }, ...options];
     }, [partnersData]);
 
