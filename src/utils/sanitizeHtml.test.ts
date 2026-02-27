@@ -41,6 +41,25 @@ describe('sanitizeHtml', () => {
             const input = '<span style="color: red;">Red</span>';
             expect(sanitizeRichText(input)).toBe(input);
         });
+
+        // Security tests for links
+        it('should enforce target="_blank" on links without target', () => {
+            const input = '<a href="https://example.com">Link</a>';
+            const output = sanitizeRichText(input);
+            expect(output).toContain('target="_blank"');
+        });
+
+        it('should enforce rel="noopener noreferrer" on links without rel', () => {
+            const input = '<a href="https://example.com">Link</a>';
+            const output = sanitizeRichText(input);
+            expect(output).toContain('rel="noopener noreferrer"');
+        });
+
+        it('should overwrite existing unsafe target', () => {
+           const input = '<a href="https://example.com" target="_self">Link</a>';
+           const output = sanitizeRichText(input);
+           expect(output).toContain('target="_blank"');
+       });
     });
 
     describe('sanitizeRichTextForEditor', () => {

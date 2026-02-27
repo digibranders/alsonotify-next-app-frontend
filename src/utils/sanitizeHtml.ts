@@ -34,6 +34,14 @@ const SHARED_CONFIG = {
   FORBID_ATTR: ['on*', 'form*', 'action', 'formaction'], // Explicitly forbid event handlers
 };
 
+// Add a hook to enforce target="_blank" and rel="noopener noreferrer" on links
+DOMPurify.addHook('afterSanitizeAttributes', (node) => {
+    if ('target' in node) {
+        node.setAttribute('target', '_blank');
+        node.setAttribute('rel', 'noopener noreferrer');
+    }
+});
+
 /**
  * Sanitizes HTML content for general display.
  * Ensures links open in new tab and have noopener noreferrer.
