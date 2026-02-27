@@ -34,13 +34,46 @@ const SHARED_CONFIG = {
   FORBID_ATTR: ['on*', 'form*', 'action', 'formaction'], // Explicitly forbid event handlers
 };
 
-// Add a hook to enforce target="_blank" and rel="noopener noreferrer" on links
-DOMPurify.addHook('afterSanitizeAttributes', (node) => {
-    if ('target' in node) {
-        node.setAttribute('target', '_blank');
-        node.setAttribute('rel', 'noopener noreferrer');
+let sanitizerInstance: any = null;
+
+function getSanitizer() {
+    if (sanitizerInstance) return sanitizerInstance;
+
+    if (typeof window === 'undefined') {
+        // Server-side
+        try {
+            // Use jsdom if available (e.g. during build or if installed in deps)
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
+            const { JSDOM } = require('jsdom');
+            const window = new JSDOM('').window;
+            sanitizerInstance = DOMPurify(window);
+        } catch (e) {
+            console.warn('DOMPurify: jsdom not available on server, HTML sanitization skipped (returning empty string for safety).');
+            // Safe fallback: return empty string sanitizer
+            return { sanitize: () => '' };
+        }
+    } else {
+        // Client-side
+        sanitizerInstance = DOMPurify;
+        // If DOMPurify is a factory function (common in some bundlers/envs), initialize it
+        if (typeof sanitizerInstance === 'function') {
+            sanitizerInstance = sanitizerInstance(window);
+        }
     }
-});
+
+    // Add a hook to enforce target="_blank" and rel="noopener noreferrer" on links
+    // Only add if supported (instance)
+    if (sanitizerInstance && typeof sanitizerInstance.addHook === 'function') {
+        sanitizerInstance.addHook('afterSanitizeAttributes', (node: any) => {
+            if ('target' in node) {
+                node.setAttribute('target', '_blank');
+                node.setAttribute('rel', 'noopener noreferrer');
+            }
+        });
+    }
+
+    return sanitizerInstance;
+}
 
 /**
  * Sanitizes HTML content for general display.
@@ -49,7 +82,7 @@ DOMPurify.addHook('afterSanitizeAttributes', (node) => {
 export function sanitizeRichText(html: string): string {
   if (!html) return '';
 
-  return DOMPurify.sanitize(html, {
+  return getSanitizer().sanitize(html, {
     ...SHARED_CONFIG,
     ADD_ATTR: ['target', 'rel'],
   });
@@ -62,7 +95,7 @@ export function sanitizeRichText(html: string): string {
  */
 export function sanitizeRichTextForEditor(html: string): string {
     if (!html) return '';
-    return DOMPurify.sanitize(html, {
+    return getSanitizer().sanitize(html, {
         ...SHARED_CONFIG,
     });
 }
