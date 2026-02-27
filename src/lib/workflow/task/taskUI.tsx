@@ -65,6 +65,14 @@ export function getTaskStatusUI(status?: string): TaskUIConfig {
   if (normalized.includes('complete') || normalized.includes('done')) return TASK_STATUS_UI_CONFIG.Completed;
   if (normalized.includes('delay')) return TASK_STATUS_UI_CONFIG.Delayed;
 
+  // Custom: Map 'todo' to Assigned config but with 'To Do' label as expected by tests/UI
+  if (normalized.includes('todo')) {
+    return {
+      ...TASK_STATUS_UI_CONFIG.Assigned,
+      label: 'To Do',
+    };
+  }
+
   // Fallback
   return TASK_STATUS_UI_CONFIG.Assigned;
 }
