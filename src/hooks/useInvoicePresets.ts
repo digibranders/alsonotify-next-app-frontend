@@ -1,67 +1,69 @@
-
-import { useState } from 'react';
-
-const PRESETS_STORAGE_KEY = 'invoice_payment_presets';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  getPaymentPresets, createPaymentPreset, updatePaymentPreset, deletePaymentPreset, PaymentPresetDto
+} from '../services/paymentPreset';
 
 export interface InvoicePaymentPreset {
-  id: string;
+  id: string | number;
   name: string;
   content: string;
 }
 
-const DEFAULT_PRESETS: InvoicePaymentPreset[] = [
-  {
-    id: 'bank_transfer',
-    name: 'Bank Transfer',
-    content: "Bank: HDFC Bank\nA/C Name: Fynix Digital Pvt Ltd\nA/C No: 50200012345678\nIFSC: HDFC0001234\nBranch: Mumbai"
-  },
-  {
-    id: 'upi',
-    name: 'UPI',
-    content: "UPI ID: fynix@hdfcbank\nGPay/PhonePe: 9876543210"
-  }
-];
-
 export const useInvoicePresets = () => {
-  const [presets, setPresets] = useState<InvoicePaymentPreset[]>(() => {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem(PRESETS_STORAGE_KEY);
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            return parsed;
-          }
-        } catch (e) {
-          console.error("Failed to parse invoice presets", e);
-        }
-      }
+  const queryClient = useQueryClient();
+
+  const { data, isLoading, isSuccess } = useQuery({
+    queryKey: ['paymentPresets'],
+    queryFn: async () => {
+      const response = await getPaymentPresets();
+      return response.result || [];
     }
-    return DEFAULT_PRESETS;
   });
 
-  const savePresets = (newPresets: InvoicePaymentPreset[]) => {
-    setPresets(newPresets);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(newPresets));
+  const createMutation = useMutation({
+    mutationFn: createPaymentPreset,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['paymentPresets'] })
+  });
+
+  // const updateMutation = useMutation({
+  //   mutationFn: ({ id, payload }: { id: number, payload: Partial<PaymentPresetDto> }) => updatePaymentPreset(id, payload),
+  //   onSuccess: () => queryClient.invalidateQueries({ queryKey: ['paymentPresets'] })
+  // });
+
+  const deleteMutation = useMutation({
+    mutationFn: deletePaymentPreset,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['paymentPresets'] })
+  });
+
+  // Map backend DTO to the expected shape (mostly just ensuring id type safety)
+  const presets: InvoicePaymentPreset[] = (data || []).map((p: PaymentPresetDto) => ({
+    id: p.id,
+    name: p.name,
+    content: p.content,
+  }));
+
+  const addPreset = (preset: InvoicePaymentPreset) => {
+    createMutation.mutate({ name: preset.name, content: preset.content });
+  };
+
+  const removePreset = (id: string | number) => {
+    // Only delete if it's a numeric ID attached to the backend
+    if (typeof id === 'number' || !isNaN(Number(id))) {
+      deleteMutation.mutate(Number(id));
     }
   };
 
-  const addPreset = (preset: InvoicePaymentPreset) => {
-    const updated = [...presets, preset];
-    savePresets(updated);
-  };
-
-  const deletePreset = (id: string) => {
-    const updated = presets.filter(p => p.id !== id);
-    savePresets(updated);
+  // Backwards compatibility method
+  const savePresets = (_newPresets: InvoicePaymentPreset[]) => {
+    console.warn("savePresets is deprecated with API migration. Please use addPreset/editPreset directly.");
   };
 
   return {
     presets,
     savePresets,
     addPreset,
-    deletePreset,
-    isLoaded: true
+    deletePreset: removePreset,
+    isLoaded: isSuccess,
+    isLoading
   };
 };

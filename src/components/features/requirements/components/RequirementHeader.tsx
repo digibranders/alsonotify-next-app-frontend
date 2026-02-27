@@ -1,5 +1,5 @@
 import { Breadcrumb, Skeleton, Button, App, Tooltip } from 'antd';
-import { FileText, ListTodo, BarChart2, Columns, TrendingUp, Paperclip, ChevronRight } from 'lucide-react';
+import { FileText, ListTodo, BarChart2, Columns, TrendingUp, Paperclip, ChevronRight, DollarSign } from 'lucide-react';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { TabButton } from './TabButton';
 import { useState, useCallback } from 'react';
@@ -7,7 +7,7 @@ import { WorkspaceMappingModal } from '@/components/modals/WorkspaceMappingModal
 import { Requirement, Workspace } from '@/types/domain';
 import { ApiResponse } from '@/types/api';
 import { RequirementCTAConfig, ActionConfig } from '@/lib/workflow';
-import { UpdateRequirementRequestDto, ApproveRequirementRequestDto } from '@/types/dto/requirement.dto';
+import { UpdateRequirementRequestDto } from '@/types/dto/requirement.dto';
 import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 import { RequirementRevisionModal } from '@/components/modals/RequirementRevisionModal';
 import { RequirementRejectionModal } from '@/components/modals/RequirementRejectionModal';
@@ -15,7 +15,7 @@ import { SubmitForApprovalModal } from '@/components/modals/SubmitForApprovalMod
 import { RequirementApprovalModal } from '@/components/modals/RequirementApprovalModal';
 import { useSubmitForReview, useApproveRequirement } from '@/hooks/useWorkspace';
 
-export type ReqTabId = 'details' | 'tasks' | 'gantt' | 'kanban' | 'pnl' | 'documents';
+export type ReqTabId = 'details' | 'tasks' | 'gantt' | 'kanban' | 'pnl' | 'documents' | 'billing';
 
 interface RequirementHeaderProps {
   workspace?: Workspace | null;
@@ -27,7 +27,7 @@ interface RequirementHeaderProps {
   setActiveTab: (tab: ReqTabId) => void;
   ctaConfig?: RequirementCTAConfig;
   workspacesData?: ApiResponse<{ workspaces: Workspace[] }>;
-  updateRequirement: (data: UpdateRequirementRequestDto) => Promise<any>;
+  updateRequirement: (data: UpdateRequirementRequestDto) => Promise<unknown>;
   visibleTabs?: ReqTabId[];
   allTasksCompleted?: boolean;
 }
@@ -112,8 +112,9 @@ export function RequirementHeader({
           status: getNextStatus(action.apiAction),
         });
         message.success(`Action "${action.label}" completed successfully`);
-      } catch (error: any) {
-        message.error(error.message || `Failed to perform action: ${action.label}`);
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : "Failed to perform action";
+        message.error(errorMessage || `Failed to perform action: ${action.label}`);
       }
     }
   }, [requirement, updateRequirement, message, getNextStatus]);
@@ -128,8 +129,9 @@ export function RequirementHeader({
         status: 'Assigned'
       });
       message.success("Requirement mapped successfully!");
-    } catch (error: any) {
-      message.error(error.message || "Failed to map requirement");
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to map requirement";
+      message.error(errorMessage || "Failed to map requirement");
       throw error;
     }
   }, [requirement.id, updateRequirement, message]);
@@ -141,8 +143,9 @@ export function RequirementHeader({
         body: data,
       });
       message.success("Requirement submitted for approval successfully!");
-    } catch (error: any) {
-      message.error(error.message || "Failed to submit for approval");
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to submit for approval";
+      message.error(errorMessage || "Failed to submit for approval");
       throw error;
     }
   }, [requirement.id, submitForReviewMutation, message]);
@@ -156,8 +159,9 @@ export function RequirementHeader({
         approval_remark: data.remark ?? null,
       });
       message.success("Requirement approved successfully!");
-    } catch (error: any) {
-      message.error(error.message || "Failed to approve requirement");
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to approve requirement";
+      message.error(errorMessage || "Failed to approve requirement");
       throw error;
     }
   }, [requirement.id, approveRequirementMutation, message]);
@@ -171,8 +175,9 @@ export function RequirementHeader({
         revision_attachment_ids: data.attachment_ids,
       });
       message.success("Revision requested successfully");
-    } catch (error: any) {
-      message.error(error.message || "Failed to request revision");
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to request revision";
+      message.error(errorMessage || "Failed to request revision");
       throw error;
     }
   }, [requirement.id, approveRequirementMutation, message]);
@@ -185,8 +190,9 @@ export function RequirementHeader({
         rejection_reason: reason
       });
       message.success("Requirement rejected successfully");
-    } catch (error: any) {
-      message.error(error.message || "Failed to reject requirement");
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to reject requirement";
+      message.error(errorMessage || "Failed to reject requirement");
       throw error;
     }
   }, [requirement.id, updateRequirement, message]);
@@ -366,6 +372,14 @@ export function RequirementHeader({
               onClick={() => setActiveTab('documents')}
               icon={Paperclip}
               label="Documents"
+            />
+          )}
+          {visibleTabs.includes('billing') && (
+            <TabButton
+              active={activeTab === 'billing'}
+              onClick={() => setActiveTab('billing')}
+              icon={DollarSign}
+              label="Billing"
             />
           )}
         </div>
