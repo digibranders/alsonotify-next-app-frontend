@@ -22,6 +22,7 @@ import { getCurrencySymbol } from '@/utils/currencyUtils';
 import { getRequirementReports, getTaskReports, getEmployeeReports, getMemberWorklogs, RequirementReport, TaskReport, EmployeeReport, MemberWorklog, RequirementReportsResponse, TaskReportsResponse, EmployeeReportsResponse } from '../../../services/report';
 import EmployeeDetailsDrawer from './components/EmployeeDetailsDrawer';
 import { PaginationBar } from '../../ui/PaginationBar';
+import { getPartnerCompanyId, getPartnerName, isValidPartner } from '@/utils/partnerUtils';
 
 // Initialize dayjs plugins
 dayjs.extend(isBetween);
@@ -123,16 +124,14 @@ export function ReportsPage() {
 
 
     // Add Partners
-    const partnerList = (partnersData?.result || []).map((p) => {
-      // Prioritize company name over individual name
-      const cName = (typeof p.company === 'object' ? p.company?.name : (typeof p.company === 'string' ? p.company : p.partner_company?.name)) || p.name;
-      const cId = p.company_id || (typeof p.company === 'object' ? p.company?.id : null) || p.id;
-
-      return {
-        label: cName,
-        value: String(cId)
-      };
-    });
+    const partnerList = (partnersData?.result || [])
+      .filter(isValidPartner)
+      .map((p) => {
+        return {
+          label: getPartnerName(p),
+          value: String(getPartnerCompanyId(p))
+        };
+      });
 
     return [...options, ...partnerList];
   }, [partnersData, companyId, companyName]);
