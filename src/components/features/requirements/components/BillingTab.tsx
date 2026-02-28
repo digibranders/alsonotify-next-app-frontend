@@ -29,7 +29,7 @@ export const BillingTab: React.FC<BillingTabProps> = ({ requirement }) => {
     }, [dbInvoicesData]);
 
     const estimatedCost = requirement.estimated_cost || requirement.quoted_price || 0;
-    const totalBilled = (requirement as any).total_billed || invoices.reduce((sum, inv) => sum + inv.amount, 0); // fallback to sum of invoices
+    const totalBilled = requirement.total_billed ?? invoices.reduce((sum, inv) => sum + inv.amount, 0);
     const remainingBalance = Math.max(0, estimatedCost - totalBilled);
 
     const handleCreateInvoice = () => {

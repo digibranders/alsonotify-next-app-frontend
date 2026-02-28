@@ -63,7 +63,7 @@ export const useDeleteInvoice = () => {
 export const useReviseInvoice = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: number | string; data: any }) => reviseInvoice(id, data),
+    mutationFn: ({ id }: { id: number | string }) => reviseInvoice(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['invoices'] })
   });
 };

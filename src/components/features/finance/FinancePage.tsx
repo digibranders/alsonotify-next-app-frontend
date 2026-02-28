@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import {
   CheckCircle,
   ChevronDown,
@@ -19,58 +19,82 @@ import { DateRangeSelector } from '../../common/DateRangeSelector';
 
 dayjs.extend(isBetween);
 
-import {
-  Requirement,
-  Invoice,
-  MOCK_REQUIREMENTS,
-  MOCK_INVOICES
-} from '../../../data/mockFinanceData';
 import { useInvoices } from '../../../hooks/useInvoice';
+import { useCollaborativeRequirements } from '../../../hooks/useRequirement';
 import { getInvoicePdfBlob } from '../../../services/invoice';
+
+// Local view-model types for the finance page
+interface Requirement {
+    id: string | number;
+    title: string;
+    client: string;
+    dueDate: string;
+    estimatedCost: number;
+    status: 'in-progress' | 'completed';
+    approvalStatus: 'pending' | 'approved' | 'rejected';
+    invoiceStatus?: 'unbilled' | 'invoiced';
+    type?: string | null;
+}
+
+interface Invoice {
+    id: string;
+    invoiceNumber: string;
+    client: string;
+    date: string;
+    dueDate: string;
+    amount: number;
+    status: string;
+    items: Array<{ id: string; requirementId: string; description: string; quantity: number; unitPrice: number; amount: number }>;
+}
 
 // --- Main Component ---
 
 export function FinancePage() {
   const router = useRouter();
 
-  // Local State for Data (Simulating Backend for Requirements)
-  const [requirements, setRequirements] = useState<Requirement[]>([]);
-  const [loadingReqs, setLoadingReqs] = useState(true);
-
-  // Real API Fetch
+  // Real API Fetches
   const { data: dbInvoicesData, isLoading: isLoadingInvoices } = useInvoices({ limit: 1000 });
-  const loading = loadingReqs || isLoadingInvoices;
+  const { data: collaborativeReqs, isLoading: isLoadingReqs } = useCollaborativeRequirements();
+  const loading = isLoadingInvoices || isLoadingReqs;
 
-  const invoices = useMemo(() => {
-    const dbInvoices: Invoice[] = (dbInvoicesData?.invoices || []).map(inv => ({
+  const invoices = useMemo<Invoice[]>(() => {
+    return (dbInvoicesData?.invoices || []).map(inv => ({
       id: inv.id.toString(),
       invoiceNumber: inv.invoice_number,
       client: inv.bill_to_company?.name || inv.bill_to || 'Unknown',
       date: inv.issue_date || inv.due_date || '',
       dueDate: inv.due_date || '',
       amount: inv.total,
-      status: (inv.status?.toLowerCase() || 'draft') as any, // maps to mock status types
-      items: (inv.particulars || []).map((p: any) => ({
-        id: p.id || Math.random().toString(),
-        requirementId: p.requirement_id || '',
+      status: inv.status?.toLowerCase() ?? 'draft',
+      items: (inv.particulars || []).map(p => ({
+        id: p.id || crypto.randomUUID(),
+        requirementId: String(p.requirement_id ?? ''),
         description: p.description || '',
         quantity: p.quantity || 1,
         unitPrice: p.unit_price || 0,
-        amount: (p.quantity || 1) * (p.unit_price || 0)
-      }))
+        amount: (p.quantity || 1) * (p.unit_price || 0),
+      })),
     }));
-
-    return [...MOCK_INVOICES, ...dbInvoices];
   }, [dbInvoicesData]);
 
-  useEffect(() => {
-    // Simulate API fetch delay for requirements
-    const timer = setTimeout(() => {
-      setRequirements(MOCK_REQUIREMENTS);
-      setLoadingReqs(false);
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, []);
+  // Map collaborative requirements to the page view-model and filter for "Ready to Bill"
+  const requirements = useMemo<Requirement[]>(() => {
+    return (collaborativeReqs ?? []).map(req => {
+      const isCompleted = req.status === 'Completed';
+      const hasInvoice = !!req.invoice_id;
+      return {
+        id: req.id,
+        title: req.name ?? '',
+        client: req.sender_company?.name ?? req.client ?? 'Unknown',
+        dueDate: req.end_date ?? '',
+        estimatedCost: Number(req.quoted_price ?? req.estimated_cost ?? 0),
+        status: isCompleted ? 'completed' : 'in-progress',
+        approvalStatus: req.approved_by ? 'approved' : 'pending',
+        invoiceStatus: hasInvoice ? 'invoiced' : 'unbilled',
+        type: req.type,
+      };
+    });
+  }, [collaborativeReqs]);
 
   // Download State
   const [isDownloading, setIsDownloading] = useState<Record<string, boolean>>({});
@@ -199,7 +223,7 @@ export function FinancePage() {
   // --- Stats ---
 
   const kpiInvoiced = useMemo(() => {
-    const activeInvoices = invoices.filter(i => i.status !== 'draft' && i.status !== ('void' as any));
+    const activeInvoices = invoices.filter(i => i.status !== 'draft' && i.status !== 'void');
     const total = activeInvoices.reduce((sum, inv) => sum + inv.amount, 0);
     const received = activeInvoices.filter(i => i.status === 'paid').reduce((sum, inv) => sum + inv.amount, 0);
     // Rough estimate for partials if any (mock doesn't have partial amounts received, assume 0 for simplicity or use db fields if available, but for now due = total - received)

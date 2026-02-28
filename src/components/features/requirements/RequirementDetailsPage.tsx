@@ -72,7 +72,7 @@ export function RequirementDetailsPage() {
   type ReqDetailsTab = 'details' | 'tasks' | 'gantt' | 'kanban' | 'pnl' | 'documents' | 'billing';
   const [activeTab, setActiveTab] = useTabSync<ReqDetailsTab>({
     defaultTab: 'details',
-    validTabs: ['details', 'tasks', 'gantt', 'kanban', 'pnl', 'documents']
+    validTabs: ['details', 'tasks', 'gantt', 'kanban', 'pnl', 'documents', 'billing']
   });
   const [selectedTasks, setSelectedTasks] = useState<string[]>([]);
 

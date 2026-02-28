@@ -3,6 +3,7 @@
 
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
 import {
     Download,
     Send,
@@ -14,8 +15,9 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import dayjs from 'dayjs';
-import { MOCK_REQUIREMENTS } from '../../../data/mockFinanceData';
 import { useCurrentUserCompany, usePartners } from '@/hooks/useUser';
+import { useCreateInvoice } from '@/hooks/useInvoice';
+import { getNextInvoiceNumber } from '@/services/invoice';
 import { useInvoicePresets, InvoicePaymentPreset } from '@/hooks/useInvoicePresets';
 import { trimStr } from '@/utils/trim';
 
@@ -47,8 +49,6 @@ export function CreateInvoicePage() {
     // --- State ---
     const [issueDate, setIssueDate] = useState(dayjs().format('YYYY-MM-DD'));
     const [dueDate, setDueDate] = useState(dayjs().add(7, 'days').format('YYYY-MM-DD'));
-    const [invoiceId, setInvoiceId] = useState('');
-    const [uniqueId] = useState(() => String(Math.floor(Math.random() * 9000) + 1000)); // Persistent random 4-digit ID for this session
 
     const [items, setItems] = useState<LineItem[]>([]);
     const [discount, setDiscount] = useState<number>(0); // Flat amount
@@ -62,6 +62,9 @@ export function CreateInvoicePage() {
     // --- Dynamic Data ---
     const { data: companyRes } = useCurrentUserCompany();
     const { data: partnersRes } = usePartners();
+    const { mutateAsync: createInvoiceMutation, isPending: isSaving } = useCreateInvoice();
+
+    const companyId = (companyRes?.result as { id?: number } | undefined)?.id;
 
     const companyData = companyRes?.result;
     const partnerData = useMemo(() => {
@@ -70,11 +73,14 @@ export function CreateInvoicePage() {
         return partnersRes.result.find(p => String(p.id) === clientId || p.name === clientId || (typeof p.company === 'object' ? p.company.name === clientId : p.company === clientId));
     }, [partnersRes, clientId]);
 
-    // --- Invoice Number Logic (CTO Design: INV-YYYYMM-XXXX) ---
-    useEffect(() => {
-        const datePart = dayjs(issueDate).format('YYYYMM');
-        setInvoiceId(`INV-${datePart}-${uniqueId}`);
-    }, [issueDate, uniqueId]);
+    // --- Invoice Number (server-generated, prevents duplicates) ---
+    const { data: nextNumberData } = useQuery({
+        queryKey: ['next-invoice-number', companyId],
+        queryFn: () => getNextInvoiceNumber(companyId!),
+        enabled: !!companyId,
+        staleTime: 0,
+    });
+    const invoiceId = nextNumberData?.result?.invoice_number ?? '';
 
     const [currencyCode, setCurrencyCode] = useState('INR');
 
@@ -146,19 +152,7 @@ export function CreateInvoicePage() {
 
     // --- Initialization ---
     useEffect(() => {
-        if (reqIds.length > 0) {
-            const selectedReqs = MOCK_REQUIREMENTS.filter(r => reqIds.includes(String(r.id)));
-
-            const newItems: LineItem[] = selectedReqs.map(req => ({
-                id: String(req.id),
-                description: req.title, // e.g., "Website maintenance..."
-                quantity: 1,
-                unitPrice: req.estimatedCost,
-                taxRate: 18 // Default tax
-            }));
-
-            setItems(newItems);
-        } else {
+        if (reqIds.length === 0) {
             // Default mock items for a "completely filled" look
             setItems([
                 {
@@ -202,7 +196,7 @@ export function CreateInvoicePage() {
         setItems(prev => [
             ...prev,
             {
-                id: Math.random().toString(36).substr(2, 9),
+                id: crypto.randomUUID(),
                 description: '',
                 quantity: 1,
                 unitPrice: 0,
@@ -221,9 +215,48 @@ export function CreateInvoicePage() {
         setItems(prev => prev.filter(item => item.id !== id));
     };
 
-    const handleSaveInvoice = () => {
-        toast.success("Invoice created successfully!");
-        router.push('/dashboard/finance');
+    const handleSaveInvoice = async () => {
+        if (!companyId) {
+            toast.error('Company data not loaded. Please try again.');
+            return;
+        }
+        const clientCompanyId = typeof (partnerData as { company?: { id?: number } } | null)?.company === 'object'
+            ? (partnerData as { company: { id: number } }).company.id
+            : (partnerData as { id?: number } | null)?.id;
+        if (!clientCompanyId) {
+            toast.error('Please select a valid client company.');
+            return;
+        }
+        try {
+            const particulars = items.map(item => ({
+                id: item.id,
+                description: item.description,
+                quantity: item.quantity,
+                unit_price: item.unitPrice,
+                amount: item.quantity * item.unitPrice,
+                tax_rate: item.taxRate,
+            }));
+            const payload = {
+                bill_from: companyId,
+                bill_to: clientCompanyId,
+                issue_date: issueDate,
+                due_date: dueDate,
+                currency: currencyCode,
+                particulars,
+                sub_total: totals.subtotal,
+                discount: totals.discount,
+                tax: totals.totalTax,
+                tax_type: taxConfig.name,
+                total: totals.total,
+                memo,
+                payment_details: footer,
+            };
+            const created = await createInvoiceMutation(payload);
+            toast.success(`Invoice ${created.result?.invoice_number ?? invoiceId} saved as draft.`);
+            router.push('/dashboard/finance');
+        } catch {
+            toast.error('Failed to save invoice. Please try again.');
+        }
     };
 
     const handleDownloadPDF = async () => {
@@ -262,10 +295,11 @@ export function CreateInvoicePage() {
                     </button>
                     <button
                         onClick={handleSaveInvoice}
-                        className="px-6 py-2 bg-[#ff3b3b] text-white rounded-full font-bold text-[0.8125rem] hover:bg-[#e63535] transition-colors flex items-center gap-2"
+                        disabled={isSaving}
+                        className="px-6 py-2 bg-[#ff3b3b] text-white rounded-full font-bold text-[0.8125rem] hover:bg-[#e63535] transition-colors flex items-center gap-2 disabled:opacity-60"
                     >
                         <Send className="w-4 h-4" />
-                        Send Invoice
+                        {isSaving ? 'Saving...' : 'Save as Draft'}
                     </button>
                 </div>
             </div>

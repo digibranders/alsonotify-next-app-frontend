@@ -1,7 +1,8 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Drawer } from 'antd';
+import { Drawer, message } from 'antd';
+import Cookies from 'universal-cookie';
 import {
   BellOff,
   Bell,
@@ -31,8 +32,10 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import { useNotifications } from '@/hooks/useNotification';
 import { useIsNarrow } from '@/hooks/useBreakpoint';
+import { queryKeys } from '@/lib/queryKeys';
 import type { NotificationTypeValue, NotificationMetadata } from '@/services/notification';
 import type { LucideIcon } from 'lucide-react';
 
@@ -118,6 +121,7 @@ function ActionButtons({
   markAsRead: (id: number) => void;
   navigate: (path: string) => void;
 }) {
+  const queryClient = useQueryClient();
   const actions = notification.metadata?.actions ?? [];
   if (actions.length === 0) return null;
 
@@ -127,33 +131,35 @@ function ActionButtons({
     e.stopPropagation();
     if (!requirementId) return;
     try {
-      const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
+      const token = new Cookies().get('_token');
       const resp = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/requirement/approve`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ requirement_id: requirementId, status: 'Assigned' }),
       });
       const data = await resp.json();
-      if (!resp.ok) { alert(data?.message || 'Failed to accept requirement.'); return; }
+      if (!resp.ok) { message.error(data?.message || 'Failed to accept requirement.'); return; }
       markAsRead(notification.id);
+      queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all() });
       if (notification.actionLink) navigate(notification.actionLink);
-    } catch { alert('Network error. Please try again.'); }
+    } catch { message.error('Network error. Please try again.'); }
   };
 
   const handleReject = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!requirementId) return;
     try {
-      const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
+      const token = new Cookies().get('_token');
       const resp = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/requirement/approve`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ requirement_id: requirementId, status: 'Rejected' }),
       });
       const data = await resp.json();
-      if (!resp.ok) { alert(data?.message || 'Failed to reject requirement.'); return; }
+      if (!resp.ok) { message.error(data?.message || 'Failed to reject requirement.'); return; }
       markAsRead(notification.id);
-    } catch { alert('Network error. Please try again.'); }
+      queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all() });
+    } catch { message.error('Network error. Please try again.'); }
   };
 
   const handleNavigate = (e: React.MouseEvent, path?: string | null) => {
@@ -214,13 +220,37 @@ function ActionButtons({
           Reply
         </button>
       )}
-      {actions.includes('revise') && (
+      {actions.includes('revise_quote') && (
         <button
           onClick={(e) => handleNavigate(e, notification.actionLink)}
           className="h-7 px-3 flex items-center justify-center rounded-full bg-[#FF9800] text-white hover:bg-[#F57C00] transition-colors text-xs font-medium"
         >
           <RotateCcw className="w-3 h-3 mr-1" />
           Revise Quote
+        </button>
+      )}
+      {actions.includes('view_requirement') && (
+        <button
+          onClick={(e) => handleNavigate(e, notification.actionLink)}
+          className="h-7 px-3 flex items-center justify-center rounded-full border border-[#EEEEEE] bg-white text-[#111111] hover:bg-[#F7F7F7] transition-colors text-xs font-medium"
+        >
+          View Requirement
+        </button>
+      )}
+      {actions.includes('start_work') && (
+        <button
+          onClick={(e) => handleNavigate(e, notification.actionLink)}
+          className="h-7 px-3 flex items-center justify-center rounded-full bg-[#0F9D58] text-white hover:bg-[#0B8043] transition-colors text-xs font-medium"
+        >
+          Start Work
+        </button>
+      )}
+      {actions.includes('edit_resend') && (
+        <button
+          onClick={(e) => handleNavigate(e, notification.actionLink)}
+          className="h-7 px-3 flex items-center justify-center rounded-full border border-[#1976d2] bg-[#e3f2fd] text-[#1976d2] hover:bg-[#bbdefb] transition-colors text-xs font-medium"
+        >
+          Edit &amp; Resend
         </button>
       )}
       {actions.includes('approve') && (
