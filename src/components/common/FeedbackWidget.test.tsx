@@ -1,3 +1,4 @@
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { FeedbackWidget } from './FeedbackWidget';
 import { App } from 'antd';
@@ -5,7 +6,7 @@ import { App } from 'antd';
 // Mock matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: vi.fn().mockImplementation(query => ({
+  value: vi.fn().mockImplementation((query: string) => ({
     matches: false,
     media: query,
     onchange: null,
