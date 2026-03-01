@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
     Input,
     Modal,
@@ -202,7 +202,7 @@ export function PartnersPageContent() {
     // 1. Prepare Standard Partners (Active/Inactive)
     const effectiveStatusFilter = activeTab === 'requests' ? lastStandardTab : activeTab;
 
-    const filteredPartners = partners.filter(item => {
+    const filteredPartners = useMemo(() => partners.filter(item => {
         const matchesTab = item.status === effectiveStatusFilter;
         const matchesSearch =
             item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -222,7 +222,7 @@ export function PartnersPageContent() {
             return selectedCountries.includes(fullName.toLowerCase());
         })();
         return matchesTab && matchesSearch && matchesType && matchesCountry;
-    });
+    }), [partners, effectiveStatusFilter, searchQuery, filters.type, filters.country]);
 
     const standardStartIndex = (pagination.current - 1) * pagination.pageSize;
     const paginatedPartners = filteredPartners.slice(standardStartIndex, standardStartIndex + pagination.pageSize);
