@@ -131,7 +131,7 @@ function ActionButtons({
       await axiosApi.post('/requirement/approve', { requirement_id: requirementId, status: 'Assigned' });
       markAsRead(notification.id);
       if (notification.actionLink) navigate(notification.actionLink);
-    } catch { alert('Network error. Please try again.'); }
+    } catch { /* Suppress specific error messages for security, or rely on global interceptor */ }
   };
 
   const handleReject = async (e: React.MouseEvent) => {
@@ -140,7 +140,7 @@ function ActionButtons({
     try {
       await axiosApi.post('/requirement/approve', { requirement_id: requirementId, status: 'Rejected' });
       markAsRead(notification.id);
-    } catch { alert('Network error. Please try again.'); }
+    } catch { /* Suppress specific error messages for security, or rely on global interceptor */ }
   };
 
   const handleNavigate = (e: React.MouseEvent, path?: string | null) => {
