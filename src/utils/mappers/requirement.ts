@@ -21,9 +21,9 @@ export function mapRequirementToDomain(dto: RequirementDto): Requirement {
 
     status: (dto.status as RequirementStatus) || 'draft',
     rawStatus: dto.status,
-    progress: dto.total_task ? Math.round(((dto.tasks_completed || 0) / dto.total_task) * 100) : 0,
-    tasksCompleted: dto.tasks_completed || 0,
-    tasksTotal: dto.total_task || 0,
+    progress: dto.progress ?? (dto.total_tasks || dto.total_task ? Math.round(((dto.completed_tasks || dto.tasks_completed || 0) / (dto.total_tasks || dto.total_task || 1)) * 100) : 0),
+    tasksCompleted: dto.completed_tasks || dto.tasks_completed || 0,
+    tasksTotal: dto.total_tasks || dto.total_task || 0,
 
     receiver_project_id: dto.receiver_workspace_id, // Map from workspace ID
 

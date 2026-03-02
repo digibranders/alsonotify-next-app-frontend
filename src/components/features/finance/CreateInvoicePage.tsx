@@ -18,6 +18,7 @@ import { toast } from 'sonner';
 import dayjs from 'dayjs';
 import { useCurrentUserCompany, usePartners } from '@/hooks/useUser';
 import { useCreateInvoice } from '@/hooks/useInvoice';
+import { useCollaborativeRequirements } from '@/hooks/useRequirement';
 import { getNextInvoiceNumber } from '@/services/invoice';
 import { InvoicePreview } from './InvoicePreview';
 import { useInvoicePresets, InvoicePaymentPreset } from '@/hooks/useInvoicePresets';
@@ -29,6 +30,7 @@ interface LineItem {
     quantity: number;
     unitPrice: number;
     taxRate: number; // Percentage
+    requirement_id?: number;
 }
 
 interface TaxConfig {
@@ -57,7 +59,7 @@ export function CreateInvoicePage() {
     const [showDiscount, setShowDiscount] = useState(false);
     const [taxConfig, setTaxConfig] = useState<TaxConfig>({ id: 'gst_18', name: 'IGST', rate: 18 });
     const [memo, setMemo] = useState('Payment is due within 7 days. Please include the invoice number on your wire transfer.');
-    const [footer, setFooter] = useState<string>('Bank: Kotak Mahindra Bank\nA/C: 5345861934\nIFSC: KKBK0000632\nBranch: CBD Belapur, Mumbai');
+    const [footer, setFooter] = useState<string>('');
 
     const [isDownloading, setIsDownloading] = useState(false);
     const previewRef = useRef<HTMLDivElement>(null);
@@ -68,6 +70,14 @@ export function CreateInvoicePage() {
     const { mutateAsync: createInvoiceMutation, isPending: isSaving } = useCreateInvoice();
 
     const companyId = (companyRes?.result as { id?: number } | undefined)?.id;
+
+    // Fetch all collaborative requirements to populate line items from reqIds
+    const { data: collaborativeReqs } = useCollaborativeRequirements();
+
+    const reqsForInvoice = useMemo(() => {
+        if (reqIds.length === 0 || !collaborativeReqs) return [];
+        return collaborativeReqs.filter(req => reqIds.includes(String(req.id)));
+    }, [reqIds, collaborativeReqs]);
 
     const companyData = companyRes?.result;
     const partnerData = useMemo(() => {
@@ -109,9 +119,7 @@ export function CreateInvoicePage() {
             setSenderTaxId(companyData.tax_id || '');
             setCurrencyCode(companyData.currency || 'INR');
 
-            // Auto-construct footer from bank details if they exist in companyData (assuming schema match or placeholder)
-            const bankInfo = `Digibranders Private Limited\nKotak Mahindra Bank\nBranch: CBD Belapur, Navi Mumbai\nA/C No: 5345861934`;
-            setFooter(bankInfo);
+            // Footer left empty — user fills in their payment details
         }
     }, [companyData]);
 
@@ -154,27 +162,27 @@ export function CreateInvoicePage() {
     };
 
     // --- Initialization ---
+    // Populate line items from requirements when reqIds are in the URL
     useEffect(() => {
-        if (reqIds.length === 0) {
-            // Default mock items for a "completely filled" look
-            setItems([
-                {
-                    id: '1',
-                    description: 'Digital Strategy & Architecture Consulting',
-                    quantity: 1,
-                    unitPrice: 25000,
-                    taxRate: 18
-                },
-                {
-                    id: '2',
-                    description: 'UI/UX Design - Dashboard Optimization (Sprint 1)',
-                    quantity: 1,
-                    unitPrice: 15000,
-                    taxRate: 18
-                }
-            ]);
+        if (reqIds.length > 0 && reqsForInvoice.length > 0) {
+            setItems(reqsForInvoice.map(req => ({
+                id: crypto.randomUUID(),
+                description: req.name ?? '',
+                quantity: 1,
+                unitPrice: Number(req.quoted_price ?? req.estimated_cost ?? 0),
+                taxRate: taxConfig.rate,
+                requirement_id: req.id,
+            })));
+        } else if (reqIds.length === 0) {
+            setItems([{
+                id: crypto.randomUUID(),
+                description: '',
+                quantity: 1,
+                unitPrice: 0,
+                taxRate: taxConfig.rate,
+            }]);
         }
-    }, [reqIds]);
+    }, [reqIds, reqsForInvoice]);
 
     // --- Calculations ---
 
@@ -238,7 +246,16 @@ export function CreateInvoicePage() {
                 unit_price: item.unitPrice,
                 amount: item.quantity * item.unitPrice,
                 tax_rate: item.taxRate,
+                requirement_id: item.requirement_id,
             }));
+
+            const invoiceDetails = items
+                .filter(item => item.requirement_id != null)
+                .map(item => ({
+                    requirement_id: item.requirement_id as number,
+                    billed_amount: item.quantity * item.unitPrice,
+                }));
+
             const payload = {
                 bill_from: companyId,
                 bill_to: clientCompanyId,
@@ -253,9 +270,16 @@ export function CreateInvoicePage() {
                 total: totals.total,
                 memo,
                 payment_details: footer,
+                ...(invoiceDetails.length > 0 && { metadata: { invoiceDetails } }),
             };
             const created = await createInvoiceMutation(payload);
-            toast.success(`Invoice ${created.result?.invoice_number ?? invoiceId} saved as draft.`);
+            const newInvoiceId = created.result?.id;
+            const newInvoiceNumber = created.result?.invoice_number ?? invoiceId;
+            toast.success(`Invoice ${newInvoiceNumber} saved as draft.`, {
+                action: newInvoiceId
+                    ? { label: 'Send Now', onClick: () => router.push(`/dashboard/finance/invoices/${newInvoiceId}`) }
+                    : undefined,
+            });
             router.push('/dashboard/finance');
         } catch {
             toast.error('Failed to save invoice. Please try again.');

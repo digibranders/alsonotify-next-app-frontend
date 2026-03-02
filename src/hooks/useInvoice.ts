@@ -77,7 +77,7 @@ export const useInvoice = (id: number | string) => {
 export const useCreateInvoice = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: CreateInvoicePayload) => createInvoice(data as Record<string, unknown>),
+    mutationFn: (data: CreateInvoicePayload) => createInvoice(data as unknown as Record<string, unknown>),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['invoices'] });
       queryClient.invalidateQueries({ queryKey: ['requirements'] });

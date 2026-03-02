@@ -99,6 +99,30 @@ export const BillingTab: React.FC<BillingTabProps> = ({ requirement }) => {
                     </div>
                 </div>
 
+                {/* Billing Progress Bar */}
+                {estimatedCost > 0 && (
+                    <div className="mb-8">
+                        <div className="flex justify-between items-center mb-1.5">
+                            <span className="text-xs text-[#697386]">Billing Progress</span>
+                            <span className="text-xs font-semibold text-[#111111]">
+                                {Math.round(Math.min((totalBilled / estimatedCost) * 100, 100))}%
+                            </span>
+                        </div>
+                        <div className="w-full h-2 bg-[#EEEEEE] rounded-full overflow-hidden">
+                            <div
+                                className={`h-full rounded-full transition-all duration-500 ${
+                                    totalBilled >= estimatedCost
+                                        ? 'bg-[#0F9D58]'
+                                        : totalBilled > 0
+                                            ? 'bg-[#2F80ED]'
+                                            : 'bg-[#EEEEEE]'
+                                }`}
+                                style={{ width: `${Math.min((totalBilled / estimatedCost) * 100, 100)}%` }}
+                            />
+                        </div>
+                    </div>
+                )}
+
                 {/* Invoice History */}
                 <div>
                     <h4 className="text-sm font-bold text-[#111111] mb-4">Invoice History</h4>

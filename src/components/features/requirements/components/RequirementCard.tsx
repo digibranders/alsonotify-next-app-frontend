@@ -100,7 +100,7 @@ export function RequirementCard({
         onClick: null
       };
     }
-    if (requirement.invoice_status === 'billed') {
+    if (requirement.invoice_status === 'sent' || requirement.invoice_status === 'partial' || requirement.invoice_status === 'overdue') {
       return {
         label: requirement.type === 'outsourced' ? 'Invoice Received' : 'Invoice Sent',
         icon: <CheckCircle className="w-3 h-3" />,
@@ -393,7 +393,7 @@ export function RequirementCard({
                   ? 'bg-[#ff3b3b]'
                   : 'bg-[#2F80ED]'
                 }`}
-              style={{ width: `${requirement.progress}%` }}
+              style={{ width: `${Math.min(requirement.progress ?? 0, 100)}%` }}
             />
           </div>
         </div>

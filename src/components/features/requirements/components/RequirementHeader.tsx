@@ -105,6 +105,18 @@ export function RequirementHeader({
       return;
     }
 
+    // Handle navigation actions (no API call needed)
+    if (action.apiAction === 'create_invoice') {
+      const clientId = requirement.sender_company_id ?? requirement.receiver_company_id;
+      router.push(`/dashboard/finance/create?clientId=${clientId ?? ''}&reqIds=${requirement.id}`);
+      return;
+    }
+
+    if (action.apiAction === 'view_billing') {
+      setActiveTab('billing');
+      return;
+    }
+
     // Handle direct API actions
     if (action.apiAction) {
       if (action.apiAction === 'accept_quote' && !requirement.workspace_id) {
@@ -123,7 +135,7 @@ export function RequirementHeader({
         message.error(errorMessage || `Failed to perform action: ${action.label}`);
       }
     }
-  }, [requirement, updateRequirement, message, getNextStatus]);
+  }, [requirement, updateRequirement, message, getNextStatus, router, setActiveTab]);
 
 
 

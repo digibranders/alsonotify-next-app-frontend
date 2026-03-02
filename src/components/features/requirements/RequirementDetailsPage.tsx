@@ -184,15 +184,12 @@ export function RequirementDetailsPage() {
 
   const visibleTabs: ReqTabId[] = useMemo(() => {
     const tabs: ReqTabId[] = ['details', 'tasks', 'gantt', 'kanban', 'pnl', 'documents'];
-    // In actual implementation, we'd check roles robustly, but assuming users who can see pnl can see billing
-    if (['Admin', 'Head', 'Accountant'].includes(userRole)) {
+    const canSeeBilling = ['Admin', 'Head', 'Accountant'].includes(userRole);
+    if (canSeeBilling) {
       tabs.push('billing');
     }
 
-    if (hasSupervisoryFullAccess) {
-      return tabs;
-    }
-    if (isReceiver || isInHouse) {
+    if (hasSupervisoryFullAccess || canSeeBilling || isReceiver || isInHouse) {
       return tabs;
     }
     return ['details', 'documents'];
