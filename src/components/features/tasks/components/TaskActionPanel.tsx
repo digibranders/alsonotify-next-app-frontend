@@ -53,9 +53,13 @@ export function TaskActionPanel({ task, currentUser, onAction, onCompleteRequest
   // eslint-disable-next-line no-useless-assignment
   let actionType: 'start' | 'complete' | null = null;
   // eslint-disable-next-line no-useless-assignment
+  // eslint-disable-next-line no-useless-assignment
   let label = '';
+  // eslint-disable-next-line no-useless-assignment
   let subLabel = '';
+  // eslint-disable-next-line no-useless-assignment
   let Icon = PlayCircle;
+  // eslint-disable-next-line no-useless-assignment
   let disabledReason = '';
 
   if (execution_mode === 'sequential') {

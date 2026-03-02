@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useRef, useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
   CheckCircle,
   ChevronDown,
@@ -25,42 +25,59 @@ import {
   MOCK_REQUIREMENTS,
   MOCK_INVOICES
 } from '../../../data/mockFinanceData';
-import { useCurrentUserCompany, usePartners } from '@/hooks/useUser';
-import { InvoicePreview } from './InvoicePreview';
+import { useInvoices } from '../../../hooks/useInvoice';
+import { getInvoicePdfBlob } from '../../../services/invoice';
 
 // --- Main Component ---
 
 export function FinancePage() {
   const router = useRouter();
 
-  // Local State for Data (Simulating Backend)
+  // Local State for Data (Simulating Backend for Requirements)
   const [requirements, setRequirements] = useState<Requirement[]>([]);
-  const [invoices, setInvoices] = useState<Invoice[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loadingReqs, setLoadingReqs] = useState(true);
+
+  // Real API Fetch
+  const { data: dbInvoicesData, isLoading: isLoadingInvoices } = useInvoices({ limit: 1000 });
+  const loading = loadingReqs || isLoadingInvoices;
+
+  const invoices = useMemo(() => {
+    const dbInvoices: Invoice[] = (dbInvoicesData?.invoices || []).map(inv => ({
+      id: inv.id.toString(),
+      invoiceNumber: inv.invoice_number,
+      client: inv.bill_to_company?.name || inv.bill_to || 'Unknown',
+      date: inv.issue_date || inv.due_date || '',
+      dueDate: inv.due_date || '',
+      amount: inv.total,
+      status: (inv.status?.toLowerCase() || 'draft') as any, // maps to mock status types
+      items: (inv.particulars || []).map((p: any) => ({
+        id: p.id || Math.random().toString(),
+        requirementId: p.requirement_id || '',
+        description: p.description || '',
+        quantity: p.quantity || 1,
+        unitPrice: p.unit_price || 0,
+        amount: (p.quantity || 1) * (p.unit_price || 0)
+      }))
+    }));
+
+    return [...MOCK_INVOICES, ...dbInvoices];
+  }, [dbInvoicesData]);
 
   useEffect(() => {
-    // Simulate API fetch delay
+    // Simulate API fetch delay for requirements
     const timer = setTimeout(() => {
       setRequirements(MOCK_REQUIREMENTS);
-      setInvoices(MOCK_INVOICES);
-      setLoading(false);
+      setLoadingReqs(false);
     }, 1000);
     return () => clearTimeout(timer);
   }, []);
 
   // Download State
-  const [downloadPreviewData, setDownloadPreviewData] = useState<any>(null);
-  const [isDownloading, setIsDownloading] = useState(false);
-  const previewRef = useRef<HTMLDivElement>(null);
+  const [isDownloading, setIsDownloading] = useState<Record<string, boolean>>({});
 
-  // Data Hooks
-  const { data: companyRes } = useCurrentUserCompany();
-  const { data: partnersRes } = usePartners();
-
-  // UI State
-  const [activeTab, setActiveTab] = useState<'unbilled' | 'history'>('unbilled');
+  // UI State - 4 Tabs
+  const [activeTab, setActiveTab] = useState<'ready_to_bill' | 'drafts' | 'outstanding' | 'history'>('ready_to_bill');
   const [searchQuery, setSearchQuery] = useState('');
-
 
   // Expansion State
   const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({});
@@ -91,10 +108,10 @@ export function FinancePage() {
       defaultValue: 'All',
       multiSelect: true
     },
-    ...(activeTab === 'history' ? [{
+    ...(['outstanding', 'history'].includes(activeTab) ? [{
       id: 'status',
       label: 'Status',
-      options: ['All', 'Paid', 'Sent', 'Overdue'],
+      options: ['All', 'Paid', 'Sent', 'Overdue', 'Partial', 'Void'],
       placeholder: 'All Statuses',
       defaultValue: 'All',
       multiSelect: true
@@ -158,8 +175,14 @@ export function FinancePage() {
 
       if (!matchesSearch) return false;
 
+      // Tab filtering
+      if (activeTab === 'drafts' && inv.status !== 'draft') return false;
+      if (activeTab === 'outstanding' && !['sent', 'pending', 'partial', 'overdue'].includes(inv.status)) return false;
+      if (activeTab === 'history' && !['paid', 'void'].includes(inv.status)) return false;
+      if (activeTab === 'ready_to_bill') return false; // not used for invoices
+
       if (clientFilter !== 'All' && !clientFilter.split(',').includes(inv.client)) return false;
-      if (statusFilter !== 'All' && !statusFilter.split(',').includes(inv.status)) return false;
+      if (statusFilter !== 'All' && ['outstanding', 'history'].includes(activeTab) && !statusFilter.split(',').map(s => s.toLowerCase()).includes(inv.status)) return false;
 
       // Date Range (using Invoice Date)
       if (dateRange?.[0] && dateRange[1]) {
@@ -171,31 +194,25 @@ export function FinancePage() {
 
       return true;
     });
-  }, [invoices, searchQuery, clientFilter, statusFilter, dateRange]);
+  }, [invoices, searchQuery, clientFilter, statusFilter, dateRange, activeTab]);
 
   // --- Stats ---
 
-  // Card 1: Amount Invoiced (Total), Received (Paid), Due (Unpaid)
   const kpiInvoiced = useMemo(() => {
-    // For these cards, do we use filtered invoices or all invoices within range?
-    // Usually KPI cards respect the filters.
-    const total = filteredInvoices.reduce((sum, inv) => sum + inv.amount, 0);
-    const received = filteredInvoices.filter(i => i.status === 'paid').reduce((sum, inv) => sum + inv.amount, 0);
+    const activeInvoices = invoices.filter(i => i.status !== 'draft' && i.status !== ('void' as any));
+    const total = activeInvoices.reduce((sum, inv) => sum + inv.amount, 0);
+    const received = activeInvoices.filter(i => i.status === 'paid').reduce((sum, inv) => sum + inv.amount, 0);
+    // Rough estimate for partials if any (mock doesn't have partial amounts received, assume 0 for simplicity or use db fields if available, but for now due = total - received)
     const due = total - received;
     return { total, received, due };
-  }, [filteredInvoices]);
+  }, [invoices]);
 
-  // Card 2: Amount to be Invoiced (Unbilled)
   const kpiToBeInvoiced = unbilledReqs.reduce((sum, req) => sum + (req.estimatedCost || 0), 0);
 
-  // Card 3: Total Expenses
-  // Mock logic: 65% of revenue (Invoiced + Unbilled)
+  // Total Expenses Mock logic: 65% of revenue (Invoiced + Unbilled)
   const totalRevenue = kpiInvoiced.total + kpiToBeInvoiced;
   const kpiTotalExpenses = totalRevenue * 0.65;
-
-  // Card 4: Profit / Loss
   const kpiProfit = totalRevenue - kpiTotalExpenses;
-
 
   // --- Actions ---
 
@@ -216,112 +233,49 @@ export function FinancePage() {
     router.push(`/dashboard/finance/create?${queryParams.toString()}`);
   };
 
-
   const handleDownloadHistoryPDF = async (invoice: Invoice) => {
+    if (isNaN(Number(invoice.id))) {
+      // It's a mock invoice, can't download from server
+      toast.error("Cannot download PDF for mock invoice. Create a real invoice first.");
+      return;
+    }
+
     try {
-      setIsDownloading(true);
-      const toastId = toast.loading("Preparing PDF...");
+      setIsDownloading(prev => ({ ...prev, [invoice.id]: true }));
+      const toastId = toast.loading("Downloading PDF...");
 
-      // 1. Prepare Data
-      const companyData = companyRes?.result;
-      const partnerData = partnersRes?.result?.find(p =>
-        String(p.id) === invoice.client ||
-        p.name === invoice.client ||
-        (typeof p.company === 'object' ? p.company.name === invoice.client : p.company === invoice.client)
-      );
+      const blob = await getInvoicePdfBlob(Number(invoice.id));
 
-      // Calculate totals from items
-      const subtotal = invoice.items.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
-      // Assuming tax is included or calculated. For simplicity, let's reverse calc or assume standard tax if not stored
-      // MOCK_INVOICES just has 'amount'. Let's assume amount is total.
-      // If items sum != amount, we might need to adjust.
-      // For this demo, let's calculate fresh from items
-      const taxRate = 18;
-      const totalTax = (subtotal * taxRate) / 100;
-      const total = subtotal + totalTax;
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${invoice.invoiceNumber}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
 
-      const previewData = {
-        invoiceId: invoice.invoiceNumber,
-        issueDate: dayjs(invoice.date).format('YYYY-MM-DD'),
-        dueDate: dayjs(invoice.dueDate).format('YYYY-MM-DD'),
-        currencyCode: companyData?.currency || 'INR',
-
-        senderName: companyData?.name || 'Fynix Digital Solutions',
-        senderAddress: `${companyData?.address_line_1 || ''}\n${companyData?.address_line_2 || ''}`.trim(),
-        senderEmail: companyData?.email || '',
-        senderTaxId: companyData?.tax_id || '',
-
-        clientName: invoice.client,
-        clientAddress: `${partnerData?.address_line_1 || ''}\n${partnerData?.address_line_2 || ''}`.trim(),
-        clientEmail: partnerData?.email || '',
-        clientPhone: (partnerData as any)?.phone || '',
-        clientTaxId: (partnerData as any)?.tax_id || '',
-
-        items: invoice.items.map(i => ({ ...i, taxRate: 18 })),
-        totals: {
-          subtotal,
-          discount: 0,
-          taxableAmount: subtotal,
-          totalTax,
-          total
-        },
-        taxConfig: { id: 'gst_18', name: 'IGST', rate: 18 },
-        memo: "Thank you for your business.",
-        footer: companyData?.name ? `Bank Details for ${companyData.name}` : "Payment details..."
-      };
-
-      setDownloadPreviewData(previewData);
-
-      // Wait for render
-      setTimeout(async () => {
-        if (previewRef.current) {
-          // Dynamically import
-          const html2canvas = (await import('html2canvas')).default;
-          const jsPDF = (await import('jspdf')).default;
-
-          const canvas = await html2canvas(previewRef.current, {
-            scale: 2,
-            useCORS: true,
-            logging: false
-          });
-
-          const imgData = canvas.toDataURL('image/png');
-          const pdf = new jsPDF({
-            orientation: 'portrait',
-            unit: 'mm',
-            format: 'a4'
-          });
-
-          const imgWidth = 210;
-          const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-          pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-          pdf.save(`${invoice.invoiceNumber}.pdf`);
-
-          toast.dismiss(toastId);
-          toast.success("Invoice downloaded!");
-        }
-        setDownloadPreviewData(null);
-        setIsDownloading(false);
-      }, 1000); // 1s delay to ensure render
-
+      toast.dismiss(toastId);
+      toast.success("Invoice downloaded!");
     } catch (err) {
       console.error(err);
       toast.error("Failed to download PDF");
-      setIsDownloading(false);
-      setDownloadPreviewData(null);
+    } finally {
+      setIsDownloading(prev => ({ ...prev, [invoice.id]: false }));
     }
   };
 
   // --- Render Helpers ---
 
   const getStatusColor = (status: string) => {
-    switch (status) {
+    switch (status.toLowerCase()) {
       case 'paid': return 'bg-[#E8F5E9] text-[#4CAF50]';
-      case 'sent': return 'bg-[#E3F2FD] text-[#2196F3]'; // 'pending' maps to 'sent' visually
-      case 'pending': return 'bg-[#FFF3E0] text-[#FF9800]';
+      case 'sent':
+      case 'pending': return 'bg-[#E3F2FD] text-[#2196F3]';
+      case 'partial': return 'bg-[#FFF3E0] text-[#FF9800]';
       case 'overdue': return 'bg-[#FFEBEE] text-[#ff3b3b]';
       case 'draft': return 'bg-[#F7F7F7] text-[#999999]';
+      case 'void': return 'bg-[#EEEEEE] text-[#111111]';
       default: return 'bg-[#F7F7F7] text-[#666666]';
     }
   };
@@ -330,8 +284,10 @@ export function FinancePage() {
     <PageLayout
       title="Finance"
       tabs={[
-        { id: 'unbilled', label: 'Ready to Bill' },
-        { id: 'history', label: 'Invoice History' }
+        { id: 'ready_to_bill', label: 'Ready to Bill' },
+        { id: 'drafts', label: 'Drafts' },
+        { id: 'outstanding', label: 'Outstanding' },
+        { id: 'history', label: 'History' }
       ]}
       activeTab={activeTab}
       onTabChange={(id) => setActiveTab(id as any)}
@@ -349,7 +305,7 @@ export function FinancePage() {
       }
     >
       <div className="flex flex-col h-full relative">
-        {/* Filter Bar - Top position like Reports page */}
+        {/* Filter Bar */}
         <div className="mb-6 space-y-4">
           <FilterBar
             filters={filterOptions}
@@ -361,7 +317,7 @@ export function FinancePage() {
             onClearFilters={clearFilters}
           />
 
-          {/* KPI Cards - Double-width first card, single-width others */}
+          {/* KPI Cards */}
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
             {loading ? (
               <>
@@ -390,7 +346,7 @@ export function FinancePage() {
               </>
             ) : (
               <>
-                {/* Card 1: Amount Invoiced (Double Width) */}
+                {/* Card 1: Amount Invoiced */}
                 <div className="md:col-span-2 p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex items-center justify-between">
                   <div className="w-1/2 border-r border-[#EEEEEE] pr-4 flex flex-col gap-0.5">
                     <span className="text-xs font-medium text-[#666666]">Amount Invoiced</span>
@@ -408,19 +364,19 @@ export function FinancePage() {
                   </div>
                 </div>
 
-                {/* Card 2: Amount to be Invoiced (Single Width) */}
+                {/* Card 2: Amount to be Invoiced */}
                 <div className="p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center">
                   <span className="text-xs font-medium text-[#666666]">Amount to be Invoiced</span>
                   <span className="text-xl font-bold text-[#2196F3]">${kpiToBeInvoiced.toLocaleString()}</span>
                 </div>
 
-                {/* Card 3: Total Expenses (Single Width) */}
+                {/* Card 3: Total Expenses */}
                 <div className="p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center">
                   <span className="text-xs font-medium text-[#666666]">Total Expenses</span>
                   <span className="text-xl font-bold text-[#111111]">${kpiTotalExpenses.toLocaleString()}</span>
                 </div>
 
-                {/* Card 4: Profit / Loss (Single Width) */}
+                {/* Card 4: Profit / Loss */}
                 <div className="p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center">
                   <span className="text-xs font-medium text-[#666666]">Profit / Loss</span>
                   <span className={`text-xl font-bold ${kpiProfit >= 0 ? 'text-[#0F9D58]' : 'text-[#FF3B3B]'}`}>
@@ -434,7 +390,7 @@ export function FinancePage() {
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto pb-24">
-          {activeTab === 'unbilled' ? (
+          {activeTab === 'ready_to_bill' ? (
             loading ? (
               <div className="space-y-4">
                 {Array.from({ length: 3 }).map((_, i) => (
@@ -480,7 +436,7 @@ export function FinancePage() {
               </div>
             )
           ) : (
-            // History Tab
+            // Invoices Tabs (Drafts, Outstanding, History)
             <div className="bg-white border border-[#EEEEEE] rounded-[16px] overflow-hidden">
               <table className="w-full">
                 <thead className="bg-[#F9FAFB] border-b border-[#EEEEEE]">
@@ -513,7 +469,7 @@ export function FinancePage() {
                     </tr>
                   ) : (
                     filteredInvoices.map(invoice => (
-                      <tr key={invoice.id} className="hover:bg-[#F9FAFB] transition-colors">
+                      <tr key={invoice.id} className="hover:bg-[#F9FAFB] transition-colors group cursor-pointer" onClick={() => router.push(`/dashboard/finance/invoices/${invoice.id}`)}>
                         <td className="px-6 py-4 text-sm font-medium text-[#111111]">{invoice.invoiceNumber}</td>
                         <td className="px-6 py-4 text-sm font-normal text-[#111111]">{invoice.client}</td>
                         <td className="px-6 py-4 text-sm font-normal text-[#666666]">{dayjs(invoice.date).format('MMM D, YYYY')}</td>
@@ -525,9 +481,13 @@ export function FinancePage() {
                         </td>
                         <td className="px-6 py-4 text-right">
                           <button
-                            onClick={() => handleDownloadHistoryPDF(invoice)}
-                            disabled={isDownloading}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDownloadHistoryPDF(invoice);
+                            }}
+                            disabled={isDownloading[invoice.id]}
                             className="p-2 hover:bg-white rounded-full transition-colors disabled:opacity-50"
+                            title="Download PDF"
                           >
                             <Download className="w-4 h-4 text-[#666666]" />
                           </button>
@@ -540,19 +500,7 @@ export function FinancePage() {
             </div>
           )}
         </div>
-
-
-
       </div>
-
-      {/* Hidden Render Container for PDF Generation */}
-      {downloadPreviewData && (
-        <div style={{ position: 'absolute', top: '-9999px', left: '-9999px' }}>
-          <div className="w-[794px]" ref={previewRef}>
-            <InvoicePreview data={downloadPreviewData} />
-          </div>
-        </div>
-      )}
     </PageLayout>
   );
 }
@@ -566,12 +514,8 @@ function EmptyState({ icon, title, description }: { icon: React.ReactNode, title
         {icon}
       </div>
       <div>
-        <h3 className="text-base font-semibold text-[#111111] mb-2">
-          {title}
-        </h3>
-        <p className="text-sm text-[#666666] font-normal">
-          {description}
-        </p>
+        <h3 className="text-base font-semibold text-[#111111] mb-2">{title}</h3>
+        <p className="text-sm text-[#666666] font-normal">{description}</p>
       </div>
     </div>
   );
@@ -594,7 +538,6 @@ function ClientGroup({
 
   return (
     <div className="bg-white border border-[#EEEEEE] rounded-[16px] overflow-hidden">
-      {/* Header */}
       <div className="bg-[#F9FAFB] border-b border-[#EEEEEE] p-4 flex items-center justify-between">
         <div className="flex items-center gap-4 flex-1">
           <button onClick={onToggleCollapse} className="text-[#666666] hover:text-[#111111]">
@@ -625,7 +568,6 @@ function ClientGroup({
         </div>
       </div>
 
-      {/* List */}
       {!collapsed && (
         <table className="w-full">
           <thead className="bg-white border-b border-[#EEEEEE]">

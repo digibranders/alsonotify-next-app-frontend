@@ -35,6 +35,7 @@ import { ReqTabId, RequirementHeader } from './components/RequirementHeader';
 
 // Extracted components
 import { GanttChartTab, PnLTab, DocumentsTab, KanbanBoardTab } from './components';
+import { BillingTab } from './components/BillingTab';
 import { RequirementInfoCard } from './components/RequirementInfoCard';
 import { ActivitySidebar } from './components/ActivitySidebar';
 import { SubTaskRow } from './components/SubTaskRow';
@@ -68,7 +69,7 @@ export function RequirementDetailsPage() {
 
 
   // Use standardized tab sync hook for consistent URL handling
-  type ReqDetailsTab = 'details' | 'tasks' | 'gantt' | 'kanban' | 'pnl' | 'documents';
+  type ReqDetailsTab = 'details' | 'tasks' | 'gantt' | 'kanban' | 'pnl' | 'documents' | 'billing';
   const [activeTab, setActiveTab] = useTabSync<ReqDetailsTab>({
     defaultTab: 'details',
     validTabs: ['details', 'tasks', 'gantt', 'kanban', 'pnl', 'documents']
@@ -171,14 +172,20 @@ export function RequirementDetailsPage() {
   const hasSupervisoryFullAccess = ['Admin', 'Head', 'Coordinator'].includes(userRole);
 
   const visibleTabs: ReqTabId[] = useMemo(() => {
+    const tabs: ReqTabId[] = ['details', 'tasks', 'gantt', 'kanban', 'pnl', 'documents'];
+    // In actual implementation, we'd check roles robustly, but assuming users who can see pnl can see billing
+    if (['Admin', 'Head', 'Accountant'].includes(userRole)) {
+      tabs.push('billing');
+    }
+
     if (hasSupervisoryFullAccess) {
-      return ['details', 'tasks', 'gantt', 'kanban', 'pnl', 'documents'];
+      return tabs;
     }
     if (isReceiver || isInHouse) {
-      return ['details', 'tasks', 'gantt', 'kanban', 'pnl', 'documents'];
+      return tabs;
     }
     return ['details', 'documents'];
-  }, [isReceiver, isInHouse, hasSupervisoryFullAccess]);
+  }, [isReceiver, isInHouse, hasSupervisoryFullAccess, userRole]);
 
   // If active tab is not visible, switch to 'details' - moved to useEffect for safety
   useEffect(() => {
@@ -547,6 +554,10 @@ export function RequirementDetailsPage() {
 
           <div className={activeTab === 'documents' ? '' : 'hidden'}>
             <DocumentsTab activityData={documentsActivityData} />
+          </div>
+
+          <div className={activeTab === 'billing' ? '' : 'hidden'}>
+            <BillingTab requirement={requirement} />
           </div>
         </div>
       </div>
