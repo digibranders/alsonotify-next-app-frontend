@@ -35,6 +35,7 @@ interface RequirementCardProps {
   deleteLabel?: string;
   deleteIcon?: React.ReactNode;
   currentUserId?: number;
+  onSubmitForReview?: () => void;
 }
 
 const CURRENCY_SYMBOLS: Record<string, string> = {
@@ -57,6 +58,7 @@ export function RequirementCard({
   deleteLabel,
   deleteIcon,
   currentUserId,
+  onSubmitForReview,
 }: Readonly<RequirementCardProps>) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -208,7 +210,7 @@ export function RequirementCard({
       `}
     >
       {/* Top Right Controls: More Options */}
-      {(onEdit || onDuplicate || onRestore || onDelete) && (
+      {(onEdit || onDuplicate || onRestore || onDelete || onSubmitForReview) && (
         <div className="absolute top-4 right-4 z-20 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
           {/* More Options Menu */}
           <Popover
@@ -249,6 +251,18 @@ export function RequirementCard({
                   >
                     <CheckCircle className="w-3.5 h-3.5" />
                     Make Active
+                  </button>
+                )}
+
+                {onSubmitForReview && ['In_Progress', 'Delayed', 'On_Hold'].includes(requirement.rawStatus || '') && (
+                  <button
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      onSubmitForReview();
+                    }}
+                    className="w-full text-left px-3 py-2 text-[0.8125rem] hover:bg-gray-50 rounded text-[#15803D]"
+                  >
+                    Submit for Review
                   </button>
                 )}
 
@@ -467,8 +481,8 @@ export function RequirementCard({
                     const { modal } = ctaConfig.primaryAction!;
                     if (modal === 'edit') {
                       onEdit?.();
-                    } else if (modal === 'quotation' || modal === 'mapping' || modal === 'none' || modal === 'client_accept') {
-                      // quotation, mapping, client_accept and none (direct API) all use onAccept
+                    } else if (modal === 'quotation' || modal === 'mapping' || modal === 'none' || modal === 'client_accept' || modal === 'approval') {
+                      // quotation, mapping, client_accept, approval and none (direct API) all use onAccept
                       onAccept?.();
                     }
                   }}

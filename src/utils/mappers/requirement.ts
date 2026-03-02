@@ -20,6 +20,7 @@ export function mapRequirementToDomain(dto: RequirementDto): Requirement {
     is_high_priority: dto.is_high_priority ?? false,
 
     status: (dto.status as RequirementStatus) || 'draft',
+    rawStatus: dto.status,
     progress: dto.total_task ? Math.round(((dto.tasks_completed || 0) / dto.total_task) * 100) : 0,
     tasksCompleted: dto.tasks_completed || 0,
     tasksTotal: dto.total_task || 0,

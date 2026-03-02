@@ -65,7 +65,7 @@ export interface Requirement extends Omit<RequirementDto, 'workspace' | 'status'
   isReceiver?: boolean;
   approvalStatus?: string;
   rawStatus?: string;
-  invoice_status?: 'paid' | 'billed';
+  invoice_status?: 'draft' | 'pending_approval' | 'sent' | 'overdue' | 'partial' | 'paid' | 'void';
   headerContact?: string;
   headerCompany?: string;
   category?: string;

@@ -6,6 +6,7 @@ import { UploadOutlined } from "@ant-design/icons";
 import type { UploadFile } from "antd";
 import { fileService } from "@/services/file.service";
 import { Requirement } from "@/types/domain";
+import { getErrorMessage } from "@/types/api-utils";
 
 const { TextArea } = Input;
 
@@ -68,18 +69,14 @@ export const SubmitForApprovalModal = ({
         attachment_ids: attachment_ids.length > 0 ? attachment_ids : undefined,
       });
       handleClose();
-    } catch (err: any) {
-      message.error(err.message || "Failed to submit for approval.");
+    } catch (err: unknown) {
+      message.error(getErrorMessage(err, "Failed to submit for approval."));
     } finally {
       setLoading(false);
     }
   }, [fileList, remark, onSubmit, handleClose, message]);
 
-  const contactPerson = typeof requirement.contact_person === 'object' ? requirement.contact_person : null;
-  const contactName =
-    (contactPerson as any)?.user_profile?.name ||
-    contactPerson?.name ||
-    "Contact Person";
+  const contactName = requirement.headerContact || undefined;
 
   return (
     <Modal
@@ -115,7 +112,7 @@ export const SubmitForApprovalModal = ({
               <span>{new Date(requirement.end_date).toLocaleDateString()}</span>
             </div>
           )}
-          {requirement.contact_person_id && (
+          {contactName && (
             <div className="flex gap-2 text-gray-600">
               <span className="font-medium">Reviewer:</span>
               <span>{contactName}</span>

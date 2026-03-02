@@ -131,10 +131,10 @@ function ActionButtons({
     e.stopPropagation();
     if (!requirementId) return;
     try {
-      const token = new Cookies().get('_token');
+      const token: string = new Cookies().get('_token') ?? '';
       const resp = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/requirement/approve`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        headers: { 'Content-Type': 'application/json', 'Authorization': token },
         body: JSON.stringify({ requirement_id: requirementId, status: 'Assigned' }),
       });
       const data = await resp.json();
@@ -149,10 +149,10 @@ function ActionButtons({
     e.stopPropagation();
     if (!requirementId) return;
     try {
-      const token = new Cookies().get('_token');
+      const token: string = new Cookies().get('_token') ?? '';
       const resp = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/requirement/approve`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        headers: { 'Content-Type': 'application/json', 'Authorization': token },
         body: JSON.stringify({ requirement_id: requirementId, status: 'Rejected' }),
       });
       const data = await resp.json();

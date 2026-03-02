@@ -55,3 +55,6 @@ refactor_report.md
 *.log
 *.pid
 *.zip
+
+# Sentry Config File
+.env.sentry-build-plugin

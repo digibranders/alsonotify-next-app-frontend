@@ -65,6 +65,12 @@ export function RequirementHeader({
       case 'resume': return 'In_Progress';
       case 'pause': return 'On_Hold';
       case 'reopen': return 'Assigned';
+      case 'resubmit': return 'Review';
+      case 'mark_blocked': return 'On_Hold';
+      case 'pull_back': return 'In_Progress';
+      case 'retract': return 'Waiting';
+      case 'restart': return 'Assigned';
+      case 'submit_for_work': return 'Assigned';
       default: return requirement.status;
     }
   }, [requirement.status]);
@@ -137,17 +143,11 @@ export function RequirementHeader({
   }, [requirement.id, updateRequirement, message]);
 
   const handleSubmitForApproval = useCallback(async (data: { remark?: string; attachment_ids?: number[] }) => {
-    try {
-      await submitForReviewMutation.mutateAsync({
-        requirementId: requirement.id,
-        body: data,
-      });
-      message.success("Requirement submitted for approval successfully!");
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : "Failed to submit for approval";
-      message.error(errorMessage || "Failed to submit for approval");
-      throw error;
-    }
+    await submitForReviewMutation.mutateAsync({
+      requirementId: requirement.id,
+      body: data,
+    });
+    message.success("Requirement submitted for approval successfully!");
   }, [requirement.id, submitForReviewMutation, message]);
 
   const handleApproval = useCallback(async (data: { rating?: number; remark?: string }) => {

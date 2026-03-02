@@ -58,8 +58,11 @@ export const updateInvoice = async (id: number | string, payload: Record<string,
     return responseData;
 };
 
-export const deleteInvoice = async (id: number | string): Promise<ApiResponse<void>> => {
-    const { data } = await axiosApi.delete<ApiResponse<void>>(`/invoice/${id}`);
+export const updateInvoiceStatus = async (
+    id: number | string,
+    status: 'draft' | 'pending_approval' | 'sent' | 'overdue' | 'partial' | 'paid' | 'void',
+): Promise<ApiResponse<void>> => {
+    const { data } = await axiosApi.patch<ApiResponse<void>>(`/invoice/${id}/status`, { status });
     return data;
 };
 
@@ -70,7 +73,7 @@ export const reviseInvoice = async (id: number | string): Promise<ApiResponse<In
 
 export const recordPayment = async (
     id: number | string,
-    payload: { amount: number; payment_date: string; payment_method?: string; reference_number?: string },
+    payload: { amount: number; date: string; method: string; reference?: string },
 ): Promise<ApiResponse<void>> => {
     const { data: responseData } = await axiosApi.post<ApiResponse<void>>(`/invoice/${id}/record-payment`, payload);
     return responseData;
@@ -90,7 +93,7 @@ export const getInvoicePdfBlob = async (id: number | string): Promise<Blob> => {
 };
 
 export const getNextInvoiceNumber = async (companyId: number): Promise<ApiResponse<{ invoice_number: string }>> => {
-    const { data } = await axiosApi.get<ApiResponse<{ invoice_number: string }>>(`/invoice/next-number?company_id=${companyId}`);
+    const { data } = await axiosApi.get<ApiResponse<{ invoice_number: string }>>(`/invoice/next-number?companyId=${companyId}`);
     return data;
 };
 
@@ -99,7 +102,7 @@ export const getEmailRecipients = async (invoiceId: number): Promise<ApiResponse
     return data;
 };
 
-export const getInvoiceRequirementSummary = async (requirementId: number | string): Promise<ApiResponse<unknown>> => {
-    const { data } = await axiosApi.get<ApiResponse<unknown>>(`/invoice/requirement/${requirementId}`);
+export const getRequirementBillingStatus = async (requirementId: number | string): Promise<ApiResponse<{ billingStatus: string; invoiceId: number | null; invoiceNumber: string | null; invoiceStatus: string | null; invoiceTotal: number | null }>> => {
+    const { data } = await axiosApi.get(`/requirements/${requirementId}/billing-status`);
     return data;
 };

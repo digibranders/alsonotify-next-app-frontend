@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { Checkbox, Button, App, Input, Modal } from 'antd';
 import { Skeleton } from '../../ui/Skeleton';
-import { useWorkspace, useRequirements, useUpdateRequirement, useWorkspaces } from '@/hooks/useWorkspace';
+import { useWorkspace, useRequirements, useUpdateRequirement, useWorkspaces, useSubmitForReview } from '@/hooks/useWorkspace';
 import { useTasks, useRequestRevision, useCreateTask, useUpdateTask } from '@/hooks/useTask';
 import { TaskForm } from '../../modals/TaskForm';
 import { CreateTaskRequestDto, UpdateTaskRequestDto } from '@/types/dto/task.dto';
@@ -22,15 +22,16 @@ import { Requirement, Task } from '@/types/domain';
 import {
   getRequirementCTAConfig,
   type RequirementStatus,
+  type UserRole,
 } from '@/lib/workflow';
 import {
   mapRequirementToStatus,
-  mapRequirementToRole,
   mapRequirementToContext,
   mapRequirementToType,
 } from './utils/requirementState.utils';
 import { getRoleFromUser } from '@/utils/roleUtils';
 import { ReqTabId, RequirementHeader } from './components/RequirementHeader';
+import { SubmitForApprovalModal } from '@/components/modals/SubmitForApprovalModal';
 
 
 // Extracted components
@@ -99,6 +100,8 @@ export function RequirementDetailsPage() {
   const [isRevisionModalOpen, setIsRevisionModalOpen] = useState(false);
   const [revisionNotes, setRevisionNotes] = useState('');
   const [targetTaskId, setTargetTaskId] = useState<number | null>(null);
+  const [isTasksSubmitOpen, setIsTasksSubmitOpen] = useState(false);
+  const submitForReviewMutation = useSubmitForReview();
 
   const workspace = useMemo(() => {
     if (!workspaceData?.result) return null;
@@ -132,6 +135,8 @@ export function RequirementDetailsPage() {
     return tasks.every((t: Task) => t.status === 'Completed');
   }, [tasks]);
 
+  const myCompanyId = companyData?.result?.id;
+
   const ctaConfig = useMemo(() => {
     if (!requirement) {
       return {
@@ -145,7 +150,14 @@ export function RequirementDetailsPage() {
 
     const status = mapRequirementToStatus(requirement);
     const type = mapRequirementToType(requirement);
-    const role = mapRequirementToRole(requirement);
+
+    const senderCompId = requirement.sender_company_id ? Number(requirement.sender_company_id) : null;
+    const receiverCompId = requirement.receiver_company_id ? Number(requirement.receiver_company_id) : null;
+    let role: UserRole;
+    if (myCompanyId && senderCompId === myCompanyId) role = 'sender';
+    else if (myCompanyId && receiverCompId === myCompanyId) role = 'receiver';
+    else role = 'internal';
+
     const context = mapRequirementToContext(requirement, user?.id, role);
 
     if (status === 'draft') {
@@ -159,11 +171,10 @@ export function RequirementDetailsPage() {
     }
 
     return getRequirementCTAConfig(status as RequirementStatus, role, context, type);
-  }, [requirement, user?.id]);
+  }, [requirement, user?.id, myCompanyId]);
 
   const displayStatus = ctaConfig.displayStatus;
 
-  const myCompanyId = companyData?.result?.id;
   const isReceiver = useMemo(() => !!myCompanyId && requirement?.receiver_company_id === myCompanyId, [myCompanyId, requirement]);
   const isInHouse = useMemo(() => !requirement?.receiver_company_id || requirement?.receiver_company_id === requirement?.sender_company_id, [requirement]);
 
@@ -467,6 +478,24 @@ export function RequirementDetailsPage() {
                   )}
                 </div>
 
+                {/* Submit for Review banner — shown when all tasks are done and work is In Progress */}
+                {allTasksCompleted && ['In_Progress', 'Delayed', 'On_Hold'].includes(requirement.rawStatus || '') && (
+                  <div className="mt-6 flex items-center justify-between px-4 py-3 bg-[#F0FFF4] border border-[#BBF7D0] rounded-xl">
+                    <div>
+                      <p className="text-sm font-semibold text-[#15803D]">All tasks completed</p>
+                      <p className="text-xs text-[#166534]">Ready to submit this requirement for review.</p>
+                    </div>
+                    <Button
+                      type="primary"
+                      size="middle"
+                      className="bg-[#111111] hover:!bg-[#333333] border-none rounded-full px-5 font-semibold"
+                      onClick={() => setIsTasksSubmitOpen(true)}
+                    >
+                      Submit for Review
+                    </Button>
+                  </div>
+                )}
+
                 <Modal
                   title="Request Revision"
                   open={isRevisionModalOpen}
@@ -679,6 +708,21 @@ export function RequirementDetailsPage() {
           }}
         />
       </Modal>
+
+      {requirement && (
+        <SubmitForApprovalModal
+          open={isTasksSubmitOpen}
+          onClose={() => setIsTasksSubmitOpen(false)}
+          onSubmit={async (data) => {
+            await submitForReviewMutation.mutateAsync({
+              requirementId: requirement.id,
+              body: data,
+            });
+            message.success("Requirement submitted for review successfully!");
+          }}
+          requirement={requirement}
+        />
+      )}
     </div>
   );
 }

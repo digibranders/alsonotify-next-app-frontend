@@ -107,7 +107,9 @@ export function SendInvoiceModal({
     // Fetch email recipients when modal opens
     useEffect(() => {
         if (!isOpen) return;
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setToError('');
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setIsLoadingRecipients(true);
         getEmailRecipients(invoiceId)
             .then(res => {
