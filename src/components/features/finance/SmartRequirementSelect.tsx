@@ -92,7 +92,7 @@ export const SmartRequirementSelect: React.FC<SmartRequirementSelectProps> = ({
                                 {filteredRequirements.map(req => {
                                     const isSelected = selectedRequirementIds.includes(req.id);
                                     const estimatedCost = req.estimated_cost || req.quoted_price || 0;
-                                    const totalBilled = (req as { total_billed?: number }).total_billed || 0;
+                                    const totalBilled = req.total_billed ?? 0;
                                     const remaining = Math.max(0, estimatedCost - totalBilled);
 
                                     return (

@@ -8,7 +8,7 @@ import { DateRangeSelector } from '../../common/DateRangeSelector';
 
 import { PaginationBar } from '../../ui/PaginationBar';
 import { App } from 'antd';
-import { useWorkspaces, useCreateRequirement, useUpdateRequirement, useDeleteRequirement, useAllRequirements, useCollaborativeRequirements, useApproveRequirement } from '@/hooks/useWorkspace';
+import { useWorkspaces, useCreateRequirement, useUpdateRequirement, useDeleteRequirement, useAllRequirements, useCollaborativeRequirements, useApproveRequirement, useSubmitForReview } from '@/hooks/useWorkspace';
 import { useUserDetails, usePartners, useCompanyDepartments } from '@/hooks/useUser';
 import { fileService } from '@/services/file.service';
 import { format } from 'date-fns';
@@ -20,6 +20,7 @@ import { Dayjs } from 'dayjs';
 
 import { RequirementsForm } from '../../modals/RequirementsForm';
 import { ClientAcceptModal } from '../../modals/ClientAcceptModal';
+import { SubmitForApprovalModal } from '../../modals/SubmitForApprovalModal';
 import { QuotationDialog, RejectDialog, InternalMappingModal } from './components/dialogs';
 import { RequirementsList } from './components/RequirementsList';
 
@@ -222,7 +223,7 @@ export function RequirementsPage() {
       const workspace = workspaceMap.get(effectiveWorkspaceId || 0);
 
       const mockInvoiceStatus = req.invoice_id
-        ? (req.invoice?.status === 'paid' ? 'paid' : req.invoice?.status === 'open' ? 'billed' : undefined)
+        ? (req.invoice?.status === 'paid' ? 'paid' : req.invoice?.status ? req.invoice.status : undefined)
         : undefined;
 
       const contactPersonName = req.contact_person?.name || null;
@@ -324,16 +325,16 @@ export function RequirementsPage() {
         type: (req.type || 'inhouse') as RequirementType,
         status: mapRequirementStatus(req.status || 'Assigned'),
         category: 'General',
-        progress: 0,
-        tasksCompleted: req.total_task ? Math.floor(req.total_task * 0 / 100) : 0,
-        tasksTotal: req.total_task || 0,
+        progress: req.progress || 0,
+        tasksCompleted: req.completed_tasks || req.tasks_completed || 0,
+        tasksTotal: req.total_tasks || req.total_task || 0,
         workspace_id: effectiveWorkspaceId || 0,
         workspace: workspace?.name || 'Unknown Workspace',
         approvalStatus: (req.approved_by ? 'approved' :
           (req.status === 'Waiting' || req.status === 'Review' || req.status?.toLowerCase() === 'rejected' || req.status?.toLowerCase().includes('pending')) ? 'pending' :
             undefined
         ) as 'pending' | 'approved' | 'rejected' | undefined,
-        invoice_status: mockInvoiceStatus as 'paid' | 'billed' | undefined,
+        invoice_status: mockInvoiceStatus as 'draft' | 'pending_approval' | 'sent' | 'overdue' | 'partial' | 'paid' | 'void' | undefined,
         estimated_cost: req.estimated_cost || (req.budget || undefined),
         budget: req.budget || undefined,
         quoted_price: req.quoted_price || undefined,
@@ -382,6 +383,9 @@ export function RequirementsPage() {
   const [isMappingOpen, setIsMappingOpen] = useState(false);
   const [isClientAcceptOpen, setIsClientAcceptOpen] = useState(false);
   const [pendingReqId, setPendingReqId] = useState<number | null>(null);
+  const [isSubmitReviewOpen, setIsSubmitReviewOpen] = useState(false);
+  const [pendingSubmitReqId, setPendingSubmitReqId] = useState<number | null>(null);
+  const submitForReviewMutation = useSubmitForReview();
 
   const { mutate: deleteRequirement } = useDeleteRequirement();
 
@@ -814,7 +818,10 @@ export function RequirementsPage() {
     setIsRejectOpen(true);
   };
 
-
+  const handleSubmitForReview = useCallback((id: number) => {
+    setPendingSubmitReqId(id);
+    setIsSubmitReviewOpen(true);
+  }, []);
 
   // Tabs Configuration
   const tabs = [
@@ -956,6 +963,7 @@ export function RequirementsPage() {
             onNavigate={(workspace_id, reqId) =>
               router.push(`/dashboard/workspace/${workspace_id}/requirements/${reqId}`)
             }
+            handleSubmitForReview={userRole !== 'Employee' ? handleSubmitForReview : undefined}
           />
 
         </div>
@@ -1076,6 +1084,26 @@ export function RequirementsPage() {
         creatorName={requirements.find(r => r.id === pendingReqId)?.headerContact ?? undefined}
         loading={approveRequirementMutation.isPending}
       />
+
+      {isSubmitReviewOpen && pendingSubmitReqId && requirements.find(r => r.id === pendingSubmitReqId) && (
+        <SubmitForApprovalModal
+          open={isSubmitReviewOpen}
+          onClose={() => {
+            setIsSubmitReviewOpen(false);
+            setPendingSubmitReqId(null);
+          }}
+          onSubmit={async (data) => {
+            await submitForReviewMutation.mutateAsync({
+              requirementId: pendingSubmitReqId,
+              body: data,
+            });
+            messageApi.success("Requirement submitted for review successfully!");
+            setIsSubmitReviewOpen(false);
+            setPendingSubmitReqId(null);
+          }}
+          requirement={requirements.find(r => r.id === pendingSubmitReqId)!}
+        />
+      )}
     </PageLayout>
   );
 }

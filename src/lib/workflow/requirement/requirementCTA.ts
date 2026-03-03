@@ -254,6 +254,7 @@ function getClientWorkReceiverCTA(
         displayStatus: 'Completed',
         isPending: false,
         tab,
+        primaryAction: createAction('Create Invoice', 'primary', 'none', 'create_invoice'),
       };
 
     case 'On_Hold':
@@ -512,6 +513,7 @@ function getReceiverCTA(
         displayStatus: 'Completed',
         isPending: false,
         tab,
+        primaryAction: createAction('Create Invoice', 'primary', 'none', 'create_invoice'),
       };
 
     case 'On_Hold':
@@ -666,6 +668,7 @@ function getInternalCTA(
         displayStatus: 'Completed',
         isPending: false,
         tab,
+        primaryAction: createAction('View Billing', 'primary', 'none', 'view_billing'),
         secondaryAction: createAction('Reopen', 'secondary', 'none', 'reopen'),
       };
 

@@ -1,11 +1,13 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import {
   CheckCircle,
   ChevronDown,
   ChevronRight,
   Download,
+  Mail,
+  CreditCard,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
@@ -19,58 +21,107 @@ import { DateRangeSelector } from '../../common/DateRangeSelector';
 
 dayjs.extend(isBetween);
 
-import {
-  Requirement,
-  Invoice,
-  MOCK_REQUIREMENTS,
-  MOCK_INVOICES
-} from '../../../data/mockFinanceData';
-import { useInvoices } from '../../../hooks/useInvoice';
+import { useInvoices, useRecordPayment, useSendInvoiceEmail } from '../../../hooks/useInvoice';
+import { useCollaborativeRequirements } from '../../../hooks/useRequirement';
+import { useCurrentUserCompany } from '../../../hooks/useUser';
 import { getInvoicePdfBlob } from '../../../services/invoice';
+import { SendInvoiceModal } from './SendInvoiceModal';
+import { RecordPaymentModal } from './RecordPaymentModal';
+
+// Local view-model types for the finance page
+interface Requirement {
+    id: string | number;
+    title: string;
+    client: string;
+    clientCompanyId?: number;
+    dueDate: string;
+    estimatedCost: number;
+    status: 'in-progress' | 'completed';
+    approvalStatus: 'pending' | 'approved' | 'rejected';
+    invoiceStatus?: 'unbilled' | 'invoiced';
+    type?: string | null;
+}
+
+interface Invoice {
+    id: string;
+    invoiceNumber: string;
+    client: string;
+    date: string;
+    dueDate: string;
+    amount: number;
+    amountReceived: number;
+    status: string;
+    items: Array<{ id: string; requirementId: string; description: string; quantity: number; unitPrice: number; amount: number }>;
+}
 
 // --- Main Component ---
 
 export function FinancePage() {
   const router = useRouter();
 
-  // Local State for Data (Simulating Backend for Requirements)
-  const [requirements, setRequirements] = useState<Requirement[]>([]);
-  const [loadingReqs, setLoadingReqs] = useState(true);
-
-  // Real API Fetch
+  // Real API Fetches
   const { data: dbInvoicesData, isLoading: isLoadingInvoices } = useInvoices({ limit: 1000 });
-  const loading = loadingReqs || isLoadingInvoices;
+  const { data: collaborativeReqs, isLoading: isLoadingReqs } = useCollaborativeRequirements();
+  const loading = isLoadingInvoices || isLoadingReqs;
 
-  const invoices = useMemo(() => {
-    const dbInvoices: Invoice[] = (dbInvoicesData?.invoices || []).map(inv => ({
+  const invoices = useMemo<Invoice[]>(() => {
+    return (dbInvoicesData?.invoices || []).map(inv => ({
       id: inv.id.toString(),
       invoiceNumber: inv.invoice_number,
       client: inv.bill_to_company?.name || inv.bill_to || 'Unknown',
       date: inv.issue_date || inv.due_date || '',
       dueDate: inv.due_date || '',
       amount: inv.total,
-      status: (inv.status?.toLowerCase() || 'draft') as any, // maps to mock status types
-      items: (inv.particulars || []).map((p: any) => ({
-        id: p.id || Math.random().toString(),
-        requirementId: p.requirement_id || '',
+      amountReceived: inv.amount_received ?? 0,
+      status: inv.status?.toLowerCase() ?? 'draft',
+      items: (inv.particulars || []).map(p => ({
+        id: p.id || crypto.randomUUID(),
+        requirementId: String(p.requirement_id ?? ''),
         description: p.description || '',
         quantity: p.quantity || 1,
         unitPrice: p.unit_price || 0,
-        amount: (p.quantity || 1) * (p.unit_price || 0)
-      }))
+        amount: (p.quantity || 1) * (p.unit_price || 0),
+      })),
     }));
-
-    return [...MOCK_INVOICES, ...dbInvoices];
   }, [dbInvoicesData]);
 
-  useEffect(() => {
-    // Simulate API fetch delay for requirements
-    const timer = setTimeout(() => {
-      setRequirements(MOCK_REQUIREMENTS);
-      setLoadingReqs(false);
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, []);
+  // Map collaborative requirements to the page view-model and filter for "Ready to Bill"
+  const requirements = useMemo<Requirement[]>(() => {
+    return (collaborativeReqs ?? []).map(req => {
+      const isCompleted = req.status === 'Completed';
+      const hasInvoice = !!req.invoice_id;
+      return {
+        id: req.id,
+        title: req.name ?? '',
+        client: req.sender_company?.name ?? req.client ?? 'Unknown',
+        clientCompanyId: (req.receiver_company_id ?? req.sender_company_id) ?? undefined,
+        dueDate: req.end_date ?? '',
+        estimatedCost: Number(req.quoted_price ?? req.estimated_cost ?? 0),
+        status: isCompleted ? 'completed' : 'in-progress',
+        approvalStatus: req.approved_by ? 'approved' : 'pending',
+        invoiceStatus: hasInvoice ? 'invoiced' : 'unbilled',
+        type: req.type,
+      };
+    });
+  }, [collaborativeReqs]);
+
+  // Company data for currency symbol
+  const { data: companyRes } = useCurrentUserCompany();
+  const currencySymbol = useMemo(() => {
+    const code = (companyRes?.result as { currency?: string } | undefined)?.currency ?? 'INR';
+    try {
+      return new Intl.NumberFormat('en', { style: 'currency', currency: code, maximumFractionDigits: 0 })
+        .formatToParts(0).find(p => p.type === 'currency')?.value ?? code;
+    } catch { return code; }
+  }, [companyRes]);
+
+  // Record payment / send email mutations
+  const { mutateAsync: recordPaymentMutation, isPending: isRecordingPayment } = useRecordPayment();
+  const { isPending: isSendingEmail } = useSendInvoiceEmail();
+
+  // Modal state for quick-actions
+  const [sendModalInvoice, setSendModalInvoice] = useState<Invoice | null>(null);
+  const [paymentModalInvoice, setPaymentModalInvoice] = useState<Invoice | null>(null);
 
   // Download State
   const [isDownloading, setIsDownloading] = useState<Record<string, boolean>>({});
@@ -133,9 +184,9 @@ export function FinancePage() {
 
   const unbilledReqs = useMemo(() => {
     return requirements.filter(req => {
-      // Base logic: approved + completed + unbilled
+      // Base logic: completed + unbilled (approvals might be bypassed, completed dictates readiness)
       const isUnbilled = req.status === 'completed' &&
-        req.approvalStatus === 'approved' &&
+        req.type !== 'inhouse' &&
         (req.invoiceStatus === 'unbilled' || !req.invoiceStatus);
 
       if (!isUnbilled) return false;
@@ -199,7 +250,7 @@ export function FinancePage() {
   // --- Stats ---
 
   const kpiInvoiced = useMemo(() => {
-    const activeInvoices = invoices.filter(i => i.status !== 'draft' && i.status !== ('void' as any));
+    const activeInvoices = invoices.filter(i => i.status !== 'draft' && i.status !== 'void');
     const total = activeInvoices.reduce((sum, inv) => sum + inv.amount, 0);
     const received = activeInvoices.filter(i => i.status === 'paid').reduce((sum, inv) => sum + inv.amount, 0);
     // Rough estimate for partials if any (mock doesn't have partial amounts received, assume 0 for simplicity or use db fields if available, but for now due = total - received)
@@ -226,7 +277,7 @@ export function FinancePage() {
     }
 
     const queryParams = new URLSearchParams({
-      clientId: client,
+      clientId: String(clientReqs[0]?.clientCompanyId ?? ''),
       reqIds: idsToInvoice.join(',')
     });
 
@@ -274,6 +325,7 @@ export function FinancePage() {
       case 'pending': return 'bg-[#E3F2FD] text-[#2196F3]';
       case 'partial': return 'bg-[#FFF3E0] text-[#FF9800]';
       case 'overdue': return 'bg-[#FFEBEE] text-[#ff3b3b]';
+      case 'pending_approval': return 'bg-[#FFF3E0] text-[#FF9800]';
       case 'draft': return 'bg-[#F7F7F7] text-[#999999]';
       case 'void': return 'bg-[#EEEEEE] text-[#111111]';
       default: return 'bg-[#F7F7F7] text-[#666666]';
@@ -290,7 +342,7 @@ export function FinancePage() {
         { id: 'history', label: 'History' }
       ]}
       activeTab={activeTab}
-      onTabChange={(id) => setActiveTab(id as any)}
+      onTabChange={(id) => setActiveTab(id as 'ready_to_bill' | 'drafts' | 'outstanding' | 'history')}
       searchPlaceholder="Search finance..."
       searchValue={searchQuery}
       onSearchChange={setSearchQuery}
@@ -350,16 +402,16 @@ export function FinancePage() {
                 <div className="md:col-span-2 p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex items-center justify-between">
                   <div className="w-1/2 border-r border-[#EEEEEE] pr-4 flex flex-col gap-0.5">
                     <span className="text-xs font-medium text-[#666666]">Amount Invoiced</span>
-                    <span className="text-xl font-bold text-[#111111]">${kpiInvoiced.total.toLocaleString()}</span>
+                    <span className="text-xl font-bold text-[#111111]">{currencySymbol}{kpiInvoiced.total.toLocaleString()}</span>
                   </div>
                   <div className="w-1/2 pl-6 flex items-center gap-8">
                     <div className="flex flex-col">
                       <span className="text-[0.625rem] uppercase tracking-wider font-bold text-[#999999]">Received</span>
-                      <span className="text-[0.9375rem] font-bold text-[#0F9D58]">${kpiInvoiced.received.toLocaleString()}</span>
+                      <span className="text-[0.9375rem] font-bold text-[#0F9D58]">{currencySymbol}{kpiInvoiced.received.toLocaleString()}</span>
                     </div>
                     <div className="flex flex-col">
                       <span className="text-[0.625rem] uppercase tracking-wider font-bold text-[#999999]">Due</span>
-                      <span className="text-[0.9375rem] font-bold text-[#FF3B3B]">${kpiInvoiced.due.toLocaleString()}</span>
+                      <span className="text-[0.9375rem] font-bold text-[#FF3B3B]">{currencySymbol}{kpiInvoiced.due.toLocaleString()}</span>
                     </div>
                   </div>
                 </div>
@@ -367,20 +419,20 @@ export function FinancePage() {
                 {/* Card 2: Amount to be Invoiced */}
                 <div className="p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center">
                   <span className="text-xs font-medium text-[#666666]">Amount to be Invoiced</span>
-                  <span className="text-xl font-bold text-[#2196F3]">${kpiToBeInvoiced.toLocaleString()}</span>
+                  <span className="text-xl font-bold text-[#2196F3]">{currencySymbol}{kpiToBeInvoiced.toLocaleString()}</span>
                 </div>
 
                 {/* Card 3: Total Expenses */}
                 <div className="p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center">
                   <span className="text-xs font-medium text-[#666666]">Total Expenses</span>
-                  <span className="text-xl font-bold text-[#111111]">${kpiTotalExpenses.toLocaleString()}</span>
+                  <span className="text-xl font-bold text-[#111111]">{currencySymbol}{kpiTotalExpenses.toLocaleString()}</span>
                 </div>
 
                 {/* Card 4: Profit / Loss */}
                 <div className="p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center">
                   <span className="text-xs font-medium text-[#666666]">Profit / Loss</span>
                   <span className={`text-xl font-bold ${kpiProfit >= 0 ? 'text-[#0F9D58]' : 'text-[#FF3B3B]'}`}>
-                    ${kpiProfit.toLocaleString()}
+                    {currencySymbol}{kpiProfit.toLocaleString()}
                   </span>
                 </div>
               </>
@@ -431,6 +483,7 @@ export function FinancePage() {
                     collapsed={!!collapsedGroups[client]}
                     onToggleCollapse={() => setCollapsedGroups(prev => ({ ...prev, [client]: !prev[client] }))}
                     onGenerateInvoice={() => handleCreateInvoice(client)}
+                    currencySymbol={currencySymbol}
                   />
                 ))}
               </div>
@@ -473,24 +526,46 @@ export function FinancePage() {
                         <td className="px-6 py-4 text-sm font-medium text-[#111111]">{invoice.invoiceNumber}</td>
                         <td className="px-6 py-4 text-sm font-normal text-[#111111]">{invoice.client}</td>
                         <td className="px-6 py-4 text-sm font-normal text-[#666666]">{dayjs(invoice.date).format('MMM D, YYYY')}</td>
-                        <td className="px-6 py-4 text-sm font-semibold text-[#111111]">${invoice.amount.toLocaleString()}</td>
+                        <td className="px-6 py-4 text-sm font-semibold text-[#111111]">{currencySymbol}{invoice.amount.toLocaleString()}</td>
                         <td className="px-6 py-4">
                           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${getStatusColor(invoice.status)}`}>
                             {invoice.status}
                           </span>
                         </td>
                         <td className="px-6 py-4 text-right">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDownloadHistoryPDF(invoice);
-                            }}
-                            disabled={isDownloading[invoice.id]}
-                            className="p-2 hover:bg-white rounded-full transition-colors disabled:opacity-50"
-                            title="Download PDF"
-                          >
-                            <Download className="w-4 h-4 text-[#666666]" />
-                          </button>
+                          <div className="flex items-center justify-end gap-1">
+                            {activeTab === 'drafts' && (
+                              <button
+                                onClick={(e) => { e.stopPropagation(); setSendModalInvoice(invoice); }}
+                                disabled={isSendingEmail}
+                                className="p-2 hover:bg-white rounded-full transition-colors disabled:opacity-50"
+                                title="Send Invoice"
+                              >
+                                <Mail className="w-4 h-4 text-[#2196F3]" />
+                              </button>
+                            )}
+                            {activeTab === 'outstanding' && (
+                              <button
+                                onClick={(e) => { e.stopPropagation(); setPaymentModalInvoice(invoice); }}
+                                disabled={isRecordingPayment}
+                                className="p-2 hover:bg-white rounded-full transition-colors disabled:opacity-50"
+                                title="Record Payment"
+                              >
+                                <CreditCard className="w-4 h-4 text-[#0F9D58]" />
+                              </button>
+                            )}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDownloadHistoryPDF(invoice);
+                              }}
+                              disabled={isDownloading[invoice.id]}
+                              className="p-2 hover:bg-white rounded-full transition-colors disabled:opacity-50"
+                              title="Download PDF"
+                            >
+                              <Download className="w-4 h-4 text-[#666666]" />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))
@@ -501,6 +576,37 @@ export function FinancePage() {
           )}
         </div>
       </div>
+      {sendModalInvoice && (
+        <SendInvoiceModal
+          invoiceId={Number(sendModalInvoice.id)}
+          invoiceNumber={sendModalInvoice.invoiceNumber}
+          isOpen={!!sendModalInvoice}
+          onClose={() => setSendModalInvoice(null)}
+          onSent={() => setSendModalInvoice(null)}
+        />
+      )}
+
+      {paymentModalInvoice && (
+        <RecordPaymentModal
+          isOpen={!!paymentModalInvoice}
+          onClose={() => setPaymentModalInvoice(null)}
+          invoiceId={paymentModalInvoice.id}
+          invoiceNumber={paymentModalInvoice.invoiceNumber}
+          totalAmount={paymentModalInvoice.amount}
+          amountReceived={paymentModalInvoice.amountReceived}
+          currencySymbol={currencySymbol}
+          isSaving={isRecordingPayment}
+          onSave={async (data) => {
+            try {
+              await recordPaymentMutation({ id: Number(paymentModalInvoice.id), data });
+              toast.success('Payment recorded successfully');
+              setPaymentModalInvoice(null);
+            } catch {
+              toast.error('Failed to record payment');
+            }
+          }}
+        />
+      )}
     </PageLayout>
   );
 }
@@ -526,13 +632,15 @@ function ClientGroup({
   reqs,
   collapsed,
   onToggleCollapse,
-  onGenerateInvoice
+  onGenerateInvoice,
+  currencySymbol,
 }: {
   client: string,
   reqs: Requirement[],
   collapsed: boolean,
   onToggleCollapse: () => void,
-  onGenerateInvoice: () => void
+  onGenerateInvoice: () => void,
+  currencySymbol: string,
 }) {
   const totalAmount = reqs.reduce((sum, req) => sum + (req.estimatedCost || 0), 0);
 
@@ -556,7 +664,7 @@ function ClientGroup({
 
         <div className="flex items-center gap-6">
           <div className="text-right">
-            <p className="text-lg font-bold text-[#111111]">${totalAmount.toLocaleString()}</p>
+            <p className="text-lg font-bold text-[#111111]">{currencySymbol}{totalAmount.toLocaleString()}</p>
             <p className="text-xs text-[#666666]">Total unbilled</p>
           </div>
           <button
@@ -596,7 +704,7 @@ function ClientGroup({
                   {dayjs(req.dueDate).format('MMM D, YYYY')}
                 </td>
                 <td className="px-6 py-4 text-sm font-bold text-[#111111]">
-                  ${(req.estimatedCost || 0).toLocaleString()}
+                  {currencySymbol}{(req.estimatedCost || 0).toLocaleString()}
                 </td>
               </tr>
             ))}
