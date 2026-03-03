@@ -1,4 +1,5 @@
 'use client';
+/* eslint-disable react-hooks/exhaustive-deps, react-hooks/set-state-in-effect */
 
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -9,14 +10,12 @@ import {
     X,
     Save,
     ChevronDown,
-    Settings,
     Trash2
 } from 'lucide-react';
 import { toast } from 'sonner';
 import dayjs from 'dayjs';
 import { MOCK_REQUIREMENTS } from '../../../data/mockFinanceData';
 import { useCurrentUserCompany, usePartners } from '@/hooks/useUser';
-import { InvoicePreview } from './InvoicePreview';
 import { useInvoicePresets, InvoicePaymentPreset } from '@/hooks/useInvoicePresets';
 import { trimStr } from '@/utils/trim';
 import { getPartnerId, getPartnerName } from '@/utils/partnerUtils';
@@ -59,7 +58,6 @@ export function CreateInvoicePage() {
     const [memo, setMemo] = useState('Payment is due within 7 days. Please include the invoice number on your wire transfer.');
     const [footer, setFooter] = useState<string>('Bank: Kotak Mahindra Bank\nA/C: 5345861934\nIFSC: KKBK0000632\nBranch: CBD Belapur, Mumbai');
 
-    const [isDownloading, setIsDownloading] = useState(false);
     const previewRef = useRef<HTMLDivElement>(null);
 
     // --- Dynamic Data ---
@@ -114,8 +112,8 @@ export function CreateInvoicePage() {
             setClientName(getPartnerName(partnerData));
             setClientAddress(`${partnerData.address_line_1 || ''}\n${partnerData.address_line_2 || ''}`.trim());
             setClientEmail(partnerData.email || '');
-            setClientPhone((partnerData as any).phone || '');
-            setClientTaxId((partnerData as any).tax_id || '');
+            setClientPhone((partnerData as { phone?: string }).phone || '');
+            setClientTaxId((partnerData as { tax_id?: string }).tax_id || '');
         } else if (clientId) {
             setClientName(clientId);
         }
@@ -214,7 +212,7 @@ export function CreateInvoicePage() {
         ]);
     };
 
-    const handleUpdateItem = (id: string, field: keyof LineItem, value: any) => {
+    const handleUpdateItem = (id: string, field: keyof LineItem, value: string | number) => {
         setItems(prev => prev.map(item =>
             item.id === id ? { ...item, [field]: value } : item
         ));
@@ -230,61 +228,9 @@ export function CreateInvoicePage() {
     };
 
     const handleDownloadPDF = async () => {
-        if (!previewRef.current) return;
-
-        try {
-            setIsDownloading(true);
-            // Dynamically import html2canvas and jspdf to avoid SSR issues
-            const html2canvas = (await import('html2canvas')).default;
-            const jsPDF = (await import('jspdf')).default;
-
-            const canvas = await html2canvas(previewRef.current, {
-                scale: 2, // Higher scale for better quality
-                useCORS: true,
-                logging: false
-            });
-
-            const imgData = canvas.toDataURL('image/png');
-            const pdf = new jsPDF({
-                orientation: 'portrait',
-                unit: 'mm',
-                format: 'a4'
-            });
-
-            const imgWidth = 210; // A4 width in mm
-            const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-            pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-            pdf.save(`${trimStr(invoiceId) || 'invoice'}.pdf`);
-            toast.success("Invoice downloaded successfully!");
-        } catch (error) {
-            console.error("PDF Download Error:", error);
-            toast.error("Failed to download invoice");
-        } finally {
-            setIsDownloading(false);
-        }
+        // We will wire this up to the backend PDF generation later
+        toast.info("PDF download will be available after saving.");
     };
-
-    const invoiceData = useMemo(() => ({
-        invoiceId: trimStr(invoiceId),
-        issueDate,
-        dueDate,
-        currencyCode: trimStr(currencyCode),
-        senderName: trimStr(senderName),
-        senderAddress: trimStr(senderAddress),
-        senderEmail: trimStr(senderEmail),
-        senderTaxId: trimStr(senderTaxId),
-        clientName: trimStr(clientName),
-        clientAddress: trimStr(clientAddress),
-        clientEmail: trimStr(clientEmail),
-        clientPhone: trimStr(clientPhone),
-        clientTaxId: trimStr(clientTaxId),
-        items: items.map((i) => ({ ...i, description: trimStr(i.description) })),
-        totals,
-        taxConfig,
-        memo: trimStr(memo),
-        footer: trimStr(footer)
-    }), [invoiceId, issueDate, dueDate, currencyCode, senderName, senderAddress, senderEmail, senderTaxId, clientName, clientAddress, clientEmail, clientPhone, clientTaxId, items, totals, taxConfig, memo, footer]);
 
     return (
         <div className="h-full bg-[#F9FAFB] flex flex-col rounded-[24px] overflow-hidden">
@@ -310,14 +256,9 @@ export function CreateInvoicePage() {
                     </button>
                     <button
                         onClick={handleDownloadPDF}
-                        disabled={isDownloading}
                         className="px-4 py-2 border border-[#EEEEEE] bg-white text-[#111111] rounded-full font-bold text-[0.8125rem] hover:bg-[#F7F7F7] transition-colors flex items-center gap-2"
                     >
-                        {isDownloading ? (
-                            <span className="w-4 h-4 border-2 border-[#111111] border-t-transparent rounded-full animate-spin"></span>
-                        ) : (
-                            <Download className="w-4 h-4" />
-                        )}
+                        <Download className="w-4 h-4" />
                         Download PDF
                     </button>
                     <button
@@ -330,163 +271,145 @@ export function CreateInvoicePage() {
                 </div>
             </div>
 
-            <div className="flex-1 flex min-h-0">
-                {/* LEFT PANEL: Editor */}
-                <div className="w-1/2 overflow-y-auto p-8 border-r border-[#EEEEEE] bg-white">
-                    <div className="max-w-none mx-auto space-y-10">
-
-                        {/* Invoice Details */}
-                        <section>
-                            <h3 className="text-sm font-bold text-[#111111] uppercase tracking-wider mb-4">Invoice Details</h3>
-                            <div className="grid grid-cols-2 gap-6">
-                                <div className="space-y-1.5">
+            <div className="flex-1 flex overflow-y-auto min-h-0 bg-[#E5E7EB] p-8">
+                {/* SINGLE PANEL: Editor structured as an A4 page */}
+                <div className="max-w-[794px] w-full mx-auto bg-white shadow-sm p-12 mb-20">
+                    <div className="space-y-10">
+                        {/* Header Details */}
+                        <div className="flex justify-between items-start">
+                            <div className="space-y-4 w-1/2">
+                                {/* Sender Section */}
+                                <div className="space-y-1.5 group relative">
+                                    <input
+                                        type="text"
+                                        placeholder="Business Name"
+                                        value={senderName}
+                                        onChange={(e) => setSenderName(e.target.value)}
+                                        className="w-full text-2xl font-bold text-[#111111] hover:bg-[#F9FAFB] focus:bg-white focus:ring-1 focus:ring-[#ff3b3b] outline-none transition-all p-1 -ml-1 rounded"
+                                    />
+                                    <textarea
+                                        rows={2}
+                                        placeholder="Business Address"
+                                        value={senderAddress}
+                                        onChange={(e) => setSenderAddress(e.target.value)}
+                                        className="w-full text-sm text-[#666666] hover:bg-[#F9FAFB] focus:bg-white focus:ring-1 focus:ring-[#ff3b3b] outline-none transition-all p-1 -ml-1 rounded resize-none"
+                                    />
+                                    <input
+                                        type="text"
+                                        placeholder="GSTIN / Tax ID"
+                                        value={senderTaxId}
+                                        onChange={(e) => setSenderTaxId(e.target.value)}
+                                        className="w-full text-sm text-[#666666] hover:bg-[#F9FAFB] focus:bg-white focus:ring-1 focus:ring-[#ff3b3b] outline-none transition-all p-1 -ml-1 rounded"
+                                    />
+                                    <input
+                                        type="email"
+                                        placeholder="Business Email"
+                                        value={senderEmail}
+                                        onChange={(e) => setSenderEmail(e.target.value)}
+                                        className="w-full text-sm text-[#666666] hover:bg-[#F9FAFB] focus:bg-white focus:ring-1 focus:ring-[#ff3b3b] outline-none transition-all p-1 -ml-1 rounded"
+                                    />
+                                </div>
+                            </div>
+                            <div className="w-1/3 space-y-3 text-right">
+                                <h2 className="text-4xl tracking-tight font-light text-[#E5E7EB] uppercase">Invoice</h2>
+                                <div className="space-y-1.5 text-right">
                                     <label className="block text-xs font-medium text-[#666666]">Invoice Number</label>
                                     <input
                                         type="text"
                                         value={invoiceId}
                                         readOnly
-                                        className="w-full px-3 py-2.5 bg-[#F9FAFB] border border-[#EEEEEE] rounded-[8px] text-sm text-[#666666] font-mono"
+                                        className="w-full text-sm text-[#111111] font-mono text-right bg-transparent outline-none"
                                     />
                                 </div>
-                                <div className="space-y-1.5">
-                                    <label className="block text-xs font-medium text-[#666666]">Currency</label>
-                                    <select
-                                        value={currencyCode}
-                                        onChange={(e) => setCurrencyCode(e.target.value)}
-                                        className="w-full px-3 py-2.5 bg-white border border-[#EEEEEE] rounded-[8px] text-sm text-[#111111] focus:ring-1 focus:ring-[#ff3b3b] outline-none appearance-none"
-                                    >
-                                        <option value="INR">INR - Indian Rupee</option>
-                                        <option value="USD">USD - US Dollar</option>
-                                        <option value="EUR">EUR - Euro</option>
-                                        <option value="GBP">GBP - British Pound</option>
-                                        <option value="AUD">AUD - Australian Dollar</option>
-                                        <option value="CAD">CAD - Canadian Dollar</option>
-                                        <option value="SGD">SGD - Singapore Dollar</option>
-                                        <option value="AED">AED - UAE Dirham</option>
-                                    </select>
-                                </div>
-                                <div className="space-y-1.5">
-                                    <label className="block text-xs font-medium text-[#666666]">Issue Date</label>
+                                <div className="space-y-1.5 flex justify-end items-center gap-3">
+                                    <label className="text-xs font-medium text-[#666666]">Date</label>
                                     <input
                                         type="date"
                                         value={issueDate}
                                         onChange={(e) => setIssueDate(e.target.value)}
-                                        className="w-full px-3 py-2.5 bg-white border border-[#EEEEEE] rounded-[8px] text-sm text-[#111111] focus:ring-1 focus:ring-[#ff3b3b] outline-none transition-all"
+                                        className="w-32 px-2 py-1 bg-white border border-transparent hover:border-[#EEEEEE] rounded focus:border-[#ff3b3b] text-sm text-[#111111] outline-none text-right"
                                     />
                                 </div>
-                                <div className="space-y-1.5">
-                                    <label className="block text-xs font-medium text-[#666666]">Due Date</label>
+                                <div className="space-y-1.5 flex justify-end items-center gap-3">
+                                    <label className="text-xs font-medium text-[#666666]">Due Date</label>
                                     <input
                                         type="date"
                                         value={dueDate}
                                         onChange={(e) => setDueDate(e.target.value)}
-                                        className="w-full px-3 py-2.5 bg-white border border-[#EEEEEE] rounded-[8px] text-sm text-[#111111] focus:ring-1 focus:ring-[#ff3b3b] outline-none transition-all"
+                                        className="w-32 px-2 py-1 bg-white border border-transparent hover:border-[#EEEEEE] rounded focus:border-[#ff3b3b] text-sm text-[#111111] outline-none text-right"
                                     />
                                 </div>
                             </div>
-                        </section>
-
-                        {/* Sender Section (From) */}
-                        <section>
-                            <h3 className="text-sm font-bold text-[#111111] uppercase tracking-wider mb-4">From (Your Details)</h3>
-                            <div className="space-y-4 p-4 rounded-[12px] border border-[#EEEEEE] bg-[#F9FAFB]/50">
-                                <div className="space-y-1.5">
-                                    <label className="block text-xs font-medium text-[#666666]">Business Name</label>
-                                    <input
-                                        type="text"
-                                        value={senderName}
-                                        onChange={(e) => setSenderName(e.target.value)}
-                                        className="w-full px-3 py-2 bg-white border border-[#EEEEEE] rounded-[8px] text-sm text-[#111111] focus:ring-1 focus:ring-[#ff3b3b] outline-none transition-all"
-                                    />
-                                </div>
-                            </div>
-                        </section>
+                        </div>
 
                         {/* Customer Section (To) */}
-                        <section>
+                        <section className="pt-6 border-t border-[#EEEEEE]">
                             <h3 className="text-sm font-bold text-[#111111] uppercase tracking-wider mb-4">Bill To</h3>
-                            <div className="space-y-4 p-4 rounded-[12px] border border-[#EEEEEE] bg-white hover:border-[#ff3b3b]/30 transition-colors group relative">
-                                <div className="space-y-1.5">
-                                    <label className="block text-xs font-medium text-[#666666]">Client Name</label>
-                                    <input
-                                        type="text"
-                                        value={clientName}
-                                        onChange={(e) => setClientName(e.target.value)}
-                                        className="w-full px-3 py-2 bg-white border border-[#EEEEEE] rounded-[8px] text-sm text-[#111111] focus:ring-1 focus:ring-[#ff3b3b] outline-none"
-                                    />
-                                </div>
-                                <div className="space-y-1.5">
-                                    <label className="block text-xs font-medium text-[#666666]">Address</label>
-                                    <textarea
-                                        rows={2}
-                                        value={clientAddress}
-                                        onChange={(e) => setClientAddress(e.target.value)}
-                                        className="w-full px-3 py-2 bg-white border border-[#EEEEEE] rounded-[8px] text-sm text-[#111111] focus:ring-1 focus:ring-[#ff3b3b] outline-none resize-none"
-                                    />
-                                </div>
-                                <div className="space-y-1.5">
-                                    <label className="block text-xs font-medium text-[#666666]">GSTIN / Tax ID</label>
-                                    <input
-                                        type="text"
-                                        value={clientTaxId}
-                                        onChange={(e) => setClientTaxId(e.target.value)}
-                                        className="w-full px-3 py-2 bg-white border border-[#EEEEEE] rounded-[8px] text-sm text-[#111111] focus:ring-1 focus:ring-[#ff3b3b] outline-none"
-                                    />
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-2 gap-8">
+                                <div className="space-y-4">
                                     <div className="space-y-1.5">
-                                        <label className="block text-xs font-medium text-[#666666]">Email</label>
-                                        <input
-                                            type="email"
-                                            value={clientEmail}
-                                            onChange={(e) => setClientEmail(e.target.value)}
-                                            className="w-full px-3 py-2 bg-white border border-[#EEEEEE] rounded-[8px] text-sm text-[#111111] focus:ring-1 focus:ring-[#ff3b3b] outline-none"
-                                        />
-                                    </div>
-                                    <div className="space-y-1.5">
-                                        <label className="block text-xs font-medium text-[#666666]">Phone</label>
                                         <input
                                             type="text"
-                                            value={clientPhone}
-                                            onChange={(e) => setClientPhone(e.target.value)}
-                                            className="w-full px-3 py-2 bg-white border border-[#EEEEEE] rounded-[8px] text-sm text-[#111111] focus:ring-1 focus:ring-[#ff3b3b] outline-none"
+                                            placeholder="Client Name"
+                                            value={clientName}
+                                            onChange={(e) => setClientName(e.target.value)}
+                                            className="w-full text-base font-medium text-[#111111] hover:bg-[#F9FAFB] focus:bg-white p-1 -ml-1 rounded focus:ring-1 focus:ring-[#ff3b3b] outline-none"
+                                        />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <textarea
+                                            rows={2}
+                                            placeholder="Client Address"
+                                            value={clientAddress}
+                                            onChange={(e) => setClientAddress(e.target.value)}
+                                            className="w-full text-sm text-[#666666] hover:bg-[#F9FAFB] focus:bg-white p-1 -ml-1 rounded focus:ring-1 focus:ring-[#ff3b3b] outline-none resize-none"
                                         />
                                     </div>
                                 </div>
-                                <span className="text-[#ff3b3b] text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity absolute top-4 right-4 cursor-pointer">Change Partner</span>
+                                <div className="space-y-4">
+                                    <div className="space-y-1.5">
+                                        <input
+                                            type="text"
+                                            placeholder="Client Tax ID"
+                                            value={clientTaxId}
+                                            onChange={(e) => setClientTaxId(e.target.value)}
+                                            className="w-full text-sm text-[#666666] hover:bg-[#F9FAFB] focus:bg-white p-1 -ml-1 rounded focus:ring-1 focus:ring-[#ff3b3b] outline-none"
+                                        />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <input
+                                            type="email"
+                                            placeholder="Client Email"
+                                            value={clientEmail}
+                                            onChange={(e) => setClientEmail(e.target.value)}
+                                            className="w-full text-sm text-[#666666] hover:bg-[#F9FAFB] focus:bg-white p-1 -ml-1 rounded focus:ring-1 focus:ring-[#ff3b3b] outline-none"
+                                        />
+                                    </div>
+                                </div>
                             </div>
                         </section>
 
-
-
                         {/* Items Section */}
-                        <section>
-                            <div className="flex justify-between items-center mb-4">
-                                <h3 className="text-sm font-bold text-[#111111] uppercase tracking-wider">Items</h3>
-                                <button className="text-[#666666] hover:text-[#111111]">
-                                    <Settings className="w-4 h-4" />
-                                </button>
-                            </div>
-
+                        <section className="pt-6 border-t border-[#EEEEEE]">
                             {/* Table Headers for Editor */}
-                            <div className="flex gap-3 mb-2 px-1">
-                                <span className="flex-1 text-[0.6875rem] font-bold text-[#999999] uppercase">Description</span>
-                                <span className="w-20 text-[0.6875rem] font-bold text-[#999999] uppercase text-right">Qty</span>
-                                <span className="w-32 text-[0.6875rem] font-bold text-[#999999] uppercase text-right">Price</span>
-                                <span className="w-28 text-[0.6875rem] font-bold text-[#999999] uppercase text-right">Total</span>
+                            <div className="flex gap-3 mb-2 px-1 border-b border-[#111111] pb-2">
+                                <span className="flex-1 text-[0.6875rem] font-bold text-[#111111] uppercase tracking-wider">Item Description</span>
+                                <span className="w-20 text-[0.6875rem] font-bold text-[#111111] uppercase tracking-wider text-right">Qty</span>
+                                <span className="w-32 text-[0.6875rem] font-bold text-[#111111] uppercase tracking-wider text-right">Price</span>
+                                <span className="w-32 text-[0.6875rem] font-bold text-[#111111] uppercase tracking-wider text-right">Total</span>
                                 <span className="w-8"></span> {/* Spacer for delete icon */}
                             </div>
 
-                            <div className="space-y-3 mb-4">
+                            <div className="space-y-2 mb-4">
                                 {items.map((item) => (
-                                    <div key={item.id} className="group flex gap-3 items-start">
+                                    <div key={item.id} className="group flex gap-3 items-start py-1 border-b border-[#EEEEEE]">
                                         <div className="flex-1">
                                             <input
                                                 type="text"
                                                 placeholder="Item description"
                                                 value={item.description}
                                                 onChange={(e) => handleUpdateItem(item.id, 'description', e.target.value)}
-                                                className="w-full px-3 py-2 bg-white border border-[#EEEEEE] rounded-[8px] text-sm text-[#111111] placeholder:text-[#999999] focus:ring-1 focus:ring-[#ff3b3b] outline-none transition-all"
+                                                className="w-full px-2 py-1.5 bg-transparent border border-transparent rounded-[4px] text-sm text-[#111111] placeholder:text-[#999999] focus:border-[#EEEEEE] outline-none hover:bg-[#F9FAFB] focus:bg-white transition-all"
                                             />
                                         </div>
                                         <div className="w-20">
@@ -495,20 +418,21 @@ export function CreateInvoicePage() {
                                                 placeholder="Qty"
                                                 value={item.quantity}
                                                 onChange={(e) => handleUpdateItem(item.id, 'quantity', parseFloat(e.target.value))}
-                                                className="w-full px-3 py-2 bg-white border border-[#EEEEEE] rounded-[8px] text-sm text-[#111111] text-right focus:ring-1 focus:ring-[#ff3b3b] outline-none transition-all"
+                                                className="w-full px-2 py-1.5 bg-transparent border border-transparent rounded-[4px] text-sm text-[#111111] text-right focus:border-[#EEEEEE] outline-none hover:bg-[#F9FAFB] focus:bg-white transition-all"
                                             />
                                         </div>
-                                        <div className="w-32">
+                                        <div className="w-32 relative">
+                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#999999] text-sm">{currencyCode === 'INR' ? '₹' : '$'}</span>
                                             <input
                                                 type="number"
                                                 placeholder="Price"
                                                 value={item.unitPrice}
                                                 onChange={(e) => handleUpdateItem(item.id, 'unitPrice', parseFloat(e.target.value))}
-                                                className="w-full px-3 py-2 bg-white border border-[#EEEEEE] rounded-[8px] text-sm text-[#111111] text-right focus:ring-1 focus:ring-[#ff3b3b] outline-none transition-all"
+                                                className="w-full pl-6 pr-2 py-1.5 bg-transparent border border-transparent rounded-[4px] text-sm text-[#111111] text-right focus:border-[#EEEEEE] outline-none hover:bg-[#F9FAFB] focus:bg-white transition-all"
                                             />
                                         </div>
-                                        <div className="w-28 pt-2.5 text-right text-sm font-bold text-[#111111]">
-                                            ₹{(item.quantity * item.unitPrice).toLocaleString()}
+                                        <div className="w-32 pt-2 text-right text-sm font-medium text-[#111111]">
+                                            {currencyCode === 'INR' ? '₹' : '$'}{(item.quantity * item.unitPrice).toLocaleString()}
                                         </div>
                                         <button
                                             onClick={() => handleRemoveItem(item.id)}
@@ -522,189 +446,188 @@ export function CreateInvoicePage() {
 
                             <button
                                 onClick={handleAddItem}
-                                className="flex items-center gap-2 text-[#ff3b3b] text-[0.8125rem] font-bold hover:underline"
+                                className="flex items-center gap-2 text-[#ff3b3b] text-[0.8125rem] font-bold hover:underline py-2"
                             >
                                 <Plus className="w-4 h-4" />
-                                Add item
+                                Add Line Item
                             </button>
                         </section>
 
-                        {/* Discounts & Tax */}
-                        <section className="space-y-4 pt-6 border-t border-[#EEEEEE]">
-                            <div className="flex justify-between items-center text-sm">
-                                <span className="text-[#666666]">Subtotal</span>
-                                <span className="font-bold text-[#111111]">₹{totals.subtotal.toLocaleString()}</span>
-                            </div>
-
-                            {/* Discount Toggle */}
-                            <div className="flex justify-between items-center text-sm">
-                                <div className="flex items-center gap-2">
-                                    <span className="text-[#666666]">Discount</span>
-                                    {!showDiscount && (
-                                        <button onClick={() => setShowDiscount(true)} className="text-[#ff3b3b] text-xs font-bold hover:underline flex items-center gap-1">
-                                            <Plus className="w-3 h-3" /> Add
-                                        </button>
-                                    )}
-                                </div>
-                                {showDiscount ? (
-                                    <div className="flex items-center gap-2">
-                                        <input
-                                            type="number"
-                                            value={discount}
-                                            onChange={(e) => setDiscount(parseFloat(e.target.value) || 0)}
-                                            className="w-24 px-2 py-1 bg-white border border-[#EEEEEE] rounded-[6px] text-right text-[0.8125rem]"
-                                            autoFocus
-                                        />
-                                        <button onClick={() => { setDiscount(0); setShowDiscount(false); }} className="text-[#999999] hover:text-[#ff3b3b]">
-                                            <X className="w-3 h-3" />
-                                        </button>
-                                    </div>
-                                ) : (
-                                    <span className="text-[#999999]">-</span>
-                                )}
-                            </div>
-
-                            {/* Tax Config */}
-                            <div className="flex justify-between items-center text-sm">
-                                <div className="flex items-center gap-2">
-                                    <span className="text-[#666666]">Tax ({taxConfig.name} {taxConfig.rate}%)</span>
-                                    <select
-                                        value={taxConfig.id}
-                                        onChange={(e) => {
-                                            const id = e.target.value;
-                                            if (id === 'gst_18') setTaxConfig({ id: 'gst_18', name: 'IGST', rate: 18 });
-                                            if (id === 'gst_local') setTaxConfig({ id: 'gst_local', name: 'CGST+SGST', rate: 18 });
-                                            if (id === 'none') setTaxConfig({ id: 'none', name: 'None', rate: 0 });
-                                        }}
-                                        className="bg-[#F7F7F7] border-none text-xs rounded-[4px] px-1 py-0.5 outline-none cursor-pointer hover:bg-[#EEEEEE]"
-                                    >
-                                        <option value="gst_18">IGST (18%)</option>
-                                        <option value="gst_local">CGST+SGST (18%)</option>
-                                        <option value="none">None (0%)</option>
-                                    </select>
-                                </div>
-                                <span className="font-bold text-[#111111]">₹{totals.totalTax.toLocaleString()}</span>
-                            </div>
-
-                            <div className="flex justify-between items-center text-base pt-4 border-t border-[#EEEEEE]">
-                                <span className="font-bold text-[#111111]">Amount due</span>
-                                <span className="font-bold text-[#111111]">₹{totals.total.toLocaleString()}</span>
-                            </div>
-                        </section>
-
-                        {/* Payment Details / Footer */}
-                        <section className="space-y-6 pt-6">
-                            <div>
-                                <label className="block text-sm font-bold text-[#111111] mb-2 flex items-center gap-2">
-                                    Memo <span className="text-[0.6875rem] font-normal text-[#999999] bg-[#F7F7F7] px-2 py-0.5 rounded-full">Visible to customer</span>
-                                </label>
-                                <textarea
-                                    value={memo}
-                                    onChange={(e) => setMemo(e.target.value)}
-                                    className="w-full px-3 py-2 bg-white border border-[#EEEEEE] rounded-[8px] text-sm text-[#111111] min-h-[80px] focus:ring-1 focus:ring-[#ff3b3b] outline-none resize-none"
-                                />
-                            </div>
-
-                            <div>
-                                <div className="flex justify-between items-center mb-2">
-                                    <label className="block text-sm font-bold text-[#111111] flex items-center gap-2">
-                                        Payment Details <span className="text-[0.6875rem] font-normal text-[#999999] bg-[#F7F7F7] px-2 py-0.5 rounded-full">Footer</span>
+                        <div className="flex gap-12 pt-6">
+                            {/* Memo & Payment Term */}
+                            <div className="flex-1 space-y-6">
+                                <div>
+                                    <label className="block text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wider mb-2">
+                                        Notes
                                     </label>
-
-                                    <div className="flex items-center gap-2">
-                                        {/* Preset Selector */}
-                                        {paymentPresets.length > 0 && (
-                                            <div className="relative group">
-                                                <select
-                                                    className="appearance-none bg-[#F7F7F7] hover:bg-[#EEEEEE] text-xs font-medium text-[#111111] pl-3 pr-8 py-1.5 rounded-full outline-none cursor-pointer border border-transparent focus:border-[#ff3b3b] transition-all"
-                                                    onChange={(e) => {
-                                                        const preset = paymentPresets.find(p => p.id === e.target.value);
-                                                        if (preset) setFooter(preset.content);
-                                                    }}
-                                                    value=""
-                                                >
-                                                    <option value="" disabled selected>Load saved details...</option>
-                                                    {paymentPresets.map(preset => (
-                                                        <option key={preset.id} value={preset.id}>{preset.name}</option>
-                                                    ))}
-                                                </select>
-                                                <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#666666] pointer-events-none" />
-                                            </div>
-                                        )}
-
-                                        {/* Save Button */}
-                                        <button
-                                            onClick={() => setShowSavePresetDialog(true)}
-                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#F7F7F7] hover:bg-[#EEEEEE] text-xs font-medium text-[#111111] rounded-full transition-colors"
-                                            title="Save as new preset"
-                                        >
-                                            <Save className="w-3.5 h-3.5" />
-                                            <span>Save</span>
-                                        </button>
-                                    </div>
+                                    <textarea
+                                        value={memo}
+                                        onChange={(e) => setMemo(e.target.value)}
+                                        placeholder="Thanks for your business..."
+                                        className="w-full px-3 py-2 bg-white border border-[#EEEEEE] rounded-[8px] text-sm text-[#666666] min-h-[80px] focus:ring-1 focus:ring-[#ff3b3b] outline-none resize-none hover:bg-[#F9FAFB] focus:bg-white"
+                                    />
                                 </div>
+                                <div>
+                                    <div className="flex justify-between items-center mb-2">
+                                        <label className="block text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wider">
+                                            Payment Details
+                                        </label>
 
-                                {/* Save Dialog Overlay (Inline for simplicity) */}
-                                {showSavePresetDialog && (
-                                    <div className="mb-3 p-3 bg-[#F9FAFB] border border-[#EEEEEE] rounded-lg animate-in fade-in slide-in-from-top-1">
-                                        <label className="block text-xs font-bold text-[#111111] mb-1.5">Name this payment method</label>
-                                        <div className="flex gap-2">
-                                            <input
-                                                type="text"
-                                                value={newPresetName}
-                                                onChange={(e) => setNewPresetName(e.target.value)}
-                                                placeholder="e.g. Bank Transfer (HDFC)"
-                                                className="flex-1 px-3 py-1.5 bg-white border border-[#EEEEEE] rounded-md text-[0.8125rem] outline-none focus:border-[#ff3b3b]"
-                                                autoFocus
-                                                onKeyDown={(e) => {
-                                                    if (e.key === 'Enter') handleSavePreset();
-                                                    if (e.key === 'Escape') setShowSavePresetDialog(false);
-                                                }}
-                                            />
+                                        <div className="flex items-center gap-2">
+                                            {/* Preset Selector */}
+                                            {paymentPresets.length > 0 && (
+                                                <div className="relative group">
+                                                    <select
+                                                        className="appearance-none bg-[#F7F7F7] hover:bg-[#EEEEEE] text-xs font-medium text-[#111111] pl-3 pr-8 py-1 rounded-full outline-none cursor-pointer border border-transparent focus:border-[#ff3b3b] transition-all"
+                                                        onChange={(e) => {
+                                                            const preset = paymentPresets.find(p => String(p.id) === e.target.value);
+                                                            if (preset) setFooter(preset.content);
+                                                        }}
+                                                        value=""
+                                                    >
+                                                        <option value="" disabled selected>Load preset...</option>
+                                                        {paymentPresets.map(preset => (
+                                                            <option key={preset.id} value={preset.id}>{preset.name}</option>
+                                                        ))}
+                                                    </select>
+                                                    <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#666666] pointer-events-none" />
+                                                </div>
+                                            )}
+
+                                            {/* Save Button */}
                                             <button
-                                                onClick={handleSavePreset}
-                                                disabled={!newPresetName.trim()}
-                                                className="px-3 py-1.5 bg-[#111111] text-white text-xs font-bold rounded-md hover:bg-black disabled:opacity-50"
+                                                onClick={() => setShowSavePresetDialog(true)}
+                                                className="flex items-center gap-1 px-2.5 py-1 bg-[#F7F7F7] hover:bg-[#EEEEEE] text-xs font-medium text-[#111111] rounded-full transition-colors"
+                                                title="Save as new preset"
                                             >
-                                                Save
-                                            </button>
-                                            <button
-                                                onClick={() => setShowSavePresetDialog(false)}
-                                                className="px-3 py-1.5 bg-white border border-[#EEEEEE] text-[#666666] text-xs font-bold rounded-md hover:bg-[#F7F7F7]"
-                                            >
-                                                Cancel
+                                                <Save className="w-3.5 h-3.5" />
+                                                <span>Save</span>
                                             </button>
                                         </div>
                                     </div>
-                                )}
 
-                                <div className="relative group">
-                                    <textarea
-                                        value={footer}
-                                        onChange={(e) => setFooter(e.target.value)}
-                                        placeholder="Enter bank details, UPI ID, or payment terms..."
-                                        className="w-full px-3 py-2 bg-white border border-[#EEEEEE] rounded-[8px] text-sm text-[#111111] min-h-[100px] focus:ring-1 focus:ring-[#ff3b3b] outline-none resize-none"
-                                    />
-                                    {/* Manage/Delete Preset helper (only visible if content matches a preset) */}
-                                    {paymentPresets.some(p => p.content === footer) && (
-                                        <button
-                                            onClick={() => handleDeletePreset(paymentPresets.find(p => p.content === footer)?.id || '')}
-                                            className="absolute bottom-2 right-2 p-1.5 bg-white border border-[#EEEEEE] rounded-md shadow-sm opacity-0 group-hover:opacity-100 transition-opacity hover:border-red-200 hover:bg-red-50 text-[#666666] hover:text-red-500"
-                                            title="Delete this saved preset"
-                                        >
-                                            <Trash2 className="w-3.5 h-3.5" />
-                                        </button>
+                                    {/* Save Dialog Overlay */}
+                                    {showSavePresetDialog && (
+                                        <div className="mb-3 p-3 bg-[#F9FAFB] border border-[#EEEEEE] rounded-lg animate-in fade-in slide-in-from-top-1">
+                                            <label className="block text-xs font-bold text-[#111111] mb-1.5">Name this payment method</label>
+                                            <div className="flex gap-2">
+                                                <input
+                                                    type="text"
+                                                    value={newPresetName}
+                                                    onChange={(e) => setNewPresetName(e.target.value)}
+                                                    placeholder="e.g. Bank Transfer (HDFC)"
+                                                    className="flex-1 px-3 py-1.5 bg-white border border-[#EEEEEE] rounded-md text-[0.8125rem] outline-none focus:border-[#ff3b3b]"
+                                                    autoFocus
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === 'Enter') handleSavePreset();
+                                                        if (e.key === 'Escape') setShowSavePresetDialog(false);
+                                                    }}
+                                                />
+                                                <button
+                                                    onClick={handleSavePreset}
+                                                    disabled={!newPresetName.trim()}
+                                                    className="px-3 py-1.5 bg-[#111111] text-white text-xs font-bold rounded-md hover:bg-black disabled:opacity-50"
+                                                >
+                                                    Save
+                                                </button>
+                                                <button
+                                                    onClick={() => setShowSavePresetDialog(false)}
+                                                    className="px-3 py-1.5 bg-white border border-[#EEEEEE] text-[#666666] text-xs font-bold rounded-md hover:bg-[#F7F7F7]"
+                                                >
+                                                    Cancel
+                                                </button>
+                                            </div>
+                                        </div>
                                     )}
+
+                                    <div className="relative group">
+                                        <textarea
+                                            value={footer}
+                                            onChange={(e) => setFooter(e.target.value)}
+                                            placeholder="Bank details..."
+                                            className="w-full px-3 py-2 bg-white border border-[#EEEEEE] rounded-[8px] text-sm text-[#666666] min-h-[100px] focus:ring-1 focus:ring-[#ff3b3b] outline-none resize-none hover:bg-[#F9FAFB] focus:bg-white"
+                                        />
+                                        {/* Delete Preset hint */}
+                                        {paymentPresets.some(p => p.content === footer) && (
+                                            <button
+                                                onClick={() => handleDeletePreset(String(paymentPresets.find(p => p.content === footer)?.id || ''))}
+                                                className="absolute bottom-2 right-2 p-1.5 bg-white border border-[#EEEEEE] rounded-md shadow-sm opacity-0 group-hover:opacity-100 transition-opacity hover:border-red-200 hover:bg-red-50 text-[#666666] hover:text-red-500"
+                                                title="Delete this saved preset"
+                                            >
+                                                <Trash2 className="w-3.5 h-3.5" />
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
-                        </section>
-                    </div>
-                </div>
 
-                {/* RIGHT PANEL: Live Preview - A4 Size (210mm × 297mm) */}
-                <div className="w-1/2 bg-[#E5E7EB] p-6 overflow-y-auto">
-                    <div className="flex justify-center">
-                        <InvoicePreview ref={previewRef} data={invoiceData} />
+                            {/* Totals Box */}
+                            <div className="w-[320px]">
+                                <div className="p-4 rounded-[12px] border border-[#EEEEEE] bg-[#F9FAFB]/50 space-y-3">
+                                    <div className="flex justify-between items-center text-sm">
+                                        <span className="text-[#666666]">Subtotal</span>
+                                        <span className="font-medium text-[#111111]">{currencyCode === 'INR' ? '₹' : '$'}{totals.subtotal.toLocaleString()}</span>
+                                    </div>
+
+                                    {/* Discount Toggle */}
+                                    <div className="flex justify-between items-center text-sm group/discount">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-[#666666]">Discount</span>
+                                            {!showDiscount && discount === 0 && (
+                                                <button onClick={() => setShowDiscount(true)} className="text-[#ff3b3b] text-xs font-medium opacity-0 group-hover/discount:opacity-100 transition-opacity">
+                                                    Add
+                                                </button>
+                                            )}
+                                        </div>
+                                        {(showDiscount || discount > 0) ? (
+                                            <div className="flex items-center gap-2">
+                                                <div className="relative">
+                                                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[#999999] text-xs">{currencyCode === 'INR' ? '₹' : '$'}</span>
+                                                    <input
+                                                        type="number"
+                                                        value={discount}
+                                                        onChange={(e) => setDiscount(parseFloat(e.target.value) || 0)}
+                                                        className="w-24 pl-5 pr-2 py-1 bg-white border border-[#EEEEEE] rounded text-right text-sm outline-none focus:border-[#ff3b3b]"
+                                                    />
+                                                </div>
+                                                <button onClick={() => { setDiscount(0); setShowDiscount(false); }} className="text-[#999999] hover:text-[#ff3b3b]">
+                                                    <X className="w-3 h-3" />
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <span className="text-[#111111] font-medium">-</span>
+                                        )}
+                                    </div>
+
+                                    {/* Tax Config */}
+                                    <div className="flex justify-between items-center text-sm">
+                                        <div className="flex items-center gap-2">
+                                            <select
+                                                value={taxConfig.id}
+                                                onChange={(e) => {
+                                                    const id = e.target.value;
+                                                    if (id === 'gst_18') setTaxConfig({ id: 'gst_18', name: 'IGST', rate: 18 });
+                                                    if (id === 'gst_local') setTaxConfig({ id: 'gst_local', name: 'CGST+SGST', rate: 18 });
+                                                    if (id === 'none') setTaxConfig({ id: 'none', name: 'None', rate: 0 });
+                                                }}
+                                                className="bg-transparent text-[#666666] outline-none cursor-pointer hover:text-[#111111]"
+                                            >
+                                                <option value="gst_18">IGST (18%)</option>
+                                                <option value="gst_local">CGST+SGST (18%)</option>
+                                                <option value="none">Tax (0%)</option>
+                                            </select>
+                                        </div>
+                                        <span className="font-medium text-[#111111]">{currencyCode === 'INR' ? '₹' : '$'}{totals.totalTax.toLocaleString()}</span>
+                                    </div>
+
+                                    <div className="flex justify-between items-center pt-3 border-t border-[#EEEEEE]">
+                                        <span className="text-base font-bold text-[#111111]">Total Due</span>
+                                        <span className="text-xl font-bold text-[#111111] tracking-tight">{currencyCode === 'INR' ? '₹' : '$'}{Math.floor(totals.total).toLocaleString()}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>

@@ -99,6 +99,7 @@ export function PageLayout({
                       <button
                         key={tab.id}
                         onClick={() => onTabChange?.(tab.id)}
+                        aria-current={activeTab === tab.id ? 'page' : undefined}
                         className={`pb-3 px-1 relative font-semibold text-sm transition-colors flex items-center gap-2 ${activeTab === tab.id
                           ? 'text-[#ff3b3b]'
                           : 'text-[#666666] hover:text-[#111111]'

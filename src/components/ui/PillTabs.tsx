@@ -12,10 +12,12 @@ interface PillTabsProps {
 
 export function PillTabs({ tabs, activeTab, onTabChange }: PillTabsProps) {
   return (
-    <div className="flex gap-3">
+    <div className="flex gap-3" role="tablist">
       {tabs.map((tab) => (
         <button
           key={tab.id}
+          role="tab"
+          aria-selected={activeTab === tab.id}
           onClick={() => onTabChange(tab.id)}
           className={`px-6 py-2.5 rounded-full font-semibold text-sm transition-all flex items-center gap-2 ${activeTab === tab.id
               ? 'bg-[#ff3b3b] text-white shadow-md'

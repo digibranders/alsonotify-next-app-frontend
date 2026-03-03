@@ -52,7 +52,13 @@ export const searchWorkspaces = async (name = ""): Promise<ApiResponse<Workspace
 
 // Requirement operations
 export const addRequirementToWorkspace = async (params: CreateRequirementRequestDto): Promise<ApiResponse<RequirementDto>> => {
-  const { data } = await axiosApi.post<ApiResponse<RequirementDto>>("/requirement", params);
+  // WORKAROUND: The backend fails with "column high_priority does not exist" when 'priority' is sent.
+  // We strip the 'priority' field from the payload to prevent the crash until the backend is fixed.
+  // This results in requirements being created with default priority.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
+  const { priority, ...safeParams } = params as any;
+
+  const { data } = await axiosApi.post<ApiResponse<RequirementDto>>("/requirement", safeParams as CreateRequirementRequestDto);
   return data;
 };
 

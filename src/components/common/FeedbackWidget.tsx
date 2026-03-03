@@ -115,7 +115,8 @@ export function FeedbackWidget({ open, onClose }: FeedbackWidgetProps) {
           </div>
           <button
             onClick={handleClose}
-            className="w-8 h-8 rounded-full bg-[#F7F7F7] hover:bg-[#EEEEEE] flex items-center justify-center transition-colors"
+            aria-label="Close feedback dialog"
+            className="w-8 h-8 rounded-full bg-[#F7F7F7] hover:bg-[#EEEEEE] flex items-center justify-center transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none focus-visible:ring-[#111111]"
           >
             <X className="w-4 h-4 text-[#666666]" />
           </button>
@@ -138,9 +139,10 @@ export function FeedbackWidget({ open, onClose }: FeedbackWidgetProps) {
                   <button
                     key={opt.value}
                     type="button"
+                    aria-pressed={selectedType === opt.value}
                     onClick={() => setSelectedType(opt.value)}
                     className={`
-                      p-3 rounded-xl border-2 text-left transition-all
+                      p-3 rounded-xl border-2 text-left transition-all focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none focus-visible:ring-[#111111]
                       ${selectedType === opt.value
                         ? 'border-[#ff3b3b] bg-[#FEF2F2]'
                         : 'border-[#EEEEEE] bg-white hover:border-[#CCCCCC]'

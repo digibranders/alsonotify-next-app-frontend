@@ -40,7 +40,8 @@ export function PaginationBar({
                 <button
                     onClick={() => handlePageChange(currentPage - 1)}
                     disabled={currentPage === 1}
-                    className="w-7 h-7 rounded-lg border border-[#EEEEEE] flex items-center justify-center hover:bg-[#F7F7F7] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    aria-label="Go to previous page"
+                    className="w-7 h-7 rounded-lg border border-[#EEEEEE] flex items-center justify-center hover:bg-[#F7F7F7] transition-colors disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111111] focus-visible:ring-offset-1"
                 >
                     <ChevronLeft className="w-3.5 h-3.5 text-[#666666]" />
                 </button>
@@ -58,11 +59,15 @@ export function PaginationBar({
                         pageNum = currentPage - 2 + i;
                     }
 
+                    const isCurrent = currentPage === pageNum;
+
                     return (
                         <button
                             key={pageNum}
                             onClick={() => handlePageChange(pageNum)}
-                            className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all font-semibold text-xs ${currentPage === pageNum
+                            aria-label={isCurrent ? `Current page, page ${pageNum}` : `Go to page ${pageNum}`}
+                            aria-current={isCurrent ? 'page' : undefined}
+                            className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all font-semibold text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111111] focus-visible:ring-offset-1 ${isCurrent
                                 ? 'bg-[#ff3b3b] text-white'
                                 : 'border border-[#EEEEEE] text-[#666666] hover:bg-[#F7F7F7]'
                                 }`}
@@ -75,7 +80,8 @@ export function PaginationBar({
                 <button
                     onClick={() => handlePageChange(currentPage + 1)}
                     disabled={currentPage === totalPages}
-                    className="w-7 h-7 rounded-lg border border-[#EEEEEE] flex items-center justify-center hover:bg-[#F7F7F7] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    aria-label="Go to next page"
+                    className="w-7 h-7 rounded-lg border border-[#EEEEEE] flex items-center justify-center hover:bg-[#F7F7F7] transition-colors disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111111] focus-visible:ring-offset-1"
                 >
                     <ChevronRight className="w-3.5 h-3.5 text-[#666666]" />
                 </button>
@@ -83,7 +89,8 @@ export function PaginationBar({
                 <select
                     value={pageSize}
                     onChange={(e) => onPageSizeChange(Number(e.target.value))}
-                    className="ml-2 px-2 py-0.5 h-7 rounded-lg border border-[#EEEEEE] text-xs font-normal text-[#666666] bg-white hover:bg-[#F7F7F7] hover:border-[#EEEEEE] focus:outline-none focus:border-[#ff3b3b] transition-colors cursor-pointer"
+                    aria-label="Items per page"
+                    className="ml-2 px-2 py-0.5 h-7 rounded-lg border border-[#EEEEEE] text-xs font-normal text-[#666666] bg-white hover:bg-[#F7F7F7] hover:border-[#EEEEEE] focus:outline-none focus:border-[#ff3b3b] focus-visible:ring-2 focus-visible:ring-[#111111] focus-visible:ring-offset-1 transition-colors cursor-pointer"
                 >
                     <option value={10}>10</option>
                     <option value={12}>12</option>
