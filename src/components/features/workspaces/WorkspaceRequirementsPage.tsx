@@ -159,7 +159,7 @@ export function WorkspaceRequirementsPage() {
             const wsData = workspaceMap.get(effectiveWorkspaceId || 0);
 
             const mockInvoiceStatus = req.invoice_id
-                ? (req.invoice?.status === 'paid' ? 'paid' : req.invoice?.status === 'open' ? 'billed' : undefined)
+                ? (req.invoice?.status === 'paid' ? 'paid' : req.invoice?.status ? req.invoice.status : undefined)
                 : undefined;
 
             const contactPersonName = req.contact_person?.name || null;
@@ -241,9 +241,9 @@ export function WorkspaceRequirementsPage() {
                 type: (req.type || 'inhouse') as RequirementType,
                 status: mapRequirementStatus(req.status || 'Assigned'),
                 category: 'General',
-                progress: 0,
-                tasksCompleted: req.total_task ? Math.floor(req.total_task * 0 / 100) : 0,
-                tasksTotal: req.total_task || 0,
+                progress: req.progress || 0,
+                tasksCompleted: req.completed_tasks || req.tasks_completed || 0,
+                tasksTotal: req.total_tasks || req.total_task || 0,
                 workspace_id: effectiveWorkspaceId || workspaceId,
                 workspace: wsData?.name || workspace?.name || 'Unknown Workspace',
                 approvalStatus: (req.approved_by ? 'approved' :
@@ -252,7 +252,7 @@ export function WorkspaceRequirementsPage() {
                         req.status?.toLowerCase().includes('pending')) ? 'pending' :
                         undefined
                 ) as 'pending' | 'approved' | 'rejected' | undefined,
-                invoice_status: mockInvoiceStatus as 'paid' | 'billed' | undefined,
+                invoice_status: mockInvoiceStatus as 'draft' | 'pending_approval' | 'sent' | 'overdue' | 'partial' | 'paid' | 'void' | undefined,
                 estimated_cost: req.estimated_cost || (req.budget || undefined),
                 budget: req.budget || undefined,
                 quoted_price: req.quoted_price || undefined,
@@ -409,7 +409,7 @@ export function WorkspaceRequirementsPage() {
             if (activeTab === 'completed' && filters.billing !== 'All') {
                 const billingMap: Record<string, string[]> = {
                     'Paid': ['paid'],
-                    'Invoiced': ['billed'],
+                    'Invoiced': ['sent', 'partial', 'overdue', 'pending_approval'],
                     'Ready to Bill': [],
                 };
                 const allowedInvoiceStatuses = billingMap[filters.billing] || [];

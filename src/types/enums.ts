@@ -23,9 +23,17 @@ export type PricingModel = (typeof PRICING_MODELS)[number];
 
 /**
  * InvoiceStatus - Status of an invoice.
- * Matches backend Prisma InvoiceStatus enum.
+ * Matches backend Prisma InvoiceStatus enum exactly.
  */
-export const INVOICE_STATUSES = ['draft', 'paid', 'past_due', 'open'] as const;
+export const INVOICE_STATUSES = [
+    'draft',
+    'pending_approval',
+    'sent',
+    'overdue',
+    'partial',
+    'paid',
+    'void',
+] as const;
 export type InvoiceStatus = (typeof INVOICE_STATUSES)[number];
 
 /**

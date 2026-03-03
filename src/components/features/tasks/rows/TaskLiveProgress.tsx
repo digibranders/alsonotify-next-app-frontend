@@ -86,8 +86,13 @@ export function TaskLiveProgress({ task, currentUserId }: TaskLiveProgressProps)
       </div>
 
       {/* Progress Bar - Always Show */}
-      <div className="flex items-center gap-2 w-full min-w-0">
-        <div className="flex-1 min-w-0">
+      <div className="flex flex-col gap-1 w-full min-w-0 justify-center">
+        <div className="flex justify-end w-full">
+          <span className={`text-[0.6875rem] font-bold whitespace-nowrap leading-none ${textColor}`}>
+            {Math.round(percentage)}%
+          </span>
+        </div>
+        <div className="w-full min-w-0">
           <SegmentedProgressBar
             members={liveMembers.sort((a, b) => {
               if (task.execution_mode === 'sequential') {
@@ -100,9 +105,6 @@ export function TaskLiveProgress({ task, currentUserId }: TaskLiveProgressProps)
             executionMode={task.execution_mode || 'parallel'}
           />
         </div>
-        <span className={`text-[0.6875rem] font-bold whitespace-nowrap ${textColor}`}>
-          {Math.round(percentage)}%
-        </span>
       </div>
     </>
   );

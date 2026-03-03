@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Modal, Input, App, Select } from 'antd';
+import { Modal, Input, App, Select, Space } from 'antd';
 
 const { Option } = Select;
 
@@ -94,14 +94,16 @@ export function QuotationDialog({
           <>
             <div className="space-y-2">
               <label className="text-[0.8125rem] font-bold text-[#111111]">Confirmed Hourly Rate</label>
-              <Input
-                type="number"
-                placeholder="0.00"
-                className="h-11 rounded-lg"
-                addonBefore={currencySelector}
-                value={rate}
-                onChange={(e) => setRate(e.target.value)}
-              />
+              <Space.Compact className="w-full">
+                {currencySelector}
+                <Input
+                  type="number"
+                  placeholder="0.00"
+                  className="h-11 rounded-lg"
+                  value={rate}
+                  onChange={(e) => setRate(e.target.value)}
+                />
+              </Space.Compact>
             </div>
             <div className="space-y-2">
               <label className="text-[0.8125rem] font-bold text-[#111111]">Estimated Hours</label>
@@ -123,14 +125,16 @@ export function QuotationDialog({
         ) : (
           <div className="space-y-2">
             <label className="text-[0.8125rem] font-bold text-[#111111]">Total Project Cost</label>
-            <Input
-              type="number"
-              placeholder="0.00"
-              className="h-11 rounded-lg"
-              addonBefore={currencySelector}
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-            />
+            <Space.Compact className="w-full">
+              {currencySelector}
+              <Input
+                type="number"
+                placeholder="0.00"
+                className="h-11 rounded-lg"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+              />
+            </Space.Compact>
           </div>
         )}
       </div>

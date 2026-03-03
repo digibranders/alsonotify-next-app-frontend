@@ -19,10 +19,10 @@ interface SegmentedProgressBarProps {
     executionMode: 'parallel' | 'sequential';
 }
 
-export function SegmentedProgressBar({ members, totalEstimate }: Readonly<SegmentedProgressBarProps>) {
+export function SegmentedProgressBar({ members, totalEstimate, taskStatus }: Readonly<SegmentedProgressBarProps>) {
     if (!totalEstimate || totalEstimate <= 0) {
         return (
-            <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden" />
+            <div className="w-full h-3 bg-gray-100 rounded-full overflow-hidden" />
         );
     }
 
@@ -34,26 +34,24 @@ export function SegmentedProgressBar({ members, totalEstimate }: Readonly<Segmen
         const isMemberDelayed = member.status === 'Delayed';
 
         if (isMemberDelayed || isOvertime) {
-            return 'bg-[#ff3b3b]'; // Red
+            return 'bg-[#ff3b3b]'; // Red (Delayed/Overtime supersedes completion)
         }
 
-        // 2. Review: Yellow
-        if (member.status === 'Review') {
-            return 'bg-[#fbbf24]'; // Amber-400
+        // 2. Task-level overrides for Review and Completed
+        if (taskStatus === 'Completed' || member.status === 'Completed') {
+            return 'bg-[#16a34a]'; // Green (Completed on time)
+        }
+        if (taskStatus === 'Review' || member.status === 'Review') {
+            return 'bg-[#fbbf24]'; // Yellow (Review on time)
         }
 
-        // 3. Completed: Green
-        if (member.status === 'Completed') {
-            return 'bg-[#16a34a]'; // Green
-        }
-
-        // 4. In Progress / Active: Blue
+        // 3. In Progress / Active: Blue
         // Check if actually worked on (seconds > 0) or marked In_Progress
         if (member.status === 'In_Progress' || member.seconds_spent > 0) {
             return 'bg-[#2F80ED]'; // Blue
         }
 
-        // 5. Assigned/Pending: Gray
+        // 4. Assigned/Pending: Gray
         return 'bg-[#E0E0E0]';
     };
 

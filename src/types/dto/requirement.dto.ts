@@ -23,6 +23,7 @@ export interface RequirementDto {
   hourly_rate?: number | null;
   estimated_cost?: number | null;
   estimated_hours?: number | null;
+  total_billed?: number | null;
 
   // Foreign keys
   sender_company_id?: number | null;
@@ -54,7 +55,9 @@ export interface RequirementDto {
   total_task?: number;
   total_tasks?: number;
   tasks_completed?: number;
+  completed_tasks?: number;
   total_count?: number;
+  progress?: number;
 
   // Relations
   sender_company?: { name: string; id?: number } | null;

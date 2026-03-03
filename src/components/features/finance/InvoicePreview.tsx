@@ -1,6 +1,5 @@
 import { forwardRef } from 'react';
 import dayjs from 'dayjs';
-import FynixLogo from '@/assets/images/fynix-logo.png';
 import BrandLogo from '@/assets/images/logo.png';
 
 export interface InvoicePreviewData {
@@ -9,6 +8,7 @@ export interface InvoicePreviewData {
     dueDate: string;
     currencyCode: string;
     senderName: string;
+    senderLogoUrl?: string | null;
     senderAddress: string;
     senderEmail: string;
     senderTaxId: string;
@@ -49,6 +49,7 @@ export const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(({
         dueDate,
         currencyCode,
         senderName,
+        senderLogoUrl,
         senderAddress,
         senderEmail,
         senderTaxId,
@@ -98,13 +99,10 @@ export const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(({
                     {/* Company Logo */}
                     <div className="text-right">
                         <div className="flex justify-end mb-1">
-                            <img
-                                src={FynixLogo.src}
-                                alt="Fynix"
-                                width={100}
-                                height={32}
-                                className="h-[32px] w-auto object-contain"
-                            />
+                            {senderLogoUrl
+                                ? <img src={senderLogoUrl} alt="Company Logo" style={{ maxHeight: 60, maxWidth: 180, objectFit: 'contain' }} />
+                                : <span style={{ fontWeight: 700, fontSize: 18 }}>{senderName}</span>
+                            }
                         </div>
                     </div>
                 </div>

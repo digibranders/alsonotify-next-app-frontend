@@ -20,9 +20,10 @@ export function mapRequirementToDomain(dto: RequirementDto): Requirement {
     is_high_priority: dto.is_high_priority ?? false,
 
     status: (dto.status as RequirementStatus) || 'draft',
-    progress: dto.total_task ? Math.round(((dto.tasks_completed || 0) / dto.total_task) * 100) : 0,
-    tasksCompleted: dto.tasks_completed || 0,
-    tasksTotal: dto.total_task || 0,
+    rawStatus: dto.status,
+    progress: dto.progress ?? (dto.total_tasks || dto.total_task ? Math.round(((dto.completed_tasks || dto.tasks_completed || 0) / (dto.total_tasks || dto.total_task || 1)) * 100) : 0),
+    tasksCompleted: dto.completed_tasks || dto.tasks_completed || 0,
+    tasksTotal: dto.total_tasks || dto.total_task || 0,
 
     receiver_project_id: dto.receiver_workspace_id, // Map from workspace ID
 

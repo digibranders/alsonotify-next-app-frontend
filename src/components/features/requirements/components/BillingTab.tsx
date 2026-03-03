@@ -29,7 +29,7 @@ export const BillingTab: React.FC<BillingTabProps> = ({ requirement }) => {
     }, [dbInvoicesData]);
 
     const estimatedCost = requirement.estimated_cost || requirement.quoted_price || 0;
-    const totalBilled = (requirement as any).total_billed || invoices.reduce((sum, inv) => sum + inv.amount, 0); // fallback to sum of invoices
+    const totalBilled = requirement.total_billed ?? invoices.reduce((sum, inv) => sum + inv.amount, 0);
     const remainingBalance = Math.max(0, estimatedCost - totalBilled);
 
     const handleCreateInvoice = () => {
@@ -98,6 +98,30 @@ export const BillingTab: React.FC<BillingTabProps> = ({ requirement }) => {
                         <p className="text-2xl font-bold text-blue-700">₹{remainingBalance.toLocaleString()}</p>
                     </div>
                 </div>
+
+                {/* Billing Progress Bar */}
+                {estimatedCost > 0 && (
+                    <div className="mb-8">
+                        <div className="flex justify-between items-center mb-1.5">
+                            <span className="text-xs text-[#697386]">Billing Progress</span>
+                            <span className="text-xs font-semibold text-[#111111]">
+                                {Math.round(Math.min((totalBilled / estimatedCost) * 100, 100))}%
+                            </span>
+                        </div>
+                        <div className="w-full h-2 bg-[#EEEEEE] rounded-full overflow-hidden">
+                            <div
+                                className={`h-full rounded-full transition-all duration-500 ${
+                                    totalBilled >= estimatedCost
+                                        ? 'bg-[#0F9D58]'
+                                        : totalBilled > 0
+                                            ? 'bg-[#2F80ED]'
+                                            : 'bg-[#EEEEEE]'
+                                }`}
+                                style={{ width: `${Math.min((totalBilled / estimatedCost) * 100, 100)}%` }}
+                            />
+                        </div>
+                    </div>
+                )}
 
                 {/* Invoice History */}
                 <div>

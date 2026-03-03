@@ -21,6 +21,7 @@ interface RequirementsListProps {
     handleRestore: (req: Requirement) => void;
     handleDuplicateRequirement: (req: Requirement) => void;
     onNavigate: (workspaceId: number, reqId: number) => void;
+    handleSubmitForReview?: (id: number) => void;
 }
 
 export function RequirementsList({
@@ -37,7 +38,8 @@ export function RequirementsList({
     handleDelete,
     handleRestore,
     handleDuplicateRequirement,
-    onNavigate
+    onNavigate,
+    handleSubmitForReview,
 }: RequirementsListProps) {
     if (isLoading) {
         return (
@@ -105,6 +107,11 @@ export function RequirementsList({
                             deleteIcon={(activeStatusTab === 'active' || activeStatusTab === 'completed' || activeStatusTab === 'delayed') ? <Archive className="w-3.5 h-3.5" /> : undefined}
                             onDuplicate={userRole !== 'Employee' ? () => handleDuplicateRequirement(requirement) : undefined}
                             onNavigate={() => onNavigate(requirement.workspace_id || 0, requirement.id)}
+                            onSubmitForReview={
+                                userRole !== 'Employee' && handleSubmitForReview
+                                    ? () => handleSubmitForReview(requirement.id)
+                                    : undefined
+                            }
                         />
                     ))}
                 </Masonry>
