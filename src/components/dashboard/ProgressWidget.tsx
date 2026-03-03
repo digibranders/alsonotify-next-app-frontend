@@ -426,12 +426,14 @@ function HoursBar({ data, onClick }: HoursBarProps) {
         </div>
 
         {/* Stats Section */}
-        <div
+        <button
+          type="button"
+          aria-label="View Tasks capacity details"
           onClick={(e) => {
             e.stopPropagation();
             if (onClick) onClick();
           }}
-          className="flex items-center gap-3 shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
+          className="flex items-center gap-3 shrink-0 hover:opacity-80 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff3b3b] rounded-md px-1"
         >
           <div className="flex items-center gap-1">
             <span className="text-[0.625rem] text-[#888888] font-medium">Balance:</span>
@@ -444,18 +446,20 @@ function HoursBar({ data, onClick }: HoursBarProps) {
             <span className="text-[0.625rem] text-[#888888] font-medium">Total:</span>
             <span className="text-xs font-bold text-[#111111]">{data.total}h</span>
           </div>
-        </div>
+        </button>
 
         {/* Arrow Icon */}
-        <div
+        <button
+          type="button"
+          aria-label="Go to Tasks"
           onClick={(e) => {
             e.stopPropagation();
             if (onClick) onClick();
           }}
-          className="group/arrow w-6 h-6 rounded-full bg-white border border-gray-100 flex items-center justify-center hover:bg-[#ff3b3b] hover:border-[#ff3b3b] transition-all duration-300 shrink-0 cursor-pointer"
+          className="group/arrow w-6 h-6 rounded-full bg-white border border-gray-100 flex items-center justify-center hover:bg-[#ff3b3b] hover:border-[#ff3b3b] transition-all duration-300 shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff3b3b]"
         >
           <ArrowRight className="w-3 h-3 text-gray-400 group-hover/arrow:text-white transition-colors duration-300" />
-        </div>
+        </button>
       </div>
     </div>
   );

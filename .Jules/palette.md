@@ -1,1 +1,5 @@
 ## 2026-02-28 - Added Accessibility to FeedbackWidget\n**Learning:** Discovered that complex modal dialogs using Ant Design often lack native `aria-pressed` and `focus-visible` states on custom clickable elements acting as radio buttons.\n**Action:** Always ensure that custom selectable elements (like category buttons) implement `aria-pressed` and distinct `focus-visible` utility classes for keyboard navigation.
+
+## 2024-05-24 - ProgressWidget Accessible Buttons
+**Learning:** Found a pattern where interactive `<div>` elements were used for clickable icons and stats cards. These were completely inaccessible to keyboard and screen reader users. The interactive label `<text>` in SVG pie charts also required explicit `role="button"`, `tabIndex`, and `onKeyDown` since SVGs behave differently than HTML elements.
+**Action:** Always convert interactive `<div>` and `<text>` items to semantic `<button type="button">` or give them correct ARIA roles when they must remain non-semantic. Ensure buttons have `aria-label`s and `focus-visible:outline-none focus-visible:ring-2` styles for focus indication.
