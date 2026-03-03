@@ -85,23 +85,23 @@ import DOMPurify from "dompurify";
 function sanitizeEmailHtml(html: string, allowImages: boolean) {
   if (!html) return "";
 
+  DOMPurify.addHook('afterSanitizeAttributes', (node: Element) => {
+    if (node.tagName && node.tagName.toLowerCase() === 'a') {
+      node.setAttribute('target', '_blank');
+      node.setAttribute('rel', 'noopener noreferrer');
+    }
+  });
+
   const clean = DOMPurify.sanitize(html, {
     USE_PROFILES: { html: true },
     FORBID_TAGS: allowImages ? [] : ["img", "picture", "source"],
     FORBID_ATTR: allowImages ? [] : ["srcset"],
+    ADD_ATTR: ['target', 'rel'],
   });
 
-  // Force safe link behavior
-  try {
-    const doc = new DOMParser().parseFromString(clean, "text/html");
-    doc.querySelectorAll("a").forEach((a) => {
-      a.setAttribute("target", "_blank");
-      a.setAttribute("rel", "noopener noreferrer");
-    });
-    return doc.body.innerHTML || "";
-  } catch {
-    return clean;
-  }
+  DOMPurify.removeAllHooks();
+
+  return clean;
 }
 
 // ---- Folder helpers for counts (frontend-only) ----
