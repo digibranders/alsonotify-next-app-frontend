@@ -3,6 +3,7 @@ import { NotificationPanel } from './NotificationPanel';
 import { useNotifications } from '@/hooks/useNotification';
 import { useIsNarrow } from '@/hooks/useBreakpoint';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // Mock hooks
 vi.mock('@/hooks/useNotification');
@@ -38,13 +39,16 @@ describe('NotificationPanel', () => {
   it('renders close button on mobile', () => {
     (useIsNarrow as any).mockReturnValue(true); // Mobile view
 
+    const queryClient = new QueryClient();
     render(
-      <NotificationPanel
-        open={true}
-        onClose={mockOnClose}
-        onMarkAsRead={mockOnMarkAsRead}
-        onMarkAllRead={mockOnMarkAllRead}
-      />
+      <QueryClientProvider client={queryClient}>
+        <NotificationPanel
+          open={true}
+          onClose={mockOnClose}
+          onMarkAsRead={mockOnMarkAsRead}
+          onMarkAllRead={mockOnMarkAllRead}
+        />
+      </QueryClientProvider>
     );
 
     const closeButton = screen.getByRole('button', { name: /Close/i });
@@ -57,13 +61,16 @@ describe('NotificationPanel', () => {
   it('renders close button on desktop', () => {
     (useIsNarrow as any).mockReturnValue(false); // Desktop view
 
+    const queryClient = new QueryClient();
     render(
-      <NotificationPanel
-        open={true}
-        onClose={mockOnClose}
-        onMarkAsRead={mockOnMarkAsRead}
-        onMarkAllRead={mockOnMarkAllRead}
-      />
+      <QueryClientProvider client={queryClient}>
+        <NotificationPanel
+          open={true}
+          onClose={mockOnClose}
+          onMarkAsRead={mockOnMarkAsRead}
+          onMarkAllRead={mockOnMarkAllRead}
+        />
+      </QueryClientProvider>
     );
 
     const closeButton = screen.getByRole('button', { name: /Close/i });
