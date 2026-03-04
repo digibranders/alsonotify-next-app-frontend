@@ -156,14 +156,16 @@ export function NotesWidget() {
                         <h3 className="font-semibold text-xl text-[#111111]">Notes</h3>
                         <button
                             onClick={() => setShowDialog(true)}
-                            className="hover:scale-110 active:scale-95 transition-transform flex items-center justify-center p-0.5"
+                            aria-label="Create note"
+                            className="hover:scale-110 active:scale-95 transition-transform flex items-center justify-center p-0.5 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff3b3b] focus-visible:ring-offset-2"
                         >
                             <Plus className="size-5 text-[#ff3b3b]" strokeWidth={2} />
                         </button>
                     </div>
                     <Link
                         href="/dashboard/notes"
-                        className="flex items-center gap-1 text-[#666666] hover:text-[#ff3b3b] text-sm font-semibold transition-colors no-underline [&>span]:text-current [&>svg]:text-current"
+                        aria-label="View all notes"
+                        className="flex items-center gap-1 text-[#666666] hover:text-[#ff3b3b] text-sm font-semibold transition-colors no-underline rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff3b3b] focus-visible:ring-offset-2 [&>span]:text-current [&>svg]:text-current"
                         style={{ color: '#666666' }}
                     >
                         <span>View All</span>

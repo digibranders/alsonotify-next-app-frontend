@@ -169,12 +169,12 @@ export function MeetingsWidget({ onNavigate }: { onNavigate?: (page: string) => 
         <div className="flex items-center justify-between mb-1.5">
           <div className="flex items-center gap-2">
             <h3 className="font-semibold text-xl text-[#111111]">Meetings</h3>
-            <button onClick={() => setShowDialog(true)} className="hover:scale-110 active:scale-95 transition-transform">
+            <button onClick={() => setShowDialog(true)} aria-label="Schedule meeting" className="hover:scale-110 active:scale-95 transition-transform rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff3b3b] focus-visible:ring-offset-2">
               <Plus className="size-5 text-[#ff3b3b]" strokeWidth={2} />
             </button>
           </div>
           <div className="flex items-center gap-2">
-            <button className="flex items-center gap-1 text-[#666666] text-sm font-semibold hover:text-[#111111] transition-colors" onClick={() => onNavigate && onNavigate('calendar')}>
+            <button aria-label="View all meetings" className="flex items-center gap-1 text-[#666666] text-sm font-semibold hover:text-[#111111] transition-colors rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff3b3b] focus-visible:ring-offset-2" onClick={() => onNavigate && onNavigate('calendar')}>
               <span>View All</span>
               <svg className="size-[17px]" fill="none" viewBox="0 0 17 17">
                 <path d={svgPaths.p3ac7a560} stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
