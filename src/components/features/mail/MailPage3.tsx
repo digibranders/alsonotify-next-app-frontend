@@ -92,10 +92,13 @@ function sanitizeEmailHtml(html: string, allowImages: boolean) {
     }
   });
 
+  const dangerousTags = ['script', 'style', 'iframe', 'object', 'embed', 'form', 'input', 'textarea', 'button'];
+  const dangerousAttrs = ['on*', 'form*', 'action', 'formaction'];
+
   const clean = DOMPurify.sanitize(html, {
     USE_PROFILES: { html: true },
-    FORBID_TAGS: allowImages ? [] : ["img", "picture", "source"],
-    FORBID_ATTR: allowImages ? [] : ["srcset"],
+    FORBID_TAGS: allowImages ? dangerousTags : ["img", "picture", "source", ...dangerousTags],
+    FORBID_ATTR: allowImages ? dangerousAttrs : ["srcset", ...dangerousAttrs],
     ADD_ATTR: ['target', 'rel'],
   });
 
