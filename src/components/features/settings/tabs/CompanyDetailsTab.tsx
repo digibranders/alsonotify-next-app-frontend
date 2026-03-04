@@ -4,7 +4,7 @@ import { commonCountries } from '@/data/defaultData';
 import { fileService } from '@/services/file.service';
 import { getTimezones } from '@/utils/timezones';
 import { Department, DocumentType } from '@/types/domain';
-const { TextArea } = Input;
+// const { TextArea } = Input;
 const { Option } = Select;
 import { getTaxIdTypesForCountry } from '@/data/taxIdTypes';
 import { useEffect, useState } from 'react';
@@ -31,8 +31,18 @@ interface CompanyDetailsTabProps {
   setCurrency: (val: string) => void;
   country: string;
   setCountry: (val: string) => void;
-  address: string;
-  setAddress: (val: string) => void;
+  // address: string;
+  // setAddress: (val: string) => void;
+  addressLine1: string;
+  setAddressLine1: (val: string) => void;
+  addressLine2: string;
+  setAddressLine2: (val: string) => void;
+  city: string;
+  setCity: (val: string) => void;
+  state: string;
+  setState: (val: string) => void;
+  zipcode: string;
+  setZipcode: (val: string) => void;
   companyData: any; // Using exact type if possible would be better, but 'any' matches usage in SettingsPage for now or we can use typed logic
 
   // Departments
@@ -58,7 +68,7 @@ interface CompanyDetailsTabProps {
 
 export function CompanyDetailsTab({
   isIndividual,
-  isAdmin,
+  // isAdmin,
   canEditCompany,
   isEditing,
   companyName,
@@ -75,8 +85,18 @@ export function CompanyDetailsTab({
   setCurrency,
   country,
   setCountry,
-  address,
-  setAddress,
+  // address,
+  // setAddress,
+  addressLine1,
+  setAddressLine1,
+  addressLine2,
+  setAddressLine2,
+  city,
+  setCity,
+  state,
+  setState,
+  zipcode,
+  setZipcode,
   companyData,
   departments,
   isAddingDept,
@@ -306,24 +326,63 @@ export function CompanyDetailsTab({
           </div>
         </div>
 
-        {/* Full Width: Address */}
-        <div className="mb-6 relative mt-6">
-          <div className="space-y-2">
-            <span className="text-[0.8125rem] font-bold text-[#111111]">Address</span>
-            <TextArea
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              placeholder="Enter company address"
-              disabled={!isEditing}
-              rows={3}
-              className={`rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-normal text-[0.8125rem] resize-none p-3 ${!isEditing ? 'bg-[#FAFAFA] text-[#666666]' : 'bg-white'}`}
-            />
-          </div>
-          {isEditing && (
-            <div className="absolute bottom-3 right-3 p-1.5 bg-[#F7F7F7] rounded-md border border-[#EEEEEE] pointer-events-none">
-              <span className="text-sm">📍</span>
+        {/* Granular Address Fields */}
+        <div className="space-y-6 mt-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <span className="text-[0.8125rem] font-bold text-[#111111]">Address Line 1</span>
+              <Input
+                value={addressLine1}
+                onChange={(e) => setAddressLine1(e.target.value)}
+                placeholder="Street address, P.O. box"
+                disabled={!isEditing}
+                className={`h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-medium text-[0.8125rem] ${!isEditing ? 'bg-[#FAFAFA] text-[#666666]' : 'bg-white'}`}
+              />
             </div>
-          )}
+            <div className="space-y-2">
+              <span className="text-[0.8125rem] font-bold text-[#111111]">Address Line 2 (Optional)</span>
+              <Input
+                value={addressLine2}
+                onChange={(e) => setAddressLine2(e.target.value)}
+                placeholder="Apartment, suite, unit, building, floor, etc."
+                disabled={!isEditing}
+                className={`h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-medium text-[0.8125rem] ${!isEditing ? 'bg-[#FAFAFA] text-[#666666]' : 'bg-white'}`}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="space-y-2">
+              <span className="text-[0.8125rem] font-bold text-[#111111]">City</span>
+              <Input
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                placeholder="City"
+                disabled={!isEditing}
+                className={`h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-medium text-[0.8125rem] ${!isEditing ? 'bg-[#FAFAFA] text-[#666666]' : 'bg-white'}`}
+              />
+            </div>
+            <div className="space-y-2">
+              <span className="text-[0.8125rem] font-bold text-[#111111]">State / Province</span>
+              <Input
+                value={state}
+                onChange={(e) => setState(e.target.value)}
+                placeholder="State or Province"
+                disabled={!isEditing}
+                className={`h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-medium text-[0.8125rem] ${!isEditing ? 'bg-[#FAFAFA] text-[#666666]' : 'bg-white'}`}
+              />
+            </div>
+            <div className="space-y-2">
+              <span className="text-[0.8125rem] font-bold text-[#111111]">Zip / Postal Code</span>
+              <Input
+                value={zipcode}
+                onChange={(e) => setZipcode(e.target.value)}
+                placeholder="Zipcode"
+                disabled={!isEditing}
+                className={`h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-medium text-[0.8125rem] ${!isEditing ? 'bg-[#FAFAFA] text-[#666666]' : 'bg-white'}`}
+              />
+            </div>
+          </div>
         </div>
 
         {/* Full Width: Tax ID with Type */}

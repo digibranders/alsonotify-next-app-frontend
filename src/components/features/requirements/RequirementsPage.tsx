@@ -462,11 +462,16 @@ export function RequirementsPage() {
     const reqId = pendingReqId;
     if (!reqId) return;
 
+    const req = requirements.find(r => r.id === reqId);
+    if (!req) return;
+
+    const workflowStatus = mapRequirementToStatus(req);
+    const targetStatus = workflowStatus === 'Review' ? 'Revision' : 'rejected';
+
     const payload: UpdateRequirementRequestDto = {
       id: reqId,
-      workspace_id: requirements.find(r => r.id === reqId)?.workspace_id || 0,
-      status: 'rejected',
-      // rejection_reason: reason // DTO might not have this. Check DTO.
+      workspace_id: req.workspace_id || 0,
+      status: targetStatus,
     };
 
     updateRequirementMutation.mutate({
@@ -474,7 +479,7 @@ export function RequirementsPage() {
       rejection_reason: reason
     } as UpdateRequirementRequestDto, {
       onSuccess: () => {
-        messageRef.current.success("Requirement rejected");
+        messageRef.current.success(targetStatus === 'Revision' ? "Revision requested" : "Requirement rejected");
         setIsRejectOpen(false);
         setPendingReqId(null);
       }
@@ -684,7 +689,9 @@ export function RequirementsPage() {
     setPendingReqId(id);
 
     // Draft: Send to Partner (sender) or Submit for Work (internal)
-    if (req.rawStatus === 'Draft') {
+    const workflowStatus = mapRequirementToStatus(req);
+
+    if (workflowStatus === 'Draft') {
       if (req.type === 'outsourced' && req.isSender) {
         updateRequirementMutation.mutate({
           id: req.id,
@@ -727,15 +734,34 @@ export function RequirementsPage() {
     if (isClientWork) {
       if (req.isSender) {
         // Partner B (Sender in client work context) accepts and maps
-        if (req.rawStatus === 'Waiting') {
+        if (workflowStatus === 'Waiting') {
           setIsClientAcceptOpen(true);
+          return;
+        }
+        // Sender B receives work from Receiver A, B reviews and approves!
+        if (workflowStatus === 'Review') {
+          updateRequirementMutation.mutate({
+            id: req.id,
+            workspace_id: req.workspace_id,
+            status: 'Completed'
+          }, {
+            onSuccess: () => {
+              messageApi.success("Work approved! Requirement marked as Completed.");
+              setPendingReqId(null);
+            },
+            onError: (err: Error) => {
+              messageApi.error(getErrorMessage(err, "Failed to approve work"));
+            }
+          });
           return;
         }
       }
       if (req.isReceiver) {
         // Creator A (Receiver in client work context) - wait for B
-        messageApi.info("Awaiting client acceptance.");
-        return;
+        if (workflowStatus === 'Waiting') {
+          messageApi.info("Awaiting client acceptance.");
+          return;
+        }
       }
     }
 
@@ -743,14 +769,14 @@ export function RequirementsPage() {
       // RECEIVER ACTIONS (Company B - Vendor)
       if (req.isReceiver) {
         // Scenario 1: Waiting for quote submission OR resubmitting after rejection
-        if (req.rawStatus === 'Waiting' || req.rawStatus === 'rejected') {
+        if (workflowStatus === 'Waiting' || workflowStatus === 'Rejected') {
           // Open quotation dialog to submit/resubmit quote
           setIsQuotationOpen(true);
           return;
         }
 
         // Scenario 2: Quote accepted, need to map to internal workspace
-        if (req.rawStatus === 'Assigned' && !req.receiver_workspace_id) {
+        if (workflowStatus === 'Assigned' && !req.receiver_workspace_id) {
           // Open workspace mapping modal
           setIsMappingOpen(true);
           return;
@@ -764,7 +790,7 @@ export function RequirementsPage() {
       // SENDER ACTIONS (Company A - Client)
       if (req.isSender) {
         // Scenario 1: Reviewing QUOTE submission (Status: Submitted)
-        if (req.rawStatus === 'Submitted') {
+        if (workflowStatus === 'Submitted') {
           // Accept quote directly - update status to Assigned
           updateRequirementMutation.mutate({
             id: req.id,
@@ -783,7 +809,7 @@ export function RequirementsPage() {
         }
 
         // Scenario 2: Reviewing WORK submission (Status: Review)
-        if (req.rawStatus === 'Review') {
+        if (workflowStatus === 'Review') {
           // Approve Work -> Completed
           // Might need feedback dialog later? For now direct approval.
           updateRequirementMutation.mutate({
@@ -808,8 +834,26 @@ export function RequirementsPage() {
       }
     }
 
+    // INTERNAL/INHOUSE Requirement Approval
+    if (workflowStatus === 'Review') {
+      updateRequirementMutation.mutate({
+        id: req.id,
+        workspace_id: req.workspace_id,
+        status: 'Completed'
+      }, {
+        onSuccess: () => {
+          messageApi.success("Work approved! Requirement marked as Completed.");
+          setPendingReqId(null);
+        },
+        onError: (err: Error) => {
+          messageApi.error(getErrorMessage(err, "Failed to approve work"));
+        }
+      });
+      return;
+    }
+
     // Fallback for non-outsourced requirements or unclear states
-    // For in-house requirements, approval might still use quotation dialog for budget confirmation
+    // For in-house requirements awaiting quote/budget approval, show quotation modal
     setIsQuotationOpen(true);
   };
 

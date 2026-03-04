@@ -291,6 +291,11 @@ export interface ProfileUpdateInput {
 export interface CompanyUpdateInput {
   name: string;
   address?: string;
+  address_line_1?: string;
+  address_line_2?: string;
+  city?: string;
+  state?: string;
+  zipcode?: string;
   website?: string;
   logo?: string;
   tax_id?: string;

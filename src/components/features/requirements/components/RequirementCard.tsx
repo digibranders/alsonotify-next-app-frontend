@@ -254,7 +254,7 @@ export function RequirementCard({
                   </button>
                 )}
 
-                {onSubmitForReview && ['In_Progress', 'Delayed', 'On_Hold'].includes(requirement.rawStatus || '') && (
+                {onSubmitForReview && ['In_Progress', 'Delayed', 'On_Hold'].includes(requirement.rawStatus || '') && requirement.tasksTotal > 0 && requirement.tasksCompleted === requirement.tasksTotal && (
                   <button
                     onClick={() => {
                       setIsMenuOpen(false);

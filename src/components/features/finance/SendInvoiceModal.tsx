@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, KeyboardEvent } from 'react';
 import { X, Paperclip, Send, Mail } from 'lucide-react';
+import { Modal } from 'antd';
 import { toast } from 'sonner';
 import { useInvoice, useSendInvoiceEmail } from '../../../hooks/useInvoice';
 import { getEmailRecipients } from '../../../services/invoice';
@@ -159,91 +160,21 @@ export function SendInvoiceModal({
     const clientName = (invoice as { bill_to_company?: { name: string } } | undefined)?.bill_to_company?.name ?? '—';
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-            <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-            <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden">
-                {/* Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-[#EEEEEE]">
-                    <div className="flex items-center gap-2">
-                        <Mail className="w-5 h-5 text-[#ff3b3b]" />
-                        <h2 className="text-base font-semibold text-[#111111]">Send Invoice</h2>
-                    </div>
-                    <button
-                        onClick={onClose}
-                        className="p-1.5 rounded-full hover:bg-[#F7F7F7] text-[#666666] transition-colors"
-                    >
-                        <X className="w-4 h-4" />
-                    </button>
+        <Modal
+            title={
+                <div className="flex items-center gap-2">
+                    <Mail className="w-5 h-5 text-[#ff3b3b]" />
+                    <span className="text-base font-semibold text-[#111111]">Send Invoice</span>
                 </div>
-
-                <div className="px-6 py-5 space-y-5">
-                    {/* Invoice summary card */}
-                    <div className="p-4 bg-[#F9FAFB] rounded-xl border border-[#EEEEEE]">
-                        <div className="flex justify-between items-start">
-                            <div>
-                                <p className="text-xs font-semibold text-[#666666] uppercase tracking-wider">Invoice</p>
-                                <p className="text-sm font-bold text-[#111111] mt-0.5">{invoiceNumber}</p>
-                                <p className="text-xs text-[#666666] mt-0.5">To: {clientName}</p>
-                            </div>
-                            <div className="text-right">
-                                <p className="text-lg font-bold text-[#111111]">{currencySymbol}{total}</p>
-                                <p className="text-xs text-[#666666]">Due {dueDate}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* To field */}
-                    <div>
-                        <EmailPillInput
-                            label="To"
-                            emails={toEmails}
-                            onAdd={email => { setToEmails(prev => [...prev, email]); setToError(''); }}
-                            onRemove={email => setToEmails(prev => prev.filter(e => e !== email))}
-                        />
-                        {isLoadingRecipients && (
-                            <p className="text-xs text-[#999999] mt-1">Loading recipients...</p>
-                        )}
-                        {toError && (
-                            <p className="text-xs text-[#ff3b3b] mt-1">{toError}</p>
-                        )}
-                    </div>
-
-                    {/* CC field */}
-                    <EmailPillInput
-                        label="CC"
-                        emails={ccEmails}
-                        onAdd={email => setCcEmails(prev => [...prev, email])}
-                        onRemove={email => setCcEmails(prev => prev.filter(e => e !== email))}
-                    />
-
-                    {/* Attachment chip (static — PDF is always attached) */}
-                    <div>
-                        <label className="block text-xs font-semibold text-[#666666] uppercase tracking-wider mb-1.5">
-                            Attachment
-                        </label>
-                        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#F3F4F6] rounded-full text-xs font-medium text-[#111111]">
-                            <Paperclip className="w-3.5 h-3.5 text-[#666666]" />
-                            {invoiceNumber}.pdf
-                        </div>
-                    </div>
-
-                    {/* Optional custom message */}
-                    <div>
-                        <label className="block text-xs font-semibold text-[#666666] uppercase tracking-wider mb-1.5">
-                            Message (optional)
-                        </label>
-                        <textarea
-                            value={customMessage}
-                            onChange={e => setCustomMessage(e.target.value)}
-                            placeholder="Add a personal message..."
-                            rows={3}
-                            className="w-full px-3 py-2 border border-[#EEEEEE] rounded-lg text-sm text-[#111111] placeholder:text-[#CCCCCC] focus:border-[#ff3b3b] outline-none resize-none"
-                        />
-                    </div>
-                </div>
-
-                {/* Footer */}
-                <div className="flex justify-end gap-3 px-6 py-4 border-t border-[#EEEEEE]">
+            }
+            open={isOpen}
+            onCancel={onClose}
+            width={512}
+            destroyOnClose
+            centered
+            closeIcon={<X className="w-4 h-4 text-[#666666]" />}
+            footer={
+                <div className="flex justify-end gap-3 pt-4">
                     <button
                         onClick={onClose}
                         disabled={isSending}
@@ -260,7 +191,73 @@ export function SendInvoiceModal({
                         {isSending ? 'Sending...' : 'Send Invoice'}
                     </button>
                 </div>
+            }
+        >
+            <div className="py-4 space-y-5">
+                {/* Invoice summary card */}
+                <div className="p-4 bg-[#F9FAFB] rounded-xl border border-[#EEEEEE]">
+                    <div className="flex justify-between items-start">
+                        <div>
+                            <p className="text-xs font-semibold text-[#666666] uppercase tracking-wider">Invoice</p>
+                            <p className="text-sm font-bold text-[#111111] mt-0.5">{invoiceNumber}</p>
+                            <p className="text-xs text-[#666666] mt-0.5">To: {clientName}</p>
+                        </div>
+                        <div className="text-right">
+                            <p className="text-lg font-bold text-[#111111]">{currencySymbol}{total}</p>
+                            <p className="text-xs text-[#666666]">Due {dueDate}</p>
+                        </div>
+                    </div>
+                </div>
+
+                {/* To field */}
+                <div>
+                    <EmailPillInput
+                        label="To"
+                        emails={toEmails}
+                        onAdd={email => { setToEmails(prev => [...prev, email]); setToError(''); }}
+                        onRemove={email => setToEmails(prev => prev.filter(e => e !== email))}
+                    />
+                    {isLoadingRecipients && (
+                        <p className="text-xs text-[#999999] mt-1">Loading recipients...</p>
+                    )}
+                    {toError && (
+                        <p className="text-xs text-[#ff3b3b] mt-1">{toError}</p>
+                    )}
+                </div>
+
+                {/* CC field */}
+                <EmailPillInput
+                    label="CC"
+                    emails={ccEmails}
+                    onAdd={email => setCcEmails(prev => [...prev, email])}
+                    onRemove={email => setCcEmails(prev => prev.filter(e => e !== email))}
+                />
+
+                {/* Attachment chip (static — PDF is always attached) */}
+                <div>
+                    <label className="block text-xs font-semibold text-[#666666] uppercase tracking-wider mb-1.5">
+                        Attachment
+                    </label>
+                    <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#F3F4F6] rounded-full text-xs font-medium text-[#111111]">
+                        <Paperclip className="w-3.5 h-3.5 text-[#666666]" />
+                        {invoiceNumber}.pdf
+                    </div>
+                </div>
+
+                {/* Optional custom message */}
+                <div>
+                    <label className="block text-xs font-semibold text-[#666666] uppercase tracking-wider mb-1.5">
+                        Message (optional)
+                    </label>
+                    <textarea
+                        value={customMessage}
+                        onChange={e => setCustomMessage(e.target.value)}
+                        placeholder="Add a personal message..."
+                        rows={3}
+                        className="w-full px-3 py-2 border border-[#EEEEEE] rounded-lg text-sm text-[#111111] placeholder:text-[#CCCCCC] focus:border-[#ff3b3b] outline-none resize-none"
+                    />
+                </div>
             </div>
-        </div>
+        </Modal>
     );
 }
