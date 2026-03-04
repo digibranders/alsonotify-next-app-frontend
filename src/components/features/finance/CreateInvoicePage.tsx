@@ -1,7 +1,7 @@
 'use client';
 /* eslint-disable react-hooks/exhaustive-deps, react-hooks/set-state-in-effect */
 
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -63,6 +63,10 @@ export function CreateInvoicePage() {
 
     const [isDownloading, setIsDownloading] = useState(false);
     const previewRef = useRef<HTMLDivElement>(null);
+
+    // --- Auto-Save Draft ---
+    const DRAFT_KEY = 'invoice_draft';
+    const hasRestoredRef = useRef(false);
 
     // --- Dynamic Data ---
     const { data: companyRes } = useCurrentUserCompany();
@@ -201,6 +205,67 @@ export function CreateInvoicePage() {
         };
     }, [items, discount, taxConfig]);
 
+    // --- Auto-Save: Debounced 2s localStorage save ---
+    const serializeDraft = useCallback(() => ({
+        issueDate, dueDate, currencyCode, items, discount, showDiscount,
+        taxConfig, memo, footer, senderName, senderAddress, senderEmail,
+        senderTaxId, clientName, clientAddress, clientEmail, clientPhone, clientTaxId,
+        savedAt: Date.now(),
+    }), [issueDate, dueDate, currencyCode, items, discount, showDiscount, taxConfig, memo, footer, senderName, senderAddress, senderEmail, senderTaxId, clientName, clientAddress, clientEmail, clientPhone, clientTaxId]);
+
+    useEffect(() => {
+        if (!hasRestoredRef.current) return; // Don't save during initial restore
+        const timer = setTimeout(() => {
+            try {
+                localStorage.setItem(DRAFT_KEY, JSON.stringify(serializeDraft()));
+            } catch { /* quota exceeded, ignore */ }
+        }, 2000);
+        return () => clearTimeout(timer);
+    }, [serializeDraft]);
+
+    // --- Auto-Save: Restore on mount ---
+    useEffect(() => {
+        if (hasRestoredRef.current) return;
+        hasRestoredRef.current = true;
+        try {
+            const saved = localStorage.getItem(DRAFT_KEY);
+            if (!saved) return;
+            const draft = JSON.parse(saved);
+            // Only offer restore if draft is less than 24h old
+            if (Date.now() - draft.savedAt > 24 * 60 * 60 * 1000) {
+                localStorage.removeItem(DRAFT_KEY);
+                return;
+            }
+            toast('Unsaved invoice draft found', {
+                action: {
+                    label: 'Restore',
+                    onClick: () => {
+                        if (draft.issueDate) setIssueDate(draft.issueDate);
+                        if (draft.dueDate) setDueDate(draft.dueDate);
+                        if (draft.currencyCode) setCurrencyCode(draft.currencyCode);
+                        if (draft.items?.length) setItems(draft.items);
+                        if (draft.discount != null) setDiscount(draft.discount);
+                        if (draft.showDiscount != null) setShowDiscount(draft.showDiscount);
+                        if (draft.taxConfig) setTaxConfig(draft.taxConfig);
+                        if (draft.memo) setMemo(draft.memo);
+                        if (draft.footer) setFooter(draft.footer);
+                        if (draft.senderName) setSenderName(draft.senderName);
+                        if (draft.senderAddress) setSenderAddress(draft.senderAddress);
+                        if (draft.senderEmail) setSenderEmail(draft.senderEmail);
+                        if (draft.senderTaxId) setSenderTaxId(draft.senderTaxId);
+                        if (draft.clientName) setClientName(draft.clientName);
+                        if (draft.clientAddress) setClientAddress(draft.clientAddress);
+                        if (draft.clientEmail) setClientEmail(draft.clientEmail);
+                        if (draft.clientPhone) setClientPhone(draft.clientPhone);
+                        if (draft.clientTaxId) setClientTaxId(draft.clientTaxId);
+                        toast.success('Draft restored');
+                    },
+                },
+                duration: 8000,
+            });
+        } catch { /* corrupt data, ignore */ }
+    }, []);
+
     // --- Handlers ---
 
     const handleAddItem = () => {
@@ -280,6 +345,7 @@ export function CreateInvoicePage() {
                     ? { label: 'Send Now', onClick: () => router.push(`/dashboard/finance/invoices/${newInvoiceId}`) }
                     : undefined,
             });
+            localStorage.removeItem(DRAFT_KEY); // Clear draft after successful save
             router.push('/dashboard/finance');
         } catch {
             toast.error('Failed to save invoice. Please try again.');

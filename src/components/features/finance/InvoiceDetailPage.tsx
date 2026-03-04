@@ -26,42 +26,42 @@ export function InvoiceDetailPage() {
 
     const previewData: InvoicePreviewData | null = invoice
         ? {
-              invoiceId: invoice.invoice_number,
-              issueDate: invoice.issue_date,
-              dueDate: invoice.due_date,
-              currencyCode: invoice.currency,
-              senderName: String(invoice.bill_from ?? ''),
-              senderAddress: '',
-              senderEmail: '',
-              senderTaxId: '',
-              clientName: invoice.bill_to_company?.name ?? String(invoice.bill_to ?? ''),
-              clientAddress: '',
-              clientEmail: '',
-              clientPhone: '',
-              clientTaxId: '',
-              items: (invoice.particulars ?? []).map((p) => ({
-                  id: p.id || String(p.requirement_id ?? Math.random()),
-                  description: p.description,
-                  quantity: p.quantity,
-                  unitPrice: p.unit_price,
-              })),
-              totals: {
-                  subtotal: invoice.sub_total,
-                  discount: invoice.discount,
-                  totalTax: invoice.tax,
-                  total: invoice.total,
-              },
-              taxConfig: {
-                  id: 'tax',
-                  name: invoice.tax_type ?? 'Tax',
-                  rate:
-                      invoice.sub_total > 0
-                          ? (invoice.tax / Math.max(invoice.sub_total - invoice.discount, 1)) * 100
-                          : 0,
-              },
-              memo: invoice.memo ?? '',
-              footer: invoice.payment_details ?? '',
-          }
+            invoiceId: invoice.invoice_number,
+            issueDate: invoice.issue_date,
+            dueDate: invoice.due_date,
+            currencyCode: invoice.currency,
+            senderName: String(invoice.bill_from ?? ''),
+            senderAddress: '',
+            senderEmail: '',
+            senderTaxId: '',
+            clientName: invoice.bill_to_company?.name ?? String(invoice.bill_to ?? ''),
+            clientAddress: '',
+            clientEmail: '',
+            clientPhone: '',
+            clientTaxId: '',
+            items: (invoice.particulars ?? []).map((p) => ({
+                id: p.id || String(p.requirement_id ?? crypto.randomUUID()),
+                description: p.description,
+                quantity: p.quantity,
+                unitPrice: p.unit_price,
+            })),
+            totals: {
+                subtotal: invoice.sub_total,
+                discount: invoice.discount,
+                totalTax: invoice.tax,
+                total: invoice.total,
+            },
+            taxConfig: {
+                id: 'tax',
+                name: invoice.tax_type ?? 'Tax',
+                rate:
+                    invoice.sub_total > 0
+                        ? (invoice.tax / Math.max(invoice.sub_total - invoice.discount, 1)) * 100
+                        : 0,
+            },
+            memo: invoice.memo ?? '',
+            footer: invoice.payment_details ?? '',
+        }
         : null;
 
     const getStatusColor = (status: string) => {

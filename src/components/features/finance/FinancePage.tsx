@@ -30,28 +30,28 @@ import { RecordPaymentModal } from './RecordPaymentModal';
 
 // Local view-model types for the finance page
 interface Requirement {
-    id: string | number;
-    title: string;
-    client: string;
-    clientCompanyId?: number;
-    dueDate: string;
-    estimatedCost: number;
-    status: 'in-progress' | 'completed';
-    approvalStatus: 'pending' | 'approved' | 'rejected';
-    invoiceStatus?: 'unbilled' | 'invoiced';
-    type?: string | null;
+  id: string | number;
+  title: string;
+  client: string;
+  clientCompanyId?: number;
+  dueDate: string;
+  estimatedCost: number;
+  status: 'in-progress' | 'completed';
+  approvalStatus: 'pending' | 'approved' | 'rejected';
+  invoiceStatus?: 'unbilled' | 'invoiced';
+  type?: string | null;
 }
 
 interface Invoice {
-    id: string;
-    invoiceNumber: string;
-    client: string;
-    date: string;
-    dueDate: string;
-    amount: number;
-    amountReceived: number;
-    status: string;
-    items: Array<{ id: string; requirementId: string; description: string; quantity: number; unitPrice: number; amount: number }>;
+  id: string;
+  invoiceNumber: string;
+  client: string;
+  date: string;
+  dueDate: string;
+  amount: number;
+  amountReceived: number;
+  status: string;
+  items: Array<{ id: string; requirementId: string; description: string; quantity: number; unitPrice: number; amount: number }>;
 }
 
 // --- Main Component ---
@@ -89,7 +89,8 @@ export function FinancePage() {
   const requirements = useMemo<Requirement[]>(() => {
     return (collaborativeReqs ?? []).map(req => {
       const isCompleted = req.status === 'Completed';
-      const hasInvoice = !!req.invoice_id;
+      const totalBilled = Number(req.total_billed ?? 0);
+      const hasInvoice = totalBilled > 0 || !!req.invoice_id;
       return {
         id: req.id,
         title: req.name ?? '',
@@ -228,7 +229,7 @@ export function FinancePage() {
 
       // Tab filtering
       if (activeTab === 'drafts' && inv.status !== 'draft') return false;
-      if (activeTab === 'outstanding' && !['sent', 'pending', 'partial', 'overdue'].includes(inv.status)) return false;
+      if (activeTab === 'outstanding' && !['sent', 'pending_approval', 'partial', 'overdue'].includes(inv.status)) return false;
       if (activeTab === 'history' && !['paid', 'void'].includes(inv.status)) return false;
       if (activeTab === 'ready_to_bill') return false; // not used for invoices
 
@@ -260,10 +261,9 @@ export function FinancePage() {
 
   const kpiToBeInvoiced = unbilledReqs.reduce((sum, req) => sum + (req.estimatedCost || 0), 0);
 
-  // Total Expenses Mock logic: 65% of revenue (Invoiced + Unbilled)
-  const totalRevenue = kpiInvoiced.total + kpiToBeInvoiced;
-  const kpiTotalExpenses = totalRevenue * 0.65;
-  const kpiProfit = totalRevenue - kpiTotalExpenses;
+  // Expenses & Profit derived from actual received vs due
+  const kpiTotalExpenses = kpiInvoiced.due + kpiToBeInvoiced; // Outstanding: due invoices + unbilled
+  const kpiProfit = kpiInvoiced.received; // Profit reflects cash actually collected
 
   // --- Actions ---
 
@@ -285,12 +285,6 @@ export function FinancePage() {
   };
 
   const handleDownloadHistoryPDF = async (invoice: Invoice) => {
-    if (isNaN(Number(invoice.id))) {
-      // It's a mock invoice, can't download from server
-      toast.error("Cannot download PDF for mock invoice. Create a real invoice first.");
-      return;
-    }
-
     try {
       setIsDownloading(prev => ({ ...prev, [invoice.id]: true }));
       const toastId = toast.loading("Downloading PDF...");
