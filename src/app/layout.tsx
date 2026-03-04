@@ -5,6 +5,7 @@ import { AntDesignProvider } from '../components/AntDesignProvider';
 import ReactQueryProvider from '../provider/ReactQueryClient';
 import BrowserPolyfills from '../components/BrowserPolyfills';
 import { SpeedInsights } from "@vercel/speed-insights/next"
+import { Analytics } from '@vercel/analytics/next'
 import { Toaster } from 'sonner';
 
 const manrope = Manrope({
@@ -35,6 +36,7 @@ export default function RootLayout({
           <AntDesignProvider>
             {children}
             <SpeedInsights />
+            <Analytics />
             <Toaster position="top-right" richColors closeButton />
           </AntDesignProvider>
         </ReactQueryProvider>
