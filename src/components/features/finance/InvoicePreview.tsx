@@ -153,7 +153,7 @@ export const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(({
                     </div>
                     <div className="max-w-[260px] text-right">
                         <p className="text-[10px] font-semibold text-[#697386] uppercase tracking-wider mb-2">Bill To</p>
-                        <p className="text-[14px] font-semibold text-[#1a1a1a] mb-1">{clientName || 'Triem Security'}</p>
+                        <p className="text-[14px] font-semibold text-[#1a1a1a] mb-1">{clientName}</p>
                         <div className="text-[11px] text-[#697386] leading-snug space-y-px whitespace-pre-wrap">
                             <p>{clientAddress}</p>
                             {clientEmail && <p>{clientEmail}</p>}

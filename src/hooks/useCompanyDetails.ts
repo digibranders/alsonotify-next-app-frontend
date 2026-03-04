@@ -17,6 +17,11 @@ export const useCompanyDetails = ({ initialData }: UseCompanyDetailsProps) => {
         currency: initialData?.currency || 'USD',
         country: initialData?.country || '',
         address: initialData?.address || '',
+        addressLine1: initialData?.address_line_1 || '',
+        addressLine2: initialData?.address_line_2 || '',
+        city: initialData?.city || '',
+        state: initialData?.state || '',
+        zipcode: initialData?.zipcode || '',
         defaultEmployeePassword: initialData?.default_employee_password || 'Pass@123',
         accountManagerIds: initialData?.account_managers?.map(v => v.id) || []
     });
@@ -36,6 +41,11 @@ export const useCompanyDetails = ({ initialData }: UseCompanyDetailsProps) => {
             currency: initialData?.currency || 'USD',
             country: initialData?.country || '',
             address: initialData?.address || '',
+            addressLine1: initialData?.address_line_1 || '',
+            addressLine2: initialData?.address_line_2 || '',
+            city: initialData?.city || '',
+            state: initialData?.state || '',
+            zipcode: initialData?.zipcode || '',
             defaultEmployeePassword: initialData?.default_employee_password || 'Pass@123',
             accountManagerIds: initialData?.account_managers?.map(v => v.id) || []
         });
@@ -52,6 +62,11 @@ export const useCompanyDetails = ({ initialData }: UseCompanyDetailsProps) => {
                 currency: initialData.currency || 'USD',
                 country: initialData.country || '',
                 address: initialData.address || '',
+                addressLine1: initialData.address_line_1 || '',
+                addressLine2: initialData.address_line_2 || '',
+                city: initialData.city || '',
+                state: initialData.state || '',
+                zipcode: initialData.zipcode || '',
                 defaultEmployeePassword: initialData.default_employee_password || 'Pass@123',
                 accountManagerIds: initialData.account_managers?.map(v => v.id) || []
             });
@@ -68,6 +83,11 @@ export const useCompanyDetails = ({ initialData }: UseCompanyDetailsProps) => {
             currency: trimStr(formData.currency),
             country: trimStr(formData.country) || undefined,
             address: trimStr(formData.address) || undefined,
+            address_line_1: trimStr(formData.addressLine1) || undefined,
+            address_line_2: trimStr(formData.addressLine2) || undefined,
+            city: trimStr(formData.city) || undefined,
+            state: trimStr(formData.state) || undefined,
+            zipcode: trimStr(formData.zipcode) || undefined,
             default_employee_password: trimStr(formData.defaultEmployeePassword) || undefined,
             account_manager_ids: formData.accountManagerIds,
         };
@@ -87,6 +107,11 @@ export const useCompanyDetails = ({ initialData }: UseCompanyDetailsProps) => {
         setCurrency: (val: string) => updateField('currency', val),
         setCountry: (val: string) => updateField('country', val),
         setAddress: (val: string) => updateField('address', val),
+        setAddressLine1: (val: string) => updateField('addressLine1', val),
+        setAddressLine2: (val: string) => updateField('addressLine2', val),
+        setCity: (val: string) => updateField('city', val),
+        setState: (val: string) => updateField('state', val),
+        setZipcode: (val: string) => updateField('zipcode', val),
         setDefaultEmployeePassword: (val: string) => updateField('defaultEmployeePassword', val),
         setAccountManagerIds: (val: number[]) => updateField('accountManagerIds', val),
         resetCompanyDetails,

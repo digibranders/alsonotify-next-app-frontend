@@ -79,7 +79,11 @@ export function SettingsContent({
         timeZone, setTimeZone,
         currency, setCurrency,
         country, setCountry,
-        address, setAddress,
+        addressLine1, setAddressLine1,
+        addressLine2, setAddressLine2,
+        city, setCity,
+        state, setState,
+        zipcode, setZipcode,
         defaultEmployeePassword, setDefaultEmployeePassword,
         resetCompanyDetails,
         getCompanyDetailsPayload
@@ -414,7 +418,12 @@ export function SettingsContent({
                         companyName={companyName} setCompanyName={setCompanyName} companyLogo={companyLogo} setCompanyLogo={setCompanyLogo}
                         taxId={taxId} setTaxId={setTaxId} taxIdType={taxIdType} setTaxIdType={setTaxIdType}
                         timeZone={timeZone} setTimeZone={setTimeZone} currency={currency} setCurrency={setCurrency}
-                        country={country} setCountry={setCountry} address={address} setAddress={setAddress}
+                        country={country} setCountry={setCountry}
+                        addressLine1={addressLine1} setAddressLine1={setAddressLine1}
+                        addressLine2={addressLine2} setAddressLine2={setAddressLine2}
+                        city={city} setCity={setCity}
+                        state={state} setState={setState}
+                        zipcode={zipcode} setZipcode={setZipcode}
                         companyData={companyData} departments={departments} isAddingDept={isAddingDept} setIsAddingDept={setIsAddingDept}
                         newDeptName={newDeptName} setNewDeptName={setNewDeptName} handleAddDepartment={handleAddDepartment}
                         handleDeleteDepartment={handleDeleteDepartment} toggleDepartmentStatus={toggleDepartmentStatus}

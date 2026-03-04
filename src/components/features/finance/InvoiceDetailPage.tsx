@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Download, Send, CreditCard, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { useInvoice, useRecordPayment, useUpdateInvoiceStatus } from '@/hooks/useInvoice';
-import { getInvoicePdfBlob } from '@/services/invoice';
+import { getInvoicePdfBlob, convertProformaToTaxInvoice } from '@/services/invoice';
 import { InvoicePreview, InvoicePreviewData } from './InvoicePreview';
 import { SendInvoiceModal } from './SendInvoiceModal';
 import { RecordPaymentModal } from './RecordPaymentModal';
@@ -23,6 +23,7 @@ export function InvoiceDetailPage() {
     const [isSendModalOpen, setIsSendModalOpen] = useState(false);
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
     const [isDownloading, setIsDownloading] = useState(false);
+    const [isConverting, setIsConverting] = useState(false);
 
     const previewData: InvoicePreviewData | null = invoice
         ? {
@@ -141,6 +142,26 @@ export function InvoiceDetailPage() {
     const canRecordPayment = status === 'sent' || status === 'overdue' || status === 'partial';
     const canVoid = status !== 'paid' && status !== 'void';
 
+    // Check if it's a Proforma and if it hasn't been converted yet
+    const isProforma = invoice.invoice_number.startsWith('PROF-');
+
+    const handleConvertToTax = async () => {
+        try {
+            setIsConverting(true);
+            const res = await convertProformaToTaxInvoice(invoice.id);
+            if (res.success && res.result) {
+                toast.success('Successfully converted to Tax Invoice!');
+                // Navigate to the newly created Tax Invoice
+                router.push(`/dashboard/finance/invoices/${res.result.id}`);
+            }
+        } catch (error: unknown) {
+            // Type assertion unavoidable: Narrowing unknown axios error object
+            toast.error((error as { response?: { data?: { message?: string } } }).response?.data?.message || 'Failed to convert to Tax Invoice');
+        } finally {
+            setIsConverting(false);
+        }
+    };
+
     return (
         <div className="h-full bg-[#F9FAFB] flex flex-col rounded-[24px] overflow-hidden">
             {/* Header */}
@@ -171,6 +192,15 @@ export function InvoiceDetailPage() {
                         >
                             <Send className="w-4 h-4" />
                             Send
+                        </button>
+                    )}
+                    {isProforma && status !== 'void' && (
+                        <button
+                            onClick={handleConvertToTax}
+                            disabled={isConverting}
+                            className="px-4 py-2 flex items-center gap-2 bg-[#f59e0b] text-white rounded-full font-bold text-[0.8125rem] hover:bg-[#d97706] transition-colors disabled:opacity-50"
+                        >
+                            {isConverting ? 'Converting...' : 'Convert to Tax Invoice'}
                         </button>
                     )}
                     {canRecordPayment && (

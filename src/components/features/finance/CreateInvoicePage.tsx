@@ -1,5 +1,5 @@
 'use client';
-/* eslint-disable react-hooks/exhaustive-deps, react-hooks/set-state-in-effect */
+/* eslint-disable react-hooks/exhaustive-deps */
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -19,7 +19,7 @@ import dayjs from 'dayjs';
 import { useCurrentUserCompany, usePartners } from '@/hooks/useUser';
 import { useCreateInvoice } from '@/hooks/useInvoice';
 import { useCollaborativeRequirements } from '@/hooks/useRequirement';
-import { getNextInvoiceNumber } from '@/services/invoice';
+import { getNextInvoiceNumber, getTaxPreview } from '@/services/invoice';
 import { InvoicePreview } from './InvoicePreview';
 import { useInvoicePresets, InvoicePaymentPreset } from '@/hooks/useInvoicePresets';
 import { trimStr } from '@/utils/trim';
@@ -77,6 +77,7 @@ export function CreateInvoicePage() {
     const { data: partnersRes } = usePartners();
     const { mutateAsync: createInvoiceMutation, isPending: isSaving } = useCreateInvoice();
 
+    // Type assertion unavoidable: API response type for company is loosely defined in the hooks
     const companyId = (companyRes?.result as { id?: number } | undefined)?.id;
 
     // Fetch all collaborative requirements to populate line items from reqIds
@@ -91,57 +92,140 @@ export function CreateInvoicePage() {
     const partnerData = useMemo(() => {
         if (!partnersRes?.result || !clientId) return null;
         // clientId might be a name or ID from searchParams, let's find matching partner
-        return partnersRes.result.find(p => String(p.id) === clientId || p.name === clientId || (typeof p.company === 'object' ? p.company.name === clientId : p.company === clientId));
+        return partnersRes.result.find(p =>
+            String(p.id) === clientId ||
+            String(p.company_id) === clientId ||
+            p.name === clientId ||
+            (typeof p.company === 'object' ? p.company.name === clientId : p.company === clientId)
+        );
     }, [partnersRes, clientId]);
 
     // --- Invoice Number (server-generated, prevents duplicates) ---
     const { data: nextNumberData } = useQuery({
-        queryKey: ['next-invoice-number', companyId],
-        queryFn: () => getNextInvoiceNumber(companyId!),
+        queryKey: ['next-invoice-number', companyId, invoiceType],
+        queryFn: () => getNextInvoiceNumber(companyId!, invoiceType),
         enabled: !!companyId,
         staleTime: 0,
     });
     const invoiceId = nextNumberData?.result?.invoice_number ?? '';
 
+    // --- Tax Preview (dynamic calculation from backend) ---
+    const receiverCompanyId = partnerData?.company_id;
+    const { data: taxPreviewData } = useQuery({
+        queryKey: ['tax-preview', companyId, receiverCompanyId],
+        queryFn: () => getTaxPreview(companyId!, receiverCompanyId!),
+        enabled: !!companyId && !!receiverCompanyId,
+    });
+
     const [currencyCode, setCurrencyCode] = useState('INR');
 
-    // Sender details (From) - Defaults to Fynix Mock
-    const [senderName, setSenderName] = useState('Fynix Digital Solutions');
-    const [senderAddress, setSenderAddress] = useState('Tower 1, 4th Floor, CBD Belapur\nNavi Mumbai, MH 400614, India');
-    const [senderEmail, setSenderEmail] = useState('savita@fynix.digital');
-    const [senderTaxId, setSenderTaxId] = useState('27AAACD1234A1Z1');
+    // Sender details (From) — populated from company API via useEffect below
+    const [senderName, setSenderName] = useState('');
+    const [senderAddress, setSenderAddress] = useState('');
+    const [senderEmail, setSenderEmail] = useState('');
+    const [senderTaxId, setSenderTaxId] = useState('');
 
-    // Client details (To) - Defaults to Sample Client
-    const [clientName, setClientName] = useState('Triem Security Solutions');
-    const [clientAddress, setClientAddress] = useState('123 Corporate Park, Sholinganallur\nChennai, TN 600119, India');
-    const [clientEmail, setClientEmail] = useState('info@triemsecurity.com');
-    const [clientPhone, setClientPhone] = useState('+91 85915 09277');
-    const [clientTaxId, setClientTaxId] = useState('33AABCT9876C1Z5');
+    // Client details (Bill To) — populated from partner API via useEffect below
+    const [clientName, setClientName] = useState('');
+    const [clientAddress, setClientAddress] = useState('');
+    const [clientEmail, setClientEmail] = useState('');
+    const [clientPhone, setClientPhone] = useState('');
+    const [clientTaxId, setClientTaxId] = useState('');
 
-    // --- Auto-populate from Settings/Partners ---
+    // --- Auto-populate FROM (sender) from company settings ---
     useEffect(() => {
         if (companyData) {
             setSenderName(companyData.name || '');
-            setSenderAddress(`${companyData.address_line_1 || ''}\n${companyData.address_line_2 || ''}`.trim());
-            setSenderEmail(companyData.email || ''); // Assuming email exists in companyRes
+
+            // Compose address from granular fields
+            const addr1 = companyData.address_line_1 || '';
+            const addr2 = companyData.address_line_2 || '';
+            const city = companyData.city || '';
+            const state = companyData.state || '';
+            const zip = companyData.zipcode || '';
+            const country = companyData.country || '';
+
+            if (addr1) {
+                let addressParts = [addr1, addr2].filter(Boolean).join('\n');
+                const locationLine = [city, state, zip].filter(Boolean).join(', ');
+                if (locationLine) addressParts += (addressParts ? '\n' : '') + locationLine;
+                if (country) addressParts += (addressParts ? ', ' : '') + country;
+                setSenderAddress(addressParts.trim());
+            } else {
+                setSenderAddress(companyData.address || '');
+            }
+
+            setSenderEmail(companyData.email || '');
             setSenderTaxId(companyData.tax_id || '');
             setCurrencyCode(companyData.currency || 'INR');
-
-            // Footer left empty — user fills in their payment details
         }
     }, [companyData]);
 
+    // --- Auto-populate BILL TO (client) from partner API ---
     useEffect(() => {
         if (partnerData) {
-            setClientName(typeof partnerData.company === 'object' ? partnerData.company.name : partnerData.company || partnerData.name || '');
-            setClientAddress(`${partnerData.address_line_1 || ''}\n${partnerData.address_line_2 || ''}`.trim());
+            // Resolve company name — partner_company takes precedence, then company, then name
+            const companyName =
+                partnerData.partner_company?.name ||
+                (typeof partnerData.company === 'object' ? partnerData.company?.name : partnerData.company) ||
+                partnerData.name ||
+                '';
+            setClientName(companyName);
+
+            // Address — prefer structured fields, fall back to top-level address
+            const addr1 = partnerData.address_line_1 || '';
+            const addr2 = partnerData.address_line_2 || '';
+            const city = partnerData.city || partnerData.user_profile?.city || '';
+            const state = partnerData.state || partnerData.user_profile?.state || '';
+            const zip = partnerData.zipcode || partnerData.user_profile?.zipcode || '';
+            const country = (partnerData as any).country || partnerData.user_profile?.country || '';
+
+            let addressParts = [addr1, addr2].filter(Boolean).join('\n');
+            const locationLine = [city, state, zip].filter(Boolean).join(', ');
+            if (locationLine) addressParts += (addressParts ? '\n' : '') + locationLine;
+            if (country) addressParts += (addressParts ? ', ' : '') + country;
+
             setClientEmail(partnerData.email || '');
-            setClientPhone((partnerData as { phone?: string }).phone || '');
-            setClientTaxId((partnerData as { tax_id?: string }).tax_id || '');
-        } else if (clientId) {
-            setClientName(clientId);
+            // Phone: prefer direct fields, then user_profile nested fields
+            setClientPhone(
+                partnerData.phone ||
+                partnerData.mobile_number ||
+                partnerData.user_profile?.phone ||
+                partnerData.user_profile?.mobile_number ||
+                ''
+            );
+            // Tax ID from partner record (prefer company level)
+            setClientTaxId(
+                partnerData.tax_id ||
+                (typeof partnerData.company === 'object' ? partnerData.company?.tax_id : '') ||
+                ''
+            );
+            const companyAddress = (typeof partnerData.company === 'object' ? partnerData.company?.address : '') || '';
+            setClientAddress(addressParts.trim() || companyAddress);
+        } else if (clientId && isNaN(Number(clientId))) {
+            // Only set clientName from URL param once partners data has loaded (result is defined)
+            const partnersLoaded = !!partnersRes?.result;
+            if (partnersLoaded) {
+                setClientName(clientId);
+            }
         }
-    }, [partnerData, clientId]);
+    }, [partnerData, clientId, partnersRes]);
+
+    // Update tax configuration when preview data is available
+    useEffect(() => {
+        if (taxPreviewData?.result) {
+            const { taxLabel, totalRate } = taxPreviewData.result;
+            if (taxLabel && totalRate > 0) {
+                setTaxConfig({
+                    id: 'smart_tax',
+                    name: taxLabel,
+                    rate: totalRate
+                });
+            } else {
+                setTaxConfig({ id: 'none', name: 'None', rate: 0 });
+            }
+        }
+    }, [taxPreviewData]);
 
     // Payment Presets State using Hook
     const { presets: paymentPresets, addPreset, deletePreset } = useInvoicePresets();
@@ -304,6 +388,7 @@ export function CreateInvoicePage() {
             toast.error('Company data not loaded. Please try again.');
             return;
         }
+        // Type assertion unavoidable: nested company object structure in partnerData is not fully typed
         const clientCompanyId = typeof (partnerData as { company?: { id?: number } } | null)?.company === 'object'
             ? (partnerData as { company: { id: number } }).company.id
             : (partnerData as { id?: number } | null)?.id;
@@ -323,9 +408,9 @@ export function CreateInvoicePage() {
             }));
 
             const invoiceDetails = items
-                .filter(item => item.requirement_id != null)
+                .filter((item): item is typeof item & { requirement_id: number } => item.requirement_id != null)
                 .map(item => ({
-                    requirement_id: item.requirement_id as number,
+                    requirement_id: item.requirement_id,
                     billed_amount: item.quantity * item.unitPrice,
                 }));
 
@@ -748,12 +833,27 @@ export function CreateInvoicePage() {
                                         value={taxConfig.id}
                                         onChange={(e) => {
                                             const id = e.target.value;
-                                            if (id === 'gst_18') setTaxConfig({ id: 'gst_18', name: 'IGST', rate: 18 });
-                                            if (id === 'gst_local') setTaxConfig({ id: 'gst_local', name: 'CGST+SGST', rate: 18 });
-                                            if (id === 'none') setTaxConfig({ id: 'none', name: 'None', rate: 0 });
+                                            if (id === 'smart_tax' && taxPreviewData?.result) {
+                                                setTaxConfig({
+                                                    id: 'smart_tax',
+                                                    name: taxPreviewData.result.taxLabel,
+                                                    rate: taxPreviewData.result.totalRate
+                                                });
+                                            } else if (id === 'gst_18') {
+                                                setTaxConfig({ id: 'gst_18', name: 'IGST', rate: 18 });
+                                            } else if (id === 'gst_local') {
+                                                setTaxConfig({ id: 'gst_local', name: 'CGST+SGST', rate: 18 });
+                                            } else if (id === 'none') {
+                                                setTaxConfig({ id: 'none', name: 'None', rate: 0 });
+                                            }
                                         }}
                                         className="bg-[#F7F7F7] border-none text-xs rounded-[4px] px-1 py-0.5 outline-none cursor-pointer hover:bg-[#EEEEEE]"
                                     >
+                                        {taxPreviewData?.result && taxPreviewData.result.totalRate > 0 && (
+                                            <option value="smart_tax">
+                                                Auto: {taxPreviewData.result.taxLabel} ({taxPreviewData.result.totalRate}%)
+                                            </option>
+                                        )}
                                         <option value="gst_18">IGST (18%)</option>
                                         <option value="gst_local">CGST+SGST (18%)</option>
                                         <option value="none">None (0%)</option>

@@ -89,7 +89,7 @@ export interface UserDto {
     profile_pic?: string;
   };
   user?: { mobile_number?: string; phone?: string };
-  company?: string | { id: number; name: string };
+  company?: string | { id: number; name: string; tax_id?: string; address?: string; phone_number?: string; email?: string };
   company_id?: number;
   companies?: { id: number; name: string }[];
 
@@ -102,6 +102,7 @@ export interface UserDto {
   associated_date?: string;
   timezone?: string;
   user_id?: number;
+  tax_id?: string;  // GST/VAT/Tax ID for the partner company
 
   account_managers?: {
     id: number;

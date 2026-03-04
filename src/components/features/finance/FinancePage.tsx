@@ -27,6 +27,7 @@ import { useCurrentUserCompany } from '../../../hooks/useUser';
 import { getInvoicePdfBlob } from '../../../services/invoice';
 import { SendInvoiceModal } from './SendInvoiceModal';
 import { RecordPaymentModal } from './RecordPaymentModal';
+import { RequirementDto } from '../../../types/dto/requirement.dto';
 
 // Local view-model types for the finance page
 interface Requirement {
@@ -85,29 +86,11 @@ export function FinancePage() {
     }));
   }, [dbInvoicesData]);
 
-  // Map collaborative requirements to the page view-model and filter for "Ready to Bill"
-  const requirements = useMemo<Requirement[]>(() => {
-    return (collaborativeReqs ?? []).map(req => {
-      const isCompleted = req.status === 'Completed';
-      const totalBilled = Number(req.total_billed ?? 0);
-      const hasInvoice = totalBilled > 0 || !!req.invoice_id;
-      return {
-        id: req.id,
-        title: req.name ?? '',
-        client: req.sender_company?.name ?? req.client ?? 'Unknown',
-        clientCompanyId: (req.receiver_company_id ?? req.sender_company_id) ?? undefined,
-        dueDate: req.end_date ?? '',
-        estimatedCost: Number(req.quoted_price ?? req.estimated_cost ?? 0),
-        status: isCompleted ? 'completed' : 'in-progress',
-        approvalStatus: req.approved_by ? 'approved' : 'pending',
-        invoiceStatus: hasInvoice ? 'invoiced' : 'unbilled',
-        type: req.type,
-      };
-    });
-  }, [collaborativeReqs]);
-
-  // Company data for currency symbol
+  // Company data — fetched early so we can use companyId when filtering requirements
   const { data: companyRes } = useCurrentUserCompany();
+  const currentCompanyId = useMemo(() => {
+    return (companyRes?.result as { id?: number } | undefined)?.id;
+  }, [companyRes]);
   const currencySymbol = useMemo(() => {
     const code = (companyRes?.result as { currency?: string } | undefined)?.currency ?? 'INR';
     try {
@@ -115,6 +98,39 @@ export function FinancePage() {
         .formatToParts(0).find(p => p.type === 'currency')?.value ?? code;
     } catch { return code; }
   }, [companyRes]);
+
+  // Map collaborative requirements to the page view-model.
+  // IMPORTANT: Only requirements where the current company is the RECEIVER appear here.
+  // The receiver is the party who did the work and has the right to issue an invoice.
+  // The sender (who commissioned the work) should never see a billing option here.
+  const requirements = useMemo<Requirement[]>(() => {
+    return (collaborativeReqs ?? [])
+      .filter((req: RequirementDto) => {
+        // Only show requirements where this company is the receiver (did the work)
+        if (!currentCompanyId) return false;
+        return req.receiver_company_id === currentCompanyId;
+      })
+      .map((req: RequirementDto) => {
+        // Handle the raw status safely, whether upper or lower case
+        const rawStatus = req.status as string | undefined;
+        const isCompleted = typeof rawStatus === 'string' && rawStatus.toLowerCase() === 'completed';
+        const totalBilled = Number(req.total_billed ?? 0);
+        const hasInvoice = totalBilled > 0 || !!req.invoice_id;
+        return {
+          id: req.id,
+          title: req.name ?? '',
+          // The client to bill is the SENDER company (the one who commissioned the work)
+          client: req.sender_company?.name ?? req.client ?? 'Unknown',
+          clientCompanyId: req.sender_company_id ?? undefined,
+          dueDate: req.end_date ?? '',
+          estimatedCost: Number(req.quoted_price ?? req.estimated_cost ?? 0),
+          status: isCompleted ? 'completed' : 'in-progress',
+          approvalStatus: req.approved_by ? 'approved' : 'pending',
+          invoiceStatus: hasInvoice ? 'invoiced' : 'unbilled',
+          type: req.type,
+        };
+      });
+  }, [collaborativeReqs, currentCompanyId]);
 
   // Record payment / send email mutations
   const { mutateAsync: recordPaymentMutation, isPending: isRecordingPayment } = useRecordPayment();
@@ -135,10 +151,7 @@ export function FinancePage() {
   const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({});
 
   // Filter State
-  const [dateRange, setDateRange] = useState<[dayjs.Dayjs | null, dayjs.Dayjs | null] | null>([
-    dayjs().startOf('month'),
-    dayjs().endOf('month')
-  ]);
+  const [dateRange, setDateRange] = useState<[dayjs.Dayjs | null, dayjs.Dayjs | null] | null>(null);
   const [clientFilter, setClientFilter] = useState<string>('All');
   const [statusFilter, setStatusFilter] = useState<string>('All');
 
@@ -186,6 +199,7 @@ export function FinancePage() {
   const unbilledReqs = useMemo(() => {
     return requirements.filter(req => {
       // Base logic: completed + unbilled (approvals might be bypassed, completed dictates readiness)
+      // Note: 'client' type requirements ARE billable (they are client work you need to invoice for)
       const isUnbilled = req.status === 'completed' &&
         req.type !== 'inhouse' &&
         (req.invoiceStatus === 'unbilled' || !req.invoiceStatus);
@@ -200,17 +214,12 @@ export function FinancePage() {
       // Filters
       if (clientFilter !== 'All' && !clientFilter.split(',').includes(req.client)) return false;
 
-      // Date Range (using Due Date)
-      if (dateRange && dateRange[0] && dateRange[1]) {
-        const dueDate = dayjs(req.dueDate);
-        if (!dueDate.isBetween(dateRange[0], dateRange[1], 'day', '[]')) {
-          return false;
-        }
-      }
+      // NOTE: Ready-to-bill tab intentionally skips the date range filter.
+      // Unbilled requirements from previous months must always surface so they are not forgotten.
 
       return true;
     });
-  }, [requirements, searchQuery, clientFilter, dateRange]);
+  }, [requirements, searchQuery, clientFilter]);
 
   const unbilledByClient = useMemo(() => {
     return unbilledReqs.reduce((acc, req) => {

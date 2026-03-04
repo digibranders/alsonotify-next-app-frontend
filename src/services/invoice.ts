@@ -92,9 +92,14 @@ export const getInvoicePdfBlob = async (id: number | string): Promise<Blob> => {
     return data;
 };
 
-export const getNextInvoiceNumber = async (companyId: number): Promise<ApiResponse<{ invoice_number: string }>> => {
-    const { data } = await axiosApi.get<ApiResponse<{ invoice_number: string }>>(`/invoice/next-number?companyId=${companyId}`);
+export const getNextInvoiceNumber = async (companyId: number, invoiceType: string = 'TAX'): Promise<ApiResponse<{ invoice_number: string }>> => {
+    const { data } = await axiosApi.get<ApiResponse<{ invoice_number: string }>>(`/invoice/next-number?companyId=${companyId}&invoiceType=${invoiceType}`);
     return data;
+};
+
+export const convertProformaToTaxInvoice = async (id: number | string): Promise<ApiResponse<InvoiceDto>> => {
+    const { data: responseData } = await axiosApi.post<ApiResponse<InvoiceDto>>(`/invoice/${id}/convert-to-tax`);
+    return responseData;
 };
 
 export const getEmailRecipients = async (invoiceId: number): Promise<ApiResponse<{ to: string[]; cc: string[] }>> => {
@@ -104,5 +109,21 @@ export const getEmailRecipients = async (invoiceId: number): Promise<ApiResponse
 
 export const getRequirementBillingStatus = async (requirementId: number | string): Promise<ApiResponse<{ billingStatus: string; invoiceId: number | null; invoiceNumber: string | null; invoiceStatus: string | null; invoiceTotal: number | null }>> => {
     const { data } = await axiosApi.get(`/requirements/${requirementId}/billing-status`);
+    return data;
+};
+export const getTaxPreview = async (billFromCompanyId: number, billToCompanyId: number): Promise<ApiResponse<{
+    taxLines: { name: string; rate: number }[];
+    taxLabel: string;
+    totalRate: number;
+    senderCountry: string;
+    receiverCountry: string;
+}>> => {
+    const { data } = await axiosApi.get<ApiResponse<{
+        taxLines: { name: string; rate: number }[];
+        taxLabel: string;
+        totalRate: number;
+        senderCountry: string;
+        receiverCountry: string;
+    }>>(`/invoice/tax-preview?billFromCompanyId=${billFromCompanyId}&billToCompanyId=${billToCompanyId}`);
     return data;
 };
