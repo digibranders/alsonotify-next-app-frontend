@@ -248,7 +248,7 @@ export function RequirementHeader({
         <div className="flex items-center gap-4">
           {/* CTA Buttons */}
           <div className="flex items-center gap-2 mr-2">
-            {ctaConfig?.secondaryAction && (
+            {ctaConfig?.secondaryAction && ctaConfig.secondaryAction.apiAction !== 'mark_blocked' && (
               <Button
                 size="middle"
                 className={`rounded-full px-5 font-semibold ${ctaConfig.secondaryAction.type === 'danger' ? 'text-[#ff3b3b] border-[#ff3b3b]' : ''

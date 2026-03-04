@@ -61,6 +61,10 @@ export function CreateInvoicePage() {
     const [memo, setMemo] = useState('Payment is due within 7 days. Please include the invoice number on your wire transfer.');
     const [footer, setFooter] = useState<string>('');
 
+    const [invoiceType, setInvoiceType] = useState<'TAX' | 'PROFORMA'>('TAX');
+    const [advanceDeducted, setAdvanceDeducted] = useState<number>(0);
+    const [proformaRefId, setProformaRefId] = useState<string>('');
+
     const [isDownloading, setIsDownloading] = useState(false);
     const previewRef = useRef<HTMLDivElement>(null);
 
@@ -211,7 +215,8 @@ export function CreateInvoicePage() {
         taxConfig, memo, footer, senderName, senderAddress, senderEmail,
         senderTaxId, clientName, clientAddress, clientEmail, clientPhone, clientTaxId,
         savedAt: Date.now(),
-    }), [issueDate, dueDate, currencyCode, items, discount, showDiscount, taxConfig, memo, footer, senderName, senderAddress, senderEmail, senderTaxId, clientName, clientAddress, clientEmail, clientPhone, clientTaxId]);
+        invoiceType, advanceDeducted, proformaRefId
+    }), [issueDate, dueDate, currencyCode, items, discount, showDiscount, taxConfig, memo, footer, senderName, senderAddress, senderEmail, senderTaxId, clientName, clientAddress, clientEmail, clientPhone, clientTaxId, invoiceType, advanceDeducted, proformaRefId]);
 
     useEffect(() => {
         if (!hasRestoredRef.current) return; // Don't save during initial restore
@@ -258,6 +263,9 @@ export function CreateInvoicePage() {
                         if (draft.clientEmail) setClientEmail(draft.clientEmail);
                         if (draft.clientPhone) setClientPhone(draft.clientPhone);
                         if (draft.clientTaxId) setClientTaxId(draft.clientTaxId);
+                        if (draft.invoiceType) setInvoiceType(draft.invoiceType);
+                        if (draft.advanceDeducted != null) setAdvanceDeducted(draft.advanceDeducted);
+                        if (draft.proformaRefId) setProformaRefId(draft.proformaRefId);
                         toast.success('Draft restored');
                     },
                 },
@@ -327,6 +335,9 @@ export function CreateInvoicePage() {
                 issue_date: issueDate,
                 due_date: dueDate,
                 currency: currencyCode,
+                invoice_type: invoiceType,
+                advance_deducted: advanceDeducted,
+                ...(proformaRefId ? { proforma_ref_id: Number(proformaRefId) } : {}),
                 particulars,
                 sub_total: totals.subtotal,
                 discount: totals.discount,
@@ -406,8 +417,11 @@ export function CreateInvoicePage() {
         totals,
         taxConfig,
         memo: trimStr(memo),
-        footer: trimStr(footer)
-    }), [invoiceId, issueDate, dueDate, currencyCode, senderName, senderAddress, senderEmail, senderTaxId, clientName, clientAddress, clientEmail, clientPhone, clientTaxId, items, totals, taxConfig, memo, footer]);
+        footer: trimStr(footer),
+        invoiceType,
+        advanceDeducted,
+        proformaRefId
+    }), [invoiceId, issueDate, dueDate, currencyCode, senderName, senderAddress, senderEmail, senderTaxId, clientName, clientAddress, clientEmail, clientPhone, clientTaxId, items, totals, taxConfig, memo, footer, invoiceType, advanceDeducted, proformaRefId]);
 
     return (
         <div className="h-full bg-[#F9FAFB] flex flex-col rounded-[24px] overflow-hidden">
@@ -507,6 +521,29 @@ export function CreateInvoicePage() {
                                         className="w-full px-3 py-2.5 bg-white border border-[#EEEEEE] rounded-[8px] text-sm text-[#111111] focus:ring-1 focus:ring-[#ff3b3b] outline-none transition-all"
                                     />
                                 </div>
+                                <div className="space-y-1.5">
+                                    <label className="block text-xs font-medium text-[#666666]">Invoice Type</label>
+                                    <select
+                                        value={invoiceType}
+                                        onChange={(e) => setInvoiceType(e.target.value as 'TAX' | 'PROFORMA')}
+                                        className="w-full px-3 py-2.5 bg-white border border-[#EEEEEE] rounded-[8px] text-sm text-[#111111] focus:ring-1 focus:ring-[#ff3b3b] outline-none appearance-none"
+                                    >
+                                        <option value="TAX">TAX</option>
+                                        <option value="PROFORMA">PROFORMA</option>
+                                    </select>
+                                </div>
+                                {invoiceType === 'TAX' && (
+                                    <div className="space-y-1.5">
+                                        <label className="block text-xs font-medium text-[#666666]">Proforma Ref ID (Optional)</label>
+                                        <input
+                                            type="number"
+                                            value={proformaRefId}
+                                            onChange={(e) => setProformaRefId(e.target.value)}
+                                            placeholder="e.g. 1"
+                                            className="w-full px-3 py-2.5 bg-white border border-[#EEEEEE] rounded-[8px] text-sm text-[#111111] focus:ring-1 focus:ring-[#ff3b3b] outline-none"
+                                        />
+                                    </div>
+                                )}
                             </div>
                         </section>
 
@@ -686,6 +723,21 @@ export function CreateInvoicePage() {
                                 ) : (
                                     <span className="text-[#999999]">-</span>
                                 )}
+                            </div>
+
+                            {/* Advance Deducted Input */}
+                            <div className="flex justify-between items-center text-sm">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-[#666666]">Advance Deducted</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <input
+                                        type="number"
+                                        value={advanceDeducted}
+                                        onChange={(e) => setAdvanceDeducted(parseFloat(e.target.value) || 0)}
+                                        className="w-24 px-2 py-1 bg-white border border-[#EEEEEE] rounded-[6px] text-right text-[0.8125rem]"
+                                    />
+                                </div>
                             </div>
 
                             {/* Tax Config */}

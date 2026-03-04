@@ -1,6 +1,6 @@
 import { forwardRef } from 'react';
 import dayjs from 'dayjs';
-import BrandLogo from '@/assets/images/logo.png';
+
 
 export interface InvoicePreviewData {
     invoiceId: string;
@@ -36,6 +36,9 @@ export interface InvoicePreviewData {
     };
     memo: string;
     footer: string;
+    invoiceType?: 'TAX' | 'PROFORMA';
+    advanceDeducted?: number;
+    proformaRefId?: string;
 }
 
 interface InvoicePreviewProps {
@@ -62,7 +65,10 @@ export const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(({
         totals,
         taxConfig,
         memo,
-        footer
+        footer,
+        invoiceType = 'TAX',
+        advanceDeducted = 0,
+        proformaRefId
     } = data;
 
     const getCurrencySymbol = (code: string) => {
@@ -76,6 +82,8 @@ export const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(({
     };
 
     const symbol = getCurrencySymbol(currencyCode);
+
+    const amountDue = Math.max(0, totals.total - advanceDeducted);
 
     return (
         <div
@@ -93,8 +101,17 @@ export const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(({
                 {/* Top Section: Logo & Invoice Title */}
                 <div className="flex justify-between items-start mb-6">
                     <div>
-                        <h1 className="text-[28px] font-semibold text-[#1a1a1a] tracking-tight mb-0.5">Invoice</h1>
-                        <p className="text-[12px] text-[#697386]">{invoiceId}</p>
+                        <h1 className="text-[28px] font-semibold text-[#1a1a1a] tracking-tight mb-0.5 uppercase">
+                            {invoiceType === 'PROFORMA' ? 'Proforma Invoice' : 'Tax Invoice'}
+                        </h1>
+                        <p className="text-[12px] text-[#697386]">
+                            {invoiceId}
+                            {invoiceType === 'TAX' && proformaRefId && (
+                                <span className="ml-2 px-1.5 py-0.5 bg-[#F3F4F6] text-[#666666] rounded-md text-[10px] font-medium">
+                                    Ref: PRO-{proformaRefId}
+                                </span>
+                            )}
+                        </p>
                     </div>
                     {/* Company Logo */}
                     <div className="text-right">
@@ -119,7 +136,7 @@ export const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(({
                     </div>
                     <div className="ml-auto text-right">
                         <p className="text-[10px] font-semibold text-[#697386] uppercase tracking-wider mb-0.5">Amount Due</p>
-                        <p className="text-[20px] text-[#1a1a1a] font-bold">{symbol}{totals.total.toLocaleString()}</p>
+                        <p className="text-[20px] text-[#1a1a1a] font-bold">{symbol}{amountDue.toLocaleString()}</p>
                     </div>
                 </div>
 
@@ -206,6 +223,18 @@ export const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(({
                             <span className="text-[14px] font-semibold text-[#1a1a1a]">Total</span>
                             <span className="text-[14px] font-bold text-[#1a1a1a]">{symbol}{totals.total.toLocaleString()}</span>
                         </div>
+                        {advanceDeducted > 0 && (
+                            <div className="flex justify-between py-1.5 text-[12px]">
+                                <span className="text-[#697386]">Less: Advance Deducted</span>
+                                <span className="text-[#ff3b3b] font-medium">{'-'}{symbol}{advanceDeducted.toLocaleString()}</span>
+                            </div>
+                        )}
+                        {advanceDeducted > 0 && (
+                            <div className="flex justify-between py-2 mt-1.5 border-t border-[#e6e6e6]">
+                                <span className="text-[14px] font-semibold text-[#1a1a1a]">Amount Due</span>
+                                <span className="text-[14px] font-bold text-[#1a1a1a]">{symbol}{amountDue.toLocaleString()}</span>
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -236,13 +265,15 @@ export const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(({
             {/* Absolute Footer - Branding and Pagination */}
             <div className="mt-auto px-12 py-6 border-t border-[#f0f0f0] flex justify-between items-center opacity-70">
                 <div className="flex items-center gap-2">
-                    <img
-                        src={BrandLogo.src}
-                        alt="Alsonotify"
-                        width={80}
-                        height={20}
-                        className="h-[20px] w-auto object-contain"
-                    />
+                    {senderLogoUrl ? (
+                        <img
+                            src={senderLogoUrl}
+                            alt={senderName}
+                            style={{ maxHeight: 24, maxWidth: 100, objectFit: 'contain' }}
+                        />
+                    ) : (
+                        <span className="text-[12px] font-bold text-[#697386] uppercase tracking-wider">{senderName}</span>
+                    )}
                 </div>
                 {/* Conditional Pagination: Only show if total pages > 1. 
                 For now, we assume single page logic until multi-page support is added.
