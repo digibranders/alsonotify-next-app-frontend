@@ -23,6 +23,7 @@ import { getNextInvoiceNumber, getTaxPreview } from '@/services/invoice';
 import { InvoicePreview } from './InvoicePreview';
 import { useInvoicePresets, InvoicePaymentPreset } from '@/hooks/useInvoicePresets';
 import { trimStr } from '@/utils/trim';
+import { getPartnerId, getPartnerName } from '@/utils/partnerUtils';
 
 interface LineItem {
     id: string;

@@ -2,9 +2,10 @@
 
 import { useState, useMemo, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQueryClient, useQuery } from '@tanstack/react-query';
 import { useEmployee, useUpdateEmployee, useCompanyDepartments } from '@/hooks/useUser';
-import { fileService } from '@/services/file.service';
+import { fileService, FileAttachmentDto } from '@/services/file.service';
+import { useDocumentSettings } from '@/hooks/useDocumentSettings';
 import { queryKeys } from '@/lib/queryKeys';
 import { PageLayout } from '../../layout/PageLayout';
 import { AccessBadge } from '../../ui/AccessBadge';
@@ -34,7 +35,6 @@ interface BackendEmployee {
   salary?: number;
   no_of_leaves?: number;
   employment_type?: string;
-  documents?: UserDocument[];
   working_hours?: { start_time?: string; end_time?: string };
   user_profile?: { mobile_number?: string; phone?: string };
   phone?: string;
@@ -47,6 +47,15 @@ interface BackendEmployee {
   };
 }
 
+function mapMimeTypeToDocType(mimeType: string): UserDocument['fileType'] {
+  if (!mimeType) return 'pdf';
+  if (mimeType.includes('pdf')) return 'pdf';
+  if (mimeType.includes('word') || mimeType.includes('doc')) return 'docx';
+  if (mimeType.includes('sheet') || mimeType.includes('excel') || mimeType.includes('csv')) return 'excel';
+  if (mimeType.includes('image')) return 'image';
+  if (mimeType.includes('text')) return 'text';
+  return 'pdf'; // Default fallback
+}
 
 
 function calculateWorkingHours(workingHours: { start_time?: string; end_time?: string }): number {
@@ -70,6 +79,14 @@ export function EmployeeDetailsPage() {
 
   // Moved hooks to top level to comply with Rules of Hooks
   const queryClient = useQueryClient();
+  const { documentTypes: configuredDocTypes } = useDocumentSettings();
+
+  const { data: uploadedFiles } = useQuery({
+    queryKey: ['files', 'employee-documents', employeeId],
+    queryFn: () => fileService.listFiles('EMPLOYEE_DOCUMENT', parseInt(employeeId)),
+    enabled: !!employeeId
+  });
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadingDocType, setUploadingDocType] = useState<string | null>(null);
 
@@ -80,9 +97,72 @@ export function EmployeeDetailsPage() {
   const backendEmp = employeeData?.result;
 
   const documents = useMemo(() => {
-    // Check if employee data has documents
-    return (backendEmp as BackendEmployee)?.documents || [];
-  }, [backendEmp]);
+    const files = uploadedFiles || [];
+    const result: UserDocument[] = [];
+
+    // Map files by type name for easy lookup
+    const filesByType = new Map<string, FileAttachmentDto[]>();
+    files.forEach(file => {
+      const typeName = file.document_type_name || 'Uncategorized';
+      if (!filesByType.has(typeName)) {
+        filesByType.set(typeName, []);
+      }
+      filesByType.get(typeName)!.push(file);
+    });
+
+    // 1. Add configured types (filled or empty)
+    configuredDocTypes.forEach(type => {
+      const matchingFiles = filesByType.get(type.name);
+      if (matchingFiles && matchingFiles.length > 0) {
+        matchingFiles.forEach(file => {
+          result.push({
+            id: String(file.id),
+            documentTypeId: type.id,
+            documentTypeName: type.name,
+            fileName: file.file_name,
+            fileSize: file.file_size,
+            fileUrl: file.download_url || '',
+            uploadedDate: file.created_at,
+            fileType: mapMimeTypeToDocType(file.file_type),
+            isRequired: type.required
+          });
+        });
+        filesByType.delete(type.name);
+      } else {
+        // Empty slot
+        result.push({
+          id: type.id, // Use type ID for empty slot key
+          documentTypeId: type.id,
+          documentTypeName: type.name,
+          fileName: '',
+          fileSize: 0,
+          fileUrl: '',
+          uploadedDate: '',
+          fileType: 'pdf',
+          isRequired: type.required
+        });
+      }
+    });
+
+    // 2. Add remaining files (Uncategorized or types not in config)
+    filesByType.forEach((remainingFiles, typeName) => {
+      remainingFiles.forEach(file => {
+        result.push({
+          id: String(file.id),
+          documentTypeId: 'other-' + file.id,
+          documentTypeName: typeName,
+          fileName: file.file_name,
+          fileSize: file.file_size,
+          fileUrl: file.download_url || '',
+          uploadedDate: file.created_at,
+          fileType: mapMimeTypeToDocType(file.file_type),
+          isRequired: false
+        });
+      });
+    });
+
+    return result;
+  }, [configuredDocTypes, uploadedFiles]);
 
   const handleUpdateEmployee = (data: EmployeeFormData) => {
     // Find department ID from name
@@ -102,7 +182,7 @@ export function EmployeeDetailsPage() {
         if (!isNaN(date.getTime())) {
           dateOfJoining = date.toISOString();
         }
-      } catch (e) {
+      } catch (_) {
         // Invalid date format
       }
     }
@@ -266,6 +346,7 @@ export function EmployeeDetailsPage() {
 
       // Refresh employee data
       queryClient.invalidateQueries({ queryKey: queryKeys.users.detail(parseInt(employeeId)) });
+      queryClient.invalidateQueries({ queryKey: ['files', 'employee-documents', employeeId] });
 
     } catch (error) {
       console.error(error);

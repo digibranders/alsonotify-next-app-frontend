@@ -18,6 +18,7 @@ export interface FileAttachmentDto {
   file_type: string;
   download_url?: string;
   created_at: string;
+  document_type_name?: string;
 }
 
 export const fileService = {

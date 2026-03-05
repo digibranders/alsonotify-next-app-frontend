@@ -9,6 +9,7 @@ import { trimStr } from '@/utils/trim';
 import { getErrorMessage } from '@/types/api-utils';
 import { CreateWorkspaceRequestDto, UpdateWorkspaceRequestDto } from '@/types/dto/workspace.dto';
 import { UserDto } from '@/types/dto/user.dto';
+import { getPartnerCompanyId, getPartnerName, isValidPartner } from '@/utils/partnerUtils';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -182,14 +183,13 @@ function WorkspaceFormContent({ onCancel, onSuccess, initialData }: WorkspaceFor
                             {companyData?.result?.name || 'My Company'} (Self)
                         </Option>
                         {partnersData?.result
-                            ?.filter((partner: UserDto) => partner.company_id != null)
+                            ?.filter((partner: UserDto) => isValidPartner(partner) && getPartnerCompanyId(partner) != null)
                             .map((partner: UserDto, index: number) => {
-                                // Use company_id (Company ID) for partner_id FK, not partner_user_id (User ID)
-                                const partnerId = partner.company_id;
-                                const companyName = typeof partner.company === 'string' ? partner.company : partner.company?.name;
+                                const partnerId = getPartnerCompanyId(partner);
+                                const companyName = getPartnerName(partner);
                                 return (
                                     <Option key={partnerId ?? `partner-${index}`} value={partnerId} className="rounded-lg mb-1">
-                                        {companyName || partner.partner_company?.name || partner.email || partner.name}
+                                        {companyName}
                                     </Option>
                                 );
                             })}

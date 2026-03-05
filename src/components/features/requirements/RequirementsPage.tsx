@@ -36,6 +36,7 @@ import {
   mapRequirementToType,
 } from './utils/requirementState.utils';
 import { getRoleFromUser } from '@/utils/roleUtils';
+import { getPartnerCompanyId, getPartnerName, isValidPartner } from '@/utils/partnerUtils';
 
 export function RequirementsPage() {
   const { message: messageApi, modal: modalApi } = App.useApp();
@@ -620,10 +621,12 @@ export function RequirementsPage() {
     const partners = partnersData?.result || [];
     // The filter expects Company ID, but 'partners' are User objects.
     // We must use the company_id associated with the partner user.
-    const options = partners.map((p: any) => ({
-      label: p.name,
-      value: String(p.company_id || p.company?.id || p.id)
-    }));
+    const options = partners
+      .filter(isValidPartner)
+      .map((p: any) => ({
+        label: getPartnerName(p),
+        value: String(getPartnerCompanyId(p))
+      }));
     return [{ label: 'All', value: 'All' }, ...options];
   }, [partnersData]);
 

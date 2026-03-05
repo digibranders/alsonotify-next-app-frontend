@@ -6,6 +6,7 @@ import { format } from 'date-fns';
 import { useTask, useTasks } from '@/hooks/useTask';
 import { useEmployees, usePartners } from '@/hooks/useUser';
 import { useTaskActivities, useCreateTaskActivity } from '@/hooks/useTaskActivity';
+import { getPartnerId, getPartnerName, isValidPartner } from '@/utils/partnerUtils';
 import { fileService } from '@/services/file.service';
 import { ChatPanel } from '@/components/shared/ChatPanel';
 import { Employee, Task } from '@/types/domain';
@@ -84,13 +85,17 @@ export function TaskChatPanel({ taskId }: TaskChatPanelProps) {
 
     // Partners
     if (partnersData?.result) {
-      (partnersData.result as UserDto[]).forEach((partner) => {
-        options.push({
-          value: partner.name,
-          label: partner.name,
-          key: `partner-${partner.id}`
+      (partnersData.result as UserDto[])
+        .filter(isValidPartner)
+        .forEach((partner) => {
+          const partnerName = getPartnerName(partner);
+          const partnerId = getPartnerId(partner) || 0;
+          options.push({
+            value: partnerName,
+            label: partnerName,
+            key: `partner-${partnerId}`
+          });
         });
-      });
     }
 
     // Deduplicate
