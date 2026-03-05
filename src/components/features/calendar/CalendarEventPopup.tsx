@@ -3,6 +3,7 @@ import { Clock, MapPin, Video } from 'lucide-react';
 import dayjs from 'dayjs';
 import { CalendarEvent } from './types';
 import { GraphEvent } from '@/services/calendar';
+import { sanitizeUrl } from '@/utils/sanitizeUrl';
 
 interface CalendarEventPopupProps {
     event: CalendarEvent;
@@ -96,11 +97,11 @@ export function CalendarEventPopup({ event }: CalendarEventPopupProps) {
                     )}
 
                     {/* Meeting Link - For organizers */}
-                    {webLink && (
+                    {sanitizeUrl(webLink) && (
                         <div className="mt-4">
                             <span className="text-[0.8125rem] text-[#616161] font-normal mb-2 block">For organizers:</span>
                             <a
-                                href={webLink}
+                                href={sanitizeUrl(webLink)}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="text-[0.8125rem] text-[#5B5FC7] font-normal underline hover:text-[#4A4FC7] transition-colors"
@@ -113,10 +114,10 @@ export function CalendarEventPopup({ event }: CalendarEventPopupProps) {
             )}
 
             {/* Join Meeting Button */}
-            {isTeamsMeeting && joinUrl && (
+            {isTeamsMeeting && sanitizeUrl(joinUrl) && (
                 <div className="mt-4 pt-4 border-t border-[#EEEEEE]">
                     <a
-                        href={joinUrl}
+                        href={sanitizeUrl(joinUrl)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 px-4 py-2 bg-[#5B5FC7] hover:bg-[#4A4FC7] text-white text-[0.8125rem] font-semibold rounded-lg transition-colors"

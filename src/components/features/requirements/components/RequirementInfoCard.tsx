@@ -2,6 +2,7 @@ import { FileText, Briefcase, Star, RotateCcw, Clock } from 'lucide-react';
 import { Rate } from 'antd';
 import { formatDateForDisplay } from '@/utils/date';
 import { sanitizeRichText } from '@/utils/sanitizeHtml';
+import { sanitizeUrl } from '@/utils/sanitizeUrl';
 import { Requirement, Workspace, Task } from '@/types/domain';
 
 interface RequirementInfoCardProps {
@@ -190,11 +191,11 @@ export function RequirementInfoCard({ requirement, tasks, timezone }: Requiremen
           )}
 
           {/* Document Link */}
-          {requirement.document_link && (
+          {sanitizeUrl(requirement.document_link) && (
             <div>
               <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wider mb-2">Document</p>
               <a
-                href={requirement.document_link}
+                href={sanitizeUrl(requirement.document_link)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-sm font-medium text-[#2F80ED] hover:underline truncate block"
