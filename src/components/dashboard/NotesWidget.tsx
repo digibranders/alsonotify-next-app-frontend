@@ -288,23 +288,25 @@ function NoteCard({ note, onArchive, onDelete, onClick }: {
             </button>
 
             {/* Action icons - Floating absolutely over the button, below the color bar */}
-            <div className="absolute top-[17px] right-3 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5 z-10">
+            <div className="absolute top-[17px] right-3 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity flex items-center gap-0.5 z-10">
                 <button
-                    className="p-1.5 hover:bg-[#F7F7F7] rounded-md transition-colors bg-white/80 backdrop-blur-sm"
+                    className="p-1.5 hover:bg-[#F7F7F7] rounded-md transition-colors bg-white/80 backdrop-blur-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111111]"
                     onClick={(e) => {
                         e.stopPropagation();
                         onArchive(note.id);
                     }}
+                    aria-label="Archive note"
                     title="Archive"
                 >
                     <Archive className="size-3.5 text-[#666666]" strokeWidth={2} />
                 </button>
                 <button
-                    className="p-1.5 hover:bg-[#F7F7F7] rounded-md transition-colors bg-white/80 backdrop-blur-sm"
+                    className="p-1.5 hover:bg-[#F7F7F7] rounded-md transition-colors bg-white/80 backdrop-blur-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff3b3b]"
                     onClick={(e) => {
                         e.stopPropagation();
                         onDelete(note.id);
                     }}
+                    aria-label="Delete note"
                     title="Delete"
                 >
                     <Trash2 className="size-3.5 text-[#ff3b3b]" strokeWidth={2} />
