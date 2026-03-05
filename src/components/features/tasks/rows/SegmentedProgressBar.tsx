@@ -22,7 +22,7 @@ interface SegmentedProgressBarProps {
 export function SegmentedProgressBar({ members, totalEstimate, taskStatus }: Readonly<SegmentedProgressBarProps>) {
     if (!totalEstimate || totalEstimate <= 0) {
         return (
-            <div className="w-full h-3 bg-gray-100 rounded-full overflow-hidden" />
+            <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden" />
         );
     }
 
@@ -91,7 +91,7 @@ export function SegmentedProgressBar({ members, totalEstimate, taskStatus }: Rea
     });
 
     return (
-        <div className="flex w-full h-1.5 rounded-full overflow-hidden bg-[#F3F3F3] border border-transparent">
+        <div className="flex w-full h-2 rounded-full overflow-hidden bg-[#F3F3F3] border border-transparent">
             {segments.map((seg, idx) => {
                 const estimate = seg.estimate;
                 const overtime = seg.spentHours > estimate ? seg.spentHours - estimate : 0;
