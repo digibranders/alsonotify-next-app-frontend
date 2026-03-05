@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Download, Send, CreditCard, X } from 'lucide-react';
 import { toast } from 'sonner';
-import { useInvoice, useRecordPayment, useUpdateInvoiceStatus } from '@/hooks/useInvoice';
+import { useInvoice, useRecordPayment, useUpdateInvoiceStatus, useReviseInvoice } from '@/hooks/useInvoice';
 import { getInvoicePdfBlob, convertProformaToTaxInvoice } from '@/services/invoice';
 import { InvoicePreview, InvoicePreviewData } from './InvoicePreview';
 import { SendInvoiceModal } from './SendInvoiceModal';
@@ -19,6 +19,7 @@ export function InvoiceDetailPage() {
     const { data: invoice, isLoading } = useInvoice(id);
     const { mutateAsync: recordPaymentMutation, isPending: isRecordingPayment } = useRecordPayment();
     const { mutateAsync: updateStatus, isPending: isUpdatingStatus } = useUpdateInvoiceStatus();
+    const { mutateAsync: reviseInvoiceMutation, isPending: isRevising } = useReviseInvoice();
 
     const [isSendModalOpen, setIsSendModalOpen] = useState(false);
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
@@ -31,15 +32,29 @@ export function InvoiceDetailPage() {
             issueDate: invoice.issue_date,
             dueDate: invoice.due_date,
             currencyCode: invoice.currency,
-            senderName: String(invoice.bill_from ?? ''),
-            senderAddress: '',
-            senderEmail: '',
-            senderTaxId: '',
+            senderName: invoice.bill_from_company?.name ?? String(invoice.bill_from ?? ''),
+            senderAddress: [
+                invoice.bill_from_company?.address_line_1,
+                invoice.bill_from_company?.address_line_2,
+                invoice.bill_from_company?.city,
+                invoice.bill_from_company?.state,
+                invoice.bill_from_company?.zipcode,
+                invoice.bill_from_company?.country,
+            ].filter(Boolean).join(', ') || '',
+            senderEmail: invoice.bill_from_company?.email ?? '',
+            senderTaxId: invoice.bill_from_company?.tax_id ?? '',
             clientName: invoice.bill_to_company?.name ?? String(invoice.bill_to ?? ''),
-            clientAddress: '',
-            clientEmail: '',
+            clientAddress: [
+                invoice.bill_to_company?.address_line_1,
+                invoice.bill_to_company?.address_line_2,
+                invoice.bill_to_company?.city,
+                invoice.bill_to_company?.state,
+                invoice.bill_to_company?.zipcode,
+                invoice.bill_to_company?.country,
+            ].filter(Boolean).join(', ') || '',
+            clientEmail: invoice.bill_to_company?.email ?? '',
             clientPhone: '',
-            clientTaxId: '',
+            clientTaxId: invoice.bill_to_company?.tax_id ?? '',
             items: (invoice.particulars ?? []).map((p) => ({
                 id: p.id || String(p.requirement_id ?? crypto.randomUUID()),
                 description: p.description,
@@ -140,10 +155,23 @@ export function InvoiceDetailPage() {
     const status = invoice.status ?? 'draft';
     const canSend = status === 'draft' || status === 'pending_approval';
     const canRecordPayment = status === 'sent' || status === 'overdue' || status === 'partial';
+    const canRevise = status === 'sent' || status === 'overdue';
     const canVoid = status !== 'paid' && status !== 'void';
 
     // Check if it's a Proforma and if it hasn't been converted yet
-    const isProforma = invoice.invoice_number.startsWith('PROF-');
+    const isProforma = invoice.invoice_number?.startsWith('PROF-');
+
+    const currencySymbol = (() => {
+        try {
+            return new Intl.NumberFormat('en', {
+                style: 'currency',
+                currency: invoice.currency || 'INR',
+                maximumFractionDigits: 0,
+            }).formatToParts(0).find(p => p.type === 'currency')?.value ?? (invoice.currency || 'INR');
+        } catch {
+            return invoice.currency || 'INR';
+        }
+    })();
 
     const handleConvertToTax = async () => {
         try {
@@ -159,6 +187,16 @@ export function InvoiceDetailPage() {
             toast.error((error as { response?: { data?: { message?: string } } }).response?.data?.message || 'Failed to convert to Tax Invoice');
         } finally {
             setIsConverting(false);
+        }
+    };
+
+    const handleRevise = async () => {
+        try {
+            await reviseInvoiceMutation({ id: invoice.id });
+            toast.success('Invoice revision created successfully');
+            router.push('/dashboard/finance'); // or to draft tab
+        } catch {
+            toast.error('Failed to create invoice revision');
         }
     };
 
@@ -212,6 +250,16 @@ export function InvoiceDetailPage() {
                             Record Payment
                         </button>
                     )}
+                    {canRevise && (
+                        <button
+                            onClick={handleRevise}
+                            disabled={isRevising}
+                            className="px-4 py-2 flex items-center gap-2 border border-[#EEEEEE] bg-white text-[#111111] rounded-full font-bold text-[0.8125rem] hover:bg-[#F7F7F7] transition-colors disabled:opacity-50"
+                        >
+                            <ArrowLeft className="w-4 h-4 transform rotate-180" /> {/* A makeshift rotate-ccw icon, though ArrowLeft rotated works, or could use another standard one if RotateCcw imported */}
+                            {isRevising ? 'Revising...' : 'Revise'}
+                        </button>
+                    )}
                     <button
                         onClick={handleDownloadPDF}
                         disabled={isDownloading}
@@ -254,6 +302,7 @@ export function InvoiceDetailPage() {
                 invoiceNumber={invoice.invoice_number}
                 totalAmount={invoice.total}
                 amountReceived={invoice.amount_received ?? 0}
+                currencySymbol={currencySymbol}
                 isSaving={isRecordingPayment}
                 onSave={async (data) => {
                     try {

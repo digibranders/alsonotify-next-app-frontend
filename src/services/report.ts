@@ -201,10 +201,12 @@ export interface MemberWorklog {
     id: string;
     date: string;
     task: string;
+    taskId?: number;
     details: string;
     startTime: string;
     endTime: string;
     engagedTime: string;
+    sessionStatus?: string;
 }
 
 export const getMemberWorklogs = async (memberId: string, startDate?: string, endDate?: string): Promise<MemberWorklog[]> => {

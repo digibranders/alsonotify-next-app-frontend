@@ -8,46 +8,46 @@ import {
 import { toQueryParams } from '../utils/queryParams';
 
 export type InvoiceStatusValue =
-    | 'draft'
-    | 'pending_approval'
-    | 'sent'
-    | 'overdue'
-    | 'partial'
-    | 'paid'
-    | 'void';
+  | 'draft'
+  | 'pending_approval'
+  | 'sent'
+  | 'overdue'
+  | 'partial'
+  | 'paid'
+  | 'void';
 
 export interface CreateInvoicePayload {
-    bill_from: number;
-    bill_to: number;
-    issue_date: string;
-    due_date: string;
-    currency: string;
-    particulars: Particular[];
-    sub_total: number;
-    discount: number;
-    tax: number;
-    tax_type?: string;
-    total: number;
-    memo?: string;
-    payment_details?: string;
-    metadata?: { invoiceDetails?: Array<{ requirement_id: number; billed_amount: number }> };
+  bill_from: number;
+  bill_to: number;
+  issue_date: string;
+  due_date: string;
+  currency: string;
+  particulars: Particular[];
+  sub_total: number;
+  discount: number;
+  tax: number;
+  tax_type?: string;
+  total: number;
+  memo?: string;
+  payment_details?: string;
+  metadata?: { invoiceDetails?: Array<{ requirement_id: number; billed_amount: number }> };
 }
 
 export interface UpdateInvoicePayload {
-    invoice_number?: string;
-    issue_date?: string;
-    due_date?: string;
-    bill_from?: number;
-    bill_to?: number;
-    particulars?: Particular[];
-    sub_total?: number;
-    discount?: number;
-    tax?: number;
-    tax_type?: string;
-    total?: number;
-    memo?: string;
-    payment_details?: string;
-    currency?: string;
+  invoice_number?: string;
+  issue_date?: string;
+  due_date?: string;
+  bill_from?: number;
+  bill_to?: number;
+  particulars?: Particular[];
+  sub_total?: number;
+  discount?: number;
+  tax?: number;
+  tax_type?: string;
+  total?: number;
+  memo?: string;
+  payment_details?: string;
+  currency?: string;
 }
 
 export const useInvoices = (filters: Record<string, unknown> = {}) => {
@@ -124,7 +124,10 @@ export const useReviseInvoice = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ id }: { id: number | string }) => reviseInvoice(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['invoices'] }),
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ['invoices'] });
+      queryClient.invalidateQueries({ queryKey: ['invoice', id] });
+    },
   });
 };
 

@@ -70,7 +70,7 @@ export function CreateInvoicePage() {
     const previewRef = useRef<HTMLDivElement>(null);
 
     // --- Auto-Save Draft ---
-    const DRAFT_KEY = 'invoice_draft';
+    const DRAFT_KEY = `invoice_draft_${clientId ?? 'new'}`;
     const hasRestoredRef = useRef(false);
 
     // --- Dynamic Data ---
@@ -119,6 +119,18 @@ export function CreateInvoicePage() {
     });
 
     const [currencyCode, setCurrencyCode] = useState('INR');
+
+    const currencySymbol = useMemo(() => {
+        try {
+            return new Intl.NumberFormat('en', {
+                style: 'currency',
+                currency: currencyCode,
+                maximumFractionDigits: 0,
+            }).formatToParts(0).find(p => p.type === 'currency')?.value ?? currencyCode;
+        } catch {
+            return currencyCode;
+        }
+    }, [currencyCode]);
 
     // Sender details (From) — populated from company API via useEffect below
     const [senderName, setSenderName] = useState('');
@@ -755,7 +767,7 @@ export function CreateInvoicePage() {
                                             />
                                         </div>
                                         <div className="w-28 pt-2.5 text-right text-sm font-bold text-[#111111]">
-                                            ₹{(item.quantity * item.unitPrice).toLocaleString()}
+                                            {currencySymbol}{(item.quantity * item.unitPrice).toLocaleString()}
                                         </div>
                                         <button
                                             onClick={() => handleRemoveItem(item.id)}
@@ -780,7 +792,7 @@ export function CreateInvoicePage() {
                         <section className="space-y-4 pt-6 border-t border-[#EEEEEE]">
                             <div className="flex justify-between items-center text-sm">
                                 <span className="text-[#666666]">Subtotal</span>
-                                <span className="font-bold text-[#111111]">₹{totals.subtotal.toLocaleString()}</span>
+                                <span className="font-bold text-[#111111]">{currencySymbol}{totals.subtotal.toLocaleString()}</span>
                             </div>
 
                             {/* Discount Toggle */}
@@ -860,12 +872,12 @@ export function CreateInvoicePage() {
                                         <option value="none">None (0%)</option>
                                     </select>
                                 </div>
-                                <span className="font-bold text-[#111111]">₹{totals.totalTax.toLocaleString()}</span>
+                                <span className="font-bold text-[#111111]">{currencySymbol}{totals.totalTax.toLocaleString()}</span>
                             </div>
 
                             <div className="flex justify-between items-center text-base pt-4 border-t border-[#EEEEEE]">
                                 <span className="font-bold text-[#111111]">Amount due</span>
-                                <span className="font-bold text-[#111111]">₹{totals.total.toLocaleString()}</span>
+                                <span className="font-bold text-[#111111]">{currencySymbol}{totals.total.toLocaleString()}</span>
                             </div>
                         </section>
 

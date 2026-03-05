@@ -154,13 +154,15 @@ export function RequirementInfoCard({ requirement, tasks, timezone }: Requiremen
             </p>
           </div>
 
-          {/* Quoted Price */}
-          <div>
-            <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wider mb-2">Quoted Price</p>
-            <p className="text-sm font-medium text-[#111111]">
-              ${requirement.quoted_price ? Number(requirement.quoted_price).toFixed(2) : '0.00'}
-            </p>
-          </div>
+          {/* Quoted Price - Hide for in-house */}
+          {requirement.type !== 'inhouse' && !['inhouse', 'Inhouse'].includes(requirement.type || '') && (
+            <div>
+              <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wider mb-2">Quoted Price</p>
+              <p className="text-sm font-medium text-[#111111]">
+                ${requirement.quoted_price ? Number(requirement.quoted_price).toFixed(2) : '0.00'}
+              </p>
+            </div>
+          )}
 
           {/* Total Tasks */}
           <div>
