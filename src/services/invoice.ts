@@ -23,6 +23,26 @@ export interface InvoiceDto {
     bill_to_company?: {
         id: number;
         name: string;
+        address_line_1?: string;
+        address_line_2?: string;
+        city?: string;
+        state?: string;
+        zipcode?: string;
+        country?: string;
+        email?: string;
+        tax_id?: string;
+    };
+    bill_from_company?: {
+        id: number;
+        name: string;
+        address_line_1?: string;
+        address_line_2?: string;
+        city?: string;
+        state?: string;
+        zipcode?: string;
+        country?: string;
+        email?: string;
+        tax_id?: string;
     };
     sub_total: number;
     discount: number;

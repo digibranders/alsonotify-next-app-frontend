@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Drawer, Tooltip } from 'antd';
+import { Drawer, Tooltip, Badge } from 'antd';
 import { Download, Loader2 } from 'lucide-react';
 import { MemberWorklog, EmployeeReport } from '../../../../services/report';
 import { useResizable } from '@/hooks/useResizable';
+import Link from 'next/link';
 
 interface EmployeeDetailsDrawerProps {
     isOpen: boolean;
@@ -185,6 +186,7 @@ const EmployeeDetailsDrawer: React.FC<EmployeeDetailsDrawerProps> = ({
                                             />
                                         </th>
                                         <th className="py-2 px-3 text-[0.6875rem] font-bold text-[#666666] uppercase w-[6.875rem] text-center">Time</th>
+                                        <th className="py-2 px-3 text-[0.6875rem] font-bold text-[#666666] uppercase w-[7.5rem] text-center">Status</th>
                                         <th className="py-2 px-3 text-[0.6875rem] font-bold text-[#666666] uppercase w-[4.375rem] text-center">Duration</th>
                                     </tr>
                                 </thead>
@@ -194,7 +196,17 @@ const EmployeeDetailsDrawer: React.FC<EmployeeDetailsDrawerProps> = ({
                                             <td className="px-3 text-xs font-medium text-[#111111] whitespace-nowrap text-left">{log.date}</td>
                                             <td className="px-3 text-xs font-medium text-[#111111] text-left" style={{ width: taskColWidth, minWidth: taskColWidth, maxWidth: taskColWidth }}>
                                                 <Tooltip title={log.task} placement="topLeft">
-                                                    <div className="truncate cursor-help" style={{ maxWidth: taskColWidth - 24 }}>{log.task}</div>
+                                                    {log.taskId ? (
+                                                        <Link
+                                                            href={`/dashboard/tasks/${log.taskId}`}
+                                                            className="truncate cursor-pointer text-[#2196F3] hover:text-[#1976D2] hover:underline block"
+                                                            style={{ maxWidth: taskColWidth - 24 }}
+                                                        >
+                                                            {log.task}
+                                                        </Link>
+                                                    ) : (
+                                                        <div className="truncate cursor-help" style={{ maxWidth: taskColWidth - 24 }}>{log.task}</div>
+                                                    )}
                                                 </Tooltip>
                                             </td>
                                             <td className="px-3 text-xs text-[#666666] text-left" style={{ width: detailsColWidth, minWidth: detailsColWidth, maxWidth: detailsColWidth }}>
@@ -203,6 +215,27 @@ const EmployeeDetailsDrawer: React.FC<EmployeeDetailsDrawerProps> = ({
                                                 </Tooltip>
                                             </td>
                                             <td className="px-3 text-[0.6875rem] text-[#666666] whitespace-nowrap text-left">{log.startTime} - {log.endTime}</td>
+                                            <td className="px-3 text-center">
+                                                {log.sessionStatus ? (
+                                                    <Badge
+                                                        count={log.sessionStatus}
+                                                        style={{
+                                                            backgroundColor: log.sessionStatus === 'Completed' ? '#7ccf0020' : '#11111108',
+                                                            color: log.sessionStatus === 'Completed' ? '#7ccf00' : '#666666',
+                                                            fontSize: '0.625rem',
+                                                            fontWeight: 'bold',
+                                                            textTransform: 'uppercase',
+                                                            padding: '0 6px',
+                                                            height: '18px',
+                                                            lineHeight: '18px',
+                                                            borderRadius: '4px',
+                                                            border: `1px solid ${log.sessionStatus === 'Completed' ? '#7ccf0020' : '#11111110'}`
+                                                        }}
+                                                    />
+                                                ) : (
+                                                    <span className="text-[#999999]">-</span>
+                                                )}
+                                            </td>
                                             <td className="px-3 text-left">
                                                 <span className="text-[0.6875rem] font-bold text-[#111111] bg-[#EEEEEE] px-1.5 py-0.5 rounded group-hover:bg-white group-hover:shadow-sm transition-all">{log.engagedTime}</span>
                                             </td>
@@ -210,7 +243,7 @@ const EmployeeDetailsDrawer: React.FC<EmployeeDetailsDrawerProps> = ({
                                     ))}
                                     {worklogs.length === 0 && (
                                         <tr>
-                                            <td colSpan={5} className="py-8 text-center text-[0.8125rem] text-[#666666] italic">No work history found.</td>
+                                            <td colSpan={6} className="py-8 text-center text-[0.8125rem] text-[#666666] italic">No work history found.</td>
                                         </tr>
                                     )}
                                 </tbody>

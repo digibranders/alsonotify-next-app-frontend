@@ -120,7 +120,19 @@ export function RequirementCard({
             onClick: null
           };
         }
-        // In-House / Client work completed -> Ready to Bill
+        // In-House / Client work completed
+        const isInHouse = !requirement?.receiver_company_id || requirement?.receiver_company_id === requirement?.sender_company_id;
+
+        if (isInHouse) {
+          return {
+            label: 'Completed',
+            icon: <CheckCircle className="w-3 h-3" />,
+            className: 'bg-[#f3ffe6] text-[#7ccf00] border-[#7ccf00]',
+            onClick: null
+          };
+        }
+
+        // Client work completed -> Ready to Bill
         const price = requirement.quoted_price || requirement.estimated_cost || requirement.budget;
         const symbol = CURRENCY_SYMBOLS[requirement.currency || 'USD'] || '$';
         const priceLabel = price ? ` - ${symbol}${Number(price).toLocaleString()}` : '';

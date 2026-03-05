@@ -198,9 +198,10 @@ export function FinancePage() {
 
   const unbilledReqs = useMemo(() => {
     return requirements.filter(req => {
-      // Base logic: completed + unbilled (approvals might be bypassed, completed dictates readiness)
+      // Base logic: completed + approved + unbilled (approvals might be bypassed, completed dictates readiness)
       // Note: 'client' type requirements ARE billable (they are client work you need to invoice for)
       const isUnbilled = req.status === 'completed' &&
+        req.approvalStatus === 'approved' &&
         req.type !== 'inhouse' &&
         (req.invoiceStatus === 'unbilled' || !req.invoiceStatus);
 
@@ -425,15 +426,15 @@ export function FinancePage() {
                   <span className="text-xl font-bold text-[#2196F3]">{currencySymbol}{kpiToBeInvoiced.toLocaleString()}</span>
                 </div>
 
-                {/* Card 3: Total Expenses */}
+                {/* Card 3: Total Receivables */}
                 <div className="p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center">
-                  <span className="text-xs font-medium text-[#666666]">Total Expenses</span>
+                  <span className="text-xs font-medium text-[#666666]">Total Receivables</span>
                   <span className="text-xl font-bold text-[#111111]">{currencySymbol}{kpiTotalExpenses.toLocaleString()}</span>
                 </div>
 
-                {/* Card 4: Profit / Loss */}
+                {/* Card 4: Cash Collected */}
                 <div className="p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center">
-                  <span className="text-xs font-medium text-[#666666]">Profit / Loss</span>
+                  <span className="text-xs font-medium text-[#666666]">Cash Collected</span>
                   <span className={`text-xl font-bold ${kpiProfit >= 0 ? 'text-[#0F9D58]' : 'text-[#FF3B3B]'}`}>
                     {currencySymbol}{kpiProfit.toLocaleString()}
                   </span>

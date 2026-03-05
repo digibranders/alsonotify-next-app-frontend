@@ -185,7 +185,8 @@ export function RequirementDetailsPage() {
   const visibleTabs: ReqTabId[] = useMemo(() => {
     const tabs: ReqTabId[] = ['details', 'tasks', 'gantt', 'kanban', 'pnl', 'documents'];
     const canSeeBilling = ['Admin', 'Head', 'Accountant'].includes(userRole);
-    if (canSeeBilling) {
+    // Hide billing tab for in-house requirements even for privileged roles
+    if (canSeeBilling && !isInHouse) {
       tabs.push('billing');
     }
 

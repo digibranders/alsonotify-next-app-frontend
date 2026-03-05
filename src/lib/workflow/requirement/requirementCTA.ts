@@ -668,7 +668,6 @@ function getInternalCTA(
         displayStatus: 'Completed',
         isPending: false,
         tab,
-        primaryAction: createAction('View Billing', 'primary', 'none', 'view_billing'),
         secondaryAction: createAction('Reopen', 'secondary', 'none', 'reopen'),
       };
 
