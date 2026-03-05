@@ -1,7 +1,7 @@
 import { Checkbox, Tooltip, Dropdown, Popover, Input, Button, message, Avatar } from "antd";
 import { useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/queryKeys";
-import { MoreVertical, Edit, Trash2, RotateCcw, CheckCircle } from "lucide-react";
+import { MoreVertical, Edit, Trash2, RotateCcw, CheckCircle, Copy } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { MenuProps } from "antd";
@@ -17,6 +17,7 @@ interface TaskRowProps {
   selected: boolean;
   onSelect: () => void;
   onEdit?: () => void;
+  onDuplicate?: () => void;
   onDelete?: () => void;
   onStatusChange?: (status: string) => void;
   currentUserId?: number;
@@ -30,6 +31,7 @@ const TaskRowComponent = memo(function TaskRow({
   selected,
   onSelect,
   onEdit,
+  onDuplicate,
   onDelete,
   onStatusChange,
   currentUserId,
@@ -223,6 +225,9 @@ const TaskRowComponent = memo(function TaskRow({
             <Dropdown
               menu={{
                 items: (() => {
+                  const myMember = task.task_members?.find(m => m.user_id === currentUserId);
+                  const isAssignee = !!myMember;
+
                   const isLeader = task.leader_id === currentUserId || task.leader_user?.id === currentUserId;
                   const isReview = task.status === 'Review';
                   const isInProgress = task.status === 'In_Progress';
@@ -271,8 +276,8 @@ const TaskRowComponent = memo(function TaskRow({
                     });
                   }
 
-                  // Admin or Leader Actions
-                  if (isAdmin || isLeader) {
+                  // Admin, Leader, or Assignee Actions
+                  if (isAdmin || isLeader || isAssignee) {
                     if (actions.length > 0) {
                       actions.push({ type: 'divider' });
                     }
@@ -286,8 +291,16 @@ const TaskRowComponent = memo(function TaskRow({
                       className: "text-[0.8125rem] font-medium"
                     });
 
+                    actions.push({
+                      key: 'duplicate',
+                      label: 'Duplicate',
+                      icon: <Copy className="w-3.5 h-3.5" />,
+                      onClick: () => onDuplicate?.(),
+                      className: "text-[0.8125rem] font-medium"
+                    });
+
                     // Admin/Leader Delete (Hidden if In_Progress)
-                    if (task.status !== 'In_Progress') {
+                    if ((isAdmin || isLeader) && task.status !== 'In_Progress') {
                       actions.push({
                         key: 'delete',
                         label: 'Delete',
@@ -307,6 +320,8 @@ const TaskRowComponent = memo(function TaskRow({
             >
               {/* Only show button if there are menu items */}
               {(() => {
+                const myMember = task.task_members?.find(m => m.user_id === currentUserId);
+                const isAssignee = !!myMember;
                 const isLeader = task.leader_id === currentUserId || task.leader_user?.id === currentUserId;
                 const isReview = task.status === 'Review';
 
@@ -319,8 +334,8 @@ const TaskRowComponent = memo(function TaskRow({
                   );
                 }
 
-                // Otherwise check for Admin/Leader actions
-                const hasActions = isAdmin || isLeader;
+                // Otherwise check for Admin/Leader/Assignee actions
+                const hasActions = isAdmin || isLeader || isAssignee;
 
                 if (hasActions) {
                   return (

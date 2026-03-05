@@ -1,5 +1,5 @@
 import { Checkbox, Tooltip, Avatar, Dropdown, Button, Input, Popover, message } from "antd";
-import { MoreVertical, Edit, Trash2, CheckCircle, RotateCcw } from "lucide-react";
+import { MoreVertical, Edit, Trash2, CheckCircle, RotateCcw, Copy } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, memo } from "react";
@@ -17,6 +17,7 @@ interface MobileTaskCardProps {
   selected: boolean;
   onSelect: () => void;
   onEdit?: () => void;
+  onDuplicate?: () => void;
   onDelete?: () => void;
   onStatusChange?: (status: string) => void;
   currentUserId?: number;
@@ -30,6 +31,7 @@ export const MobileTaskCard = memo(function MobileTaskCard({
   selected,
   onSelect,
   onEdit,
+  onDuplicate,
   onDelete,
   onStatusChange,
   currentUserId,
@@ -117,9 +119,12 @@ export const MobileTaskCard = memo(function MobileTaskCard({
 
           {/* Action Menu */}
           <div onClick={(e) => e.stopPropagation()}>
-             <Dropdown
+            <Dropdown
               menu={{
                 items: (() => {
+                  const myMember = task.task_members?.find(m => m.user_id === currentUserId);
+                  const isAssignee = !!myMember;
+
                   const isLeader = task.leader_id === currentUserId || task.leader_user?.id === currentUserId;
                   const isReview = task.status === 'Review';
                   const isInProgress = task.status === 'In_Progress';
@@ -145,28 +150,28 @@ export const MobileTaskCard = memo(function MobileTaskCard({
                     );
                   }
 
-                   // Self-assigned shortcut
-                   const activeMemberIds = (task.task_members || []).map((m: { user_id: number }) => m.user_id);
-                   const leaderId = task.leader_id ?? task.leader_user?.id;
-                   const isSelfAssigned =
-                     isInProgress &&
-                     isLeader &&
-                     leaderId !== undefined &&
-                     activeMemberIds.length === 1 &&
-                     activeMemberIds[0] === leaderId &&
-                     currentUserId === leaderId;
+                  // Self-assigned shortcut
+                  const activeMemberIds = (task.task_members || []).map((m: { user_id: number }) => m.user_id);
+                  const leaderId = task.leader_id ?? task.leader_user?.id;
+                  const isSelfAssigned =
+                    isInProgress &&
+                    isLeader &&
+                    leaderId !== undefined &&
+                    activeMemberIds.length === 1 &&
+                    activeMemberIds[0] === leaderId &&
+                    currentUserId === leaderId;
 
-                   if (isSelfAssigned) {
-                     actions.push({
-                       key: 'mark_complete',
-                       label: 'Mark Complete',
-                       icon: <CheckCircle className="w-3.5 h-3.5" />,
-                       onClick: () => onStatusChange?.('Completed'),
-                       className: "text-[#16a34a]"
-                     });
-                   }
+                  if (isSelfAssigned) {
+                    actions.push({
+                      key: 'mark_complete',
+                      label: 'Mark Complete',
+                      icon: <CheckCircle className="w-3.5 h-3.5" />,
+                      onClick: () => onStatusChange?.('Completed'),
+                      className: "text-[#16a34a]"
+                    });
+                  }
 
-                  if (isAdmin || isLeader) {
+                  if (isAdmin || isLeader || isAssignee) {
                     if (actions.length > 0) actions.push({ type: 'divider' });
                     actions.push({
                       key: 'edit',
@@ -175,7 +180,15 @@ export const MobileTaskCard = memo(function MobileTaskCard({
                       onClick: () => onEdit?.(),
                       disabled: task.status === 'Completed'
                     });
-                    if (task.status !== 'In_Progress') {
+
+                    actions.push({
+                      key: 'duplicate',
+                      label: 'Duplicate',
+                      icon: <Copy className="w-3.5 h-3.5" />,
+                      onClick: () => onDuplicate?.()
+                    });
+
+                    if ((isAdmin || isLeader) && task.status !== 'In_Progress') {
                       actions.push({
                         key: 'delete',
                         label: 'Delete',
@@ -201,104 +214,103 @@ export const MobileTaskCard = memo(function MobileTaskCard({
         {/* Row 3: Status & Dates */}
         <div className="flex items-center justify-between gap-2 border-t border-dashed border-[#F5F5F5] pt-3 mt-1">
           <div className="flex flex-col gap-0.5">
-             <span className="text-[10px] uppercase font-bold text-[#999999] tracking-wider">Due Date</span>
-             <div className="flex items-center gap-1.5">
-                <span className="text-xs font-medium text-[#111111]">
-                  {task.timelineDate}
-                </span>
-                <span className={`text-[10px] ${
-                  task.status === 'Delayed' ? 'text-red-500 font-medium' : 'text-[#999999]'
+            <span className="text-[10px] uppercase font-bold text-[#999999] tracking-wider">Due Date</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-medium text-[#111111]">
+                {task.timelineDate}
+              </span>
+              <span className={`text-[10px] ${task.status === 'Delayed' ? 'text-red-500 font-medium' : 'text-[#999999]'
                 }`}>
-                  {task.timelineLabel === 'Due today' ? 'Today' : task.timelineLabel}
-                </span>
-             </div>
+                {task.timelineLabel === 'Due today' ? 'Today' : task.timelineLabel}
+              </span>
+            </div>
           </div>
 
           <div onClick={(e) => e.stopPropagation()}>
-             {isPendingEstimate ? (
-               <Popover
-               open={estimateOpen}
-               onOpenChange={setEstimateOpen}
-               trigger="click"
-               content={
-                 <div className="p-2 w-48">
-                   <p className="text-xs font-medium mb-2">Your Estimate</p>
-                   <Input
-                     type="number"
-                     placeholder="Hours"
-                     value={estimateHours}
-                     onChange={(e) => setEstimateHours(e.target.value)}
-                     className="mb-4 text-sm"
-                   />
-                   <Button
-                     type="primary"
-                     size="small"
-                     loading={submissionLoading}
-                     className="w-full bg-[#EAB308] text-black"
-                     onClick={async () => {
-                       if (!estimateHours) return;
-                       setSubmissionLoading(true);
-                       try {
-                         await provideEstimate(Number(task.id), Number(estimateHours));
-                         message.success("Estimate submitted");
-                         setEstimateOpen(false);
-                         queryClient.invalidateQueries({ queryKey: queryKeys.tasks.listRoot() });
-                       } catch {
-                         message.error("Failed");
-                       } finally {
-                         setSubmissionLoading(false);
-                       }
-                     }}
-                   >
-                     Submit
-                   </Button>
-                 </div>
-               }
-             >
-               <button className="px-2 py-0.5 bg-yellow-400 text-black text-[10px] font-bold rounded-full">
-                 ESTIMATE
-               </button>
-             </Popover>
-             ) : (
-                <TaskStatusBadge status={task.status || 'Assigned'} showLabel={true} />
-             )}
+            {isPendingEstimate ? (
+              <Popover
+                open={estimateOpen}
+                onOpenChange={setEstimateOpen}
+                trigger="click"
+                content={
+                  <div className="p-2 w-48">
+                    <p className="text-xs font-medium mb-2">Your Estimate</p>
+                    <Input
+                      type="number"
+                      placeholder="Hours"
+                      value={estimateHours}
+                      onChange={(e) => setEstimateHours(e.target.value)}
+                      className="mb-4 text-sm"
+                    />
+                    <Button
+                      type="primary"
+                      size="small"
+                      loading={submissionLoading}
+                      className="w-full bg-[#EAB308] text-black"
+                      onClick={async () => {
+                        if (!estimateHours) return;
+                        setSubmissionLoading(true);
+                        try {
+                          await provideEstimate(Number(task.id), Number(estimateHours));
+                          message.success("Estimate submitted");
+                          setEstimateOpen(false);
+                          queryClient.invalidateQueries({ queryKey: queryKeys.tasks.listRoot() });
+                        } catch {
+                          message.error("Failed");
+                        } finally {
+                          setSubmissionLoading(false);
+                        }
+                      }}
+                    >
+                      Submit
+                    </Button>
+                  </div>
+                }
+              >
+                <button className="px-2 py-0.5 bg-yellow-400 text-black text-[10px] font-bold rounded-full">
+                  ESTIMATE
+                </button>
+              </Popover>
+            ) : (
+              <TaskStatusBadge status={task.status || 'Assigned'} showLabel={true} />
+            )}
           </div>
         </div>
 
         {/* Row 4: Members & Progress */}
         <div className="flex items-center justify-between gap-3 pt-1">
-           <div className="flex items-center -space-x-2">
-              <Avatar.Group max={{ count: 3, style: { color: '#666666', backgroundColor: '#EEEEEE', fontSize: '10px', width: '24px', height: '24px', lineHeight: '24px' } }}>
-                {(task.task_members || []).map((member) => (
-                    <Tooltip key={member.id} title={member.user.name}>
-                        {member.user.profile_pic ? (
-                          <Avatar size={24} src={member.user.profile_pic} />
-                        ) : (
-                          <Avatar size={24} style={{ backgroundColor: '#CCCCCC' }}>
-                            {member.user.name?.charAt(0).toUpperCase()}
-                          </Avatar>
-                        )}
-                    </Tooltip>
-                ))}
-                {(task.task_members || []).length === 0 && (
-                   <Avatar size={24} style={{ backgroundColor: '#CCCCCC' }}>U</Avatar>
-                )}
-              </Avatar.Group>
-           </div>
+          <div className="flex items-center -space-x-2">
+            <Avatar.Group max={{ count: 3, style: { color: '#666666', backgroundColor: '#EEEEEE', fontSize: '10px', width: '24px', height: '24px', lineHeight: '24px' } }}>
+              {(task.task_members || []).map((member) => (
+                <Tooltip key={member.id} title={member.user.name}>
+                  {member.user.profile_pic ? (
+                    <Avatar size={24} src={member.user.profile_pic} />
+                  ) : (
+                    <Avatar size={24} style={{ backgroundColor: '#CCCCCC' }}>
+                      {member.user.name?.charAt(0).toUpperCase()}
+                    </Avatar>
+                  )}
+                </Tooltip>
+              ))}
+              {(task.task_members || []).length === 0 && (
+                <Avatar size={24} style={{ backgroundColor: '#CCCCCC' }}>U</Avatar>
+              )}
+            </Avatar.Group>
+          </div>
 
-           <div className="flex-1 flex flex-col items-end gap-1 min-w-0">
-              <div className="flex items-center gap-1.5 text-[10px] text-[#666666]">
-                 <span className="font-medium text-[#111111]">{formatHours(totalHours)}h</span>
-                 <span>/</span>
-                 <span>{formatDuration(task.estTime)}h</span>
-              </div>
-              <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                 <div
-                   className={`h-full rounded-full ${percentage > 100 ? 'bg-red-500' : 'bg-green-500'}`}
-                   style={{ width: `${Math.min(percentage, 100)}%` }}
-                 />
-              </div>
-           </div>
+          <div className="flex-1 flex flex-col items-end gap-1 min-w-0">
+            <div className="flex items-center gap-1.5 text-[10px] text-[#666666]">
+              <span className="font-medium text-[#111111]">{formatHours(totalHours)}h</span>
+              <span>/</span>
+              <span>{formatDuration(task.estTime)}h</span>
+            </div>
+            <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+              <div
+                className={`h-full rounded-full ${percentage > 100 ? 'bg-red-500' : 'bg-green-500'}`}
+                style={{ width: `${Math.min(percentage, 100)}%` }}
+              />
+            </div>
+          </div>
         </div>
 
       </div>

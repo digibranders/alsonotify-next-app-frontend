@@ -575,6 +575,33 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
     });
   };
 
+  // Get timer state
+  const { timerState, stopTimer } = useTimer();
+
+  // Handle edit task
+  const [editingTask, setEditingTask] = useState<UITask | null>(null);
+  const [duplicatingTask, setDuplicatingTask] = useState<UITask | null>(null);
+  const handleEditTask = (task: UITask) => {
+    // Check if timer is running for this task
+    if (timerState.isRunning && timerState.taskId === Number(task.id)) {
+      setPendingEditTask(task);
+      setShowTimerWarning(true);
+      return;
+    }
+
+    // Proceed with edit
+    setEditingTask(task);
+    setDuplicatingTask(null);
+    setIsDialogOpen(true);
+  };
+
+  // Handle duplicate task
+  const handleDuplicateTask = (task: UITask) => {
+    setDuplicatingTask(task);
+    setEditingTask(null);
+    setIsDialogOpen(true);
+  };
+
   const handleCreateTask = async (data: CreateTaskRequestDto) => {
     // `TaskForm` already validates all required fields, but we keep a
     // defensive check here to avoid sending an incomplete payload.
@@ -604,30 +631,13 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
       onSuccess: () => {
         messageRef.current.success("Task created successfully!");
         setIsDialogOpen(false);
+        setDuplicatingTask(null);
       },
       onError: (error: Error) => {
         const errorMessage = getErrorMessage(error, "Failed to create task");
         messageRef.current.error(errorMessage);
       },
     });
-  };
-
-  // Get timer state
-  const { timerState, stopTimer } = useTimer();
-
-  // Handle edit task
-  const [editingTask, setEditingTask] = useState<UITask | null>(null);
-  const handleEditTask = (task: UITask) => {
-    // Check if timer is running for this task
-    if (timerState.isRunning && timerState.taskId === Number(task.id)) {
-      setPendingEditTask(task);
-      setShowTimerWarning(true);
-      return;
-    }
-
-    // Proceed with edit
-    setEditingTask(task);
-    setIsDialogOpen(true);
   };
 
   // Handle pause timer and edit
@@ -919,6 +929,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
         onCancel={() => {
           setIsDialogOpen(false);
           setEditingTask(null);
+          setDuplicatingTask(null);
         }}
         footer={null}
         width="min(600px, 95vw)"
@@ -935,7 +946,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
         }}
       >
         <TaskForm
-          key={editingTask ? `edit-${editingTask.id}` : `new-task-form`}
+          key={editingTask ? `edit-${editingTask.id}` : duplicatingTask ? `dup-${duplicatingTask.id}` : `new-task-form`}
           initialData={editingTask ? {
             name: editingTask.name,
             workspace_id: editingTask.workspace_id ? String(editingTask.workspace_id) : '',
@@ -948,6 +959,18 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
             estimated_time: (editingTask.estTime || editingTask.estimated_time) ? String(editingTask.estTime || editingTask.estimated_time) : '',
             is_high_priority: editingTask.is_high_priority || false,
             description: editingTask.description || '',
+          } : duplicatingTask ? {
+            name: duplicatingTask.name,
+            workspace_id: duplicatingTask.workspace_id ? String(duplicatingTask.workspace_id) : '',
+            requirement_id: duplicatingTask.requirement_id ? String(duplicatingTask.requirement_id) : '',
+            assigned_members: duplicatingTask.task_members?.map(m => m.user?.id || m.user_id) || [],
+            execution_mode: duplicatingTask.execution_mode || 'parallel',
+            member_id: duplicatingTask.member_id ? String(duplicatingTask.member_id) : '',
+            leader_id: currentUserId ? String(currentUserId) : '', // Assigned to current user as creator
+            end_date: duplicatingTask.end_date || '',
+            estimated_time: (duplicatingTask.estTime || duplicatingTask.estimated_time) ? String(duplicatingTask.estTime || duplicatingTask.estimated_time) : '',
+            is_high_priority: duplicatingTask.is_high_priority || false,
+            description: duplicatingTask.description || '',
           } : undefined}
           isEditing={!!editingTask}
           canEditDueDate={isAdmin || ['coordinator'].includes(userRole?.toLowerCase() ?? '')}
@@ -981,10 +1004,11 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
           onCancel={() => {
             setIsDialogOpen(false);
             setEditingTask(null);
+            setDuplicatingTask(null);
           }}
           users={usersDropdown}
           requirements={requirementsDropdown}
-          workspaces={workspacesData?.result?.workspaces?.map((p) => ({
+          workspaces={workspacesData?.result?.workspaces?.map((p: any) => ({
             id: p.id,
             name: p.name,
             company_name: p.company_name,
@@ -1142,6 +1166,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
                 selected={selectedTasks.includes(task.id)}
                 onSelect={() => toggleSelect(task.id)}
                 onEdit={() => handleEditTask(task)}
+                onDuplicate={() => handleDuplicateTask(task)}
                 onDelete={() => handleDeleteTask(task.id)}
                 onStatusChange={
                   canChangeTaskStatus(task)
@@ -1161,6 +1186,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
                   selected={selectedTasks.includes(task.id)}
                   onSelect={() => toggleSelect(task.id)}
                   onEdit={() => handleEditTask(task)}
+                  onDuplicate={() => handleDuplicateTask(task)}
                   onDelete={() => handleDeleteTask(task.id)}
                   onStatusChange={
                     canChangeTaskStatus(task)
