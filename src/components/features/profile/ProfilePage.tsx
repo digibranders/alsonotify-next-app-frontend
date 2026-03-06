@@ -1126,7 +1126,7 @@ export function ProfilePage() {
                 currentUser={user || null}
             />
             <style jsx global>{`
-                .employee-form-phone .ant-select-selector {
+                :global(.employee-form-phone .ant-select-selector) {
                     background-color: transparent !important;
                     border: 1px solid #EEEEEE !important;
                     border-right: 0 !important;
@@ -1138,7 +1138,7 @@ export function ProfilePage() {
                     font-weight: 500 !important;
                 }
 
-                .employee-form-phone .ant-input {
+                :global(.employee-form-phone .ant-input) {
                     border: 1px solid #EEEEEE !important;
                     border-left: 0 !important;
                     border-radius: 0 8px 8px 0 !important;
@@ -1162,7 +1162,7 @@ export function ProfilePage() {
 
                 :global(.employee-form-phone.bg-gray-50) :global(.ant-select-selector),
                 :global(.employee-form-phone.bg-gray-50) :global(.ant-input) {
-                    background-color: #F9FAFB !important;
+                    background-color: #FAFAFA !important;
                 }
             `}</style>
         </PageLayout>

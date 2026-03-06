@@ -756,16 +756,14 @@ function EmployeeFormContent({
              overflow: hidden !important;
           }
 
-          :global(.employee-form-phone.bg-white) :global(.ant-select-selector),
-          :global(.employee-form-phone.bg-white) :global(.ant-input),
-          :global(.employee-form-salary:has(.bg-white)) :global(.ant-select-selector),
-          :global(.employee-form-salary) :global(.bg-white.ant-input) {
+          :global(.employee-form-phone.bg-white .ant-select-selector),
+          :global(.employee-form-salary .bg-white .ant-select-selector),
+          :global(.employee-form-salary .bg-white.ant-input) {
               background-color: white !important;
           }
 
           :global(.employee-form-phone.bg-gray-50) :global(.ant-select-selector),
-          :global(.employee-form-phone.bg-gray-50) :global(.ant-input),
-          :global(.employee-form-salary:has(.bg-gray-50)) :global(.ant-select-selector),
+          :global(.employee-form-salary) :global(.bg-gray-50) :global(.ant-select-selector),
           :global(.employee-form-salary) :global(.bg-gray-50.ant-input) {
               background-color: #F9FAFB !important;
           }

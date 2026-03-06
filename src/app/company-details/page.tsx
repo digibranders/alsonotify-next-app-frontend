@@ -690,7 +690,7 @@ function CompanyDetailsForm() {
           display: none !important;
         }
 
-        .company-details-phone .ant-select-selector {
+        :global(.company-details-phone .ant-select-selector) {
           background-color: transparent !important;
           border: 1px solid transparent !important;
           border-right: 0 !important;
@@ -702,7 +702,7 @@ function CompanyDetailsForm() {
           font-weight: 500 !important;
         }
 
-        .company-details-phone .ant-input {
+        :global(.company-details-phone .ant-input) {
           border: 1px solid transparent !important;
           border-left: 0 !important;
           border-radius: 0 12px 12px 0 !important;
@@ -710,13 +710,13 @@ function CompanyDetailsForm() {
           background-color: transparent !important;
         }
 
-        .company-details-phone:focus-within .ant-select-selector,
-        .company-details-phone:focus-within .ant-input {
+        :global(.company-details-phone:focus-within .ant-select-selector),
+        :global(.company-details-phone:focus-within .ant-input) {
           border-color: #ff3b3b !important;
           background-color: white !important;
         }
 
-        .company-details-phone {
+        :global(.company-details-phone) {
           border-radius: 12px !important;
           overflow: hidden !important;
         }
