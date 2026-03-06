@@ -421,7 +421,7 @@ function EmployeeFormContent({
               const num = parts.slice(1).join(' ');
               setFormData({ ...formData, countryCode: code, phone: num });
             }}
-            className={`w-full h-11 rounded-lg border border-[#EEEEEE] font-medium ${resolvedFormData.phone ? 'bg-white' : 'bg-[#F9FAFB]'} focus-within:border-[#111111] focus-within:bg-white focus-within:shadow-none transition-all`}
+            className={`employee-form-phone ${resolvedFormData.phone ? 'bg-white' : 'bg-gray-50'}`}
           />
         </div>
 
@@ -522,13 +522,12 @@ function EmployeeFormContent({
 
         <div className="col-span-6 space-y-1">
           <span className="text-[0.8125rem] font-bold text-[#111111]">Salary (CTC) <span className="text-[#666666] font-normal text-[0.6875rem] ml-1">(Annual)</span></span>
-          <Space.Compact className="w-full">
+          <Space.Compact className="w-full employee-form-salary">
             {CurrencySelector}
             <Input
               type="number"
               placeholder="e.g. 1200000"
-              className={`h-11 rounded-r-lg border border-[#EEEEEE] font-medium ${resolvedFormData.salary ? 'bg-white' : 'bg-[#F9FAFB]'}`}
-              style={{ borderLeft: 0 }}
+              className={`h-11 font-medium ${resolvedFormData.salary ? 'bg-white' : 'bg-gray-50'}`}
               value={resolvedFormData.salary}
               onChange={(e) => setFormData({ ...formData, salary: e.target.value })}
               prefix={<span className="text-gray-400 mr-1">{currencySymbol}</span>}
@@ -719,16 +718,58 @@ function EmployeeFormContent({
             box-shadow: none !important;
           }
 
-          :global(.currency-select-addon .ant-select-selector) {
+          :global(.employee-form-phone .ant-select-selector),
+          :global(.employee-form-salary .currency-select-addon .ant-select-selector) {
             background-color: transparent !important;
-            border: none !important;
-            padding: 0 4px !important;
-            height: 42px !important;
+            border: 1px solid #EEEEEE !important;
+            border-right: 0 !important;
+            border-radius: 8px 0 0 8px !important;
+            height: 44px !important;
             display: flex !important;
             align-items: center !important;
             box-shadow: none !important;
+            font-weight: 500 !important;
+          }
+
+          :global(.employee-form-phone .ant-input),
+          :global(.employee-form-salary .ant-input) {
+             border: 1px solid #EEEEEE !important;
+             border-left: 0 !important;
+             border-radius: 0 8px 8px 0 !important;
           }
           
+          :global(.employee-form-phone:focus-within .ant-select-selector),
+          :global(.employee-form-salary:focus-within .currency-select-addon .ant-select-selector) {
+             border-color: #111111 !important;
+             background-color: white !important;
+          }
+
+          :global(.employee-form-phone:focus-within .ant-input),
+          :global(.employee-form-salary:focus-within .ant-input) {
+             border-color: #111111 !important;
+             background-color: white !important;
+          }
+
+          :global(.employee-form-phone), :global(.employee-form-salary) {
+             display: flex !important;
+             border-radius: 8px !important;
+             overflow: hidden !important;
+          }
+
+          :global(.employee-form-phone.bg-white) :global(.ant-select-selector),
+          :global(.employee-form-phone.bg-white) :global(.ant-input),
+          :global(.employee-form-salary:has(.bg-white)) :global(.ant-select-selector),
+          :global(.employee-form-salary) :global(.bg-white.ant-input) {
+              background-color: white !important;
+          }
+
+          :global(.employee-form-phone.bg-gray-50) :global(.ant-select-selector),
+          :global(.employee-form-phone.bg-gray-50) :global(.ant-input),
+          :global(.employee-form-salary:has(.bg-gray-50)) :global(.ant-select-selector),
+          :global(.employee-form-salary) :global(.bg-gray-50.ant-input) {
+              background-color: #F9FAFB !important;
+          }
+
           :global(.currency-select-addon) {
              display: flex !important;
              align-items: center !important;
