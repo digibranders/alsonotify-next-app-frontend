@@ -369,7 +369,7 @@ export function FloatingTimerBar() {
     setAttachments([]);
 
     // stopTimer is idempotent - safe to call even if timer already stopped remotely
-    await stopTimer(description);
+    await stopTimer(description, 'Completed');
 
     // 2. Update Status to 'Review' (Submit for Review)
     try {

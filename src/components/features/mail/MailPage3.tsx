@@ -88,7 +88,7 @@ function sanitizeEmailHtml(html: string, allowImages: boolean) {
   const dangerousTags = ['script', 'style', 'iframe', 'object', 'embed', 'form', 'input', 'textarea', 'button'];
   const dangerousAttrs = ['on*', 'form*', 'action', 'formaction'];
 
-  const localDOMPurify = DOMPurify(window);
+  const localDOMPurify = DOMPurify;
 
   localDOMPurify.addHook('afterSanitizeAttributes', (node: Element) => {
     if (node.tagName && node.tagName.toLowerCase() === 'a') {

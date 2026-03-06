@@ -23,6 +23,8 @@ import { PageLayout } from '../../layout/PageLayout';
 import { queryKeys } from '@/lib/queryKeys';
 
 
+import { Linkify } from '@/components/common/Linkify';
+
 interface TaskActivityAttachment {
   id: number;
   file_name: string;
@@ -292,9 +294,9 @@ export function TaskDetailsPage() {
                 <FileText className="w-5 h-5 text-[#ff3b3b]" />
                 Description
               </h3>
-              <p className="text-sm text-[#444444] font-normal leading-relaxed whitespace-pre-wrap">
+              <Linkify className="text-[#444444]">
                 {task.description || "No description provided."}
-              </p>
+              </Linkify>
             </div>
 
             {/* Task Metadata */}

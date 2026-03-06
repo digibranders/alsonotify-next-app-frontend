@@ -15,6 +15,7 @@ import {
   Settings,
   LogOut,
   MessageCircle,
+  MessageSquareShare,
   ScrollText,
   Briefcase,
   ListTodo,
@@ -41,7 +42,7 @@ import { searchEmployees } from '@/services/user';
 import { getRequirementsByWorkspaceId } from '@/services/workspace';
 import { RequirementDropdownItem, CreateRequirementRequestDto } from '@/types/dto/requirement.dto';
 import { NoteComposerModal } from './NoteComposerModal';
-import { AIAssistantDrawer } from '../features/ai/AIAssistantDrawer';
+// import { AIAssistantDrawer } from '../features/ai/AIAssistantDrawer';
 import { MeetingCreateModal } from '../modals/MeetingCreateModal';
 import { LeaveApplyModal } from '../modals/LeaveApplyModal';
 import { Employee } from '@/types/domain';
@@ -111,7 +112,7 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
   const [showMeetingDialog, setShowMeetingDialog] = useState(false);
   const [showLeaveDialog, setShowLeaveDialog] = useState(false);
   const [notificationDrawerOpen, setNotificationDrawerOpen] = useState(false);
-  const [aiDrawerOpen, setAiDrawerOpen] = useState(false);
+  // const [aiDrawerOpen, setAiDrawerOpen] = useState(false);
 
   // Form States
 
@@ -446,29 +447,21 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
             </Dropdown>
 
             {/* AI Assistant Toggle */}
-            <button
+            {/* <button
               onClick={() => setAiDrawerOpen(true)}
               className="w-9 h-9 rounded-full bg-gradient-to-br from-[#ff3b3b] to-[#cc2f2f] hover:shadow-lg flex items-center justify-center transition-all cursor-pointer border border-transparent hover:scale-105 active:scale-95"
               title="AI Assistant"
             >
               <Sparkle24Filled className="w-5 h-5 text-white" />
-            </button>
+            </button> */}
 
             {/* Feedback Toggle */}
             <button
               onClick={() => setShowFeedbackDialog(true)}
-              className="hidden md:flex w-9 h-9 rounded-full bg-[#F7F7F7] hover:bg-[#EEEEEE] items-center justify-center transition-colors cursor-pointer"
+              className="hidden md:flex w-9 h-9 min-w-[36px] rounded-full bg-[#ff3b3b] hover:bg-[#ff6b6b] items-center justify-center transition-all cursor-pointer border-none shadow-none"
               title="Give Feedback"
             >
-              <svg
-                className="w-5 h-5 text-[#666666]"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-              </svg>
+              <MessageSquareShare className="w-5 h-5 text-white" />
             </button>
 
             {/* Notification icon */}
@@ -623,10 +616,10 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
         availableLeaveTypes={availableLeaveTypes}
       />
 
-      <AIAssistantDrawer
+      {/* <AIAssistantDrawer
         open={aiDrawerOpen}
         onClose={() => setAiDrawerOpen(false)}
-      />
+      /> */}
       <style jsx global>{`
         /* Gray background for all Select dropdowns (default) */
         .employee-form-select .ant-select-selector {

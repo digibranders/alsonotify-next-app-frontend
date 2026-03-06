@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from 'react';
 import { Drawer, message } from 'antd';
-import Cookies from 'universal-cookie';
 import {
   BellOff,
   Bell,
@@ -39,6 +38,7 @@ import { useIsNarrow } from '@/hooks/useBreakpoint';
 import { queryKeys } from '@/lib/queryKeys';
 import type { NotificationTypeValue, NotificationMetadata } from '@/services/notification';
 import type { LucideIcon } from 'lucide-react';
+import { Linkify } from '@/components/common/Linkify';
 
 export type { NotificationTypeValue };
 
@@ -320,22 +320,22 @@ function NotificationItemComponent({
 
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2 mb-0.5">
-            <h4
-              className={`text-sm leading-snug ${
+            <div className={`text-sm leading-snug ${
                 notification.unread ? 'font-semibold text-[#111111]' : 'font-medium text-[#444444]'
-              }`}
-            >
-              {displayTitle}
-            </h4>
+              }`}>
+              <Linkify>
+                {displayTitle}
+              </Linkify>
+            </div>
             <span className="text-[0.6875rem] text-[#999999] whitespace-nowrap font-normal shrink-0 mt-0.5">
               {notification.time}
             </span>
           </div>
 
           {notification.title && (
-            <p className="text-[0.8125rem] text-[#666666] font-normal leading-relaxed mb-2 line-clamp-2">
+            <Linkify className="text-[0.8125rem] text-[#666666] font-normal leading-relaxed mb-2 line-clamp-2">
               {notification.message}
-            </p>
+            </Linkify>
           )}
 
           <ActionButtons

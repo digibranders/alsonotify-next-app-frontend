@@ -4,6 +4,7 @@ import dayjs from 'dayjs';
 import { CalendarEvent } from './types';
 import { GraphEvent } from '@/services/calendar';
 import { sanitizeUrl } from '@/utils/sanitizeUrl';
+import { Linkify } from '@/components/common/Linkify';
 
 interface CalendarEventPopupProps {
     event: CalendarEvent;
@@ -131,7 +132,9 @@ export function CalendarEventPopup({ event }: CalendarEventPopupProps) {
             {/* Description */}
             {event.description && !isTeamsMeeting && (
                 <div className="mt-4 pt-4 border-t border-[#EEEEEE]">
-                    <p className="text-[0.8125rem] text-[#666666] font-normal leading-relaxed">{event.description}</p>
+                    <Linkify className="text-[0.8125rem] text-[#666666] font-normal leading-relaxed">
+                        {event.description}
+                    </Linkify>
                 </div>
             )}
 

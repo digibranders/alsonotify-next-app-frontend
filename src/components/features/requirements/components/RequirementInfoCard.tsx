@@ -1,8 +1,8 @@
 import { FileText, Briefcase, Star, RotateCcw, Clock } from 'lucide-react';
 import { Rate } from 'antd';
 import { formatDateForDisplay } from '@/utils/date';
-import { sanitizeRichText } from '@/utils/sanitizeHtml';
 import { sanitizeUrl } from '@/utils/sanitizeUrl';
+import { Linkify } from '@/components/common/Linkify';
 import { Requirement, Workspace, Task } from '@/types/domain';
 
 interface RequirementInfoCardProps {
@@ -47,12 +47,12 @@ export function RequirementInfoCard({ requirement, tasks, timezone }: Requiremen
               {overview && (
                 <div>
                   <h4 className="text-sm font-bold text-[#111111] mb-2">Overview</h4>
-                  <p className="text-sm text-[#444444] font-normal leading-relaxed">
+                  <Linkify className="text-[#444444]">
                     {overview}
-                  </p>
+                  </Linkify>
                 </div>
               )}
-
+              
               {/* Key Deliverables */}
               {deliverables.length > 0 && (
                 <div>
@@ -61,9 +61,11 @@ export function RequirementInfoCard({ requirement, tasks, timezone }: Requiremen
                     {deliverables.map((item: string, idx: number) => {
                       const cleanItem = item.replace(/^[•\-*]\s*/, '').trim();
                       return (
-                        <li key={idx} className="text-sm text-[#444444] font-normal leading-relaxed flex items-start">
-                          <span className="text-[#ff3b3b] mr-2">•</span>
-                          <span>{cleanItem}</span>
+                        <li key={idx} className="text-[#444444] flex items-start">
+                          <span className="text-[#ff3b3b] mr-2 shrink-0 mt-0.5">•</span>
+                          <Linkify className="flex-1">
+                            {cleanItem}
+                          </Linkify>
                         </li>
                       );
                     })}
@@ -79,9 +81,11 @@ export function RequirementInfoCard({ requirement, tasks, timezone }: Requiremen
                     {technical.map((item: string, idx: number) => {
                       const cleanItem = item.replace(/^[•\-*]\s*/, '').trim();
                       return (
-                        <li key={idx} className="text-sm text-[#444444] font-normal leading-relaxed flex items-start">
-                          <span className="text-[#ff3b3b] mr-2">•</span>
-                          <span>{cleanItem}</span>
+                        <li key={idx} className="text-[#444444] flex items-start">
+                          <span className="text-[#ff3b3b] mr-2 shrink-0 mt-0.5">•</span>
+                          <Linkify className="flex-1">
+                            {cleanItem}
+                          </Linkify>
                         </li>
                       );
                     })}
@@ -89,12 +93,11 @@ export function RequirementInfoCard({ requirement, tasks, timezone }: Requiremen
                 </div>
               )}
 
-              {/* Fallback: if no structured format, show as-is but render as sanitized HTML */}
+              {/* Fallback: if no structured format, show as markdown (handles auto-links) */}
               {!overview && deliverables.length === 0 && technical.length === 0 && (
-                <div
-                  className="text-sm text-[#444444] font-normal leading-relaxed prose prose-sm max-w-none"
-                  dangerouslySetInnerHTML={{ __html: sanitizeRichText(requirement.description || '') }}
-                />
+                <Linkify className="text-[#444444] whitespace-pre-wrap">
+                  {requirement.description || ''}
+                </Linkify>
               )}
             </div>
           );
@@ -226,9 +229,9 @@ export function RequirementInfoCard({ requirement, tasks, timezone }: Requiremen
             <Clock className="w-4 h-4 text-[#ff3b3b]" />
             Submission Note
           </h3>
-          <p className="text-sm text-[#444444] font-normal leading-relaxed">
+          <Linkify className="text-[#444444]">
             {requirement.submission_remark}
-          </p>
+          </Linkify>
         </div>
       )}
 
@@ -245,9 +248,9 @@ export function RequirementInfoCard({ requirement, tasks, timezone }: Requiremen
             )}
           </h3>
           {requirement.revision_remark && (
-            <p className="text-sm text-[#444444] font-normal leading-relaxed">
+            <Linkify className="text-[#444444]">
               {requirement.revision_remark}
-            </p>
+            </Linkify>
           )}
         </div>
       )}
@@ -265,9 +268,9 @@ export function RequirementInfoCard({ requirement, tasks, timezone }: Requiremen
             </div>
           )}
           {requirement.approval_remark && (
-            <p className="text-sm text-[#444444] font-normal leading-relaxed">
+            <Linkify className="text-[#444444]">
               {requirement.approval_remark}
-            </p>
+            </Linkify>
           )}
         </div>
       )}
