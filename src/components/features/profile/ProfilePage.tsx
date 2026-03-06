@@ -592,6 +592,7 @@ export function ProfilePage() {
                                                                     // No, upload is separate. We should probably update the profile immediately with the new URL.
 
                                                                     await updateProfileMutation.mutateAsync({
+                                                                        name: user?.name || `${profile.firstName} ${profile.lastName}`.trim(),
                                                                         profile_pic: result.download_url
                                                                     });
 
