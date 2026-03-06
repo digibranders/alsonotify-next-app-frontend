@@ -1,4 +1,4 @@
-import { Select } from "antd";
+import { Select, Input, Space } from "antd";
 import { commonCountries } from "@/data/defaultData";
 import { useState } from "react";
 
@@ -9,6 +9,7 @@ interface PhoneNumberInputProps {
   onChange?: (value: string) => void;
   placeholder?: string;
   className?: string;
+  disabled?: boolean;
 }
 
 export default function PhoneNumberInput({
@@ -16,6 +17,7 @@ export default function PhoneNumberInput({
   onChange,
   placeholder = "98765 43210",
   className = "",
+  disabled = false,
 }: PhoneNumberInputProps) {
   // Parse initial value if it contains a country code
   const [countryCode, setCountryCode] = useState("+91");
@@ -53,14 +55,15 @@ export default function PhoneNumberInput({
   };
 
   return (
-    <div className={`flex items-center transition-all focus-within:ring-0 overflow-hidden ${className}`}>
+    <Space.Compact className={`w-full ${className}`}>
       <Select
         value={countryCode}
         onChange={handleCountryCodeChange}
-        className="w-[80px] phone-code-select bg-transparent border-none"
-        suffixIcon={<div className="text-gray-400 text-xs">▼</div>}
+        disabled={disabled}
+        className="phone-code-select min-w-[85px] h-11"
         popupMatchSelectWidth={300}
         optionLabelProp="label"
+        suffixIcon={<div className="text-gray-400">⌄</div>}
       >
         {commonCountries.map((country) => (
           <Option 
@@ -75,16 +78,15 @@ export default function PhoneNumberInput({
           </Option>
         ))}
       </Select>
-      <div className="w-[1px] h-6 bg-gray-200"></div>
-      <input
+      <Input
         type="tel"
         value={phoneNumber}
         onChange={handlePhoneChange}
         placeholder={placeholder}
         maxLength={15}
-        className="flex-1 bg-transparent border-none outline-none px-3 font-medium text-black placeholder:text-gray-300 h-full w-full"
+        disabled={disabled}
+        className="h-11 phone-number-input flex-1"
       />
-
-    </div>
+    </Space.Compact>
   );
 }
