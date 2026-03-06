@@ -50,7 +50,7 @@ export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => 
   const taskStatsQueryString = useMemo(() => {
     let query = "limit=1&skip=0";
     if (dateRange && dateRange[0] && dateRange[1]) {
-      query += `&start_date[start]=${dateRange[0].startOf('day').toISOString()}&start_date[end]=${dateRange[1].endOf('day').toISOString()}`;
+      query += `&start_date_start=${dateRange[0].startOf('day').toISOString()}&start_date_end=${dateRange[1].endOf('day').toISOString()}`;
     }
     return query;
   }, [dateRange]);
@@ -59,7 +59,7 @@ export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => 
   const taskHoursQueryString = useMemo(() => {
     let query = "limit=1000&skip=0";
     if (dateRange && dateRange[0] && dateRange[1]) {
-      query += `&start_date[start]=${dateRange[0].startOf('day').toISOString()}&start_date[end]=${dateRange[1].endOf('day').toISOString()}`;
+      query += `&start_date_start=${dateRange[0].startOf('day').toISOString()}&start_date_end=${dateRange[1].endOf('day').toISOString()}`;
     }
     return query;
   }, [dateRange]);
@@ -164,9 +164,20 @@ export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => 
     allRequirements.forEach((req) => {
       // Filter by date if range is selected
       if (dateRange && dateRange[0] && dateRange[1]) {
-        // Use start_date for filtering requirements
-        const reqDate = req.start_date ? dayjs(req.start_date) : null;
-        if (!reqDate || reqDate.isBefore(dateRange[0].startOf('day')) || reqDate.isAfter(dateRange[1].endOf('day'))) {
+        // A requirement is included if its start date is before or within the end of the selected range 
+        // AND (its end date is after or within the start of the selected range, or it has no end date)
+        const reqStartDate = req.start_date ? dayjs(req.start_date) : null;
+        const reqEndDate = req.end_date ? dayjs(req.end_date).endOf('day') : null;
+        
+        const filterStart = dateRange[0].startOf('day');
+        const filterEnd = dateRange[1].endOf('day');
+
+        // Check for lack of overlap: starts after filter ends OR ends before filter starts
+        if (
+          !reqStartDate || 
+          reqStartDate.isAfter(filterEnd) || 
+          (reqEndDate && reqEndDate.isBefore(filterStart))
+        ) {
           return;
         }
       }
