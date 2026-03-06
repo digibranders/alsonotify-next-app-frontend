@@ -187,6 +187,11 @@ export function FloatingTimerBar() {
         const memberRecord = t.task_members?.find(m => m.user_id === userId);
         if (!memberRecord) return false;
 
+        // 3a. Hide if user already submitted or completed their portion of the task.
+        //     'Review' = submitted for review, 'Completed' = fully done.
+        //     Tasks sent back for revision reset status to an active state, so this is safe.
+        if (['Completed', 'Review'].includes(memberRecord.status)) return false;
+
         // 4. User MUST have provided an estimate to track time on it via this bar
         if (memberRecord.estimated_time === null) return false;
 
