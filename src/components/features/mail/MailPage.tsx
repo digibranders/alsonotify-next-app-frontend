@@ -85,24 +85,26 @@ const emailLike = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
 function sanitizeEmailHtml(html: string, allowImages: boolean) {
   if (!html) return "";
 
-  DOMPurify.addHook('afterSanitizeAttributes', (node: Element) => {
+  const dangerousTags = ['script', 'style', 'iframe', 'object', 'embed', 'form', 'input', 'textarea', 'button'];
+  const dangerousAttrs = ['on*', 'form*', 'action', 'formaction'];
+
+  const localDOMPurify = DOMPurify(window);
+
+  localDOMPurify.addHook('afterSanitizeAttributes', (node: Element) => {
     if (node.tagName && node.tagName.toLowerCase() === 'a') {
       node.setAttribute('target', '_blank');
       node.setAttribute('rel', 'noopener noreferrer');
     }
   });
 
-  const dangerousTags = ['script', 'style', 'iframe', 'object', 'embed', 'form', 'input', 'textarea', 'button'];
-  const dangerousAttrs = ['on*', 'form*', 'action', 'formaction'];
-
-  const clean = DOMPurify.sanitize(html, {
+  const clean = localDOMPurify.sanitize(html, {
     USE_PROFILES: { html: true },
     FORBID_TAGS: allowImages ? dangerousTags : ["img", "picture", "source", ...dangerousTags],
     FORBID_ATTR: allowImages ? dangerousAttrs : ["srcset", ...dangerousAttrs],
     ADD_ATTR: ['target', 'rel'],
   });
 
-  DOMPurify.removeAllHooks();
+  localDOMPurify.removeAllHooks();
 
   return clean;
 }
