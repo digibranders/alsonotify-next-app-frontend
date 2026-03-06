@@ -202,8 +202,9 @@ function NoteCard({ note, onToggleItem }: {
           {/* Three-dot menu - appears on hover */}
           <Dropdown menu={{ items }} placement="bottomRight" trigger={['click']}>
             <button
-              className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-[#F7F7F7] rounded-md flex-shrink-0"
+              className="opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity p-1 hover:bg-[#F7F7F7] rounded-md flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111111]"
               onClick={(e) => e.stopPropagation()}
+              aria-label="Note actions"
             >
               <MoreVertical className="size-3.5 text-[#666666]" strokeWidth={2} />
             </button>

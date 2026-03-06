@@ -1,6 +1,6 @@
 
 import { useState, useMemo, useEffect, useRef } from "react";
-import { Button, Input, Select, Divider, Upload, Switch, Progress, App } from "antd";
+import { Button, Input, Select, Divider, Upload, Switch, Progress, App, Space } from "antd";
 import { useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { Camera, Pencil, FileText, Bell, Shield, User, Briefcase } from "lucide-react";
@@ -666,31 +666,32 @@ export function ProfilePage() {
                                         <div className="text-[0.8125rem] font-bold text-[#111111]">
                                             Phone Number
                                         </div>
-                                        <div className="flex gap-2">
-                                            <Select
-                                                value={profile.countryCode}
-                                                onChange={(v) =>
-                                                    setProfile({ ...profile, countryCode: String(v) })
-                                                }
-                                                disabled={!isEditing}
-                                                className={`w-[85px] h-11 ${!isEditing ? "bg-[#FAFAFA]" : ""}`}
-                                                suffixIcon={<div className="text-gray-400">⌄</div>}
-                                            >
-                                                {countryCodes.map((c) => (
-                                                    <Option key={c.code} value={c.code}>{c.code} {c.country}</Option>
-                                                ))}
-                                            </Select>
-                                            <Input
-                                                value={profile.phone}
-                                                onChange={(e) =>
-                                                    setProfile({ ...profile, phone: e.target.value.replace(/\D/g, "") })
-                                                }
-                                                placeholder="123 456 7890"
-                                                maxLength={15}
-                                                disabled={!isEditing}
-                                                className={`flex-1 h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] focus:ring-[#ff3b3b]/10 font-medium text-[0.8125rem] ${!isEditing ? "bg-[#FAFAFA] text-[#666666]" : "bg-white"
-                                                    }`}
-                                            />
+                                        <div className="flex">
+                                            <Space.Compact className={`w-full employee-form-phone ${!isEditing ? 'bg-[#FAFAFA]' : 'bg-white'}`}>
+                                                <Select
+                                                    value={profile.countryCode}
+                                                    onChange={(v) =>
+                                                        setProfile({ ...profile, countryCode: String(v) })
+                                                    }
+                                                    disabled={!isEditing}
+                                                    className="w-[85px] h-11"
+                                                    suffixIcon={<div className="text-gray-400">⌄</div>}
+                                                >
+                                                    {countryCodes.map((c) => (
+                                                        <Option key={c.code} value={c.code}>{c.code} {c.country}</Option>
+                                                    ))}
+                                                </Select>
+                                                <Input
+                                                    value={profile.phone}
+                                                    onChange={(e) =>
+                                                        setProfile({ ...profile, phone: e.target.value.replace(/\D/g, "") })
+                                                    }
+                                                    placeholder="123 456 7890"
+                                                    maxLength={15}
+                                                    disabled={!isEditing}
+                                                    className="flex-1 h-11 font-medium text-[0.8125rem]"
+                                                />
+                                            </Space.Compact>
                                         </div>
                                     </div>
                                     {renderField("DOB", profile.dob, "dob", "date")}
@@ -1124,6 +1125,46 @@ export function ProfilePage() {
                 onCancel={() => setUpgradeModalVisible(false)}
                 currentUser={user || null}
             />
+            <style jsx global>{`
+                :global(.employee-form-phone .ant-select-selector) {
+                    background-color: transparent !important;
+                    border: 1px solid #EEEEEE !important;
+                    border-right: 0 !important;
+                    border-radius: 8px 0 0 8px !important;
+                    height: 44px !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    box-shadow: none !important;
+                    font-weight: 500 !important;
+                }
+
+                :global(.employee-form-phone .ant-input) {
+                    border: 1px solid #EEEEEE !important;
+                    border-left: 0 !important;
+                    border-radius: 0 8px 8px 0 !important;
+                }
+
+                :global(.employee-form-phone:focus-within .ant-select-selector),
+                :global(.employee-form-phone:focus-within .ant-input) {
+                    border-color: #ff3b3b !important;
+                }
+
+                :global(.employee-form-phone) {
+                    display: flex !important;
+                    border-radius: 8px !important;
+                    overflow: hidden !important;
+                }
+
+                :global(.employee-form-phone.bg-white .ant-select-selector),
+                :global(.employee-form-phone.bg-white .ant-input) {
+                    background-color: white !important;
+                }
+
+                :global(.employee-form-phone.bg-gray-50) :global(.ant-select-selector),
+                :global(.employee-form-phone.bg-gray-50) :global(.ant-input) {
+                    background-color: #FAFAFA !important;
+                }
+            `}</style>
         </PageLayout>
     );
 }

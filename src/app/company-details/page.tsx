@@ -620,7 +620,7 @@ function CompanyDetailsForm() {
                             onChange={(val) =>
                               setAdminData({ ...adminData, phone: val })
                             }
-                            className="w-full h-12 bg-[#FAFAFA] border border-transparent focus-within:bg-white focus-within:border-[#ff3b3b] rounded-xl"
+                            className="w-full h-12 bg-[#FAFAFA] border border-transparent focus-within:bg-white focus-within:border-[#ff3b3b] rounded-xl company-details-phone"
                           />
                         </div>
                       </div>
@@ -688,6 +688,37 @@ function CompanyDetailsForm() {
         }
         .company-details-select .ant-select-arrow {
           display: none !important;
+        }
+
+        :global(.company-details-phone .ant-select-selector) {
+          background-color: transparent !important;
+          border: 1px solid transparent !important;
+          border-right: 0 !important;
+          border-radius: 12px 0 0 12px !important;
+          height: 48px !important;
+          display: flex !important;
+          align-items: center !important;
+          box-shadow: none !important;
+          font-weight: 500 !important;
+        }
+
+        :global(.company-details-phone .ant-input) {
+          border: 1px solid transparent !important;
+          border-left: 0 !important;
+          border-radius: 0 12px 12px 0 !important;
+          height: 48px !important;
+          background-color: transparent !important;
+        }
+
+        :global(.company-details-phone:focus-within .ant-select-selector),
+        :global(.company-details-phone:focus-within .ant-input) {
+          border-color: #ff3b3b !important;
+          background-color: white !important;
+        }
+
+        :global(.company-details-phone) {
+          border-radius: 12px !important;
+          overflow: hidden !important;
         }
       `}</style>
     </AuthLayout>
