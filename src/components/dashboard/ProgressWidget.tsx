@@ -515,9 +515,9 @@ function ProgressCard({ title, data, isLoading = false, dateRangeLabel = 'this p
           <Skeleton className="w-8 h-8 rounded-full" />
         </div>
         {/* Content Skeleton */}
-        <div className="flex-1 flex items-center gap-4 px-1 min-h-0">
-          {/* Chart Skeleton - fluid square */}
-          <div className="relative aspect-square w-[35%] max-w-[140px] min-w-[90px] shrink-0">
+        <div className="flex-1 flex items-center gap-2 sm:gap-4 px-1 min-h-[80px]">
+          {/* Chart Skeleton - responsive sizing to fit container heights */}
+          <div className="relative shrink-0 w-[80px] h-[80px] sm:w-[96px] sm:h-[96px] lg:w-[112px] lg:h-[112px] max-w-[40%] self-center flex items-center justify-center">
             <Skeleton className="w-full h-full rounded-full" />
           </div>
           {/* Legend Skeleton */}
@@ -556,9 +556,9 @@ function ProgressCard({ title, data, isLoading = false, dateRangeLabel = 'this p
       </div>
 
       {/* Content Container - Side by Side Layout */}
-      <div className="flex-1 flex items-center gap-4 min-h-0 px-1 overflow-hidden" style={{ minHeight: 0 }}>
-        {/* Chart Section — fluid square, 35% of card width, clamped; also capped by card height */}
-        <div className="relative aspect-square w-[35%] max-w-[120px] min-w-[80px] shrink-0 self-center">
+      <div className="flex-1 flex items-center gap-2 sm:gap-4 min-h-[80px] px-1" style={{ minHeight: '80px' }}>
+        {/* Chart Section — responsive, fits small cards and stops clipping */}
+        <div className="relative flex items-center justify-center shrink-0 w-[80px] h-[80px] sm:w-[96px] sm:h-[96px] lg:w-[112px] lg:h-[112px] max-w-[40%] self-center">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
               <Pie
@@ -631,18 +631,18 @@ function ProgressCard({ title, data, isLoading = false, dateRangeLabel = 'this p
                             x={viewBox.cx}
                             y={(viewBox.cy || 0) - 4}
                             fill="#111111"
-                            fontSize="22"
+                            fontSize="18"
                             fontWeight="800"
                           >
                             {data.total || 0}
                           </tspan>
                           <tspan
                             x={viewBox.cx}
-                            y={(viewBox.cy || 0) + 14}
+                            y={(viewBox.cy || 0) + 12}
                             fill="#999999"
-                            fontSize="9"
+                            fontSize="8"
                             fontWeight="600"
-                            letterSpacing="0.08em"
+                            letterSpacing="0.05em"
                           >
                             TOTAL
                           </tspan>

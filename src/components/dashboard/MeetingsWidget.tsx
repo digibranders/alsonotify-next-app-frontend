@@ -184,7 +184,7 @@ export function MeetingsWidget({ onNavigate }: { onNavigate?: (page: string) => 
         </div>
 
         {/* Meetings List */}
-        <div className="flex flex-col gap-2.5 flex-1 mt-2 overflow-hidden">
+        <div className="flex flex-col gap-2.5 flex-1 mt-2 overflow-y-auto min-h-0 pr-1 pb-1">
           {isLoading ? (
             <div className="flex flex-col gap-2.5">
               {[1, 2, 3].map((i) => (
@@ -415,7 +415,7 @@ function MeetingItem({
         }
       >
         <div
-          className="group p-3 rounded-xl border border-[#EEEEEE] hover:border-[#ff3b3b]/20 transition-all duration-300 hover:shadow-lg cursor-pointer"
+          className="group p-3 rounded-xl border border-[#EEEEEE] hover:border-[#ff3b3b]/20 transition-all duration-300 hover:shadow-lg cursor-pointer shrink-0"
           onClick={handleCardClick}
         >
           <div className="flex items-start gap-2.5">
