@@ -386,6 +386,7 @@ export interface UpdateWorklogPayload {
   start_datetime: string;
   end_datetime: string;
   description: string;
+  session_status?: string;
 }
 
 export const updateWorklog = async (params: UpdateWorklogPayload, worklogId: number): Promise<ApiResponse<WorklogDto>> => {

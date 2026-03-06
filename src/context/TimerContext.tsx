@@ -17,7 +17,7 @@ type TimerState = {
 type TimerContextType = {
     timerState: TimerState;
     startTimer: (taskId: number, taskName: string, projectName: string) => Promise<void>;
-    stopTimer: (description?: string) => Promise<void>;
+    stopTimer: (description?: string, session_status?: string) => Promise<void>;
     isLoading: boolean;
 };
 
@@ -44,7 +44,7 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
     // Pending stop when user stops before start returns (worklogId === -1)
-    const pendingStopRef = useRef<{ taskId: number; startTime: Date; description?: string } | null>(null);
+    const pendingStopRef = useRef<{ taskId: number; startTime: Date; description?: string; session_status?: string } | null>(null);
 
     // Core Sync Logic - Stable Reference
     // This function is the "Single Source of Truth" enforcer.
@@ -221,6 +221,7 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
                         start_datetime: pending.startTime.toISOString(),
                         end_datetime: new Date().toISOString(),
                         description: pending.description ?? "",
+                        session_status: pending.session_status,
                     }, worklogId);
                     pendingStopRef.current = null;
                     setTimerState({
@@ -261,7 +262,7 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
         }
     };
 
-    const stopTimer = async (description?: string) => {
+    const stopTimer = async (description?: string, session_status?: string) => {
         if (timerState.worklogId === null) return;
 
         const currentId = timerState.worklogId;
@@ -281,7 +282,7 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
 
         // Handle worklogId === -1: queue pending stop, apply when start resolves
         if (currentId === -1 && currentTaskId !== null && currentStart !== null) {
-            pendingStopRef.current = { taskId: currentTaskId, startTime: currentStart, description };
+            pendingStopRef.current = { taskId: currentTaskId, startTime: currentStart, description, session_status };
             return;
         }
 
@@ -294,6 +295,7 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
                 start_datetime: currentStart.toISOString(),
                 end_datetime: now.toISOString(),
                 description: description ?? "",
+                session_status: session_status,
             }, currentId);
         } catch (err) {
             console.error("Failed to stop timer", err);

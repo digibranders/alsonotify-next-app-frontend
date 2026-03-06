@@ -236,7 +236,8 @@ export function ChatPanel({
             {/* Collapse Button */}
             <button
                 onClick={() => setIsCollapsed(!isCollapsed)}
-                className="absolute -left-3 top-6 bg-white border border-[#EEEEEE] rounded-full p-1 shadow-sm hover:bg-[#F7F7F7] z-10"
+                className="absolute -left-3 top-6 bg-white border border-[#EEEEEE] rounded-full p-1 shadow-sm hover:bg-[#F7F7F7] z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff3b3b] focus-visible:ring-offset-2"
+                aria-label={isCollapsed ? "Expand chat panel" : "Collapse chat panel"}
             >
                 {isCollapsed ? <ChevronsLeft size={14} /> : <ChevronsRight size={14} />}
             </button>
@@ -334,9 +335,10 @@ export function ChatPanel({
                                                     <div className="flex items-center gap-1 shrink-0">
                                                         <button
                                                             onClick={() => handlePreview(file)}
-                                                            className="p-1 rounded hover:bg-[#F0F0F0] text-[#666666] transition-colors disabled:opacity-50"
+                                                            className="p-1 rounded hover:bg-[#F0F0F0] text-[#666666] transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff3b3b] focus-visible:ring-offset-2"
                                                             disabled={previewingIds.has(file.id)}
                                                             title="Preview"
+                                                            aria-label="Preview"
                                                         >
                                                             {previewingIds.has(file.id) ? (
                                                                 <Loader2 className="w-3 h-3 animate-spin" />
@@ -346,9 +348,10 @@ export function ChatPanel({
                                                         </button>
                                                         <button
                                                             onClick={() => handleDownload(file)}
-                                                            className="p-1 rounded hover:bg-[#FFF0F0] text-[#ff3b3b] transition-colors disabled:opacity-50"
+                                                            className="p-1 rounded hover:bg-[#FFF0F0] text-[#ff3b3b] transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff3b3b] focus-visible:ring-offset-2"
                                                             disabled={downloadingIds.has(file.id)}
                                                             title="Download"
+                                                            aria-label="Download"
                                                         >
                                                             {downloadingIds.has(file.id) ? (
                                                                 <Loader2 className="w-3 h-3 animate-spin" />
@@ -381,7 +384,8 @@ export function ChatPanel({
                                     </div>
                                     <button
                                         onClick={() => setAttachments(attachments.filter((_, i) => i !== index))}
-                                        className="p-1 hover:bg-[#FAFAFA] rounded transition-colors shrink-0"
+                                        className="p-1 hover:bg-[#FAFAFA] rounded transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff3b3b] focus-visible:ring-offset-2"
+                                        aria-label="Remove attachment"
                                     >
                                         <X className="w-3.5 h-3.5 text-[#999999]" />
                                     </button>
@@ -448,7 +452,8 @@ export function ChatPanel({
                             <button
                                 onClick={onSendMessage}
                                 disabled={!messageText.trim() && attachments.length === 0}
-                                className="text-[#ff3b3b] hover:text-[#E03131] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                className="text-[#ff3b3b] hover:text-[#E03131] disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff3b3b] focus-visible:ring-offset-2 rounded"
+                                aria-label="Send message"
                             >
                                 <Send className="w-4 h-4" />
                             </button>

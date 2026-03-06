@@ -1,9 +1,11 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo } from 'react';
 import { App } from 'antd';
 import { format } from 'date-fns';
 import { useRequirementActivities, useCreateRequirementActivity } from '@/hooks/useRequirementActivity';
 import { fileService } from '@/services/file.service';
 import { ChatPanel } from '@/components/shared/ChatPanel';
+
+import { parseMentionsAndTasks, MentionOption } from '@/utils/textUtils';
 
 import { ApiResponse } from '@/types/api';
 import { Employee, Task } from '@/types/domain';
@@ -26,7 +28,7 @@ export function ActivitySidebar({ reqId, employeesData, partnersData, tasks }: A
   const [attachments, setAttachments] = useState<File[]>([]);
   const [mentionSearch, setMentionSearch] = useState({ text: '', prefix: '' });
 
-  const taskOptions = useMemo(() => {
+  const taskOptions = useMemo<MentionOption[]>(() => {
     return tasks.map(t => ({
       value: t.name || 'Untitled',
       label: t.name || 'Untitled',
@@ -34,8 +36,8 @@ export function ActivitySidebar({ reqId, employeesData, partnersData, tasks }: A
     }));
   }, [tasks]);
 
-  const mentionOptions = useMemo(() => {
-    const options: { value: string; label: string; key: string }[] = [];
+  const mentionOptions = useMemo<MentionOption[]>(() => {
+    const options: MentionOption[] = [];
 
     // Internal Employees
     if (employeesData?.result) {
@@ -82,51 +84,6 @@ export function ActivitySidebar({ reqId, employeesData, partnersData, tasks }: A
     return [];
   }, [mentionOptions, taskOptions, mentionSearch]);
 
-  const escapeRegExp = (string: string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
-  const formatActivityMessage = useCallback((msg: string) => {
-    if (!msg) return '';
-    const allNames = mentionOptions.map(o => o.value);
-    const taskNames = taskOptions.map(o => o.value);
-
-    if (allNames.length === 0 && taskNames.length === 0) return msg;
-
-    // Simpler approach for React grouping
-    const parts: React.ReactNode[] = [];
-    let lastIndex = 0;
-
-    // Combine both prefixes into one regex for systematic parsing
-    const mentionRegex = new RegExp(`(@(?:${allNames.map(escapeRegExp).join('|')}))|(#(?:${taskNames.map(escapeRegExp).join('|')}))`, 'g');
-    let match;
-
-    while ((match = mentionRegex.exec(msg)) !== null) {
-      if (match.index > lastIndex) {
-        parts.push(msg.substring(lastIndex, match.index));
-      }
-
-      const isTask = match[0].startsWith('#');
-      if (isTask) {
-        parts.push(
-          <span key={match.index} className="task-token-highlight cursor-pointer hover:underline text-[#2F80ED] bg-[#EBF3FF] px-1.5 py-0.5 rounded-md text-xs font-medium">
-            {match[0]}
-          </span>
-        );
-      } else {
-        parts.push(
-          <span key={match.index} className="mention-token-highlight cursor-pointer hover:underline">
-            {match[0]}
-          </span>
-        );
-      }
-      lastIndex = match.index + match[0].length;
-    }
-    if (lastIndex < msg.length) {
-      parts.push(msg.substring(lastIndex));
-    }
-
-    return parts;
-  }, [mentionOptions, taskOptions]);
-
   const activityData = useMemo(() => {
     if (!activityResponse?.result) return [];
     return (activityResponse.result as RequirementActivityDto[]).map((act) => {
@@ -146,7 +103,7 @@ export function ActivitySidebar({ reqId, employeesData, partnersData, tasks }: A
         user: act.user.name,
         avatar: act.user.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().substring(0, 2),
         date: formattedDate,
-        message: formatActivityMessage(act.message),
+        message: parseMentionsAndTasks(act.message, mentionOptions, taskOptions),
         isSystem: act.type === 'SYSTEM',
         attachments: act.attachments,
         time: act.metadata && typeof act.metadata === 'object' && 'time' in act.metadata ? String((act.metadata as Record<string, unknown>).time) : undefined,
@@ -155,7 +112,7 @@ export function ActivitySidebar({ reqId, employeesData, partnersData, tasks }: A
         raw: act
       };
     });
-  }, [activityResponse, formatActivityMessage]);
+  }, [activityResponse, mentionOptions, taskOptions]);
 
   const handleMentionSearch = (text: string, prefix: string) => {
     setMentionSearch({ text, prefix });
