@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alsonotify Frontend - Typography Documentation</title>
+    <style>
+        :root {
+            --font-family: 'Manrope', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --bg-body: #F7F7F7;
+            --bg-card: #FFFFFF;
+            --text-primary: #111111;
+            --text-secondary: #666666;
+            --text-muted: #999999;
+            --border: #EEEEEE;
+            --accent: #ff3b3b;
+            --accent-hover: #E63535;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-body);
+            color: var(--text-primary);
+            line-height: 1.6;
+            margin: 0;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        h1.title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        section {
+            background-color: var(--bg-card);
+            border-radius: 24px;
+            padding: 40px;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            border: 1px solid var(--border);
+        }
+
+        h2.section-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-top: 0;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        h3.subsection-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 30px;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            margin-bottom: 30px;
+        }
+
+        th, td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        td {
+            font-size: 0.9375rem;
+        }
+
+        .scale-demo {
+            padding: 24px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .color-swatch {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            vertical-align: middle;
+            margin-right: 8px;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .code-pill {
+            background-color: #FAFAFA;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 0.8em;
+            color: var(--accent);
+            border: 1px solid #E5E5E5;
+        }
+
+        /* Demo Classes mirroring Tailwind specific instances */
+        .demo-3xl { font-size: 1.875rem; font-weight: 700; color: #111111; letter-spacing: -0.025em; }
+        .demo-xl { font-size: 1.25rem; font-weight: 600; color: #111111; }
+        .demo-base { font-size: 1rem; font-weight: 400; color: #111111; }
+        .demo-sm-desc { font-size: 0.875rem; font-weight: 400; color: #666666; }
+        .demo-sm-link { font-size: 0.875rem; font-weight: 600; color: #ff3b3b; }
+        .demo-xs-label { font-size: 0.75rem; font-weight: 700; color: #999999; text-transform: uppercase; letter-spacing: 0.1em; }
+        .demo-tiny-badge { font-size: 0.625rem; font-weight: 500; color: #666666; text-transform: uppercase; }
+        .demo-button { font-size: 0.9375rem; font-weight: 700; color: #ffffff; background-color: #ff3b3b; padding: 12px 24px; border-radius: 16px; display: inline-block;}
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1 class="title">Alsonotify Typography System</h1>
+        <p class="subtitle">Complete Design System Documentation for Frontend Codebase</p>
+    </header>
+
+    <section>
+        <h2 class="section-title">1. Global Foundations</h2>
+        
+        <h3 class="subsection-title">Font Families</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Family</th>
+                    <th>Usage</th>
+                    <th>CSS/Tailwind Class</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Primary Font</td>
+                    <td style="font-family: 'Manrope', sans-serif; font-size: 1.1rem;">Manrope</td>
+                    <td>Used globally across the entire application for all text elements.</td>
+                    <td><span class="code-pill">font-manrope</span> / Global default</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 class="subsection-title">Font Weights</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Weight</th>
+                    <th>Value</th>
+                    <th>Tailwind Class</th>
+                    <th>Typical Usage</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="font-weight: 400">Normal</td>
+                    <td>400</td>
+                    <td><span class="code-pill">font-normal</span></td>
+                    <td>Body text, descriptions, long-form content, inputs placeholder.</td>
+                </tr>
+                <tr>
+                    <td style="font-weight: 500">Medium</td>
+                    <td>500</td>
+                    <td><span class="code-pill">font-medium</span></td>
+                    <td>Input text, dropdown items, secondary small badges, inactive tabs.</td>
+                </tr>
+                <tr>
+                    <td style="font-weight: 600">SemiBold</td>
+                    <td>600</td>
+                    <td><span class="code-pill">font-semibold</span></td>
+                    <td>Widget headings, standard buttons, emphasized list items, links.</td>
+                </tr>
+                <tr>
+                    <td style="font-weight: 700">Bold</td>
+                    <td>700</td>
+                    <td><span class="code-pill">font-bold</span></td>
+                    <td>Page titles, form labels, primary actions, prominent data metrics.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 class="subsection-title">Text Colors Map</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Color</th>
+                    <th>Hex Value</th>
+                    <th>Tailwind Class</th>
+                    <th>Usage & Context</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="color-swatch" style="background-color: #111111;"></span>Primary Text</td>
+                    <td>#111111</td>
+                    <td><span class="code-pill">text-[#111111]</span></td>
+                    <td>Headings, active list items, input field values, primary data points.</td>
+                </tr>
+                <tr>
+                    <td><span class="color-swatch" style="background-color: #666666;"></span>Secondary Text</td>
+                    <td>#666666</td>
+                    <td><span class="code-pill">text-[#666666]</span></td>
+                    <td>Subtitles, descriptive text, "View All" links, standard metadata.</td>
+                </tr>
+                <tr>
+                    <td><span class="color-swatch" style="background-color: #999999;"></span>Muted Text / Labels</td>
+                    <td>#999999</td>
+                    <td><span class="code-pill">text-[#999999]</span></td>
+                    <td>Form field uppercase labels, input placeholders, minor context text.</td>
+                </tr>
+                <tr>
+                    <td><span class="color-swatch" style="background-color: #ff3b3b;"></span>Brand Accent</td>
+                    <td>#ff3b3b</td>
+                    <td><span class="code-pill">text-[#ff3b3b]</span></td>
+                    <td>Primary links, active states, important call-to-actions, "Today" modifiers.</td>
+                </tr>
+                <tr>
+                    <td><span class="color-swatch" style="background-color: #ffffff;"></span>White text</td>
+                    <td>#ffffff</td>
+                    <td><span class="code-pill">text-white</span></td>
+                    <td>Text inside primary brand buttons or dark overlays.</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section>
+        <h2 class="section-title">2. Scale & Hierarchy (Visual Demo)</h2>
+        <div class="scale-demo">
+            <div class="demo-3xl">Page Title Hierarchy (text-3xl)</div>
+            <p style="margin-top: 5px; margin-bottom: 25px;" class="demo-sm-desc">Authentication page headers, Modal primary titles.</p>
+            
+            <div class="demo-xl">Widget / Section Heading (text-xl)</div>
+            <p style="margin-top: 5px; margin-bottom: 25px;" class="demo-sm-desc">Used on Dashboard Cards (e.g., "Meetings", "Tasks").</p>
+
+            <div class="demo-base">Standard Body Text (text-base)</div>
+            <p style="margin-top: 5px; margin-bottom: 25px;" class="demo-sm-desc">General paragraphs when space permits.</p>
+
+            <div class="demo-button" style="margin-bottom: 25px;">Primary Action Button (text-[0.9375rem])</div>
+
+            <div class="demo-sm-desc" style="margin-bottom: 25px; color: #111111;">Card Title / List Item Text (text-[0.8125rem], font-semibold)</div>
+
+            <div class="demo-xs-label" style="margin-bottom: 15px;">Form Label Identifier (text-xs, tracking-widest)</div>
+
+            <div class="demo-tiny-badge" style="margin-bottom: 5px;">Micro Tag / Badge (text-[0.625rem] or text-[0.5625rem])</div>
+            <p style="margin-top: 0;" class="demo-sm-desc">Used in Calendar dates, Avatar initials, Platform tags.</p>
+        </div>
+    </section>
+
+    <section>
+        <h2 class="section-title">3. Component-Specific Standards</h2>
+
+        <h3 class="subsection-title">Authentication Pages (Login/Register)</h3>
+        <table>
+            <tbody>
+                <tr>
+                    <td><strong>Page Title (e.g. "Welcome Back")</strong></td>
+                    <td><span class="code-pill">text-3xl font-bold text-[#111111] tracking-tight</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Page Subtitle</strong></td>
+                    <td><span class="code-pill">text-base text-[#666666]</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Form Labels</strong></td>
+                    <td><span class="code-pill">text-xs font-bold text-[#999999] uppercase tracking-widest</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Input Field Value</strong></td>
+                    <td><span class="code-pill">text-base font-medium text-black outline-none</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Primary Submit Button</strong></td>
+                    <td><span class="code-pill">font-bold text-[0.9375rem] text-white</span> (Hover: <span class="code-pill">bg-[#E63535]</span>, Active: <span class="code-pill">translate-y-0</span>)</td>
+                </tr>
+                <tr>
+                    <td><strong>Helper Links ("Forgot password?", "Sign Up")</strong></td>
+                    <td><span class="code-pill">text-xs font-semibold text-[#ff3b3b] hover:text-[#E63535]</span> or <span class="code-pill">text-sm text-[#111111] font-bold hover:text-[#ff3b3b]</span></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 class="subsection-title">Dashboard Widgets & Cards (e.g. Meetings, Tasks)</h3>
+        <table>
+            <tbody>
+                <tr>
+                    <td><strong>Widget Header Title</strong></td>
+                    <td><span class="code-pill">text-xl font-semibold text-[#111111]</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Widget Header Link ("View All")</strong></td>
+                    <td><span class="code-pill">text-sm font-semibold text-[#666666] hover:text-[#111111]</span></td>
+                </tr>
+                <tr>
+                    <td><strong>List Item Main Title</strong></td>
+                    <td><span class="code-pill">text-[0.8125rem] font-semibold text-[#111111] line-clamp-1</span></td>
+                </tr>
+                <tr>
+                    <td><strong>List Item Metadata (Time/Subtitle)</strong></td>
+                    <td><span class="code-pill">text-[0.6875rem] font-normal text-[#666666]</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Date Block/Badge - Month</strong></td>
+                    <td><span class="code-pill">text-[0.625rem] font-medium uppercase leading-none</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Date Block/Badge - Day</strong></td>
+                    <td><span class="code-pill">text-xl font-bold leading-none</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Tags / Platform Badges</strong></td>
+                    <td><span class="code-pill">text-[0.5625rem] font-medium</span> (Colors vary by platform e.g. Teams, Zoom)</td>
+                </tr>
+                <tr>
+                    <td><strong>Avatar Initials</strong></td>
+                    <td><span class="code-pill">text-[0.5625rem] font-bold text-white</span></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 class="subsection-title">Modals & Popovers (e.g. Meeting Details)</h3>
+        <table>
+            <tbody>
+                <tr>
+                    <td><strong>Popover Header Title</strong></td>
+                    <td><span class="code-pill">text-sm font-semibold text-[#111111] line-clamp-2</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Detail Row Label ("Host", "When", "With")</strong></td>
+                    <td><span class="code-pill">text-[0.6875rem] font-medium text-[#999999] uppercase tracking-wide</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Detail Row Value</strong></td>
+                    <td><span class="code-pill">text-xs font-normal text-[#111111]</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Action Button (Inside details)</strong></td>
+                    <td><span class="code-pill">text-[0.8125rem] font-semibold text-white</span></td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <h3 class="subsection-title">Global Ant Design Overrides (from globals.css)</h3>
+        <table>
+            <tbody>
+                <tr>
+                    <td><strong>Select/Dropdown Items</strong></td>
+                    <td><span class="code-pill">font-family: 'Manrope'</span>, <span class="code-pill">font-size: 0.875rem</span>, <span class="code-pill">color: #111111</span>. Selected state overrides to <span class="code-pill">font-weight: 500</span>.</td>
+                </tr>
+                <tr>
+                    <td><strong>Date Picker Header</strong></td>
+                    <td><span class="code-pill">font-family: 'Manrope'</span>, <span class="code-pill">font-weight: 700</span>, <span class="code-pill">font-size: 0.9375rem</span>, <span class="code-pill">color: #111111</span>.</td>
+                </tr>
+                <tr>
+                    <td><strong>Date Picker Day Labels (Su, Mo, Tu)</strong></td>
+                    <td><span class="code-pill">font-weight: 700</span>, <span class="code-pill">font-size: 0.6875rem</span>, <span class="code-pill">color: #999999</span>, <span class="code-pill">text-transform: uppercase</span>.</td>
+                </tr>
+                <tr>
+                    <td><strong>Date Picker Day Cells</strong></td>
+                    <td><span class="code-pill">font-weight: 500</span>, <span class="code-pill">font-size: 0.75rem</span>. Today acts as accent <span class="code-pill">color: #ff3b3b; font-weight: 700</span>.</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <footer style="text-align: center; margin-top: 50px; color: var(--text-muted); font-size: 0.875rem;">
+        <p>Generated by Architecture & Design Systems Analysis.</p>
+    </footer>
+</div>
+
+</body>
+</html>
