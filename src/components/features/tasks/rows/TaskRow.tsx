@@ -143,19 +143,18 @@ const TaskRowComponent = memo(function TaskRow({
                 task.task_members.map((member) => (
                   <Tooltip key={member.id} title={`${member.user.name} (${member.status})`}>
                     <div className="relative">
-                      {member.user.profile_pic ? (
-                        <Avatar src={member.user.profile_pic} />
-                      ) : (
-                        <Avatar style={{ backgroundColor: '#CCCCCC' }}>
-                          {member.user.name ? member.user.name.charAt(0).toUpperCase() : 'U'}
-                        </Avatar>
-                      )}
+                      <Avatar 
+                        src={member.user.profile_pic || undefined}
+                        style={{ backgroundColor: '#CCCCCC', color: '#111111' }}
+                      >
+                        {member.user.name ? member.user.name.charAt(0).toUpperCase() : 'U'}
+                      </Avatar>
                     </div>
                   </Tooltip>
                 ))
               ) : (
                 <Tooltip title={typeof task.assignedTo === 'string' ? task.assignedTo : task.assignedTo?.name}>
-                  <Avatar style={{ backgroundColor: '#CCCCCC' }}>
+                  <Avatar style={{ backgroundColor: '#CCCCCC', color: '#111111' }}>
                     {task.assignedTo ? (typeof task.assignedTo === 'string' ? task.assignedTo.charAt(0).toUpperCase() : task.assignedTo.name?.charAt(0).toUpperCase()) : 'U'}
                   </Avatar>
                 </Tooltip>

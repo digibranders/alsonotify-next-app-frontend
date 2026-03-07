@@ -82,12 +82,15 @@ export function LeavesWidget({ onNavigate }: { onNavigate?: (page: string) => vo
 
       const totalDuration = Math.max(1, endDate.diff(startDate, "day") + 1);
 
+      let avatar = (leave.user as any)?.user_profile?.profile_pic || (leave.user as any)?.avatar || null;
+      if (avatar === 'null' || avatar === 'undefined') avatar = null;
+
       return {
         id: leave.id,
         name: leave.user?.name || "Unknown Employee",
         dateRange: formatDateRange(leave.start_date, leave.end_date),
         duration: formatDuration(totalDuration),
-        avatar: (leave.user as any)?.user_profile?.profile_pic || (leave.user as any)?.avatar || null,
+        avatar,
         initials: getInitials(leave.user?.name),
       };
     });
