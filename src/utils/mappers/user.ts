@@ -29,10 +29,18 @@ export const mapUserDtoToEmployee = (dto: UserDto, permissions?: UserPermissions
   if (dto.user_employee?.is_active === false) status = 'inactive';
 
   // Phone
-  const phone = dto.mobile_number || dto.phone || dto.user_profile?.mobile_number || dto.user_profile?.phone || dto.user?.mobile_number || '';
+  const rawUserProfile = dto.user_profile;
+  const userProfileObj = Array.isArray(rawUserProfile) ? rawUserProfile[0] : (rawUserProfile as any) || {};
+
+  const phone = dto.mobile_number || dto.phone || userProfileObj?.mobile_number || userProfileObj?.phone || dto.user?.mobile_number || '';
 
   // Dates (Backend sends flat structure from getUsersService)
-  const rawDateOfJoining = dto.date_of_joining || dto.user_profile?.date_of_joining || dto.joining_date;
+  const rawDateOfJoining = dto.date_of_joining || userProfileObj?.date_of_joining || (dto.user_employee as any)?.date_of_joining;
+
+  const profilePic = dto.profile_pic 
+    || userProfileObj?.profile_pic 
+    || (dto as any).user?.profile_pic 
+    || (dto as any).user_employee?.user?.profile_pic;
 
   const dateOfJoining = rawDateOfJoining && rawDateOfJoining !== 'N/A'
     ? formatDateForApi(rawDateOfJoining)
@@ -84,9 +92,9 @@ export const mapUserDtoToEmployee = (dto: UserDto, permissions?: UserPermissions
 
     hourly_rates: dto.hourly_rates || undefined,
 
-    profile_pic: dto.profile_pic,
+    profile_pic: profilePic,
 
-    user_profile: dto.user_profile,
+    user_profile: userProfileObj,
     user_employee: dto.user_employee,
 
     company_id: dto.company_id,
@@ -94,7 +102,7 @@ export const mapUserDtoToEmployee = (dto: UserDto, permissions?: UserPermissions
     permissions: permissions || {},
 
     // New fields
-    emergencyContactName: dto.user_profile?.emergency_contact?.name || null,
-    emergencyContactPhone: dto.user_profile?.emergency_contact?.phone || null,
+    emergencyContactName: userProfileObj?.emergency_contact?.name || null,
+    emergencyContactPhone: userProfileObj?.emergency_contact?.phone || null,
   };
 };
