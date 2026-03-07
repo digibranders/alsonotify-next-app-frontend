@@ -87,7 +87,7 @@ export function LeavesWidget({ onNavigate }: { onNavigate?: (page: string) => vo
         name: leave.user?.name || "Unknown Employee",
         dateRange: formatDateRange(leave.start_date, leave.end_date),
         duration: formatDuration(totalDuration),
-        avatar: leave.user?.avatar || null,
+        avatar: (leave.user as any)?.user_profile?.profile_pic || (leave.user as any)?.avatar || null,
         initials: getInitials(leave.user?.name),
       };
     });
@@ -186,7 +186,14 @@ function LeaveItem({ name, dateRange, duration, avatar, initials }: { name: stri
         <div className="flex-shrink-0">
           <div className="w-[48px] h-[48px] rounded-full overflow-hidden bg-[#F7F7F7] flex items-center justify-center">
             {avatar ? (
-              <Image src={avatar} alt={name} width={48} height={48} className="w-full h-full object-cover" />
+              <div className="w-full h-full relative">
+                <Image 
+                  src={avatar} 
+                  alt={name} 
+                  fill 
+                  className="object-cover"
+                />
+              </div>
             ) : (
               <span className="text-sm font-medium text-[#666666]">
                 {initials}
