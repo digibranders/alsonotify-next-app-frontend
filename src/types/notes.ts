@@ -12,11 +12,18 @@ export type NoteUpdate = UpdateNoteDto;
 function stripHtml(html: string): string {
   if (typeof window === 'undefined') return html; // Server-side fallback
   
-  const tmp = document.createElement('DIV');
   // Replace block tags with newlines to preserve structure
   const processed = html.replace(/<(div|p|br|li|h[1-6])[^>]*>/gi, '\n');
-  tmp.innerHTML = processed;
-  return tmp.textContent || tmp.innerText || '';
+
+  // Use DOMParser to safely parse HTML without executing scripts or fetching resources
+  try {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(processed, 'text/html');
+    return doc.body.textContent || doc.body.innerText || '';
+  } catch (e) {
+    // Fallback regex strip if DOMParser fails
+    return processed.replace(/<[^>]*>/g, '');
+  }
 }
 
 export function convertTextToChecklist(content: string): ChecklistItem[] {
