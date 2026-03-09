@@ -42,7 +42,7 @@ describe('cookies', () => {
       expect(mockSet).toHaveBeenCalledWith('_token', 'test-token-123', {
         path: '/',
         secure: true,
-        sameSite: 'lax',
+        sameSite: 'strict',
       });
 
       global.window = originalWindow;
@@ -59,7 +59,7 @@ describe('cookies', () => {
       expect(mockSet).toHaveBeenCalledWith('_token', 'dev-token-456', {
         path: '/',
         secure: false,
-        sameSite: 'lax',
+        sameSite: 'strict',
       });
 
       global.window = originalWindow;
@@ -75,22 +75,22 @@ describe('cookies', () => {
       expect(mockSet).toHaveBeenCalledWith('_token', 'ssr-token', {
         path: '/',
         secure: false,
-        sameSite: 'lax',
+        sameSite: 'strict',
       });
 
       global.window = originalWindow;
     });
 
-    it('should always use sameSite=lax', () => {
+    it('should always use sameSite=strict', () => {
       const originalWindow = global.window;
       global.window = {
         location: { protocol: 'https:' },
       } as unknown as Window & typeof globalThis;
-
+ 
       setToken('any-token');
-
+ 
       const callArgs = mockSet.mock.calls[0];
-      expect(callArgs[2].sameSite).toBe('lax');
+      expect(callArgs[2].sameSite).toBe('strict');
 
       global.window = originalWindow;
     });
@@ -138,7 +138,7 @@ describe('cookies', () => {
 
       expect(mockRemove).toHaveBeenCalledWith('_token', {
         path: '/',
-        sameSite: 'lax',
+        sameSite: 'strict',
       });
       expect(result).toBe(true);
     });

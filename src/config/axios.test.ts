@@ -43,14 +43,14 @@ describe('axios config', () => {
     it('should set Authorization header when token is provided', () => {
       setAuthToken('test-bearer-token');
 
-      expect(mockHeaders.common['Authorization']).toBe('test-bearer-token');
+      expect(mockHeaders.common['Authorization']).toBe('Bearer test-bearer-token');
     });
 
     it('should set header to the token value', () => {
       const token = 'Bearer xyz123';
       setAuthToken(token);
 
-      expect(mockHeaders.common['Authorization']).toBe(token);
+      expect(mockHeaders.common['Authorization']).toBe(`Bearer ${token}`);
     });
 
     it('should remove Authorization header when token is null', () => {
@@ -75,7 +75,7 @@ describe('axios config', () => {
       const rawToken = 'raw-token-no-bearer-prefix';
       setAuthToken(rawToken);
 
-      expect(mockHeaders.common['Authorization']).toBe(rawToken);
+      expect(mockHeaders.common['Authorization']).toBe(`Bearer ${rawToken}`);
     });
   });
 });
