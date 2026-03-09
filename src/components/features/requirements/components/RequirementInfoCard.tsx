@@ -15,95 +15,6 @@ interface RequirementInfoCardProps {
 export function RequirementInfoCard({ requirement, tasks, timezone }: RequirementInfoCardProps) {
   return (
     <div className="max-w-5xl mx-auto space-y-8">
-      {/* Description Section */}
-      <div className="bg-white rounded-[16px] p-8 border border-[#EEEEEE] shadow-sm">
-        <h3 className="text-base font-bold text-[#111111] mb-4 flex items-center gap-2">
-          <FileText className="w-5 h-5 text-[#ff3b3b]" />
-          Description
-        </h3>
-
-        {/* Parse description to extract sections */}
-        {(() => {
-          const desc = requirement.description || '';
-          // Create a clean version without HTML tags for parsing logic
-          const cleanDesc = desc.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
-
-          const overviewMatch = cleanDesc.match(/Overview:\s*(.+?)(?=\s*Key Deliverables:|$)/i);
-          const deliverablesMatch = cleanDesc.match(/Key Deliverables:\s*([\s\S]+?)(?=\s*Technical Requirements:|$)/i);
-          const technicalMatch = cleanDesc.match(/Technical Requirements:\s*([\s\S]+?)$/i);
-
-          const overview = overviewMatch ? overviewMatch[1].trim() : '';
-          const listPattern = /•|\s-\s|\s-|-\s|\d+\./;
-          const deliverables = deliverablesMatch
-            ? deliverablesMatch[1].split(listPattern).filter((line: string) => line.trim())
-            : [];
-          const technical = technicalMatch
-            ? technicalMatch[1].split(listPattern).filter((line: string) => line.trim())
-            : [];
-
-          return (
-            <div className="space-y-6">
-              {/* Overview */}
-              {overview && (
-                <div>
-                  <h4 className="text-sm font-bold text-[#111111] mb-2">Overview</h4>
-                  <Linkify className="text-[#444444]">
-                    {overview}
-                  </Linkify>
-                </div>
-              )}
-              
-              {/* Key Deliverables */}
-              {deliverables.length > 0 && (
-                <div>
-                  <h4 className="text-sm font-bold text-[#111111] mb-2">Key Deliverables</h4>
-                  <ul className="space-y-2">
-                    {deliverables.map((item: string, idx: number) => {
-                      const cleanItem = item.replace(/^[•\-*]\s*/, '').trim();
-                      return (
-                        <li key={idx} className="text-[#444444] flex items-start">
-                          <span className="text-[#ff3b3b] mr-2 shrink-0 mt-0.5">•</span>
-                          <Linkify className="flex-1">
-                            {cleanItem}
-                          </Linkify>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
-              )}
-
-              {/* Technical Requirements */}
-              {technical.length > 0 && (
-                <div>
-                  <h4 className="text-sm font-bold text-[#111111] mb-2">Technical Requirements</h4>
-                  <ul className="space-y-2">
-                    {technical.map((item: string, idx: number) => {
-                      const cleanItem = item.replace(/^[•\-*]\s*/, '').trim();
-                      return (
-                        <li key={idx} className="text-[#444444] flex items-start">
-                          <span className="text-[#ff3b3b] mr-2 shrink-0 mt-0.5">•</span>
-                          <Linkify className="flex-1">
-                            {cleanItem}
-                          </Linkify>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
-              )}
-
-              {/* Fallback: if no structured format, show as markdown (handles auto-links) */}
-              {!overview && deliverables.length === 0 && technical.length === 0 && (
-                <Linkify className="text-[#444444] whitespace-pre-wrap">
-                  {requirement.description || ''}
-                </Linkify>
-              )}
-            </div>
-          );
-        })()}
-      </div>
-
       {/* Requirement Details Section */}
       <div className="bg-white rounded-[16px] p-8 border border-[#EEEEEE] shadow-sm">
         <h3 className="text-base font-bold text-[#111111] mb-6 flex items-center gap-2">
@@ -220,6 +131,95 @@ export function RequirementInfoCard({ requirement, tasks, timezone }: Requiremen
             </div>
           )}
         </div>
+      </div>
+
+      {/* Description Section */}
+      <div className="bg-white rounded-[16px] p-8 border border-[#EEEEEE] shadow-sm">
+        <h3 className="text-base font-bold text-[#111111] mb-4 flex items-center gap-2">
+          <FileText className="w-5 h-5 text-[#ff3b3b]" />
+          Description
+        </h3>
+
+        {/* Parse description to extract sections */}
+        {(() => {
+          const desc = requirement.description || '';
+          // Create a clean version without HTML tags for parsing logic
+          const cleanDesc = desc.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+
+          const overviewMatch = cleanDesc.match(/Overview:\s*(.+?)(?=\s*Key Deliverables:|$)/i);
+          const deliverablesMatch = cleanDesc.match(/Key Deliverables:\s*([\s\S]+?)(?=\s*Technical Requirements:|$)/i);
+          const technicalMatch = cleanDesc.match(/Technical Requirements:\s*([\s\S]+?)$/i);
+
+          const overview = overviewMatch ? overviewMatch[1].trim() : '';
+          const listPattern = /•|\s-\s|\s-|-\s|\d+\./;
+          const deliverables = deliverablesMatch
+            ? deliverablesMatch[1].split(listPattern).filter((line: string) => line.trim())
+            : [];
+          const technical = technicalMatch
+            ? technicalMatch[1].split(listPattern).filter((line: string) => line.trim())
+            : [];
+
+          return (
+            <div className="space-y-6">
+              {/* Overview */}
+              {overview && (
+                <div>
+                  <h4 className="text-sm font-bold text-[#111111] mb-2">Overview</h4>
+                  <Linkify className="text-[#444444]">
+                    {overview}
+                  </Linkify>
+                </div>
+              )}
+              
+              {/* Key Deliverables */}
+              {deliverables.length > 0 && (
+                <div>
+                  <h4 className="text-sm font-bold text-[#111111] mb-2">Key Deliverables</h4>
+                  <ul className="space-y-2">
+                    {deliverables.map((item: string, idx: number) => {
+                      const cleanItem = item.replace(/^[•\-*]\s*/, '').trim();
+                      return (
+                        <li key={idx} className="text-[#444444] flex items-start">
+                          <span className="text-[#ff3b3b] mr-2 shrink-0 mt-0.5">•</span>
+                          <Linkify className="flex-1">
+                            {cleanItem}
+                          </Linkify>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              )}
+
+              {/* Technical Requirements */}
+              {technical.length > 0 && (
+                <div>
+                  <h4 className="text-sm font-bold text-[#111111] mb-2">Technical Requirements</h4>
+                  <ul className="space-y-2">
+                    {technical.map((item: string, idx: number) => {
+                      const cleanItem = item.replace(/^[•\-*]\s*/, '').trim();
+                      return (
+                        <li key={idx} className="text-[#444444] flex items-start">
+                          <span className="text-[#ff3b3b] mr-2 shrink-0 mt-0.5">•</span>
+                          <Linkify className="flex-1">
+                            {cleanItem}
+                          </Linkify>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              )}
+
+              {/* Fallback: if no structured format, show as markdown (handles auto-links) */}
+              {!overview && deliverables.length === 0 && technical.length === 0 && (
+                <Linkify className="text-[#444444] whitespace-pre-wrap">
+                  {requirement.description || ''}
+                </Linkify>
+              )}
+            </div>
+          );
+        })()}
       </div>
 
       {/* Submission Info — shown when in Review status */}
