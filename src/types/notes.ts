@@ -15,9 +15,15 @@ function stripHtml(html: string): string {
   // Replace block tags with newlines to preserve structure
   const processed = html.replace(/<(div|p|br|li|h[1-6])[^>]*>/gi, '\n');
 
-  // Use DOMParser instead of innerHTML to prevent DOM-based XSS
-  const doc = new DOMParser().parseFromString(processed, 'text/html');
-  return doc.body.textContent || '';
+  // Use DOMParser to safely parse HTML without executing scripts or fetching resources
+  try {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(processed, 'text/html');
+    return doc.body.textContent || doc.body.innerText || '';
+  } catch (_e) {
+    // Fallback regex strip if DOMParser fails
+    return processed.replace(/<[^>]*>/g, '');
+  }
 }
 
 export function convertTextToChecklist(content: string): ChecklistItem[] {
