@@ -55,7 +55,11 @@ export function ProfileCompletionBanner() {
   const strokeDasharray = `${dashLength}, ${gapLength}`;
 
   return (
-    <div className="w-full bg-[#F0F7FF] border border-[#2F80ED]/20 py-3 px-6 flex items-center justify-between shrink-0 rounded-[16px]">
+    <div
+      className="w-full bg-[#F0F7FF] border border-[#2F80ED]/20 py-3 px-6 flex items-center justify-between shrink-0 rounded-[16px]"
+      role="alert"
+      aria-live="polite"
+    >
       <div className="flex items-center gap-4">
         <div className="relative w-9 h-9 shrink-0">
           <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
@@ -95,16 +99,17 @@ export function ProfileCompletionBanner() {
       <div className="flex items-center gap-3">
         <button
           onClick={handleCompleteNow}
-          className="bg-[#2F80ED] hover:bg-[#2F80ED]/90 text-white text-[0.8125rem] h-8 px-4 font-semibold rounded-full shadow-lg shadow-[#2F80ED]/20 flex items-center gap-2 group transition-all"
+          className="bg-[#2F80ED] hover:bg-[#2F80ED]/90 text-white text-[0.8125rem] h-8 px-4 font-semibold rounded-full shadow-lg shadow-[#2F80ED]/20 flex items-center gap-2 group transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F80ED] focus-visible:ring-offset-2"
         >
           Complete Now
-          <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
         </button>
         <button
           onClick={handleDismiss}
-          className="text-[#666666] hover:text-[#111111] transition-colors p-1 rounded-full hover:bg-[#2F80ED]/10"
+          className="text-[#666666] hover:text-[#111111] transition-colors p-1 rounded-full hover:bg-[#2F80ED]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F80ED] focus-visible:ring-offset-2"
+          aria-label="Dismiss profile completion banner"
         >
-          <X className="w-4 h-4" />
+          <X className="w-4 h-4" aria-hidden="true" />
         </button>
       </div>
     </div>
