@@ -544,15 +544,18 @@ function ProgressCard({ title, data, isLoading = false, dateRangeLabel = 'this p
       {/* Card Header */}
       <div className="flex items-center justify-between mb-3 z-10 shrink-0">
         <h4 className="font-semibold text-base text-[#111111]">{title}</h4>
-        <div
+        <button
+          type="button"
+          aria-label={`View ${title} details`}
+          title={`View ${title} details`}
           onClick={(e) => {
             e.stopPropagation();
             if (onClick) onClick();
           }}
-          className="group/arrow w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center hover:bg-[#ff3b3b] transition-colors duration-300 shrink-0 cursor-pointer"
+          className="group/arrow w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center hover:bg-[#ff3b3b] transition-colors duration-300 shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff3b3b]"
         >
           <ArrowRight className="w-4 h-4 text-gray-400 group-hover/arrow:text-white transition-colors duration-300" />
-        </div>
+        </button>
       </div>
 
       {/* Content Container - Side by Side Layout */}

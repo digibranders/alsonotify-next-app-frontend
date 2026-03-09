@@ -495,10 +495,11 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
                 ) : (
                   <Avatar
                     size={32}
-                    src={user?.profile_pic}
+                    src={user?.profile_pic || undefined}
                     alt={user?.name || 'User'}
+                    style={{ backgroundColor: '#ff3b3b', color: '#ffffff' }}
                   >
-                    {!user?.profile_pic && (user?.name?.[0]?.toUpperCase() || 'U')}
+                    {user?.name?.[0]?.toUpperCase() || 'U'}
                   </Avatar>
                 )}
               </div>

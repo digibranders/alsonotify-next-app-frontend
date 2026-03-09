@@ -37,10 +37,14 @@ export const mapUserDtoToEmployee = (dto: UserDto, permissions?: UserPermissions
   // Dates (Backend sends flat structure from getUsersService)
   const rawDateOfJoining = dto.date_of_joining || userProfileObj?.date_of_joining || (dto.user_employee as any)?.date_of_joining;
 
-  const profilePic = dto.profile_pic 
+  let profilePic = dto.profile_pic 
     || userProfileObj?.profile_pic 
     || (dto as any).user?.profile_pic 
     || (dto as any).user_employee?.user?.profile_pic;
+
+  if (profilePic === 'null' || profilePic === 'undefined') {
+    profilePic = null;
+  }
 
   const dateOfJoining = rawDateOfJoining && rawDateOfJoining !== 'N/A'
     ? formatDateForApi(rawDateOfJoining)
