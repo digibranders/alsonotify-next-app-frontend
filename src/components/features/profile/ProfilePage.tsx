@@ -1,7 +1,7 @@
 
 import { useState, useMemo, useEffect, useRef } from "react";
 import { Button, Input, Select, Divider, Upload, Switch, Progress, App, Space } from "antd";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { Camera, Pencil, FileText, Bell, Shield, User, Briefcase } from "lucide-react";
 import Image from "next/image";
@@ -163,10 +163,90 @@ export function ProfilePage() {
     const [uploadingDocType, setUploadingDocType] = useState<string | null>(null);
     const queryClient = useQueryClient();
 
+    const { data: uploadedFiles } = useQuery({
+        queryKey: ['files', 'employee-documents', user?.id],
+        queryFn: () => fileService.listFiles('EMPLOYEE_DOCUMENT', Number(user?.id)),
+        enabled: !!user?.id
+    });
+
     const documents = useMemo(() => {
-        // Check if user data has documents
-        return user?.documents || [];
-    }, [user]);
+        const files = uploadedFiles || [];
+        const result: UserDocument[] = [];
+
+        // Map files by type name for easy lookup
+        const filesByType = new Map<string, any[]>();
+        files.forEach(file => {
+            const typeName = file.document_type_name || 'Uncategorized';
+            if (!filesByType.has(typeName)) {
+                filesByType.set(typeName, []);
+            }
+            filesByType.get(typeName)!.push(file);
+        });
+
+        const mapMimeTypeToDocType = (mimeType: string): UserDocument['fileType'] => {
+            if (!mimeType) return 'pdf';
+            if (mimeType.includes('pdf')) return 'pdf';
+            if (mimeType.includes('word') || mimeType.includes('doc')) return 'docx';
+            if (mimeType.includes('sheet') || mimeType.includes('excel') || mimeType.includes('csv')) return 'excel';
+            if (mimeType.includes('image')) return 'image';
+            if (mimeType.includes('text')) return 'text';
+            return 'pdf';
+        };
+
+        // Add configured types
+        if (documentTypes) {
+            documentTypes.forEach(type => {
+                const matchingFiles = filesByType.get(type.name);
+                if (matchingFiles && matchingFiles.length > 0) {
+                    matchingFiles.forEach(file => {
+                        result.push({
+                            id: String(file.id),
+                            documentTypeId: type.id,
+                            documentTypeName: type.name,
+                            fileName: file.file_name,
+                            fileSize: file.file_size,
+                            fileUrl: file.download_url || '',
+                            uploadedDate: file.created_at,
+                            fileType: mapMimeTypeToDocType(file.file_type),
+                            isRequired: type.required
+                        });
+                    });
+                    filesByType.delete(type.name);
+                } else {
+                    result.push({
+                        id: type.id,
+                        documentTypeId: type.id,
+                        documentTypeName: type.name,
+                        fileName: '',
+                        fileSize: 0,
+                        fileUrl: '',
+                        uploadedDate: '',
+                        fileType: 'pdf',
+                        isRequired: type.required
+                    });
+                }
+            });
+        }
+
+        // Add remaining files
+        filesByType.forEach((remainingFiles, typeName) => {
+            remainingFiles.forEach(file => {
+                result.push({
+                    id: String(file.id),
+                    documentTypeId: 'other-' + file.id,
+                    documentTypeName: typeName,
+                    fileName: file.file_name,
+                    fileSize: file.file_size,
+                    fileUrl: file.download_url || '',
+                    uploadedDate: file.created_at,
+                    fileType: mapMimeTypeToDocType(file.file_type),
+                    isRequired: false
+                });
+            });
+        });
+
+        return result;
+    }, [documentTypes, uploadedFiles]);
 
     // Update profile when user data changes
     useEffect(() => {
