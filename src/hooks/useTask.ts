@@ -105,7 +105,7 @@ export const useUpdateTaskStatus = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, status }: { id: number; status: string }) => updateTaskStatusById(id, status),
+    mutationFn: ({ id, status, assigned_reviewer_id }: { id: number; status: string; assigned_reviewer_id?: number }) => updateTaskStatusById(id, status, assigned_reviewer_id),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.tasks.listRoot() });
       queryClient.invalidateQueries({ queryKey: queryKeys.tasks.assigned() });

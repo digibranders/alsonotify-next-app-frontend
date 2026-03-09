@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useState, memo } from "react";
 import type { MenuProps } from "antd";
 import { Task } from "../../../../types/domain";
-import { SegmentedProgressBar } from "./SegmentedProgressBar";
 import { TaskStatusBadge } from "../components/TaskStatusBadge";
 import { RevisionModal } from "../../../modals/RevisionModal";
 import { provideEstimate } from "../../../../services/task";
@@ -24,6 +23,8 @@ interface MobileTaskCardProps {
   hideRequirements?: boolean;
   isAdmin?: boolean;
   className?: string;
+  onSubmitForReview?: (reviewerId: number) => Promise<void>;
+  onStartReview?: () => void;
 }
 
 export const MobileTaskCard = memo(function MobileTaskCard({
@@ -37,7 +38,9 @@ export const MobileTaskCard = memo(function MobileTaskCard({
   currentUserId,
   hideRequirements = false,
   isAdmin = false,
-  className = ""
+  className = "",
+  onSubmitForReview,
+  onStartReview
 }: MobileTaskCardProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -92,6 +95,11 @@ export const MobileTaskCard = memo(function MobileTaskCard({
               <span className="font-bold text-sm text-[#111111] truncate block">
                 {task.name}
               </span>
+              {task.is_review_task && (
+                <span className="px-1.5 py-0.5 rounded-md bg-[#F3E8FF] text-[#7E22CE] text-[10px] font-bold border border-[#E9D5FF] flex-shrink-0 animate-pulse">
+                  REVIEW
+                </span>
+              )}
               {task.is_high_priority && (
                 <div className="w-1.5 h-1.5 bg-[#ff3b3b] rounded-full shrink-0 animate-pulse" />
               )}
@@ -173,13 +181,38 @@ export const MobileTaskCard = memo(function MobileTaskCard({
 
                   if (isAdmin || isLeader || isAssignee) {
                     if (actions.length > 0) actions.push({ type: 'divider' });
-                    actions.push({
-                      key: 'edit',
-                      label: 'Edit',
-                      icon: <Edit className="w-3.5 h-3.5" />,
-                      onClick: () => onEdit?.(),
-                      disabled: task.status === 'Completed'
-                    });
+
+                    // Review specific actions
+                    if (task.is_review_task && task.status === 'Assigned') {
+                      actions.push({
+                        key: 'start_review',
+                        label: 'Start Review',
+                        icon: <RotateCcw className="w-3.5 h-3.5" />, // Reusing icon for flow
+                        onClick: () => onStartReview?.(),
+                        className: "text-[#7E22CE] font-bold"
+                      });
+                    }
+
+                    // Regular task -> Submit for Review
+                    if (!task.is_review_task && (task.status === 'In_Progress' || task.status === 'Assigned')) {
+                      actions.push({
+                        key: 'submit_review',
+                        label: 'Submit for Review',
+                        icon: <CheckCircle className="w-3.5 h-3.5" />,
+                        onClick: () => onSubmitForReview?.(0), // Trigger parent
+                        className: "text-[#16a34a] font-medium"
+                      });
+                    }
+
+                    if (!task.is_review_task) {
+                      actions.push({
+                        key: 'edit',
+                        label: 'Edit',
+                        icon: <Edit className="w-3.5 h-3.5" />,
+                        onClick: () => onEdit?.(),
+                        disabled: task.status === 'Completed'
+                      });
+                    }
 
                     actions.push({
                       key: 'duplicate',
