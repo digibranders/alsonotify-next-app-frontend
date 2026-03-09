@@ -520,11 +520,14 @@ export function FloatingTimerBar() {
           <button
             ref={toggleButtonRef}
             onClick={() => setShowTaskSelector(!showTaskSelector)}
-            className="flex items-center gap-2 group hover:bg-white/10 rounded-full px-4 py-2 transition-all"
+            className="flex items-center gap-2 group hover:bg-white/10 rounded-full px-4 py-2 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff3b3b] focus-visible:ring-offset-2 focus-visible:ring-offset-[#111111]"
             disabled={timerLoading}
+            aria-expanded={showTaskSelector}
+            aria-haspopup="listbox"
+            aria-label="Select task to track time"
           >
             {timerLoading ? (
-              <Loader2 className="w-4 h-4 text-white animate-spin" />
+              <Loader2 className="w-4 h-4 text-white animate-spin" aria-hidden="true" />
             ) : (
               <>
                 {/* Offline Indicator */}
@@ -532,7 +535,7 @@ export function FloatingTimerBar() {
                 <p className="text-sm text-white font-medium group-hover:text-white transition-colors truncate max-w-[200px]">
                   {currentTask?.name || timerState.taskName || "Select Task"}
                 </p>
-                <ChevronDown className="w-4 h-4 text-white/70 group-hover:text-white transition-colors shrink-0" />
+                <ChevronDown className="w-4 h-4 text-white/70 group-hover:text-white transition-colors shrink-0" aria-hidden="true" />
               </>
             )}
           </button>
@@ -542,23 +545,25 @@ export function FloatingTimerBar() {
         <div className="flex items-center gap-3 shrink-0">
           <button
             onClick={handlePlayPause}
-            className="text-white hover:text-white/80 transition-all active:scale-90 disabled:opacity-50"
+            className="text-white hover:text-white/80 transition-all active:scale-90 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff3b3b] focus-visible:ring-offset-2 focus-visible:ring-offset-[#111111] rounded-full p-1"
             title={isRunningTask ? "Pause" : "Play"}
+            aria-label={isRunningTask ? "Pause Timer" : "Start Timer"}
             disabled={timerLoading || !currentDisplayTaskId}
           >
             {isRunningTask ? (
-              <Pause className="w-5 h-5 fill-current" />
+              <Pause className="w-5 h-5 fill-current" aria-hidden="true" />
             ) : (
-              <Play className="w-5 h-5 fill-current ml-0.5" />
+              <Play className="w-5 h-5 fill-current ml-0.5" aria-hidden="true" />
             )}
           </button>
           <button
-            className="text-white hover:text-white/80 transition-all active:scale-90 disabled:opacity-50"
+            className="text-white hover:text-white/80 transition-all active:scale-90 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff3b3b] focus-visible:ring-offset-2 focus-visible:ring-offset-[#111111] rounded-full p-1"
             title="Stop Timer & Save Worklog"
+            aria-label="Stop Timer and Save Worklog"
             onClick={handleCompleteClick}
             disabled={timerLoading}
           >
-            <CheckCircle className="w-5 h-5" />
+            <CheckCircle className="w-5 h-5" aria-hidden="true" />
           </button>
         </div>
 
@@ -604,14 +609,15 @@ export function FloatingTimerBar() {
                 {attachments.map((file, index) => (
                   <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded border border-gray-200">
                     <div className="flex items-center gap-2 flex-1 min-w-0">
-                      <Paperclip className="w-3.5 h-3.5 text-gray-500 shrink-0" />
+                      <Paperclip className="w-3.5 h-3.5 text-gray-500 shrink-0" aria-hidden="true" />
                       <span className="text-xs text-gray-700 truncate">{file.name}</span>
                     </div>
                     <button
                       onClick={() => setAttachments(attachments.filter((_, i) => i !== index))}
-                      className="p-1 hover:bg-gray-200 rounded transition-colors shrink-0"
+                      className="p-1 hover:bg-gray-200 rounded transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff3b3b]"
+                      aria-label={`Remove attachment: ${file.name}`}
                     >
-                      <X className="w-3.5 h-3.5 text-gray-400" />
+                      <X className="w-3.5 h-3.5 text-gray-400" aria-hidden="true" />
                     </button>
                   </div>
                 ))}
