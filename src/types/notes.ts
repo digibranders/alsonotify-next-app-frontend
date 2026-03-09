@@ -8,15 +8,16 @@ export type NoteCreate = CreateNoteDto;
 export type NoteUpdate = UpdateNoteDto;
 
 // Type conversion helpers
-// Helper to strip HTML and decode entities
+// Helper to strip HTML and decode entities securely without XSS risk
 function stripHtml(html: string): string {
   if (typeof window === 'undefined') return html; // Server-side fallback
   
-  const tmp = document.createElement('DIV');
   // Replace block tags with newlines to preserve structure
   const processed = html.replace(/<(div|p|br|li|h[1-6])[^>]*>/gi, '\n');
-  tmp.innerHTML = processed;
-  return tmp.textContent || tmp.innerText || '';
+
+  // Use DOMParser instead of innerHTML to prevent DOM-based XSS
+  const doc = new DOMParser().parseFromString(processed, 'text/html');
+  return doc.body.textContent || '';
 }
 
 export function convertTextToChecklist(content: string): ChecklistItem[] {
