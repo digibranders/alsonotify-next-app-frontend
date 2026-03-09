@@ -1,4 +1,4 @@
-## 2026-03-05 - Fix DOMPurify removeAllHooks bug in Mail Pages
-**Vulnerability:** Reverse tabnabbing vulnerability via unescaped anchors when DOMPurify hooks were removed globally.
-**Learning:** `DOMPurify.removeAllHooks()` clears all global DOMPurify hooks, which effectively disabled `target="_blank"` and `rel="noopener noreferrer"` appending behavior configured in `src/utils/sanitizeHtml.ts`. This applied XSS vulnerability app-wide to other parts rendering with `sanitizeRichText` after the mail page was visited.
-**Prevention:** Rather than using the global DOMPurify singleton to modify hooks dynamically, generate a local, isolated DOMPurify instance `const localDOMPurify = DOMPurify(window);` when hooks are needed, ensuring they don't impact the entire application.
+## 2024-05-18 - Fix DOM-based XSS when stripping HTML
+**Vulnerability:** A DOM-based Cross-Site Scripting (XSS) vulnerability was found in the `stripHtml` function (`src/types/notes.ts`), which was assigning unsanitized HTML input to `document.createElement('DIV').innerHTML` to extract the `textContent`. Although the element was not appended to the body, malicious tags with inline handlers like `<img src=x onerror=alert(1)>` execute immediately upon assignment to `innerHTML`.
+**Learning:** Assigning untrusted data to `innerHTML` on any DOM node, even disconnected ones, is unsafe and can lead to XSS execution via inline handlers.
+**Prevention:** Use `DOMParser().parseFromString(html, 'text/html')` to safely parse HTML content into a document without executing inline scripts or loading external resources, then extract `.textContent` securely.
