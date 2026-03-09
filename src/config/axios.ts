@@ -7,10 +7,10 @@ const axiosApi = axios.create({
   baseURL: API_BASE_URL,
 });
 
-// Helper to set auth token consistently
+// Helper to set auth token consistently — prefixes Bearer per RFC 6750
 export const setAuthToken = (token: string | null) => {
   if (token) {
-    axiosApi.defaults.headers.common["Authorization"] = token;
+    axiosApi.defaults.headers.common["Authorization"] = `Bearer ${token}`;
   } else {
     delete axiosApi.defaults.headers.common["Authorization"];
   }
@@ -22,12 +22,12 @@ if (initialToken) {
   setAuthToken(initialToken);
 }
 
-// Request interceptor to add token to every request
+// Request interceptor to add token to every request — Bearer prefix per RFC 6750
 axiosApi.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const token = cookies.get("_token");
     if (token) {
-      config.headers.Authorization = token;
+      config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
@@ -57,7 +57,7 @@ axiosApi.interceptors.response.use(
       // Optional endpoints (like /calendar/events) can fail with 401 without meaning auth failure
       if (isCriticalEndpoint) {
         // Clear token and redirect to login
-        cookies.remove("_token", { path: "/", sameSite: "lax" });
+        cookies.remove("_token", { path: "/", sameSite: "strict" });
         if (typeof window !== "undefined") {
           window.location.href = "/login";
         }

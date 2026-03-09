@@ -80,6 +80,22 @@ const nextConfig = {
                         key: 'Permissions-Policy',
                         value: 'camera=(), microphone=(), geolocation=(), browsing-topics=()',
                     },
+                    {
+                        key: 'Content-Security-Policy',
+                        value: [
+                            "default-src 'self'",
+                            // unsafe-inline required for Next.js inline scripts/styles; replace with nonce-based CSP as next step
+                            "script-src 'self' 'unsafe-inline'",
+                            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+                            "img-src 'self' data: blob: https://*.s3.amazonaws.com https://*.s3.*.amazonaws.com",
+                            "font-src 'self' data: https://fonts.gstatic.com",
+                            `connect-src 'self' ${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000'} https://*.sentry.io wss:`,
+                            "frame-src 'none'",
+                            "object-src 'none'",
+                            "base-uri 'self'",
+                            "form-action 'self'",
+                        ].join('; '),
+                    },
                 ],
             },
         ];

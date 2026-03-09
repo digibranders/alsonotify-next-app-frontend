@@ -50,6 +50,8 @@ export interface TaskDto {
   is_active?: boolean;
   is_revision?: boolean;
   revision_round?: number;
+  is_review_task?: boolean;
+  review_for_task_id?: number | null;
   parent_id?: number | null;
   disabled?: boolean;
   document_link?: string | null;

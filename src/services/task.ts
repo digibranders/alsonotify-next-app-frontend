@@ -100,7 +100,7 @@ export const updateTask = async (params: UpdateTaskRequestDto): Promise<ApiRespo
 /**
  * Update task status
  */
-export const updateTaskStatusById = async (id: number, status: string): Promise<ApiResponse<TaskDto>> => {
+export const updateTaskStatusById = async (id: number, status: string, assigned_reviewer_id?: number): Promise<ApiResponse<TaskDto>> => {
   try {
     validateTaskId(id);
 
@@ -108,7 +108,8 @@ export const updateTaskStatusById = async (id: number, status: string): Promise<
       throw new ApiError('Task status is required', 400);
     }
 
-    const { data } = await axiosApi.post<ApiResponse<TaskDto>>(`/task/${id}/update/${status}`);
+    const payload = assigned_reviewer_id ? { assigned_reviewer_id } : {};
+    const { data } = await axiosApi.post<ApiResponse<TaskDto>>(`/task/${id}/update/${status}`, payload);
 
     if (!data || typeof data !== 'object') {
       throw new ApiError('Invalid response format from server', 500);

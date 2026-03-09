@@ -11,6 +11,7 @@ import { TaskForm } from '../../modals/TaskForm';
 import { TimerWarningModal } from '../../modals/TimerWarningModal';
 import { TaskRow } from './rows/TaskRow';
 import { MobileTaskCard } from './rows/MobileTaskCard';
+import { ReviewerSelectionModal } from './components/ReviewerSelectionModal';
 import { useTimer } from '@/context/TimerContext';
 
 import { useTasks, useCreateTask, useDeleteTask, useUpdateTask, useUpdateTaskStatus } from '@/hooks/useTask';
@@ -576,11 +577,18 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
   };
 
   // Get timer state
-  const { timerState, stopTimer } = useTimer();
+  const { timerState, stopTimer, startTimer } = useTimer();
 
   // Handle edit task
   const [editingTask, setEditingTask] = useState<UITask | null>(null);
   const [duplicatingTask, setDuplicatingTask] = useState<UITask | null>(null);
+  const [reviewingTask, setReviewingTask] = useState<UITask | null>(null);
+  const [reviewerModalOpen, setReviewerModalOpen] = useState(false);
+
+  const handleReviewTask = (task: UITask) => {
+    setReviewingTask(task);
+    setReviewerModalOpen(true);
+  };
   const handleEditTask = (task: UITask) => {
     // Check if timer is running for this task
     if (timerState.isRunning && timerState.taskId === Number(task.id)) {
@@ -1173,6 +1181,26 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
                     ? (status) => updateTaskStatusMutation.mutate({ id: Number(task.id), status })
                     : undefined
                 }
+                onSubmitForReview={async () => handleReviewTask(task)}
+                onStartReview={async () => {
+                  updateTaskStatusMutation.mutate(
+                    { id: Number(task.id), status: 'In_Progress' },
+                    {
+                      onSuccess: async () => {
+                        try {
+                          await startTimer(Number(task.id), task.name, task.project || 'General');
+                          messageRef.current.success("Review started and timer running");
+                        } catch {
+                          messageRef.current.warning("Review marked In Progress but timer failed to start. View task to start timer.");
+                        }
+                        router.push(`/dashboard/tasks/${task.id}`);
+                      },
+                      onError: () => {
+                        messageRef.current.error("Failed to start review");
+                      }
+                    }
+                  );
+                }}
                 currentUserId={currentUserId ? Number(currentUserId) : undefined}
                 isAdmin={isAdmin}
               />
@@ -1193,6 +1221,26 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
                       ? (status) => updateTaskStatusMutation.mutate({ id: Number(task.id), status })
                       : undefined
                   }
+                  onSubmitForReview={async () => handleReviewTask(task)}
+                  onStartReview={async () => {
+                    updateTaskStatusMutation.mutate(
+                      { id: Number(task.id), status: 'In_Progress' },
+                      {
+                        onSuccess: async () => {
+                          try {
+                            await startTimer(Number(task.id), task.name, task.project || 'General');
+                            messageRef.current.success("Review started and timer running");
+                          } catch {
+                            messageRef.current.warning("Review marked In Progress but timer failed to start. View task to start timer.");
+                          }
+                          router.push(`/dashboard/tasks/${task.id}`);
+                        },
+                        onError: () => {
+                          messageRef.current.error("Failed to start review");
+                        }
+                      }
+                    );
+                  }}
                   currentUserId={currentUserId ? Number(currentUserId) : undefined}
                   isAdmin={isAdmin}
                 />
@@ -1223,6 +1271,27 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
           itemLabel="tasks"
         />
       )}
+      <ReviewerSelectionModal
+        open={reviewerModalOpen}
+        onClose={() => setReviewerModalOpen(false)}
+        onConfirm={async (reviewerId: number) => {
+          if (!reviewingTask) return;
+          updateTaskStatusMutation.mutate(
+            { id: Number(reviewingTask.id), status: 'Review', assigned_reviewer_id: reviewerId },
+            {
+              onSuccess: () => {
+                messageRef.current.success("Task submitted for review");
+                setReviewerModalOpen(false);
+              },
+              onError: () => {
+                messageRef.current.error("Failed to submit for review");
+              }
+            }
+          );
+        }}
+        defaultReviewerId={reviewingTask?.leader_id ?? reviewingTask?.leader_user?.id}
+        loading={updateTaskStatusMutation.isPending}
+      />
     </PageLayout>
   );
 }

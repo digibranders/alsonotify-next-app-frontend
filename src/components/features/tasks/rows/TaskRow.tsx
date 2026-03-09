@@ -11,6 +11,7 @@ import { Task } from "../../../../types/domain";
 import { TaskStatusBadge } from "../components/TaskStatusBadge";
 import { RevisionModal } from "../../../modals/RevisionModal";
 import { TaskLiveProgress } from "./TaskLiveProgress";
+import { ReviewerSelectionModal } from "../components/ReviewerSelectionModal";
 
 interface TaskRowProps {
   task: Task;
@@ -20,6 +21,8 @@ interface TaskRowProps {
   onDuplicate?: () => void;
   onDelete?: () => void;
   onStatusChange?: (status: string) => void;
+  onStartReview?: () => void;
+  onSubmitForReview?: (reviewerId: number) => Promise<void>;
   currentUserId?: number;
   hideRequirements?: boolean;
   onRequestRevision?: () => void;
@@ -36,7 +39,9 @@ const TaskRowComponent = memo(function TaskRow({
   onStatusChange,
   currentUserId,
   hideRequirements = false,
-  isAdmin = false
+  isAdmin = false,
+  onSubmitForReview,
+  onStartReview
 }: TaskRowProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -44,6 +49,8 @@ const TaskRowComponent = memo(function TaskRow({
   const [estimateHours, setEstimateHours] = useState("");
   const [submissionLoading, setSubmissionLoading] = useState(false);
   const [revisionModalOpen, setRevisionModalOpen] = useState(false);
+  const [reviewerModalOpen, setReviewerModalOpen] = useState(false);
+  const [reviewerModalLoading, setReviewerModalLoading] = useState(false);
 
   const myMember = task.task_members?.find(m => m.user_id === currentUserId);
   const isPendingEstimate = myMember && myMember.status === 'PendingEstimate';
@@ -80,9 +87,16 @@ const TaskRowComponent = memo(function TaskRow({
           <div className="flex flex-col gap-0.5 min-w-0">
             <div className="flex items-center gap-1.5 min-w-0">
               <Tooltip title={task.name} placement="topLeft" mouseEnterDelay={0.5}>
-                <span className="font-bold text-sm !text-[#111111] group-hover:text-[#ff3b3b] transition-colors truncate cursor-help">
-                  {task.name}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-sm !text-[#111111] group-hover:text-[#ff3b3b] transition-colors truncate cursor-help">
+                    {task.name}
+                  </span>
+                  {task.is_review_task && (
+                    <span className="px-1.5 py-0.5 rounded-md bg-[#F3E8FF] text-[#7E22CE] text-[10px] font-bold border border-[#E9D5FF] flex-shrink-0 animate-pulse">
+                      REVIEW
+                    </span>
+                  )}
+                </div>
               </Tooltip>
               {task.is_high_priority && (
                 <Tooltip title="High Priority">
@@ -264,13 +278,61 @@ const TaskRowComponent = memo(function TaskRow({
                     );
                   }
 
+                  // Review tasks: Hide Edit functionality, enable Start Review
+                  if (task.is_review_task && isAssignee) {
+                    actions.push({
+                      key: 'start_review',
+                      label: 'Start Review',
+                      icon: <CheckCircle className="w-3.5 h-3.5" />, // Or another suitable icon
+                      onClick: () => onStartReview?.(),
+                      className: "text-[0.8125rem] font-medium text-[#2F80ED]"
+                    });
+                  }
+
+                  // Submit for Review option for regular tasks (when in progress)
+                  if (!task.is_review_task && isInProgress && isAssignee) {
+                    actions.push({
+                      key: 'submit_review',
+                      label: 'Submit for Review',
+                      icon: <CheckCircle className="w-3.5 h-3.5" />,
+                      onClick: () => setReviewerModalOpen(true),
+                      className: "text-[0.8125rem] font-medium text-[#EAB308]"
+                    });
+                  }
+
                   // Scenario 1: Self-assigned task — leader can mark complete directly
-                  if (isSelfAssigned) {
+                  if (isSelfAssigned && !task.is_review_task) {
                     actions.push({
                       key: 'mark_complete',
                       label: 'Mark Complete',
                       icon: <CheckCircle className="w-3.5 h-3.5" />,
                       onClick: () => onStatusChange?.('Completed'),
+                      className: "text-[0.8125rem] font-medium text-[#16a34a]"
+                    });
+                  }
+
+                  // Review specific actions
+                  if (task.is_review_task && task.status === 'Assigned') {
+                    actions.push({
+                      key: 'start_review',
+                      label: 'Start Review',
+                      icon: <RotateCcw className="w-3.5 h-3.5" />,
+                      onClick: () => onStartReview?.(),
+                      className: "text-[0.8125rem] font-bold text-[#7E22CE]"
+                    });
+                  }
+
+                  // Regular task -> Submit for Review
+                  if (!task.is_review_task && (task.status === 'In_Progress' || task.status === 'Assigned')) {
+                    actions.push({
+                      key: 'submit_review',
+                      label: 'Submit for Review',
+                      icon: <CheckCircle className="w-3.5 h-3.5" />,
+                      onClick: () => {
+                        // We need a way to open the modal from TaskRow
+                        // TasksPage handles this via props
+                        onSubmitForReview?.(0); // This is just a trigger, TasksPage will handle the ID 0 as "open modal" logic if needed, or better: TasksPage passes a function that opens the modal with the task.
+                      },
                       className: "text-[0.8125rem] font-medium text-[#16a34a]"
                     });
                   }
@@ -281,14 +343,16 @@ const TaskRowComponent = memo(function TaskRow({
                       actions.push({ type: 'divider' });
                     }
 
-                    actions.push({
-                      key: 'edit',
-                      label: 'Edit',
-                      icon: <Edit className="w-3.5 h-3.5" />,
-                      onClick: () => onEdit?.(),
-                      disabled: task.status === 'Completed',
-                      className: "text-[0.8125rem] font-medium"
-                    });
+                    if (!task.is_review_task) {
+                      actions.push({
+                        key: 'edit',
+                        label: 'Edit',
+                        icon: <Edit className="w-3.5 h-3.5" />,
+                        onClick: () => onEdit?.(),
+                        disabled: task.status === 'Completed',
+                        className: "text-[0.8125rem] font-medium"
+                      });
+                    }
 
                     actions.push({
                       key: 'duplicate',
@@ -359,6 +423,22 @@ const TaskRowComponent = memo(function TaskRow({
           // Usually parent re-fetches, but we might want to manually trigger
           queryClient.invalidateQueries({ queryKey: queryKeys.tasks.listRoot() });
           queryClient.invalidateQueries({ queryKey: queryKeys.tasks.assigned() });
+        }}
+      />
+      <ReviewerSelectionModal
+        open={reviewerModalOpen}
+        onClose={() => setReviewerModalOpen(false)}
+        defaultReviewerId={task.leader_id || undefined}
+        loading={reviewerModalLoading}
+        onConfirm={async (reviewerId) => {
+          if (!onSubmitForReview) return;
+          setReviewerModalLoading(true);
+          try {
+            await onSubmitForReview(reviewerId);
+            setReviewerModalOpen(false);
+          } finally {
+            setReviewerModalLoading(false);
+          }
         }}
       />
     </>
