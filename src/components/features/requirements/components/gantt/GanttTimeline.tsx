@@ -63,12 +63,39 @@ export const GanttTimeline: React.FC = () => {
     }, [isDragging, updateVisibleDate]);
 
     // --- Auto-scroll to center (Today) on Mount ---
+    const hasCenteredRef = useRef(false);
+
     React.useEffect(() => {
-        if (scrollContainerRef.current) {
-            scrollContainerRef.current.scrollLeft = totalWidth / 2 - scrollContainerRef.current.clientWidth / 2;
-            updateVisibleDate();
-        }
+        hasCenteredRef.current = false;
     }, [totalWidth]);
+
+    React.useEffect(() => {
+        const el = scrollContainerRef.current;
+        if (!el) return;
+
+        const centerTimeline = (width: number) => {
+            if (hasCenteredRef.current) return;
+            if (width > 0) {
+                el.scrollLeft = totalWidth / 2 - width / 2;
+                updateVisibleDate();
+                hasCenteredRef.current = true;
+            }
+        };
+
+        if (el.clientWidth > 0) {
+            centerTimeline(el.clientWidth);
+        } else {
+            // Use ResizeObserver to catch when parent removes display: none
+            const observer = new ResizeObserver((entries) => {
+                if (entries[0].contentRect.width > 0) {
+                    centerTimeline(entries[0].contentRect.width);
+                    observer.disconnect();
+                }
+            });
+            observer.observe(el);
+            return () => observer.disconnect();
+        }
+    }, [totalWidth, updateVisibleDate]);
 
     // --- Update visible date on native scroll (wheel/trackpad) ---
     React.useEffect(() => {
