@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { Checkbox, Button, App, Input, Modal } from 'antd';
 import { Skeleton } from '../../ui/Skeleton';
-import { useWorkspace, useRequirements, useUpdateRequirement, useWorkspaces, useSubmitForReview } from '@/hooks/useWorkspace';
+import { useWorkspace, useRequirements, useUpdateRequirement, useWorkspaces } from '@/hooks/useWorkspace';
 import { useTasks, useRequestRevision, useCreateTask, useUpdateTask } from '@/hooks/useTask';
 import { TaskForm } from '../../modals/TaskForm';
 import { CreateTaskRequestDto, UpdateTaskRequestDto } from '@/types/dto/task.dto';
@@ -31,9 +31,6 @@ import {
 } from './utils/requirementState.utils';
 import { getRoleFromUser } from '@/utils/roleUtils';
 import { ReqTabId, RequirementHeader } from './components/RequirementHeader';
-import { SubmitForApprovalModal } from '@/components/modals/SubmitForApprovalModal';
-
-
 // Extracted components
 import { GanttChartTab, PnLTab, DocumentsTab, KanbanBoardTab } from './components';
 import { BillingTab } from './components/BillingTab';
@@ -100,8 +97,6 @@ export function RequirementDetailsPage() {
   const [isRevisionModalOpen, setIsRevisionModalOpen] = useState(false);
   const [revisionNotes, setRevisionNotes] = useState('');
   const [targetTaskId, setTargetTaskId] = useState<number | null>(null);
-  const [isTasksSubmitOpen, setIsTasksSubmitOpen] = useState(false);
-  const submitForReviewMutation = useSubmitForReview();
 
   const workspace = useMemo(() => {
     if (!workspaceData?.result) return null;
@@ -337,14 +332,6 @@ export function RequirementDetailsPage() {
     return <div className="p-8">Requirement or Workspace not found</div>;
   }
 
-
-
-
-
-
-
-
-
   const requirementStatus = mapRequirementStatus(displayStatus);
   const assignedTo = requirement.assignedTo || [];
 
@@ -475,24 +462,6 @@ export function RequirementDetailsPage() {
                     <div className="text-center py-8 text-[#999999] text-[0.8125rem]">No tasks created yet</div>
                   )}
                 </div>
-
-                {/* Submit for Review banner — shown when all tasks are done and work is In Progress */}
-                {allTasksCompleted && ['In_Progress', 'Delayed', 'On_Hold'].includes(requirement.rawStatus || '') && (
-                  <div className="mt-6 flex items-center justify-between px-4 py-3 bg-[#F0FFF4] border border-[#BBF7D0] rounded-xl">
-                    <div>
-                      <p className="text-sm font-semibold text-[#15803D]">All tasks completed</p>
-                      <p className="text-xs text-[#166534]">Ready to submit this requirement for review.</p>
-                    </div>
-                    <Button
-                      type="primary"
-                      size="middle"
-                      className="bg-[#111111] hover:!bg-[#333333] border-none rounded-full px-5 font-semibold"
-                      onClick={() => setIsTasksSubmitOpen(true)}
-                    >
-                      Submit for Review
-                    </Button>
-                  </div>
-                )}
 
                 <Modal
                   title="Request Revision"
@@ -707,20 +676,6 @@ export function RequirementDetailsPage() {
         />
       </Modal>
 
-      {requirement && (
-        <SubmitForApprovalModal
-          open={isTasksSubmitOpen}
-          onClose={() => setIsTasksSubmitOpen(false)}
-          onSubmit={async (data) => {
-            await submitForReviewMutation.mutateAsync({
-              requirementId: requirement.id,
-              body: data,
-            });
-            message.success("Requirement submitted for review successfully!");
-          }}
-          requirement={requirement}
-        />
-      )}
     </div>
   );
 }
