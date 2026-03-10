@@ -1,10 +1,10 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import {
-  Download, ArrowUp, ArrowDown, Info
+  Download, ArrowUp, ArrowDown, Info, CheckCircle2, XCircle
 } from 'lucide-react';
 import { PageLayout } from '../../layout/PageLayout';
 import { FilterBar, FilterOption } from '../../ui/FilterBar';
-import { getTaskStatusUI } from '@/lib/workflow';
+import { TaskStatusBadge } from '@/components/features/tasks/components/TaskStatusBadge';
 import { DateRangeSelector } from '../../common/DateRangeSelector';
 import { Tooltip, Button } from "antd";
 import { Skeleton } from '../../ui/Skeleton';
@@ -31,17 +31,6 @@ dayjs.extend(isBetween);
 
 // --- Helper Components ---
 
-function StatusBadge({ status }: { status: string }) {
-  const { color, icon: Icon, label } = getTaskStatusUI(status);
-
-  return (
-    <Tooltip title={label}>
-      <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-all duration-200 ${color} cursor-help`}>
-        {Icon && React.cloneElement(Icon as React.ReactElement<React.SVGProps<SVGSVGElement>>, { className: "w-3.5 h-3.5" })}
-      </div>
-    </Tooltip>
-  );
-}
 
 function TableHeader({
   label,
@@ -820,66 +809,123 @@ export function ReportsPage() {
             {isLoadingRequirements ? (
               <div className="space-y-2 px-1">
                 {Array.from({ length: 8 }).map((_, i) => (
-                  <div key={i} className="bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[50px_2fr_1fr_1.2fr_1.5fr_100px_100px] gap-4 px-4 py-4 items-center">
+                  <div key={i} className="bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[40px_2.5fr_1.2fr_1fr_1.2fr_0.6fr_110px_90px] gap-2 px-4 py-4 items-center min-w-[850px]">
                     <Skeleton className="h-4 w-4" />
                     <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-4 w-12" />
                     <Skeleton className="h-4 w-1/2" />
                     <Skeleton className="h-4 w-2/3" />
                     <Skeleton className="h-4 w-full" />
                     <Skeleton className="h-4 w-16" />
-                    <Skeleton className="h-6 w-6 rounded-full" />
+                    <Skeleton className="h-6 w-6 rounded-full mx-auto" />
                   </div>
                 ))}
               </div>
             ) : (
               <div className="px-1 space-y-2">
                 {/* Header */}
-                <div className="sticky top-0 z-20 bg-white grid grid-cols-[50px_2fr_1fr_1.2fr_1.5fr_100px_100px] gap-4 px-4 py-3 mb-2 items-center border-b border-transparent">
-                  <div className="pl-2"><TableHeader label="No" /></div>
+                <div className="sticky top-0 z-20 min-w-[850px] bg-white grid grid-cols-[40px_2.5fr_1.2fr_1fr_1.2fr_0.6fr_110px_90px] gap-2 px-4 py-3 mb-2 items-center border-b border-transparent">
+                  <div><TableHeader label="No" /></div>
                   <TableHeader label="Requirement" sortKey="requirement" currentSort={sortConfig} onSort={handleSort} />
-                  <TableHeader label="Contact Person" sortKey="manager" currentSort={sortConfig} onSort={handleSort} />
+                  <TableHeader label="Partner" sortKey="manager" currentSort={sortConfig} onSort={handleSort} tooltip="Company and Contact Person" />
                   <TableHeader label="Timeline" />
-                  <TableHeader label="Hours Utilization" sortKey="efficiency" currentSort={sortConfig} onSort={handleSort} tooltip="Allotted (estimated) vs. Engaged (logged) hours." />
-                  <TableHeader label="Revenue" sortKey="revenue" currentSort={sortConfig} onSort={handleSort} tooltip="Requirement revenue based on quote or budget." />
-                  <TableHeader label="Status" sortKey="status" currentSort={sortConfig} onSort={handleSort} />
+                  <TableHeader label="Hours Utilization" sortKey="efficiency" currentSort={sortConfig} onSort={handleSort} tooltip="Engaged (logged) hours versus Allotted (budget) hours." />
+                  <TableHeader label="Revision" sortKey="revision" currentSort={sortConfig} onSort={handleSort} tooltip="Number of revisions (scope changes)." />
+                  <div className="text-right pr-4"><TableHeader label="Revenue / P&L" sortKey="revenue" currentSort={sortConfig} onSort={handleSort} tooltip="Quoted Price versus computed Profit/Loss." /></div>
+                  <div className="text-center"><TableHeader label="Status" sortKey="status" currentSort={sortConfig} onSort={handleSort} align="center" /></div>
                 </div>
 
                 {/* Rows */}
                 {filteredRequirements.map((row, idx) => (
                   <div
                     key={row.id}
-                    className="group bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[50px_2fr_1fr_1.2fr_1.5fr_100px_100px] gap-4 px-4 py-3 items-center hover:border-[#ff3b3b]/20 hover:shadow-lg transition-all duration-300"
+                    className="group min-w-[850px] bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[40px_2.5fr_1.2fr_1fr_1.2fr_0.6fr_110px_90px] gap-2 px-4 py-3 items-center hover:border-[#ff3b3b]/20 hover:shadow-lg transition-all duration-300"
                   >
-                    <div className="pl-2 text-[0.8125rem] text-[#999999] font-medium">{idx + 1}</div>
+                    <div className="text-[0.8125rem] text-[#999999] font-medium">{idx + 1}</div>
 
-                    <div className="flex flex-col justify-center gap-0.5">
+                    <div className="flex flex-col justify-center gap-1 min-w-0">
                       <span className="text-sm text-[#111111] font-bold leading-tight truncate" title={row.requirement}>{row.requirement}</span>
-                      <span className="text-[0.625rem] uppercase tracking-wider text-[#999999] font-bold truncate" title={row.partner}>{row.partner}</span>
-                    </div>
-
-                    <div className="text-[0.8125rem] text-[#666666] font-normal">{row.manager || 'Unassigned'}</div>
-
-                    <div className="flex flex-col gap-0.5">
-                      <span className="text-[0.8125rem] text-[#111111] font-medium">{formatWithTimezone(row.startDate, 'MMM DD')}</span>
-                      <span className="text-[0.6875rem] text-[#999999]">to {formatWithTimezone(row.endDate, 'MMM DD')}</span>
-                    </div>
-
-                    <div className="flex flex-col gap-1.5 justify-center h-full">
-                      <div className="flex justify-between text-[0.6875rem]">
-                        <span className="font-medium text-[#111111]">{row.engagedHrs}h</span>
-                        <span className="text-[#999999]">of {row.allottedHrs}h</span>
-                      </div>
-                      <div className="w-full h-1.5 bg-[#F0F0F0] rounded-full overflow-hidden">
-                        <div
-                          className={`h-full rounded-full ${row.engagedHrs > row.allottedHrs ? 'bg-[#FF3B3B]' : 'bg-[#111111]'}`}
-                          style={{ width: `${Math.min((row.engagedHrs / (row.allottedHrs || 1)) * 100, 100)}%` }}
-                        ></div>
+                      <span className="text-[11px] text-[#666666] font-medium truncate" title={row.workspaceName}>
+                        {row.workspaceName}
+                      </span>
+                      {/* Tags Row */}
+                      <div className="flex flex-wrap gap-1.5 items-center text-[0.625rem] font-bold uppercase tracking-wider mt-0.5">
+                         {row.type && <span className="bg-[#F5F5F5] text-[#888888] px-1.5 py-0.5 rounded" title="Type">{row.type}</span>}
+                         {row.priority && <span className={`px-1.5 py-0.5 rounded ${row.priority === 'High' ? 'bg-[#FFF0F0] text-[#FF3B3B]' : 'bg-[#F0F8FF] text-[#2196F3]'}`} title="Priority">{row.priority}</span>}
+                         {row.department && <span className="bg-[#F0FDF4] text-[#0F9D58] px-1.5 py-0.5 rounded truncate max-w-[80px]" title="Department">{row.department}</span>}
                       </div>
                     </div>
 
-                    <div className="text-[0.8125rem] text-[#111111] font-bold">{currencySymbol}{(row.revenue || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                    <div className="flex flex-col justify-center gap-0.5 min-w-0">
+                      <span className="text-[13px] text-[#111111] font-bold truncate" title={row.partner}>{row.partner}</span>
+                      <span className="text-[11px] text-[#666666] font-medium truncate" title={row.manager || 'Unassigned'}>{row.manager || 'Unassigned'}</span>
+                    </div>
 
-                    <div><StatusBadge status={row.status} /></div>
+                    <div className="flex flex-col gap-0.5 min-w-0">
+                      <span className="text-[0.8125rem] text-[#111111] font-medium truncate">{formatWithTimezone(row.startDate, 'MMM DD')}</span>
+                      <span className={`text-[0.6875rem] truncate ${dayjs().isAfter(dayjs(row.endDate), 'day') && row.status !== 'Completed' ? 'text-[#FF3B3B] font-bold' : 'text-[#999999]'}`}>
+                        to {formatWithTimezone(row.endDate, 'MMM DD')}
+                      </span>
+                    </div>
+
+                    <div className="flex flex-col gap-1.5 justify-center h-full min-w-0 pr-4">
+                      {(() => {
+                        const remaining = (row.allottedHrs || 0) - (row.engagedHrs || 0);
+                        const isBleeding = row.engagedHrs > (row.allottedHrs || 0);
+                        const isWarning = !isBleeding && (row.allottedHrs || 0) > 0 && row.engagedHrs >= ((row.allottedHrs || 0) * 0.8);
+                        
+                        // Calculate visualization percentages (max 100%)
+                        const total = (row.allottedHrs || 0) > 0 ? row.allottedHrs : Math.max(row.engagedHrs || 1, 1);
+                        const fillRatio = Math.min((row.engagedHrs || 0) / total, 1);
+                        const fillPercent = `${(fillRatio * 100).toFixed(1)}%`;
+                        
+                        // Determine colors
+                        const barColor = isBleeding ? 'bg-[#FF3B3B]' : isWarning ? 'bg-[#FF8A00]' : 'bg-[#111111]';
+                        const trackColor = 'bg-[#F0F0F0]';
+                        
+                        return (
+                          <>
+                            <div className="flex items-center gap-2">
+                                <span className={`font-bold text-sm truncate ${isBleeding ? 'text-[#FF3B3B]' : isWarning ? 'text-[#FF8A00]' : 'text-[#111111]'}`}>
+                                  {row.engagedHrs}h
+                                </span>
+                                <span className={`text-xs font-semibold truncate ${isBleeding ? 'text-[#FF3B3B] bg-[#FFF0F0] px-1.5 py-0.5 rounded' : isWarning ? 'text-[#FF8A00]' : 'text-[#999999]'}`}>
+                                  {isBleeding ? `+${Math.abs(remaining).toFixed(1)}h over` : `${remaining.toFixed(1)}h left`}
+                                </span>
+                            </div>
+                            {/* Micro-visualization Sparkline */}
+                            <div className={`h-1.5 w-full rounded-full overflow-hidden ${trackColor}`}>
+                                <div 
+                                    className={`h-full rounded-full transition-all duration-300 ${barColor}`} 
+                                    style={{ width: fillPercent }} 
+                                />
+                            </div>
+                          </>
+                        );
+                      })()}
+                    </div>
+
+                    <div className="text-[0.8125rem] font-semibold flex items-center justify-start gap-1 min-w-0 pl-1">
+                      {row.revision > 0 ? (
+                        <span className={`px-2 py-0.5 rounded-md ${row.revision > 1 ? 'bg-[#FFF4EC] text-[#FF8A00]' : 'bg-[#F5F5F5] text-[#666666]'}`}>
+                          v{row.revision + 1}
+                        </span>
+                      ) : (
+                        <span className="text-[#CCCCCC] pl-2">-</span>
+                      )}
+                    </div>
+
+                    <div className="flex flex-col items-end text-[0.8125rem] pr-2 min-w-0">
+                      <div className="text-[#999999] text-xs" title={currencySymbol + (row.revenue || 0).toLocaleString()}>
+                        {currencySymbol}{(row.revenue || 0).toLocaleString()}
+                      </div>
+                      <div className={`font-bold flex items-center gap-1 ${row.profit >= 0 ? 'text-[#00A389]' : 'text-[#FF3B3B]'}`} title={currencySymbol + (row.profit || 0).toLocaleString()}>
+                        {row.profit >= 0 ? '+' : ''}{currencySymbol}{(row.profit || 0).toLocaleString()}
+                        {row.profit >= 0 ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
+                      </div>
+                    </div>
+
+                    <div className="flex justify-center"><TaskStatusBadge status={row.status} /></div>
                   </div>
                 ))}
 
@@ -897,46 +943,106 @@ export function ReportsPage() {
             {isLoadingTasks ? (
               <div className="space-y-2 px-1">
                 {Array.from({ length: 10 }).map((_, i) => (
-                  <div key={i} className="bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[50px_2fr_1.5fr_1fr_1fr_0.8fr_0.8fr_0.8fr_100px] gap-4 px-4 py-4 items-center">
+                  <div key={i} className="bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[40px_2.2fr_1.8fr_0.9fr_0.9fr_75px_115px_85px] gap-2 px-4 py-4 items-center min-w-[900px]">
                     <Skeleton className="h-4 w-4" />
-                    <Skeleton className="h-4 w-1/4" />
-                    <Skeleton className="h-4 w-1/5" />
-                    <Skeleton className="h-4 w-24" />
-                    <Skeleton className="h-4 w-24" />
-                    <Skeleton className="h-4 w-24" />
-                    <Skeleton className="h-4 w-16" />
-                    <Skeleton className="h-6 w-6 rounded-full" />
+                    <div className="flex flex-col gap-1"><Skeleton className="h-4 w-3/4" /><Skeleton className="h-3 w-1/2" /></div>
+                    <Skeleton className="h-4 w-2/3" />
+                    <Skeleton className="h-4 w-20" />
+                    <Skeleton className="h-4 w-20" />
+                    <Skeleton className="h-4 w-14" />
+                    <div className="flex flex-col gap-1"><Skeleton className="h-4 w-3/4" /><Skeleton className="h-1.5 w-full rounded-full" /></div>
+                    <Skeleton className="h-6 w-20 rounded-full mx-auto" />
                   </div>
                 ))}
               </div>
             ) : (
               <div className="px-1 space-y-2">
                 {/* Header */}
-                <div className="sticky top-0 z-20 bg-white grid grid-cols-[50px_2fr_1.5fr_1fr_1fr_1fr_100px] gap-4 px-4 py-3 mb-2 items-center border-b border-transparent">
-                  <div className="pl-2"><TableHeader label="No" /></div>
+                <div className="sticky top-0 z-20 min-w-[900px] bg-white grid grid-cols-[40px_2.2fr_1.8fr_0.9fr_0.9fr_75px_115px_85px] gap-2 px-4 py-3 mb-2 items-center border-b border-transparent">
+                  <div><TableHeader label="No" /></div>
                   <TableHeader label="Task" sortKey="task" currentSort={sortConfig} onSort={handleSort} />
                   <TableHeader label="Requirement" sortKey="requirement" currentSort={sortConfig} onSort={handleSort} />
                   <TableHeader label="Leader" sortKey="leader" currentSort={sortConfig} onSort={handleSort} />
                   <TableHeader label="Assigned" sortKey="assigned" currentSort={sortConfig} onSort={handleSort} />
-                  <TableHeader label="Duration" sortKey="engagedHrs" currentSort={sortConfig} onSort={handleSort} tooltip="Engaged (logged) vs. Allotted (estimated) hours." />
+                  <TableHeader label="Due Date" sortKey="dueDate" currentSort={sortConfig} onSort={handleSort} tooltip="Task due date. Red = overdue." />
+                  <TableHeader label="Hours Variance" sortKey="engagedHrs" currentSort={sortConfig} onSort={handleSort} tooltip="Engaged (logged) vs. Allotted (estimated) hours." />
                   <div className="text-center"><TableHeader label="Status" sortKey="status" currentSort={sortConfig} onSort={handleSort} align="center" /></div>
                 </div>
 
                 {/* Rows */}
-                {filteredTasks.map((row, idx) => (
-                  <div
-                    key={row.id}
-                    className="group bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[50px_2fr_1.5fr_1fr_1fr_1fr_100px] gap-4 px-4 py-3 items-center hover:border-[#ff3b3b]/20 hover:shadow-lg transition-all duration-300"
-                  >
-                    <div className="pl-2 text-[0.8125rem] text-[#999999] font-medium">{idx + 1}</div>
-                    <div className="text-[0.8125rem] text-[#111111] font-semibold">{row.task}</div>
-                    <div className="text-[0.8125rem] text-[#666666] font-normal">{row.requirement}</div>
-                    <div className="text-[0.8125rem] text-[#666666] font-normal">{row.leader}</div>
-                    <div className="text-[0.8125rem] text-[#666666] font-normal">{row.assigned}</div>
-                    <div className="text-[0.8125rem] text-[#111111] font-bold">{row.engagedHrs}h / {row.allottedHrs}h</div>
-                    <div className="flex justify-center"><StatusBadge status={row.status} /></div>
-                  </div>
-                ))}
+                {filteredTasks.map((row, idx) => {
+                  const isOverdue = row.dueDate && dayjs().isAfter(dayjs(row.dueDate), 'day') && row.status !== 'Completed';
+                  const remaining = (row.allottedHrs || 0) - (row.engagedHrs || 0);
+                  const isBleeding = row.engagedHrs > (row.allottedHrs || 0);
+                  const isWarning = !isBleeding && (row.allottedHrs || 0) > 0 && row.engagedHrs >= ((row.allottedHrs || 0) * 0.8);
+                  const hasEstimate = (row.allottedHrs || 0) > 0;
+                  const total = hasEstimate ? row.allottedHrs : Math.max(row.engagedHrs || 1, 1);
+                  const fillRatio = Math.min((row.engagedHrs || 0) / total, 1);
+                  const fillPercent = `${(fillRatio * 100).toFixed(1)}%`;
+                  const barColor = isBleeding ? 'bg-[#FF3B3B]' : isWarning ? 'bg-[#FF8A00]' : 'bg-[#111111]';
+
+                  return (
+                    <div
+                      key={row.id}
+                      className="group min-w-[900px] bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[40px_2.2fr_1.8fr_0.9fr_0.9fr_75px_115px_85px] gap-2 px-4 py-3 items-center hover:border-[#ff3b3b]/20 hover:shadow-lg transition-all duration-300"
+                    >
+                      {/* No */}
+                      <div className="text-[0.8125rem] text-[#999999] font-medium">{idx + 1}</div>
+
+                      {/* Task + Workspace */}
+                      <div className="flex flex-col justify-center gap-0.5 min-w-0">
+                        <span className="text-sm text-[#111111] font-bold leading-tight truncate" title={row.task}>{row.task}</span>
+                        {row.workspaceName && (
+                          <span className="text-[11px] text-[#999999] font-medium truncate" title={row.workspaceName}>{row.workspaceName}</span>
+                        )}
+                      </div>
+
+                      {/* Requirement */}
+                      <div className="text-[0.8125rem] text-[#666666] font-normal min-w-0 truncate" title={row.requirement}>{row.requirement}</div>
+
+                      {/* Leader */}
+                      <div className="text-[0.8125rem] text-[#111111] font-semibold min-w-0 truncate" title={row.leader}>{row.leader}</div>
+
+                      {/* Assigned */}
+                      <div className="text-[0.8125rem] text-[#666666] font-normal min-w-0 truncate" title={row.assigned}>{row.assigned}</div>
+
+                      {/* Due Date */}
+                      <div className="min-w-0">
+                        {row.dueDate ? (
+                          <span className={`text-[0.8125rem] font-${isOverdue ? 'bold' : 'medium'} ${isOverdue ? 'text-[#FF3B3B]' : 'text-[#111111]'} truncate`}>
+                            {formatWithTimezone(row.dueDate, 'MMM DD')}
+                          </span>
+                        ) : (
+                          <span className="text-[0.8125rem] text-[#CCCCCC]">-</span>
+                        )}
+                      </div>
+
+                      {/* Hours Variance */}
+                      <div className="flex flex-col gap-1.5 justify-center h-full min-w-0 pr-2">
+                        <div className="flex items-center gap-2">
+                          <span className={`font-bold text-sm truncate ${isBleeding ? 'text-[#FF3B3B]' : isWarning ? 'text-[#FF8A00]' : 'text-[#111111]'}`}>
+                            {row.engagedHrs}h
+                          </span>
+                          {hasEstimate ? (
+                            <span className={`text-xs font-semibold truncate ${isBleeding ? 'text-[#FF3B3B] bg-[#FFF0F0] px-1.5 py-0.5 rounded' : isWarning ? 'text-[#FF8A00]' : 'text-[#999999]'}`}>
+                              {isBleeding ? `+${Math.abs(remaining).toFixed(1)}h over` : `${remaining.toFixed(1)}h left`}
+                            </span>
+                          ) : (
+                            <span className="text-xs text-[#CCCCCC] font-medium">No estimate</span>
+                          )}
+                        </div>
+                        <div className="h-1.5 w-full rounded-full overflow-hidden bg-[#F0F0F0]">
+                          <div className={`h-full rounded-full transition-all duration-300 ${barColor}`} style={{ width: fillPercent }} />
+                        </div>
+                      </div>
+
+                      {/* Status */}
+                      <div className="flex justify-center">
+                        <TaskStatusBadge status={row.status} showLabel={false} />
+                      </div>
+                    </div>
+                  );
+                })}
                 {filteredTasks.length === 0 && (
                   <div className="text-center py-12 text-[#999999] text-[0.8125rem]">No tasks found matching your filters.</div>
                 )}
@@ -950,7 +1056,7 @@ export function ReportsPage() {
             {isLoadingEmployees ? (
               <div className="space-y-2 px-1">
                 {Array.from({ length: 8 }).map((_, i) => (
-                  <div key={i} className="bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[50px_2fr_2fr_0.8fr_1fr_1fr_1fr] gap-4 px-4 py-4 items-center">
+                  <div key={i} className="bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[50px_2.5fr_2fr_1fr_1.2fr_1.2fr_1.2fr] gap-4 px-4 py-4 items-center">
                     <Skeleton className="h-4 w-4" />
                     <Skeleton className="h-4 w-1/4" />
                     <Skeleton className="h-3 w-1/3" />
@@ -960,44 +1066,44 @@ export function ReportsPage() {
             ) : (
               <div className="px-1 space-y-2">
                 {/* Header */}
-                <div className="sticky top-0 z-20 bg-white grid grid-cols-[50px_2fr_2fr_0.8fr_1fr_1fr_1fr] gap-4 px-4 py-3 mb-2 items-center border-b border-transparent">
-                  <div className="pl-2"><TableHeader label="No" /></div>
+                <div className="sticky top-0 z-20 min-w-[1000px] bg-white grid grid-cols-[50px_2.5fr_2fr_1fr_1.2fr_1.2fr_1.2fr] gap-4 px-4 py-3 mb-2 items-center border-b border-transparent">
+                  <div><TableHeader label="No" /></div>
                   <TableHeader label="Member" sortKey="member" currentSort={sortConfig} onSort={handleSort} />
                   <TableHeader label="Tasks Performance" tooltip="Breakdown of assigned tasks: Completed (green), In-progress (blue), Delayed (red)." />
                   <TableHeader label="Load" sortKey="utilization" currentSort={sortConfig} onSort={handleSort} tooltip="Occupancy rate. Red bar means logged hours exceed capacity (>100%)." />
-                  <TableHeader label="Expenses" sortKey="expenses" currentSort={sortConfig} onSort={handleSort} tooltip="Cost = Logged hours × Hourly rate." />
-                  <TableHeader label="Revenue" sortKey="revenue" currentSort={sortConfig} onSort={handleSort} tooltip="Revenue share from client/outsourced work based on hours contributed." />
-                  <TableHeader label="Net Profit" sortKey="profit" currentSort={sortConfig} onSort={handleSort} tooltip="Revenue − Expenses. Positive = profitable contributor." />
+                  <div className="pr-4 text-right"><TableHeader label="Expenses" sortKey="expenses" currentSort={sortConfig} onSort={handleSort} tooltip="Cost = Logged hours × Hourly rate." /></div>
+                  <div className="pr-4 text-right"><TableHeader label="Revenue" sortKey="revenue" currentSort={sortConfig} onSort={handleSort} tooltip="Revenue share from client/outsourced work based on hours contributed." /></div>
+                  <div className="pr-4 text-right"><TableHeader label="Net Profit" sortKey="profit" currentSort={sortConfig} onSort={handleSort} tooltip="Revenue − Expenses. Positive = profitable contributor." /></div>
                 </div>
 
                 {/* Rows */}
                 {filteredEmployees.map((row, idx) => (
                   <div
                     key={row.id}
-                    className="group bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[50px_2fr_2fr_0.8fr_1fr_1fr_1fr] gap-4 px-4 py-3 items-center hover:border-[#ff3b3b]/20 hover:shadow-lg transition-all duration-300 cursor-pointer"
+                    className="group min-w-[1000px] bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[50px_2.5fr_2fr_1fr_1.2fr_1.2fr_1.2fr] gap-4 px-4 py-3 items-center hover:border-[#ff3b3b]/20 hover:shadow-lg transition-all duration-300 cursor-pointer"
                     onClick={() => setSelectedMemberId(String(row.id))}
                   >
-                    <div className="pl-2 text-[0.8125rem] text-[#999999] font-medium">{idx + 1}</div>
+                    <div className="text-[0.8125rem] text-[#999999] font-medium">{idx + 1}</div>
 
-                    <div className="flex flex-col justify-center">
-                      <span className="text-sm text-[#111111] font-bold">{row.member}</span>
-                      <span className="text-xs text-[#666666] font-normal">{row.designation} <span className="text-[#E5E5E5] mx-1">|</span> {row.department}</span>
+                    <div className="flex flex-col justify-center min-w-0">
+                      <span className="text-sm text-[#111111] font-bold min-w-0 truncate" title={row.member}>{row.member}</span>
+                      <span className="text-xs text-[#666666] font-normal min-w-0 truncate" title={`${row.designation} | ${row.department}`}>{row.designation} <span className="text-[#E5E5E5] mx-1">|</span> {row.department}</span>
                     </div>
 
-                    <div className="flex flex-col">
-                      <span className="text-sm text-[#111111] font-bold">
+                    <div className="flex flex-col min-w-0">
+                      <span className="text-sm text-[#111111] font-bold truncate">
                         {row.taskStats.assigned} <span className="text-[#666666] font-normal text-[0.8125rem]">Assigned</span>
                       </span>
-                      <div className="flex gap-3 mt-1 text-[0.6875rem] font-medium text-[#666666]">
-                        <div className="flex items-center gap-1.5">
+                      <div className="flex gap-3 mt-1 text-[0.6875rem] font-medium text-[#666666] overflow-hidden">
+                        <div className="flex items-center gap-1.5 shrink-0">
                           <div className="w-1.5 h-1.5 rounded-full bg-[#0F9D58]"></div>
                           <span>{row.taskStats.completed}</span>
                         </div>
-                        <div className="flex items-center gap-1.5">
+                        <div className="flex items-center gap-1.5 shrink-0">
                           <div className="w-1.5 h-1.5 rounded-full bg-[#1A73E8]"></div>
                           <span>{row.taskStats.inProgress}</span>
                         </div>
-                        <div className="flex items-center gap-1.5">
+                        <div className="flex items-center gap-1.5 shrink-0">
                           <div className="w-1.5 h-1.5 rounded-full bg-[#FF3B3B]"></div>
                           <span>{row.taskStats.delayed}</span>
                         </div>
@@ -1005,9 +1111,9 @@ export function ReportsPage() {
                     </div>
 
                     {/* Load / Utilization */}
-                    <div className="flex flex-col gap-1.5 justify-center">
+                    <div className="flex flex-col gap-1.5 justify-center min-w-0">
                       <div className="flex justify-between text-[0.6875rem]">
-                        <span className="font-medium text-[#111111]">{row.utilization}%</span>
+                        <span className="font-medium text-[#111111] truncate">{row.utilization}%</span>
                       </div>
                       <div className="w-full h-1.5 bg-[#F0F0F0] rounded-full overflow-hidden">
                         <div
@@ -1017,9 +1123,9 @@ export function ReportsPage() {
                       </div>
                     </div>
 
-                    <div className="text-[0.8125rem] text-[#111111] font-bold">{currencySymbol}{(row.expenses || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
-                    <div className="text-[0.8125rem] text-[#111111] font-bold">{currencySymbol}{(row.revenue || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
-                    <div className={`text-[0.8125rem] font-bold ${row.profit >= 0 ? 'text-[#0F9D58]' : 'text-[#FF3B3B]'}`}>
+                    <div className="text-[0.8125rem] pr-2 text-[#111111] font-bold text-right min-w-0 truncate" title={currencySymbol + (row.expenses || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}>{currencySymbol}{(row.expenses || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                    <div className="text-[0.8125rem] pr-2 text-[#111111] font-bold text-right min-w-0 truncate" title={currencySymbol + (row.revenue || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}>{currencySymbol}{(row.revenue || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                    <div className={`text-[0.8125rem] pr-2 font-bold text-right min-w-0 truncate ${row.profit >= 0 ? 'text-[#0F9D58]' : 'text-[#FF3B3B]'}`} title={(row.profit >= 0 ? '+' : '') + currencySymbol + (row.profit || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}>
                       {row.profit >= 0 ? '+' : ''}{currencySymbol}{(row.profit || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}
                     </div>
                   </div>

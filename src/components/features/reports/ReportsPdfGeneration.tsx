@@ -208,7 +208,7 @@ export const ReportsPdfTemplate = ({ activeTab, data, kpis, dateRange, companyNa
 };
 
 
-export const IndividualEmployeePdfTemplate = ({ member, worklogs, dateRange, companyName, timezone, currency }: { member: MemberRow, worklogs: WorklogRow[], dateRange: [dayjs.Dayjs | null, dayjs.Dayjs | null] | null, companyName?: string, timezone?: string, currency?: string }) => {
+export const IndividualEmployeePdfTemplate = ({ member, worklogs, dateRange, companyName, timezone }: { member: MemberRow, worklogs: WorklogRow[], dateRange: [dayjs.Dayjs | null, dayjs.Dayjs | null] | null, companyName?: string, timezone?: string, currency?: string }) => {
     const generatedDate = dayjs().tz(timezone || 'Asia/Kolkata').format('MMM DD, YYYY');
     const periodStart = dateRange && dateRange[0] ? dateRange[0].format('MMM DD, YYYY') : 'Start';
     const periodEnd = dateRange && dateRange[1] ? dateRange[1].format('MMM DD, YYYY') : 'End';
@@ -433,11 +433,12 @@ function renderReqHeader() {
         <>
             <Th style={{ width: '50px' }}>No</Th>
             <Th style={{ width: '25%' }}>Requirement</Th>
-            <Th style={{ width: '15%' }}>Contact Person</Th>
-            <Th style={{ width: '15%' }}>Timeline</Th>
-            <Th style={{ width: '20%' }}>Hours Utilization</Th>
-            <Th style={{ width: '10%' }}>Revenue</Th>
-            <Th style={{ width: '10%' }}>Status</Th>
+            <Th style={{ width: '15%' }}>Partner</Th>
+            <Th style={{ width: '12%' }}>Timeline</Th>
+            <Th style={{ width: '15%' }}>Hours Utilization</Th>
+            <Th style={{ width: '10%' }}>Revision</Th>
+            <Th style={{ width: '13%', textAlign: 'right' }}>Revenue / P&L</Th>
+            <Th style={{ width: '10%', textAlign: 'center' }}>Status</Th>
         </>
     )
 }
@@ -446,12 +447,13 @@ function renderTaskHeader() {
     return (
         <>
             <Th style={{ width: '50px' }}>No</Th>
-            <Th>Task</Th>
-            <Th>Requirement</Th>
-            <Th>Leader</Th>
-            <Th>Assigned</Th>
-            <Th>Duration</Th>
-            <Th>Status</Th>
+            <Th style={{ width: '22%' }}>Task</Th>
+            <Th style={{ width: '18%' }}>Requirement</Th>
+            <Th style={{ width: '10%' }}>Leader</Th>
+            <Th style={{ width: '12%' }}>Assigned</Th>
+            <Th style={{ width: '8%' }}>Due Date</Th>
+            <Th style={{ width: '16%' }}>Hours Variance</Th>
+            <Th style={{ width: '10%', textAlign: 'center' }}>Status</Th>
         </>
     )
 }
@@ -475,27 +477,84 @@ function renderReqRow(row: RequirementReport, idx: number, timezone?: string, cu
         <>
             <Td>{idx + 1}</Td>
             <Td>
-                <div style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, fontSize: '13px', color: '#111111' }}>{row.requirement}</div>
-                <div style={{ fontSize: '11px', color: '#666666' }}>{row.partner}</div>
+                <div style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, fontSize: '13px', color: '#111111' }}>
+                  {row.requirement}
+                </div>
+                <div style={{ fontSize: '11px', color: '#666666', fontWeight: 500, marginTop: '2px' }}>
+                  {row.workspaceName}
+                </div>
+                <div style={{ display: 'flex', gap: '4px', marginTop: '4px' }}>
+                     {row.type && <span style={{ fontSize: '9px', backgroundColor: '#F5F5F5', color: '#888888', padding: '2px 4px', borderRadius: '4px', textTransform: 'uppercase' }}>{row.type}</span>}
+                     {row.priority && <span style={{ fontSize: '9px', backgroundColor: row.priority === 'High' ? '#FFF0F0' : '#F0F8FF', color: row.priority === 'High' ? '#FF3B3B' : '#2196F3', padding: '2px 4px', borderRadius: '4px', textTransform: 'uppercase' }}>{row.priority}</span>}
+                </div>
             </Td>
-            <Td>{row.manager || '-'}</Td>
+            <Td>
+                 <div style={{ fontWeight: 700, fontSize: '11px', color: '#111111' }}>{row.partner}</div>
+                 <div style={{ fontSize: '10px', color: '#666666' }}>{row.manager || '-'}</div>
+            </Td>
             <Td>
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <span>{row.startDate ? dayjs(row.startDate).tz(timezone || 'Asia/Kolkata').format('MMM DD') : '-'}</span>
-                    <span style={{ color: '#999', fontSize: '10px' }}>to {row.endDate ? dayjs(row.endDate).tz(timezone || 'Asia/Kolkata').format('MMM DD') : '-'}</span>
+                    <span style={{ fontWeight: 600, color: '#111' }}>{row.startDate ? dayjs(row.startDate).tz(timezone || 'Asia/Kolkata').format('MMM DD') : '-'}</span>
+                    <span style={{ fontSize: '10px', color: (row.status !== 'Completed' && row.endDate && dayjs().isAfter(dayjs(row.endDate), 'day')) ? '#FF3B3B' : '#666', fontWeight: (row.status !== 'Completed' && row.endDate && dayjs().isAfter(dayjs(row.endDate), 'day')) ? 700 : 400 }}>
+                       to {row.endDate ? dayjs(row.endDate).tz(timezone || 'Asia/Kolkata').format('MMM DD') : '-'}
+                    </span>
                 </div>
             </Td>
             <Td>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px' }}>
-                        <span style={{ fontWeight: 700, color: row.engagedHrs > row.allottedHrs ? '#FF3B3B' : '#111111' }}>{row.engagedHrs}h</span>
-                        <span style={{ color: '#666666' }}>of {row.allottedHrs}h</span>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', paddingRight: '12px' }}>
+                    {(() => {
+                        const remaining = (row.allottedHrs || 0) - (row.engagedHrs || 0);
+                        const isBleeding = row.engagedHrs > (row.allottedHrs || 0);
+                        const isWarning = !isBleeding && (row.allottedHrs || 0) > 0 && row.engagedHrs >= ((row.allottedHrs || 0) * 0.8);
+                        
+                        // Calculate visualization percentages (max 100%)
+                        const total = (row.allottedHrs || 0) > 0 ? row.allottedHrs : Math.max(row.engagedHrs || 1, 1);
+                        const fillRatio = Math.min((row.engagedHrs || 0) / total, 1);
+                        const fillPercent = `${(fillRatio * 100).toFixed(1)}%`;
+                        
+                        // Determine colors
+                        const barColor = isBleeding ? '#FF3B3B' : isWarning ? '#FF8A00' : '#111111';
+                        const trackColor = '#F0F0F0';
+                        
+                        return (
+                          <>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <span style={{ fontWeight: 700, fontSize: '12px', color: isBleeding ? '#FF3B3B' : isWarning ? '#FF8A00' : '#111111' }}>
+                                  {row.engagedHrs}h
+                                </span>
+                                <span style={{ fontSize: '10px', fontWeight: 600, padding: isBleeding ? '2px 6px' : '0', backgroundColor: isBleeding ? '#FFF0F0' : 'transparent', borderRadius: '4px', color: isBleeding ? '#FF3B3B' : isWarning ? '#FF8A00' : '#999999' }}>
+                                  {isBleeding ? `+${Math.abs(remaining).toFixed(1)}h over` : `${remaining.toFixed(1)}h left`}
+                                </span>
+                            </div>
+                            {/* Micro-visualization Sparkline inline style */}
+                            <div style={{ height: '4px', width: '100%', borderRadius: '4px', overflow: 'hidden', backgroundColor: trackColor }}>
+                                <div style={{ height: '100%', borderRadius: '4px', backgroundColor: barColor, width: fillPercent }} />
+                            </div>
+                          </>
+                        );
+                    })()}
                     </div>
-                    <ProgressBar filled={row.engagedHrs} total={row.allottedHrs} color={row.engagedHrs > row.allottedHrs ? '#FF3B3B' : '#111111'} />
+            </Td>
+            <Td>
+                <div style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 600, fontSize: '11px', color: '#111111' }}>
+                    {row.revision > 0 ? (
+                        <span style={{ padding: '2px 8px', borderRadius: '4px', backgroundColor: row.revision > 1 ? '#FFF4EC' : '#F5F5F5', color: row.revision > 1 ? '#FF8A00' : '#666666' }}>
+                            v{row.revision + 1}
+                        </span>
+                    ) : (
+                        <span style={{ color: '#CCCCCC' }}>-</span>
+                    )}
                 </div>
             </Td>
-            <Td style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700 }}>{currSym}{(row.revenue || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}</Td>
-            <Td>
+            <Td style={{ fontFamily: "'Manrope', sans-serif", textAlign: 'right', verticalAlign: 'middle' }}>
+                <div style={{ fontSize: '9px', color: '#999999', fontWeight: 500 }}>
+                    {currSym}{(row.revenue || 0).toLocaleString()}
+                </div>
+                <div style={{ fontWeight: 700, fontSize: '11px', color: row.profit >= 0 ? '#00A389' : '#FF3B3B', marginTop: '1px' }}>
+                    {row.profit >= 0 ? '+' : ''}{currSym}{(row.profit || 0).toLocaleString()}
+                </div>
+            </Td>
+            <Td style={{ textAlign: 'center' }}>
                 <div style={{
                     display: 'inline-block',
                     padding: '4px 10px',
@@ -514,15 +573,66 @@ function renderReqRow(row: RequirementReport, idx: number, timezone?: string, cu
 }
 
 function renderTaskRow(row: TaskReport, idx: number) {
+    const isOverdue = row.dueDate && new Date() > new Date(row.dueDate) && row.status !== 'Completed';
+    const remaining = (row.allottedHrs || 0) - (row.engagedHrs || 0);
+    const isBleeding = row.engagedHrs > (row.allottedHrs || 0);
+    const isWarning = !isBleeding && (row.allottedHrs || 0) > 0 && row.engagedHrs >= ((row.allottedHrs || 0) * 0.8);
+    const hasEstimate = (row.allottedHrs || 0) > 0;
+    const total = hasEstimate ? row.allottedHrs : Math.max(row.engagedHrs || 1, 1);
+    const fillRatio = Math.min((row.engagedHrs || 0) / total, 1);
+    const fillPercent = `${(fillRatio * 100).toFixed(1)}%`;
+    const barColor = isBleeding ? '#FF3B3B' : isWarning ? '#FF8A00' : '#111111';
+    const trackColor = '#F0F0F0';
+
     return (
         <>
             <Td>{idx + 1}</Td>
-            <Td style={{ fontWeight: 600, color: '#111' }}>{row.task}</Td>
-            <Td style={{ color: '#666' }}>{row.requirement}</Td>
-            <Td style={{ color: '#666' }}>{row.leader}</Td>
-            <Td>{row.assigned}</Td>
-            <Td style={{ fontWeight: 700 }}>{row.engagedHrs}h / {row.allottedHrs}h</Td>
             <Td>
+                <div style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, fontSize: '13px', color: '#111111' }}>
+                    {row.task}
+                </div>
+                {row.workspaceName && (
+                    <div style={{ fontSize: '11px', color: '#999999', fontWeight: 500, marginTop: '2px' }}>
+                        {row.workspaceName}
+                    </div>
+                )}
+            </Td>
+            <Td style={{ color: '#666666' }}>{row.requirement}</Td>
+            <Td style={{ color: '#666666' }}>{row.leader}</Td>
+            <Td style={{ color: '#666666' }}>{row.assigned}</Td>
+            <Td>
+                {row.dueDate ? (
+                    <span style={{
+                        fontSize: '12px',
+                        fontWeight: isOverdue ? 700 : 500,
+                        color: isOverdue ? '#FF3B3B' : '#111111'
+                    }}>
+                        {dayjs(row.dueDate).format('MMM DD')}
+                    </span>
+                ) : (
+                    <span style={{ color: '#CCCCCC' }}>-</span>
+                )}
+            </Td>
+            <Td>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', paddingRight: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span style={{ fontWeight: 700, fontSize: '12px', color: isBleeding ? '#FF3B3B' : isWarning ? '#FF8A00' : '#111111' }}>
+                            {row.engagedHrs}h
+                        </span>
+                        {hasEstimate ? (
+                            <span style={{ fontSize: '10px', fontWeight: 600, padding: isBleeding ? '2px 6px' : '0', backgroundColor: isBleeding ? '#FFF0F0' : 'transparent', borderRadius: '4px', color: isBleeding ? '#FF3B3B' : isWarning ? '#FF8A00' : '#999999' }}>
+                                {isBleeding ? `+${Math.abs(remaining).toFixed(1)}h over` : `${remaining.toFixed(1)}h left`}
+                            </span>
+                        ) : (
+                            <span style={{ fontSize: '10px', color: '#CCCCCC' }}>No estimate</span>
+                        )}
+                    </div>
+                    <div style={{ height: '4px', width: '100%', borderRadius: '4px', overflow: 'hidden', backgroundColor: trackColor }}>
+                        <div style={{ height: '100%', borderRadius: '4px', backgroundColor: barColor, width: fillPercent }} />
+                    </div>
+                </div>
+            </Td>
+            <Td style={{ textAlign: 'center' }}>
                 <div style={{
                     display: 'inline-block',
                     padding: '4px 10px',
@@ -636,6 +746,7 @@ const Td = ({ children, style, ...props }: React.TdHTMLAttributes<HTMLTableCellE
 );
 
 const ProgressBar = ({ filled, total, color }: { filled: number, total: number, color: string }) => {
+    // Kept for backward compatibility with Tasks and Employee reporting, removed from Requirements.
     const pct = Math.min((filled / (total || 1)) * 100, 100);
     return (
         <div style={{ width: '100%', height: '6px', backgroundColor: '#F0F0F0', borderRadius: '50px', overflow: 'hidden' }}>

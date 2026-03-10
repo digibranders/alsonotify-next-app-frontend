@@ -4,6 +4,7 @@ export interface RequirementReport {
     id: number;
     requirement: string;
     partner: string;
+    workspaceName: string;
     manager: string | null;
     startDate: string | null;
     endDate: string | null;
@@ -12,6 +13,8 @@ export interface RequirementReport {
     engagedHrs: number;
     extraHrs: number;
     revenue: number;
+    cost: number;
+    profit: number;
     revision: number;
     type?: string;
     priority?: string;
@@ -76,6 +79,7 @@ export const getRequirementReports = async (params: GetRequirementReportsParams)
 export interface TaskReport {
     id: number;
     task: string;
+    workspaceName: string | null;
     requirement: string;
     leader: string;
     assigned: string;
