@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useMemo, useCallback } from 'react';
+import React, { createContext, useContext, useState, useMemo, useCallback, useEffect } from 'react';
 import { Task } from '@/types/domain';
 import { GanttTask } from './types';
 import {
@@ -107,6 +107,23 @@ export const GanttProvider: React.FC<GanttProviderProps> = ({ initialTasks, work
     // --- Task Processing & Hierarchy ---
     const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
     const [localTasks, setLocalTasks] = useState<Task[]>(initialTasks);
+
+    // Sync localTasks when initialTasks prop changes (e.g. after async data load)
+    useEffect(() => {
+        setLocalTasks(initialTasks);
+    }, [initialTasks]);
+
+    // Re-sync baseDate when tasks with dates first become available
+    useEffect(() => {
+        if (initialTasks.length > 0) {
+            const tasksWithDates = initialTasks.filter(t => t.start_date);
+            if (tasksWithDates.length > 0) {
+                const earliest = fnsMin(tasksWithDates.map(t => new Date(t.start_date!)));
+                setBaseDate(earliest);
+                setVisibleDate(earliest);
+            }
+        }
+    }, [initialTasks]);
 
     const { flatTasks, allTasksMap, dateRange } = useMemo(() => {
         // Create a massive buffer to simulate infinite scroll (+/- 2 years)
