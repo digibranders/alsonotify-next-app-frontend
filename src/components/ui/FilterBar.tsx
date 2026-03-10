@@ -104,7 +104,9 @@ export function FilterBar({
           >
             <button
               onClick={() => setOpenDropdown(openDropdown === filter.id ? null : filter.id)}
-              className={`flex items-center gap-2 px-3 py-1.5 border rounded-lg text-[0.8125rem] font-normal transition-all duration-200 justify-between min-w-[120px] ${hasSelection
+              aria-haspopup="listbox"
+              aria-expanded={openDropdown === filter.id}
+              className={`flex items-center gap-2 px-3 py-1.5 border rounded-lg text-[0.8125rem] font-normal transition-all duration-200 justify-between min-w-[120px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111111] focus-visible:ring-offset-1 ${hasSelection
                 ? 'bg-[#111111] text-white border-[#111111] shadow-sm'
                 : 'bg-white text-[#666666] border-[#EEEEEE] hover:border-[#CCCCCC] hover:text-[#333333]'
                 }`}
@@ -117,7 +119,10 @@ export function FilterBar({
 
             {/* Dropdown Menu */}
             {openDropdown === filter.id && (
-              <div className="absolute top-full mt-2 left-0 bg-white border border-[#EEEEEE] rounded-[12px] shadow-xl min-w-[200px] w-max max-w-[300px] py-2 z-50 max-h-[300px] overflow-y-auto animate-in fade-in slide-in-from-top-1 duration-200 [&::-webkit-scrollbar]:hidden">
+              <div
+                role="listbox"
+                className="absolute top-full mt-2 left-0 bg-white border border-[#EEEEEE] rounded-[12px] shadow-xl min-w-[200px] w-max max-w-[300px] py-2 z-50 max-h-[300px] overflow-y-auto animate-in fade-in slide-in-from-top-1 duration-200 [&::-webkit-scrollbar]:hidden"
+              >
                 {filter.options.map((option, idx) => {
                   const optValue = getOptionValue(option);
                   const optLabel = getOptionLabel(option);
@@ -126,6 +131,8 @@ export function FilterBar({
                   return (
                     <button
                       key={`${optValue}-${idx}`}
+                      role="option"
+                      aria-selected={isSelected}
                       onClick={(e) => {
                         if (isMulti) {
                           if (optValue === 'All') {
@@ -182,8 +189,9 @@ export function FilterBar({
         showClearButton && hasActiveFilters && onClearFilters && (
           <button
             onClick={onClearFilters}
-            className="w-8 h-8 rounded-full bg-[#F5F5F5] hover:bg-[#EEEEEE] text-[#666666] hover:text-[#111111] transition-all flex items-center justify-center"
+            className="w-8 h-8 rounded-full bg-[#F5F5F5] hover:bg-[#EEEEEE] text-[#666666] hover:text-[#111111] transition-all flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111111] focus-visible:ring-offset-1"
             title="Clear filters"
+            aria-label="Clear filters"
           >
             <X className="w-4 h-4" />
           </button>
