@@ -65,7 +65,7 @@ function getSanitizer() {
     // Only add if supported (instance)
     if (sanitizerInstance && typeof sanitizerInstance.addHook === 'function') {
         sanitizerInstance.addHook('afterSanitizeAttributes', (node: any) => {
-            if ('target' in node) {
+            if ('target' in node || (node.tagName && node.tagName.toLowerCase() === 'a')) {
                 node.setAttribute('target', '_blank');
                 node.setAttribute('rel', 'noopener noreferrer');
             }
@@ -98,4 +98,21 @@ export function sanitizeRichTextForEditor(html: string): string {
     return getSanitizer().sanitize(html, {
         ...SHARED_CONFIG,
     });
+}
+
+/**
+ * Sanitizes email HTML, with an option to allow or block images.
+ */
+export function sanitizeEmailHtml(html: string, allowImages: boolean): string {
+  if (!html) return "";
+
+  const dangerousTags = ['script', 'style', 'iframe', 'object', 'embed', 'form', 'input', 'textarea', 'button'];
+  const dangerousAttrs = ['on*', 'form*', 'action', 'formaction'];
+
+  return getSanitizer().sanitize(html, {
+    USE_PROFILES: { html: true },
+    FORBID_TAGS: allowImages ? dangerousTags : ["img", "picture", "source", ...dangerousTags],
+    FORBID_ATTR: allowImages ? dangerousAttrs : ["srcset", ...dangerousAttrs],
+    ADD_ATTR: ['target', 'rel'],
+  });
 }

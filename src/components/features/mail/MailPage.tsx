@@ -35,7 +35,6 @@ import {
   X,
 } from "lucide-react";
 import dayjs from "dayjs";
-import DOMPurify from "dompurify";
 
 import { PageLayout } from "../../layout/PageLayout";
 import { DocumentPreviewModal } from "../../ui/DocumentPreviewModal";
@@ -43,6 +42,7 @@ import { UserDocument } from "@/types/domain";
 import { useMailAttachments, useMailFolders, useMailMessage, useMailMessages } from "@/hooks/useMail";
 import { useIsNarrow } from "@/hooks/useBreakpoint";
 import { trimStr } from "@/utils/trim";
+import { sanitizeEmailHtml } from "@/utils/sanitizeHtml";
 import {
   deleteMail,
   downloadAttachment,
@@ -81,33 +81,6 @@ function formatBytes(bytes: number) {
 
 const emailLike = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
 
-// Block images unless user allows
-function sanitizeEmailHtml(html: string, allowImages: boolean) {
-  if (!html) return "";
-
-  const dangerousTags = ['script', 'style', 'iframe', 'object', 'embed', 'form', 'input', 'textarea', 'button'];
-  const dangerousAttrs = ['on*', 'form*', 'action', 'formaction'];
-
-  const localDOMPurify = DOMPurify;
-
-  localDOMPurify.addHook('afterSanitizeAttributes', (node: Element) => {
-    if (node.tagName && node.tagName.toLowerCase() === 'a') {
-      node.setAttribute('target', '_blank');
-      node.setAttribute('rel', 'noopener noreferrer');
-    }
-  });
-
-  const clean = localDOMPurify.sanitize(html, {
-    USE_PROFILES: { html: true },
-    FORBID_TAGS: allowImages ? dangerousTags : ["img", "picture", "source", ...dangerousTags],
-    FORBID_ATTR: allowImages ? dangerousAttrs : ["srcset", ...dangerousAttrs],
-    ADD_ATTR: ['target', 'rel'],
-  });
-
-  localDOMPurify.removeAllHooks();
-
-  return clean;
-}
 
 // ---- Folder helpers ----
 const normalize = (s?: string) => (s || "").trim().toLowerCase();

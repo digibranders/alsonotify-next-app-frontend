@@ -41,6 +41,7 @@ import { DocumentPreviewModal } from "../../ui/DocumentPreviewModal";
 import { UserDocument } from "@/types/domain";
 import { useMailAttachments, useMailFolders, useMailMessage, useMailMessages } from "@/hooks/useMail";
 import { useDebounce } from "@/hooks/useDebounce";
+import { sanitizeEmailHtml } from "@/utils/sanitizeHtml";
 import {
   deleteMail,
   downloadAttachment,
@@ -80,34 +81,7 @@ function formatBytes(bytes: number) {
   return `${v.toFixed(i === 0 ? 0 : 1)} ${sizes[i]}`;
 }
 
-import DOMPurify from "dompurify";
 
-function sanitizeEmailHtml(html: string, allowImages: boolean) {
-  if (!html) return "";
-
-  const dangerousTags = ['script', 'style', 'iframe', 'object', 'embed', 'form', 'input', 'textarea', 'button'];
-  const dangerousAttrs = ['on*', 'form*', 'action', 'formaction'];
-
-  const localDOMPurify = DOMPurify;
-
-  localDOMPurify.addHook('afterSanitizeAttributes', (node: Element) => {
-    if (node.tagName && node.tagName.toLowerCase() === 'a') {
-      node.setAttribute('target', '_blank');
-      node.setAttribute('rel', 'noopener noreferrer');
-    }
-  });
-
-  const clean = localDOMPurify.sanitize(html, {
-    USE_PROFILES: { html: true },
-    FORBID_TAGS: allowImages ? dangerousTags : ["img", "picture", "source", ...dangerousTags],
-    FORBID_ATTR: allowImages ? dangerousAttrs : ["srcset", ...dangerousAttrs],
-    ADD_ATTR: ['target', 'rel'],
-  });
-
-  localDOMPurify.removeAllHooks();
-
-  return clean;
-}
 
 // ---- Folder helpers for counts (frontend-only) ----
 const FOLDER_ICONS: Record<string, typeof Mail> = {
