@@ -2,13 +2,18 @@ import Cookies from "universal-cookie";
 
 export const setToken = (token: string) => {
   const cookies = new Cookies();
-  // Enable secure flag only when served over HTTPS (production)
-  // This preserves local dev on http://localhost
   const isSecure = typeof window !== "undefined" && window.location.protocol === "https:";
-  // sameSite: "strict" reduces CSRF attack surface compared to "lax"
-  // Note: true HttpOnly protection requires the backend to set the cookie via Set-Cookie header.
-  // This is a P1 architectural item tracked separately.
-  cookies.set("_token", token, { path: "/", secure: isSecure, sameSite: "strict" });
+  
+  // sameSite: "lax" prevents silent drops during redirects across subdomains.
+  const isProduction = typeof window !== "undefined" && window.location.hostname.includes('alsonotify.com');
+  const domain = isProduction ? ".alsonotify.com" : window.location.hostname;
+  
+  cookies.set("_token", token, { 
+    path: "/", 
+    secure: isSecure, 
+    sameSite: "lax",
+    ...(isProduction && { domain })
+  });
 };
 
 export const getToken = () => {
