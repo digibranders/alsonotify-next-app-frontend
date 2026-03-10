@@ -2,11 +2,16 @@ import Cookies from "universal-cookie";
 
 export const setToken = (token: string) => {
   const cookies = new Cookies();
-  const isSecure = typeof window !== "undefined" && window.location.protocol === "https:";
+  
+  const hasWindow = typeof window !== "undefined";
+  const protocol = hasWindow && window.location ? window.location.protocol : "";
+  const hostname = hasWindow && window.location && window.location.hostname ? window.location.hostname : "";
+
+  const isSecure = protocol === "https:";
   
   // sameSite: "lax" prevents silent drops during redirects across subdomains.
-  const isProduction = typeof window !== "undefined" && window.location.hostname.includes('alsonotify.com');
-  const domain = isProduction ? ".alsonotify.com" : window.location.hostname;
+  const isProduction = hostname.includes('alsonotify.com');
+  const domain = isProduction ? ".alsonotify.com" : hostname;
   
   cookies.set("_token", token, { 
     path: "/", 
