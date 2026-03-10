@@ -136,7 +136,7 @@ export function RequirementsPage() {
 
     // Send tab context so the backend can apply smart filtering
     // (e.g. outsourced+Assigned+unmapped workspace belongs in pending, not active)
-    if (activeStatusTab === 'active' || activeStatusTab === 'pending') {
+    if (['active', 'pending', 'delayed'].includes(activeStatusTab)) {
       params.append('tab', activeStatusTab);
     }
 

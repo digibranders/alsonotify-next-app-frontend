@@ -10,12 +10,12 @@ interface KanbanBoardTabProps {
   revisions: Task[];
 }
 
-type KanbanColumn = 'assigned' | 'in-progress' | 'impediment' | 'review' | 'completed';
+type KanbanColumn = 'assigned' | 'in-progress' | 'delayed' | 'review' | 'completed';
 
 const columnConfig: Record<KanbanColumn, { color: string; bg: string; dotBg: string; label: string }> = {
   'assigned': { color: 'text-[#666666]', bg: 'bg-[#F7F7F7]', dotBg: 'bg-[#666666]', label: 'Assigned' },
   'in-progress': { color: 'text-[#2F80ED]', bg: 'bg-[#E3F2FD]', dotBg: 'bg-[#2F80ED]', label: 'In Progress' },
-  'impediment': { color: 'text-[#ff3b3b]', bg: 'bg-[#FFF5F5]', dotBg: 'bg-[#ff3b3b]', label: 'Blocked / Delayed' },
+  'delayed': { color: 'text-[#ff3b3b]', bg: 'bg-[#FFF5F5]', dotBg: 'bg-[#ff3b3b]', label: 'Delayed' },
   'review': { color: 'text-[#9C27B0]', bg: 'bg-[#F3E5F5]', dotBg: 'bg-[#9C27B0]', label: 'Review' },
   'completed': { color: 'text-[#0F9D58]', bg: 'bg-[#E8F5E9]', dotBg: 'bg-[#0F9D58]', label: 'Completed' }
 };
@@ -31,8 +31,8 @@ export function KanbanBoardTab({ tasks, revisions }: KanbanBoardTabProps) {
           return status === 'assigned' || status === 'pending' || status === 'todo' || !t.status;
         case 'in-progress':
           return status === 'in_progress' || status === 'inprogress';
-        case 'impediment':
-          return status === 'stuck' || status === 'impediment' || status === 'delayed' || status === 'blocked';
+        case 'delayed':
+          return status === 'delayed' || status === 'on_hold';
         case 'review':
           return status === 'review';
         case 'completed':
@@ -49,7 +49,7 @@ export function KanbanBoardTab({ tasks, revisions }: KanbanBoardTabProps) {
     return { name: 'Unassigned', pic: null };
   };
 
-  const columns: KanbanColumn[] = ['assigned', 'in-progress', 'impediment', 'review', 'completed'];
+  const columns: KanbanColumn[] = ['assigned', 'in-progress', 'delayed', 'review', 'completed'];
 
   return (
     <div className="h-full overflow-x-auto">

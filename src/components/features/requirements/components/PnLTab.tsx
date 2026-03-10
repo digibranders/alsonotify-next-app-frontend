@@ -131,7 +131,7 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       {/* Title */}
-      <div className="bg-white rounded-[16px] p-6 border border-[#EEEEEE] shadow-sm">
+      <div className="bg-white rounded-[16px] p-6 border border-[#EEEEEE] shadow-sm overflow-hidden">
         <h3 className="text-base font-bold text-[#111111] mb-6 flex items-center gap-2">
            <TrendingUp className="w-5 h-5 text-[#ff3b3b]" />
            Profit & Loss Analysis
@@ -139,80 +139,58 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
       
         {/* Summary Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        {/* Quoted Price */}
-        <div className="bg-white rounded-[16px] p-5 border border-[#EEEEEE] shadow-sm">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-full bg-[#E8F5E9] flex items-center justify-center">
+          {/* Quoted Price */}
+          <div className="bg-white rounded-[14px] px-5 py-4 border border-[#EEEEEE] shadow-sm flex items-center gap-4">
+            <div className="w-10 h-10 rounded-full bg-[#E8F5E9] flex items-center justify-center flex-shrink-0">
               <DollarSign className="w-5 h-5 text-[#0F9D58]" />
             </div>
-            <span className="text-xs font-bold text-[#999999] uppercase tracking-wide">Quoted Price</span>
+            <div>
+              <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide mb-0.5">Quoted Price</p>
+              <p className="text-xl font-bold text-[#111111] leading-tight">{formatCurrency(summary.quotedPrice)}</p>
+            </div>
           </div>
-          <p className="text-2xl font-bold text-[#111111]">
-            {formatCurrency(summary.quotedPrice)}
-          </p>
-          <p className="text-[0.6875rem] text-[#666666] mt-1">Requirement budget</p>
-        </div>
 
-        {/* Resource Cost */}
-        <div className="bg-white rounded-[16px] p-5 border border-[#EEEEEE] shadow-sm">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-full bg-[#FFF5F5] flex items-center justify-center">
+          {/* Resource Cost */}
+          <div className="bg-white rounded-[14px] px-5 py-4 border border-[#EEEEEE] shadow-sm flex items-center gap-4">
+            <div className="w-10 h-10 rounded-full bg-[#FFF5F5] flex items-center justify-center flex-shrink-0">
               <Users className="w-5 h-5 text-[#ff3b3b]" />
             </div>
-            <span className="text-xs font-bold text-[#999999] uppercase tracking-wide">Resource Cost</span>
+            <div>
+              <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide mb-0.5">Resource Cost</p>
+              <p className="text-xl font-bold text-[#111111] leading-tight">{formatCurrency(summary.totalResourceCost)}</p>
+            </div>
           </div>
-          <p className="text-2xl font-bold text-[#111111]">
-            {formatCurrency(summary.totalResourceCost)}
-          </p>
-          <p className="text-[0.6875rem] text-[#666666] mt-1">
-            {summary.totalActualHours}h @ avg rate
-          </p>
-        </div>
 
-        {/* Net Profit/Loss */}
-        <div className={`bg-white rounded-[16px] p-5 border shadow-sm ${summary.netProfit >= 0 ? 'border-[#0F9D58]' : 'border-[#DC2626]'
-          }`}>
-          <div className="flex items-center gap-3 mb-3">
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${summary.netProfit >= 0 ? 'bg-[#E8F5E9]' : 'bg-[#FEE2E2]'
-              }`}>
+          {/* Net Profit/Loss */}
+          <div className={`bg-white rounded-[14px] px-5 py-4 border shadow-sm flex items-center gap-4 ${summary.netProfit >= 0 ? 'border-[#0F9D58]' : 'border-[#DC2626]'}`}>
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${summary.netProfit >= 0 ? 'bg-[#E8F5E9]' : 'bg-[#FEE2E2]'}`}>
               {summary.netProfit >= 0 ? (
                 <TrendingUp className="w-5 h-5 text-[#0F9D58]" />
               ) : (
                 <TrendingDown className="w-5 h-5 text-[#DC2626]" />
               )}
             </div>
-            <span className="text-xs font-bold text-[#999999] uppercase tracking-wide">
-              Net {summary.netProfit >= 0 ? 'Profit' : 'Loss'}
-            </span>
+            <div>
+              <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide mb-0.5">
+                Net {summary.netProfit >= 0 ? 'Profit' : 'Loss'}
+              </p>
+              <p className={`text-xl font-bold leading-tight ${summary.netProfit >= 0 ? 'text-[#0F9D58]' : 'text-[#DC2626]'}`}>
+                {summary.netProfit >= 0 ? '+' : ''}{formatCurrency(summary.netProfit)}
+              </p>
+            </div>
           </div>
-          <p className={`text-2xl font-bold ${summary.netProfit >= 0 ? 'text-[#0F9D58]' : 'text-[#DC2626]'
-            }`}>
-            {summary.netProfit >= 0 ? '+' : ''}{formatCurrency(summary.netProfit)}
-          </p>
-          <p className="text-[0.6875rem] text-[#666666] mt-1">
-            {summary.profitMargin}% margin
-          </p>
-        </div>
 
-        {/* Hours Summary */}
-        <div className="bg-white rounded-[16px] p-5 border border-[#EEEEEE] shadow-sm">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-full bg-[#E3F2FD] flex items-center justify-center">
+          {/* Hours Summary */}
+          <div className="bg-white rounded-[14px] px-5 py-4 border border-[#EEEEEE] shadow-sm flex items-center gap-4">
+            <div className="w-10 h-10 rounded-full bg-[#E3F2FD] flex items-center justify-center flex-shrink-0">
               <Clock className="w-5 h-5 text-[#2F80ED]" />
             </div>
-            <span className="text-xs font-bold text-[#999999] uppercase tracking-wide">Hours</span>
+            <div>
+              <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide mb-0.5">Hours</p>
+              <p className="text-xl font-bold text-[#111111] leading-tight">{summary.totalActualHours}h</p>
+            </div>
           </div>
-          <p className="text-2xl font-bold text-[#111111]">
-            {summary.totalActualHours}h
-          </p>
-          <p className="text-[0.6875rem] text-[#666666] mt-1">
-            of {summary.totalEstimatedHours}h estimated
-            {summary.totalExtraHours > 0 && (
-              <span className="text-[#DC2626] ml-1">(+{summary.totalExtraHours}h over)</span>
-            )}
-          </p>
         </div>
-      </div>
 
       {/* P&L Chart */}
       <div className="h-[400px] w-full mt-8">
