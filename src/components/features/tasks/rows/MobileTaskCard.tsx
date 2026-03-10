@@ -91,7 +91,7 @@ export const MobileTaskCard = memo(function MobileTaskCard({
           </div>
 
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-0.5">
+            <div className="flex items-center gap-2 mb-0.5 min-w-0">
               <span className="font-bold text-sm text-[#111111] truncate block">
                 {task.name}
               </span>
@@ -194,7 +194,7 @@ export const MobileTaskCard = memo(function MobileTaskCard({
                     }
 
                     // Regular task -> Submit for Review
-                    if (!task.is_review_task && (task.status === 'In_Progress' || task.status === 'Assigned')) {
+                    if (!task.is_review_task && isReview && isAssignee) {
                       actions.push({
                         key: 'submit_review',
                         label: 'Submit for Review',

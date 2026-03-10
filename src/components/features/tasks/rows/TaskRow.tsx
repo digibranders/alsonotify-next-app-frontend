@@ -87,8 +87,8 @@ const TaskRowComponent = memo(function TaskRow({
           <div className="flex flex-col gap-0.5 min-w-0">
             <div className="flex items-center gap-1.5 min-w-0">
               <Tooltip title={task.name} placement="topLeft" mouseEnterDelay={0.5}>
-                <div className="flex items-center gap-2">
-                  <span className="font-bold text-sm !text-[#111111] group-hover:text-[#ff3b3b] transition-colors truncate cursor-help">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="font-bold text-sm !text-[#111111] group-hover:text-[#ff3b3b] transition-colors truncate cursor-help block">
                     {task.name}
                   </span>
                   {task.is_review_task && (
@@ -289,8 +289,8 @@ const TaskRowComponent = memo(function TaskRow({
                     });
                   }
 
-                  // Submit for Review option for regular tasks (when in progress)
-                  if (!task.is_review_task && isInProgress && isAssignee) {
+                  // Submit for Review option for regular tasks (after marked complete in timer)
+                  if (!task.is_review_task && isReview && isAssignee) {
                     actions.push({
                       key: 'submit_review',
                       label: 'Submit for Review',
@@ -322,20 +322,7 @@ const TaskRowComponent = memo(function TaskRow({
                     });
                   }
 
-                  // Regular task -> Submit for Review
-                  if (!task.is_review_task && (task.status === 'In_Progress' || task.status === 'Assigned')) {
-                    actions.push({
-                      key: 'submit_review',
-                      label: 'Submit for Review',
-                      icon: <CheckCircle className="w-3.5 h-3.5" />,
-                      onClick: () => {
-                        // We need a way to open the modal from TaskRow
-                        // TasksPage handles this via props
-                        onSubmitForReview?.(0); // This is just a trigger, TasksPage will handle the ID 0 as "open modal" logic if needed, or better: TasksPage passes a function that opens the modal with the task.
-                      },
-                      className: "text-[0.8125rem] font-medium text-[#16a34a]"
-                    });
-                  }
+                  // Removed duplicate submit review block
 
                   // Admin, Leader, or Assignee Actions
                   if (isAdmin || isLeader || isAssignee) {

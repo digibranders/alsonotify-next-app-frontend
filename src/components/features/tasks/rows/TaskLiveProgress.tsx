@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useTimer } from '@/context/TimerContext';
 import { Task } from '@/types/domain';
-import { SegmentedProgressBar } from './SegmentedProgressBar';
 
 interface TaskLiveProgressProps {
   task: Task;
@@ -69,12 +68,18 @@ export function TaskLiveProgress({ task, currentUserId }: TaskLiveProgressProps)
     return num % 1 === 0 ? num.toString() : num.toFixed(1);
   };
 
-  // Progress/Styling Logic
-  const percentage = task.estTime > 0 ? (totalSeconds / (task.estTime * 3600)) * 100 : 0;
-  const isOvertime = percentage > 100;
+  // Format balance
+  const estimatedHours = task.estTime || 0;
+  const balanceHours = estimatedHours - totalHours;
+  const formatBalance = (hours: number) => {
+    if (hours > 0) return `+${hours.toFixed(1)}h`;
+    if (hours < 0) return `${hours.toFixed(1)}h`;
+    return '0.0h';
+  };
+
+  const isOvertime = balanceHours < 0;
   const isBlockedOrDelayed = task.status === 'Delayed';
-  const showRed = isOvertime || isBlockedOrDelayed;
-  const textColor = showRed ? 'text-[#ff3b3b]' : 'text-[#666666]';
+  const textColor = (isOvertime || isBlockedOrDelayed) ? 'text-[#ff3b3b]' : 'text-[#666666]';
 
   return (
     <>
@@ -85,26 +90,13 @@ export function TaskLiveProgress({ task, currentUserId }: TaskLiveProgressProps)
         </span>
       </div>
 
-      {/* Progress Bar - Always Show */}
-      <div className="flex flex-col gap-1 w-full min-w-0 justify-center">
-        <div className="flex justify-end w-full">
-          <span className={`text-[0.6875rem] font-bold whitespace-nowrap leading-none ${textColor}`}>
-            {Math.round(percentage)}%
-          </span>
-        </div>
-        <div className="w-full min-w-0">
-          <SegmentedProgressBar
-            members={liveMembers.sort((a, b) => {
-              if (task.execution_mode === 'sequential') {
-                return (a.queue_order || 0) - (b.queue_order || 0);
-              }
-              return 0; // Keep default order (by ID usually or DB order) for parallel
-            })}
-            totalEstimate={task.estTime}
-            taskStatus={task.status || 'Assigned'}
-            executionMode={task.execution_mode || 'parallel'}
-          />
-        </div>
+      {/* Balance Text */}
+      <div className="flex justify-center items-center">
+        <span className={`text-sm font-bold whitespace-nowrap ${
+          balanceHours > 0 ? 'text-[#16a34a]' : balanceHours < 0 ? 'text-[#ff3b3b]' : 'text-[#666666]'
+        }`}>
+          {formatBalance(balanceHours)}
+        </span>
       </div>
     </>
   );
