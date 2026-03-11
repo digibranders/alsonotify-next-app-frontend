@@ -343,8 +343,7 @@ export function EmailComposeModal({ open, onClose, onSend, initialData, autocomp
         footer={null}
         closable={false}
         centered={!isMobile} // Center both states on desktop
-        maskClosable={false}
-        mask={true} // Always show mask
+        mask={{ closable: false }}
         destroyOnHidden={true} // PRO TIP: This forces the child to unmount when closed, resetting state naturally
         styles={{
           body: { padding: 0 },

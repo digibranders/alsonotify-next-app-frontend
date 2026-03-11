@@ -142,7 +142,7 @@ export function CalendarEventPopup({ event }: CalendarEventPopupProps) {
             {event.participants && event.participants.length > 0 && (
                 <div className="mt-4 pt-4 border-t border-[#EEEEEE]">
                     <p className="text-xs font-semibold text-[#999999] mb-2">Participants</p>
-                    <Avatar.Group maxCount={5} size="small">
+                    <Avatar.Group max={{ count: 5 }} size="small">
                         {event.participants.map((p, idx) => (
                             <Tooltip title={p.name} key={idx}>
                                 <Avatar src={p.avatar}>{p.name[0]}</Avatar>

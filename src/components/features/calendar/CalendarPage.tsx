@@ -9,17 +9,17 @@ import { Popover, Button, App, Popconfirm } from 'antd';
 import dayjs from '@/utils/dayjs';
 import { formatDateForApi } from '@/utils/date';
 
-import { useTasks } from '@/hooks/useTask';
+
 import { useMeetings } from '@/hooks/useMeeting';
-import { useLeaves, useCompanyLeaves } from '@/hooks/useLeave';
+import { useLeaves } from '@/hooks/useLeave';
 import { useTeamsConnectionStatus, useCalendarEvents, useDisconnectTeams } from '@/hooks/useCalendar';
 import { usePublicHolidays } from '@/hooks/useHoliday';
 import { MicrosoftUserOAuth, GraphEvent } from '@/services/calendar';
-import { useEmployees, useCurrentUserCompany, useUserDetails } from '@/hooks/useUser';
+import { useEmployees, useCurrentUserCompany } from '@/hooks/useUser';
 // import { TaskType } from '@/services/task'; // Removed to avoid confusion
 import { MeetingType } from '@/services/meeting';
 import { LeaveType } from '@/services/leave';
-import { Holiday, Task } from '@/types/domain';
+import { Holiday } from '@/types/domain';
 
 import { CalendarEventForm } from '../../modals/CalendarEventForm';
 import { CalendarEvent } from './types';
@@ -58,14 +58,14 @@ export function CalendarPage() {
 
   const { data: calendarEventsData, refetch: refetchCalendarEvents } = useCalendarEvents(startISO, endISO);
 
-  const { data: tasks, isLoading: isLoadingTasks } = useTasks();
+
   const { data: meetings, isLoading: isLoadingMeetings } = useMeetings();
   const { data: leaves, isLoading: isLoadingLeaves } = useLeaves();
   const { data: holidays, isLoading: isLoadingHolidays } = usePublicHolidays();
   const { data: teamsStatus, isLoading: isLoadingTeamsStatus, refetch: refetchTeamsStatus } = useTeamsConnectionStatus();
   const { mutate: disconnectTeams, isPending: isDisconnecting } = useDisconnectTeams();
 
-  const isLoading = isLoadingTasks || isLoadingMeetings || isLoadingLeaves || isLoadingHolidays;
+  const isLoading = isLoadingMeetings || isLoadingLeaves || isLoadingHolidays;
   const isConnected = teamsStatus?.result?.connected ?? false;
 
   const availableLeaveTypes = useMemo((): string[] => {
@@ -109,23 +109,7 @@ export function CalendarPage() {
     const allEvents: CalendarEvent[] = [];
     const calendarEvents = calendarEventsData?.result;
 
-    if (tasks?.result) {
-      tasks.result.forEach((task: Task) => {
-        if (task.end_date) {
-          allEvents.push({
-            id: `task-${task.id}`,
-            title: task.name || 'Untitled',
-            date: formatDateForApi(task.end_date),
-            time: 'Deadline',
-            type: 'deadline',
-            description: task.description ?? undefined,
-            status: task.status,
-            color: '#ff3b3b',
-            raw: task
-          });
-        }
-      });
-    }
+
 
     if (calendarEvents) {
       (calendarEvents as GraphEvent[]).forEach((event: GraphEvent) => {
@@ -213,7 +197,7 @@ export function CalendarPage() {
     }
 
     return allEvents;
-  }, [tasks, meetings, leaves, calendarEventsData, holidays, companyTimeZone]);
+  }, [meetings, leaves, calendarEventsData, holidays, companyTimeZone]);
 
   const handlePrev = () => {
     if (activeView === 'month') setCurrentDate(currentDate.subtract(1, 'month'));
@@ -249,31 +233,16 @@ export function CalendarPage() {
     return currentDate.format('MMMM D, YYYY');
   }, [currentDate, activeView]);
 
-  // Fetch current user details for leave filtering
-  const { data: userDetails } = useUserDetails();
-  const currentUserId = userDetails?.result?.id;
-
-  const todayEvents = events.filter(e => e.date === formatDateForApi(dayjs()));
+  const todayEvents = events.filter(e => e.date === formatDateForApi(dayjs()) && e.type === 'meeting');
   const upcomingEvents = useMemo(() => {
     return events
       .filter(e => {
         const isFuture = dayjs(e.date).isAfter(dayjs(), 'day');
-        if (!isFuture) return false;
-
-        if (e.type === 'meeting') return true;
-        if (e.type === 'leave') return (e.raw as LeaveType).user_id === currentUserId;
-        if (e.type === 'holiday') {
-          const eventDate = dayjs(e.date);
-          const now = dayjs();
-          return eventDate.month() === now.month() && eventDate.year() === now.year();
-        }
-
-        // Exclude others (tasks/deadlines) based on request "only show..."
-        return false;
+        return isFuture && e.type === 'meeting';
       })
       .sort((a, b) => dayjs(a.date).valueOf() - dayjs(b.date).valueOf())
       .slice(0, 10);
-  }, [events, currentUserId]);
+  }, [events]);
 
   return (
     <PageLayout
