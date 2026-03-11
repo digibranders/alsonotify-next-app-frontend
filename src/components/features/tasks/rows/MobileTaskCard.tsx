@@ -10,6 +10,7 @@ import { RevisionModal } from "../../../modals/RevisionModal";
 import { provideEstimate } from "../../../../services/task";
 import { useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/queryKeys";
+import { TaskLiveProgress } from "./TaskLiveProgress";
 
 interface MobileTaskCardProps {
   task: Task;
@@ -49,20 +50,8 @@ export const MobileTaskCard = memo(function MobileTaskCard({
   const [submissionLoading, setSubmissionLoading] = useState(false);
   const [revisionModalOpen, setRevisionModalOpen] = useState(false);
 
-  // Simplified logic for mobile (no live ticker for now to save performance, just snapshot)
-  // Or reuse exact same logic if needed. Let's use simple snapshot for now.
-  // Actually, let's just use the props values directly.
 
-  const totalSeconds = task.total_seconds_spent || 0;
-  const totalHours = totalSeconds / 3600;
 
-  const formatHours = (hours: number) => Number(hours.toFixed(1));
-  const formatDuration = (hours: number | string | null | undefined) => {
-    const num = Number(hours || 0);
-    return num % 1 === 0 ? num.toString() : num.toFixed(1);
-  };
-
-  const percentage = task.estTime > 0 ? (totalSeconds / (task.estTime * 3600)) * 100 : 0;
 
   const myMember = task.task_members?.find(m => m.user_id === currentUserId);
   const isPendingEstimate = myMember && myMember.status === 'PendingEstimate';
@@ -331,18 +320,8 @@ export const MobileTaskCard = memo(function MobileTaskCard({
             </Avatar.Group>
           </div>
 
-          <div className="flex-1 flex flex-col items-end gap-1 min-w-0">
-            <div className="flex items-center gap-1.5 text-[10px] text-[#666666]">
-              <span className="font-medium text-[#111111]">{formatHours(totalHours)}h</span>
-              <span>/</span>
-              <span>{formatDuration(task.estTime)}h</span>
-            </div>
-            <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
-              <div
-                className={`h-full rounded-full ${percentage > 100 ? 'bg-red-500' : 'bg-green-500'}`}
-                style={{ width: `${Math.min(percentage, 100)}%` }}
-              />
-            </div>
+          <div className="flex-1 min-w-0">
+            <TaskLiveProgress task={task} currentUserId={currentUserId} />
           </div>
         </div>
 
