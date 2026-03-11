@@ -167,7 +167,7 @@ const EmployeeDetailsDrawer: React.FC<EmployeeDetailsDrawerProps> = ({
                         <div className="p-4 bg-[#FAFAFA] rounded-xl border border-[#EEEEEE] flex flex-col items-center text-center">
                             <div className="flex items-center gap-1 mb-1">
                                 <span className="text-[0.6875rem] font-bold text-[#666666] uppercase tracking-wide">Efficiency</span>
-                                <Tooltip title="Standard Hours vs Actual Hours (Completed Tasks)" styles={{ root: { maxWidth: 280 }, container: { fontSize: 11, lineHeight: '1.4' } }}>
+                                <Tooltip title="Percentage of assigned tasks completed on or before their due dates." styles={{ root: { maxWidth: 280 }, container: { fontSize: 11, lineHeight: '1.4' } }}>
                                     <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0 hover:text-[#666666] transition-colors" />
                                 </Tooltip>
                             </div>

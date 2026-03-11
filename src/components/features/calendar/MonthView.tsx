@@ -1,6 +1,6 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import dayjs from 'dayjs';
-import { Popover } from 'antd';
+import { Popover, Modal } from 'antd';
 import { Skeleton } from '../../ui/Skeleton';
 import { CalendarEventPopup } from './CalendarEventPopup';
 import { CalendarEvent } from './types';
@@ -14,6 +14,15 @@ interface MonthViewProps {
 }
 
 export function MonthView({ currentDate, events, isLoading, selectedDate, onSelectDate }: MonthViewProps) {
+    const [isMoreModalOpen, setIsMoreModalOpen] = useState(false);
+    const [moreModalDate, setMoreModalDate] = useState<string | null>(null);
+
+    const handleMoreClick = (e: React.MouseEvent, date: string) => {
+        e.stopPropagation();
+        setMoreModalDate(date);
+        setIsMoreModalOpen(true);
+    };
+
     const calendarDays = useMemo(() => {
         const startOfMonth = currentDate.startOf('month');
         const startDayOfWeek = startOfMonth.day(); // 0 (Sun) to 6 (Sat)
@@ -202,7 +211,10 @@ export function MonthView({ currentDate, events, isLoading, selectedDate, onSele
                                                     </Popover>
                                                 ))}
                                                 {dayEvents.length > 3 && (
-                                                    <div className="text-[0.625rem] font-medium text-[#666666] px-2">
+                                                    <div 
+                                                        className="text-[0.625rem] font-medium text-[#666666] px-2 mt-1 cursor-pointer hover:underline"
+                                                        onClick={(e) => handleMoreClick(e, dayObj.date)}
+                                                    >
                                                         +{dayEvents.length - 3} more
                                                     </div>
                                                 )}
@@ -215,6 +227,28 @@ export function MonthView({ currentDate, events, isLoading, selectedDate, onSele
                     ))}
                 </tbody>
             </table>
+
+            <Modal
+                title={`Events on ${moreModalDate ? dayjs(moreModalDate).format('MMMM D, YYYY') : ''}`}
+                open={isMoreModalOpen}
+                onCancel={() => setIsMoreModalOpen(false)}
+                footer={null}
+                centered
+            >
+                <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-2 mt-4">
+                    {moreModalDate && getEventsForDate(moreModalDate).map((event) => (
+                        <Popover key={event.id} content={<CalendarEventPopup event={event} />} trigger="click">
+                            <div
+                                className="px-3 py-2 rounded-[6px] text-sm font-medium text-white cursor-pointer hover:opacity-90 transition-opacity w-full text-left"
+                                style={{ backgroundColor: event.color }}
+                            >
+                                <div className="font-semibold">{event.title}</div>
+                                <div className="text-xs opacity-90">{event.time}</div>
+                            </div>
+                        </Popover>
+                    ))}
+                </div>
+            </Modal>
         </div>
     );
 }
