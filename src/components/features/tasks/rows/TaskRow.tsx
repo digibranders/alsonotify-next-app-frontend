@@ -70,7 +70,7 @@ const TaskRowComponent = memo(function TaskRow({
           }
       `}
       >
-        <div className={`grid gap-4 items-center ${hideRequirements ? 'grid-cols-[40px_2.5fr_1fr_1fr_1fr_1.4fr_60px_40px]' : 'grid-cols-[40px_2.5fr_1.2fr_1fr_1fr_1fr_1.4fr_60px_40px]'}`}>
+        <div className={`grid gap-4 items-center ${hideRequirements ? 'grid-cols-[40px_2.5fr_0.9fr_0.7fr_1.5fr_0.5fr_40px]' : 'grid-cols-[40px_2fr_1.6fr_0.9fr_0.7fr_1.5fr_0.5fr_40px]'}`}>
           {/* Checkbox */}
           <div className="flex justify-center" onClick={(e) => e.stopPropagation()}>
             <Checkbox
