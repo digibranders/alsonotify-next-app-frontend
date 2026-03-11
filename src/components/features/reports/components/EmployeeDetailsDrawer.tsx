@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Drawer, Tooltip, Badge } from 'antd';
-import { Download, Loader2 } from 'lucide-react';
+import { Download, Loader2, Info } from 'lucide-react';
 import { MemberWorklog, EmployeeReport } from '../../../../services/report';
 import { useResizable } from '@/hooks/useResizable';
 import Link from 'next/link';
@@ -136,21 +136,41 @@ const EmployeeDetailsDrawer: React.FC<EmployeeDetailsDrawerProps> = ({
                     {/* Stats Cards - CTO Suggestion: 2x2 grid for drawer readability */}
                     <div className="grid grid-cols-2 gap-4">
                         <div className="p-4 bg-[#FAFAFA] rounded-xl border border-[#EEEEEE] flex flex-col items-center text-center">
-                            <span className="text-[0.6875rem] font-bold text-[#666666] uppercase tracking-wide mb-1">Total Hours</span>
+                            <div className="flex items-center gap-1 mb-1">
+                                <span className="text-[0.6875rem] font-bold text-[#666666] uppercase tracking-wide">Total Hours</span>
+                                <Tooltip title="Total available working hours for the period." styles={{ root: { maxWidth: 280 }, container: { fontSize: 11, lineHeight: '1.4' } }}>
+                                    <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0 hover:text-[#666666] transition-colors" />
+                                </Tooltip>
+                            </div>
                             <span className="text-2xl font-bold text-[#111111]">{member.totalWorkingHrs}h</span>
                         </div>
                         <div className="p-4 bg-[#FAFAFA] rounded-xl border border-[#EEEEEE] flex flex-col items-center text-center">
-                            <span className="text-[0.6875rem] font-bold text-[#666666] uppercase tracking-wide mb-1">Engaged</span>
+                            <div className="flex items-center gap-1 mb-1">
+                                <span className="text-[0.6875rem] font-bold text-[#666666] uppercase tracking-wide">Engaged</span>
+                                <Tooltip title="Total actual hours engaged in tasks." styles={{ root: { maxWidth: 280 }, container: { fontSize: 11, lineHeight: '1.4' } }}>
+                                    <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0 hover:text-[#666666] transition-colors" />
+                                </Tooltip>
+                            </div>
                             <span className="text-2xl font-bold text-[#111111]">{member.actualEngagedHrs}h</span>
                         </div>
                         <div className="p-4 bg-[#FAFAFA] rounded-xl border border-[#EEEEEE] flex flex-col items-center text-center">
-                            <span className="text-[0.6875rem] font-bold text-[#666666] uppercase tracking-wide mb-1" title="Engaged Hours vs Capacity">Occupancy</span>
+                            <div className="flex items-center gap-1 mb-1">
+                                <span className="text-[0.6875rem] font-bold text-[#666666] uppercase tracking-wide">Occupancy</span>
+                                <Tooltip title="Engaged Hours vs Capacity" styles={{ root: { maxWidth: 280 }, container: { fontSize: 11, lineHeight: '1.4' } }}>
+                                    <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0 hover:text-[#666666] transition-colors" />
+                                </Tooltip>
+                            </div>
                             <span className={`text-2xl font-bold ${getEfficiencyColor(member.utilization)}`}>
                                 {member.utilization}%
                             </span>
                         </div>
                         <div className="p-4 bg-[#FAFAFA] rounded-xl border border-[#EEEEEE] flex flex-col items-center text-center">
-                            <span className="text-[0.6875rem] font-bold text-[#666666] uppercase tracking-wide mb-1" title="Standard Hours vs Actual Hours (Completed Tasks)">Efficiency</span>
+                            <div className="flex items-center gap-1 mb-1">
+                                <span className="text-[0.6875rem] font-bold text-[#666666] uppercase tracking-wide">Efficiency</span>
+                                <Tooltip title="Standard Hours vs Actual Hours (Completed Tasks)" styles={{ root: { maxWidth: 280 }, container: { fontSize: 11, lineHeight: '1.4' } }}>
+                                    <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0 hover:text-[#666666] transition-colors" />
+                                </Tooltip>
+                            </div>
                             <span className={`text-2xl font-bold ${getEfficiencyColor(member.efficiency ?? 0)}`}>
                                 {member.efficiency ?? 0}%
                             </span>
