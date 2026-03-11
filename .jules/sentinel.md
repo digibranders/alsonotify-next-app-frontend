@@ -1,4 +1,4 @@
-## 2024-05-18 - Fix DOM-based XSS when stripping HTML
-**Vulnerability:** A DOM-based Cross-Site Scripting (XSS) vulnerability was found in the `stripHtml` function (`src/types/notes.ts`), which was assigning unsanitized HTML input to `document.createElement('DIV').innerHTML` to extract the `textContent`. Although the element was not appended to the body, malicious tags with inline handlers like `<img src=x onerror=alert(1)>` execute immediately upon assignment to `innerHTML`.
-**Learning:** Assigning untrusted data to `innerHTML` on any DOM node, even disconnected ones, is unsafe and can lead to XSS execution via inline handlers.
-**Prevention:** Use `DOMParser().parseFromString(html, 'text/html')` to safely parse HTML content into a document without executing inline scripts or loading external resources, then extract `.textContent` securely.
+## 2024-03-09 - Global DOMPurify Singleton Mutation
+**Vulnerability:** Multiple `MailPage` components imported `DOMPurify` directly, added local hooks (`afterSanitizeAttributes`), and subsequently called `DOMPurify.removeAllHooks()`.
+**Learning:** `DOMPurify` operates as a global singleton. Calling `removeAllHooks()` locally in a component globally strips all registered hooks across the application. This silently removes application-wide security policies, such as the hook in `src/utils/sanitizeHtml.ts` that enforces `target="_blank"` and `rel="noopener noreferrer"` to prevent reverse tabnabbing.
+**Prevention:** Never instantiate or mutate `DOMPurify` directly inside UI components. Always rely on a centralized utility (`src/utils/sanitizeHtml.ts`) that safely encapsulates and returns a properly configured sanitizer instance.
