@@ -63,14 +63,14 @@ const TaskRowComponent = memo(function TaskRow({
           router.push(targetUrl);
         }}
         className={`
-        group bg-white border rounded-[16px] px-4 py-3 transition-all duration-300 cursor-pointer relative z-10
+        group bg-white border rounded-[16px] px-4 py-2 transition-all duration-300 cursor-pointer relative z-10
         ${selected
             ? 'border-[#ff3b3b] shadow-[0_0_0_1px_#ff3b3b] bg-[#FFF5F5]'
             : 'border-[#EEEEEE] hover:border-[#ff3b3b]/20 hover:shadow-lg'
           }
       `}
       >
-        <div className={`grid gap-4 items-center ${hideRequirements ? 'grid-cols-[40px_2.5fr_0.9fr_0.7fr_1.5fr_0.5fr_40px]' : 'grid-cols-[40px_2fr_1.6fr_0.9fr_0.7fr_1.5fr_0.5fr_40px]'}`}>
+        <div className={`grid gap-4 items-center ${hideRequirements ? 'grid-cols-[40px_2.5fr_0.9fr_0.7fr_1.1fr_0.5fr_40px]' : 'grid-cols-[40px_2fr_1.6fr_0.9fr_0.7fr_1.1fr_0.5fr_40px]'}`}>
           {/* Checkbox */}
           <div className="flex justify-center" onClick={(e) => e.stopPropagation()}>
             <Checkbox
@@ -88,11 +88,11 @@ const TaskRowComponent = memo(function TaskRow({
             <div className="flex items-center gap-1.5 min-w-0">
               <Tooltip title={task.name} placement="topLeft" mouseEnterDelay={0.5}>
                 <div className="flex items-center gap-2 min-w-0">
-                  <span className="font-bold text-sm !text-[#111111] group-hover:text-[#ff3b3b] transition-colors truncate cursor-help block">
+                  <span className="font-bold text-xs !text-[#111111] group-hover:text-[#ff3b3b] transition-colors truncate cursor-help block">
                     {task.name}
                   </span>
                   {task.is_review_task && (
-                    <span className="px-1.5 py-0.5 rounded-md bg-[#F3E8FF] text-[#7E22CE] text-[10px] font-bold border border-[#E9D5FF] flex-shrink-0 animate-pulse">
+                    <span className="px-1.5 py-0.5 rounded-md bg-[#F3E8FF] text-[#7E22CE] text-xs font-bold border border-[#E9D5FF] flex-shrink-0 animate-pulse">
                       REVIEW
                     </span>
                   )}
@@ -105,11 +105,11 @@ const TaskRowComponent = memo(function TaskRow({
               )}
             </div>
             <div className="flex items-center gap-2">
-              {/* <span className="text-[0.6875rem] text-[#999999] font-normal">
+              {/* <span className="text-[0.75rem] text-[#999999] font-normal">
                 #{task.taskId}
               </span> */}
               <span
-                className="text-[0.6875rem] text-[#999999] font-medium truncate"
+                className="text-xs text-[#999999] font-medium truncate"
               >
                 {task.client}
               </span>
@@ -123,7 +123,7 @@ const TaskRowComponent = memo(function TaskRow({
                 <Link
                   href="/dashboard/workspace"
                   onClick={(e) => e.stopPropagation()}
-                  className="text-sm !text-[#111111] visited:!text-[#111111] font-medium truncate block hover:text-[#ff3b3b] hover:underline cursor-help"
+                  className="text-xs !text-[#111111] visited:!text-[#111111] font-medium truncate block hover:text-[#ff3b3b] hover:underline cursor-help"
                 >
                   {task.project}
                 </Link>
@@ -134,12 +134,12 @@ const TaskRowComponent = memo(function TaskRow({
           {/* Timeline */}
           <div className="flex flex-col gap-0.5">
             <Tooltip title={task.dueDate !== 'TBD' ? task.dueDate : undefined}>
-              <span className="text-sm font-medium text-[#111111] w-fit">
+              <span className="text-xs font-medium text-[#111111] w-fit">
                 {task.timelineDate}
               </span>
             </Tooltip>
             <span
-              className={`text-[0.6875rem] font-normal ${task.status === 'Delayed'
+              className={`text-xs font-medium ${task.status === 'Delayed'
                 ? 'text-[#dc2626]'
                 : task.status === 'Review'
                   ? 'text-[#fbbf24]'
@@ -152,12 +152,13 @@ const TaskRowComponent = memo(function TaskRow({
 
           {/* Assigned To (Avatar Stack) */}
           <div className="flex items-center">
-            <Avatar.Group max={{ count: 3, style: { color: '#666666', backgroundColor: '#EEEEEE' } }}>
+            <Avatar.Group size={24} max={{ count: 3, style: { color: '#666666', backgroundColor: '#EEEEEE' } }}>
               {task.task_members && task.task_members.length > 0 ? (
                 task.task_members.map((member) => (
                   <Tooltip key={member.id} title={`${member.user.name} (${member.status})`}>
                     <div className="relative">
-                      <Avatar 
+                      <Avatar
+                        size={26}
                         src={member.user.profile_pic || undefined}
                         style={{ backgroundColor: '#CCCCCC', color: '#111111' }}
                       >
@@ -168,7 +169,7 @@ const TaskRowComponent = memo(function TaskRow({
                 ))
               ) : (
                 <Tooltip title={typeof task.assignedTo === 'string' ? task.assignedTo : task.assignedTo?.name}>
-                  <Avatar style={{ backgroundColor: '#CCCCCC', color: '#111111' }}>
+                  <Avatar size={24} style={{ backgroundColor: '#CCCCCC', color: '#111111' }}>
                     {task.assignedTo ? (typeof task.assignedTo === 'string' ? task.assignedTo.charAt(0).toUpperCase() : task.assignedTo.name?.charAt(0).toUpperCase()) : 'U'}
                   </Avatar>
                 </Tooltip>
@@ -188,13 +189,13 @@ const TaskRowComponent = memo(function TaskRow({
                 trigger="click"
                 content={
                   <div className="p-2 w-48">
-                    <p className="text-xs font-medium mb-2">Your Estimate</p>
+                    <p className="text-[0.75rem] font-medium mb-2">Your Estimate</p>
                     <Input
                       type="number"
                       placeholder="Hours"
                       value={estimateHours}
                       onChange={(e) => setEstimateHours(e.target.value)}
-                      className="mb-4 text-sm"
+                      className="mb-4 text-[0.75rem]"
                     />
                     <Button
                       type="primary"
@@ -223,7 +224,7 @@ const TaskRowComponent = memo(function TaskRow({
                 }
               >
                 <button
-                  className="px-2.5 py-1 bg-yellow-400 hover:bg-yellow-500 text-black text-[0.625rem] font-bold rounded-full flex items-center shadow-sm transition-colors whitespace-nowrap"
+                  className="px-2.5 py-1 bg-yellow-400 hover:bg-yellow-500 text-black text-xs font-bold rounded-full flex items-center shadow-sm transition-colors whitespace-nowrap"
                 >
                   ESTIMATE
                 </button>
@@ -266,14 +267,14 @@ const TaskRowComponent = memo(function TaskRow({
                         label: 'Approve & Complete',
                         icon: <CheckCircle className="w-3.5 h-3.5" />,
                         onClick: () => onStatusChange?.('Completed'),
-                        className: "text-[0.8125rem] font-medium text-[#16a34a]"
+                        className: "text-[0.75rem] font-medium text-[#16a34a]"
                       },
                       {
                         key: 'revision',
                         label: 'Request Revision',
                         icon: <RotateCcw className="w-3.5 h-3.5" />,
                         onClick: () => setRevisionModalOpen(true),
-                        className: "text-[0.8125rem] font-medium text-[#ff3b3b]"
+                        className: "text-[0.75rem] font-medium text-[#ff3b3b]"
                       }
                     );
                   }
@@ -285,7 +286,7 @@ const TaskRowComponent = memo(function TaskRow({
                       label: 'Start Review',
                       icon: <CheckCircle className="w-3.5 h-3.5" />, // Or another suitable icon
                       onClick: () => onStartReview?.(),
-                      className: "text-[0.8125rem] font-medium text-[#2F80ED]"
+                      className: "text-[0.75rem] font-medium text-[#2F80ED]"
                     });
                   }
 
@@ -296,7 +297,7 @@ const TaskRowComponent = memo(function TaskRow({
                       label: 'Submit for Review',
                       icon: <CheckCircle className="w-3.5 h-3.5" />,
                       onClick: () => setReviewerModalOpen(true),
-                      className: "text-[0.8125rem] font-medium text-[#EAB308]"
+                      className: "text-[0.75rem] font-medium text-[#EAB308]"
                     });
                   }
 
@@ -307,7 +308,7 @@ const TaskRowComponent = memo(function TaskRow({
                       label: 'Mark Complete',
                       icon: <CheckCircle className="w-3.5 h-3.5" />,
                       onClick: () => onStatusChange?.('Completed'),
-                      className: "text-[0.8125rem] font-medium text-[#16a34a]"
+                      className: "text-[0.75rem] font-medium text-[#16a34a]"
                     });
                   }
 
@@ -318,7 +319,7 @@ const TaskRowComponent = memo(function TaskRow({
                       label: 'Start Review',
                       icon: <RotateCcw className="w-3.5 h-3.5" />,
                       onClick: () => onStartReview?.(),
-                      className: "text-[0.8125rem] font-bold text-[#7E22CE]"
+                      className: "text-[0.75rem] font-bold text-[#7E22CE]"
                     });
                   }
 
@@ -337,7 +338,7 @@ const TaskRowComponent = memo(function TaskRow({
                         icon: <Edit className="w-3.5 h-3.5" />,
                         onClick: () => onEdit?.(),
                         disabled: task.status === 'Completed',
-                        className: "text-[0.8125rem] font-medium"
+                        className: "text-xs font-medium"
                       });
                     }
 
@@ -346,7 +347,7 @@ const TaskRowComponent = memo(function TaskRow({
                       label: 'Duplicate',
                       icon: <Copy className="w-3.5 h-3.5" />,
                       onClick: () => onDuplicate?.(),
-                      className: "text-[0.8125rem] font-medium"
+                      className: "text-[0.75rem] font-medium"
                     });
 
                     // Admin/Leader Delete (Hidden if In_Progress)
@@ -357,7 +358,7 @@ const TaskRowComponent = memo(function TaskRow({
                         icon: <Trash2 className="w-3.5 h-3.5" />,
                         onClick: () => onDelete?.(),
                         danger: true,
-                        className: "text-[0.8125rem] font-medium"
+                        className: "text-[0.75rem] font-medium"
                       });
                     }
                   }

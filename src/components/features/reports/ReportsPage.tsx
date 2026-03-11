@@ -56,7 +56,7 @@ function TableHeader({
         onClick={() => sortKey && onSort?.(sortKey)}
         disabled={!sortKey}
       >
-        <span className={`text-[0.6875rem] font-bold uppercase tracking-wide transition-colors ${isSorted ? 'text-[#111111]' : 'text-[#999999] group-hover:text-[#666666]'}`}>
+        <span className={`text-xs font-bold uppercase tracking-wide transition-colors ${isSorted ? 'text-[#111111]' : 'text-[#999999] group-hover:text-[#666666]'}`}>
           {label}
         </span>
         {sortKey && isSorted && currentSort && (
@@ -566,7 +566,7 @@ export function ReportsPage() {
           <Button
             onClick={handleExport}
             icon={<Download className="w-4 h-4" />}
-            className="font-semibold text-[0.8125rem] rounded-full"
+            className="font-semibold text-xs rounded-full"
             disabled={isDownloading}
           >
             {isDownloading ? 'Generating...' : 'Download'}
@@ -642,7 +642,7 @@ export function ReportsPage() {
                   </div>
                   <div className="flex items-baseline gap-2">
                     <span className="text-xl font-bold text-[#FF3B3B]">{kpi.delayed}</span>
-                    <span className="text-sm font-medium text-[#FF3B3B]">(+{kpi.totalExtraHrs}h)</span>
+                    <span className="text-xs font-medium text-[#FF3B3B]">(+{kpi.totalExtraHrs}h)</span>
                   </div>
                 </div>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'requirement' ? '' : 'hidden'}`}>
@@ -707,7 +707,7 @@ export function ReportsPage() {
                   </div>
                   <div className="flex items-baseline gap-2">
                     <span className="text-xl font-bold text-[#FF3B3B]">{taskKPI.delayed}</span>
-                    <span className="text-sm font-medium text-[#FF3B3B]">(+{taskKPI.totalExtraHrs}h)</span>
+                    <span className="text-xs font-medium text-[#FF3B3B]">(+{taskKPI.totalExtraHrs}h)</span>
                   </div>
                 </div>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'task' ? '' : 'hidden'}`}>

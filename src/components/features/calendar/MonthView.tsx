@@ -133,7 +133,7 @@ export function MonthView({ currentDate, events, isLoading, selectedDate, onSele
                     <tr>
                         {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
                             <th key={day} className="text-center py-2">
-                                <span className="font-semibold text-[0.8125rem] text-[#666666]">
+                                <span className="font-semibold text-xs text-[#666666]">
                                     {day}
                                 </span>
                             </th>
@@ -186,10 +186,10 @@ export function MonthView({ currentDate, events, isLoading, selectedDate, onSele
                                         }}
                                     >
                                         <div className="flex flex-col h-full">
-                                            <div className={`font-semibold text-[0.8125rem] mb-1 flex justify-between items-center ${dayObj.isCurrentMonth ? 'text-[#111111]' : 'text-[#999999]'
+                                            <div className={`font-semibold text-xs mb-1 flex justify-between items-center ${dayObj.isCurrentMonth ? 'text-[#111111]' : 'text-[#999999]'
                                                 } ${isToday ? 'text-[#ff3b3b]' : ''}`}>
                                                 <span aria-hidden="true">{dayObj.day}</span>
-                                                {isToday && <span className="text-[0.625rem] bg-[#ff3b3b] text-white px-1.5 rounded" aria-hidden="true">Today</span>}
+                                                {isToday && <span className="text-xxs bg-[#ff3b3b] text-white px-1.5 rounded" aria-hidden="true">Today</span>}
                                             </div>
                                             <div className="space-y-1 flex-1">
                                                 {dayEvents.slice(0, 3).map((event) => (
@@ -197,7 +197,7 @@ export function MonthView({ currentDate, events, isLoading, selectedDate, onSele
                                                         <button
                                                             type="button"
                                                             aria-label={`Event: ${event.title}`}
-                                                            className="px-2 py-1 rounded-[4px] text-[0.625rem] font-medium text-white truncate cursor-pointer hover:opacity-80 transition-opacity focus:ring-1 focus:ring-white focus:outline-none w-full text-left border-none"
+                                                            className="px-2 py-1 rounded-[4px] text-xs font-medium text-white truncate cursor-pointer hover:opacity-80 transition-opacity focus:ring-1 focus:ring-white focus:outline-none w-full text-left border-none"
                                                             style={{ backgroundColor: event.color }}
                                                             onClick={(e) => e.stopPropagation()}
                                                             onKeyDown={(e) => {
@@ -212,7 +212,7 @@ export function MonthView({ currentDate, events, isLoading, selectedDate, onSele
                                                 ))}
                                                 {dayEvents.length > 3 && (
                                                     <div 
-                                                        className="text-[0.625rem] font-medium text-[#666666] px-2 mt-1 cursor-pointer hover:underline"
+                                                        className="text-xxs font-medium text-[#666666] px-2 mt-1 cursor-pointer hover:underline"
                                                         onClick={(e) => handleMoreClick(e, dayObj.date)}
                                                     >
                                                         +{dayEvents.length - 3} more
@@ -239,11 +239,11 @@ export function MonthView({ currentDate, events, isLoading, selectedDate, onSele
                     {moreModalDate && getEventsForDate(moreModalDate).map((event) => (
                         <Popover key={event.id} content={<CalendarEventPopup event={event} />} trigger="click">
                             <div
-                                className="px-3 py-2 rounded-[6px] text-sm font-medium text-white cursor-pointer hover:opacity-90 transition-opacity w-full text-left"
+                                className="px-3 py-2 rounded-[6px] text-xs font-medium text-white cursor-pointer hover:opacity-90 transition-opacity w-full text-left"
                                 style={{ backgroundColor: event.color }}
                             >
                                 <div className="font-semibold">{event.title}</div>
-                                <div className="text-xs opacity-90">{event.time}</div>
+                                <div className="text-xxs opacity-90">{event.time}</div>
                             </div>
                         </Popover>
                     ))}

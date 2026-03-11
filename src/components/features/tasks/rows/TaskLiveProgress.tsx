@@ -123,7 +123,7 @@ export function TaskLiveProgress({ task, currentUserId }: TaskLiveProgressProps)
     : '0%';
 
   // Use the same status-based color logic for single member
-  const singleBarColorHex = singleMember 
+  const singleBarColorHex = singleMember
     ? getSegmentColor(singleMember, hasEst ? totalLoggedHours / effectiveEst : 0)
     : '#111111';
 
@@ -171,29 +171,28 @@ export function TaskLiveProgress({ task, currentUserId }: TaskLiveProgressProps)
         }}
       >
         <div className="flex items-center gap-2 w-fit">
-          <span className={`font-bold text-sm whitespace-nowrap ${labelColor}`}>
+          <span className={`font-medium text-xs whitespace-nowrap ${labelColor}`}>
             {totalLoggedHours.toFixed(1)}h{hasEst ? `/${effectiveEst.toFixed(1)}h` : ''}
           </span>
           <span className="text-[#E5E5E5] text-xs">|</span>
           {hasEst ? (
-            <span className={`text-xs font-semibold whitespace-nowrap ${
-              isBleeding
-                ? 'text-[#FF3B3B] bg-[#FFF0F0] px-1.5 py-0.5 rounded'
-                : isWarning
-                  ? 'text-[#FF8A00]'
-                  : 'text-[#999999]'
-            }`}>
+            <span className={`text-xs font-medium whitespace-nowrap ${isBleeding
+              ? 'text-[#FF3B3B] bg-[#FFF0F0] px-1.5 py-0.5 rounded'
+              : isWarning
+                ? 'text-[#FF8A00]'
+                : 'text-[#666666]'
+              }`}>
               {isBleeding ? `+${Math.abs(remaining).toFixed(1)}h over` : `${remaining.toFixed(1)}h left`}
             </span>
           ) : (
-            <span className="text-xs text-[#CCCCCC] font-medium whitespace-nowrap">No estimate</span>
+            <span className="text-xs text-[#666666] font-medium whitespace-nowrap">No estimate</span>
           )}
         </div>
       </Tooltip>
 
       {/* Progress bar — segmented for multi-member, single for one */}
       {isMultiMember && totalMemberEst > 0 ? (
-        <div className="h-1.5 w-full rounded-full overflow-hidden bg-[#F0F0F0] flex">
+        <div className="h-[5px] w-full rounded-full overflow-hidden bg-[#F0F0F0] flex">
           {segments
             .filter((seg) => seg.widthPct > 0)
             .map((seg, i, arr) => {
@@ -228,9 +227,8 @@ export function TaskLiveProgress({ task, currentUserId }: TaskLiveProgressProps)
                 >
                   <div
                     style={{ width: `${seg.widthPct}%`, position: 'relative' }}
-                    className={`h-full cursor-pointer hover:brightness-90 transition-all ${
-                      i !== arr.length - 1 ? 'border-r-2 border-white' : ''
-                    }`}
+                    className={`h-full cursor-pointer hover:brightness-90 transition-all ${i !== arr.length - 1 ? 'border-r-[6px] border-white' : ''
+                      }`}
                   >
                     {/* Track */}
                     <div className="h-full w-full bg-[#EBEBEB]" />
@@ -263,7 +261,7 @@ export function TaskLiveProgress({ task, currentUserId }: TaskLiveProgressProps)
             padding: '10px 12px',
           }}
         >
-          <div className="h-1.5 w-full rounded-full overflow-hidden bg-[#F0F0F0] cursor-pointer">
+          <div className="h-[5px] w-full rounded-full overflow-hidden bg-[#F0F0F0] cursor-pointer">
             <div
               className="h-full rounded-full transition-all duration-300"
               style={{ width: singleFill, backgroundColor: singleBarColorHex }}
@@ -279,7 +277,7 @@ export function TaskLiveProgress({ task, currentUserId }: TaskLiveProgressProps)
 function Row({ label, value, bold, color }: { label: string; value: string; bold?: boolean; color?: string }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, marginBottom: 3 }}>
-      <span style={{ fontSize: 11, color: '#999' }}>{label}</span>
+      <span style={{ fontSize: 12, color: '#999' }}>{label}</span>
       <span style={{ fontSize: 12, fontWeight: bold ? 700 : 600, color: color ?? '#FFF' }}>{value}</span>
     </div>
   );
