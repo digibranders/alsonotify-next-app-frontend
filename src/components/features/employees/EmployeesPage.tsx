@@ -925,7 +925,7 @@ export function EmployeesPage() {
             <div className="bg-[#ff3b3b] text-white text-xs font-bold px-2 py-0.5 rounded-full">
               {selectedEmployees.length}
             </div>
-            <span className="text-sm font-semibold">Selected</span>
+            <span className="text-xs font-semibold">Selected</span>
           </div>
 
           <div className="flex items-center gap-2">
@@ -966,7 +966,7 @@ export function EmployeesPage() {
                           <div className="p-2 rounded-full" style={{ backgroundColor: access.bgColor }}>
                             <IconComponent className="w-4 h-4" style={{ color: access.color }} />
                           </div>
-                          <span className="text-sm font-medium text-[#111111]">
+                          <span className="text-xs font-medium text-[#111111]">
                             {access.value}
                           </span>
                         </button>

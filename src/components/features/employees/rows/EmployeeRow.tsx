@@ -36,7 +36,7 @@ export function EmployeeRow({
       label: 'Edit Details',
       icon: <Edit className="w-3.5 h-3.5" />,
       onClick: onEdit,
-      className: "text-[0.8125rem] font-medium"
+      className: "text-xs font-medium"
     },
     ...(onDeactivate ? [{
       key: 'deactivate',
@@ -44,7 +44,7 @@ export function EmployeeRow({
       icon: <Trash2 className="w-3.5 h-3.5" />,
       onClick: onDeactivate,
       danger: true,
-      className: "text-[0.8125rem] font-medium"
+      className: "text-xs font-medium"
     }] : []),
     ...(onDeactivate && isCurrentUser && employee.status === 'active' ? [{
       key: 'deactivate-self',
@@ -52,7 +52,7 @@ export function EmployeeRow({
       icon: <Trash2 className="w-3.5 h-3.5" />,
       disabled: true,
       title: "You cannot deactivate your own account",
-      className: "text-[0.8125rem] font-medium text-gray-400 !cursor-not-allowed hover:!bg-transparent hover:!text-gray-400"
+      className: "text-xs font-medium text-gray-400 !cursor-not-allowed hover:!bg-transparent hover:!text-gray-400"
     }] : [])
   ].filter(item => {
     // If it's the current user and we are showing 'deactivate', we want to show the disabled one instead
@@ -90,16 +90,16 @@ export function EmployeeRow({
         {/* Employee Info - Name, Role & Dept */}
         <div>
           <div className="flex items-center gap-2">
-            <span className="font-semibold text-sm text-[#111111] group-hover:text-[#ff3b3b] transition-colors">
+            <span className="font-semibold text-xs text-[#111111] group-hover:text-[#ff3b3b] transition-colors">
               {employee.name}
             </span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="text-[0.6875rem] font-normal text-[#666666]">
+            <span className="text-xxs font-normal text-[#666666]">
               {employee.role}
             </span>
-            <span className="text-[#DDDDDD] text-[0.6875rem]">|</span>
-            <span className="text-[0.6875rem] font-normal text-[#666666]">
+            <span className="text-[#DDDDDD] text-xxs">|</span>
+            <span className="text-xxs font-normal text-[#666666]">
               {employee.department}
             </span>
           </div>
@@ -107,7 +107,7 @@ export function EmployeeRow({
 
         {/* Email */}
         <div>
-          <span className="text-[0.8125rem] text-[#111111] font-normal">
+          <span className="text-xs text-[#111111] font-normal">
             {employee.email}
           </span>
         </div>
@@ -120,21 +120,21 @@ export function EmployeeRow({
 
         {/* Employment Type */}
         <div>
-          <span className="text-[0.8125rem] font-normal text-[#111111]">
+          <span className="text-xs font-normal text-[#111111]">
             {employee.employment_type || 'Unknown'}
           </span>
         </div>
 
         {/* Hourly Rate */}
         <div>
-          <span className="text-[0.8125rem] font-normal text-[#111111]">
-            {employee.hourly_rates ? `$${employee.hourly_rates}/Hr` : 'N/A'}
+          <span className="text-xs font-normal text-[#111111]">
+            {employee.hourly_rates ? `$${employee.hourly_rates}/Hr` : 'N/Hr'}
           </span>
         </div>
 
         {/* Joining Date */}
         <div>
-          <span className="text-[0.8125rem] text-[#111111] font-normal">
+          <span className="text-xs text-[#111111] font-normal">
             {employee.formattedDateOfJoining || employee.date_of_joining || 'N/A'}
           </span>
         </div>

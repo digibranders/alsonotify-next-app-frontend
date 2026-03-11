@@ -11,7 +11,7 @@ import { trimStr } from '@/utils/trim';
 import { WorkspaceForm } from './WorkspaceForm';
 import { useCurrentUserCompany } from '@/hooks/useUser';
 import { currencies } from '@/utils/currencyUtils';
-import { getPartnerCompanyId, getPartnerName, isValidPartner } from '@/utils/partnerUtils';
+// NO UNUSED IMPORTS
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -322,7 +322,7 @@ function RequirementsFormContent({
         >
             <div className="grid grid-cols-2 gap-x-6 gap-y-4 mb-4">
                 <div className="space-y-1.5">
-                    <span className="text-[0.8125rem] font-bold text-[#111111]">Requirement Title <span className="text-[#ff3b3b]">*</span></span>
+                    <span className="text-xs font-bold text-[#111111]">Requirement Title <span className="text-[#ff3b3b]">*</span></span>
                     <Input
                         placeholder="Enter requirement title"
                         className="h-11 rounded-lg border border-[#EEEEEE]"
@@ -331,7 +331,7 @@ function RequirementsFormContent({
                     />
                 </div>
                 <div className="space-y-1.5">
-                    <span className="text-[0.8125rem] font-bold text-[#111111]">Workspace <span className="text-[#ff3b3b]">*</span></span>
+                    <span className="text-xs font-bold text-[#111111]">Workspace <span className="text-[#ff3b3b]">*</span></span>
                     <Select
                         showSearch
                         optionFilterProp="label"
@@ -362,7 +362,7 @@ function RequirementsFormContent({
                                 children: (
                                     <div className="flex flex-col py-1">
                                         <span className="font-medium text-[#111111] leading-tight">{w.name}</span>
-                                        <span className="text-[0.625rem] text-[#999999] leading-tight">
+                                        <span className="text-xs text-[#999999] leading-tight">
                                             {w.in_house ? w.company_name : w.partner_name || 'Organization'}
                                         </span>
                                     </div>
@@ -382,7 +382,7 @@ function RequirementsFormContent({
 
             <div className="grid grid-cols-2 gap-x-6 gap-y-4 mb-4">
                 <div className="space-y-1.5">
-                    <span className="text-[0.8125rem] font-bold text-[#111111]">Requirement Type <span className="text-[#ff3b3b]">*</span></span>
+                    <span className="text-xs font-bold text-[#111111]">Requirement Type <span className="text-[#ff3b3b]">*</span></span>
                     <Select
                         className="w-full h-11"
                         placeholder="Select type"
@@ -405,7 +405,7 @@ function RequirementsFormContent({
                 {/* Removed Partner Company selection */}
 
                 <div className="space-y-1.5" id="contact-person-selection">
-                    <span className="text-[0.8125rem] font-bold text-[#111111]">
+                    <span className="text-xs font-bold text-[#111111]">
                         {formData.type === 'client' ? 'Client Contact Person' : 'Contact Person'} <span className="text-[#ff3b3b]">*</span>
                     </span>
                     <Select
@@ -443,9 +443,9 @@ function RequirementsFormContent({
                                         <div className="flex flex-col py-1">
                                             <div className="flex items-center gap-1">
                                                 <span className="font-semibold">{c.name}</span>
-                                                {c.role && <span className="text-gray-500 text-[0.6875rem]">({c.role})</span>}
+                                                {c.role && <span className="text-gray-500 text-xxs">({c.role})</span>}
                                             </div>
-                                            <span className="text-[0.625rem] text-gray-400 font-normal mt-0.5">{c.company_name}</span>
+                                            <span className="text-xxs text-gray-400 font-normal mt-0.5">{c.company_name}</span>
                                         </div>
                                     ),
                                 }))
@@ -457,7 +457,7 @@ function RequirementsFormContent({
 
             <div className="grid grid-cols-2 gap-x-6 gap-y-4 mb-4">
                 <div className="space-y-1.5">
-                    <span className="text-[0.8125rem] font-bold text-[#111111]">Due Date</span>
+                    <span className="text-xs font-bold text-[#111111]">Due Date</span>
                     <DatePicker
                         placeholder="Select due date"
                         className="w-full h-11 rounded-lg border-[#EEEEEE]"
@@ -468,7 +468,7 @@ function RequirementsFormContent({
                 </div>
                 {(formData.type === 'client') && (
                     <div className="space-y-1.5">
-                        <span className="text-[0.8125rem] font-bold text-[#111111]">Quotation price</span>
+                        <span className="text-xs font-bold text-[#111111]">Quotation price</span>
                         <Space.Compact className="w-full">
                             <Select
                                 value={formData.currency}
@@ -494,11 +494,11 @@ function RequirementsFormContent({
 
             <div className="space-y-1.5 mb-4">
                 <div className="flex justify-between items-center">
-                    <span className="text-[0.8125rem] font-bold text-[#111111]">Description</span>
+                    <span className="text-xs font-bold text-[#111111]">Description</span>
                     <Checkbox
                         checked={formData.is_high_priority}
                         onChange={(e) => setFormData({ ...formData, is_high_priority: e.target.checked })}
-                        className="font-semibold text-[0.8125rem] text-[#111111]"
+                        className="font-semibold text-xs text-[#111111]"
                     >
                         High Priority
                     </Checkbox>
@@ -513,7 +513,7 @@ function RequirementsFormContent({
             </div>
 
             <div className="space-y-1.5">
-                <span className="text-[0.8125rem] font-bold text-[#111111]">Upload Documents</span>
+                <span className="text-xs font-bold text-[#111111]">Upload Documents</span>
                 <label
                     className="border-2 border-dashed border-[#EEEEEE] rounded-xl p-3 flex flex-col items-center justify-center text-center hover:border-[#ff3b3b]/30 hover:bg-[#FFFAFA] transition-colors cursor-pointer bg-white group"
                 >

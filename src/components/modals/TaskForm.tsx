@@ -294,7 +294,7 @@ export function TaskForm({
             </span>
             <Input
               placeholder="e.g. Implement Payment Gateway"
-              className="w-full h-11 rounded-lg border-[#EEEEEE] text-sm"
+              className="w-full h-11 rounded-lg border-[#EEEEEE] text-xs"
               value={formData.name}
               onChange={(e) => {
                 setFormData({ ...formData, name: e.target.value });
@@ -402,7 +402,7 @@ export function TaskForm({
       {/* --- SQUAD BUILDER SECTION (Compact) --- */}
       <div className="mb-5 border border-[#EEEEEE] rounded-xl p-4 bg-[#FAFAFA]">
         <div className="flex justify-between items-center mb-3">
-          <h3 className="text-[0.8125rem] font-bold text-[#111111] flex items-center gap-2">
+          <h3 className="text-sm font-bold text-[#111111] flex items-center gap-2">
             <Users className="w-4 h-4" /> Members <span className="text-red-500">*</span>
           </h3>
 
@@ -411,7 +411,7 @@ export function TaskForm({
             <button
               type="button"
               onClick={() => setFormData({ ...formData, execution_mode: "parallel" })}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] text-[0.6875rem] font-medium transition-all ${formData.execution_mode === "parallel" ? 'bg-[#E6F4FF] text-[#0091FF]' : 'text-gray-500 hover:bg-gray-50'}`}
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] text-xs font-medium transition-all ${formData.execution_mode === "parallel" ? 'bg-[#E6F4FF] text-[#0091FF]' : 'text-gray-500 hover:bg-gray-50'}`}
             >
               <Layers className="w-3 h-3" /> Parallel
             </button>
@@ -430,7 +430,7 @@ export function TaskForm({
           <Select
             className="w-full"
             placeholder={
-              <div className="flex items-center gap-2 text-gray-400 text-[0.8125rem]">
+              <div className="flex items-center gap-2 text-gray-400 text-xs">
                 <UserPlus className="w-4 h-4" /> <span>Add squad members...</span>
               </div>
             }
@@ -475,9 +475,9 @@ export function TaskForm({
                           {isSequential ? index + 1 : '•'}
                         </div>
                         <Avatar size="small" shape="circle" className="w-6 h-6 text-[0.625rem]" src={user.profile_pic}>{user.name.charAt(0)}</Avatar>
-                        <span className="text-[0.8125rem] font-semibold text-gray-800">{user.name}</span>
+                        <span className="text-xs font-semibold text-gray-800">{user.name}</span>
                         {String(user.id) !== currentUserId && (
-                          <span className="xs:inline hidden text-[0.5625rem] text-amber-500 bg-amber-50 px-1.5 py-0.5 rounded-full border border-amber-100">
+                          <span className="xs:inline hidden text-xxs text-amber-500 bg-amber-50 px-1.5 py-0.5 rounded-full border border-amber-100">
                             Estimate Pending
                           </span>
                         )}
@@ -536,7 +536,7 @@ export function TaskForm({
             step="0.1"
             min="0"
             placeholder={formData.assigned_members.includes(parseInt(currentUserId)) ? "0" : "-"}
-            className="w-full h-11 rounded-lg border border-[#EEEEEE] text-sm"
+            className="w-full h-11 rounded-lg border border-[#EEEEEE] text-xs"
             value={formData.estimated_time}
             onChange={(e) => {
               setFormData({ ...formData, estimated_time: e.target.value });

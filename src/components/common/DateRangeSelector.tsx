@@ -211,7 +211,7 @@ export function DateRangeSelector({
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 className="flex items-center gap-2 px-3 py-1.5 bg-white border border-[#EEEEEE] rounded-lg hover:border-[#111111] hover:text-[#111111] transition-all duration-200 outline-none min-w-[120px] justify-between"
             >
-                <span className=" font-semibold text-[0.8125rem] text-[#111111] truncate">
+                <span className=" font-semibold text-[0.75rem] text-[#111111] truncate">
                     {getRangeLabel()}
                 </span>
                 <ChevronDown className="w-3.5 h-3.5 text-[#999999] shrink-0" />
@@ -235,7 +235,7 @@ export function DateRangeSelector({
                             <button
                                 key={option.value}
                                 onClick={() => handleRangeTypeChange(option.value)}
-                                className="w-full text-left px-4 py-2.5 font-medium text-[0.8125rem] text-[#444444] hover:bg-[#F7F7F7] hover:text-[#111111] transition-colors flex items-center justify-between group"
+                                className="w-full text-left px-4 py-2.5 font-medium text-[0.75rem] text-[#444444] hover:bg-[#F7F7F7] hover:text-[#111111] transition-colors flex items-center justify-between group"
                             >
                                 <span className={selectedRangeType === option.value ? 'text-[#ff3b3b] font-semibold' : ''}>{option.label}</span>
                                 {selectedRangeType === option.value && (

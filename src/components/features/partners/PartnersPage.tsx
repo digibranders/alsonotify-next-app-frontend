@@ -606,11 +606,11 @@ export function PartnersPageContent() {
                     <div className="sticky top-0 z-20 bg-white grid grid-cols-[40px_1.5fr_2fr_1fr_100px] gap-4 px-4 py-3 mb-2 items-center">
                         <div className="flex justify-center"></div>
                         <div className="pl-[44px]">
-                            <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Contact Person</p>
+                            <p className="text-xs font-bold text-[#999999] uppercase tracking-wide">Contact Person</p>
                         </div>
-                        <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Email</p>
-                        <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Status</p>
-                        <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide text-right pr-10">Actions</p>
+                        <p className="text-xs font-bold text-[#999999] uppercase tracking-wide">Email</p>
+                        <p className="text-xs font-bold text-[#999999] uppercase tracking-wide">Status</p>
+                        <p className="text-xs font-bold text-[#999999] uppercase tracking-wide text-right pr-10">Actions</p>
                     </div>
 
                     {/* Content */}
@@ -666,7 +666,7 @@ export function PartnersPageContent() {
                                                         <div className={`w-2 h-2 rounded-full ${item.data.status === 'REJECTED' ? 'bg-[#EF4444]' : 'bg-[#3b8eff]'}`} title={item.data.status === 'REJECTED' ? "Rejected" : "New Invitation"} />
                                                     </div>
                                                     <div className="flex items-center gap-3">
-                                                        <div className="w-8 h-8 rounded-full bg-[#EFF6FF] text-[#2563EB] flex items-center justify-center text-[0.625rem] font-bold shrink-0">
+                                                        <div className="w-8 h-8 rounded-full bg-[#EFF6FF] text-[#2563EB] flex items-center justify-center text-xxs font-bold shrink-0">
                                                             {(item.data.inviterName || "?")[0].toUpperCase()}
                                                         </div>
                                                         <div className="flex flex-col">
@@ -674,7 +674,7 @@ export function PartnersPageContent() {
                                                                 {item.data.inviterName?.replace(' undefined', '')}
                                                             </span>
                                                             {item.data.inviterCompany && (
-                                                                <span className="text-[0.6875rem] text-[#999999] font-normal">
+                                                                <span className="text-xs text-[#999999] font-normal">
                                                                     {item.data.inviterCompany}
                                                                 </span>
                                                             )}
@@ -682,7 +682,7 @@ export function PartnersPageContent() {
                                                     </div>
                                                     <div className="flex items-center gap-2 text-[#666666] overflow-hidden">
                                                         <Mail className="w-3.5 h-3.5 shrink-0" />
-                                                        <span className="text-[0.8125rem] font-medium truncate block text-[#111111]">
+                                                        <span className="text-xs font-medium truncate block text-[#111111]">
                                                             {(item.data).inviterEmail || (item.data).email || (item.data).inviter_email || 'Not provided'}
                                                         </span>
                                                     </div>
@@ -690,12 +690,12 @@ export function PartnersPageContent() {
                                                         {item.data.status === 'REJECTED' ? (
                                                             <div className="w-2 h-2 rounded-full bg-[#EF4444]" title="Rejected" />
                                                         ) : (
-                                                            <Tag color="processing" className="text-[0.625rem] font-bold uppercase rounded-full border-none px-2.5">Action Required</Tag>
+                                                            <Tag color="processing" className="text-xxs font-bold uppercase rounded-full border-none px-2.5">Action Required</Tag>
                                                         )}
                                                     </div>
                                                     <div className="flex justify-end gap-2 pr-5">
                                                         {item.data.status === 'REJECTED' ? (
-                                                            <Tag color="error" className="text-[0.625rem] font-bold uppercase rounded-full border-none px-2.5">Rejected</Tag>
+                                                            <Tag color="error" className="text-xxs font-bold uppercase rounded-full border-none px-2.5">Rejected</Tag>
                                                         ) : (
                                                             <>
                                                                 <button onClick={() => handleAcceptInvite(item.data.id)} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#DCFCE7] text-[#16A34A] transition-colors"><Check className="w-4 h-4" /></button>
@@ -711,21 +711,21 @@ export function PartnersPageContent() {
                                                 <div className="grid grid-cols-[40px_1.5fr_2fr_1fr_100px] gap-4 items-center w-full">
                                                     <div className="flex justify-center"><div className="w-2 h-2 rounded-full bg-[#f59e0b]" title="Pending" /></div>
                                                     <div className="flex items-center gap-3">
-                                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-[0.625rem] font-bold shrink-0 ${item.data.company ? 'bg-[#FEF2F2] text-[#DC2626]' : 'bg-[#EFF6FF] text-[#2563EB]'}`}>
+                                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xxs font-bold shrink-0 ${item.data.company ? 'bg-[#FEF2F2] text-[#DC2626]' : 'bg-[#EFF6FF] text-[#2563EB]'}`}>
                                                             {(item.data.name || "?")[0].toUpperCase()}
                                                         </div>
                                                         <div className="flex flex-col">
                                                             <span className="font-bold text-sm text-[#111111]">
                                                                 {(item.data.name || item.data.email)?.replace(' undefined', '')}
                                                             </span>
-                                                            {item.data.company && <span className="text-[0.6875rem] text-[#999999] font-normal">{item.data.company}</span>}
+                                                            {item.data.company && <span className="text-xs text-[#999999] font-normal">{item.data.company}</span>}
                                                         </div>
                                                     </div>
                                                     <div className="flex items-center gap-2 text-[#666666] overflow-hidden">
                                                         <Mail className="w-3.5 h-3.5 shrink-0" />
-                                                        <span className="text-[0.8125rem] font-medium truncate block text-[#111111]">{item.data.email}</span>
+                                                        <span className="text-xs font-medium truncate block text-[#111111]">{item.data.email}</span>
                                                     </div>
-                                                    <div><Tag color="orange" className="text-[0.625rem] font-bold uppercase rounded-full border-none px-2.5">Pending</Tag></div>
+                                                    <div><Tag color="orange" className="text-xxs font-bold uppercase rounded-full border-none px-2.5">Pending</Tag></div>
                                                     <div className="flex justify-end pr-5">
                                                         <Dropdown
                                                             menu={{
@@ -736,7 +736,7 @@ export function PartnersPageContent() {
                                                                         icon: <Trash2 className="w-3.5 h-3.5" />,
                                                                         onClick: () => handleCancelRequest(item.data.id),
                                                                         danger: true,
-                                                                        className: "text-[0.8125rem] font-medium"
+                                                                        className: "text-xs font-medium"
                                                                     }
                                                                 ]
                                                             }}
@@ -775,14 +775,14 @@ export function PartnersPageContent() {
                             />
                         </div>
                         <div className="pl-[48px]">
-                            <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Business Name</p>
+                            <p className="text-xs font-bold text-[#999999] uppercase tracking-wide">Business Name</p>
                         </div>
-                        <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Contact Person</p>
-                        <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Type</p>
-                        <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Email</p>
-                        <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Onboarding</p>
-                        <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Status</p>
-                        <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Country</p>
+                        <p className="text-xs font-bold text-[#999999] uppercase tracking-wide">Contact Person</p>
+                        <p className="text-xs font-bold text-[#999999] uppercase tracking-wide">Type</p>
+                        <p className="text-xs font-bold text-[#999999] uppercase tracking-wide">Email</p>
+                        <p className="text-xs font-bold text-[#999999] uppercase tracking-wide">Onboarding</p>
+                        <p className="text-xs font-bold text-[#999999] uppercase tracking-wide">Status</p>
+                        <p className="text-xs font-bold text-[#999999] uppercase tracking-wide">Country</p>
                         <p></p>
                     </div>
 

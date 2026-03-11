@@ -383,7 +383,7 @@ function EmployeeFormContent({
     >
       <div className="grid grid-cols-12 gap-x-4 gap-y-4">
         <div className="col-span-6 space-y-1">
-          <span className="text-[0.8125rem] font-bold text-[#111111]">First Name <span className="text-[#ff3b3b]">*</span></span>
+          <span className="text-xs font-bold text-[#111111]">First Name <span className="text-[#ff3b3b]">*</span></span>
           <Input
             placeholder="First name"
             className={`h-11 rounded-lg border border-[#EEEEEE] font-medium ${resolvedFormData.firstName ? 'bg-white' : 'bg-[#F9FAFB]'}`}
@@ -392,7 +392,7 @@ function EmployeeFormContent({
           />
         </div>
         <div className="col-span-6 space-y-1">
-          <span className="text-[0.8125rem] font-bold text-[#111111]">Last Name</span>
+          <span className="text-xs font-bold text-[#111111]">Last Name</span>
           <Input
             placeholder="Last name"
             className={`h-11 rounded-lg border border-[#EEEEEE] font-medium ${resolvedFormData.lastName ? 'bg-white' : 'bg-[#F9FAFB]'}`}
@@ -402,7 +402,7 @@ function EmployeeFormContent({
         </div>
 
         <div className="col-span-6 space-y-1">
-          <span className="text-[0.8125rem] font-bold text-[#111111]">Email Address <span className="text-[#ff3b3b]">*</span></span>
+          <span className="text-xs font-bold text-[#111111]">Email Address <span className="text-[#ff3b3b]">*</span></span>
           <Input
             placeholder="email@company.com"
             className={`h-11 rounded-lg border border-[#EEEEEE] font-medium ${resolvedFormData.email ? 'bg-white' : 'bg-[#F9FAFB]'}`}
@@ -411,7 +411,7 @@ function EmployeeFormContent({
           />
         </div>
         <div className="col-span-6 space-y-1">
-          <span className="text-[0.8125rem] font-bold text-[#111111]">Contact Number</span>
+          <span className="text-xs font-bold text-[#111111]">Contact Number</span>
           <PhoneNumberInput
             placeholder="123 456 7890"
             value={`${resolvedFormData.countryCode} ${resolvedFormData.phone}`}
@@ -426,7 +426,7 @@ function EmployeeFormContent({
         </div>
 
         <div className="col-span-6 space-y-1">
-          <span className="text-[0.8125rem] font-bold text-[#111111]">Access Level <span className="text-[#ff3b3b]">*</span></span>
+          <span className="text-xs font-bold text-[#111111]">Access Level <span className="text-[#ff3b3b]">*</span></span>
           <Select
             className={`w-full h-11 access-level-select employee-form-select ${resolvedFormData.access ? 'employee-form-select-filled' : ''}`}
             classNames={{ popup: { root: 'access-level-popup' } }}
@@ -454,7 +454,7 @@ function EmployeeFormContent({
           </Select>
         </div>
         <div className="col-span-6 space-y-1">
-          <span className="text-[0.8125rem] font-bold text-[#111111]">Employment Type <span className="text-[#ff3b3b]">*</span></span>
+          <span className="text-xs font-bold text-[#111111]">Employment Type <span className="text-[#ff3b3b]">*</span></span>
           <Select
             className={`w-full h-11 employee-form-select ${resolvedFormData.employment_type ? 'employee-form-select-filled' : ''}`}
             placeholder="Select type"
@@ -470,7 +470,7 @@ function EmployeeFormContent({
         </div>
 
         <div className="col-span-6 space-y-1">
-          <span className="text-[0.8125rem] font-bold text-[#111111]">Designation</span>
+          <span className="text-xs font-bold text-[#111111]">Designation</span>
           <Input
             placeholder="e.g. Senior Developer"
             className={`h-11 rounded-lg border border-[#EEEEEE] font-medium ${resolvedFormData.role ? 'bg-white' : 'bg-[#F9FAFB]'}`}
@@ -479,7 +479,7 @@ function EmployeeFormContent({
           />
         </div>
         <div className="col-span-6 space-y-1">
-          <span className="text-[0.8125rem] font-bold text-[#111111]">Department</span>
+          <span className="text-xs font-bold text-[#111111]">Department</span>
           <Select
             showSearch
             className={`w-full h-11 employee-form-select ${resolvedFormData.department ? 'employee-form-select-filled' : ''}`}
@@ -499,7 +499,7 @@ function EmployeeFormContent({
         </div>
 
         <div className="col-span-6 space-y-1">
-          <span className="text-[0.8125rem] font-bold text-[#111111]">Experience (Years)</span>
+          <span className="text-xs font-bold text-[#111111]">Experience (Years)</span>
           <Input
             type="number"
             placeholder="e.g. 5"
@@ -509,7 +509,7 @@ function EmployeeFormContent({
           />
         </div>
         <div className="col-span-6 space-y-1">
-          <span className="text-[0.8125rem] font-bold text-[#111111]">Date of Joining</span>
+          <span className="text-xs font-bold text-[#111111]">Date of Joining</span>
           <DatePicker
             className={`w-full h-11 employee-form-datepicker ${resolvedFormData.dateOfJoining ? 'employee-form-datepicker-filled' : ''}`}
             placeholder={DATE_FORMAT_DISPLAY.toLowerCase()}
@@ -521,7 +521,7 @@ function EmployeeFormContent({
         </div>
 
         <div className="col-span-6 space-y-1">
-          <span className="text-[0.8125rem] font-bold text-[#111111]">Salary (CTC) <span className="text-[#666666] font-normal text-[0.6875rem] ml-1">(Annual)</span></span>
+          <span className="text-xs font-bold text-[#111111]">Salary (CTC) <span className="text-[#666666] font-normal text-xxs ml-1">(Annual)</span></span>
           <Space.Compact className="w-full employee-form-salary">
             {CurrencySelector}
             <Input
@@ -535,7 +535,7 @@ function EmployeeFormContent({
           </Space.Compact>
         </div>
         <div className="col-span-6 space-y-1">
-          <span className="text-[0.8125rem] font-bold text-[#111111]">Total Leaves</span>
+          <span className="text-xs font-bold text-[#111111]">Total Leaves</span>
           <Input
             type="number"
             placeholder="Days"
@@ -546,7 +546,7 @@ function EmployeeFormContent({
         </div>
 
         <div className="col-span-6 space-y-1">
-          <span className="text-[0.8125rem] font-bold text-[#111111]">Working Hours</span>
+          <span className="text-xs font-bold text-[#111111]">Working Hours</span>
           <div className="grid grid-cols-2 gap-2">
             <TimePicker
               placeholder="Start"
@@ -567,7 +567,7 @@ function EmployeeFormContent({
           </div>
         </div>
         <div className="col-span-6 space-y-1">
-          <span className="text-[0.8125rem] font-bold text-[#111111]">Hourly Cost <span className="text-[#666666] font-normal text-[0.6875rem] ml-1">(Calculated)</span></span>
+          <span className="text-xs font-bold text-[#111111]">Hourly Cost <span className="text-[#666666] font-normal text-xxs ml-1">(Calculated)</span></span>
           <Input
             placeholder="e.g. 25/Hr"
             readOnly
@@ -578,7 +578,7 @@ function EmployeeFormContent({
         </div>
 
         <div className="col-span-12 space-y-1">
-          <span className="text-[0.8125rem] font-bold text-[#111111]">Professional Skillsets</span>
+          <span className="text-xs font-bold text-[#111111]">Professional Skillsets</span>
           <Select
             mode="tags"
             className={`w-full employee-form-select linkedin-skill-select ${resolvedFormData.skillsets ? 'employee-form-select-filled' : ''}`}

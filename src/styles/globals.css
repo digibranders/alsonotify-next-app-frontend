@@ -1,5 +1,13 @@
 @import "tailwindcss";
-/* @config "../../tailwind.config.js"; */
+@config "../../tailwind.config.js";
+
+@theme {
+    --font-size-xxs: 0.625rem;
+    --font-size-xs: 0.75rem;
+    --font-size-sm: 0.8125rem;
+    --font-size-base: 0.875rem;
+    --font-size-lg: 1rem;
+}
 
 :root {
     --font-size: 16px;
@@ -230,7 +238,7 @@ select:disabled,
 
 .ant-select-item {
     font-family: "Manrope", sans-serif !important;
-    font-size: 0.875rem !important;
+    font-size: 0.75rem !important;
     color: #111111 !important;
     padding: 8px 12px !important;
     border-radius: 6px !important;
@@ -251,7 +259,7 @@ select:disabled,
     content: "✓" !important;
     float: right !important;
     color: #666666 !important;
-    font-size: 0.875rem !important;
+    font-size: 0.75rem !important;
     font-weight: 600 !important;
 }
 
@@ -266,7 +274,7 @@ select:disabled,
     padding: 0 12px !important;
     font-family: "Manrope", sans-serif !important;
     font-weight: 500 !important;
-    font-size: 0.875rem !important;
+    font-size: 0.75rem !important;
 }
 
 .ant-select-focused .ant-select-selector {
@@ -572,7 +580,7 @@ select:disabled,
 .ant-picker-content th {
     font-family: "Manrope", sans-serif !important;
     font-weight: 700 !important;
-    font-size: 0.6875rem !important;
+    font-size: 0.75rem !important;
     color: #999999 !important;
     text-transform: uppercase !important;
     letter-spacing: 0.05em !important;
