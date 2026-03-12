@@ -74,7 +74,7 @@ export const SmartRequirementSelect: React.FC<SmartRequirementSelectProps> = ({
                             <input
                                 type="text"
                                 placeholder="Search requirements..."
-                                className="w-full pl-9 pr-3 py-2 text-[13px] border border-[#EEEEEE] rounded-lg focus:outline-none focus:border-[#111111] focus:ring-1 focus:ring-[#111111] transition-colors"
+                                className="w-full pl-9 pr-3 py-2 text-[0.8125rem] border border-[#EEEEEE] rounded-lg focus:outline-none focus:border-[#111111] focus:ring-1 focus:ring-[#111111] transition-colors"
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                                 autoFocus
@@ -84,9 +84,9 @@ export const SmartRequirementSelect: React.FC<SmartRequirementSelectProps> = ({
 
                     <div className="overflow-y-auto flex-1 p-2">
                         {isLoading ? (
-                            <div className="px-4 py-8 text-center text-[13px] text-[#697386]">Loading requirements...</div>
+                            <div className="px-4 py-8 text-center text-[0.8125rem] text-[#697386]">Loading requirements...</div>
                         ) : filteredRequirements.length === 0 ? (
-                            <div className="px-4 py-8 text-center text-[13px] text-[#697386]">No matching requirements found.</div>
+                            <div className="px-4 py-8 text-center text-[0.8125rem] text-[#697386]">No matching requirements found.</div>
                         ) : (
                             <ul className="space-y-1">
                                 {filteredRequirements.map(req => {
@@ -111,7 +111,7 @@ export const SmartRequirementSelect: React.FC<SmartRequirementSelectProps> = ({
                                                 }`}
                                         >
                                             <div className="flex-1 min-w-0 pr-4">
-                                                <p className="text-[13px] font-semibold text-[#111111] truncate mb-0.5">
+                                                <p className="text-[0.8125rem] font-semibold text-[#111111] truncate mb-0.5">
                                                     {req.name || `Requirement #${req.id}`}
                                                 </p>
                                                 <div className="flex items-center gap-2 text-[11px] text-[#697386]">
@@ -121,7 +121,7 @@ export const SmartRequirementSelect: React.FC<SmartRequirementSelectProps> = ({
                                                 </div>
                                             </div>
                                             <div className="flex flex-col items-end shrink-0 pl-3 border-l border-[#EEEEEE]">
-                                                <span className="text-[13px] font-bold text-[#111111]">
+                                                <span className="text-[0.8125rem] font-bold text-[#111111]">
                                                     ₹{remaining.toLocaleString()}
                                                 </span>
                                                 <span className="text-[9px] font-bold text-[#697386] uppercase tracking-wider mt-0.5">

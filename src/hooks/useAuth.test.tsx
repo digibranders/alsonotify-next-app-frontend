@@ -85,7 +85,7 @@ describe('useAuth Hooks', () => {
       });
 
       await act(async () => {
-        result.current.mutate({ email: 'test@example.com', password: 'password123' });
+        result.current.mutate({ email: 'test@example.com', password: 'password123', turnstileToken: null });
       });
 
       await waitFor(() => expect(result.current.isSuccess).toBe(true));
@@ -93,6 +93,7 @@ describe('useAuth Hooks', () => {
       expect(AuthService.doLogin).toHaveBeenCalledWith({
         email: 'test@example.com',
         password: 'password123',
+        turnstileToken: null,
       });
       expect(CookieService.setToken).toHaveBeenCalledWith('test-token-123');
       expect(AxiosConfig.setAuthToken).toHaveBeenCalledWith('test-token-123');
@@ -117,6 +118,7 @@ describe('useAuth Hooks', () => {
           email: 'test@example.com',
           password: 'password123',
           redirect: '/dashboard/tasks',
+          turnstileToken: null,
         });
       });
 
@@ -136,7 +138,7 @@ describe('useAuth Hooks', () => {
       });
 
       await act(async () => {
-        result.current.mutate({ email: 'test@example.com', password: 'wrong' });
+        result.current.mutate({ email: 'test@example.com', password: 'wrong', turnstileToken: null });
       });
 
       await waitFor(() => expect(result.current.isSuccess).toBe(true));
@@ -181,6 +183,7 @@ describe('useAuth Hooks', () => {
           password: 'password123',
           token: null,
           accountType: 'ORGANIZATION',
+          turnstileToken: 'mock-token'
         });
       });
 
@@ -191,7 +194,8 @@ describe('useAuth Hooks', () => {
         'john@example.com',
         'password123',
         null,
-        'ORGANIZATION'
+        'ORGANIZATION',
+        'mock-token'
       );
     });
   });
