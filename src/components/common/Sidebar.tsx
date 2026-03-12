@@ -208,7 +208,7 @@ export const Sidebar = React.memo(function Sidebar({ userRole, permissions, coll
             ${isCollapsed ? 'left-1/2 -translate-x-1/2 mt-10' : 'right-4'} 
             w-8 h-8 flex items-center justify-center 
             text-[#999999] hover:text-[#111111] hover:bg-[#F7F7F7] 
-            rounded-full transition-all z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff3b3b]
+            rounded-full transition-all z-10 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#ff3b3b]
             ${isInDrawer ? 'opacity-100' : !isCollapsed ? 'opacity-0 group-hover/sidebar:opacity-100' : ''}
           `}
         title={isInDrawer ? "Close menu" : isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
@@ -287,13 +287,13 @@ const NavItem = React.memo(function NavItem({ href, icon, label, active = false,
       href={href}
       className={`  
         relative h-[32px] rounded-full transition-all group shrink-0
-        flex items-center 
-        ${collapsed ? 'justify-center w-[32px] px-0' : 'w-full gap-4 px-6'}
+        flex items-center mx-auto
+        ${collapsed ? 'justify-center w-[32px] px-0' : 'w-[calc(100%-16px)] gap-4 px-4'}
         ${active
           ? 'bg-[#FEF3F2] '
           : 'bg-white hover:bg-[#F7F7F7] '
         }
-        cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#ff3b3b] focus-visible:ring-offset-1
+        cursor-pointer outline-none focus-visible:ring-1 focus-visible:ring-[#ff3b3b] focus-visible:ring-offset-0
         no-underline
       `}
       title={collapsed ? label : undefined}
@@ -320,7 +320,7 @@ const NavItem = React.memo(function NavItem({ href, icon, label, active = false,
 function PremiumCard() {
   return (
     <div className="w-full">
-      <button className="w-full bg-[#ff3b3b] hover:bg-[#e63535] active:bg-[#cc2f2f] text-white font-bold text-sm px-4 py-3 rounded-full transition-all transform active:scale-[0.98] shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff3b3b] focus-visible:ring-offset-2">
+      <button className="w-full bg-[#ff3b3b] hover:bg-[#e63535] active:bg-[#cc2f2f] text-white font-bold text-sm px-4 py-3 rounded-full transition-all transform active:scale-[0.98] shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#ff3b3b] focus-visible:ring-offset-1">
         Upgrade Now
       </button>
     </div>
