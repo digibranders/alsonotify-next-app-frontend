@@ -109,9 +109,22 @@ export function FeedbackWidget({ open, onClose }: FeedbackWidgetProps) {
             <h2 className="text-lg font-bold text-[#111111] mb-1">
               Give us feedback
             </h2>
-            <p className="text-[0.8125rem] font-normal text-[#666666]">
-              Tell us how we can make AlsoNotify better for you.
-            </p>
+            <div className="flex items-center gap-2">
+              <p className="text-[0.8125rem] font-normal text-[#666666]">
+                Tell us how we can make AlsoNotify better for you.
+              </p>
+              <span className="text-[#EEEEEE]">|</span>
+              <a 
+                href="/dashboard/feedback" 
+                className="text-[0.8125rem] font-semibold text-[#ff3b3b] hover:underline"
+                onClick={(e) => {
+                  e.preventDefault();
+                  window.location.href = '/dashboard/feedback';
+                }}
+              >
+                View all feedback
+              </a>
+            </div>
           </div>
           <button
             onClick={handleClose}

@@ -1,11 +1,10 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { Select, Modal, Empty, Popconfirm, App, Switch, Skeleton } from 'antd';
+import { Select, Modal, Empty, App, Skeleton } from 'antd';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { 
   Eye, 
-  Trash2, 
   Bug, 
   Lightbulb, 
   TrendingUp, 
@@ -14,17 +13,17 @@ import {
   Clock,
   XCircle,
   ThumbsUp,
-  Loader2,
-  ShieldAlert
+  Loader2
 } from 'lucide-react';
 import { 
   useAdminFeedbackList, 
-  useUpdateFeedbackStatus, 
-  useSoftDeleteFeedback 
+  useFeedbackList,
+  useToggleFeedbackVote
 } from '@/hooks/useFeedback';
 import { FeedbackItem, FeedbackStatus, FeedbackType } from '@/services/feedback';
 import { useUserDetails } from '@/hooks/useUser';
 import { getRoleFromUser } from '@/utils/roleUtils';
+import { FeedbackWidget } from '@/components/common/FeedbackWidget';
 
 import { PaginationBar } from '@/components/ui/PaginationBar';
 
@@ -97,16 +96,15 @@ const stringToColor = (str: string) => {
   return '#' + '00000'.substring(0, 6 - c.length) + c;
 };
 
-const UserAvatar = ({ name, email }: { name?: string | null; email?: string | null }) => {
-  const displayName = name || email || '?';
-  const initials = displayName.slice(0, 2).toUpperCase();
-  const bgColor = stringToColor(displayName);
+const UserAvatar = ({ name }: { name?: string | null }) => {
+  const firstName = name?.split(' ')[0] || 'Anonymous';
+  const initials = firstName.slice(0, 1).toUpperCase();
+  const bgColor = stringToColor(firstName);
 
   return (
     <div
       className="w-6 h-6 rounded-full flex items-center justify-center text-[0.625rem] font-bold text-white shrink-0"
       style={{ backgroundColor: bgColor }}
-      title={displayName}
     >
       {initials}
     </div>
@@ -122,31 +120,43 @@ export default function AdminFeedbackPage() {
   // --- State ---
   const [statusFilter, setStatusFilter] = useState<FeedbackStatus | undefined>();
   const [typeFilter, setTypeFilter] = useState<FeedbackType | undefined>();
-  const [showDeleted, setShowDeleted] = useState(false);
   const [selected, setSelected] = useState<FeedbackItem | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
 
   // --- Data & Mutations ---
-  const { data, isLoading, refetch } = useAdminFeedbackList({
+  const { data: adminData, isLoading: isAdminLoading, refetch: refetchAdmin } = useAdminFeedbackList({
     status: statusFilter,
     type: typeFilter,
-    includeDeleted: showDeleted,
   });
 
-  const { mutate: mutateStatus, isPending: statusUpdating } = useUpdateFeedbackStatus();
-  const { mutate: mutateDelete, isPending: deleting } = useSoftDeleteFeedback();
+  const { data: publicData, isLoading: isPublicLoading, refetch: refetchPublic } = useFeedbackList({
+    status: statusFilter,
+    type: typeFilter,
+  });
+
+  // Check if user is Admin
+  const isAdmin = useMemo(() => {
+    const userData = userDetails?.result || {};
+    return getRoleFromUser(userData) === 'Admin';
+  }, [userDetails]);
+
+  const data = isAdmin ? adminData : publicData;
+  const isLoading = isAdmin ? isAdminLoading : isPublicLoading;
+  const refetch = isAdmin ? refetchAdmin : refetchPublic;
+
+  const { mutate: mutateVote } = useToggleFeedbackVote();
 
   // Loading States for specific rows
-  const [rowUpdatingId, setRowUpdatingId] = useState<number | null>(null);
-  const [rowDeletingId, setRowDeletingId] = useState<number | null>(null);
+  const [rowVotingId, setRowVotingId] = useState<number | null>(null);
 
   // Sorting
   const sortedFeedbacks = useMemo(
     () =>
       (data ?? [])
         .slice()
-        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()),
+        .sort((a: FeedbackItem, b: FeedbackItem) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()),
     [data]
   );
 
@@ -157,91 +167,44 @@ export default function AdminFeedbackPage() {
   }, [sortedFeedbacks, currentPage, pageSize]);
 
   // --- Handlers ---
-  const handleStatusChange = (id: number, status: FeedbackStatus) => {
-    setRowUpdatingId(id);
-    mutateStatus(
-      { id, status },
-      {
-        onSuccess: () => {
-          message.success('Status updated');
-          setRowUpdatingId(null);
-          refetch();
-        },
-        onError: (err: any) => {
-          const errorMessage = err?.response?.data?.message || err?.message || 'Failed to update status';
-          message.error(errorMessage);
-          setRowUpdatingId(null);
-        },
-      }
-    );
-  };
 
-  const handleSoftDelete = (id: number) => {
-    setRowDeletingId(id);
-    mutateDelete(id, {
+  const handleToggleVote = (id: number) => {
+    setRowVotingId(id);
+    mutateVote(id, {
       onSuccess: () => {
-        message.success('Feedback deleted');
-        setRowDeletingId(null);
+        setRowVotingId(null);
         refetch();
       },
-      onError: (err: any) => {
-        const errorMessage = err?.response?.data?.message || err?.message || 'Failed to delete feedback';
+      onError: (err: { response?: { data?: { message?: string } }; message?: string }) => {
+        const errorMessage = err?.response?.data?.message || err?.message || 'Failed to vote';
         message.error(errorMessage);
-        setRowDeletingId(null);
+        setRowVotingId(null);
       },
     });
   };
 
-  // Check if user is Admin
-  const isAdmin = useMemo(() => {
-    const userData = userDetails?.result || {};
-    return getRoleFromUser(userData) === 'Admin';
-  }, [userDetails]);
-
   // Show loading state while checking user
   if (isLoadingUser) {
     return (
-
-        <PageLayout title="Feedback Admin">
-          <div className="flex items-center justify-center h-[60vh]">
-            <div className="text-center">
-              <Loader2 className="w-8 h-8 animate-spin text-[#ff3b3b] mx-auto mb-4" />
-              <p className="text-[#666666] text-sm">Checking permissions...</p>
-            </div>
+      <PageLayout title="Feedback Management">
+        <div className="flex items-center justify-center h-[60vh]">
+          <div className="text-center">
+            <Loader2 className="w-8 h-8 animate-spin text-[#ff3b3b] mx-auto mb-4" />
+            <p className="text-[#666666] text-sm">Checking permissions...</p>
           </div>
-        </PageLayout>
-
-    );
-  }
-
-  // Show unauthorized message if not Admin
-  if (!isAdmin) {
-    return (
-
-        <PageLayout title="Feedback Admin">
-          <div className="flex items-center justify-center h-[60vh]">
-            <div className="text-center max-w-md">
-              <div className="w-20 h-20 rounded-full bg-[#FEE2E2] flex items-center justify-center mx-auto mb-6">
-                <ShieldAlert className="w-10 h-10 text-[#EF4444]" />
-              </div>
-              <h2 className="text-2xl font-bold text-[#111111] mb-2">
-                Access Denied
-              </h2>
-              <p className="text-[#666666] text-[0.9375rem] font-normal">
-                You are not authorized to access this page. Only Admin users can view and manage feedback.
-              </p>
-            </div>
-          </div>
-        </PageLayout>
-
+        </div>
+      </PageLayout>
     );
   }
 
   /* ----- Render ----- */
   return (
-
-      <PageLayout 
-        title="Feedback Management"
+    <PageLayout 
+      title="Feedbacks"
+      titleAction={{
+        onClick: () => setShowFeedbackModal(true),
+        label: 'Add Feedback'
+      }}
       customFilters={
         <div className="flex items-center gap-3">
           <Select
@@ -277,142 +240,118 @@ export default function AdminFeedbackPage() {
               label: getFeedbackTypeConfig(t).label,
             }))}
           />
-          
-          <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-full border border-[#EEEEEE]">
-            <span className="text-xs text-[#666666] font-medium">Include Deleted</span>
-            <Switch size="small" checked={showDeleted} onChange={setShowDeleted} />
-          </div>
         </div>
       }
     >
-      <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-4 pt-1">
-        {/* Banner/Intro */}
-        {!isLoading && sortedFeedbacks.length > 0 && (
-          <div className="mb-2">
-            <p className="text-sm text-[#666666] font-normal">
-              Triage and manage feedback from your team to improve the application.
-            </p>
-          </div>
-        )}
+      <div className="flex-1 overflow-hidden flex flex-col pt-4">
+        {/* Table Header */}
+        <div className="grid grid-cols-[60px_1fr_120px_120px_140px_60px] gap-4 px-4 mb-2 text-xs font-bold text-[#999999] uppercase tracking-wider">
+          <div className="text-center">Votes</div>
+          <div>Feedback</div>
+          <div className="text-center">Status</div>
+          <div className="text-center">Type</div>
+          <div className="text-center">Date</div>
+          <div className="text-right pr-2">Actions</div>
+        </div>
 
         {/* List Section */}
-        <div className="space-y-3 pb-8">
+        <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-2 pb-8">
           {isLoading ? (
-            <div className="bg-white rounded-2xl border border-[#EEEEEE] p-6">
-              <Skeleton active avatar paragraph={{ rows: 2 }} />
-            </div>
+            Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="bg-white border border-[#EEEEEE] rounded-[16px] p-4 h-20">
+                <Skeleton active avatar={{ size: 'small' }} paragraph={{ rows: 1 }} />
+              </div>
+            ))
           ) : !sortedFeedbacks.length ? (
-            <div className="bg-white rounded-2xl border border-[#EEEEEE] p-12 text-center">
+            <div className="bg-white rounded-[16px] border border-[#EEEEEE] p-12 text-center">
               <Empty description="No feedback items found matching your filters." />
             </div>
           ) : (
             <>
-              {paginatedFeedbacks.map((item) => {
-                const isUpdating = rowUpdatingId === item.id && statusUpdating;
-                const isDeleting = rowDeletingId === item.id && deleting;
+              {paginatedFeedbacks.map((item: FeedbackItem) => {
                 const typeConfig = getFeedbackTypeConfig(item.type);
+                const statusConfig = getStatusConfig(item.status);
 
                 return (
                   <div
                     key={item.id}
-                    className={`bg-white rounded-2xl border border-[#EEEEEE] p-4 hover:shadow-lg hover:border-[#ff3b3b]/10 transition-all ${
-                      item.is_deleted ? 'opacity-60' : ''
-                    }`}
+                    onClick={() => setSelected(item)}
+                    className={`
+                      group bg-white border border-[#EEEEEE] rounded-[16px] px-4 py-3 transition-all duration-300 cursor-pointer relative
+                      hover:border-[#ff3b3b]/20 hover:shadow-lg grid grid-cols-[60px_1fr_120px_120px_140px_60px] gap-4 items-center
+                      ${item.is_deleted ? 'opacity-60' : ''}
+                    `}
                   >
-                    <div className="flex items-start gap-4">
-                      {/* Vote Count Pill */}
-                      <div className="w-12 shrink-0">
-                        <div className="bg-[#F7F7F7] rounded-xl p-2 text-center border border-[#EEEEEE]">
-                          <ThumbsUp className="w-4 h-4 text-[#ff3b3b] mx-auto mb-1" />
-                          <span className="text-sm font-bold text-[#111111]">
-                            {item.voteCount || 0}
-                          </span>
-                        </div>
+                    {/* Votes */}
+                    <div className="flex flex-col items-center justify-center border-r border-[#EEEEEE] pr-4 mr-0" onClick={(e) => e.stopPropagation()}>
+                      <button
+                        onClick={() => handleToggleVote(item.id)}
+                        disabled={rowVotingId === item.id}
+                        className={`group/vote flex flex-col items-center justify-center p-1 rounded-lg transition-colors ${
+                          item.hasVoted 
+                            ? 'text-[#ff3b3b]' 
+                            : 'text-[#999999] hover:text-[#ff3b3b]'
+                        }`}
+                      >
+                        {rowVotingId === item.id ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin mb-0.5" />
+                        ) : (
+                          <ThumbsUp className={`w-3.5 h-3.5 mb-0.5 ${item.hasVoted ? 'fill-[#ff3b3b]' : ''}`} />
+                        )}
+                        <span className="text-xs font-bold leading-none">
+                          {item.voteCount || 0}
+                        </span>
+                      </button>
+                    </div>
+
+                    {/* Content */}
+                    <div className="min-w-0 pr-4">
+                      <div className="font-bold text-xs !text-[#111111] group-hover:text-[#ff3b3b] transition-colors truncate mb-0.5">
+                        {item.title}
                       </div>
-
-                      {/* Main Content */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-4 mb-2">
-                          <h3 className="text-base font-semibold text-[#111111]">
-                            {item.title}
-                          </h3>
-                          <span className="text-xs text-[#999999] shrink-0 font-normal">
-                            {formatDateTime(item.created_at)}
-                          </span>
-                        </div>
-
-                        <p className="text-sm text-[#666666] line-clamp-2 mb-3 font-normal">
-                          {item.description}
-                        </p>
-
-                        <div className="flex items-center gap-3 flex-wrap">
-                          <UserAvatar name={item.createdBy?.name} email={item.createdBy?.email} />
-                          
-                          <div
-                            className="px-2 py-0.5 rounded-lg text-xs font-semibold flex items-center gap-1.5"
-                            style={{ backgroundColor: typeConfig.bgColor, color: typeConfig.color }}
-                          >
-                            {typeConfig.icon}
-                            {typeConfig.label}
-                          </div>
-
-                          {item.is_deleted && (
-                            <span className="px-2 py-0.5 rounded-lg text-xs font-semibold bg-[#FEE2E2] text-[#EF4444]">
-                              DELETED
-                            </span>
-                          )}
-                        </div>
+                      <div className="flex items-center gap-2">
+                        <UserAvatar name={item.createdBy?.name} />
+                        <span className="text-[0.6875rem] text-[#999999] font-medium truncate">
+                           {item.description}
+                        </span>
                       </div>
+                    </div>
 
-                      {/* Actions */}
-                      <div className="flex flex-col gap-2 items-end shrink-0">
-                        <Select
-                          size="small"
-                          loading={isUpdating}
-                          value={item.status}
-                          style={{ width: 140 }}
-                          className="feedback-status-select"
-                          onChange={(val) => handleStatusChange(item.id, val)}
-                          options={STATUS_OPTIONS.map((s) => ({
-                            value: s,
-                            label: getStatusConfig(s).label,
-                          }))}
-                        />
+                    {/* Status */}
+                    <div className="flex justify-center">
+                      <div
+                        className="px-2 py-0.5 rounded-lg text-[0.6875rem] font-bold flex items-center gap-1.5 whitespace-nowrap"
+                        style={{ backgroundColor: statusConfig.bgColor, color: statusConfig.color }}
+                      >
+                        {statusConfig.icon}
+                        {statusConfig.label.toUpperCase()}
+                      </div>
+                    </div>
 
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => setSelected(item)}
-                            className="w-8 h-8 rounded-lg bg-[#F7F7F7] hover:bg-[#EEEEEE] flex items-center justify-center transition-colors border border-[#EEEEEE]"
-                            title="View Details"
-                          >
-                            <Eye className="w-4 h-4 text-[#666666]" />
-                          </button>
+                    {/* Type */}
+                    <div className="flex justify-center">
+                      <div
+                        className="px-2 py-0.5 rounded-lg text-[0.6875rem] font-bold flex items-center gap-1.5 whitespace-nowrap"
+                        style={{ backgroundColor: typeConfig.bgColor, color: typeConfig.color }}
+                      >
+                        {typeConfig.icon ? React.cloneElement(typeConfig.icon as React.ReactElement<any>, { className: 'w-3 h-3' }) : null}
+                        {typeConfig.label.toUpperCase()}
+                      </div>
+                    </div>
 
-                          <Popconfirm
-                            title="Delete this feedback?"
-                            description="This hides it from users but keeps it in the database."
-                            onConfirm={() => handleSoftDelete(item.id)}
-                            okText="Yes"
-                            cancelText="No"
-                            disabled={item.is_deleted || isDeleting}
-                          >
-                            <button
-                              disabled={item.is_deleted || isDeleting}
-                              className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors border ${
-                                item.is_deleted || isDeleting
-                                  ? 'bg-[#F7F7F7] text-[#CCCCCC] cursor-not-allowed border-transparent'
-                                  : 'bg-[#FEE2E2] hover:bg-[#FECACA] text-[#EF4444] border-[#FEE2E2]'
-                              }`}
-                              title="Soft Delete"
-                            >
-                              {isDeleting ? (
-                                <Loader2 className="w-4 h-4 animate-spin text-[#EF4444]" />
-                              ) : (
-                                <Trash2 className="w-4 h-4" />
-                              )}
-                            </button>
-                          </Popconfirm>
-                        </div>
+                    {/* Date */}
+                    <div className="text-center text-[0.625rem] font-medium text-[#999999] whitespace-nowrap">
+                      {new Date(item.created_at).toLocaleDateString(undefined, {
+                         day: '2-digit',
+                         month: 'short',
+                         year: 'numeric'
+                      })}
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex justify-end pr-2">
+                      <div className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-[#F7F7F7] transition-colors">
+                        <Eye className="w-4 h-4 text-[#666666]" />
                       </div>
                     </div>
                   </div>
@@ -466,20 +405,19 @@ export default function AdminFeedbackPage() {
                     {selected.description}
                   </p>
 
-                  <div className="border-t border-[#EEEEEE] pt-6">
-                    <p className="text-xs text-[#999999] font-bold uppercase tracking-wider mb-3">Reporter</p>
-                    <div className="flex items-center gap-3">
-                      <UserAvatar name={selected.createdBy?.name} email={selected.createdBy?.email} />
-                      <div className="flex flex-col">
-                        <span className="text-sm font-semibold text-[#111111]">
-                          {selected.createdBy?.name || 'Anonymous User'}
-                        </span>
-                        <span className="text-xs text-[#999999] font-normal">
-                          {selected.createdBy?.email}
-                        </span>
+                  {isAdmin && (
+                    <div className="border-t border-[#EEEEEE] pt-6">
+                      <p className="text-xs text-[#999999] font-bold uppercase tracking-wider mb-3">Reporter</p>
+                      <div className="flex items-center gap-3">
+                        <UserAvatar name={selected.createdBy?.name} />
+                        <div className="flex flex-col">
+                          <span className="text-sm font-semibold text-[#111111]">
+                            {selected.createdBy?.name?.split(' ')[0] || 'Anonymous'}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  )}
                 </div>
 
                 <div className="border-l border-[#EEEEEE] pl-8 space-y-6">
@@ -520,20 +458,37 @@ export default function AdminFeedbackPage() {
 
                   <div>
                     <p className="text-xs text-[#999999] font-bold uppercase tracking-wider mb-2">Popularity</p>
-                    <div className="flex items-center gap-2">
-                      <ThumbsUp className="w-4 h-4 text-[#ff3b3b]" />
-                      <p className="text-sm font-bold text-[#111111]">
+                    <button
+                      onClick={() => handleToggleVote(selected.id)}
+                      disabled={rowVotingId === selected.id}
+                      className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border transition-all ${
+                        selected.hasVoted 
+                          ? 'border-[#ff3b3b] bg-[#FEF2F2] text-[#ff3b3b]' 
+                          : 'border-[#EEEEEE] hover:border-[#ff3b3b]/30 text-[#111111]'
+                      }`}
+                    >
+                      {rowVotingId === selected.id ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <ThumbsUp className={`w-4 h-4 ${selected.hasVoted ? 'fill-[#ff3b3b]' : ''}`} />
+                      )}
+                      <p className="text-sm font-bold">
                         {selected.voteCount ?? 0} Upvotes
                       </p>
-                    </div>
+                    </button>
                   </div>
                 </div>
               </div>
             </div>
           )}
         </Modal>
+
+        {/* Create Feedback Modal */}
+        <FeedbackWidget 
+          open={showFeedbackModal} 
+          onClose={() => setShowFeedbackModal(false)} 
+        />
       </div>
     </PageLayout>
-
   );
 }
