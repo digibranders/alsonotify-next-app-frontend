@@ -570,3 +570,44 @@ export const reclaimBaton = async (taskId: number): Promise<ApiResponse<void>> =
     throw new NetworkError(getErrorMessage(error));
   }
 };
+
+/**
+ * Submit review decision (Approve or Request Changes) on a review task.
+ */
+export const submitReviewDecision = async (
+  reviewTaskId: number,
+  decision: 'Approved' | 'ChangesRequested',
+  notes?: string
+): Promise<ApiResponse<void>> => {
+  try {
+    validateTaskId(reviewTaskId);
+    const { data } = await axiosApi.post<ApiResponse<void>>(`/task/${reviewTaskId}/review-decision`, { decision, notes });
+    return data;
+  } catch (error) {
+    if (isAxiosError(error)) {
+      const statusCode = error.response?.status || 500;
+      const message = getErrorMessage(error);
+      throw new ApiError(message, statusCode, error.response?.data);
+    }
+    throw new NetworkError(getErrorMessage(error));
+  }
+};
+
+/**
+ * Start review from original task (moves review task to In_Progress and starts timer).
+ * Returns the review task ID.
+ */
+export const startReviewFromOriginal = async (originalTaskId: number): Promise<ApiResponse<{ reviewTaskId: number }>> => {
+  try {
+    validateTaskId(originalTaskId);
+    const { data } = await axiosApi.post<ApiResponse<{ reviewTaskId: number }>>(`/task/${originalTaskId}/start-review`);
+    return data;
+  } catch (error) {
+    if (isAxiosError(error)) {
+      const statusCode = error.response?.status || 500;
+      const message = getErrorMessage(error);
+      throw new ApiError(message, statusCode, error.response?.data);
+    }
+    throw new NetworkError(getErrorMessage(error));
+  }
+};

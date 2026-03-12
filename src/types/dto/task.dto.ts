@@ -52,6 +52,9 @@ export interface TaskDto {
   revision_round?: number;
   is_review_task?: boolean;
   review_for_task_id?: number | null;
+  review_round?: number;
+  review_decision?: string | null;
+  review_for_task?: { id: number; name: string } | null;
   parent_id?: number | null;
   disabled?: boolean;
   document_link?: string | null;

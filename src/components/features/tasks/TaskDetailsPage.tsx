@@ -6,9 +6,9 @@ import { useTabSync } from '@/hooks/useTabSync';
 import {
   FileText, Calendar, Clock,
   AlertCircle, Briefcase, FolderOpen,
-  ArrowRight
+  ArrowRight, Eye, CheckCircle, RotateCcw
 } from 'lucide-react';
-import { Breadcrumb, App, Modal, Input } from 'antd';
+import { Breadcrumb, App, Modal, Input, Button } from 'antd';
 import { TaskStatusBadge, TaskChatPanel } from './components';
 import { TaskMembersList } from './components/TaskMembersList';
 import { DocumentsTab } from '@/components/shared/DocumentsTab';
@@ -21,6 +21,8 @@ import { format } from 'date-fns';
 import { Skeleton } from '../../ui/Skeleton';
 import { PageLayout } from '../../layout/PageLayout';
 import { queryKeys } from '@/lib/queryKeys';
+import { submitReviewDecision } from '@/services/task';
+import { ReviewDecisionModal } from './components/ReviewDecisionModal';
 
 
 import { Linkify } from '@/components/common/Linkify';
@@ -84,6 +86,9 @@ export function TaskDetailsPage() {
   const [showCompleteModal, setShowCompleteModal] = useState(false);
   const [completeDescription, setCompleteDescription] = useState('');
   const [completeSubmitting, setCompleteSubmitting] = useState(false);
+  const [reviewDecisionOpen, setReviewDecisionOpen] = useState(false);
+  const [reviewDecisionType, setReviewDecisionType] = useState<'Approve' | 'RequestChanges' | null>(null);
+  const [reviewDecisionLoading, setReviewDecisionLoading] = useState(false);
 
   const queryClient = useQueryClient();
   const { mutateAsync: updateMemberStatusAsync } = useUpdateMemberStatus();
@@ -112,6 +117,27 @@ export function TaskDetailsPage() {
       queryClient.invalidateQueries({ queryKey: queryKeys.tasks.timer(taskId) });
     } finally {
       setCompleteSubmitting(false);
+    }
+  };
+
+  const handleReviewDecisionConfirm = async (notes: string) => {
+    if (!reviewDecisionType || !task) return;
+    setReviewDecisionLoading(true);
+    try {
+      await submitReviewDecision(
+        Number(task.id),
+        reviewDecisionType === 'Approve' ? 'Approved' : 'ChangesRequested',
+        notes
+      );
+      message.success(reviewDecisionType === 'Approve' ? 'Task approved!' : 'Changes requested');
+      setReviewDecisionOpen(false);
+      queryClient.invalidateQueries({ queryKey: queryKeys.tasks.detail(taskId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.tasks.listRoot() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.tasks.assigned() });
+    } catch {
+      message.error('Failed to submit decision');
+    } finally {
+      setReviewDecisionLoading(false);
     }
   };
 
@@ -267,12 +293,32 @@ export function TaskDetailsPage() {
         />
       }
       action={
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 flex-wrap">
           <TaskStatusBadge status={task.status || 'todo'} showLabel />
           {task.is_high_priority && (
             <span className="px-3 py-1.5 rounded-full text-[0.6875rem] font-semibold uppercase tracking-wide bg-[#FFF5F5] text-[#ff3b3b]">
               HIGH PRIORITY
             </span>
+          )}
+          {task.is_review_task && (isMember || isLeader) && task.status !== 'Completed' && (
+            <>
+              <Button
+                size="small"
+                icon={<CheckCircle className="w-3.5 h-3.5" />}
+                style={{ backgroundColor: '#16a34a', borderColor: '#16a34a', color: '#fff' }}
+                onClick={() => { setReviewDecisionType('Approve'); setReviewDecisionOpen(true); }}
+              >
+                Approve
+              </Button>
+              <Button
+                size="small"
+                icon={<RotateCcw className="w-3.5 h-3.5" />}
+                danger
+                onClick={() => { setReviewDecisionType('RequestChanges'); setReviewDecisionOpen(true); }}
+              >
+                Request Changes
+              </Button>
+            </>
           )}
         </div>
       }
@@ -288,6 +334,38 @@ export function TaskDetailsPage() {
       <div className="h-full overflow-y-auto p-0 bg-[#FAFAFA]">
         <div className={activeTab === 'details' ? '' : 'hidden'}>
           <div className="space-y-8 p-8 max-w-5xl mx-auto">
+            {/* Review Task Banner */}
+            {task.is_review_task && (
+              <div className="bg-[#F3E8FF] border border-[#E9D5FF] rounded-[16px] px-6 py-4 flex items-center gap-3">
+                <Eye className="w-5 h-5 text-[#7E22CE] flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-sm font-bold text-[#7E22CE]">Reviewing:</span>
+                    {task.review_for_task ? (
+                      <button
+                        onClick={() => router.push(`/dashboard/tasks/${task.review_for_task!.id}`)}
+                        className="text-sm font-semibold text-[#6D28D9] hover:underline truncate max-w-[400px]"
+                      >
+                        {task.review_for_task.name}
+                      </button>
+                    ) : (
+                      <span className="text-sm text-[#7E22CE] opacity-70">Original task</span>
+                    )}
+                    {task.review_round && task.review_round > 1 && (
+                      <span className="px-2 py-0.5 rounded-full bg-[#7E22CE] text-white text-xs font-bold">
+                        Round {task.review_round}
+                      </span>
+                    )}
+                  </div>
+                  {task.status === 'Completed' && task.review_decision && (
+                    <p className="text-xs text-[#7E22CE] mt-1 opacity-80">
+                      Decision: {task.review_decision === 'Approved' ? '✓ Approved' : '↩ Changes Requested'}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Description Section */}
             <div className="bg-white rounded-[16px] p-8 border border-[#EEEEEE] shadow-sm">
               <h3 className="text-base font-bold text-[#111111] mb-6 flex items-center gap-2">
@@ -447,6 +525,14 @@ export function TaskDetailsPage() {
           <DocumentsTab activityData={documentsActivityData} />
         </div>
       </div>
+      <ReviewDecisionModal
+        open={reviewDecisionOpen}
+        decision={reviewDecisionType}
+        taskName={task.review_for_task?.name || task.name}
+        loading={reviewDecisionLoading}
+        onClose={() => setReviewDecisionOpen(false)}
+        onConfirm={handleReviewDecisionConfirm}
+      />
       {/* TaskActionPanel removed as per request */}
       <Modal
         title="Mark as Complete"

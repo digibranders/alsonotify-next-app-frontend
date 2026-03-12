@@ -16,7 +16,8 @@ import { useTimer } from '../../context/TimerContext';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCreateTaskActivity } from '../../hooks/useTaskActivity';
 import { fileService } from '../../services/file.service';
-import { getAssignedTasks, updateTaskMemberStatus } from '../../services/task';
+import { getAssignedTasks, updateTaskMemberStatus, updateTaskStatusById } from '../../services/task';
+import { ReviewerSelectionModal } from '../features/tasks/components/ReviewerSelectionModal';
 import { useUserDetails } from '../../hooks/useUser';
 import { App, Tooltip, Modal, Input } from 'antd';
 import { queryKeys } from '../../lib/queryKeys';
@@ -104,6 +105,8 @@ export function FloatingTimerBar() {
   const [completeDescription, setCompleteDescription] = useState("");
   const [completeTaskId, setCompleteTaskId] = useState<number | null>(null);
   const [attachments, setAttachments] = useState<File[]>([]);
+  const [showReviewerModal, setShowReviewerModal] = useState(false);
+  const [reviewerModalLoading, setReviewerModalLoading] = useState(false);
   const { mutateAsync: createTaskActivity } = useCreateTaskActivity();
 
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -326,6 +329,24 @@ export function FloatingTimerBar() {
     }
     setCompleteTaskId(currentDisplayTaskId);
     setCompleteDescription("");
+
+    // Determine completion scenario: is this task self-assigned?
+    // Self-assigned = leader is the only member (leader === sole member)
+    const rawTask = (assignedTasksData?.result || []).find((t) => t.id === currentDisplayTaskId);
+    if (rawTask && userId) {
+      const memberIds = (rawTask.task_members || []).map((m: { user_id: number }) => m.user_id);
+      const leaderIsMember = rawTask.leader_id != null && memberIds.includes(rawTask.leader_id);
+      const hasOtherMembers = memberIds.some((id: number) => id !== rawTask.leader_id);
+      const isSelfAssigned = leaderIsMember && !hasOtherMembers;
+
+      if (!isSelfAssigned) {
+        // DELEGATED or LEADER_AND_OTHERS: need to select a reviewer first
+        setShowReviewerModal(true);
+        return;
+      }
+    }
+
+    // SELF_ASSIGNED or unknown: use existing complete modal flow
     setShowCompleteModal(true);
   };
 
@@ -404,6 +425,29 @@ export function FloatingTimerBar() {
     queryClient.invalidateQueries({ queryKey: queryKeys.tasks.assigned() });
     queryClient.invalidateQueries({ queryKey: queryKeys.tasks.detail(taskIdToComplete) });
     queryClient.invalidateQueries({ queryKey: queryKeys.tasks.worklogsRoot(taskIdToComplete) });
+  };
+
+  const handleReviewerConfirm = async (reviewerId: number) => {
+    if (!completeTaskId) return;
+    setReviewerModalLoading(true);
+    const taskIdToSubmit = completeTaskId;
+    try {
+      // Stop the timer first
+      await stopTimer("Submitted for review", 'Completed');
+      // Submit task for review with selected reviewer
+      await updateTaskStatusById(taskIdToSubmit, 'Review', reviewerId);
+      message.success("Task submitted for review!");
+      setShowReviewerModal(false);
+      setCompleteTaskId(null);
+      setSelectedTaskId(null);
+      queryClient.invalidateQueries({ queryKey: queryKeys.tasks.listRoot() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.tasks.assigned() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.tasks.detail(taskIdToSubmit) });
+    } catch (e: unknown) {
+      message.error("Failed to submit for review: " + (e instanceof Error ? e.message : "Unknown error"));
+    } finally {
+      setReviewerModalLoading(false);
+    }
   };
 
   if (isHidden) return null;
@@ -640,6 +684,17 @@ export function FloatingTimerBar() {
           </div>
         </div>
       </Modal>
+
+      <ReviewerSelectionModal
+        open={showReviewerModal}
+        onClose={() => {
+          setShowReviewerModal(false);
+          setCompleteTaskId(null);
+        }}
+        onConfirm={handleReviewerConfirm}
+        currentUserId={userId}
+        loading={reviewerModalLoading}
+      />
     </div>
   );
 }

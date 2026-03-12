@@ -127,7 +127,7 @@ export function TaskLiveProgress({ task, currentUserId }: TaskLiveProgressProps)
     ? getSegmentColor(singleMember, hasEst ? totalLoggedHours / effectiveEst : 0)
     : '#111111';
 
-  const labelColor = isBleeding ? 'text-[#FF3B3B]' : isWarning ? 'text-[#FF8A00]' : 'text-[#111111]';
+  const labelColor = 'text-[#111111]';
 
   // ── Tooltip ───────────────────────────────────────────────────────────────
   const usedPct = hasEst
@@ -171,21 +171,21 @@ export function TaskLiveProgress({ task, currentUserId }: TaskLiveProgressProps)
         }}
       >
         <div className="flex items-center gap-2 w-fit">
-          <span className={`font-medium text-xs whitespace-nowrap ${labelColor}`}>
+          <span className={`font-normal text-[0.75rem] whitespace-nowrap ${labelColor}`}>
             {totalLoggedHours.toFixed(1)}h{hasEst ? `/${effectiveEst.toFixed(1)}h` : ''}
           </span>
-          <span className="text-[#E5E5E5] text-xs">|</span>
+          <span className="text-[#E5E5E5] text-[0.75rem]">|</span>
           {hasEst ? (
-            <span className={`text-xs font-medium whitespace-nowrap ${isBleeding
-              ? 'text-[#FF3B3B] bg-[#FFF0F0] px-1.5 py-0.5 rounded'
+            <span className={`text-[0.75rem] font-normal whitespace-nowrap ${isBleeding
+              ? 'text-[#FF3B3B]'
               : isWarning
-                ? 'text-[#FF8A00]'
+                ? 'text-[#EAB308]'
                 : 'text-[#666666]'
               }`}>
               {isBleeding ? `+${Math.abs(remaining).toFixed(1)}h over` : `${remaining.toFixed(1)}h left`}
             </span>
           ) : (
-            <span className="text-xs text-[#666666] font-medium whitespace-nowrap">No estimate</span>
+            <span className="text-[0.75rem] text-[#666666] font-normal whitespace-nowrap">No estimate</span>
           )}
         </div>
       </Tooltip>

@@ -42,17 +42,17 @@ export function StepRow({
               {step.assignee ? step.assignee.charAt(0) : 'U'}
             </span>
           </div>
-          <span className="text-[0.8125rem] font-semibold text-[#111111]">{step.assignee || 'Unassigned'}</span>
+          <span className="text-[0.75rem] font-semibold text-[#111111]">{step.assignee || 'Unassigned'}</span>
         </div>
 
         {/* Role */}
         <div>
-          <span className="text-[0.8125rem] text-[#666666] font-medium">{step.role || 'N/A'}</span>
+          <span className="text-[0.75rem] text-[#666666] font-medium">{step.role || 'N/A'}</span>
         </div>
 
         {/* Hours */}
         <div className="flex justify-center">
-          <span className="text-[0.8125rem] text-[#111111] font-medium">{step.estHours || 0} hrs</span>
+          <span className="text-[0.75rem] text-[#111111] font-medium">{step.estHours || 0} hrs</span>
         </div>
 
         {/* Status */}
