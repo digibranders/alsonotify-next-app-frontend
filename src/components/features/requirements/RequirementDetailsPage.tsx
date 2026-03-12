@@ -386,7 +386,7 @@ export function RequirementDetailsPage() {
 
                 {/* Table Header */}
                 <div className="px-4 pb-3 mb-2">
-                  <div className="grid grid-cols-[40px_2.5fr_1.1fr_1fr_0.8fr_1.5fr_0.6fr_40px] gap-4 items-center">
+                  <div className="grid grid-cols-[40px_3.6fr_0.9fr_0.7fr_1.5fr_0.5fr_40px] gap-4 items-center">
                     <div className="flex justify-center">
                       <Checkbox
                         checked={tasks.length > 0 && selectedTasks.length === tasks.length}
@@ -399,10 +399,9 @@ export function RequirementDetailsPage() {
                     </div>
                     <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Task</p>
                     <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Timeline</p>
-                    <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide text-center">Assigned</p>
-                    <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide text-center">Duration</p>
-                    <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide text-center">Progress</p>
-                    <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide text-center">Status</p>
+                    <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Assigned</p>
+                    <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Progress</p>
+                    <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Status</p>
                     <p></p>
                   </div>
                 </div>

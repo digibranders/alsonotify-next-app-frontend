@@ -113,7 +113,7 @@ export const RequirementRow = React.memo(function RequirementRow({ req, workspac
         </div>
 
         {/* Team */}
-        <div className="flex items-center justify-center">
+        <div className="flex items-center justify-start">
           {req.assignedTo.length > 0 ? (
             <div className="flex items-center -space-x-2">
               {req.assignedTo.slice(0, 4).map((person: string, i: number) => {
@@ -178,10 +178,10 @@ export const RequirementRow = React.memo(function RequirementRow({ req, workspac
         </div>
 
         {/* Status */}
-        <div className="flex items-center justify-center">{getStatusIcon(req.status)}</div>
+        <div className="flex items-center justify-start">{getStatusIcon(req.status)}</div>
 
         {/* Actions */}
-        <div className="flex justify-end" onClick={(e) => e.stopPropagation()}>
+        <div className="flex justify-start" onClick={(e) => e.stopPropagation()}>
           {menuItems && menuItems.length > 0 && (
             <Dropdown menu={{ items: menuItems }} trigger={['click']} placement="bottomRight">
               <button className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#F7F7F7] transition-colors">

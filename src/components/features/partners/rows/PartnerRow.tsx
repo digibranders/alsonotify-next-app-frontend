@@ -138,7 +138,7 @@ export function PartnerRow({
                 </div>
 
                 {/* Actions */}
-                <div className="flex justify-end" onClick={(e) => e.stopPropagation()}>
+                <div className="flex justify-start" onClick={(e) => e.stopPropagation()}>
                     <Dropdown
                         menu={{
                             items: [

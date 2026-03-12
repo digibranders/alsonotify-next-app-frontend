@@ -105,7 +105,7 @@ export function LeaveRow({
         </div>
 
         {/* Leave Type */}
-        <div className="flex justify-center">
+        <div className="flex justify-start">
           <span className={`inline-block px-2.5 py-0.5 rounded-full text-[0.6875rem] font-semibold ${typeConfig.bgColor} ${typeConfig.textColor}`}>
             {typeConfig.label}
           </span>
@@ -120,7 +120,7 @@ export function LeaveRow({
         </div>
 
         {/* Days */}
-        <div className="flex items-center justify-center gap-1.5 text-center">
+        <div className="flex items-center justify-start gap-1.5 label text-left">
           <Clock className="w-3.5 h-3.5 text-[#666666]" />
           <span className="text-[0.8125rem] font-semibold text-[#111111]">
             {leave.days} {leave.days === 1 ? 'Day' : 'Days'}
@@ -128,7 +128,7 @@ export function LeaveRow({
         </div>
 
         {/* Status Badge */}
-        <div className="flex justify-center">
+        <div className="flex justify-start">
           <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full ${statusConfig[leave.status].bgColor} ${statusConfig[leave.status].color}`}>
             <StatusIcon className="w-3.5 h-3.5" />
             <span className="text-[0.6875rem] font-bold uppercase tracking-wider">
@@ -138,7 +138,7 @@ export function LeaveRow({
         </div>
 
         {/* Actions (Approve/Reject) */}
-        <div className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-start gap-2" onClick={(e) => e.stopPropagation()}>
           {leave.status === 'pending' && canApprove && (
             <>
               <Tooltip title="Approve">
@@ -164,7 +164,7 @@ export function LeaveRow({
         </div>
 
         {/* Reason Popover/Tooltip */}
-        <div className="flex justify-end">
+        <div className="flex justify-start">
           <Tooltip
             title={leave.reason}
             placement="top"

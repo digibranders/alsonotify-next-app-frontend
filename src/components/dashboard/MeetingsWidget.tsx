@@ -468,41 +468,40 @@ function MeetingItem({
                 )}
               </div>
 
-              {/* Time, Duration, Host & Attendees - All in one line */}
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2 flex-1 min-w-0">
-                  <div className="flex items-center gap-1 text-[#666666] text-[0.6875rem] font-normal">
-                    <Clock className="size-3.5" strokeWidth={2} />
-                    <span>{time}</span>
-                  </div>
-                  <div className="w-1 h-1 rounded-full bg-[#CCCCCC]" />
-                  <span className="text-[#666666] text-[0.6875rem] font-normal">Host: {truncateOrganizer(organizer)}</span>
-                </div>
-
-                {/* Attendees - Aligned to the right on same line */}
-                <div className="flex items-center -space-x-2 flex-shrink-0">
-                  {attendees.slice(0, 3).map((attendee, index) => {
-                    const initials = getInitials(attendee.name);
-                    return (
-                      <div
-                        key={index}
-                        className="w-6 h-6 rounded-full border-2 border-white bg-[#E5E5E5] flex items-center justify-center shadow-sm relative z-[5] hover:z-10 transition-all"
-                      >
-                        <span className="text-[0.5625rem] text-[#666666] font-bold">{initials}</span>
-                      </div>
-                    );
-                  })}
-                  {totalAttendees > attendees.length && (
-                    <div className={`w-6 h-6 rounded-full border-2 border-white flex items-center justify-center shadow-sm relative z-[1] ${isRedDate ? 'bg-[#ff3b3b]' : 'bg-[#E5E5E5]'
-                      }`}>
-                      <span className={`text-[0.5625rem] font-semibold ${isRedDate ? 'text-white' : 'text-[#666666]'
-                        }`}>
-                        +{totalAttendees - attendees.length}
-                      </span>
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                    <div className="flex items-center gap-1 text-[#666666] text-[0.6875rem] font-normal">
+                      <Clock className="size-3.5" strokeWidth={2} />
+                      <span>{time}</span>
                     </div>
-                  )}
+                    <div className="w-1 h-1 rounded-full bg-[#CCCCCC]" />
+                    <span className="text-[#666666] text-[0.6875rem] font-normal">Host: {truncateOrganizer(organizer)}</span>
+                  </div>
+
+                  {/* Attendees - Aligned to the right on same line - Commented out to save space for time and host */}
+                  {/* <div className="flex items-center -space-x-2 flex-shrink-0">
+                    {attendees.slice(0, 3).map((attendee, index) => {
+                      const initials = getInitials(attendee.name);
+                      return (
+                        <div
+                          key={index}
+                          className="w-6 h-6 rounded-full border-2 border-white bg-[#E5E5E5] flex items-center justify-center shadow-sm relative z-[5] hover:z-10 transition-all"
+                        >
+                          <span className="text-[0.5625rem] text-[#666666] font-bold">{initials}</span>
+                        </div>
+                      );
+                    })}
+                    {totalAttendees > attendees.length && (
+                      <div className={`w-6 h-6 rounded-full border-2 border-white flex items-center justify-center shadow-sm relative z-[1] ${isRedDate ? 'bg-[#ff3b3b]' : 'bg-[#E5E5E5]'
+                        }`}>
+                        <span className={`text-[0.5625rem] font-semibold ${isRedDate ? 'text-white' : 'text-[#666666]'
+                          }`}>
+                          +{totalAttendees - attendees.length}
+                        </span>
+                      </div>
+                    )}
+                  </div> */}
                 </div>
-              </div>
             </div>
           </div>
         </div>

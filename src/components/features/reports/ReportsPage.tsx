@@ -831,8 +831,8 @@ export function ReportsPage() {
                   <TableHeader label="Timeline" />
                   <TableHeader label="Hours Utilization" sortKey="efficiency" currentSort={sortConfig} onSort={handleSort} tooltip="Engaged (logged) hours versus Allotted (budget) hours." />
                   <TableHeader label="Revision" sortKey="revision" currentSort={sortConfig} onSort={handleSort} tooltip="Number of revisions (scope changes)." />
-                  <div className="text-right pr-4"><TableHeader label="Revenue / P&L" sortKey="revenue" currentSort={sortConfig} onSort={handleSort} tooltip="Quoted Price versus computed Profit/Loss." /></div>
-                  <div className="text-center"><TableHeader label="Status" sortKey="status" currentSort={sortConfig} onSort={handleSort} align="center" /></div>
+                  <div className="pr-4"><TableHeader label="Revenue / P&L" sortKey="revenue" currentSort={sortConfig} onSort={handleSort} tooltip="Quoted Price versus computed Profit/Loss." /></div>
+                  <div className=""><TableHeader label="Status" sortKey="status" currentSort={sortConfig} onSort={handleSort} /></div>
                 </div>
 
                 {/* Rows */}
@@ -915,7 +915,7 @@ export function ReportsPage() {
                       )}
                     </div>
 
-                    <div className="flex flex-col items-end text-[0.8125rem] pr-2 min-w-0">
+                    <div className="flex flex-col items-start text-[0.8125rem] pr-2 min-w-0">
                       <div className="text-[#999999] text-xs" title={currencySymbol + (row.revenue || 0).toLocaleString()}>
                         {currencySymbol}{(row.revenue || 0).toLocaleString()}
                       </div>
@@ -925,7 +925,7 @@ export function ReportsPage() {
                       </div>
                     </div>
 
-                    <div className="flex justify-center"><TaskStatusBadge status={row.status} /></div>
+                    <div className="flex justify-start"><TaskStatusBadge status={row.status} /></div>
                   </div>
                 ))}
 
@@ -966,7 +966,7 @@ export function ReportsPage() {
                   <TableHeader label="Assigned" sortKey="assigned" currentSort={sortConfig} onSort={handleSort} />
                   <TableHeader label="Due Date" sortKey="dueDate" currentSort={sortConfig} onSort={handleSort} tooltip="Task due date. Red = overdue." />
                   <TableHeader label="Hours Variance" sortKey="engagedHrs" currentSort={sortConfig} onSort={handleSort} tooltip="Engaged (logged) vs. Allotted (estimated) hours." />
-                  <div className="text-center"><TableHeader label="Status" sortKey="status" currentSort={sortConfig} onSort={handleSort} align="center" /></div>
+                  <div className=""><TableHeader label="Status" sortKey="status" currentSort={sortConfig} onSort={handleSort} /></div>
                 </div>
 
                 {/* Rows */}
@@ -1123,9 +1123,9 @@ export function ReportsPage() {
                       </div>
                     </div>
 
-                    <div className="text-[0.8125rem] pr-2 text-[#111111] font-bold text-right min-w-0 truncate" title={currencySymbol + (row.expenses || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}>{currencySymbol}{(row.expenses || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
-                    <div className="text-[0.8125rem] pr-2 text-[#111111] font-bold text-right min-w-0 truncate" title={currencySymbol + (row.revenue || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}>{currencySymbol}{(row.revenue || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
-                    <div className={`text-[0.8125rem] pr-2 font-bold text-right min-w-0 truncate ${row.profit >= 0 ? 'text-[#0F9D58]' : 'text-[#FF3B3B]'}`} title={(row.profit >= 0 ? '+' : '') + currencySymbol + (row.profit || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}>
+                    <div className="text-[0.8125rem] pr-2 text-[#111111] font-bold text-left min-w-0 truncate" title={currencySymbol + (row.expenses || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}>{currencySymbol}{(row.expenses || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                    <div className="text-[0.8125rem] pr-2 text-[#111111] font-bold text-left min-w-0 truncate" title={currencySymbol + (row.revenue || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}>{currencySymbol}{(row.revenue || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                    <div className={`text-[0.8125rem] pr-2 font-bold text-left min-w-0 truncate ${row.profit >= 0 ? 'text-[#0F9D58]' : 'text-[#FF3B3B]'}`} title={(row.profit >= 0 ? '+' : '') + currencySymbol + (row.profit || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}>
                       {row.profit >= 0 ? '+' : ''}{currencySymbol}{(row.profit || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}
                     </div>
                   </div>

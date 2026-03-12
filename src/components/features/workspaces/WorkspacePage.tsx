@@ -757,7 +757,7 @@ function WorkspaceListItem({
           </div>
 
           {/* Action */}
-          <div className="flex justify-end">
+          <div className="flex justify-start">
             {userRole !== 'Employee' && (
               <Dropdown menu={{ items, onClick: ({ key }) => handleAction(key) }} trigger={['click']} placement="bottomRight">
                 <button

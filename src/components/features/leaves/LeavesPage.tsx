@@ -312,12 +312,12 @@ export function LeavesPage() {
           </div>
           <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide"></p>
           <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Employee</p>
-          <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide text-center">Type</p>
+          <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Type</p>
           <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Duration</p>
-          <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide text-center">Days</p>
-          <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide text-center">Status</p>
-          <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide text-right pr-4">Actions</p>
-          <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide text-right"></p>
+          <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Days</p>
+          <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Status</p>
+          <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Actions</p>
+          <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide"></p>
         </div>
 
         {isLoading ? (
