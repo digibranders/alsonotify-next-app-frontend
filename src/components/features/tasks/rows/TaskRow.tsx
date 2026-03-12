@@ -12,6 +12,7 @@ import { TaskStatusBadge } from "../components/TaskStatusBadge";
 import { RevisionModal } from "../../../modals/RevisionModal";
 import { TaskLiveProgress } from "./TaskLiveProgress";
 import { ReviewerSelectionModal } from "../components/ReviewerSelectionModal";
+import { useTimer } from "@/context/TimerContext";
 
 interface TaskRowProps {
   task: Task;
@@ -45,6 +46,7 @@ const TaskRowComponent = memo(function TaskRow({
 }: TaskRowProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { stopTimer, timerState } = useTimer();
   const [estimateOpen, setEstimateOpen] = useState(false);
   const [estimateHours, setEstimateHours] = useState("");
   const [submissionLoading, setSubmissionLoading] = useState(false);
@@ -244,18 +246,6 @@ const TaskRowComponent = memo(function TaskRow({
 
                   const isLeader = task.leader_id === currentUserId || task.leader_user?.id === currentUserId;
                   const isReview = task.status === 'Review';
-                  const isInProgress = task.status === 'In_Progress';
-
-                  // Scenario 1: Leader is the ONLY active member — self-assigned, no review needed
-                  const activeMemberIds = (task.task_members || []).map((m: { user_id: number }) => m.user_id);
-                  const leaderId = task.leader_id ?? task.leader_user?.id;
-                  const isSelfAssigned =
-                    isInProgress &&
-                    isLeader &&
-                    leaderId !== undefined &&
-                    activeMemberIds.length === 1 &&
-                    activeMemberIds[0] === leaderId &&
-                    currentUserId === leaderId;
 
                   const actions: MenuProps['items'] = [];
 
@@ -266,7 +256,12 @@ const TaskRowComponent = memo(function TaskRow({
                         key: 'approve',
                         label: 'Approve & Complete',
                         icon: <CheckCircle className="w-3.5 h-3.5" />,
-                        onClick: () => onStatusChange?.('Completed'),
+                        onClick: async () => {
+                          if (timerState.taskId === Number(task.id)) {
+                            await stopTimer("Approved and Completed", "Completed");
+                          }
+                          onStatusChange?.('Completed');
+                        },
                         className: "text-[0.75rem] font-medium text-[#16a34a]"
                       },
                       {
@@ -298,17 +293,6 @@ const TaskRowComponent = memo(function TaskRow({
                       icon: <CheckCircle className="w-3.5 h-3.5" />,
                       onClick: () => setReviewerModalOpen(true),
                       className: "text-[0.75rem] font-medium text-[#EAB308]"
-                    });
-                  }
-
-                  // Scenario 1: Self-assigned task — leader can mark complete directly
-                  if (isSelfAssigned && !task.is_review_task) {
-                    actions.push({
-                      key: 'mark_complete',
-                      label: 'Mark Complete',
-                      icon: <CheckCircle className="w-3.5 h-3.5" />,
-                      onClick: () => onStatusChange?.('Completed'),
-                      className: "text-[0.75rem] font-medium text-[#16a34a]"
                     });
                   }
 
