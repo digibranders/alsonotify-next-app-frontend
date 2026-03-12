@@ -447,15 +447,15 @@ function HoursBar({ data, onClick }: HoursBarProps) {
           className="flex items-center gap-3 shrink-0 hover:opacity-80 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff3b3b] rounded-md px-1"
         >
           <div className="flex items-center gap-1">
-            <span className="text-[0.625rem] text-[#888888] font-medium">Balance:</span>
-            <span className={`text-xs font-bold ${isOverCapacity ? 'text-[#ff3b3b]' : 'text-[#111111]'}`}>
+            <span className="text-xs text-[#888888] font-medium leading-tight">Balance:</span>
+            <span className={`text-sm font-bold leading-tight ${isOverCapacity ? 'text-[#ff3b3b]' : 'text-[#111111]'}`}>
               {data.remaining}h
             </span>
           </div>
           <div className="w-px h-3 bg-gray-200" />
           <div className="flex items-center gap-1">
-            <span className="text-[0.625rem] text-[#888888] font-medium">Total:</span>
-            <span className="text-xs font-bold text-[#111111]">{data.total}h</span>
+            <span className="text-xs text-[#888888] font-medium leading-tight">Total:</span>
+            <span className="text-sm font-bold text-[#111111] leading-tight">{data.total}h</span>
           </div>
         </button>
 
@@ -678,12 +678,12 @@ function ProgressCard({ title, data, isLoading = false, dateRangeLabel = 'this p
             >
               <div className="flex items-center gap-2.5 min-w-0">
                 <div className="w-2 h-2 rounded-full shrink-0 ring-2 ring-white shadow-sm" style={{ backgroundColor: item.color }} />
-                <span className={`text-[0.8125rem] font-medium truncate group-hover/item:text-[#111111] transition-colors ${item.value > 0 ? 'text-[#111111]' : 'text-[#666666]'
+                <span className={`text-xs font-medium truncate group-hover/item:text-[#111111] transition-colors leading-tight ${item.value > 0 ? 'text-[#111111]' : 'text-[#666666]'
                   }`}>
                   {item.name}
                 </span>
               </div>
-              <span className={`text-base font-bold shrink-0 ml-2 ${item.value > 0 ? 'text-[#111111]' : 'text-[#666666]'
+              <span className={`text-sm font-bold shrink-0 ml-2 leading-tight ${item.value > 0 ? 'text-[#111111]' : 'text-[#666666]'
                 }`}>
                 {item.value || 0}
               </span>
