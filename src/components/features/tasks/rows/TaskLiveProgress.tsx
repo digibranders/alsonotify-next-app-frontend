@@ -157,7 +157,7 @@ export function TaskLiveProgress({ task, currentUserId }: TaskLiveProgressProps)
   );
 
   return (
-    <div className="flex flex-col gap-1.5 justify-center h-full min-w-0 cursor-default">
+    <div className="flex flex-col gap-1.5 h-full min-w-0 cursor-default">
       {/* Text row with Summary Tooltip */}
       <Tooltip
         title={summaryTooltip}

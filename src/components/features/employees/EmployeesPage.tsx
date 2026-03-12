@@ -1081,7 +1081,7 @@ export function EmployeesPage() {
     >
       <div className="flex flex-col h-full relative">
         {/* Filters Bar */}
-        <div className="mb-6">
+        <div className="mb-2">
           <FilterBar
             filters={filterOptions}
             selectedFilters={filters}
