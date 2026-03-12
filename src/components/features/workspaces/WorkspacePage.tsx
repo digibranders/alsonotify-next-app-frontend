@@ -228,7 +228,7 @@ export function WorkspacePage() {
   return (
     <div className="w-full h-full bg-white rounded-[24px] border border-[#EEEEEE] p-8 flex flex-col overflow-hidden">
       {/* Header Section */}
-      <div className="mb-6">
+      <div className="mb-2">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <h2 className="font-semibold text-xl text-[#111111]">Workspace</h2>
@@ -298,7 +298,7 @@ export function WorkspacePage() {
       </div>
 
       {/* Filters Bar */}
-      <div className="mb-6">
+      <div className="mb-2">
         <FilterBar
           filters={filterOptions}
           selectedFilters={filters}

@@ -19,7 +19,7 @@ export function PillTabs({ tabs, activeTab, onTabChange }: PillTabsProps) {
           role="tab"
           aria-selected={activeTab === tab.id}
           onClick={() => onTabChange(tab.id)}
-          className={`px-6 py-2.5 rounded-full font-semibold text-sm transition-all flex items-center gap-2 ${activeTab === tab.id
+          className={`px-6 py-2.5 rounded-full font-semibold text-[0.875rem] transition-all flex items-center gap-2 ${activeTab === tab.id
               ? 'bg-[#ff3b3b] text-white shadow-md'
               : 'bg-white text-[#666666] border border-[#EEEEEE] hover:bg-[#F7F7F7]'
             }`}

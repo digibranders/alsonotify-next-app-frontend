@@ -578,7 +578,7 @@ export function PartnersPageContent() {
             }}
         >
             {/* Toolbar / Filters */}
-            <div className="mb-6">
+            <div className="mb-2">
                 <FilterBar
                     filters={activeTab === 'requests' ? requestsFilterOptions : activeFilterOptions}
                     selectedFilters={activeTab === 'requests' ? { requestType: requestTypeFilter } : filters}

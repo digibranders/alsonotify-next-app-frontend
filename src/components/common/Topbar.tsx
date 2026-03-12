@@ -497,7 +497,7 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
                     size={32}
                     src={user?.profile_pic || undefined}
                     alt={user?.name || 'User'}
-                    style={{ backgroundColor: '#ff3b3b', color: '#ffffff' }}
+                    style={{ backgroundColor: '#E5E5E5', color: '#666666' }}
                   >
                     {user?.name?.[0]?.toUpperCase() || 'U'}
                   </Avatar>

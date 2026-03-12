@@ -828,8 +828,8 @@ export function WorkspaceRequirementsPage() {
     return (
         <div className="w-full h-full bg-white rounded-[24px] border border-[#EEEEEE] p-8 flex flex-col overflow-hidden">
             {/* Header */}
-            <div className="mb-6">
-                <div className="flex items-center justify-between mb-6">
+            <div className="mb-2">
+                <div className="flex items-center justify-between mb-2">
                     <Breadcrumb
                         separator={
                             <span className="text-xl font-semibold text-[#999999]">/</span>

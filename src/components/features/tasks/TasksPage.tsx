@@ -1049,7 +1049,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
         </Modal>
       )}
       {/* Filters Bar */}
-      <div className="mb-6">
+      <div className="mb-2">
         <div className="flex items-center gap-3">
           <div className="flex-1">
             <FilterBar
@@ -1069,7 +1069,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
       <div className="flex-1 overflow-y-auto relative">
         {/* Table Header (Hidden on Mobile) */}
         <div className="sticky top-0 z-20 bg-white hidden md:grid grid-cols-[40px_2fr_1.6fr_0.9fr_0.7fr_1.5fr_0.5fr_40px] gap-4 px-4 py-3 mb-2 items-center">
-          <div className="flex justify-center">
+          <div className="flex items-center">
             <Checkbox
               checked={sortedTasks.length > 0 && selectedTasks.length === sortedTasks.length}
               onChange={toggleSelectAll}
@@ -1144,17 +1144,17 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
           {isLoading ? (
             Array.from({ length: 5 }).map((_, i) => (
               <div key={i} className="bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[40px_2fr_1.6fr_0.9fr_0.7fr_1.5fr_0.5fr_40px] gap-4 px-4 py-4 items-center">
-                <div className="flex justify-center"><Skeleton className="h-4 w-4 rounded" /></div>
+                <div className="flex items-center"><Skeleton className="h-4 w-4 rounded" /></div>
                 <div className="space-y-2">
                   <Skeleton className="h-4 w-3/4" />
                   <Skeleton className="h-3 w-1/4" />
                 </div>
                 <Skeleton className="h-4 w-20" />
                 <Skeleton className="h-4 w-24" />
-                <div className="flex justify-center"><Skeleton className="h-8 w-8 rounded-full" /></div>
+                <div className="flex items-center"><Skeleton className="h-8 w-8 rounded-full" /></div>
                 <div className="flex flex-col gap-1"><Skeleton className="h-4 w-3/4" /><Skeleton className="h-1.5 w-full rounded-full" /></div>
-                <div className="flex justify-center"><Skeleton className="h-6 w-16 rounded-full" /></div>
-                <div className="flex justify-center"><Skeleton className="h-4 w-4 rounded" /></div>
+                <div className="flex items-center"><Skeleton className="h-6 w-16 rounded-full" /></div>
+                <div className="flex items-center"><Skeleton className="h-4 w-4 rounded" /></div>
               </div>
             ))
           ) : sortedTasks.map((task) => (
