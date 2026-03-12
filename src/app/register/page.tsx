@@ -77,8 +77,9 @@ function RegisterForm() {
             message.error(data.message || "Registration failed");
           }
         },
-        onError: (error: any) => {
-          const errorMessage = error?.response?.data?.message || "Something went wrong. Please try again.";
+        onError: (error: unknown) => {
+          const errorData = error as { response?: { data?: { message?: string } } };
+          const errorMessage = errorData?.response?.data?.message || "Something went wrong. Please try again.";
           message.error(errorMessage);
         },
       }
@@ -210,7 +211,7 @@ function RegisterForm() {
             <div className="pt-2">
               <Turnstile
                 siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY as string}
-                onSuccess={(token) => setTurnstileToken(token)}
+                onSuccess={(token: string) => setTurnstileToken(token)}
                 options={{
                   theme: 'light',
                   size: 'normal',

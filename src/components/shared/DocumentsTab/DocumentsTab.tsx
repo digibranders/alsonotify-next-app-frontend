@@ -235,11 +235,8 @@ export function DocumentsTab({ activityData }: DocumentsTabProps) {
                 isRequired: false,
             });
         } catch (error) {
-            console.error('Preview error:', error);
-            const errorMessage = error instanceof Error
-                ? error.message
-                : 'Failed to open preview';
-            messageRef.current.error(errorMessage);
+            console.error('Error opening preview:', error);
+            messageRef.current.error('Failed to prepare document preview');
         } finally {
             // Clear loading state
             setPreviewingIds(prev => {
@@ -248,8 +245,23 @@ export function DocumentsTab({ activityData }: DocumentsTabProps) {
                 return next;
             });
         }
-    }, [determineFileType, previewingIds]);
+    }, [determineFileType, previewingIds, messageRef]);
 
+    // Cleanup blob URLs when preview closes or component unmounts
+    useEffect(() => {
+        return () => {
+            if (previewDoc?.fileUrl && previewDoc.fileUrl.startsWith('blob:')) {
+                window.URL.revokeObjectURL(previewDoc.fileUrl);
+            }
+        };
+    }, [previewDoc?.fileUrl]);
+
+    const handleClosePreview = () => {
+        if (previewDoc?.fileUrl && previewDoc.fileUrl.startsWith('blob:')) {
+            window.URL.revokeObjectURL(previewDoc.fileUrl);
+        }
+        setPreviewDoc(null);
+    };
     // Download handler with backend service
     const handleDownload = useCallback(async (doc: DocumentItem) => {
         if (!doc.attachmentId) {
@@ -436,7 +448,7 @@ export function DocumentsTab({ activityData }: DocumentsTabProps) {
 
             <DocumentPreviewModal
                 open={!!previewDoc}
-                onClose={() => setPreviewDoc(null)}
+                onClose={handleClosePreview}
                 document={previewDoc}
             />
         </>

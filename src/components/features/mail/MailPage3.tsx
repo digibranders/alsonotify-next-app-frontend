@@ -16,6 +16,7 @@ import {
   Tooltip,
 } from "antd";
 import type { Dayjs } from "dayjs";
+import type { UploadFile } from "antd";
 import {
   Eye,
   EyeOff,
@@ -31,9 +32,14 @@ import {
   Inbox,
   FileText,
   AlertCircle,
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp,
   Archive,
   PanelLeft,
   PanelLeftClose,
+  Download,
+  FileSpreadsheet,
 } from "lucide-react";
 import dayjs from "dayjs";
 import { PageLayout } from "../../layout/PageLayout";
@@ -42,6 +48,7 @@ import { UserDocument } from "@/types/domain";
 import { useMailAttachments, useMailFolders, useMailMessage, useMailMessages } from "@/hooks/useMail";
 import { useDebounce } from "@/hooks/useDebounce";
 import { sanitizeEmailHtml } from "@/utils/sanitizeHtml";
+import { determineFileType, safeFilename } from "@/utils/fileTypeUtils";
 import {
   deleteMail,
   downloadAttachment,
@@ -123,6 +130,13 @@ export function MailPage() {
     email: userDetails.result.email,
     avatar: userDetails.result.profile_pic
   } : { name: "Me", email: "" };
+  const [replyOpen, setReplyOpen] = useState<"reply" | "replyAll" | "forward" | null>(null);
+  const [replyText, setReplyText] = useState("");
+  const [forwardTo, setForwardTo] = useState<string[]>([]);
+  const [sendingQuick, setSendingQuick] = useState(false);
+  const [quickFiles, setQuickFiles] = useState<UploadFile[]>([]);
+  const [downloadingIds, setDownloadingIds] = useState<Set<string>>(new Set());
+  const [previewingIds, setPreviewingIds] = useState<Set<string>>(new Set());
 
   const [folder, setFolder] = useState<string>("inbox");
   const [unreadOnly, setUnreadOnly] = useState(false);
@@ -281,8 +295,8 @@ export function MailPage() {
 
 
 
-  /* 
-   * Logic Update: Sync unread count immediately when reading 
+  /*
+   * Logic Update: Sync unread count immediately when reading
    */
   const onSelect = async (id: string, isRead?: boolean) => {
     setSelectedId(id);
@@ -344,64 +358,64 @@ export function MailPage() {
 
 
   const doDownload = async (attId: string, name?: string) => {
-    if (!selectedId) return;
-    const blob = await downloadAttachment(selectedId, attId);
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = name || "attachment";
-    a.click();
-    a.click();
-    window.URL.revokeObjectURL(url);
+    if (!selectedId || downloadingIds.has(attId)) return;
+    setDownloadingIds(prev => new Set(prev).add(attId));
+    try {
+      const blob = await downloadAttachment(selectedId, attId);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = safeFilename(name);
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+
+      // Delay revocation to ensure browser captures the URL
+      setTimeout(() => {
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      }, 150);
+    } catch (err) {
+      console.error('Download error:', err);
+      message.error("Failed to download attachment");
+    } finally {
+      setDownloadingIds(prev => {
+        const next = new Set(prev);
+        next.delete(attId);
+        return next;
+      });
+    }
   };
 
-  const doPreview = async (attId: string, name?: string, contentType?: string, size?: number) => {
-    if (!selectedId) return;
+  const doPreview = async (attId: string, name: string, contentType: string, size: number) => {
+    if (!selectedId || previewingIds.has(attId)) return;
+    setPreviewingIds(prev => new Set(prev).add(attId));
     try {
       const blob = await downloadAttachment(selectedId, attId);
       const url = window.URL.createObjectURL(blob);
 
-      let fileType: UserDocument["fileType"] = "text";
-      const ct = (contentType || "").toLowerCase();
-      const nameLower = (name || "").toLowerCase();
-      const fileName = name || "Unnamed";
-      const fileSize = size || 0;
-
-      if (ct.startsWith("image/")) {
-        fileType = "image";
-      } else if (ct === "application/pdf") {
-        fileType = "pdf";
-      } else if (ct.includes("word") || nameLower.endsWith(".doc") || nameLower.endsWith(".docx")) {
-        fileType = "docx";
-      } else if (ct.includes("csv") || nameLower.endsWith(".csv")) {
-        fileType = "csv";
-      } else if (ct.includes("excel") || ct.includes("sheet") || nameLower.endsWith(".xls") || nameLower.endsWith(".xlsx")) {
-        fileType = "excel";
-      } else if (
-        ct.includes("text/") ||
-        ct.includes("json") ||
-        ct.includes("javascript") ||
-        nameLower.endsWith(".txt") ||
-        nameLower.endsWith(".log") ||
-        nameLower.endsWith(".json") ||
-        nameLower.endsWith(".md")
-      ) {
-        fileType = "text";
-      }
+      const fileType = determineFileType(name, contentType);
 
       setPreviewDoc({
         id: attId,
         documentTypeId: "mail-attachment",
         documentTypeName: "Mail Attachment",
-        fileName,
-        fileSize,
+        fileName: name,
+        fileSize: size,
         fileUrl: url,
         uploadedDate: new Date().toISOString(),
         fileType,
         isRequired: false,
       });
-    } catch {
+    } catch (err) {
+      console.error('Preview error:', err);
       message.error("Failed to load preview");
+    } finally {
+      setPreviewingIds(prev => {
+        const next = new Set(prev);
+        next.delete(attId);
+        return next;
+      });
     }
   };
 
@@ -746,42 +760,40 @@ export function MailPage() {
                     <div className="h-px bg-[#EEEEEE] mt-2 mb-3" />
 
                     <div className="flex items-center justify-between gap-2 mb-0">
-                      <div className="flex items-center gap-4">
-                        <div className="flex bg-white ring-1 ring-black/5 rounded-full p-1 self-start">
-                          <button
-                            onClick={() => setBodyView("html")}
-                            className={`px-3 py-1 text-[12px] font-semibold rounded-full transition-all ${bodyView === "html" ? "bg-[#111111] text-white shadow-sm" : "text-[#777777] hover:text-[#111111]"
-                              }`}
-                          >
-                            HTML
-                          </button>
-                          <button
-                            onClick={() => setBodyView("text")}
-                            className={`px-3 py-1 text-[12px] font-semibold rounded-full transition-all ${bodyView === "text" ? "bg-[#111111] text-white shadow-sm" : "text-[#777777] hover:text-[#111111]"
-                              }`}
-                          >
-                            Text
-                          </button>
-                        </div>
-
-                        {bodyView === "html" ? (
-                          <button
-                            onClick={() => setLoadImages((s) => !s)}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white ring-1 ring-black/5 text-[12px] font-medium text-[#434343] hover:bg-[#F7F7F7] transition-all"
-                          >
-                            {loadImages ? <EyeOff size={14} /> : <Eye size={14} />}
-                            {loadImages ? "Hide images" : "Load images"}
-                          </button>
-                        ) : null}
+                      <div className="flex bg-white ring-1 ring-black/5 rounded-full p-1 self-start">
+                        <button
+                          onClick={() => setBodyView("html")}
+                          className={`px-3 py-1 text-[12px] font-semibold rounded-full transition-all ${bodyView === "html" ? "bg-[#111111] text-white shadow-sm" : "text-[#777777] hover:text-[#111111]"
+                            }`}
+                        >
+                          HTML
+                        </button>
+                        <button
+                          onClick={() => setBodyView("text")}
+                          className={`px-3 py-1 text-[12px] font-semibold rounded-full transition-all ${bodyView === "text" ? "bg-[#111111] text-white shadow-sm" : "text-[#777777] hover:text-[#111111]"
+                            }`}
+                        >
+                          Text
+                        </button>
                       </div>
 
-                      {bodyView === "html" && !loadImages ? (
-                        <div className="flex items-center gap-1.5 text-[11px] text-[#999999]">
-                          <ImageIcon size={14} />
-                          Images are blocked
-                        </div>
+                      {bodyView === "html" ? (
+                        <button
+                          onClick={() => setLoadImages((s) => !s)}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white ring-1 ring-black/5 text-[12px] font-medium text-[#434343] hover:bg-[#F7F7F7] transition-all"
+                        >
+                          {loadImages ? <EyeOff size={14} /> : <Eye size={14} />}
+                          {loadImages ? "Hide images" : "Load images"}
+                        </button>
                       ) : null}
                     </div>
+
+                    {bodyView === "html" && !loadImages ? (
+                      <div className="flex items-center gap-1.5 text-[11px] text-[#999999]">
+                        <ImageIcon size={14} />
+                        Images are blocked
+                      </div>
+                    ) : null}
                   </div>
 
                   {/* Scrollable Content Section */}
@@ -837,18 +849,26 @@ export function MailPage() {
                               </div>
 
                               <Space size={8}>
-                                <button
-                                  onClick={() => doPreview(a.id, a.name, a.contentType, a.size)}
-                                  className="px-3 py-1.5 rounded-full ring-1 ring-black/10 text-[11px] font-semibold hover:bg-gray-100 transition-all active:scale-95"
+                                <Button
+                                  type="text"
+                                  size="small"
+                                  icon={<Eye size={14} className={previewingIds.has(a.id) ? "animate-pulse" : ""} />}
+                                  loading={previewingIds.has(a.id)}
+                                  onClick={() => doPreview(a.id, a.name || 'Unnamed', a.contentType || '', a.size || 0)}
+                                  className="text-[#666666] hover:text-[#111111]"
                                 >
-                                  <Eye size={16} />
-                                </button>
-                                <button
+                                  Preview
+                                </Button>
+                                <Button
+                                  type="text"
+                                  size="small"
+                                  icon={<Download size={14} className={downloadingIds.has(a.id) ? "animate-bounce" : ""} />}
+                                  loading={downloadingIds.has(a.id)}
                                   onClick={() => doDownload(a.id, a.name)}
-                                  className="px-3 py-1.5 rounded-full bg-[#111111] text-white text-[11px] font-semibold hover:bg-[#333333] transition-all shadow-sm active:scale-95"
+                                  className="text-[#666666] hover:text-[#111111]"
                                 >
                                   Download
-                                </button>
+                                </Button>
                               </Space>
                             </div>
                           ))}

@@ -8,6 +8,7 @@ import { DocumentPreviewModal } from '@/components/ui/DocumentPreviewModal';
 import { UserDocument } from '@/types/domain';
 import { parseMentionsAndTasks, MentionOption } from '@/utils/textUtils';
 import { useResizable } from '@/hooks/useResizable';
+import { determineFileType } from '@/utils/fileTypeUtils';
 
 export interface AttachmentObject {
     id: number;
@@ -138,23 +139,22 @@ export function ChatPanel({
         return () => window.removeEventListener('view-in-chat', handleViewInChat);
     }, [isCollapsed]);
 
-    // File type detection utility
-    const determineFileType = useCallback((
-        fileName: string,
-        contentType?: string
-    ): UserDocument['fileType'] => {
-        const ct = (contentType || '').toLowerCase();
-        const name = fileName.toLowerCase();
 
-        if (ct.startsWith('image/') || /\.(jpg|jpeg|png|gif|webp|svg|bmp|ico|tiff|tif|avif|heic|heif|jfif|pjpeg|pjp|apng|raw|cr2|nef|arw|dng)$/i.test(name)) return 'image';
-        if (ct === 'application/pdf' || name.endsWith('.pdf')) return 'pdf';
-        if (ct.includes('word') || ct.includes('msword') || /\.(doc|docx|odt|rtf|pages)$/i.test(name)) return 'docx';
-        if (ct.includes('excel') || ct.includes('sheet') || /\.(xls|xlsx|ods|numbers)$/i.test(name)) return 'excel';
-        if (ct.includes('powerpoint') || ct.includes('presentation') || /\.(ppt|pptx|odp|key)$/i.test(name)) return 'powerpoint';
-        if (ct.includes('csv') || name.endsWith('.csv')) return 'csv';
-        if (/\.(js|ts|tsx|jsx|py|java|c|cpp|h|hpp|cs|php|rb|go|rs|swift|kt|scala|r|m|sh|bash|sql|dart|lua|perl|pl|vue|svelte)$/i.test(name)) return 'code';
-        return 'text';
-    }, []);
+    // Cleanup blob URLs when preview closes or component unmounts
+    useEffect(() => {
+        return () => {
+            if (previewDoc?.fileUrl && previewDoc.fileUrl.startsWith('blob:')) {
+                window.URL.revokeObjectURL(previewDoc.fileUrl);
+            }
+        };
+    }, [previewDoc?.fileUrl]);
+
+    const handleClosePreview = () => {
+        if (previewDoc?.fileUrl && previewDoc.fileUrl.startsWith('blob:')) {
+            window.URL.revokeObjectURL(previewDoc.fileUrl);
+        }
+        setPreviewDoc(null);
+    };
 
     const handlePreview = useCallback(async (file: AttachmentObject) => {
         if (previewingIds.has(file.id)) return;
@@ -191,7 +191,7 @@ export function ChatPanel({
                 return next;
             });
         }
-    }, [determineFileType, previewingIds, message]);
+    }, [previewingIds, message]);
 
     const handleDownload = useCallback(async (file: AttachmentObject) => {
         if (downloadingIds.has(file.id)) return;
@@ -463,7 +463,7 @@ export function ChatPanel({
             )}
             <DocumentPreviewModal
                 open={!!previewDoc}
-                onClose={() => setPreviewDoc(null)}
+                onClose={handleClosePreview}
                 document={previewDoc}
             />
         </div>
