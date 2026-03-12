@@ -11,10 +11,11 @@ interface ReviewerSelectionModalProps {
   onClose: () => void;
   onConfirm: (reviewerId: number) => void;
   defaultReviewerId?: number;
+  currentUserId?: number;
   loading?: boolean;
 }
 
-export function ReviewerSelectionModal({ open, onClose, onConfirm, defaultReviewerId, loading }: ReviewerSelectionModalProps) {
+export function ReviewerSelectionModal({ open, onClose, onConfirm, defaultReviewerId, currentUserId, loading }: ReviewerSelectionModalProps) {
   const [selectedReviewer, setSelectedReviewer] = useState<number | undefined>();
 
   // Use a key on this component from the parent to reset state, or just set it here whenever `open` becomes true.
@@ -29,7 +30,9 @@ export function ReviewerSelectionModal({ open, onClose, onConfirm, defaultReview
     enabled: open,
   });
 
-  const users = data?.result || [];
+  const allUsers = data?.result || [];
+  // Filter out the current user — you can't review your own work
+  const users = currentUserId ? allUsers.filter((u: UserDto) => u.id !== currentUserId) : allUsers;
 
   const handleConfirm = () => {
     if (selectedReviewer) {
@@ -49,6 +52,9 @@ export function ReviewerSelectionModal({ open, onClose, onConfirm, defaultReview
       okButtonProps={{ disabled: !selectedReviewer, style: { backgroundColor: '#16a34a', borderColor: '#16a34a' } }}
     >
       <div className="py-4">
+        <p className="text-xs text-gray-500 mb-4">
+          The selected reviewer will receive a review task. They can approve or request changes on the work.
+        </p>
         <label className="block text-sm font-medium text-[#111111] mb-2">
           Select Reviewer
         </label>

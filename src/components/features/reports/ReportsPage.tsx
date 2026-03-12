@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import {
-  Download, ArrowUp, ArrowDown, Info, CheckCircle2, XCircle
+  Download, ArrowUp, ArrowDown, Info
 } from 'lucide-react';
 import { PageLayout } from '../../layout/PageLayout';
 import { FilterBar, FilterOption } from '../../ui/FilterBar';
@@ -50,13 +50,13 @@ function TableHeader({
   const isSorted = currentSort?.key === sortKey;
 
   return (
-    <div className={`flex items-center gap-1 ${align === 'right' ? 'justify-end' : align === 'center' ? 'justify-center' : 'justify-start'}`}>
+    <div className={`flex items-center gap-0.5 ${align === 'right' ? 'justify-end' : align === 'center' ? 'justify-center' : 'justify-start'} min-w-0`}>
       <button
-        className={`flex items-center gap-1 group outline-none ${sortKey ? 'cursor-pointer' : 'cursor-default'}`}
+        className={`flex items-center gap-0.5 group outline-none p-0 ${sortKey ? 'cursor-pointer' : 'cursor-default'} ${align === 'right' ? 'justify-end' : align === 'center' ? 'justify-center' : 'justify-start'}`}
         onClick={() => sortKey && onSort?.(sortKey)}
         disabled={!sortKey}
       >
-        <span className={`text-xs font-bold uppercase tracking-wide transition-colors ${isSorted ? 'text-[#111111]' : 'text-[#999999] group-hover:text-[#666666]'}`}>
+        <span className={`text-[0.75rem] font-bold uppercase tracking-wide transition-colors text-left ${isSorted ? 'text-[#111111]' : 'text-[#999999] group-hover:text-[#666666]'} truncate`}>
           {label}
         </span>
         {sortKey && isSorted && currentSort && (
@@ -527,13 +527,13 @@ export function ReportsPage() {
   // Adapt EmployeeReport to the shape expected by the drawer (MemberRow-like)
   const selectedMember = selectedMemberData ? {
     ...selectedMemberData,
-    totalWorkingHrs: selectedMemberData.totalWorkingHrs, // backend-computed periodCapacity (holiday + break aware)
-    actualEngagedHrs: selectedMemberData.engagedHrs, // already 2dp from backend
+    totalWorkingHrs: selectedMemberData.totalWorkingHrs,
+    actualEngagedHrs: selectedMemberData.engagedHrs,
     costPerHour: selectedMemberData.hourlyCost,
-    billablePerHour: 0, // Not in API yet
+    billablePerHour: 0,
     efficiency: selectedMemberData.efficiency,
     utilization: selectedMemberData.utilization
-  } : null;
+  } as any : null;
 
   // Placeholder task filtering for member drawer - Mock worklogs as we don't have an endpoint for user worklogs yet
   // Query Member Worklogs
@@ -606,7 +606,7 @@ export function ReportsPage() {
               <>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'requirement' ? '' : 'hidden'}`}>
                   <div className="flex items-center gap-1">
-                    <span className="text-xs font-medium text-[#666666]">Total Requirements</span>
+                    <span className="text-[0.75rem] font-medium text-[#666666]">Total Requirements</span>
                     <Tooltip title="Total active requirements in period. Excludes Draft, Pending, and Archived statuses." styles={{ root: { maxWidth: 260 }, container: { fontSize: 11, lineHeight: '1.4' } }}>
                       <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
                     </Tooltip>
@@ -615,7 +615,7 @@ export function ReportsPage() {
                 </div>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'requirement' ? '' : 'hidden'}`}>
                   <div className="flex items-center gap-1">
-                    <span className="text-xs font-medium text-[#666666]">On Time Completed</span>
+                    <span className="text-[0.75rem] font-medium text-[#666666]">On Time Completed</span>
                     <Tooltip title="Completed on or under budget. Over-budget completions count as Delayed." styles={{ root: { maxWidth: 280 }, container: { fontSize: 11, lineHeight: '1.4' } }}>
                       <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
                     </Tooltip>
@@ -624,7 +624,7 @@ export function ReportsPage() {
                 </div>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'requirement' ? '' : 'hidden'}`}>
                   <div className="flex items-center gap-1">
-                    <span className="text-xs font-medium text-[#666666]">In Progress</span>
+                    <span className="text-[0.75rem] font-medium text-[#666666]">In Progress</span>
                     <Tooltip title="Currently active requirements (e.g., Assigned, In Progress, Review)." styles={{ root: { maxWidth: 280 }, container: { fontSize: 11, lineHeight: '1.4' } }}>
                       <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
                     </Tooltip>
@@ -635,19 +635,19 @@ export function ReportsPage() {
                 </div>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'requirement' ? '' : 'hidden'}`}>
                   <div className="flex items-center gap-1">
-                    <span className="text-xs font-medium text-[#666666]">Delayed</span>
+                    <span className="text-[0.75rem] font-medium text-[#666666]">Delayed</span>
                     <Tooltip title="Past due or over-budget. +Xh = extra hours logged on over-budget completions." styles={{ root: { maxWidth: 280 }, container: { fontSize: 11, lineHeight: '1.4' } }}>
                       <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
                     </Tooltip>
                   </div>
                   <div className="flex items-baseline gap-2">
                     <span className="text-xl font-bold text-[#FF3B3B]">{kpi.delayed}</span>
-                    <span className="text-xs font-medium text-[#FF3B3B]">(+{kpi.totalExtraHrs}h)</span>
+                    <span className="text-[0.625rem] font-medium text-[#FF3B3B]">(+{kpi.totalExtraHrs}h)</span>
                   </div>
                 </div>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'requirement' ? '' : 'hidden'}`}>
                   <div className="flex items-center gap-1">
-                    <span className="text-xs font-medium text-[#666666]">Efficiency</span>
+                    <span className="text-[0.75rem] font-medium text-[#666666]">Efficiency</span>
                     <Tooltip title="% of requirements completed on time and within budget." styles={{ root: { maxWidth: 280 }, container: { fontSize: 11, lineHeight: '1.4' } }}>
                       <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
                     </Tooltip>
@@ -671,7 +671,7 @@ export function ReportsPage() {
               <>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'task' ? '' : 'hidden'}`}>
                   <div className="flex items-center gap-1">
-                    <span className="text-xs font-medium text-[#666666]">Total Tasks</span>
+                    <span className="text-[0.75rem] font-medium text-[#666666]">Total Tasks</span>
                     <Tooltip title="Total active tasks in period. Excludes standard sub-tasks and deleted tasks." styles={{ root: { maxWidth: 260 }, container: { fontSize: 11, lineHeight: '1.4' } }}>
                       <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
                     </Tooltip>
@@ -680,7 +680,7 @@ export function ReportsPage() {
                 </div>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'task' ? '' : 'hidden'}`}>
                   <div className="flex items-center gap-1">
-                    <span className="text-xs font-medium text-[#666666]">On Time Completed</span>
+                    <span className="text-[0.75rem] font-medium text-[#666666]">On Time Completed</span>
                     <Tooltip title="Completed within estimated hours. Over-budget completions count as Delayed." styles={{ root: { maxWidth: 260 }, container: { fontSize: 11, lineHeight: '1.4' } }}>
                       <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
                     </Tooltip>
@@ -689,7 +689,7 @@ export function ReportsPage() {
                 </div>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'task' ? '' : 'hidden'}`}>
                   <div className="flex items-center gap-1">
-                    <span className="text-xs font-medium text-[#666666]">In Progress</span>
+                    <span className="text-[0.75rem] font-medium text-[#666666]">In Progress</span>
                     <Tooltip title="Currently active tasks (e.g., Assigned, In Progress, Review)." styles={{ root: { maxWidth: 280 }, container: { fontSize: 11, lineHeight: '1.4' } }}>
                       <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
                     </Tooltip>
@@ -700,19 +700,19 @@ export function ReportsPage() {
                 </div>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'task' ? '' : 'hidden'}`}>
                   <div className="flex items-center gap-1">
-                    <span className="text-xs font-medium text-[#666666]">Delayed</span>
+                    <span className="text-[0.75rem] font-medium text-[#666666]">Delayed</span>
                     <Tooltip title="Past due, marked Delayed, or over-budget. +Xh = extra hours logged on over-budget tasks." styles={{ root: { maxWidth: 280 }, container: { fontSize: 11, lineHeight: '1.4' } }}>
                       <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
                     </Tooltip>
                   </div>
                   <div className="flex items-baseline gap-2">
                     <span className="text-xl font-bold text-[#FF3B3B]">{taskKPI.delayed}</span>
-                    <span className="text-xs font-medium text-[#FF3B3B]">(+{taskKPI.totalExtraHrs}h)</span>
+                    <span className="text-[0.625rem] font-medium text-[#FF3B3B]">(+{taskKPI.totalExtraHrs}h)</span>
                   </div>
                 </div>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'task' ? '' : 'hidden'}`}>
                   <div className="flex items-center gap-1">
-                    <span className="text-xs font-medium text-[#666666]">Efficiency</span>
+                    <span className="text-[0.75rem] font-medium text-[#666666]">Efficiency</span>
                     <Tooltip title="% of tasks completed on time and within estimated hours." styles={{ root: { maxWidth: 280 }, container: { fontSize: 11, lineHeight: '1.4' } }}>
                       <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
                     </Tooltip>
@@ -736,7 +736,7 @@ export function ReportsPage() {
               <>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'member' ? '' : 'hidden'}`}>
                   <div className="flex items-center gap-1">
-                    <span className="text-xs font-medium text-[#666666]">Total Expenses</span>
+                    <span className="text-[0.75rem] font-medium text-[#666666]">Total Expenses</span>
                     <Tooltip title="Total cost = Sum of (logged hours × hourly rate) for all employees." styles={{ root: { maxWidth: 280 }, container: { fontSize: 11, lineHeight: '1.4' } }}>
                       <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
                     </Tooltip>
@@ -745,7 +745,7 @@ export function ReportsPage() {
                 </div>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'member' ? '' : 'hidden'}`}>
                   <div className="flex items-center gap-1">
-                    <span className="text-xs font-medium text-[#666666]">Total Revenue</span>
+                    <span className="text-[0.75rem] font-medium text-[#666666]">Total Revenue</span>
                     <Tooltip title="Revenue from client/outsourced work, prorated by each employee's logged hours. In-house = $0." styles={{ root: { maxWidth: 280 }, container: { fontSize: 11, lineHeight: '1.4' } }}>
                       <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
                     </Tooltip>
@@ -754,7 +754,7 @@ export function ReportsPage() {
                 </div>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'member' ? '' : 'hidden'}`}>
                   <div className="flex items-center gap-1">
-                    <span className="text-xs font-medium text-[#666666]">Net Profit</span>
+                    <span className="text-[0.75rem] font-medium text-[#666666]">Net Profit</span>
                     <Tooltip title="Total Revenue − Total Expenses. Positive = profitable." styles={{ root: { maxWidth: 280 }, container: { fontSize: 11, lineHeight: '1.4' } }}>
                       <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
                     </Tooltip>
@@ -765,7 +765,7 @@ export function ReportsPage() {
                 </div>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'member' ? '' : 'hidden'}`}>
                   <div className="flex items-center gap-1">
-                    <span className="text-xs font-medium text-[#666666]">Avg. Rate/Hr</span>
+                    <span className="text-[0.75rem] font-medium text-[#666666]">Avg. Rate/Hr</span>
                     <Tooltip title="Average hourly cost rate across filtered employees." styles={{ root: { maxWidth: 280 }, container: { fontSize: 11, lineHeight: '1.4' } }}>
                       <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
                     </Tooltip>
@@ -776,7 +776,7 @@ export function ReportsPage() {
                 </div>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'member' ? '' : 'hidden'}`}>
                   <div className="flex items-center gap-1">
-                    <span className="text-xs font-medium text-[#666666]">Occupancy</span>
+                    <span className="text-[0.75rem] font-medium text-[#666666]">Occupancy</span>
                     <Tooltip title="Workforce utilization: (Logged hours ÷ Available hours) × 100. ≥70% is healthy." styles={{ root: { maxWidth: 280 }, container: { fontSize: 11, lineHeight: '1.4' } }}>
                       <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
                     </Tooltip>
@@ -787,7 +787,7 @@ export function ReportsPage() {
                 </div>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'member' ? '' : 'hidden'}`}>
                   <div className="flex items-center gap-1">
-                    <span className="text-xs font-medium text-[#666666]">Efficiency</span>
+                    <span className="text-[0.75rem] font-medium text-[#666666]">Efficiency</span>
                     <Tooltip title="On-time delivery rate: (Tasks completed on time ÷ Total tasks) × 100. ≥75% is good." styles={{ root: { maxWidth: 280 }, container: { fontSize: 11, lineHeight: '1.4' } }}>
                       <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0" />
                     </Tooltip>
@@ -809,7 +809,7 @@ export function ReportsPage() {
             {isLoadingRequirements ? (
               <div className="space-y-2 px-1">
                 {Array.from({ length: 8 }).map((_, i) => (
-                  <div key={i} className="bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[40px_2.5fr_1.2fr_1fr_1.2fr_0.6fr_110px_90px] gap-2 px-4 py-4 items-center min-w-[850px]">
+                  <div key={i} className="bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[40px_2fr_1.2fr_120px_140px_80px_140px_80px] gap-2 px-4 py-4 items-center min-w-[900px]">
                     <Skeleton className="h-4 w-4" />
                     <Skeleton className="h-4 w-3/4" />
                     <Skeleton className="h-4 w-12" />
@@ -824,28 +824,28 @@ export function ReportsPage() {
             ) : (
               <div className="px-1 space-y-2">
                 {/* Header */}
-                <div className="sticky top-0 z-20 min-w-[850px] bg-white grid grid-cols-[40px_2.5fr_1.2fr_1fr_1.2fr_0.6fr_110px_90px] gap-2 px-4 py-3 mb-2 items-center border-b border-transparent">
+                <div className="sticky top-0 z-20 min-w-[900px] bg-white border border-transparent grid grid-cols-[40px_2fr_1.2fr_120px_140px_80px_140px_80px] gap-2 px-4 py-3 mb-2 items-center">
                   <div><TableHeader label="No" /></div>
                   <TableHeader label="Requirement" sortKey="requirement" currentSort={sortConfig} onSort={handleSort} />
                   <TableHeader label="Partner" sortKey="manager" currentSort={sortConfig} onSort={handleSort} tooltip="Company and Contact Person" />
                   <TableHeader label="Timeline" />
                   <TableHeader label="Hours Utilization" sortKey="efficiency" currentSort={sortConfig} onSort={handleSort} tooltip="Engaged (logged) hours versus Allotted (budget) hours." />
                   <TableHeader label="Revision" sortKey="revision" currentSort={sortConfig} onSort={handleSort} tooltip="Number of revisions (scope changes)." />
-                  <div className="pr-4"><TableHeader label="Revenue / P&L" sortKey="revenue" currentSort={sortConfig} onSort={handleSort} tooltip="Quoted Price versus computed Profit/Loss." /></div>
-                  <div className=""><TableHeader label="Status" sortKey="status" currentSort={sortConfig} onSort={handleSort} /></div>
+                  <TableHeader label="Revenue / P&L" sortKey="revenue" currentSort={sortConfig} onSort={handleSort} tooltip="Quoted Price versus computed Profit/Loss." />
+                  <TableHeader label="Status" sortKey="status" currentSort={sortConfig} onSort={handleSort} />
                 </div>
 
                 {/* Rows */}
                 {filteredRequirements.map((row, idx) => (
                   <div
                     key={row.id}
-                    className="group min-w-[850px] bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[40px_2.5fr_1.2fr_1fr_1.2fr_0.6fr_110px_90px] gap-2 px-4 py-3 items-center hover:border-[#ff3b3b]/20 hover:shadow-lg transition-all duration-300"
+                    className="group min-w-[900px] bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[40px_2fr_1.2fr_120px_140px_80px_140px_80px] gap-2 px-4 py-3 items-center hover:border-[#ff3b3b]/20 hover:shadow-lg transition-all duration-300"
                   >
-                    <div className="text-[0.8125rem] text-[#999999] font-medium">{idx + 1}</div>
+                    <div className="text-[0.75rem] text-[#999999] font-medium">{idx + 1}</div>
 
                     <div className="flex flex-col justify-center gap-1 min-w-0">
-                      <span className="text-sm text-[#111111] font-bold leading-tight truncate" title={row.requirement}>{row.requirement}</span>
-                      <span className="text-[11px] text-[#666666] font-medium truncate" title={row.workspaceName}>
+                      <span className="text-[0.75rem] text-[#111111] font-bold leading-tight truncate" title={row.requirement}>{row.requirement}</span>
+                      <span className="text-[0.625rem] text-[#666666] font-medium truncate" title={row.workspaceName}>
                         {row.workspaceName}
                       </span>
                       {/* Tags Row */}
@@ -857,18 +857,18 @@ export function ReportsPage() {
                     </div>
 
                     <div className="flex flex-col justify-center gap-0.5 min-w-0">
-                      <span className="text-[0.8125rem] text-[#111111] font-bold truncate" title={row.partner}>{row.partner}</span>
-                      <span className="text-[11px] text-[#666666] font-medium truncate" title={row.manager || 'Unassigned'}>{row.manager || 'Unassigned'}</span>
+                      <span className="text-[0.75rem] text-[#111111] font-bold truncate" title={row.partner}>{row.partner}</span>
+                      <span className="text-[0.625rem] text-[#666666] font-medium truncate" title={row.manager || 'Unassigned'}>{row.manager || 'Unassigned'}</span>
                     </div>
 
-                    <div className="flex flex-col gap-0.5 min-w-0">
-                      <span className="text-[0.8125rem] text-[#111111] font-medium truncate">{formatWithTimezone(row.startDate, 'MMM DD')}</span>
-                      <span className={`text-[0.6875rem] truncate ${dayjs().isAfter(dayjs(row.endDate), 'day') && row.status !== 'Completed' ? 'text-[#FF3B3B] font-bold' : 'text-[#999999]'}`}>
+                    <div className="flex flex-col items-start gap-0.5 min-w-0">
+                      <span className="text-[0.75rem] text-[#111111] font-medium truncate">{formatWithTimezone(row.startDate, 'MMM DD')}</span>
+                      <span className={`text-[0.625rem] truncate ${dayjs().isAfter(dayjs(row.endDate), 'day') && row.status !== 'Completed' ? 'text-[#FF3B3B] font-bold' : 'text-[#999999]'}`}>
                         to {formatWithTimezone(row.endDate, 'MMM DD')}
                       </span>
                     </div>
 
-                    <div className="flex flex-col gap-1.5 justify-center h-full min-w-0 pr-4">
+                    <div className="flex flex-col gap-1.5 justify-center items-start h-full min-w-0">
                       {(() => {
                         const remaining = (row.allottedHrs || 0) - (row.engagedHrs || 0);
                         const isBleeding = row.engagedHrs > (row.allottedHrs || 0);
@@ -886,10 +886,10 @@ export function ReportsPage() {
                         return (
                           <>
                             <div className="flex items-center gap-2">
-                                <span className={`font-bold text-sm truncate ${isBleeding ? 'text-[#FF3B3B]' : isWarning ? 'text-[#FF8A00]' : 'text-[#111111]'}`}>
+                                <span className={`font-bold text-[0.75rem] truncate ${isBleeding ? 'text-[#FF3B3B]' : isWarning ? 'text-[#FF8A00]' : 'text-[#111111]'}`}>
                                   {row.engagedHrs}h
                                 </span>
-                                <span className={`text-xs font-semibold truncate ${isBleeding ? 'text-[#FF3B3B] bg-[#FFF0F0] px-1.5 py-0.5 rounded' : isWarning ? 'text-[#FF8A00]' : 'text-[#999999]'}`}>
+                                <span className={`text-[0.625rem] font-semibold truncate ${isBleeding ? 'text-[#FF3B3B] bg-[#FFF0F0] px-1.5 py-0.5 rounded' : isWarning ? 'text-[#FF8A00]' : 'text-[#999999]'}`}>
                                   {isBleeding ? `+${Math.abs(remaining).toFixed(1)}h over` : `${remaining.toFixed(1)}h left`}
                                 </span>
                             </div>
@@ -905,23 +905,22 @@ export function ReportsPage() {
                       })()}
                     </div>
 
-                    <div className="text-[0.8125rem] font-semibold flex items-center justify-start gap-1 min-w-0 pl-1">
+                    <div className="text-[0.75rem] font-semibold flex items-center justify-start gap-1 min-w-0">
                       {row.revision > 0 ? (
                         <span className={`px-2 py-0.5 rounded-md ${row.revision > 1 ? 'bg-[#FFF4EC] text-[#FF8A00]' : 'bg-[#F5F5F5] text-[#666666]'}`}>
                           v{row.revision + 1}
                         </span>
                       ) : (
-                        <span className="text-[#CCCCCC] pl-2">-</span>
+                        <span className="text-[#CCCCCC]">-</span>
                       )}
                     </div>
 
-                    <div className="flex flex-col items-start text-[0.8125rem] pr-2 min-w-0">
-                      <div className="text-[#999999] text-xs" title={currencySymbol + (row.revenue || 0).toLocaleString()}>
+                    <div className="flex flex-col items-start text-[0.75rem] min-w-0">
+                      <div className="text-[#999999] text-[0.625rem]" title={currencySymbol + (row.revenue || 0).toLocaleString()}>
                         {currencySymbol}{(row.revenue || 0).toLocaleString()}
                       </div>
                       <div className={`font-bold flex items-center gap-1 ${row.profit >= 0 ? 'text-[#00A389]' : 'text-[#FF3B3B]'}`} title={currencySymbol + (row.profit || 0).toLocaleString()}>
                         {row.profit >= 0 ? '+' : ''}{currencySymbol}{(row.profit || 0).toLocaleString()}
-                        {row.profit >= 0 ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
                       </div>
                     </div>
 
@@ -930,7 +929,7 @@ export function ReportsPage() {
                 ))}
 
                 {filteredRequirements.length === 0 && (
-                  <div className="text-center py-12 text-[#999999] text-[0.8125rem]">No requirements found matching your filters.</div>
+                  <div className="text-center py-12 text-[#999999] text-[0.75rem]">No requirements found matching your filters.</div>
                 )}
 
                 {/* Pagination moved outside */}
@@ -958,7 +957,7 @@ export function ReportsPage() {
             ) : (
               <div className="px-1 space-y-2">
                 {/* Header */}
-                <div className="sticky top-0 z-20 min-w-[900px] bg-white grid grid-cols-[40px_2.2fr_1.8fr_0.9fr_0.9fr_75px_115px_85px] gap-2 px-4 py-3 mb-2 items-center border-b border-transparent">
+                <div className="sticky top-0 z-20 min-w-[900px] bg-white border border-transparent grid grid-cols-[40px_2.2fr_1.8fr_0.9fr_0.9fr_75px_115px_85px] gap-2 px-4 py-3 mb-2 items-center">
                   <div><TableHeader label="No" /></div>
                   <TableHeader label="Task" sortKey="task" currentSort={sortConfig} onSort={handleSort} />
                   <TableHeader label="Requirement" sortKey="requirement" currentSort={sortConfig} onSort={handleSort} />
@@ -966,7 +965,7 @@ export function ReportsPage() {
                   <TableHeader label="Assigned" sortKey="assigned" currentSort={sortConfig} onSort={handleSort} />
                   <TableHeader label="Due Date" sortKey="dueDate" currentSort={sortConfig} onSort={handleSort} tooltip="Task due date. Red = overdue." />
                   <TableHeader label="Hours Variance" sortKey="engagedHrs" currentSort={sortConfig} onSort={handleSort} tooltip="Engaged (logged) vs. Allotted (estimated) hours." />
-                  <div className=""><TableHeader label="Status" sortKey="status" currentSort={sortConfig} onSort={handleSort} /></div>
+                  <TableHeader label="Status" sortKey="status" currentSort={sortConfig} onSort={handleSort} />
                 </div>
 
                 {/* Rows */}
@@ -987,48 +986,48 @@ export function ReportsPage() {
                       className="group min-w-[900px] bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[40px_2.2fr_1.8fr_0.9fr_0.9fr_75px_115px_85px] gap-2 px-4 py-3 items-center hover:border-[#ff3b3b]/20 hover:shadow-lg transition-all duration-300"
                     >
                       {/* No */}
-                      <div className="text-[0.8125rem] text-[#999999] font-medium">{idx + 1}</div>
+                      <div className="text-[0.75rem] text-[#999999] font-medium">{idx + 1}</div>
 
                       {/* Task + Workspace */}
                       <div className="flex flex-col justify-center gap-0.5 min-w-0">
-                        <span className="text-sm text-[#111111] font-bold leading-tight truncate" title={row.task}>{row.task}</span>
+                        <span className="text-[0.75rem] text-[#111111] font-bold leading-tight truncate" title={row.task}>{row.task}</span>
                         {row.workspaceName && (
-                          <span className="text-[11px] text-[#999999] font-medium truncate" title={row.workspaceName}>{row.workspaceName}</span>
+                          <span className="text-[0.625rem] text-[#999999] font-medium truncate" title={row.workspaceName}>{row.workspaceName}</span>
                         )}
                       </div>
 
                       {/* Requirement */}
-                      <div className="text-[0.8125rem] text-[#666666] font-normal min-w-0 truncate" title={row.requirement}>{row.requirement}</div>
+                      <div className="text-[0.75rem] text-[#666666] font-normal min-w-0 truncate" title={row.requirement}>{row.requirement}</div>
 
                       {/* Leader */}
-                      <div className="text-[0.8125rem] text-[#111111] font-semibold min-w-0 truncate" title={row.leader}>{row.leader}</div>
+                      <div className="text-[0.75rem] text-[#111111] font-semibold min-w-0 truncate" title={row.leader}>{row.leader}</div>
 
                       {/* Assigned */}
-                      <div className="text-[0.8125rem] text-[#666666] font-normal min-w-0 truncate" title={row.assigned}>{row.assigned}</div>
+                      <div className="text-[0.75rem] text-[#666666] font-normal min-w-0 truncate" title={row.assigned}>{row.assigned}</div>
 
                       {/* Due Date */}
                       <div className="min-w-0">
                         {row.dueDate ? (
-                          <span className={`text-[0.8125rem] font-${isOverdue ? 'bold' : 'medium'} ${isOverdue ? 'text-[#FF3B3B]' : 'text-[#111111]'} truncate`}>
+                          <span className={`text-[0.75rem] font-${isOverdue ? 'bold' : 'medium'} ${isOverdue ? 'text-[#FF3B3B]' : 'text-[#111111]'} truncate`}>
                             {formatWithTimezone(row.dueDate, 'MMM DD')}
                           </span>
                         ) : (
-                          <span className="text-[0.8125rem] text-[#CCCCCC]">-</span>
+                          <span className="text-[0.75rem] text-[#CCCCCC]">-</span>
                         )}
                       </div>
 
                       {/* Hours Variance */}
-                      <div className="flex flex-col gap-1.5 justify-center h-full min-w-0 pr-2">
+                      <div className="flex flex-col gap-1.5 justify-center items-start h-full min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className={`font-bold text-sm truncate ${isBleeding ? 'text-[#FF3B3B]' : isWarning ? 'text-[#FF8A00]' : 'text-[#111111]'}`}>
+                          <span className={`font-bold text-[0.75rem] truncate ${isBleeding ? 'text-[#FF3B3B]' : isWarning ? 'text-[#FF8A00]' : 'text-[#111111]'}`}>
                             {row.engagedHrs}h
                           </span>
                           {hasEstimate ? (
-                            <span className={`text-xs font-semibold truncate ${isBleeding ? 'text-[#FF3B3B] bg-[#FFF0F0] px-1.5 py-0.5 rounded' : isWarning ? 'text-[#FF8A00]' : 'text-[#999999]'}`}>
+                            <span className={`text-[0.625rem] font-semibold truncate ${isBleeding ? 'text-[#FF3B3B] bg-[#FFF0F0] px-1.5 py-0.5 rounded' : isWarning ? 'text-[#FF8A00]' : 'text-[#999999]'}`}>
                               {isBleeding ? `+${Math.abs(remaining).toFixed(1)}h over` : `${remaining.toFixed(1)}h left`}
                             </span>
                           ) : (
-                            <span className="text-xs text-[#CCCCCC] font-medium">No estimate</span>
+                            <span className="text-[0.625rem] text-[#CCCCCC] font-medium">No estimate</span>
                           )}
                         </div>
                         <div className="h-1.5 w-full rounded-full overflow-hidden bg-[#F0F0F0]">
@@ -1037,14 +1036,14 @@ export function ReportsPage() {
                       </div>
 
                       {/* Status */}
-                      <div className="flex justify-center">
+                      <div className="flex justify-start">
                         <TaskStatusBadge status={row.status} showLabel={false} />
                       </div>
                     </div>
                   );
                 })}
                 {filteredTasks.length === 0 && (
-                  <div className="text-center py-12 text-[#999999] text-[0.8125rem]">No tasks found matching your filters.</div>
+                  <div className="text-center py-12 text-[#999999] text-[0.75rem]">No tasks found matching your filters.</div>
                 )}
                 {/* Pagination moved outside */}
               </div>
@@ -1066,14 +1065,14 @@ export function ReportsPage() {
             ) : (
               <div className="px-1 space-y-2">
                 {/* Header */}
-                <div className="sticky top-0 z-20 min-w-[1000px] bg-white grid grid-cols-[50px_2.5fr_2fr_1fr_1.2fr_1.2fr_1.2fr] gap-4 px-4 py-3 mb-2 items-center border-b border-transparent">
+                <div className="sticky top-0 z-20 min-w-[1000px] bg-white border border-transparent grid grid-cols-[50px_2.5fr_2fr_1fr_1.2fr_1.2fr_1.2fr] gap-4 px-4 py-3 mb-2 items-center">
                   <div><TableHeader label="No" /></div>
                   <TableHeader label="Member" sortKey="member" currentSort={sortConfig} onSort={handleSort} />
                   <TableHeader label="Tasks Performance" tooltip="Breakdown of assigned tasks: Completed (green), In-progress (blue), Delayed (red)." />
                   <TableHeader label="Load" sortKey="utilization" currentSort={sortConfig} onSort={handleSort} tooltip="Occupancy rate. Red bar means logged hours exceed capacity (>100%)." />
-                  <div className="pr-4 text-right"><TableHeader label="Expenses" sortKey="expenses" currentSort={sortConfig} onSort={handleSort} tooltip="Cost = Logged hours × Hourly rate." /></div>
-                  <div className="pr-4 text-right"><TableHeader label="Revenue" sortKey="revenue" currentSort={sortConfig} onSort={handleSort} tooltip="Revenue share from client/outsourced work based on hours contributed." /></div>
-                  <div className="pr-4 text-right"><TableHeader label="Net Profit" sortKey="profit" currentSort={sortConfig} onSort={handleSort} tooltip="Revenue − Expenses. Positive = profitable contributor." /></div>
+                  <TableHeader label="Expenses" sortKey="expenses" currentSort={sortConfig} onSort={handleSort} tooltip="Cost = Logged hours × Hourly rate." />
+                  <TableHeader label="Revenue" sortKey="revenue" currentSort={sortConfig} onSort={handleSort} tooltip="Revenue share from client/outsourced work based on hours contributed." />
+                  <TableHeader label="Net Profit" sortKey="profit" currentSort={sortConfig} onSort={handleSort} tooltip="Revenue − Expenses. Positive = profitable contributor." />
                 </div>
 
                 {/* Rows */}
@@ -1083,18 +1082,18 @@ export function ReportsPage() {
                     className="group min-w-[1000px] bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[50px_2.5fr_2fr_1fr_1.2fr_1.2fr_1.2fr] gap-4 px-4 py-3 items-center hover:border-[#ff3b3b]/20 hover:shadow-lg transition-all duration-300 cursor-pointer"
                     onClick={() => setSelectedMemberId(String(row.id))}
                   >
-                    <div className="text-[0.8125rem] text-[#999999] font-medium">{idx + 1}</div>
+                    <div className="text-[0.75rem] text-[#999999] font-medium">{idx + 1}</div>
 
                     <div className="flex flex-col justify-center min-w-0">
-                      <span className="text-sm text-[#111111] font-bold min-w-0 truncate" title={row.member}>{row.member}</span>
-                      <span className="text-xs text-[#666666] font-normal min-w-0 truncate" title={`${row.designation} | ${row.department}`}>{row.designation} <span className="text-[#E5E5E5] mx-1">|</span> {row.department}</span>
+                      <span className="text-[0.75rem] text-[#111111] font-bold min-w-0 truncate" title={row.member}>{row.member}</span>
+                      <span className="text-[0.625rem] text-[#666666] font-normal min-w-0 truncate" title={`${row.designation} | ${row.department}`}>{row.designation} <span className="text-[#E5E5E5] mx-1">|</span> {row.department}</span>
                     </div>
 
                     <div className="flex flex-col min-w-0">
-                      <span className="text-sm text-[#111111] font-bold truncate">
-                        {row.taskStats.assigned} <span className="text-[#666666] font-normal text-[0.8125rem]">Assigned</span>
+                      <span className="text-[0.75rem] text-[#111111] font-bold truncate">
+                        {row.taskStats.assigned} <span className="text-[#666666] font-normal text-[0.625rem]">Assigned</span>
                       </span>
-                      <div className="flex gap-3 mt-1 text-[0.6875rem] font-medium text-[#666666] overflow-hidden">
+                      <div className="flex gap-3 mt-1 text-[0.625rem] font-medium text-[#666666] overflow-hidden">
                         <div className="flex items-center gap-1.5 shrink-0">
                           <div className="w-1.5 h-1.5 rounded-full bg-[#0F9D58]"></div>
                           <span>{row.taskStats.completed}</span>
@@ -1112,7 +1111,7 @@ export function ReportsPage() {
 
                     {/* Load / Utilization */}
                     <div className="flex flex-col gap-1.5 justify-center min-w-0">
-                      <div className="flex justify-between text-[0.6875rem]">
+                      <div className="flex justify-between text-[0.625rem]">
                         <span className="font-medium text-[#111111] truncate">{row.utilization}%</span>
                       </div>
                       <div className="w-full h-1.5 bg-[#F0F0F0] rounded-full overflow-hidden">
@@ -1123,15 +1122,15 @@ export function ReportsPage() {
                       </div>
                     </div>
 
-                    <div className="text-[0.8125rem] pr-2 text-[#111111] font-bold text-left min-w-0 truncate" title={currencySymbol + (row.expenses || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}>{currencySymbol}{(row.expenses || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
-                    <div className="text-[0.8125rem] pr-2 text-[#111111] font-bold text-left min-w-0 truncate" title={currencySymbol + (row.revenue || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}>{currencySymbol}{(row.revenue || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
-                    <div className={`text-[0.8125rem] pr-2 font-bold text-left min-w-0 truncate ${row.profit >= 0 ? 'text-[#0F9D58]' : 'text-[#FF3B3B]'}`} title={(row.profit >= 0 ? '+' : '') + currencySymbol + (row.profit || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}>
+                    <div className="text-[0.75rem] text-[#111111] font-bold text-left min-w-0 truncate" title={currencySymbol + (row.expenses || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}>{currencySymbol}{(row.expenses || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                    <div className="text-[0.75rem] text-[#111111] font-bold text-left min-w-0 truncate" title={currencySymbol + (row.revenue || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}>{currencySymbol}{(row.revenue || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                    <div className={`text-[0.75rem] font-bold text-left min-w-0 truncate ${row.profit >= 0 ? 'text-[#0F9D58]' : 'text-[#FF3B3B]'}`} title={(row.profit >= 0 ? '+' : '') + currencySymbol + (row.profit || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}>
                       {row.profit >= 0 ? '+' : ''}{currencySymbol}{(row.profit || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}
                     </div>
                   </div>
                 ))}
                 {filteredEmployees.length === 0 && (
-                  <div className="text-center py-12 text-[#999999] text-[0.8125rem]">No employees found matching your filters.</div>
+                  <div className="text-center py-12 text-[#999999] text-[0.75rem]">No employees found matching your filters.</div>
                 )}
 
                 {/* Pagination moved outside */}
@@ -1171,8 +1170,8 @@ export function ReportsPage() {
         {(isDownloading && exportData) && (
           <ReportsPdfTemplate
             activeTab={activeTab}
-            data={activeTab === 'requirement' ? exportData.requirements : activeTab === 'task' ? exportData.tasks : exportData.employees}
-            kpis={activeTab === 'requirement' ? kpi : activeTab === 'task' ? taskKPI : employeeKPI}
+            data={activeTab === 'requirement' ? exportData!.requirements : activeTab === 'task' ? exportData!.tasks : exportData!.employees}
+            kpis={(activeTab === 'requirement' ? kpi : activeTab === 'task' ? taskKPI : employeeKPI) as any}
             dateRange={dateRange}
             companyName={companyName}
             timezone={companyTimezone}

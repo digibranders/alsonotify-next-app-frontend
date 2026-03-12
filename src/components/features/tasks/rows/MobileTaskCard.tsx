@@ -1,5 +1,5 @@
 import { Checkbox, Tooltip, Avatar, Dropdown, Button, Input, Popover, message } from "antd";
-import { MoreVertical, Edit, Trash2, CheckCircle, RotateCcw, Copy } from "lucide-react";
+import { MoreVertical, Edit, Trash2, CheckCircle, RotateCcw, Copy, Eye } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, memo } from "react";
@@ -7,10 +7,11 @@ import type { MenuProps } from "antd";
 import { Task } from "../../../../types/domain";
 import { TaskStatusBadge } from "../components/TaskStatusBadge";
 import { RevisionModal } from "../../../modals/RevisionModal";
-import { provideEstimate } from "../../../../services/task";
+import { provideEstimate, submitReviewDecision, startReviewFromOriginal } from "../../../../services/task";
 import { useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/queryKeys";
 import { TaskLiveProgress } from "./TaskLiveProgress";
+import { ReviewDecisionModal } from "../components/ReviewDecisionModal";
 
 interface MobileTaskCardProps {
   task: Task;
@@ -49,12 +50,32 @@ export const MobileTaskCard = memo(function MobileTaskCard({
   const [estimateHours, setEstimateHours] = useState("");
   const [submissionLoading, setSubmissionLoading] = useState(false);
   const [revisionModalOpen, setRevisionModalOpen] = useState(false);
-
-
-
+  const [reviewDecisionOpen, setReviewDecisionOpen] = useState(false);
+  const [reviewDecisionType, setReviewDecisionType] = useState<'Approve' | 'RequestChanges' | null>(null);
+  const [reviewDecisionLoading, setReviewDecisionLoading] = useState(false);
 
   const myMember = task.task_members?.find(m => m.user_id === currentUserId);
   const isPendingEstimate = myMember && myMember.status === 'PendingEstimate';
+
+  const handleReviewDecisionConfirm = async (notes: string) => {
+    if (!reviewDecisionType) return;
+    setReviewDecisionLoading(true);
+    try {
+      await submitReviewDecision(
+        Number(task.id),
+        reviewDecisionType === 'Approve' ? 'Approved' : 'ChangesRequested',
+        notes
+      );
+      message.success(reviewDecisionType === 'Approve' ? 'Task approved!' : 'Changes requested');
+      setReviewDecisionOpen(false);
+      queryClient.invalidateQueries({ queryKey: queryKeys.tasks.listRoot() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.tasks.assigned() });
+    } catch {
+      message.error('Failed to submit decision');
+    } finally {
+      setReviewDecisionLoading(false);
+    }
+  };
 
   return (
     <>
@@ -121,77 +142,59 @@ export const MobileTaskCard = memo(function MobileTaskCard({
                 items: (() => {
                   const myMember = task.task_members?.find(m => m.user_id === currentUserId);
                   const isAssignee = !!myMember;
-
                   const isLeader = task.leader_id === currentUserId || task.leader_user?.id === currentUserId;
                   const isReview = task.status === 'Review';
-                  const isInProgress = task.status === 'In_Progress';
 
                   const actions: MenuProps['items'] = [];
 
-                  if (isReview && (isLeader || isAdmin)) {
+                  // Review task: Approve / Request Changes (for reviewer)
+                  if (task.is_review_task && (isAssignee || isLeader)) {
                     actions.push(
                       {
                         key: 'approve',
                         label: 'Approve',
                         icon: <CheckCircle className="w-3.5 h-3.5" />,
-                        onClick: () => onStatusChange?.('Completed'),
+                        onClick: () => {
+                          setReviewDecisionType('Approve');
+                          setReviewDecisionOpen(true);
+                        },
                         className: "text-[#16a34a]"
                       },
                       {
-                        key: 'revision',
-                        label: 'Revision',
+                        key: 'request_changes',
+                        label: 'Request Changes',
                         icon: <RotateCcw className="w-3.5 h-3.5" />,
-                        onClick: () => setRevisionModalOpen(true),
+                        onClick: () => {
+                          setReviewDecisionType('RequestChanges');
+                          setReviewDecisionOpen(true);
+                        },
                         className: "text-[#ff3b3b]"
                       }
                     );
                   }
 
-                  // Self-assigned shortcut
-                  const activeMemberIds = (task.task_members || []).map((m: { user_id: number }) => m.user_id);
-                  const leaderId = task.leader_id ?? task.leader_user?.id;
-                  const isSelfAssigned =
-                    isInProgress &&
-                    isLeader &&
-                    leaderId !== undefined &&
-                    activeMemberIds.length === 1 &&
-                    activeMemberIds[0] === leaderId &&
-                    currentUserId === leaderId;
-
-                  if (isSelfAssigned) {
+                  // Original task in Review: "Start Review" shortcut for the reviewer
+                  if (!task.is_review_task && isReview && !isLeader && !isAssignee) {
                     actions.push({
-                      key: 'mark_complete',
-                      label: 'Mark Complete',
-                      icon: <CheckCircle className="w-3.5 h-3.5" />,
-                      onClick: () => onStatusChange?.('Completed'),
-                      className: "text-[#16a34a]"
+                      key: 'start_review',
+                      label: 'Start Review',
+                      icon: <Eye className="w-3.5 h-3.5" />,
+                      onClick: async () => {
+                        try {
+                          const response = await startReviewFromOriginal(Number(task.id));
+                          if (response?.result?.reviewTaskId) {
+                            router.push(`/dashboard/tasks/${response.result.reviewTaskId}`);
+                          }
+                        } catch {
+                          message.error('Failed to start review');
+                        }
+                      },
+                      className: "text-[#7E22CE] font-bold"
                     });
                   }
 
                   if (isAdmin || isLeader || isAssignee) {
                     if (actions.length > 0) actions.push({ type: 'divider' });
-
-                    // Review specific actions
-                    if (task.is_review_task && task.status === 'Assigned') {
-                      actions.push({
-                        key: 'start_review',
-                        label: 'Start Review',
-                        icon: <RotateCcw className="w-3.5 h-3.5" />, // Reusing icon for flow
-                        onClick: () => onStartReview?.(),
-                        className: "text-[#7E22CE] font-bold"
-                      });
-                    }
-
-                    // Regular task -> Submit for Review
-                    if (!task.is_review_task && isReview && isAssignee) {
-                      actions.push({
-                        key: 'submit_review',
-                        label: 'Submit for Review',
-                        icon: <CheckCircle className="w-3.5 h-3.5" />,
-                        onClick: () => onSubmitForReview?.(0), // Trigger parent
-                        className: "text-[#16a34a] font-medium"
-                      });
-                    }
 
                     if (!task.is_review_task) {
                       actions.push({
@@ -334,6 +337,14 @@ export const MobileTaskCard = memo(function MobileTaskCard({
         onSuccess={() => {
           queryClient.invalidateQueries({ queryKey: queryKeys.tasks.listRoot() });
         }}
+      />
+      <ReviewDecisionModal
+        open={reviewDecisionOpen}
+        decision={reviewDecisionType}
+        taskName={task.name}
+        loading={reviewDecisionLoading}
+        onClose={() => setReviewDecisionOpen(false)}
+        onConfirm={handleReviewDecisionConfirm}
       />
     </>
   );

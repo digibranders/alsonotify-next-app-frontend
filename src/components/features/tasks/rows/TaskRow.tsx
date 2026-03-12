@@ -1,17 +1,18 @@
 import { Checkbox, Tooltip, Dropdown, Popover, Input, Button, message, Avatar } from "antd";
 import { useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/queryKeys";
-import { MoreVertical, Edit, Trash2, RotateCcw, CheckCircle, Copy } from "lucide-react";
+import { MoreVertical, Edit, Trash2, RotateCcw, CheckCircle, Copy, Eye } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { MenuProps } from "antd";
 import { useState, memo } from "react";
-import { provideEstimate } from "../../../../services/task";
+import { provideEstimate, submitReviewDecision, startReviewFromOriginal } from "../../../../services/task";
 import { Task } from "../../../../types/domain";
 import { TaskStatusBadge } from "../components/TaskStatusBadge";
 import { RevisionModal } from "../../../modals/RevisionModal";
 import { TaskLiveProgress } from "./TaskLiveProgress";
 import { ReviewerSelectionModal } from "../components/ReviewerSelectionModal";
+import { ReviewDecisionModal } from "../components/ReviewDecisionModal";
 import { useTimer } from "@/context/TimerContext";
 
 interface TaskRowProps {
@@ -54,8 +55,32 @@ const TaskRowComponent = memo(function TaskRow({
   const [reviewerModalOpen, setReviewerModalOpen] = useState(false);
   const [reviewerModalLoading, setReviewerModalLoading] = useState(false);
 
+  const [reviewDecisionOpen, setReviewDecisionOpen] = useState(false);
+  const [reviewDecisionType, setReviewDecisionType] = useState<'Approve' | 'RequestChanges' | null>(null);
+  const [reviewDecisionLoading, setReviewDecisionLoading] = useState(false);
+
   const myMember = task.task_members?.find(m => m.user_id === currentUserId);
   const isPendingEstimate = myMember && myMember.status === 'PendingEstimate';
+
+  const handleReviewDecisionConfirm = async (notes: string) => {
+    if (!reviewDecisionType) return;
+    setReviewDecisionLoading(true);
+    try {
+      await submitReviewDecision(
+        Number(task.id),
+        reviewDecisionType === 'Approve' ? 'Approved' : 'ChangesRequested',
+        notes
+      );
+      message.success(reviewDecisionType === 'Approve' ? 'Task approved!' : 'Changes requested');
+      setReviewDecisionOpen(false);
+      queryClient.invalidateQueries({ queryKey: queryKeys.tasks.listRoot() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.tasks.assigned() });
+    } catch {
+      message.error('Failed to submit decision');
+    } finally {
+      setReviewDecisionLoading(false);
+    }
+  };
 
   return (
     <>
@@ -90,7 +115,7 @@ const TaskRowComponent = memo(function TaskRow({
             <div className="flex items-center gap-1.5 min-w-0">
               <Tooltip title={task.name} placement="topLeft" mouseEnterDelay={0.5}>
                 <div className="flex items-center gap-2 min-w-0">
-                  <span className="font-bold text-xs !text-[#111111] group-hover:text-[#ff3b3b] transition-colors truncate cursor-help block">
+                  <span className="font-bold text-[0.75rem] !text-[#111111] group-hover:text-[#ff3b3b] transition-colors truncate cursor-help block">
                     {task.name}
                   </span>
                   {task.is_review_task && (
@@ -111,7 +136,7 @@ const TaskRowComponent = memo(function TaskRow({
                 #{task.taskId}
               </span> */}
               <span
-                className="text-xs text-[#999999] font-medium truncate"
+                className="text-[0.625rem] text-[#999999] font-medium truncate"
               >
                 {task.client}
               </span>
@@ -125,7 +150,7 @@ const TaskRowComponent = memo(function TaskRow({
                 <Link
                   href="/dashboard/workspace"
                   onClick={(e) => e.stopPropagation()}
-                  className="text-xs !text-[#111111] visited:!text-[#111111] font-medium truncate block hover:text-[#ff3b3b] hover:underline cursor-help"
+                  className="text-[0.75rem] !text-[#111111] visited:!text-[#111111] font-normal truncate block hover:text-[#ff3b3b] hover:underline cursor-help"
                 >
                   {task.project}
                 </Link>
@@ -136,12 +161,12 @@ const TaskRowComponent = memo(function TaskRow({
           {/* Timeline */}
           <div className="flex flex-col gap-0.5">
             <Tooltip title={task.dueDate !== 'TBD' ? task.dueDate : undefined}>
-              <span className="text-xs font-medium text-[#111111] w-fit">
+              <span className="text-[0.75rem] font-medium text-[#111111] w-fit">
                 {task.timelineDate}
               </span>
             </Tooltip>
             <span
-              className={`text-xs font-medium ${task.status === 'Delayed'
+              className={`text-[0.625rem] font-medium ${task.status === 'Delayed'
                 ? 'text-[#dc2626]'
                 : task.status === 'Review'
                   ? 'text-[#fbbf24]'
@@ -153,7 +178,7 @@ const TaskRowComponent = memo(function TaskRow({
           </div>
 
           {/* Assigned To (Avatar Stack) */}
-          <div className="flex items-center">
+          <div className="flex items-center justify-center">
             <Avatar.Group size={24} max={{ count: 3, style: { color: '#666666', backgroundColor: '#EEEEEE' } }}>
               {task.task_members && task.task_members.length > 0 ? (
                 task.task_members.map((member) => (
@@ -182,7 +207,7 @@ const TaskRowComponent = memo(function TaskRow({
           <TaskLiveProgress task={task} currentUserId={currentUserId} />
 
           {/* Status (Aggregated) or Estimate Button */}
-          <div className="flex items-center min-w-0" onClick={(e) => e.stopPropagation()}>
+          <div className="flex items-center justify-center min-w-0" onClick={(e) => e.stopPropagation()}>
             {isPendingEstimate ? (
               // ESTIMATE Button when pending
               <Popover
@@ -243,71 +268,56 @@ const TaskRowComponent = memo(function TaskRow({
                 items: (() => {
                   const myMember = task.task_members?.find(m => m.user_id === currentUserId);
                   const isAssignee = !!myMember;
-
                   const isLeader = task.leader_id === currentUserId || task.leader_user?.id === currentUserId;
                   const isReview = task.status === 'Review';
 
                   const actions: MenuProps['items'] = [];
 
-                  // Leaders and admins can approve or request revision on Review tasks
-                  if (isReview && (isLeader || isAdmin)) {
+                  // Review task: Approve / Request Changes (for reviewer)
+                  if (task.is_review_task && (isAssignee || isLeader)) {
                     actions.push(
                       {
                         key: 'approve',
-                        label: 'Approve & Complete',
+                        label: 'Approve',
                         icon: <CheckCircle className="w-3.5 h-3.5" />,
-                        onClick: async () => {
-                          if (timerState.taskId === Number(task.id)) {
-                            await stopTimer("Approved and Completed", "Completed");
-                          }
-                          onStatusChange?.('Completed');
+                        onClick: () => {
+                          setReviewDecisionType('Approve');
+                          setReviewDecisionOpen(true);
                         },
                         className: "text-[0.75rem] font-medium text-[#16a34a]"
                       },
                       {
-                        key: 'revision',
-                        label: 'Request Revision',
+                        key: 'request_changes',
+                        label: 'Request Changes',
                         icon: <RotateCcw className="w-3.5 h-3.5" />,
-                        onClick: () => setRevisionModalOpen(true),
+                        onClick: () => {
+                          setReviewDecisionType('RequestChanges');
+                          setReviewDecisionOpen(true);
+                        },
                         className: "text-[0.75rem] font-medium text-[#ff3b3b]"
                       }
                     );
                   }
 
-                  // Review tasks: Hide Edit functionality, enable Start Review
-                  if (task.is_review_task && isAssignee) {
+                  // Original task in Review: "Start Review" shortcut for the reviewer
+                  if (!task.is_review_task && isReview && !isLeader && !isAssignee) {
                     actions.push({
                       key: 'start_review',
                       label: 'Start Review',
-                      icon: <CheckCircle className="w-3.5 h-3.5" />, // Or another suitable icon
-                      onClick: () => onStartReview?.(),
-                      className: "text-[0.75rem] font-medium text-[#2F80ED]"
+                      icon: <Eye className="w-3.5 h-3.5" />,
+                      onClick: async () => {
+                        try {
+                          const response = await startReviewFromOriginal(Number(task.id));
+                          if (response?.result?.reviewTaskId) {
+                            router.push(`/dashboard/tasks/${response.result.reviewTaskId}`);
+                          }
+                        } catch {
+                          message.error('Failed to start review');
+                        }
+                      },
+                      className: "text-[0.75rem] font-medium text-[#7E22CE]"
                     });
                   }
-
-                  // Submit for Review option for regular tasks (after marked complete in timer)
-                  if (!task.is_review_task && isReview && isAssignee) {
-                    actions.push({
-                      key: 'submit_review',
-                      label: 'Submit for Review',
-                      icon: <CheckCircle className="w-3.5 h-3.5" />,
-                      onClick: () => setReviewerModalOpen(true),
-                      className: "text-[0.75rem] font-medium text-[#EAB308]"
-                    });
-                  }
-
-                  // Review specific actions
-                  if (task.is_review_task && task.status === 'Assigned') {
-                    actions.push({
-                      key: 'start_review',
-                      label: 'Start Review',
-                      icon: <RotateCcw className="w-3.5 h-3.5" />,
-                      onClick: () => onStartReview?.(),
-                      className: "text-[0.75rem] font-bold text-[#7E22CE]"
-                    });
-                  }
-
-                  // Removed duplicate submit review block
 
                   // Admin, Leader, or Assignee Actions
                   if (isAdmin || isLeader || isAssignee) {
@@ -334,7 +344,6 @@ const TaskRowComponent = memo(function TaskRow({
                       className: "text-[0.75rem] font-medium"
                     });
 
-                    // Admin/Leader Delete (Hidden if In_Progress)
                     if ((isAdmin || isLeader) && task.status !== 'In_Progress') {
                       actions.push({
                         key: 'delete',
@@ -360,8 +369,8 @@ const TaskRowComponent = memo(function TaskRow({
                 const isLeader = task.leader_id === currentUserId || task.leader_user?.id === currentUserId;
                 const isReview = task.status === 'Review';
 
-                // If it's review and leader, we always have items (Approve/Reject)
-                if (isReview && isLeader) {
+                // Review task: reviewer has Approve/Request Changes
+                if (task.is_review_task && (isLeader || isAssignee)) {
                   return (
                     <button className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-[#F7F7F7] transition-colors">
                       <MoreVertical className="w-4 h-4 text-[#666666]" />
@@ -369,9 +378,17 @@ const TaskRowComponent = memo(function TaskRow({
                   );
                 }
 
-                // Otherwise check for Admin/Leader/Assignee actions
-                const hasActions = isAdmin || isLeader || isAssignee;
+                // Original task in Review: non-leader/non-assignee may be the reviewer
+                if (!task.is_review_task && isReview && !isLeader && !isAssignee) {
+                  return (
+                    <button className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-[#F7F7F7] transition-colors">
+                      <MoreVertical className="w-4 h-4 text-[#666666]" />
+                    </button>
+                  );
+                }
 
+                // Admin/Leader/Assignee actions
+                const hasActions = isAdmin || isLeader || isAssignee;
                 if (hasActions) {
                   return (
                     <button className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-[#F7F7F7] transition-colors">
@@ -412,6 +429,14 @@ const TaskRowComponent = memo(function TaskRow({
             setReviewerModalLoading(false);
           }
         }}
+      />
+      <ReviewDecisionModal
+        open={reviewDecisionOpen}
+        decision={reviewDecisionType}
+        taskName={task.name}
+        loading={reviewDecisionLoading}
+        onClose={() => setReviewDecisionOpen(false)}
+        onConfirm={handleReviewDecisionConfirm}
       />
     </>
   );

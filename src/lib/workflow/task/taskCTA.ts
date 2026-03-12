@@ -21,6 +21,7 @@ import type {
  * @property isCurrentTurn - Whether it's this user's turn (sequential mode)
  * @property executionMode - How the task is being executed (parallel/sequential)
  * @property isSelfAssigned - Scenario 1: leader is the only member (sole executor)
+ * @property isReviewTask - Whether this task is a review task (is_review_task flag)
  */
 export interface TaskCTAContext {
   readonly isLeader: boolean;
@@ -28,6 +29,7 @@ export interface TaskCTAContext {
   readonly isCurrentTurn: boolean;
   readonly executionMode: ExecutionMode;
   readonly isSelfAssigned: boolean;
+  readonly isReviewTask?: boolean;
 }
 
 /**
@@ -57,10 +59,15 @@ export function getTaskCTAConfig(
   status: TaskStatus,
   context: TaskCTAContext
 ): TaskCTAConfig {
-  const { isLeader, isMember, isCurrentTurn, executionMode, isSelfAssigned } = context;
+  const { isLeader, isMember, isCurrentTurn, executionMode, isSelfAssigned, isReviewTask } = context;
 
   // Sequential mode: if not current turn, limit actions
   const canAct = executionMode === 'parallel' || isCurrentTurn;
+
+  // Review tasks have simplified CTAs: directly show Approve / Request Changes
+  if (isReviewTask) {
+    return getReviewTaskCTA(isMember, isLeader, status);
+  }
 
   switch (status) {
     case 'Assigned':
@@ -84,6 +91,34 @@ export function getTaskCTAConfig(
       throw new Error(`Unhandled task status: ${_exhaustive}`);
     }
   }
+}
+
+/**
+ * CTA for review tasks (is_review_task === true).
+ * Reviewer sees Approve / Request Changes directly — no "Start Work" step needed.
+ * Works for both Assigned and In_Progress status since the reviewer can act immediately.
+ */
+function getReviewTaskCTA(isMember: boolean, isLeader: boolean, status: TaskStatus): TaskCTAConfig {
+  if (status === 'Completed') {
+    return {
+      displayStatus: 'Review Completed',
+      tab: 'completed',
+    };
+  }
+
+  if (isMember || isLeader) {
+    return {
+      displayStatus: 'Review Pending',
+      tab: 'pending',
+      primaryAction: createAction('Approve', 'primary', 'review_approve'),
+      secondaryAction: createAction('Request Changes', 'danger', 'review_request_changes'),
+    };
+  }
+
+  return {
+    displayStatus: 'Under Review',
+    tab: 'pending',
+  };
 }
 
 /**
@@ -146,20 +181,12 @@ function getInProgressCTA(isMember: boolean, canAct: boolean, isSelfAssigned: bo
 }
 
 /**
- * CTA for Review status.
- * Leader can approve or request revision.
- * Member can pull back if needed.
+ * CTA for Review status on the ORIGINAL task.
+ * Leader and non-members see "Awaiting Review" (read-only).
+ * The submitting member can "Pull Back" their submission.
+ * NOTE: Approve / Request Changes live on the review task, not here.
  */
 function getReviewCTA(isLeader: boolean, isMember: boolean, canAct: boolean): TaskCTAConfig {
-  if (isLeader) {
-    return {
-      displayStatus: 'Awaiting Review',
-      tab: 'pending',
-      primaryAction: createAction('Approve', 'primary', 'approve'),
-      secondaryAction: createAction('Request Revision', 'danger', 'request_revision'),
-    };
-  }
-
   if (isMember && canAct) {
     return {
       displayStatus: 'Submitted for Review',
@@ -168,9 +195,9 @@ function getReviewCTA(isLeader: boolean, isMember: boolean, canAct: boolean): Ta
     };
   }
 
-  // View only
+  // Leader and all others: read-only "Awaiting Review"
   return {
-    displayStatus: 'In Review',
+    displayStatus: 'Awaiting Review',
     tab: 'pending',
   };
 }

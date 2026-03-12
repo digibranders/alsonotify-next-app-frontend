@@ -184,9 +184,9 @@ const EmployeeDetailsDrawer: React.FC<EmployeeDetailsDrawerProps> = ({
                             <table className="w-full text-left border-collapse min-w-[31.25rem]">
                                 <thead className="bg-[#FAFAFA] border-b border-[#EEEEEE]">
                                     <tr>
-                                        <th className="py-2 px-3 text-[0.6875rem] font-bold text-[#666666] uppercase w-[5.625rem] text-center">Date</th>
+                                        <th className="py-2 px-3 text-[0.625rem] font-bold text-[#666666] uppercase w-[5.625rem] text-center">Date</th>
                                         <th
-                                            className="py-2 px-3 text-[0.6875rem] font-bold text-[#666666] uppercase text-center relative group"
+                                            className="py-2 px-3 text-[0.625rem] font-bold text-[#666666] uppercase text-center relative group"
                                             style={{ width: taskColWidth, minWidth: taskColWidth, maxWidth: taskColWidth }}
                                         >
                                             Task
@@ -196,7 +196,7 @@ const EmployeeDetailsDrawer: React.FC<EmployeeDetailsDrawerProps> = ({
                                             />
                                         </th>
                                         <th
-                                            className="py-2 px-3 text-[0.6875rem] font-bold text-[#666666] uppercase text-center relative group"
+                                            className="py-2 px-3 text-[0.625rem] font-bold text-[#666666] uppercase text-center relative group"
                                             style={{ width: detailsColWidth, minWidth: detailsColWidth, maxWidth: detailsColWidth }}
                                         >
                                             Details
@@ -205,16 +205,16 @@ const EmployeeDetailsDrawer: React.FC<EmployeeDetailsDrawerProps> = ({
                                                 onMouseDown={(e) => handleColumnResizeStart(e, 'details')}
                                             />
                                         </th>
-                                        <th className="py-2 px-3 text-[0.6875rem] font-bold text-[#666666] uppercase w-[6.875rem] text-center">Time</th>
-                                        <th className="py-2 px-3 text-[0.6875rem] font-bold text-[#666666] uppercase w-[7.5rem] text-center">Status</th>
-                                        <th className="py-2 px-3 text-[0.6875rem] font-bold text-[#666666] uppercase w-[4.375rem] text-center">Duration</th>
+                                        <th className="py-2 px-3 text-[0.625rem] font-bold text-[#666666] uppercase w-[6.875rem] text-center">Time</th>
+                                        <th className="py-2 px-3 text-[0.625rem] font-bold text-[#666666] uppercase w-[7.5rem] text-center">Status</th>
+                                        <th className="py-2 px-3 text-[0.625rem] font-bold text-[#666666] uppercase w-[4.375rem] text-center">Duration</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {worklogs.map((log) => (
                                         <tr key={log.id} className="border-b border-[#EEEEEE] last:border-0 hover:bg-[#FAFAFA] transition-colors group h-9">
-                                            <td className="px-3 text-xs font-medium text-[#111111] whitespace-nowrap text-left">{log.date}</td>
-                                            <td className="px-3 text-xs font-medium text-[#111111] text-left" style={{ width: taskColWidth, minWidth: taskColWidth, maxWidth: taskColWidth }}>
+                                            <td className="px-3 text-[0.75rem] font-medium text-[#111111] whitespace-nowrap text-left">{log.date}</td>
+                                            <td className="px-3 text-[0.75rem] font-medium text-[#111111] text-left" style={{ width: taskColWidth, minWidth: taskColWidth, maxWidth: taskColWidth }}>
                                                 <Tooltip title={log.task} placement="topLeft">
                                                     {log.taskId ? (
                                                         <Link
@@ -229,12 +229,12 @@ const EmployeeDetailsDrawer: React.FC<EmployeeDetailsDrawerProps> = ({
                                                     )}
                                                 </Tooltip>
                                             </td>
-                                            <td className="px-3 text-xs text-[#666666] text-left" style={{ width: detailsColWidth, minWidth: detailsColWidth, maxWidth: detailsColWidth }}>
+                                            <td className="px-3 text-[0.625rem] text-[#666666] text-left" style={{ width: detailsColWidth, minWidth: detailsColWidth, maxWidth: detailsColWidth }}>
                                                 <Tooltip title={log.details} placement="topLeft">
                                                     <div className="truncate cursor-help" style={{ maxWidth: detailsColWidth - 24 }}>{log.details === '-' ? '-' : log.details}</div>
                                                 </Tooltip>
                                             </td>
-                                            <td className="px-3 text-[0.6875rem] text-[#666666] whitespace-nowrap text-left">{log.startTime} - {log.endTime}</td>
+                                            <td className="px-3 text-[0.625rem] text-[#666666] whitespace-nowrap text-left">{log.startTime} - {log.endTime}</td>
                                             <td className="px-3 text-center">
                                                 {log.sessionStatus ? (
                                                     <Badge
@@ -257,13 +257,13 @@ const EmployeeDetailsDrawer: React.FC<EmployeeDetailsDrawerProps> = ({
                                                 )}
                                             </td>
                                             <td className="px-3 text-left">
-                                                <span className="text-[0.6875rem] font-bold text-[#111111] bg-[#EEEEEE] px-1.5 py-0.5 rounded group-hover:bg-white group-hover:shadow-sm transition-all">{log.engagedTime}</span>
+                                                <span className="text-[0.75rem] font-bold text-[#111111] bg-[#EEEEEE] px-1.5 py-0.5 rounded group-hover:bg-white group-hover:shadow-sm transition-all">{log.engagedTime}</span>
                                             </td>
                                         </tr>
                                     ))}
                                     {worklogs.length === 0 && (
                                         <tr>
-                                            <td colSpan={6} className="py-8 text-center text-[0.8125rem] text-[#666666] italic">No work history found.</td>
+                                            <td colSpan={6} className="py-8 text-center text-[0.75rem] text-[#666666] italic">No work history found.</td>
                                         </tr>
                                     )}
                                 </tbody>
