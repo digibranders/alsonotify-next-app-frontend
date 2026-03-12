@@ -8,13 +8,11 @@ import type { MenuProps } from 'antd';
 import {
   Alert24Filled,
   Add24Filled,
-  Sparkle24Filled
 } from '@fluentui/react-icons';
 import {
   UserCog,
   Settings,
   LogOut,
-  MessageCircle,
   MessageSquareShare,
   ScrollText,
   Briefcase,
@@ -349,10 +347,6 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
   // Account type is now handled by useAccountType hook above
 
 
-  const isDeveloper = useMemo(() => {
-    const userData = userDetailsData?.result || {};
-    return isSuperAdmin(userData);
-  }, [userDetailsData]);
 
   const profileMenuItems: MenuProps['items'] = [
     {
@@ -376,14 +370,6 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
           icon: <UserCog className="w-4 h-4" />,
           onClick: () => router.push('/dashboard/profile'),
         },
-        ...(isDeveloper ? [
-          {
-            key: 'feedbacks',
-            label: 'Feedbacks',
-            icon: <MessageCircle className="w-4 h-4" />,
-            onClick: () => router.push('/dashboard/feedback'),
-          }
-        ] : []),
       ],
     },
     { type: 'divider', key: 'profile-divider' },
