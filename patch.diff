@@ -1,0 +1,19 @@
+--- src/components/ui/DocumentPreviewModal.tsx
++++ src/components/ui/DocumentPreviewModal.tsx
+@@ -4,6 +4,7 @@
+ import { UserDocument } from '@/types/domain';
+ import Image from 'next/image';
+ import { useEffect, useState, useMemo } from 'react';
++import { sanitizeEmailHtml } from '@/utils/sanitizeHtml';
+
+ type PreviewMode = 'rendered' | 'source';
+
+@@ -306,7 +307,7 @@
+         return (
+           <div className="w-full h-full bg-white rounded-lg overflow-hidden border border-gray-200">
+             <iframe
+-              srcDoc={textContent}
++              srcDoc={sanitizeEmailHtml(textContent, true)}
+               className="w-full h-[82vh] border-0"
+               title="HTML Preview"
+               sandbox="allow-popups allow-popups-to-escape-sandbox"

@@ -67,7 +67,7 @@ export function PageLayout({
     <div className={`w-full h-full bg-white rounded-[24px] border border-[#EEEEEE] flex overflow-hidden ${className || ''}`}>
       <div className="flex-1 p-4 md:p-6 flex flex-col overflow-hidden">
         {/* Header Section */}
-        <div className={(tabs && tabs.length > 0) || onSearchChange || showFilter || customFilters || secondaryActions || showExport || action ? "mb-5" : "mb-3"}>
+        <div className={(tabs && tabs.length > 0) || onSearchChange || showFilter || customFilters || secondaryActions || showExport || action ? "mb-3" : "mb-3"}>
           {/* Title Row */}
           <div className={`flex items-center justify-between ${(tabs && tabs.length > 0) || onSearchChange || showFilter || customFilters || secondaryActions || showExport || action ? "mb-4" : "mb-1"}`}>
             <div className="flex items-center gap-2">
@@ -100,7 +100,7 @@ export function PageLayout({
                         key={tab.id}
                         onClick={() => onTabChange?.(tab.id)}
                         aria-current={activeTab === tab.id ? 'page' : undefined}
-                        className={`pb-3 px-1 relative font-semibold text-sm transition-colors flex items-center gap-2 ${activeTab === tab.id
+                        className={`pb-3 px-1 relative font-semibold text-[0.875rem] transition-colors flex items-center gap-2 ${activeTab === tab.id
                           ? 'text-[#ff3b3b]'
                           : 'text-[#666666] hover:text-[#111111]'
                           }`}

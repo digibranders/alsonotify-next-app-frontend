@@ -976,7 +976,7 @@ export function RequirementsPage() {
       }
     >
       {/* Filters Bar */}
-      <div className="mb-6">
+      <div className="mb-2">
         <FilterBar
           filters={filterOptions}
           selectedFilters={filters}

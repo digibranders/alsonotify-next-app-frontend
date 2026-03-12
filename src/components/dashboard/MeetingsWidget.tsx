@@ -486,9 +486,9 @@ function MeetingItem({
                     return (
                       <div
                         key={index}
-                        className="w-6 h-6 rounded-full border-2 border-white bg-gradient-to-br from-[#ff3b3b] to-[#ff6b6b] flex items-center justify-center shadow-sm relative z-[5] hover:z-10 transition-all"
+                        className="w-6 h-6 rounded-full border-2 border-white bg-[#E5E5E5] flex items-center justify-center shadow-sm relative z-[5] hover:z-10 transition-all"
                       >
-                        <span className="text-[0.5625rem] text-white font-bold">{initials}</span>
+                        <span className="text-[0.5625rem] text-[#666666] font-bold">{initials}</span>
                       </div>
                     );
                   })}
