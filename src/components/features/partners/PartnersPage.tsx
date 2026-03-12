@@ -605,12 +605,12 @@ export function PartnersPageContent() {
                     {/* Header */}
                     <div className="sticky top-0 z-20 bg-white grid grid-cols-[40px_1.5fr_2fr_1fr_100px] gap-4 px-4 py-3 mb-2 items-center">
                         <div className="flex justify-center"></div>
-                        <div className="pl-[44px]">
+                        <div className="">
                             <p className="text-xs font-bold text-[#999999] uppercase tracking-wide">Contact Person</p>
                         </div>
                         <p className="text-xs font-bold text-[#999999] uppercase tracking-wide">Email</p>
                         <p className="text-xs font-bold text-[#999999] uppercase tracking-wide">Status</p>
-                        <p className="text-xs font-bold text-[#999999] uppercase tracking-wide text-right pr-10">Actions</p>
+                        <p className="text-xs font-bold text-[#999999] uppercase tracking-wide">Actions</p>
                     </div>
 
                     {/* Content */}
@@ -774,7 +774,7 @@ export function PartnersPageContent() {
                                 className="red-checkbox"
                             />
                         </div>
-                        <div className="pl-[48px]">
+                        <div className="">
                             <p className="text-xs font-bold text-[#999999] uppercase tracking-wide">Business Name</p>
                         </div>
                         <p className="text-xs font-bold text-[#999999] uppercase tracking-wide">Contact Person</p>

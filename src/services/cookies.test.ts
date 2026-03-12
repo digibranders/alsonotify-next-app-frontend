@@ -138,7 +138,7 @@ describe('cookies', () => {
 
       expect(mockRemove).toHaveBeenCalledWith('_token', {
         path: '/',
-        sameSite: 'strict',
+        sameSite: 'lax',
       });
       expect(result).toBe(true);
     });
