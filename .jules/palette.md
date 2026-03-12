@@ -1,10 +1,3 @@
-## 2024-05-24 - Misleading Security Comments vs. Implementation
-
-**Vulnerability:** The function `sanitizeRichText` was documented as "Ensures links open in new tab and have noopener noreferrer", but the implementation merely _allowed_ the `target` and `rel` attributes in `DOMPurify` configuration without enforcing them. This meant user-provided HTML could contain links opening in the same tab (phishing risk) or malicious `target="_blank"` links without `noopener` (tabnabbing risk).
-**Learning:** Security comments can drift from implementation or be wishful thinking. Always verify security claims with tests (e.g., unit tests asserting the presence of security attributes) rather than trusting documentation.
-**Prevention:** Use automated tests to verify security invariants. For HTML sanitization, use hooks or post-processing to _enforce_ secure attributes rather than just allowing them.
-
-## 2024-05-24 - Missing ARIA Labels for Active Tabs
-
-**Learning:** Found multiple tab components in `TabBar.tsx` and `PageLayout.tsx` that did not have `aria-current="page"` for the active tab state. This means screen readers could not determine which tab was currently selected.
-**Action:** Added `aria-current={activeTab === tab.id ? 'page' : undefined}` to all tab buttons. Always remember to provide a programmatic state for visually active elements like tabs and pagination.
+## 2026-03-11 - Accessible Sidebar Navigation
+**Learning:** Adding robust accessible navigation properties specifically `aria-current="page"` and precise `focus-visible` styling dramatically improves screen reader clarity and keyboard navigation inside the Sidebar component of this application.
+**Action:** Always include `aria-current="page"` on the currently active navigation item to comply with correct accessible patterns, and implement comprehensive `focus-visible:ring-2 focus-visible:ring-[#ff3b3b]` across navigation items to ensure visual clarity during tab traversal.

@@ -85,12 +85,12 @@ const nextConfig = {
                         value: [
                             "default-src 'self'",
                             // unsafe-inline required for Next.js inline scripts/styles; replace with nonce-based CSP as next step
-                            "script-src 'self' 'unsafe-inline'",
+                            "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com",
                             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
                             "img-src 'self' data: blob: https://*.s3.amazonaws.com https://*.s3.*.amazonaws.com",
                             "font-src 'self' data: https://fonts.gstatic.com",
-                            `connect-src 'self' ${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000'} https://*.sentry.io wss:`,
-                            "frame-src 'none'",
+                            `connect-src 'self' ${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000'} https://*.sentry.io https://challenges.cloudflare.com wss:`,
+                            "frame-src 'self' https://challenges.cloudflare.com",
                             "object-src 'none'",
                             "base-uri 'self'",
                             "form-action 'self'",

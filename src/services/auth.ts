@@ -3,7 +3,7 @@ import { ApiResponse } from "../constants/constants";
 
 import { LoginResponseDTO, GenericSuccessDTO, RegisterCompleteResponseDTO, VerifyTokenResponseDTO } from "../types/dto/auth.dto";
 
-export const doLogin = async (params: { email: string; password: string }): Promise<ApiResponse<LoginResponseDTO>> => {
+export const doLogin = async (params: { email: string; password: string; turnstileToken?: string | null }): Promise<ApiResponse<LoginResponseDTO>> => {
     const { data } = await axiosApi.post<ApiResponse<LoginResponseDTO>>("/auth/login", params);
     return data;
 };
@@ -14,7 +14,8 @@ export const doSignup = async (
   email: string,
   password?: string,
   token?: string | null,
-  accountType?: string
+  accountType?: string,
+  turnstileToken?: string | null
 ): Promise<ApiResponse<RegisterCompleteResponseDTO>> => {
     const { data } = await axiosApi.post<ApiResponse<RegisterCompleteResponseDTO>>("/auth/register", {
       firstName,
@@ -23,6 +24,7 @@ export const doSignup = async (
       password,
       token,
       accountType,
+      turnstileToken,
     });
     // If registration immediately logs in, set token
     if (data.success && data.result?.token) {
