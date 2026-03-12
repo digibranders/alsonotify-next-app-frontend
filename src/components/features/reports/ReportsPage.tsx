@@ -857,7 +857,7 @@ export function ReportsPage() {
                     </div>
 
                     <div className="flex flex-col justify-center gap-0.5 min-w-0">
-                      <span className="text-[13px] text-[#111111] font-bold truncate" title={row.partner}>{row.partner}</span>
+                      <span className="text-[0.8125rem] text-[#111111] font-bold truncate" title={row.partner}>{row.partner}</span>
                       <span className="text-[11px] text-[#666666] font-medium truncate" title={row.manager || 'Unassigned'}>{row.manager || 'Unassigned'}</span>
                     </div>
 

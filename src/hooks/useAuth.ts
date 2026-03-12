@@ -13,7 +13,7 @@ export const useLogin = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (credentials: { email: string; password: string; redirect?: string }) => doLogin(credentials),
+    mutationFn: (credentials: { email: string; password: string; turnstileToken: string | null; redirect?: string }) => doLogin(credentials),
     onSuccess: (data, variables) => {
       if (data.success && data.result.token) {
         setToken(data.result.token);
@@ -32,8 +32,16 @@ export const useLogin = () => {
 
 export const useRegister = () => {
   return useMutation({
-    mutationFn: (params: { firstName: string; lastName: string; email: string; password: string; token: string | null; accountType: string }) =>
-      doSignup(params.firstName, params.lastName, params.email, params.password, params.token, params.accountType),
+    mutationFn: (params: { 
+      firstName: string; 
+      lastName: string; 
+      email: string; 
+      password: string; 
+      token: string | null; 
+      accountType: string;
+      turnstileToken: string | null;
+    }) =>
+      doSignup(params.firstName, params.lastName, params.email, params.password, params.token, params.accountType, params.turnstileToken),
   });
 };
 

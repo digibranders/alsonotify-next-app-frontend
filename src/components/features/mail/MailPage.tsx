@@ -690,7 +690,7 @@ export function MailPage() {
           )}
 
           <style jsx global>{`
-            .mail-html { font-size: 13px; line-height: 1.7; color: #222; overflow-wrap: anywhere; }
+            .mail-html { font-size: 0.8125rem; line-height: 1.7; color: #222; overflow-wrap: anywhere; }
             .mail-html img { max-width: 100%; height: auto; }
             .mail-html table { width: 100%; border-collapse: collapse; }
             .mail-html a { color: #1677ff; text-decoration: none; }

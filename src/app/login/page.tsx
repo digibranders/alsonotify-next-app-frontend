@@ -10,6 +10,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import AuthLayout from "@/components/auth/AuthLayout";
 import { Skeleton } from "@/components/ui/Skeleton";
+import { Turnstile } from "@marsidev/react-turnstile";
 
 function LoginForm() {
   const { message } = App.useApp();
@@ -22,6 +23,7 @@ function LoginForm() {
   const [email, setEmail] = useState(initialEmail);
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,7 +35,7 @@ function LoginForm() {
     }
 
     loginMutation.mutate(
-      { email: trimmedEmail, password, redirect },
+      { email: trimmedEmail, password, redirect, turnstileToken },
       {
         onSuccess: () => {
           message.success("Login successful!");
@@ -125,10 +127,21 @@ function LoginForm() {
             </div>
           </motion.div>
 
+          <div className="pt-2">
+            <Turnstile
+              siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY as string}
+              onSuccess={(token) => setTurnstileToken(token)}
+              options={{
+                theme: 'light',
+                size: 'normal',
+              }}
+            />
+          </div>
+
           <motion.div variants={itemVariants} className="pt-2">
             <button
               type="submit"
-              disabled={loginMutation.isPending}
+              disabled={loginMutation.isPending || !turnstileToken}
               className="w-full h-12 bg-[#ff3b3b] hover:bg-[#E63535] text-white rounded-[16px] font-bold text-[0.9375rem] shadow-lg shadow-[#ff3b3b]/25 transition-all hover:shadow-[#ff3b3b]/40 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               tabIndex={3}
             >
