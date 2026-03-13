@@ -48,7 +48,7 @@ export function AccessManagementTab({
       <div className="flex items-center justify-between mb-10">
         <div>
           <h2 className="text-lg font-bold text-[#111111]">Access Management</h2>
-          <p className="text-[0.8125rem] text-[#666666] mt-1 font-normal">
+          <p className="text-xs text-[#666666] mt-1 font-normal">
             Manage roles and define specific permissions for your team.
           </p>
         </div>
@@ -59,7 +59,7 @@ export function AccessManagementTab({
               setRoleFormName('');
               setIsRoleModalOpen(true);
             }}
-            className="bg-[#111111] hover:bg-[#000000]/90 text-white font-semibold px-6 h-11 rounded-full text-[0.8125rem] flex items-center gap-2 border-none transition-all shadow-md active:scale-95"
+            className="bg-[#111111] hover:bg-[#000000]/90 text-white font-semibold px-6 h-11 rounded-full text-xs flex items-center gap-2 border-none transition-all shadow-md active:scale-95"
           >
             <Plus className="w-4 h-4" />
             Add Role
@@ -120,7 +120,7 @@ export function AccessManagementTab({
                   </div>
                 ))}
               {isLoadingRoles && (
-                <div className="py-8 text-center text-[#999999] text-[0.8125rem]">Loading roles...</div>
+                <div className="py-8 text-center text-[#999999] text-xs">Loading roles...</div>
               )}
             </div>
           </div>
@@ -152,7 +152,7 @@ export function AccessManagementTab({
 
               <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-6">
                 {isLoadingPermissions ? (
-                  <div className="py-20 text-center text-[#999999] text-[0.8125rem]">
+                  <div className="py-20 text-center text-[#999999] text-xs">
                     Loading permissions...
                   </div>
                 ) : (
@@ -233,7 +233,7 @@ export function AccessManagementTab({
                                   }`}>
                                   {selectedPermissionIds.has(act.id) && <Check className="w-2.5 h-2.5 text-white stroke-[4]" />}
                                 </div>
-                                <span className="text-[0.8125rem] text-[#666666] font-medium">
+                                <span className="text-xs text-[#666666] font-medium">
                                   {act.name}
                                 </span>
                               </div>
@@ -253,7 +253,7 @@ export function AccessManagementTab({
                 <Shield className="w-6 h-6 text-[#999999]" />
               </div>
               <h3 className="text-[0.9375rem] font-semibold text-[#111111]">Select a role</h3>
-              <p className="text-[0.8125rem] text-[#666666] mt-1 max-w-[240px]">
+              <p className="text-xs text-[#666666] mt-1 max-w-[240px]">
                 Select a role from the left to view and manage its permissions.
               </p>
             </div>

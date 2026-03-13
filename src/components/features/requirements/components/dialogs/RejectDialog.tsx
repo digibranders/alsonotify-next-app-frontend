@@ -46,11 +46,11 @@ export function RejectDialog({
       centered
     >
       <div className="space-y-4 py-4">
-        <p className="text-[0.8125rem] text-[#666666] font-normal">
+        <p className="text-xs text-[#666666] font-normal">
           Please provide a reason for rejecting this requirement. It will be moved to drafts.
         </p>
         <div className="space-y-2">
-          <label className="text-[0.8125rem] font-bold text-[#111111]">Reason</label>
+          <label className="text-xs font-bold text-[#111111]">Reason</label>
           <TextArea
             placeholder="e.g. Budget too low, Out of scope..."
             className="min-h-[100px] rounded-lg resize-none"

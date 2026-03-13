@@ -179,7 +179,7 @@ const EmployeeDetailsDrawer: React.FC<EmployeeDetailsDrawerProps> = ({
 
                     {/* Work History */}
                     <div>
-                        <h3 className="text-[0.8125rem] font-bold text-[#111111] uppercase tracking-wide mb-3">Work History</h3>
+                        <h3 className="text-xs font-bold text-[#111111] uppercase tracking-wide mb-3">Work History</h3>
                         <div className="border border-[#EEEEEE] rounded-lg overflow-x-auto">
                             <table className="w-full text-left border-collapse min-w-[31.25rem]">
                                 <thead className="bg-[#FAFAFA] border-b border-[#EEEEEE]">

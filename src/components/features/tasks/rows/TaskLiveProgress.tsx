@@ -199,7 +199,7 @@ export function TaskLiveProgress({ task, currentUserId }: TaskLiveProgressProps)
               const overtime = seg.loggedHours > seg.segEst ? seg.loggedHours - seg.segEst : 0;
               const segmentTooltip = (
                 <div className="text-center">
-                  <div className="font-bold text-[0.8125rem] mb-0.5">{seg.user?.name || 'Unknown'}</div>
+                  <div className="font-bold text-xs mb-0.5">{seg.user?.name || 'Unknown'}</div>
                   <div className="text-[10px] opacity-70 mb-1">Status: {seg.status}</div>
                   <div className="text-[12px] font-medium">
                     {seg.loggedHours.toFixed(1)}h / {seg.segEst.toFixed(1)}h

@@ -145,7 +145,7 @@ export function CalendarPage() {
         <button className="w-9 h-9 rounded-[8px] border border-[#EEEEEE] flex items-center justify-center hover:bg-[#F7F7F7] transition-colors">
           <ChevronRight className="w-4 h-4 text-[#666666]" />
         </button>
-        <button className="px-4 py-2 text-[0.8125rem] font-['Manrope:Medium',sans-serif] text-[#666666] hover:text-[#111111] transition-colors">
+        <button className="px-4 py-2 text-xs font-['Manrope:Medium',sans-serif] text-[#666666] hover:text-[#111111] transition-colors">
           Today
         </button>
       </div>
@@ -158,7 +158,7 @@ export function CalendarPage() {
             <div className="grid grid-cols-7 gap-2 mb-2">
               {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
                 <div key={day} className="text-center py-2">
-                  <span className="font-['Manrope:SemiBold',sans-serif] text-[0.8125rem] text-[#666666]">
+                  <span className="font-['Manrope:SemiBold',sans-serif] text-xs text-[#666666]">
                     {day}
                   </span>
                 </div>
@@ -180,7 +180,7 @@ export function CalendarPage() {
                       } ${isToday ? 'border-[#ff3b3b] bg-[#FFF5F5]' : ''}`}
                     onClick={() => setSelectedDate(dayObj.date)}
                   >
-                    <div className={`font-['Manrope:SemiBold',sans-serif] text-[0.8125rem] mb-1 ${dayObj.isCurrentMonth ? 'text-[#111111]' : 'text-[#999999]'
+                    <div className={`font-['Manrope:SemiBold',sans-serif] text-xs mb-1 ${dayObj.isCurrentMonth ? 'text-[#111111]' : 'text-[#999999]'
                       } ${isToday ? 'text-[#ff3b3b]' : ''}`}>
                       {dayObj.day}
                     </div>
@@ -226,7 +226,7 @@ export function CalendarPage() {
                         style={{ backgroundColor: event.color }}
                       />
                       <div className="flex-1 min-w-0">
-                        <div className="font-['Manrope:SemiBold',sans-serif] text-[0.8125rem] text-[#111111] mb-1 break-words">
+                        <div className="font-['Manrope:SemiBold',sans-serif] text-xs text-[#111111] mb-1 break-words">
                           {event.title}
                         </div>
                         <div className="flex items-center gap-1 text-[11px] font-['Manrope:Regular',sans-serif] text-[#666666] mb-2">
@@ -254,7 +254,7 @@ export function CalendarPage() {
                   </div>
                 ))
               ) : (
-                <div className="text-center py-6 text-[0.8125rem] font-['Manrope:Regular',sans-serif] text-[#999999]">
+                <div className="text-center py-6 text-xs font-['Manrope:Regular',sans-serif] text-[#999999]">
                   No events today
                 </div>
               )}
@@ -275,7 +275,7 @@ export function CalendarPage() {
                       style={{ backgroundColor: event.color }}
                     />
                     <div className="flex-1 min-w-0 w-full max-w-full">
-                      <div className="font-['Manrope:SemiBold',sans-serif] text-[0.8125rem] text-[#111111] mb-1 break-words">
+                      <div className="font-['Manrope:SemiBold',sans-serif] text-xs text-[#111111] mb-1 break-words">
                         {event.title}
                       </div>
                       <div className="flex items-center gap-1 text-[11px] font-['Manrope:Regular',sans-serif] text-[#666666]">

@@ -55,7 +55,7 @@ export function IntegrationCard({
                 </div>
 
                 <h3 className="text-base font-bold text-[#111111] mb-2">{name}</h3>
-                <p className="text-[0.8125rem] text-[#666666] leading-relaxed line-clamp-2 mb-6 h-10">
+                <p className="text-xs text-[#666666] leading-relaxed line-clamp-2 mb-6 h-10">
                     {description}
                 </p>
 

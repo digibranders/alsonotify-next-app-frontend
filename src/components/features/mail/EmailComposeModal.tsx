@@ -131,8 +131,8 @@ function EmailComposeForm({
             />
           </div>
           <div className="pt-1.5 pr-2 flex items-center gap-2">
-            {!showCc && <span role="button" onClick={() => setShowCc(true)} className="text-[0.8125rem] text-[#555] hover:underline cursor-pointer">Cc</span>}
-            {!showBcc && <span role="button" onClick={() => setShowBcc(true)} className="text-[0.8125rem] text-[#555] hover:underline cursor-pointer">Bcc</span>}
+            {!showCc && <span role="button" onClick={() => setShowCc(true)} className="text-xs text-[#555] hover:underline cursor-pointer">Cc</span>}
+            {!showBcc && <span role="button" onClick={() => setShowBcc(true)} className="text-xs text-[#555] hover:underline cursor-pointer">Bcc</span>}
           </div>
         </div>
 

@@ -210,7 +210,7 @@ function LeaveItem({ name, dateRange, duration, avatar, initials }: { name: stri
           <div className="flex items-center justify-between gap-2">
             {/* Name + Date stacked on the left */}
             <div className="flex flex-col min-w-0">
-              <h4 className="font-semibold text-[0.8125rem] text-[#111111] line-clamp-1">
+              <h4 className="font-semibold text-xs text-[#111111] line-clamp-1">
                 {name}
               </h4>
               <span className="text-[#666666] text-[0.6875rem] font-normal mt-0.5">

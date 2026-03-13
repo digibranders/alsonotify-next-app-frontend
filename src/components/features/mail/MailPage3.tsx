@@ -520,7 +520,7 @@ export function MailPage() {
             transition: "all 0.3s ease"
           }}
         >
-          <div className="bg-[#F7F7F7] rounded-[16px] p-2 md:p-3 h-full overflow-hidden flex flex-col text-[0.8125rem]">
+          <div className="bg-[#F7F7F7] rounded-[16px] p-2 md:p-3 h-full overflow-hidden flex flex-col text-xs">
             <div className={`flex items-center ${foldersCollapsed ? 'justify-center' : 'justify-between'} mb-3`}>
               {!foldersCollapsed && (
                 <div className="flex items-center gap-2 truncate">
@@ -813,7 +813,7 @@ export function MailPage() {
                         </div>
                       )
                     ) : (
-                      <div className="min-w-full inline-block align-top rounded-[12px] bg-white p-4 ring-1 ring-black/5 whitespace-pre-wrap text-[0.8125rem] leading-6">
+                      <div className="min-w-full inline-block align-top rounded-[12px] bg-white p-4 ring-1 ring-black/5 whitespace-pre-wrap text-xs leading-6">
                         {textBody}
                       </div>
                     )}
@@ -828,7 +828,7 @@ export function MailPage() {
                       {attsQ.isLoading ? (
                         <div className="flex justify-center p-4"><Spin /></div>
                       ) : (attsQ.data?.result?.length || 0) === 0 ? (
-                        <div className="text-[0.8125rem] text-[#999999]">No attachments</div>
+                        <div className="text-xs text-[#999999]">No attachments</div>
                       ) : (
                         <div className="space-y-2">
                           {(attsQ.data?.result || []).map((a: MailAttachment) => (
@@ -841,7 +841,7 @@ export function MailPage() {
                                   <Paperclip size={16} />
                                 </div>
                                 <div className="min-w-0">
-                                  <div className="font-semibold text-[0.8125rem] text-[#111111] truncate">{a.name || 'Unnamed'}</div>
+                                  <div className="font-semibold text-xs text-[#111111] truncate">{a.name || 'Unnamed'}</div>
                                   <div className="text-[11px] text-[#777]">
                                     {a.contentType || "file"} • {formatBytes(a.size || 0)}
                                   </div>
@@ -878,7 +878,7 @@ export function MailPage() {
 
                     <style jsx global>{`
                     .mail-html {
-                      font-size: 0.8125rem;
+                      font-size: 0.75rem;
                       line-height: 1.7;
                       color: #222;
                       overflow-wrap: anywhere;

@@ -132,7 +132,7 @@ export function EditManagerPartnersModal({
 
                 {/* Partner Selection */}
                 <div>
-                    <label className="block text-[0.8125rem] font-semibold text-[#111111] mb-2">
+                    <label className="block text-xs font-semibold text-[#111111] mb-2">
                         Assign Partners
                     </label>
                     <Select
@@ -160,7 +160,7 @@ export function EditManagerPartnersModal({
                 {/* Assigned Partners List */}
                 {assignedPartners.length > 0 && (
                     <div>
-                        <h4 className="text-[0.8125rem] font-semibold text-[#111111] mb-3">
+                        <h4 className="text-xs font-semibold text-[#111111] mb-3">
                             Assigned Partners ({assignedPartners.length})
                         </h4>
                         <div className="space-y-2 max-h-[300px] overflow-y-auto">
@@ -173,7 +173,7 @@ export function EditManagerPartnersModal({
                                         <Building className="w-5 h-5 text-[#999999]" />
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <h5 className="text-[0.8125rem] font-semibold text-[#111111] truncate">
+                                        <h5 className="text-xs font-semibold text-[#111111] truncate">
                                             {partner.name}
                                         </h5>
                                         <div className="flex items-center gap-2 text-[0.6875rem] text-[#666666]">
@@ -205,7 +205,7 @@ export function EditManagerPartnersModal({
                 {assignedPartners.length === 0 && (
                     <div className="text-center py-8 text-[#999999]">
                         <Users className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                        <p className="text-[0.8125rem]">No partners assigned yet</p>
+                        <p className="text-xs">No partners assigned yet</p>
                     </div>
                 )}
             </div>

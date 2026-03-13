@@ -173,7 +173,7 @@ export function MeetingCreateModal({
       >
         <div className="space-y-5">
           <div className="space-y-2">
-            <span className="text-[0.8125rem] font-bold text-[#111111]">
+            <span className="text-xs font-bold text-[#111111]">
               Title <span className="text-[#ff3b3b]">*</span>
             </span>
             <Input
@@ -185,7 +185,7 @@ export function MeetingCreateModal({
           </div>
 
           <div className="space-y-2">
-            <span className="text-[0.8125rem] font-bold text-[#111111]">
+            <span className="text-xs font-bold text-[#111111]">
               Start Date & Time <span className="text-[#ff3b3b]">*</span>
             </span>
             <DatePicker
@@ -201,7 +201,7 @@ export function MeetingCreateModal({
           </div>
 
           <div className="space-y-2">
-            <span className="text-[0.8125rem] font-bold text-[#111111]">
+            <span className="text-xs font-bold text-[#111111]">
               End Time <span className="text-[#ff3b3b]">*</span>
             </span>
             <div className="flex items-center gap-3">
@@ -247,7 +247,7 @@ export function MeetingCreateModal({
           />
 
           <div className="space-y-2">
-            <span className="text-[0.8125rem] font-bold text-[#111111]">
+            <span className="text-xs font-bold text-[#111111]">
               Description
             </span>
             <TextArea
@@ -373,7 +373,7 @@ function AttendeesField({
 
   return (
     <div className="relative space-y-2">
-      <span className="text-[0.8125rem] font-bold text-[#111111]">
+      <span className="text-xs font-bold text-[#111111]">
         Attendees
       </span>
 
@@ -382,7 +382,7 @@ function AttendeesField({
           {attendees.map((attendee, idx) => (
             <span
               key={idx}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white border border-[#EEEEEE] rounded-full text-[0.8125rem] text-[#111111] font-medium hover:border-[#ff3b3b]/30 transition-colors"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white border border-[#EEEEEE] rounded-full text-xs text-[#111111] font-medium hover:border-[#ff3b3b]/30 transition-colors"
             >
               <span>{attendee.name || attendee.email}</span>
               <button
@@ -430,7 +430,7 @@ function AttendeesField({
               >
                 <div className="flex items-center gap-2">
                   <div className="flex-1">
-                    <div className="text-[0.8125rem] font-medium text-[#111111]">
+                    <div className="text-xs font-medium text-[#111111]">
                       {suggestion.name || suggestion.email}
                     </div>
                     {suggestion.name && suggestion.email && (

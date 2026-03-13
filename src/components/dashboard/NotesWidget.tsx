@@ -113,7 +113,7 @@ export function NotesWidget() {
         );
     } else if (notesList.length === 0) {
         notesContent = (
-            <div className="col-span-full flex flex-col items-center justify-center h-full text-center text-[#999999] text-[0.8125rem]">
+            <div className="col-span-full flex flex-col items-center justify-center h-full text-center text-[#999999] text-xs">
                 <p>No notes yet</p>
                 <button
                     onClick={() => setShowDialog(true)}

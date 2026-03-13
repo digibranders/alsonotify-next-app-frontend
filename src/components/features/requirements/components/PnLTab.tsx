@@ -145,7 +145,7 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
               <DollarSign className="w-5 h-5 text-[#0F9D58]" />
             </div>
             <div>
-              <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide mb-0.5">Quoted Price</p>
+              <p className="text-xxs font-bold text-[#999999] uppercase tracking-wide mb-0.5">Quoted Price</p>
               <p className="text-xl font-bold text-[#111111] leading-tight">{formatCurrency(summary.quotedPrice)}</p>
             </div>
           </div>
@@ -156,7 +156,7 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
               <Users className="w-5 h-5 text-[#ff3b3b]" />
             </div>
             <div>
-              <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide mb-0.5">Resource Cost</p>
+              <p className="text-xxs font-bold text-[#999999] uppercase tracking-wide mb-0.5">Resource Cost</p>
               <p className="text-xl font-bold text-[#111111] leading-tight">{formatCurrency(summary.totalResourceCost)}</p>
             </div>
           </div>
@@ -171,7 +171,7 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
               )}
             </div>
             <div>
-              <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide mb-0.5">
+              <p className="text-xxs font-bold text-[#999999] uppercase tracking-wide mb-0.5">
                 Net {summary.netProfit >= 0 ? 'Profit' : 'Loss'}
               </p>
               <p className={`text-xl font-bold leading-tight ${summary.netProfit >= 0 ? 'text-[#0F9D58]' : 'text-[#DC2626]'}`}>
@@ -186,7 +186,7 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
               <Clock className="w-5 h-5 text-[#2F80ED]" />
             </div>
             <div>
-              <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide mb-0.5">Hours</p>
+              <p className="text-xxs font-bold text-[#999999] uppercase tracking-wide mb-0.5">Hours</p>
               <p className="text-xl font-bold text-[#111111] leading-tight">{summary.totalActualHours}h</p>
             </div>
           </div>
@@ -263,7 +263,7 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
         <div className="bg-[#FFF5F5] border border-[#FECACA] rounded-[12px] p-4 flex items-start gap-3">
           <AlertTriangle className="w-5 h-5 text-[#DC2626] shrink-0 mt-0.5" />
           <div>
-            <p className="text-[0.8125rem] font-semibold text-[#DC2626]">
+            <p className="text-xs font-semibold text-[#DC2626]">
               {summary.overBudgetTasks} task{summary.overBudgetTasks > 1 ? 's' : ''} over budget
             </p>
             <p className="text-xs text-[#991B1B] mt-0.5">
@@ -286,17 +286,17 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
           <table className="w-full text-left border-collapse">
             <thead className="bg-[#F7F7F7] border-b border-[#EEEEEE]">
               <tr>
-                <th className="px-5 py-4 text-[0.6875rem] font-bold text-[#666666] uppercase tracking-wider">Task</th>
-                <th className="px-5 py-4 text-[0.6875rem] font-bold text-[#666666] uppercase tracking-wider">Assignee</th>
-                <th className="px-5 py-4 text-[0.6875rem] font-bold text-[#666666] uppercase tracking-wider text-right">Est. Hours</th>
-                <th className="px-5 py-4 text-[0.6875rem] font-bold text-[#666666] uppercase tracking-wider text-right">Actual</th>
-                <th className="px-5 py-4 text-[0.6875rem] font-bold text-[#666666] uppercase tracking-wider text-right">Over/Under</th>
-                <th className="px-5 py-4 text-[0.6875rem] font-bold text-[#666666] uppercase tracking-wider text-right">
+                <th className="px-5 py-4 text-xxs font-bold text-[#666666] uppercase tracking-wider">Task</th>
+                <th className="px-5 py-4 text-xxs font-bold text-[#666666] uppercase tracking-wider">Assignee</th>
+                <th className="px-5 py-4 text-xxs font-bold text-[#666666] uppercase tracking-wider text-right">Est. Hours</th>
+                <th className="px-5 py-4 text-xxs font-bold text-[#666666] uppercase tracking-wider text-right">Actual</th>
+                <th className="px-5 py-4 text-xxs font-bold text-[#666666] uppercase tracking-wider text-right">Over/Under</th>
+                <th className="px-5 py-4 text-xxs font-bold text-[#666666] uppercase tracking-wider text-right">
                   <Tooltip title="Actual hours × hourly rate">
                     <span className="cursor-help">Cost</span>
                   </Tooltip>
                 </th>
-                <th className="px-5 py-4 text-[0.6875rem] font-bold text-[#666666] uppercase tracking-wider text-right">P/L</th>
+                <th className="px-5 py-4 text-xxs font-bold text-[#666666] uppercase tracking-wider text-right">P/L</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#EEEEEE]">
@@ -307,7 +307,7 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
                       <span className="text-[0.625rem] px-1.5 py-0.5 rounded font-mono bg-[#F7F7F7] text-[#999999]">
                         #{task.id}
                       </span>
-                      <span className="text-[0.8125rem] font-semibold text-[#111111] truncate max-w-[200px]">
+                      <span className="text-xs font-semibold text-[#111111] truncate max-w-[200px]">
                         {task.name}
                       </span>
                     </div>
@@ -326,30 +326,30 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
                     </div>
                   </td>
                   <td className="px-5 py-4 text-right">
-                    <span className="text-[0.8125rem] font-medium text-[#666666]">
+                    <span className="text-xs font-medium text-[#666666]">
                       {formatHours(task.estimatedHours)}
                     </span>
                   </td>
                   <td className="px-5 py-4 text-right">
-                    <span className="text-[0.8125rem] font-medium text-[#111111]">
+                    <span className="text-xs font-medium text-[#111111]">
                       {formatHours(task.actualHours)}
                     </span>
                   </td>
                   <td className="px-5 py-4 text-right">
                     {task.extraHours > 0 ? (
-                      <span className="text-[0.8125rem] font-bold text-[#DC2626]">
+                      <span className="text-xs font-bold text-[#DC2626]">
                         +{formatHours(task.extraHours)}
                       </span>
                     ) : task.actualHours < task.estimatedHours ? (
-                      <span className="text-[0.8125rem] font-bold text-[#0F9D58]">
+                      <span className="text-xs font-bold text-[#0F9D58]">
                         -{formatHours(task.estimatedHours - task.actualHours)}
                       </span>
                     ) : (
-                      <span className="text-[0.8125rem] font-medium text-[#999999]">—</span>
+                      <span className="text-xs font-medium text-[#999999]">—</span>
                     )}
                   </td>
                   <td className="px-5 py-4 text-right">
-                    <span className="text-[0.8125rem] font-medium text-[#111111]">
+                    <span className="text-xs font-medium text-[#111111]">
                       {formatCurrency(task.resourceCost)}
                     </span>
                   </td>
@@ -361,7 +361,7 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
                       ) : (
                         <TrendingDown className="w-3.5 h-3.5" />
                       )}
-                      <span className="text-[0.8125rem] font-bold">
+                      <span className="text-xs font-bold">
                         {task.profitLoss >= 0 ? '+' : ''}{formatCurrency(task.profitLoss)}
                       </span>
                     </div>
@@ -382,33 +382,33 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
               <tfoot className="bg-[#F7F7F7] border-t-2 border-[#EEEEEE]">
                 <tr>
                   <td colSpan={2} className="px-5 py-4">
-                    <span className="text-[0.8125rem] font-bold text-[#111111]">
+                    <span className="text-xs font-bold text-[#111111]">
                       Total ({summary.taskCount} tasks)
                     </span>
                   </td>
                   <td className="px-5 py-4 text-right">
-                    <span className="text-[0.8125rem] font-bold text-[#666666]">
+                    <span className="text-xs font-bold text-[#666666]">
                       {formatHours(summary.totalEstimatedHours)}
                     </span>
                   </td>
                   <td className="px-5 py-4 text-right">
-                    <span className="text-[0.8125rem] font-bold text-[#111111]">
+                    <span className="text-xs font-bold text-[#111111]">
                       {formatHours(summary.totalActualHours)}
                     </span>
                   </td>
                   <td className="px-5 py-4 text-right">
                     {summary.totalExtraHours > 0 ? (
-                      <span className="text-[0.8125rem] font-bold text-[#DC2626]">
+                      <span className="text-xs font-bold text-[#DC2626]">
                         +{formatHours(summary.totalExtraHours)}
                       </span>
                     ) : (
-                      <span className="text-[0.8125rem] font-bold text-[#0F9D58]">
+                      <span className="text-xs font-bold text-[#0F9D58]">
                         On Budget
                       </span>
                     )}
                   </td>
                   <td className="px-5 py-4 text-right">
-                    <span className="text-[0.8125rem] font-bold text-[#111111]">
+                    <span className="text-xs font-bold text-[#111111]">
                       {formatCurrency(summary.totalResourceCost)}
                     </span>
                   </td>

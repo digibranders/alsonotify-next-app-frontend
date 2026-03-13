@@ -333,7 +333,7 @@ function NotificationItemComponent({
           </div>
 
           {notification.title && (
-            <Linkify className="text-[0.8125rem] text-[#666666] font-normal leading-relaxed mb-2 line-clamp-2">
+            <Linkify className="text-xs text-[#666666] font-normal leading-relaxed mb-2 line-clamp-2">
               {notification.message}
             </Linkify>
           )}

@@ -134,7 +134,7 @@ function RegisterForm() {
                   <div className={`p-2 rounded-full ${formData.accountType === type ? 'bg-[#ff3b3b] text-white' : 'bg-white text-[#999999]'}`}>
                     {type === 'Individual' ? <User className="w-4 h-4" /> : <Building2 className="w-4 h-4" />}
                   </div>
-                  <span className={`text-[0.8125rem] font-bold ${formData.accountType === type ? 'text-[#ff3b3b]' : 'text-[#666666]'}`}>{type}</span>
+                  <span className={`text-xs font-bold ${formData.accountType === type ? 'text-[#ff3b3b]' : 'text-[#666666]'}`}>{type}</span>
                   {formData.accountType === type && (
                     <div className="absolute top-3 right-3 text-[#ff3b3b]">
                       <CheckCircle2 className="w-4 h-4" />

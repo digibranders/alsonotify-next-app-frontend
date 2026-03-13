@@ -281,7 +281,7 @@ export const IndividualEmployeePdfTemplate = ({ member, worklogs, dateRange, com
                                     </div>
                                     <div>
                                         <div style={{ fontSize: '18px', fontWeight: 700, color: '#111111', fontFamily: "'Manrope', sans-serif" }}>{member.member}</div>
-                                        <div style={{ fontSize: '0.8125rem', color: '#666666' }}>{member.department}</div>
+                                        <div style={{ fontSize: '0.75rem', color: '#666666' }}>{member.department}</div>
                                     </div>
                                 </div>
                             </div>
@@ -477,7 +477,7 @@ function renderReqRow(row: RequirementReport, idx: number, timezone?: string, cu
         <>
             <Td>{idx + 1}</Td>
             <Td>
-                <div style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, fontSize: '0.8125rem', color: '#111111' }}>
+                <div style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, fontSize: '0.75rem', color: '#111111' }}>
                   {row.requirement}
                 </div>
                 <div style={{ fontSize: '11px', color: '#666666', fontWeight: 500, marginTop: '2px' }}>
@@ -588,7 +588,7 @@ function renderTaskRow(row: TaskReport, idx: number) {
         <>
             <Td>{idx + 1}</Td>
             <Td>
-                <div style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, fontSize: '0.8125rem', color: '#111111' }}>
+                <div style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, fontSize: '0.75rem', color: '#111111' }}>
                     {row.task}
                 </div>
                 {row.workspaceName && (
@@ -655,7 +655,7 @@ function renderEmpRow(row: EmployeeReport, idx: number, currSym: string = '$') {
         <>
             <Td>{idx + 1}</Td>
             <Td>
-                <div style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, fontSize: '0.8125rem', color: '#111111' }}>{row.member}</div>
+                <div style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, fontSize: '0.75rem', color: '#111111' }}>{row.member}</div>
                 <div style={{ fontSize: '11px', color: '#666666' }}>{row.designation} <span style={{ color: '#E5E5E5' }}>|</span> {row.department}</div>
             </Td>
             <Td>

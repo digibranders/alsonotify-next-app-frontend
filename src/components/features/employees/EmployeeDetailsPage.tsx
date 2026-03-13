@@ -513,7 +513,7 @@ export function EmployeeDetailsPage() {
                     ) : (
                       <div className="border border-[#EEEEEE] border-dashed rounded-lg p-8 bg-[#FAFAFA] text-center">
                         <FileText className="w-12 h-12 text-[#CCCCCC] mx-auto mb-3" />
-                        <p className="text-[0.8125rem] font-medium text-[#666666] mb-1">
+                        <p className="text-xs font-medium text-[#666666] mb-1">
                           No documents uploaded
                         </p>
                         <p className="text-[0.6875rem] text-[#999999] font-normal">

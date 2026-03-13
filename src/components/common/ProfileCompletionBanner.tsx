@@ -99,7 +99,7 @@ export function ProfileCompletionBanner() {
       <div className="flex items-center gap-3">
         <button
           onClick={handleCompleteNow}
-          className="bg-[#2F80ED] hover:bg-[#2F80ED]/90 text-white text-[0.8125rem] h-8 px-4 font-semibold rounded-full shadow-lg shadow-[#2F80ED]/20 flex items-center gap-2 group transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F80ED] focus-visible:ring-offset-2"
+          className="bg-[#2F80ED] hover:bg-[#2F80ED]/90 text-white text-xs h-8 px-4 font-semibold rounded-full shadow-lg shadow-[#2F80ED]/20 flex items-center gap-2 group transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F80ED] focus-visible:ring-offset-2"
         >
           Complete Now
           <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" aria-hidden="true" />

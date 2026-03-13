@@ -196,7 +196,7 @@ export function AccountManagersTab() {
 
         if (filteredManagers.length === 0) {
             return (
-                <div className="text-center py-10 text-[#999999] text-[0.8125rem]">
+                <div className="text-center py-10 text-[#999999] text-xs">
                     No account managers found
                 </div>
             );
@@ -268,13 +268,13 @@ export function AccountManagersTab() {
                     <h2 className="text-lg font-bold text-[#111111]">
                         Account Managers
                     </h2>
-                    <p className="text-[0.8125rem] text-[#666666] mt-1 font-normal">
+                    <p className="text-xs text-[#666666] mt-1 font-normal">
                         Manage account managers and their partner assignments
                     </p>
                 </div>
                 <Button
                     onClick={() => setIsAddModalOpen(true)}
-                    className="bg-[#111111] hover:bg-[#000000]/90 text-white font-semibold px-6 h-11 rounded-full text-[0.8125rem] flex items-center gap-2 border-none transition-all shadow-md active:scale-95"
+                    className="bg-[#111111] hover:bg-[#000000]/90 text-white font-semibold px-6 h-11 rounded-full text-xs flex items-center gap-2 border-none transition-all shadow-md active:scale-95"
                 >
                     <Plus className="w-4 h-4" />
                     Add Manager
@@ -361,7 +361,7 @@ export function AccountManagersTab() {
                                     {assignedPartners.length === 0 ? (
                                         <div className="flex flex-col items-center justify-center py-12 bg-[#F9FAFB] rounded-xl border border-dashed border-[#EEEEEE]">
                                             <Building2 className="w-8 h-8 text-[#DDDDDD] mb-3" />
-                                            <p className="text-[0.8125rem] text-[#999999]">No partners assigned yet</p>
+                                            <p className="text-xs text-[#999999]">No partners assigned yet</p>
                                         </div>
                                     ) : (
                                         <div className="grid grid-cols-1 gap-2">
@@ -399,7 +399,7 @@ export function AccountManagersTab() {
                             <h3 className="text-base font-semibold text-[#111111]">
                                 Select an Account Manager
                             </h3>
-                            <p className="text-[0.8125rem] text-[#666666] mt-2 max-w-[280px]">
+                            <p className="text-xs text-[#666666] mt-2 max-w-[280px]">
                                 Select a manager from the list to view and manage their partner assignments.
                             </p>
                         </div>

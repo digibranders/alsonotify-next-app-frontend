@@ -52,11 +52,11 @@ export function InternalMappingModal({
         centered
       >
         <div className="space-y-4 py-4">
-          <p className="text-[0.8125rem] text-[#666666] font-normal">
+          <p className="text-xs text-[#666666] font-normal">
             Select one of your internal workspaces to map this requirement to.
           </p>
           <div className="space-y-2">
-            <label className="text-[0.8125rem] font-bold text-[#111111]">Internal Workspace</label>
+            <label className="text-xs font-bold text-[#111111]">Internal Workspace</label>
             <Select
               className="w-full h-11"
               placeholder="Select workspace"

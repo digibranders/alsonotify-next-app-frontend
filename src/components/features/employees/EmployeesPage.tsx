@@ -1104,13 +1104,13 @@ export function EmployeesPage() {
                 className="red-checkbox"
               />
             </div>
-            <p className="text-[0.6875rem] font-bold text-[#6B7280] uppercase tracking-wider">Name</p>
-            <p className="text-[0.6875rem] font-bold text-[#6B7280] uppercase tracking-wider">Email Address</p>
-            <p className="text-[0.6875rem] font-bold text-[#6B7280] uppercase tracking-wider">Access Level</p>
-            <p className="text-[0.6875rem] font-bold text-[#6B7280] uppercase tracking-wider">Type</p>
-            <p className="text-[0.6875rem] font-bold text-[#6B7280] uppercase tracking-wider">Hourly Rate</p>
-            <p className="text-[0.6875rem] font-bold text-[#6B7280] uppercase tracking-wider">Date of Joining</p>
-            <p className="text-[0.6875rem] font-bold text-[#6B7280] uppercase tracking-wider"></p>
+            <p className="text-xxs font-bold text-[#6B7280] uppercase tracking-wider">Name</p>
+            <p className="text-xxs font-bold text-[#6B7280] uppercase tracking-wider">Email Address</p>
+            <p className="text-xxs font-bold text-[#6B7280] uppercase tracking-wider">Access Level</p>
+            <p className="text-xxs font-bold text-[#6B7280] uppercase tracking-wider">Type</p>
+            <p className="text-xxs font-bold text-[#6B7280] uppercase tracking-wider">Hourly Rate</p>
+            <p className="text-xxs font-bold text-[#6B7280] uppercase tracking-wider">Date of Joining</p>
+            <p className="text-xxs font-bold text-[#6B7280] uppercase tracking-wider"></p>
           </div>
 
           <div className="space-y-2">

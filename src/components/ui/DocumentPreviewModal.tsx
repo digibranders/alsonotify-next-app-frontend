@@ -180,7 +180,7 @@ function DocumentPreviewContent({ document }: { document: UserDocument }) {
 
       return (
         <div className="w-full h-full bg-[#FAFAFA] rounded-lg overflow-hidden border border-gray-100">
-          <div className="max-h-[82vh] overflow-auto p-6 font-mono text-[13px] leading-relaxed text-[#333333] whitespace-pre-wrap selection:bg-blue-100 selection:text-blue-900">
+          <div className="max-h-[82vh] overflow-auto p-6 font-mono text-xs leading-relaxed text-[#333333] whitespace-pre-wrap selection:bg-blue-100 selection:text-blue-900">
             {textContent}
           </div>
         </div>

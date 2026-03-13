@@ -25,7 +25,7 @@ export const chatMarkdownComponents: Components = {
   ),
   table: ({ children }) => (
     <div className="my-2 overflow-x-auto rounded-lg border border-[#EEEEEE]">
-      <table className="w-full text-[0.8125rem] text-left">{children}</table>
+      <table className="w-full text-xs text-left">{children}</table>
     </div>
   ),
   thead: ({ children }) => <thead className="bg-[#F7F7F7] font-semibold text-[#111111]">{children}</thead>,

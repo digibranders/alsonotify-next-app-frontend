@@ -346,7 +346,7 @@ export function RequirementCard({
 
         {/* Title */}
         <div className="flex justify-between items-start gap-2 pr-16">
-          <h3 className="font-bold text-base leading-snug text-[#111111] group-hover:text-[#ff3b3b] transition-colors line-clamp-2">
+          <h3 className="font-bold text-sm leading-snug text-[#111111] group-hover:text-[#ff3b3b] transition-colors line-clamp-2">
             {requirement.title}
           </h3>
         </div>

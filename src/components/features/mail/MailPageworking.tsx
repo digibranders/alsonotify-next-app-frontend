@@ -530,7 +530,7 @@ export function MailPage() {
               </div>
             )
           ) : (
-            <div className="rounded-[12px] bg-white p-4 ring-1 ring-black/5 whitespace-pre-wrap text-[0.8125rem] leading-6">
+            <div className="rounded-[12px] bg-white p-4 ring-1 ring-black/5 whitespace-pre-wrap text-xs leading-6">
               {textBody}
             </div>
           )}
@@ -566,7 +566,7 @@ export function MailPage() {
           )}
 
           <style jsx global>{`
-            .mail-html { font-size: 0.8125rem; line-height: 1.7; color: #222; overflow-wrap: anywhere; }
+            .mail-html { font-size: 0.75rem; line-height: 1.7; color: #222; overflow-wrap: anywhere; }
             .mail-html img { max-width: 100%; height: auto; }
             .mail-html table { width: 100%; border-collapse: collapse; }
             .mail-html a { color: #1677ff; text-decoration: none; }

@@ -538,7 +538,7 @@ export function CreateInvoicePage() {
                 </div>
                 <div className="flex items-center gap-3">
                     <button
-                        className="px-4 py-2 text-[#666666] font-bold text-[0.8125rem] hover:text-[#111111] transition-colors"
+                        className="px-4 py-2 text-[#666666] font-bold text-xs hover:text-[#111111] transition-colors"
                         onClick={() => router.back()}
                     >
                         Cancel
@@ -546,7 +546,7 @@ export function CreateInvoicePage() {
                     <button
                         onClick={handleDownloadPDF}
                         disabled={isDownloading}
-                        className="px-4 py-2 border border-[#EEEEEE] bg-white text-[#111111] rounded-full font-bold text-[0.8125rem] hover:bg-[#F7F7F7] transition-colors flex items-center gap-2"
+                        className="px-4 py-2 border border-[#EEEEEE] bg-white text-[#111111] rounded-full font-bold text-xs hover:bg-[#F7F7F7] transition-colors flex items-center gap-2"
                     >
                         {isDownloading ? (
                             <span className="w-4 h-4 border-2 border-[#111111] border-t-transparent rounded-full animate-spin"></span>
@@ -558,7 +558,7 @@ export function CreateInvoicePage() {
                     <button
                         onClick={handleSaveInvoice}
                         disabled={isSaving}
-                        className="px-6 py-2 bg-[#ff3b3b] text-white rounded-full font-bold text-[0.8125rem] hover:bg-[#e63535] transition-colors flex items-center gap-2 disabled:opacity-60"
+                        className="px-6 py-2 bg-[#ff3b3b] text-white rounded-full font-bold text-xs hover:bg-[#e63535] transition-colors flex items-center gap-2 disabled:opacity-60"
                     >
                         <Send className="w-4 h-4" />
                         {isSaving ? 'Saving...' : 'Save as Draft'}
@@ -781,7 +781,7 @@ export function CreateInvoicePage() {
 
                             <button
                                 onClick={handleAddItem}
-                                className="flex items-center gap-2 text-[#ff3b3b] text-[0.8125rem] font-bold hover:underline"
+                                className="flex items-center gap-2 text-[#ff3b3b] text-xs font-bold hover:underline"
                             >
                                 <Plus className="w-4 h-4" />
                                 Add item
@@ -811,7 +811,7 @@ export function CreateInvoicePage() {
                                             type="number"
                                             value={discount}
                                             onChange={(e) => setDiscount(parseFloat(e.target.value) || 0)}
-                                            className="w-24 px-2 py-1 bg-white border border-[#EEEEEE] rounded-[6px] text-right text-[0.8125rem]"
+                                            className="w-24 px-2 py-1 bg-white border border-[#EEEEEE] rounded-[6px] text-right text-xs"
                                             autoFocus
                                         />
                                         <button onClick={() => { setDiscount(0); setShowDiscount(false); }} className="text-[#999999] hover:text-[#ff3b3b]">
@@ -833,7 +833,7 @@ export function CreateInvoicePage() {
                                         type="number"
                                         value={advanceDeducted}
                                         onChange={(e) => setAdvanceDeducted(parseFloat(e.target.value) || 0)}
-                                        className="w-24 px-2 py-1 bg-white border border-[#EEEEEE] rounded-[6px] text-right text-[0.8125rem]"
+                                        className="w-24 px-2 py-1 bg-white border border-[#EEEEEE] rounded-[6px] text-right text-xs"
                                     />
                                 </div>
                             </div>
@@ -943,7 +943,7 @@ export function CreateInvoicePage() {
                                                 value={newPresetName}
                                                 onChange={(e) => setNewPresetName(e.target.value)}
                                                 placeholder="e.g. Bank Transfer (HDFC)"
-                                                className="flex-1 px-3 py-1.5 bg-white border border-[#EEEEEE] rounded-md text-[0.8125rem] outline-none focus:border-[#ff3b3b]"
+                                                className="flex-1 px-3 py-1.5 bg-white border border-[#EEEEEE] rounded-md text-xs outline-none focus:border-[#ff3b3b]"
                                                 autoFocus
                                                 onKeyDown={(e) => {
                                                     if (e.key === 'Enter') handleSavePreset();
