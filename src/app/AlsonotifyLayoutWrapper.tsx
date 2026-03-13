@@ -129,7 +129,7 @@ function AlsonotifyLayoutContent({ children }: Readonly<AlsonotifyLayoutWrapperP
           <h2 className="text-2xl font-bold text-[#111111] mb-2">
             Access Restricted
           </h2>
-          <p className="text-[0.9375rem] text-[#666666] font-medium max-w-md mb-8">
+          <p className="text-sm text-[#666666] font-medium max-w-md mb-8">
             You don't have the necessary permissions to access the <span className="font-bold text-[#111111]">{accessState.resource}</span> module. Please contact your administrator if you believe this is an error.
           </p>
           <Link href="/dashboard">

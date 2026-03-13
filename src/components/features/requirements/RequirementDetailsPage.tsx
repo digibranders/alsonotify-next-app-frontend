@@ -397,11 +397,11 @@ export function RequirementDetailsPage() {
                         className="border-[#DDDDDD] [&.ant-checkbox-checked]:bg-[#ff3b3b] [&.ant-checkbox-checked]:border-[#ff3b3b]"
                       />
                     </div>
-                    <p className="text-xxs font-bold text-[#999999] uppercase tracking-wide">Task</p>
-                    <p className="text-xxs font-bold text-[#999999] uppercase tracking-wide">Timeline</p>
-                    <p className="text-xxs font-bold text-[#999999] uppercase tracking-wide">Assigned</p>
-                    <p className="text-xxs font-bold text-[#999999] uppercase tracking-wide">Progress</p>
-                    <p className="text-xxs font-bold text-[#999999] uppercase tracking-wide">Status</p>
+                    <p className="text-xs font-medium text-[#999999] uppercase tracking-wider">Task</p>
+                    <p className="text-xs font-medium text-[#999999] uppercase tracking-wider">Timeline</p>
+                    <p className="text-xs font-medium text-[#999999] uppercase tracking-wider">Assigned</p>
+                    <p className="text-xs font-medium text-[#999999] uppercase tracking-wider">Progress</p>
+                    <p className="text-xs font-medium text-[#999999] uppercase tracking-wider">Status</p>
                     <p></p>
                   </div>
                 </div>
@@ -510,17 +510,17 @@ export function RequirementDetailsPage() {
                     <div className="flex justify-center">
                       <Checkbox disabled className="border-[#DDDDDD]" />
                     </div>
-                    <p className="text-xxs font-bold text-[#999999] uppercase tracking-wide">Revision</p>
+                    <p className="text-xs font-medium text-[#999999] uppercase tracking-wider">Revision</p>
                     <div className="flex justify-center">
-                      <p className="text-xxs font-bold text-[#999999] uppercase tracking-wide">Assigned</p>
+                      <p className="text-xs font-medium text-[#999999] uppercase tracking-wider">Assigned</p>
                     </div>
                     <div className="flex justify-center">
-                      <p className="text-xxs font-bold text-[#999999] uppercase tracking-wide">Due Date</p>
+                      <p className="text-xs font-medium text-[#999999] uppercase tracking-wider">Due Date</p>
                     </div>
                     <div className="flex justify-center">
-                      <p className="text-xxs font-bold text-[#999999] uppercase tracking-wide">Status</p>
+                      <p className="text-xs font-medium text-[#999999] uppercase tracking-wider">Status</p>
                     </div>
-                    <p className="text-xxs font-bold text-[#999999] uppercase tracking-wide"></p>
+                    <p className="text-xs font-medium text-[#999999] uppercase tracking-wider"></p>
                   </div>
                   <div className="space-y-2">
                     {revisions.map((task: Task) => (

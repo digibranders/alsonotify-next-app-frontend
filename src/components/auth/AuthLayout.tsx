@@ -76,7 +76,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8, delay: 0.2 }}
-                        className="text-[56px] font-extrabold leading-[1.1] tracking-tight"
+                        className="text-6xl font-extrabold leading-[1.1] tracking-tight"
                     >
                         Manage projects, clients, and tasks all in <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#ffce64] via-[#ff5b52] to-[#ffffff]">one place.</span>
                     </motion.h1>
@@ -84,7 +84,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ duration: 0.8, delay: 0.4 }}
-                        className="text-lg text-[#999999] leading-relaxed max-w-md"
+                        className="text-base font-medium text-[#999999] leading-relaxed max-w-md"
                     >
                         Streamline your agency operations with the platform designed for modern teams. Track profitability, manage resources, and scale your business.
                     </motion.p>

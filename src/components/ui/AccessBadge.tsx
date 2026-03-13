@@ -85,7 +85,7 @@ export function AccessBadge({ role, color, className }: AccessBadgeProps) {
         className="w-3 h-3"
         style={{ color: iconColor }}
       />
-      <span className="text-[0.6875rem] font-semibold">
+      <span className="text-xs font-semibold">
         {role}
       </span>
     </span>

@@ -235,7 +235,7 @@ export function WorkspaceDetailsPage({ id }: { id: string }) {
   if (!workspace) {
     return (
       <div className="flex items-center justify-center h-full">
-        <p className="text-[#999999] font-normal">Workspace not found</p>
+        <p className="text-[#999999] font-medium">Workspace not found</p>
       </div>
     )
   }
@@ -281,12 +281,12 @@ export function WorkspaceDetailsPage({ id }: { id: string }) {
               <div className="flex -space-x-2 mr-2">
                 {/* Assigned Users Avatars could go here */}
                 {workspace.assigned_users?.slice(0, 3).map((user: { name: string }, i: number) => (
-                  <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-[#F7F7F7] flex items-center justify-center text-[0.625rem] font-bold text-[#666666]">
+                  <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-[#F7F7F7] flex items-center justify-center text-2xs font-bold text-[#666666]">
                     {user.name?.[0]}
                   </div>
                 ))}
                 {(workspace.assigned_users?.length || 0) > 3 && (
-                  <div className="w-8 h-8 rounded-full border-2 border-white bg-[#F0F9FF] flex items-center justify-center text-[0.625rem] font-bold text-[#0284C7]">
+                  <div className="w-8 h-8 rounded-full border-2 border-white bg-[#F0F9FF] flex items-center justify-center text-2xs font-bold text-[#0284C7]">
                     +{(workspace.assigned_users?.length || 0) - 3}
                   </div>
                 )}
@@ -362,12 +362,12 @@ export function WorkspaceDetailsPage({ id }: { id: string }) {
 
             {tasksLoading ? (
               <div className="text-center py-12">
-                <p className="text-[#999999] font-normal">Loading tasks...</p>
+                <p className="text-[#999999] font-medium">Loading tasks...</p>
               </div>
             ) : filteredTasks.length === 0 ? (
               <div className="text-center py-12">
                 <CheckCircle2 className="w-12 h-12 text-[#DDDDDD] mx-auto mb-3" />
-                <p className="text-[#999999] font-normal">No tasks found</p>
+                <p className="text-[#999999] font-medium">No tasks found</p>
               </div>
             ) : viewMode === 'list' ? (
               <div className="space-y-3">
@@ -377,10 +377,10 @@ export function WorkspaceDetailsPage({ id }: { id: string }) {
                     <div className="flex-1 min-w-0">
                       <h4 className="font-semibold text-[#111111] text-sm truncate">{task.name}</h4>
                       <div className="flex items-center gap-3 mt-1 text-xs text-[#666666]">
-                        <span className={`px-2 py-0.5 rounded-full border text-[0.625rem] font-bold ${getStatusColor(task.status)}`}>
+                        <span className={`px-2 py-0.5 rounded-full border text-2xs font-bold ${getStatusColor(task.status)}`}>
                           {task.status}
                         </span>
-                        <span className={`px-2 py-0.5 rounded-full border text-[0.625rem] font-bold ${getPriorityColor(task.priority)}`}>
+                        <span className={`px-2 py-0.5 rounded-full border text-2xs font-bold ${getPriorityColor(task.priority)}`}>
                           {task.priority}
                         </span>
                         {task.dueDate && (
@@ -395,7 +395,7 @@ export function WorkspaceDetailsPage({ id }: { id: string }) {
                     <div className="flex items-center gap-4">
                       {task.assignee && (
                         <Tooltip title={task.assignee.name}>
-                          <div className="w-8 h-8 rounded-full bg-[#F7F7F7] flex items-center justify-center text-[0.625rem] font-bold text-[#666666]">
+                          <div className="w-8 h-8 rounded-full bg-[#F7F7F7] flex items-center justify-center text-2xs font-bold text-[#666666]">
                             {task.assignee.name[0]}
                           </div>
                         </Tooltip>
@@ -423,7 +423,7 @@ export function WorkspaceDetailsPage({ id }: { id: string }) {
                 {filteredTasks.map((task: ProjectTaskUI) => (
                   <div key={task.id} className="group bg-white border border-[#EEEEEE] rounded-[16px] p-5 hover:border-[#ff3b3b] hover:shadow-sm transition-all flex flex-col h-full">
                     <div className="flex items-start justify-between mb-3">
-                      <span className={`px-2 py-0.5 rounded-full border text-[0.625rem] font-bold ${getPriorityColor(task.priority)}`}>
+                      <span className={`px-2 py-0.5 rounded-full border text-2xs font-bold ${getPriorityColor(task.priority)}`}>
                         {task.priority}
                       </span>
                       <Dropdown
@@ -441,9 +441,9 @@ export function WorkspaceDetailsPage({ id }: { id: string }) {
                         </button>
                       </Dropdown>
                     </div>
-                    <h4 className="font-semibold text-[#111111] text-[0.9375rem] mb-2 line-clamp-2 flex-grow">{task.name}</h4>
+                    <h4 className="font-semibold text-[#111111] text-sm mb-2 line-clamp-2 flex-grow">{task.name}</h4>
                     <div className="flex items-center gap-2 mb-4">
-                      <span className={`px-2 py-0.5 rounded-full border text-[0.625rem] font-bold ${getStatusColor(task.status)}`}>
+                      <span className={`px-2 py-0.5 rounded-full border text-2xs font-bold ${getStatusColor(task.status)}`}>
                         {task.status}
                       </span>
                     </div>
@@ -456,7 +456,7 @@ export function WorkspaceDetailsPage({ id }: { id: string }) {
                       )}
                       {task.assignee && (
                         <Tooltip title={task.assignee.name}>
-                          <div className="w-6 h-6 rounded-full bg-[#F7F7F7] flex items-center justify-center text-[0.5625rem] font-bold text-[#666666]">
+                          <div className="w-6 h-6 rounded-full bg-[#F7F7F7] flex items-center justify-center text-2xs font-bold text-[#666666]">
                             {task.assignee.name[0]}
                           </div>
                         </Tooltip>
@@ -502,7 +502,7 @@ export function WorkspaceDetailsPage({ id }: { id: string }) {
             <label className="text-xs font-bold text-[#111111]">Task Title <span className="text-[#ff3b3b]">*</span></label>
             <Input
               placeholder="E.g. Design Homepage Mockups"
-              className="h-10 font-normal"
+              className="h-10 font-medium"
               value={newTask.name}
               onChange={(e) => setNewTask({ ...newTask, name: e.target.value })}
             />
@@ -525,7 +525,7 @@ export function WorkspaceDetailsPage({ id }: { id: string }) {
             <div className="space-y-2">
               <label className="text-xs font-bold text-[#111111]">Due Date</label>
               <DatePicker
-                className="w-full h-10 font-normal"
+                className="w-full h-10 font-medium"
                 value={newTask.dueDate ? dayjs(newTask.dueDate) : null}
                 onChange={(date) => setNewTask({ ...newTask, dueDate: date ? date.toDate() : null })}
               />
@@ -564,7 +564,7 @@ export function WorkspaceDetailsPage({ id }: { id: string }) {
             <label className="text-xs font-bold text-[#111111]">Description</label>
             <TextArea
               placeholder="Add task details..."
-              className="min-h-[100px] font-normal py-2"
+              className="min-h-[100px] font-medium py-2"
               value={newTask.description}
               onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
             />

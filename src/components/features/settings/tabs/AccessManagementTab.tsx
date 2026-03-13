@@ -48,7 +48,7 @@ export function AccessManagementTab({
       <div className="flex items-center justify-between mb-10">
         <div>
           <h2 className="text-lg font-bold text-[#111111]">Access Management</h2>
-          <p className="text-xs text-[#666666] mt-1 font-normal">
+          <p className="text-xs text-[#666666] mt-1 font-medium">
             Manage roles and define specific permissions for your team.
           </p>
         </div>
@@ -174,7 +174,7 @@ export function AccessManagementTab({
                         key: mod.module,
                         header: (
                           <div className="flex items-center justify-between w-full pr-4">
-                            <span className="text-sm font-semibold text-[#111111]">
+                            <span className="text-sm font-medium text-[#111111]">
                               {mod.module}
                             </span>
                             <div onClick={(e) => e.stopPropagation()}>
@@ -195,7 +195,7 @@ export function AccessManagementTab({
                         ),
                         label: (
                           <div className="flex items-center justify-between w-full pr-4">
-                            <span className="text-sm font-semibold text-[#111111]">
+                            <span className="text-sm font-medium text-[#111111]">
                               {mod.module}
                             </span>
                             <div onClick={(e) => e.stopPropagation()}>
@@ -252,7 +252,7 @@ export function AccessManagementTab({
               <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mb-4 shadow-sm">
                 <Shield className="w-6 h-6 text-[#999999]" />
               </div>
-              <h3 className="text-[0.9375rem] font-semibold text-[#111111]">Select a role</h3>
+              <h3 className="text-sm font-medium text-[#111111]">Select a role</h3>
               <p className="text-xs text-[#666666] mt-1 max-w-[240px]">
                 Select a role from the left to view and manage its permissions.
               </p>

@@ -80,7 +80,7 @@ export const RevisionModal = ({ open, onClose, task, onSuccess }: RevisionModalP
             title={
                 <div className="flex flex-col gap-1 mb-4">
                     <span className="text-lg font-bold">Request Revision</span>
-                    <span className="text-xs text-[#666666] font-normal">
+                    <span className="text-xs text-[#666666] font-medium">
                         For: <span className="font-semibold text-[#111111]">{task.name}</span>
                     </span>
                 </div>

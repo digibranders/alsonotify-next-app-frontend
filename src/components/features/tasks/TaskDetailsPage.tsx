@@ -296,7 +296,7 @@ export function TaskDetailsPage() {
         <div className="flex items-center gap-3 flex-wrap">
           <TaskStatusBadge status={task.status || 'todo'} showLabel />
           {task.is_high_priority && (
-            <span className="px-3 py-1.5 rounded-full text-[0.6875rem] font-semibold uppercase tracking-wide bg-[#FFF5F5] text-[#ff3b3b]">
+            <span className="px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wide bg-[#FFF5F5] text-[#ff3b3b]">
               HIGH PRIORITY
             </span>
           )}
@@ -403,21 +403,21 @@ export function TaskDetailsPage() {
                 <div className="space-y-4">
                   {/* Leader Card */}
                   <div className="bg-white rounded-xl p-4 border border-[#EEEEEE] shadow-sm">
-                    <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wider mb-3">Leader</p>
+                    <p className="text-xs font-bold text-[#999999] uppercase tracking-wider mb-3">Leader</p>
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-[#E0E0E0] border border-[#CCCCCC] flex items-center justify-center shadow-sm text-[#666666] font-bold text-sm">
                         {leader?.name ? leader.name.charAt(0).toUpperCase() : '?'}
                       </div>
                       <div className="overflow-hidden">
                         <p className="text-xs font-bold text-[#111111] truncate">{leader?.name || 'Unknown'}</p>
-                        <p className="text-[0.6875rem] text-[#666666] truncate">Squad Leader</p>
+                        <p className="text-xs text-[#666666] truncate">Squad Leader</p>
                       </div>
                     </div>
                   </div>
 
                   {/* Workspace Card */}
                   <div className="bg-white rounded-xl p-4 border border-[#EEEEEE] shadow-sm">
-                    <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wider mb-3">Workspace</p>
+                    <p className="text-xs font-bold text-[#999999] uppercase tracking-wider mb-3">Workspace</p>
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-white border border-[#EEEEEE] flex items-center justify-center text-[#111111]">
                         <Briefcase className="w-4 h-4" />
@@ -426,7 +426,7 @@ export function TaskDetailsPage() {
                         <p className="text-xs font-bold text-[#111111] truncate">
                           {workspace?.name || 'In-House'}
                         </p>
-                        <p className="text-[0.6875rem] text-[#666666] truncate">
+                        <p className="text-xs text-[#666666] truncate">
                           {task.task_workspace?.partner?.company || task.task_workspace?.company?.name || 'Workspace'}
                         </p>
                       </div>
@@ -435,7 +435,7 @@ export function TaskDetailsPage() {
 
                   {/* Requirement Card */}
                   <div className="bg-white rounded-xl p-4 border border-[#EEEEEE] shadow-sm">
-                    <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wider mb-3">Requirement</p>
+                    <p className="text-xs font-bold text-[#999999] uppercase tracking-wider mb-3">Requirement</p>
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-white border border-[#EEEEEE] flex items-center justify-center text-[#111111]">
                         <FolderOpen className="w-4 h-4" />
@@ -444,7 +444,7 @@ export function TaskDetailsPage() {
                         <p className="text-xs font-bold text-[#111111] truncate">
                           {requirement?.name || 'No Scope'}
                         </p>
-                        <p className="text-[0.6875rem] text-[#666666] truncate">Scope</p>
+                        <p className="text-xs text-[#666666] truncate">Scope</p>
                       </div>
                     </div>
                   </div>
@@ -460,8 +460,8 @@ export function TaskDetailsPage() {
                   </h4>
                   <div className="bg-[#FAFAFA] p-5 rounded-xl border border-[#F5F5F5] flex items-center justify-between flex-1">
                     <div>
-                      <p className="text-[0.6875rem] text-[#999999] mb-1 uppercase tracking-tighter">Start Date</p>
-                      <p className="text-sm font-semibold text-[#111111]">
+                      <p className="text-xs text-[#999999] mb-1 uppercase tracking-tighter">Start Date</p>
+                      <p className="text-sm font-medium text-[#111111]">
                         {task.start_date ? format(new Date(task.start_date), 'MMM d, yyyy') : 'Not set'}
                       </p>
                     </div>
@@ -470,8 +470,8 @@ export function TaskDetailsPage() {
                       <ArrowRight className="w-4 h-4" />
                     </div>
                     <div className="text-right">
-                      <p className="text-[0.6875rem] text-[#999999] mb-1 uppercase tracking-tighter">Due Date</p>
-                      <p className="text-sm font-semibold text-[#111111]">
+                      <p className="text-xs text-[#999999] mb-1 uppercase tracking-tighter">Due Date</p>
+                      <p className="text-sm font-medium text-[#111111]">
                         {task.end_date ? format(new Date(task.end_date), 'MMM d, yyyy') : 'Not set'}
                       </p>
                     </div>
@@ -501,7 +501,7 @@ export function TaskDetailsPage() {
                     </div>
 
                     <div className="relative pt-2">
-                      <div className="flex justify-between text-[0.625rem] font-semibold text-[#999999] mb-2 uppercase tracking-wide">
+                      <div className="flex justify-between text-2xs font-semibold text-[#999999] mb-2 uppercase tracking-wide">
                         <span>Logged: {formattedLogged}h</span>
                         <span>{Math.max(0, estimatedHours - workedHours).toFixed(1)}h left</span>
                       </div>

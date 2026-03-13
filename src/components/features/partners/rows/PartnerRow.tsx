@@ -59,17 +59,17 @@ export function PartnerRow({
                 {/* Business / Name */}
                 <div className="flex items-center gap-3">
                     <div className={`
-             w-9 h-9 rounded-full flex items-center justify-center text-xxs font-bold shrink-0
+             w-9 h-9 rounded-full flex items-center justify-center text-2xs font-bold shrink-0
              ${isOrg ? 'bg-[#FEF2F2] text-[#DC2626]' : 'bg-[#EFF6FF] text-[#2563EB]'}
            `}>
                         {getInitials(partner.company)}
                     </div>
                     <div className="flex flex-col">
-                        <span className="font-semibold text-[0.75rem] text-[#111111] group-hover:text-[#ff3b3b] transition-colors">
+                        <span className="font-semibold text-xs text-[#111111] group-hover:text-[#ff3b3b] transition-colors">
                             {partner.company}
                         </span>
                         {isOrg && (
-                            <span className="text-[0.625rem] text-[#999999] font-normal">
+                            <span className="text-2xs text-[#999999] font-medium">
                                 Organization
                             </span>
                         )}
@@ -78,7 +78,7 @@ export function PartnerRow({
 
                 {/* Contact Person */}
                 <div>
-                    <span className="font-medium text-[0.75rem] text-[#111111]">
+                    <span className="font-medium text-xs text-[#111111]">
                         {partner.name}
                     </span>
                 </div>
@@ -86,7 +86,7 @@ export function PartnerRow({
                 {/* Type */}
                 <div>
                     <span className={`
-             inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[0.625rem] font-bold capitalize
+             inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-2xs font-bold capitalize
              ${!isOrg ? 'bg-[#EFF6FF] text-[#2563EB]' : 'bg-[#FEF2F2] text-[#DC2626]'}
            `}>
                         {isOrg ? <Building className="w-3 h-3" /> : <User className="w-3 h-3" />}
@@ -97,14 +97,14 @@ export function PartnerRow({
                 {/* Email */}
                 <div onClick={(e) => e.stopPropagation()} className="flex items-center gap-2 text-[#666666] overflow-hidden">
                     <Mail className="w-3.5 h-3.5 shrink-0" />
-                    <span className="text-[0.75rem] font-medium truncate block text-[#111111]">
+                    <span className="text-xs font-medium truncate block text-[#111111]">
                         {partner.email}
                     </span>
                 </div>
 
                 {/* Onboarding */}
                 <div>
-                    <span className="text-[0.75rem] text-[#111111] font-medium">
+                    <span className="text-xs text-[#111111] font-medium">
                         {partner.onboarding}
                     </span>
                 </div>
@@ -125,7 +125,7 @@ export function PartnerRow({
                 {/* Country */}
                 <div className="flex items-center gap-2 text-[#666666]">
                     <Globe className="w-3.5 h-3.5 shrink-0" />
-                    <span className="text-[0.75rem] font-medium">
+                    <span className="text-xs font-medium">
                         {(() => {
                             if (!partner.country) return 'N/A';
                             try {

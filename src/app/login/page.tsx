@@ -70,7 +70,7 @@ function LoginForm() {
           <h2 className="text-3xl font-bold text-[#111111] tracking-tight">
             Welcome Back
           </h2>
-          <p className="text-[#666666]">
+          <p className="text-sm font-medium text-[#666666]">
             Enter your details to access your workspace
           </p>
         </motion.div>
@@ -78,7 +78,7 @@ function LoginForm() {
         <form onSubmit={handleSubmit} className="space-y-6">
           <motion.div variants={itemVariants} className="space-y-5">
             <div className="space-y-2">
-              <label className="text-xs font-bold text-[#999999] uppercase tracking-widest">Email Address</label>
+              <label className="text-xs font-medium text-[#999999] uppercase tracking-wider">Email Address</label>
               <div className="relative">
                 <input
                   type="email"
@@ -95,7 +95,7 @@ function LoginForm() {
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <label className="text-xs font-bold text-[#999999] uppercase tracking-widest">Password</label>
+                <label className="text-xs font-medium text-[#999999] uppercase tracking-wider">Password</label>
                 <Link 
                   href="/forgot-password" 
                   className="text-xs font-semibold text-[#ff3b3b] hover:text-[#E63535]"
@@ -142,7 +142,7 @@ function LoginForm() {
             <button
               type="submit"
               disabled={loginMutation.isPending || !turnstileToken}
-              className="w-full h-12 bg-[#ff3b3b] hover:bg-[#E63535] text-white rounded-[16px] font-bold text-[0.9375rem] shadow-lg shadow-[#ff3b3b]/25 transition-all hover:shadow-[#ff3b3b]/40 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full h-12 bg-[#ff3b3b] hover:bg-[#E63535] text-white rounded-[16px] font-bold text-sm shadow-lg shadow-[#ff3b3b]/25 transition-all hover:shadow-[#ff3b3b]/40 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               tabIndex={3}
             >
               {loginMutation.isPending ? (

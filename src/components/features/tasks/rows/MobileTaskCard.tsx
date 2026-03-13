@@ -102,11 +102,11 @@ export const MobileTaskCard = memo(function MobileTaskCard({
 
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-0.5 min-w-0">
-              <span className="font-bold text-xs text-[#111111] truncate block">
+              <span className="font-bold task-row-main text-[#111111] truncate block">
                 {task.name}
               </span>
               {task.is_review_task && (
-                <span className="px-1.5 py-0.5 rounded-md bg-[#F3E8FF] text-[#7E22CE] text-xxs font-bold border border-[#E9D5FF] flex-shrink-0 animate-pulse">
+                <span className="px-1.5 py-0.5 rounded-md bg-[#F3E8FF] text-[#7E22CE] text-2xs font-bold border border-[#E9D5FF] flex-shrink-0 animate-pulse">
                   REVIEW
                 </span>
               )}
@@ -239,12 +239,12 @@ export const MobileTaskCard = memo(function MobileTaskCard({
         {/* Row 3: Status & Dates */}
         <div className="flex items-center justify-between gap-2 border-t border-dashed border-[#F5F5F5] pt-3 mt-1">
           <div className="flex flex-col gap-0.5">
-            <span className="text-xxs uppercase font-bold text-[#999999] tracking-wider">Due Date</span>
+            <span className="text-2xs uppercase font-bold text-[#999999] tracking-wider">Due Date</span>
             <div className="flex items-center gap-1.5">
               <span className="text-xs font-medium text-[#111111]">
                 {task.timelineDate}
               </span>
-              <span className={`text-xxs ${task.status === 'Delayed' ? 'text-red-500 font-medium' : 'text-[#999999]'
+              <span className={`text-2xs ${task.status === 'Delayed' ? 'text-red-500 font-medium' : 'text-[#999999]'
                 }`}>
                 {task.timelineLabel === 'Due today' ? 'Today' : task.timelineLabel}
               </span>
@@ -292,7 +292,7 @@ export const MobileTaskCard = memo(function MobileTaskCard({
                   </div>
                 }
               >
-                <button className="px-2 py-0.5 bg-yellow-400 text-black text-xxs font-bold rounded-full">
+                <button className="px-2 py-0.5 bg-yellow-400 text-black text-2xs font-bold rounded-full">
                   ESTIMATE
                 </button>
               </Popover>
@@ -305,7 +305,7 @@ export const MobileTaskCard = memo(function MobileTaskCard({
         {/* Row 4: Members & Progress */}
         <div className="flex items-center justify-between gap-3 pt-1">
           <div className="flex items-center -space-x-2">
-            <Avatar.Group max={{ count: 3, style: { color: '#666666', backgroundColor: '#EEEEEE', fontSize: '12px', width: '24px', height: '24px', lineHeight: '24px' } }}>
+            <Avatar.Group max={{ count: 3, style: { color: '#666666', backgroundColor: '#EEEEEE', fontSize: "var(--font-size-xs)", width: '24px', height: '24px', lineHeight: '24px' } }}>
               {(task.task_members || []).map((member) => (
                 <Tooltip key={member.id} title={member.user.name}>
                   {member.user.profile_pic ? (

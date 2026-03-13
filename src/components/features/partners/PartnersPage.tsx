@@ -666,7 +666,7 @@ export function PartnersPageContent() {
                                                         <div className={`w-2 h-2 rounded-full ${item.data.status === 'REJECTED' ? 'bg-[#EF4444]' : 'bg-[#3b8eff]'}`} title={item.data.status === 'REJECTED' ? "Rejected" : "New Invitation"} />
                                                     </div>
                                                     <div className="flex items-center gap-3">
-                                                        <div className="w-8 h-8 rounded-full bg-[#EFF6FF] text-[#2563EB] flex items-center justify-center text-xxs font-bold shrink-0">
+                                                        <div className="w-8 h-8 rounded-full bg-[#EFF6FF] text-[#2563EB] flex items-center justify-center text-2xs font-bold shrink-0">
                                                             {(item.data.inviterName || "?")[0].toUpperCase()}
                                                         </div>
                                                         <div className="flex flex-col">
@@ -674,7 +674,7 @@ export function PartnersPageContent() {
                                                                 {item.data.inviterName?.replace(' undefined', '')}
                                                             </span>
                                                             {item.data.inviterCompany && (
-                                                                <span className="text-xs text-[#999999] font-normal">
+                                                                <span className="text-xs text-[#999999] font-medium">
                                                                     {item.data.inviterCompany}
                                                                 </span>
                                                             )}
@@ -690,12 +690,12 @@ export function PartnersPageContent() {
                                                         {item.data.status === 'REJECTED' ? (
                                                             <div className="w-2 h-2 rounded-full bg-[#EF4444]" title="Rejected" />
                                                         ) : (
-                                                            <Tag color="processing" className="text-xxs font-bold uppercase rounded-full border-none px-2.5">Action Required</Tag>
+                                                            <Tag color="processing" className="text-2xs font-bold uppercase rounded-full border-none px-2.5">Action Required</Tag>
                                                         )}
                                                     </div>
                                                     <div className="flex justify-end gap-2 pr-5">
                                                         {item.data.status === 'REJECTED' ? (
-                                                            <Tag color="error" className="text-xxs font-bold uppercase rounded-full border-none px-2.5">Rejected</Tag>
+                                                            <Tag color="error" className="text-2xs font-bold uppercase rounded-full border-none px-2.5">Rejected</Tag>
                                                         ) : (
                                                             <>
                                                                 <button onClick={() => handleAcceptInvite(item.data.id)} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#DCFCE7] text-[#16A34A] transition-colors"><Check className="w-4 h-4" /></button>
@@ -711,21 +711,21 @@ export function PartnersPageContent() {
                                                 <div className="grid grid-cols-[40px_1.5fr_2fr_1fr_100px] gap-4 items-center w-full">
                                                     <div className="flex justify-center"><div className="w-2 h-2 rounded-full bg-[#f59e0b]" title="Pending" /></div>
                                                     <div className="flex items-center gap-3">
-                                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xxs font-bold shrink-0 ${item.data.company ? 'bg-[#FEF2F2] text-[#DC2626]' : 'bg-[#EFF6FF] text-[#2563EB]'}`}>
+                                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-2xs font-bold shrink-0 ${item.data.company ? 'bg-[#FEF2F2] text-[#DC2626]' : 'bg-[#EFF6FF] text-[#2563EB]'}`}>
                                                             {(item.data.name || "?")[0].toUpperCase()}
                                                         </div>
                                                         <div className="flex flex-col">
                                                             <span className="font-bold text-sm text-[#111111]">
                                                                 {(item.data.name || item.data.email)?.replace(' undefined', '')}
                                                             </span>
-                                                            {item.data.company && <span className="text-xs text-[#999999] font-normal">{item.data.company}</span>}
+                                                            {item.data.company && <span className="text-xs text-[#999999] font-medium">{item.data.company}</span>}
                                                         </div>
                                                     </div>
                                                     <div className="flex items-center gap-2 text-[#666666] overflow-hidden">
                                                         <Mail className="w-3.5 h-3.5 shrink-0" />
                                                         <span className="text-xs font-medium truncate block text-[#111111]">{item.data.email}</span>
                                                     </div>
-                                                    <div><Tag color="orange" className="text-xxs font-bold uppercase rounded-full border-none px-2.5">Pending</Tag></div>
+                                                    <div><Tag color="orange" className="text-2xs font-bold uppercase rounded-full border-none px-2.5">Pending</Tag></div>
                                                     <div className="flex justify-end pr-5">
                                                         <Dropdown
                                                             menu={{
@@ -841,7 +841,7 @@ export function PartnersPageContent() {
 
                                 {filteredPartners.length === 0 && (
                                     <div className="text-center py-12">
-                                        <p className="text-[#999999] font-normal">
+                                        <p className="text-[#999999] font-medium">
                                             No partners found
                                         </p>
                                     </div>
@@ -901,27 +901,27 @@ export function PartnersPageContent() {
                     <div className="mt-6 space-y-6">
                         <div className="grid grid-cols-2 gap-6">
                             <div>
-                                <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wider mb-1">Contact Person</p>
-                                <p className="text-sm font-semibold text-[#111111]">{editingPartner.name}</p>
+                                <p className="text-xs font-bold text-[#999999] uppercase tracking-wider mb-1">Contact Person</p>
+                                <p className="text-sm font-medium text-[#111111]">{editingPartner.name}</p>
                             </div>
                             {editingPartner.company && (
                                 <div>
-                                    <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wider mb-1">Company Name</p>
-                                    <p className="text-sm font-semibold text-[#111111]">{editingPartner.company}</p>
+                                    <p className="text-xs font-bold text-[#999999] uppercase tracking-wider mb-1">Company Name</p>
+                                    <p className="text-sm font-medium text-[#111111]">{editingPartner.company}</p>
                                 </div>
                             )}
                         </div>
 
                         <div className="grid grid-cols-2 gap-6">
                             <div>
-                                <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wider mb-1">Email Address</p>
+                                <p className="text-xs font-bold text-[#999999] uppercase tracking-wider mb-1">Email Address</p>
                                 <div className="flex items-center gap-2">
                                     <MailOutlined className="text-[#666666] text-xs" />
                                     <p className="text-sm font-medium text-[#111111]">{editingPartner.email}</p>
                                 </div>
                             </div>
                             <div>
-                                <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wider mb-1">Contact</p>
+                                <p className="text-xs font-bold text-[#999999] uppercase tracking-wider mb-1">Contact</p>
                                 <div className="flex items-center gap-2">
                                     <PhoneOutlined className="text-[#666666] text-xs" />
                                     <p className="text-sm font-medium text-[#111111]">
@@ -938,7 +938,7 @@ export function PartnersPageContent() {
 
                         <div className="grid grid-cols-2 gap-6">
                             <div>
-                                <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wider mb-1">Country</p>
+                                <p className="text-xs font-bold text-[#999999] uppercase tracking-wider mb-1">Country</p>
                                 <div className="flex items-center gap-2">
                                     <Globe className="w-3.5 h-3.5 text-[#666666]" />
                                     <p className="text-sm font-medium text-[#111111]">
@@ -954,7 +954,7 @@ export function PartnersPageContent() {
                                 </div>
                             </div>
                             <div>
-                                <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wider mb-1">Timezone</p>
+                                <p className="text-xs font-bold text-[#999999] uppercase tracking-wider mb-1">Timezone</p>
                                 <p className="text-sm font-medium text-[#111111]">{editingPartner.timezone || 'N/A'}</p>
                             </div>
                         </div>

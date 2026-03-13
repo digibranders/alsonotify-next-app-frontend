@@ -61,7 +61,7 @@ export default function ForgotPasswordPage() {
                     <h2 className="text-3xl font-bold text-[#111111] tracking-tight">
                         {isSubmitted ? "Check your inbox" : "Forgot Password?"}
                     </h2>
-                    <p className="text-[#666666]">
+                    <p className="text-sm font-medium text-[#666666]">
                         {isSubmitted
                             ? `We've sent a password reset link to ${email}`
                             : "Enter your email address and we'll send you a link to reset your password."
@@ -73,7 +73,7 @@ export default function ForgotPasswordPage() {
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <motion.div variants={itemVariants} className="space-y-5">
                             <div className="space-y-2">
-                                <label className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-widest">Email Address</label>
+                                <label className="text-xs font-medium text-[#999999] uppercase tracking-wider">Email Address</label>
                                 <div className="relative">
                                     <input
                                         type="email"
@@ -92,7 +92,7 @@ export default function ForgotPasswordPage() {
                             <button
                                 type="submit"
                                 disabled={forgotPasswordMutation.isPending}
-                                className="w-full h-12 bg-[#ff3b3b] hover:bg-[#E63535] text-white rounded-[16px] font-bold text-[0.9375rem] shadow-lg shadow-[#ff3b3b]/25 transition-all hover:shadow-[#ff3b3b]/40 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                className="w-full h-12 bg-[#ff3b3b] hover:bg-[#E63535] text-white rounded-[16px] font-bold text-sm shadow-lg shadow-[#ff3b3b]/25 transition-all hover:shadow-[#ff3b3b]/40 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                             >
                                 {forgotPasswordMutation.isPending ? (
                                     <Loader2 className="w-5 h-5 animate-spin" />
@@ -109,7 +109,7 @@ export default function ForgotPasswordPage() {
                     <motion.div variants={itemVariants} className="pt-2">
                         <Link href="/login">
                             <button
-                                className="w-full h-12 bg-[#ff3b3b] hover:bg-[#E63535] text-white rounded-[16px] font-bold text-[0.9375rem] shadow-lg shadow-[#ff3b3b]/25 transition-all hover:shadow-[#ff3b3b]/40 hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2"
+                                className="w-full h-12 bg-[#ff3b3b] hover:bg-[#E63535] text-white rounded-[16px] font-bold text-sm shadow-lg shadow-[#ff3b3b]/25 transition-all hover:shadow-[#ff3b3b]/40 hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2"
                             >
                                 Back to Login
                             </button>

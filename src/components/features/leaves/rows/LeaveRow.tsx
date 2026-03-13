@@ -96,24 +96,24 @@ export function LeaveRow({
 
         {/* Employee */}
         <div className="flex flex-col min-w-0">
-          <span className="font-bold text-[0.75rem] text-[#111111] truncate group-hover:text-[#ff3b3b] transition-colors">
+          <span className="font-bold text-xs text-[#111111] truncate group-hover:text-[#ff3b3b] transition-colors">
             {leave.employeeName}
           </span>
-          <span className="text-[0.625rem] text-[#999999] font-normal">
+          <span className="text-2xs text-[#999999] font-medium">
             Applied on {leave.appliedOn}
           </span>
         </div>
 
         {/* Leave Type */}
         <div className="flex justify-start">
-          <span className={`inline-block px-2.5 py-0.5 rounded-full text-[0.625rem] font-semibold ${typeConfig.bgColor} ${typeConfig.textColor}`}>
+          <span className={`inline-block px-2.5 py-0.5 rounded-full text-2xs font-semibold ${typeConfig.bgColor} ${typeConfig.textColor}`}>
             {typeConfig.label}
           </span>
         </div>
 
         {/* Duration */}
         <div className="flex flex-col">
-          <div className="flex items-center gap-1.5 text-[0.75rem] font-medium text-[#111111]">
+          <div className="flex items-center gap-1.5 text-xs font-medium text-[#111111]">
             <Calendar className="w-3.5 h-3.5 text-[#666666]" />
             <span>{leave.startDate} - {leave.endDate}</span>
           </div>
@@ -122,7 +122,7 @@ export function LeaveRow({
         {/* Days */}
         <div className="flex items-center justify-start gap-1.5 label text-left">
           <Clock className="w-3.5 h-3.5 text-[#666666]" />
-          <span className="text-[0.75rem] font-semibold text-[#111111]">
+          <span className="text-xs font-semibold text-[#111111]">
             {leave.days} {leave.days === 1 ? 'Day' : 'Days'}
           </span>
         </div>
@@ -131,7 +131,7 @@ export function LeaveRow({
         <div className="flex justify-start">
           <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full ${statusConfig[leave.status].bgColor} ${statusConfig[leave.status].color}`}>
             <StatusIcon className="w-3.5 h-3.5" />
-            <span className="text-[0.625rem] font-bold uppercase tracking-wider">
+            <span className="text-2xs font-bold uppercase tracking-wider">
               {statusConfig[leave.status].label}
             </span>
           </div>
@@ -173,7 +173,7 @@ export function LeaveRow({
               container: {
                 borderRadius: '8px',
                 padding: '12px',
-                fontSize: '12px',
+                fontSize: "var(--font-size-xs)",
                 fontFamily: 'inherit'
               }
             }}

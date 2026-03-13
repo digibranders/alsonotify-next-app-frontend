@@ -119,7 +119,7 @@ function RegisterForm() {
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Account Type Selector */}
           <motion.div variants={itemVariants} className="space-y-3">
-            <label className="text-xs font-bold text-[#999999] uppercase tracking-widest">Account Type</label>
+            <label className="text-xs font-medium text-[#999999] uppercase tracking-wider">Account Type</label>
             <div className="grid grid-cols-2 gap-3">
               {(['Organization', 'Individual'] as const).map((type) => (
                 <button
@@ -148,7 +148,7 @@ function RegisterForm() {
           <motion.div variants={itemVariants} className="space-y-5">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-xs font-bold text-[#999999] uppercase tracking-widest">First Name</label>
+                <label className="text-xs font-medium text-[#999999] uppercase tracking-wider">First Name</label>
                 <input
                   type="text"
                   placeholder="John"
@@ -159,7 +159,7 @@ function RegisterForm() {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-xs font-bold text-[#999999] uppercase tracking-widest">Last Name (Optional)</label>
+                <label className="text-xs font-medium text-[#999999] uppercase tracking-wider">Last Name (Optional)</label>
                 <input
                   type="text"
                   placeholder="Doe"
@@ -171,7 +171,7 @@ function RegisterForm() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-bold text-[#999999] uppercase tracking-widest">Email Address</label>
+              <label className="text-xs font-medium text-[#999999] uppercase tracking-wider">Email Address</label>
               <div className="relative">
                 <input
                   type="email"
@@ -187,7 +187,7 @@ function RegisterForm() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-bold text-[#999999] uppercase tracking-widest">Password</label>
+              <label className="text-xs font-medium text-[#999999] uppercase tracking-wider">Password</label>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
@@ -224,7 +224,7 @@ function RegisterForm() {
             <button
               type="submit"
               disabled={registerMutation.isPending || !turnstileToken}
-              className="w-full h-12 bg-[#ff3b3b] hover:bg-[#E63535] text-white rounded-[16px] font-bold text-[0.9375rem] shadow-lg shadow-[#ff3b3b]/25 transition-all hover:shadow-[#ff3b3b]/40 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full h-12 bg-[#ff3b3b] hover:bg-[#E63535] text-white rounded-[16px] font-bold text-sm shadow-lg shadow-[#ff3b3b]/25 transition-all hover:shadow-[#ff3b3b]/40 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {registerMutation.isPending ? (
                 <Loader2 className="w-5 h-5 animate-spin" />

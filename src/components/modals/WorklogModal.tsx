@@ -69,7 +69,7 @@ export function WorklogModal({
           </span>
           <TextArea
             placeholder={"Describe what you completed or worked on..."}
-            className="min-h-[120px] rounded-lg border-[#EEEEEE] focus:border-[#111111] font-normal text-sm resize-none"
+            className="min-h-[120px] rounded-lg border-[#EEEEEE] focus:border-[#111111] font-medium text-sm resize-none"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={5}

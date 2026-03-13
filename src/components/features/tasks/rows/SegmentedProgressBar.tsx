@@ -102,7 +102,7 @@ export function SegmentedProgressBar({ members, totalEstimate, taskStatus }: Rea
                         title={
                             <div className="text-center text-xs">
                                 <div className="font-bold mb-1">{seg.user.name}</div>
-                                <div className="text-[0.625rem] opacity-80 mb-1">Status: {seg.status}</div>
+                                <div className="text-2xs opacity-80 mb-1">Status: {seg.status}</div>
                                 <div>
                                     {seg.spentHours.toFixed(2)}h / {estimate.toFixed(2)}h
                                     {overtime > 0 && (

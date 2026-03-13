@@ -136,7 +136,7 @@ export function WeekView({ currentDate, events, isLoading, onTimeSlotClick }: We
                     <div className="flex-1 grid grid-cols-7">
                         {weekDays.map((d, i) => (
                             <div key={i} className={`py-2 text-center border-r border-[#EEEEEE] last:border-r-0 ${d.isToday ? 'bg-[#ff3b3b]/5' : ''}`}>
-                                <div className={`text-xxs font-semibold mb-0.5 ${d.isToday ? 'text-[#ff3b3b]' : 'text-[#666666]'}`}>
+                                <div className={`text-2xs font-semibold mb-0.5 ${d.isToday ? 'text-[#ff3b3b]' : 'text-[#666666]'}`}>
                                     {d.label.toUpperCase()}
                                 </div>
                                 <div className={`flex items-center justify-center`}>
@@ -155,7 +155,7 @@ export function WeekView({ currentDate, events, isLoading, onTimeSlotClick }: We
                     <div className="w-16 flex-shrink-0 border-r border-[#EEEEEE] bg-white sticky left-0 z-30 select-none">
                         {hours.map(hour => (
                             <div key={hour} className="h-[60px] relative text-right pr-2">
-                                <span className="text-xxs text-[#666666] font-medium -top-2 relative block transform -translate-y-1/2">
+                                <span className="text-2xs text-[#666666] font-medium -top-2 relative block transform -translate-y-1/2">
                                     {hour === 0 ? '' : dayjs().hour(hour).format('h A')}
                                 </span>
                             </div>
@@ -166,7 +166,7 @@ export function WeekView({ currentDate, events, isLoading, onTimeSlotClick }: We
                             className="absolute right-0 w-full h-[2px] z-30 pointer-events-none flex items-center justify-end pr-1"
                             style={{ top: dayjs().hour() * 60 + dayjs().minute() }}
                         >
-                             <div className="text-xxs font-bold text-white bg-[#ff3b3b] px-1.5 py-0.5 rounded-[4px] relative -top-[1px]">
+                             <div className="text-2xs font-bold text-white bg-[#ff3b3b] px-1.5 py-0.5 rounded-[4px] relative -top-[1px]">
                                 {dayjs().format('h:mm')}
                             </div>
                         </div>
@@ -245,7 +245,7 @@ export function WeekView({ currentDate, events, isLoading, onTimeSlotClick }: We
                                                  <div className="text-xs font-semibold text-[#111111] leading-tight truncate">
                                                      {event.title}
                                                  </div>
-                                                 <div className="text-xxs font-medium text-[#666666] leading-tight truncate mt-0.5">
+                                                 <div className="text-2xs font-medium text-[#666666] leading-tight truncate mt-0.5">
                                                      {event.time}
                                                  </div>
                                              </div>

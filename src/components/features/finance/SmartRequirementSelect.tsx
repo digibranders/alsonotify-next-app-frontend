@@ -84,9 +84,9 @@ export const SmartRequirementSelect: React.FC<SmartRequirementSelectProps> = ({
 
                     <div className="overflow-y-auto flex-1 p-2">
                         {isLoading ? (
-                            <div className="px-4 py-8 text-center text-xs text-[#697386]">Loading requirements...</div>
+                            <div className="px-4 py-8 text-center text-xs text-[#999999]">Loading requirements...</div>
                         ) : filteredRequirements.length === 0 ? (
-                            <div className="px-4 py-8 text-center text-xs text-[#697386]">No matching requirements found.</div>
+                            <div className="px-4 py-8 text-center text-xs text-[#999999]">No matching requirements found.</div>
                         ) : (
                             <ul className="space-y-1">
                                 {filteredRequirements.map(req => {
@@ -114,7 +114,7 @@ export const SmartRequirementSelect: React.FC<SmartRequirementSelectProps> = ({
                                                 <p className="text-xs font-semibold text-[#111111] truncate mb-0.5">
                                                     {req.name || `Requirement #${req.id}`}
                                                 </p>
-                                                <div className="flex items-center gap-2 text-[11px] text-[#697386]">
+                                                <div className="flex items-center gap-2 text-xs text-[#999999]">
                                                     <span>Total: ₹{estimatedCost.toLocaleString()}</span>
                                                     <span className="w-1 h-1 rounded-full bg-[#D9D9D9]" />
                                                     <span className="text-[#0F9D58] font-medium">Billed: ₹{totalBilled.toLocaleString()}</span>
@@ -124,7 +124,7 @@ export const SmartRequirementSelect: React.FC<SmartRequirementSelectProps> = ({
                                                 <span className="text-xs font-bold text-[#111111]">
                                                     ₹{remaining.toLocaleString()}
                                                 </span>
-                                                <span className="text-[9px] font-bold text-[#697386] uppercase tracking-wider mt-0.5">
+                                                <span className="text-2xs font-bold text-[#999999] uppercase tracking-wider mt-0.5">
                                                     Remaining
                                                 </span>
                                             </div>

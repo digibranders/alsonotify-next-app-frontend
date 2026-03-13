@@ -85,11 +85,11 @@ export const RequirementRow = React.memo(function RequirementRow({ req, workspac
               }`}
           />
           <div>
-            <h3 className="font-semibold text-[0.75rem] text-[#111111] group-hover:text-[#ff3b3b] transition-colors mb-1.5">
+            <h3 className="font-semibold text-xs text-[#111111] group-hover:text-[#ff3b3b] transition-colors mb-1.5">
               {req.title}
             </h3>
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-[0.625rem] text-[#999999] font-normal">
+              <span className="text-2xs text-[#999999] font-medium">
                 {req.client}
               </span>
               {req.department && (
@@ -102,13 +102,13 @@ export const RequirementRow = React.memo(function RequirementRow({ req, workspac
         </div>
 
         {/* Timeline */}
-        <div className="flex items-center gap-2 text-[0.75rem] text-[#666666] font-medium">
+        <div className="flex items-center gap-2 text-xs text-[#666666] font-medium">
           <CalendarIcon className="w-4 h-4 text-[#999999]" />
           <span>{req.timeline}</span>
         </div>
 
         {/* Budget */}
-        <div className="text-[0.75rem] font-semibold text-[#16A34A]">
+        <div className="text-xs font-semibold text-[#16A34A]">
           {req.budgetFormatted}
         </div>
 
@@ -127,7 +127,7 @@ export const RequirementRow = React.memo(function RequirementRow({ req, workspac
                 return (
                   <Tooltip key={i} title={person}>
                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#ff3b3b] to-[#ff6b6b] flex items-center justify-center border-2 border-white shadow-sm relative z-[5] hover:z-10 transition-all">
-                      <span className="text-xxs text-white font-bold">
+                      <span className="text-2xs text-white font-bold">
                         {initials}
                       </span>
                     </div>
@@ -136,14 +136,14 @@ export const RequirementRow = React.memo(function RequirementRow({ req, workspac
               })}
               {req.assignedTo.length > 4 && (
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#ff3b3b] to-[#ff6b6b] flex items-center justify-center border-2 border-white shadow-sm relative z-[1]">
-                  <span className="text-xxs text-white font-bold">
+                  <span className="text-2xs text-white font-bold">
                     +{req.assignedTo.length - 4}
                   </span>
                 </div>
               )}
             </div>
           ) : (
-            <span className="text-[0.75rem] text-[#999999] font-normal">
+            <span className="text-xs text-[#999999] font-medium">
               N/A
             </span>
           )}
@@ -153,10 +153,10 @@ export const RequirementRow = React.memo(function RequirementRow({ req, workspac
         <div className="flex items-center gap-2">
           <div className="flex-1 min-w-[80px]">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-[0.625rem] text-[#666666] font-medium">
+              <span className="text-2xs text-[#666666] font-medium">
                 {req.tasksCompleted}/{req.tasksTotal} Tasks
               </span>
-              <span className="text-[0.625rem] text-[#111111] font-bold">
+              <span className="text-2xs text-[#111111] font-bold">
                 {req.progress}%
               </span>
             </div>

@@ -51,7 +51,7 @@ export function EmailInput({ value, onChange, options, ...props }: Readonly<Emai
       >
         <Avatar 
             size={20} 
-            className="text-[0.625rem] bg-blue-100 text-blue-600"
+            className="text-2xs bg-blue-100 text-blue-600"
         >
             {name?.[0]?.toUpperCase() || '?'}
         </Avatar>
@@ -60,7 +60,7 @@ export function EmailInput({ value, onChange, options, ...props }: Readonly<Emai
              {option?.name ? option.name : email}
            </Text>
            {option?.name && (
-             <Text className="text-[0.625rem] text-[#888]">{email}</Text>
+             <Text className="text-2xs text-[#888]">{email}</Text>
            )}
         </div>
         {closable && (

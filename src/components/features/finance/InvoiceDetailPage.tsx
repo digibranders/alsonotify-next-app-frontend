@@ -138,7 +138,7 @@ export function InvoiceDetailPage() {
                     <Skeleton className="h-9 w-32 rounded-full" />
                 </div>
                 <div className="flex-1 flex items-center justify-center">
-                    <div className="text-sm text-[#697386]">Loading invoice...</div>
+                    <div className="text-sm text-[#999999]">Loading invoice...</div>
                 </div>
             </div>
         );
@@ -147,7 +147,7 @@ export function InvoiceDetailPage() {
     if (!invoice) {
         return (
             <div className="h-full flex items-center justify-center">
-                <p className="text-[#697386]">Invoice not found.</p>
+                <p className="text-[#999999]">Invoice not found.</p>
             </div>
         );
     }

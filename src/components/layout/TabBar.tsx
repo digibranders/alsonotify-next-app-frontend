@@ -26,7 +26,7 @@ export function TabBar({ tabs, activeTab, onTabChange }: TabBarProps) {
           >
             {tab.label}
             {tab.count !== undefined && tab.count > 0 && (
-              <span className={`px-2 py-0.5 rounded-full text-[0.6875rem] ${activeTab === tab.id
+              <span className={`px-2 py-0.5 rounded-full text-xs ${activeTab === tab.id
                   ? 'bg-[#ff3b3b] text-white'
                   : 'bg-[#F7F7F7] text-[#666666]'
                 }`}>

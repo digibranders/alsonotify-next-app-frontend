@@ -171,12 +171,12 @@ export function TaskLiveProgress({ task, currentUserId }: TaskLiveProgressProps)
         }}
       >
         <div className="flex items-center gap-2 w-fit">
-          <span className={`font-normal text-[0.75rem] whitespace-nowrap ${labelColor}`}>
+          <span className={`font-medium task-row-main whitespace-nowrap ${labelColor}`}>
             {totalLoggedHours.toFixed(1)}h{hasEst ? `/${effectiveEst.toFixed(1)}h` : ''}
           </span>
-          <span className="text-[#E5E5E5] text-[0.75rem]">|</span>
+          <span className="text-[#E5E5E5] text-xs">|</span>
           {hasEst ? (
-            <span className={`text-[0.75rem] font-normal whitespace-nowrap ${isBleeding
+            <span className={`task-row-main font-medium whitespace-nowrap ${isBleeding
               ? 'text-[#FF3B3B]'
               : isWarning
                 ? 'text-[#EAB308]'
@@ -185,7 +185,7 @@ export function TaskLiveProgress({ task, currentUserId }: TaskLiveProgressProps)
               {isBleeding ? `+${Math.abs(remaining).toFixed(1)}h over` : `${remaining.toFixed(1)}h left`}
             </span>
           ) : (
-            <span className="text-[0.75rem] text-[#666666] font-normal whitespace-nowrap">No estimate</span>
+            <span className="task-row-main text-[#666666] font-medium whitespace-nowrap">No estimate</span>
           )}
         </div>
       </Tooltip>
@@ -200,8 +200,8 @@ export function TaskLiveProgress({ task, currentUserId }: TaskLiveProgressProps)
               const segmentTooltip = (
                 <div className="text-center">
                   <div className="font-bold text-xs mb-0.5">{seg.user?.name || 'Unknown'}</div>
-                  <div className="text-[10px] opacity-70 mb-1">Status: {seg.status}</div>
-                  <div className="text-[12px] font-medium">
+                  <div className="text-2xs opacity-70 mb-1">Status: {seg.status}</div>
+                  <div className="text-xs font-medium">
                     {seg.loggedHours.toFixed(1)}h / {seg.segEst.toFixed(1)}h
                     {overtime > 0 && (
                       <span className="text-[#FF6B6B] font-bold ml-1.5">

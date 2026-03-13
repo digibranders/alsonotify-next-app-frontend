@@ -108,7 +108,7 @@ function EmptyState({ message = 'No notifications' }: { message?: string }) {
         <BellOff className="w-5 h-5 text-[#999999]" />
       </div>
       <p className="font-semibold text-sm text-[#111111] mb-1">All caught up!</p>
-      <p className="font-normal text-xs text-[#999999]">{message}</p>
+      <p className="font-medium text-xs text-[#999999]">{message}</p>
     </div>
   );
 }
@@ -327,13 +327,13 @@ function NotificationItemComponent({
                 {displayTitle}
               </Linkify>
             </div>
-            <span className="text-[0.6875rem] text-[#999999] whitespace-nowrap font-normal shrink-0 mt-0.5">
+            <span className="text-xs text-[#999999] whitespace-nowrap font-medium shrink-0 mt-0.5">
               {notification.time}
             </span>
           </div>
 
           {notification.title && (
-            <Linkify className="text-xs text-[#666666] font-normal leading-relaxed mb-2 line-clamp-2">
+            <Linkify className="text-xs text-[#666666] font-medium leading-relaxed mb-2 line-clamp-2">
               {notification.message}
             </Linkify>
           )}
@@ -408,7 +408,7 @@ export function NotificationPanel({
         <div className="flex items-center gap-3">
           <h3 className="font-bold text-lg text-[#111111]">Notifications</h3>
           {unreadCount > 0 && (
-            <span className="px-2.5 py-0.5 rounded-full bg-[#ff3b3b] text-white text-[0.6875rem] font-bold">
+            <span className="px-2.5 py-0.5 rounded-full bg-[#ff3b3b] text-white text-xs font-bold">
               {unreadCount} New
             </span>
           )}

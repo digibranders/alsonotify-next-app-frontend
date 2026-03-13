@@ -347,7 +347,7 @@ export function TaskForm({
                 <Option key={ws.id} value={ws.id.toString()} label={ws.name}>
                   <div className="flex flex-col py-1">
                     <span className="font-medium text-[#111111] leading-tight">{ws.name}</span>
-                    <span className="text-[0.625rem] text-[#999999] leading-tight">
+                    <span className="text-2xs text-[#999999] leading-tight">
                       {ws.in_house ? ws.company_name : ws.partner_name || 'Organization'}
                     </span>
                   </div>
@@ -418,7 +418,7 @@ export function TaskForm({
             <button
               type="button"
               onClick={() => setFormData({ ...formData, execution_mode: "sequential" })}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] text-[0.6875rem] font-medium transition-all ${formData.execution_mode === "sequential" ? 'bg-[#FFF2E8] text-[#FA541C]' : 'text-gray-500 hover:bg-gray-50'}`}
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] text-xs font-medium transition-all ${formData.execution_mode === "sequential" ? 'bg-[#FFF2E8] text-[#FA541C]' : 'text-gray-500 hover:bg-gray-50'}`}
             >
               <ArrowRight className="w-3 h-3" /> Sequential
             </button>
@@ -471,13 +471,13 @@ export function TaskForm({
                         {/* Drag Handle (Only for Sequential) */}
                         {isSequential && <GripVertical className="w-4 h-4 text-gray-400 cursor-grab active:cursor-grabbing" />}
 
-                        <div className="flex items-center justify-center w-5 h-5 rounded-full bg-gray-100 text-[0.5625rem] font-bold text-gray-500">
+                        <div className="flex items-center justify-center w-5 h-5 rounded-full bg-gray-100 text-2xs font-bold text-gray-500">
                           {isSequential ? index + 1 : '•'}
                         </div>
-                        <Avatar size="small" shape="circle" className="w-6 h-6 text-[0.625rem]" src={user.profile_pic}>{user.name.charAt(0)}</Avatar>
+                        <Avatar size="small" shape="circle" className="w-6 h-6 text-2xs" src={user.profile_pic}>{user.name.charAt(0)}</Avatar>
                         <span className="text-xs font-semibold text-gray-800">{user.name}</span>
                         {String(user.id) !== currentUserId && (
-                          <span className="xs:inline hidden text-xxs text-amber-500 bg-amber-50 px-1.5 py-0.5 rounded-full border border-amber-100">
+                          <span className="xs:inline hidden text-2xs text-amber-500 bg-amber-50 px-1.5 py-0.5 rounded-full border border-amber-100">
                             Estimate Pending
                           </span>
                         )}
@@ -551,7 +551,7 @@ export function TaskForm({
         <span className="text-xs font-bold text-[#111111]">Description</span>
         <TextArea
           placeholder="Describe the mission objectives..."
-          className="font-normal rounded-lg border border-[#EEEEEE]"
+          className="font-medium rounded-lg border border-[#EEEEEE]"
           rows={formData.description ? 3 : 1}
           onFocus={(e) => e.target.rows = 3}
           value={formData.description}

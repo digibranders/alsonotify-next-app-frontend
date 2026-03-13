@@ -181,7 +181,7 @@ function EmailComposeForm({
           style={{
             minHeight: '100%',
             padding: '16px',
-            fontSize: '14px'
+            fontSize: "var(--font-size-sm)"
           }}
         />
       </div>
@@ -193,7 +193,7 @@ function EmailComposeForm({
             <div key={i} className="flex items-center gap-2 bg-white border border-gray-200 rounded px-2 py-1 text-xs shadow-sm">
               <Paperclip size={12} className="text-gray-400" />
               <span className="truncate max-w-[150px] text-[#333]">{file.name}</span>
-              <span className="text-gray-400 text-[0.625rem]">{formatBytes(file.size)}</span>
+              <span className="text-gray-400 text-2xs">{formatBytes(file.size)}</span>
               <button
                 onClick={() => removeFile(i)}
                 className="text-gray-400 hover:text-red-500 transition-colors ml-1"

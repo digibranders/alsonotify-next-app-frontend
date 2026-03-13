@@ -467,7 +467,7 @@ export function CompanyDetailsTab({
                     </div>
                     <div className="flex items-center gap-4 pb-3 h-11">
                       <div className="flex flex-col items-center gap-1">
-                        <span className={`text-[0.6875rem] font-bold ${!isEditing ? 'text-[#999999]' : 'text-[#666666]'}`}>
+                        <span className={`text-xs font-bold ${!isEditing ? 'text-[#999999]' : 'text-[#666666]'}`}>
                           Active
                         </span>
                         <Switch
@@ -561,7 +561,7 @@ export function CompanyDetailsTab({
                     </div>
                     <div className="flex items-center gap-4 pb-3 h-11">
                       <div className="flex flex-col items-center gap-1">
-                        <span className={`text-[0.6875rem] font-bold ${!isEditing ? 'text-[#999999]' : 'text-[#666666]'}`}>
+                        <span className={`text-xs font-bold ${!isEditing ? 'text-[#999999]' : 'text-[#666666]'}`}>
                           Required
                         </span>
                         <Switch

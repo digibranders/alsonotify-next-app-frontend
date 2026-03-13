@@ -72,10 +72,10 @@ export const SplitPaymentModal: React.FC<SplitPaymentModalProps> = ({
                 <div className="px-6 py-4 border-b border-[#EEEEEE] flex items-center justify-between">
                     <div>
                         <h2 className="text-base font-bold text-[#111111] tracking-tight">Billing Amount</h2>
-                        <p className="text-xs text-[#697386] mt-0.5 truncate max-w-[300px]">{requirement.name}</p>
+                        <p className="text-xs text-[#999999] mt-0.5 truncate max-w-[300px]">{requirement.name}</p>
                     </div>
                     <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-                        <X className="w-4 h-4 text-[#697386]" />
+                        <X className="w-4 h-4 text-[#999999]" />
                     </button>
                 </div>
 
@@ -88,7 +88,7 @@ export const SplitPaymentModal: React.FC<SplitPaymentModalProps> = ({
                             { label: 'Remaining', value: remaining },
                         ].map(({ label, value }) => (
                             <div key={label} className="bg-[#F9FAFB] rounded-xl p-3 text-center border border-[#EEEEEE]">
-                                <p className="text-[10px] font-semibold text-[#697386] uppercase tracking-wider mb-1">{label}</p>
+                                <p className="text-2xs font-semibold text-[#999999] uppercase tracking-wider mb-1">{label}</p>
                                 <p className="text-sm font-bold text-[#111111]">{currencySymbol}{fmt(value)}</p>
                             </div>
                         ))}
@@ -104,7 +104,7 @@ export const SplitPaymentModal: React.FC<SplitPaymentModalProps> = ({
                                 className={`flex-1 py-2.5 text-sm font-semibold rounded-xl border transition-colors ${
                                     mode === m
                                         ? 'bg-[#111111] text-white border-[#111111]'
-                                        : 'bg-white text-[#697386] border-[#EEEEEE] hover:border-[#111111] hover:text-[#111111]'
+                                        : 'bg-white text-[#999999] border-[#EEEEEE] hover:border-[#111111] hover:text-[#111111]'
                                 }`}
                             >
                                 {m === 'full' ? 'Full Remaining' : 'Custom Amount'}
@@ -124,7 +124,7 @@ export const SplitPaymentModal: React.FC<SplitPaymentModalProps> = ({
                                         className={`flex-1 py-2 text-xs font-semibold rounded-lg border transition-colors ${
                                             customMode === cm
                                                 ? 'bg-[#F0F0F0] text-[#111111] border-[#D0D0D0]'
-                                                : 'bg-white text-[#697386] border-[#EEEEEE] hover:border-[#999]'
+                                                : 'bg-white text-[#999999] border-[#EEEEEE] hover:border-[#999]'
                                         }`}
                                     >
                                         {cm === 'percentage' ? '% Percentage' : `${currencySymbol} Fixed Amount`}
@@ -153,12 +153,12 @@ export const SplitPaymentModal: React.FC<SplitPaymentModalProps> = ({
                                             onChange={(e) => setPercentageInput(e.target.value)}
                                             className="w-full pr-8 pl-3 py-2.5 text-sm border border-[#EEEEEE] rounded-xl focus:outline-none focus:border-[#111111] focus:ring-1 focus:ring-[#111111] transition-colors text-right font-semibold"
                                         />
-                                        <span className="absolute right-3 top-2.5 text-[#697386] text-sm font-medium">%</span>
+                                        <span className="absolute right-3 top-2.5 text-[#999999] text-sm font-medium">%</span>
                                     </div>
                                 </div>
                             ) : (
                                 <div className="relative">
-                                    <span className="absolute left-3 top-2.5 text-[#697386] text-sm font-medium">{currencySymbol}</span>
+                                    <span className="absolute left-3 top-2.5 text-[#999999] text-sm font-medium">{currencySymbol}</span>
                                     <input
                                         type="number"
                                         min={0.01}

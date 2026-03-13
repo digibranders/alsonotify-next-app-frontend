@@ -61,13 +61,13 @@ function InvoiceItem({ id, client, amount, status}: { id: string; client: string
       {/* Invoice Details */}
       <div className="flex-1">
         <p className="font-semibold text-sm text-[#111111] mb-1">{id}</p>
-        <p className="font-normal text-xs text-[#666666]">{client}</p>
+        <p className="font-medium text-xs text-[#666666]">{client}</p>
       </div>
 
       {/* Amount & Status */}
       <div className="flex flex-col items-end gap-2">
         <p className="font-bold text-sm text-[#111111]">{amount}</p>
-        <span className={`text-[0.6875rem] font-medium px-2 py-1 rounded ${getStatusColor()}`}>
+        <span className={`text-xs font-medium px-2 py-1 rounded ${getStatusColor()}`}>
           {status}
         </span>
       </div>

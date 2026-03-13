@@ -86,15 +86,15 @@ export const BillingTab: React.FC<BillingTabProps> = ({ requirement }) => {
                 {/* Summary Row */}
                 <div className="grid grid-cols-3 gap-6 mb-8">
                     <div className="p-4 rounded-xl border border-[#EEEEEE] bg-[#F9FAFB]">
-                        <p className="text-[11px] font-semibold text-[#697386] uppercase tracking-wider mb-1">Total Quoted / Estimated</p>
+                        <p className="text-xs font-medium text-[#999999] uppercase tracking-wider mb-1">Total Quoted / Estimated</p>
                         <p className="text-2xl font-bold text-[#111111]">₹{estimatedCost.toLocaleString()}</p>
                     </div>
                     <div className="p-4 rounded-xl border border-[#EEEEEE] bg-[#F9FAFB]">
-                        <p className="text-[11px] font-semibold text-[#697386] uppercase tracking-wider mb-1">Total Billed</p>
+                        <p className="text-xs font-medium text-[#999999] uppercase tracking-wider mb-1">Total Billed</p>
                         <p className="text-2xl font-bold text-[#111111]">₹{totalBilled.toLocaleString()}</p>
                     </div>
                     <div className="p-4 rounded-xl border border-[#EEEEEE] bg-blue-50/50">
-                        <p className="text-[11px] font-semibold text-blue-600 uppercase tracking-wider mb-1">Remaining Balance</p>
+                        <p className="text-xs font-semibold text-blue-600 uppercase tracking-wider mb-1">Remaining Balance</p>
                         <p className="text-2xl font-bold text-blue-700">₹{remainingBalance.toLocaleString()}</p>
                     </div>
                 </div>
@@ -103,7 +103,7 @@ export const BillingTab: React.FC<BillingTabProps> = ({ requirement }) => {
                 {estimatedCost > 0 && (
                     <div className="mb-8">
                         <div className="flex justify-between items-center mb-1.5">
-                            <span className="text-xs text-[#697386]">Billing Progress</span>
+                            <span className="text-xs text-[#999999]">Billing Progress</span>
                             <span className="text-xs font-semibold text-[#111111]">
                                 {Math.round(Math.min((totalBilled / estimatedCost) * 100, 100))}%
                             </span>
@@ -128,12 +128,12 @@ export const BillingTab: React.FC<BillingTabProps> = ({ requirement }) => {
                     <h4 className="text-sm font-bold text-[#111111] mb-4">Invoice History</h4>
 
                     {isLoading ? (
-                        <div className="text-center py-8 text-[#697386] text-sm">Loading invoices...</div>
+                        <div className="text-center py-8 text-[#999999] text-sm">Loading invoices...</div>
                     ) : invoices.length === 0 ? (
                         <div className="text-center py-12 rounded-xl border border-dashed border-[#DDDDDD] bg-[#FAFAFA]">
                             <FileText className="w-8 h-8 text-[#CCCCCC] mx-auto mb-3" />
                             <p className="text-sm font-medium text-[#111111]">No invoices yet</p>
-                            <p className="text-xs text-[#697386] mt-1">Create an invoice to bill for this requirement.</p>
+                            <p className="text-xs text-[#999999] mt-1">Create an invoice to bill for this requirement.</p>
                             <button
                                 onClick={handleCreateInvoice}
                                 className="mt-4 px-4 py-2 bg-white border border-[#EEEEEE] text-[#111111] text-xs font-bold rounded-lg hover:bg-gray-50 transition-colors"
@@ -146,31 +146,31 @@ export const BillingTab: React.FC<BillingTabProps> = ({ requirement }) => {
                             <table className="w-full text-left border-collapse">
                                 <thead>
                                     <tr className="bg-[#F9FAFB] border-b border-[#EEEEEE]">
-                                        <th className="px-4 py-3 text-[11px] font-semibold text-[#697386] uppercase tracking-wider">Invoice #</th>
-                                        <th className="px-4 py-3 text-[11px] font-semibold text-[#697386] uppercase tracking-wider">Date</th>
-                                        <th className="px-4 py-3 text-[11px] font-semibold text-[#697386] uppercase tracking-wider">Amount</th>
-                                        <th className="px-4 py-3 text-[11px] font-semibold text-[#697386] uppercase tracking-wider">Status</th>
-                                        <th className="px-4 py-3 text-[11px] font-semibold text-[#697386] uppercase tracking-wider text-right">Actions</th>
+                                        <th className="px-4 py-3 text-xs font-semibold text-[#999999] uppercase tracking-wider">Invoice #</th>
+                                        <th className="px-4 py-3 text-xs font-semibold text-[#999999] uppercase tracking-wider">Date</th>
+                                        <th className="px-4 py-3 text-xs font-semibold text-[#999999] uppercase tracking-wider">Amount</th>
+                                        <th className="px-4 py-3 text-xs font-semibold text-[#999999] uppercase tracking-wider">Status</th>
+                                        <th className="px-4 py-3 text-xs font-semibold text-[#999999] uppercase tracking-wider text-right">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {invoices.map((inv, idx) => (
                                         <tr key={inv.id} className={idx !== invoices.length - 1 ? 'border-b border-[#EEEEEE]' : ''}>
                                             <td className="px-4 py-3">
-                                                <p className="text-sm font-semibold text-[#111111]">{inv.invoiceNumber}</p>
+                                                <p className="text-sm font-medium text-[#111111]">{inv.invoiceNumber}</p>
                                             </td>
                                             <td className="px-4 py-3">
-                                                <p className="text-xs text-[#697386]">{inv.date ? dayjs(inv.date).format('MMM D, YYYY') : '--'}</p>
+                                                <p className="text-xs text-[#999999]">{inv.date ? dayjs(inv.date).format('MMM D, YYYY') : '--'}</p>
                                             </td>
                                             <td className="px-4 py-3">
                                                 <p className="text-xs font-medium text-[#111111]">₹{inv.amount.toLocaleString()}</p>
                                             </td>
                                             <td className="px-4 py-3">
-                                                <span className={`inline-flex items-center px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${inv.status === 'paid' ? 'bg-[#E8F5E9] text-[#0F9D58]' :
+                                                <span className={`inline-flex items-center px-2 py-1 rounded-full text-2xs font-bold uppercase tracking-wider ${inv.status === 'paid' ? 'bg-[#E8F5E9] text-[#0F9D58]' :
                                                         inv.status === 'sent' || inv.status === 'open' ? 'bg-blue-50 text-blue-600' :
                                                             inv.status === 'overdue' || inv.status === 'past_due' ? 'bg-red-50 text-[#D14343]' :
                                                                 inv.status === 'partial' ? 'bg-orange-50 text-orange-600' :
-                                                                    'bg-gray-100 text-[#697386]'
+                                                                    'bg-gray-100 text-[#999999]'
                                                     }`}>
                                                     {inv.status}
                                                 </span>
@@ -180,18 +180,18 @@ export const BillingTab: React.FC<BillingTabProps> = ({ requirement }) => {
                                                     <button
                                                         onClick={() => handleDownloadPDF(inv.id, inv.invoiceNumber)}
                                                         disabled={isDownloading[inv.id]}
-                                                        className="p-1.5 text-[#697386] hover:bg-gray-100 rounded-md transition-colors disabled:opacity-50"
+                                                        className="p-1.5 text-[#999999] hover:bg-gray-100 rounded-md transition-colors disabled:opacity-50"
                                                         title="Download PDF"
                                                     >
                                                         {isDownloading[inv.id] ? (
-                                                            <div className="w-4 h-4 rounded-full border-2 border-[#697386] border-t-transparent animate-spin" />
+                                                            <div className="w-4 h-4 rounded-full border-2 border-[#999999] border-t-transparent animate-spin" />
                                                         ) : (
                                                             <Download className="w-4 h-4" />
                                                         )}
                                                     </button>
                                                     <button
                                                         onClick={() => router.push('/dashboard/finance')}
-                                                        className="p-1.5 text-[#697386] hover:bg-gray-100 rounded-md transition-colors"
+                                                        className="p-1.5 text-[#999999] hover:bg-gray-100 rounded-md transition-colors"
                                                         title="View in Finance"
                                                     >
                                                         <ChevronRight className="w-4 h-4" />

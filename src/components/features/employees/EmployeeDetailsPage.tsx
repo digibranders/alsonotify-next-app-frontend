@@ -412,7 +412,7 @@ export function EmployeeDetailsPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {/* Contact Info */}
                     <div className="space-y-6">
-                      <h3 className="text-sm font-bold text-[#999999] uppercase tracking-wide">Contact Information</h3>
+                      <h3 className="text-xs font-medium text-[#999999] uppercase tracking-wider">Contact Information</h3>
                       <div className="space-y-4">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full bg-[#F7F7F7] flex items-center justify-center">
@@ -437,7 +437,7 @@ export function EmployeeDetailsPage() {
 
                     {/* Employment Details */}
                     <div className="space-y-6">
-                      <h3 className="text-sm font-bold text-[#999999] uppercase tracking-wide">Employment Details</h3>
+                      <h3 className="text-xs font-medium text-[#999999] uppercase tracking-wider">Employment Details</h3>
                       <div className="space-y-4">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full bg-[#F7F7F7] flex items-center justify-center">
@@ -469,20 +469,20 @@ export function EmployeeDetailsPage() {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="p-4 bg-[#F7F7F7] rounded-xl">
                       <p className="text-xs text-[#999999] mb-1">Experience</p>
-                      <p className="text-xl font-bold text-[#111111]">{employee.experience} Years</p>
+                      <p className="text-2xl font-bold text-[#111111]">{employee.experience} Years</p>
                     </div>
                     <div className="p-4 bg-[#F7F7F7] rounded-xl">
                       <p className="text-xs text-[#999999] mb-1">Working Hours</p>
-                      <p className="text-xl font-bold text-[#111111]">{employee.workingHours === 0 ? 'N/A' : `${employee.workingHours}h / week`}</p>
+                      <p className="text-2xl font-bold text-[#111111]">{employee.workingHours === 0 ? 'N/A' : `${employee.workingHours}h / week`}</p>
                     </div>
                     <div className="p-4 bg-[#F7F7F7] rounded-xl">
                       <p className="text-xs text-[#999999] mb-1">Leaves Balance</p>
-                      <p className="text-xl font-bold text-[#111111]">{employee.leaves} Days</p>
+                      <p className="text-2xl font-bold text-[#111111]">{employee.leaves} Days</p>
                     </div>
                   </div>
 
                   <div className="mt-8">
-                    <h3 className="text-sm font-bold text-[#999999] uppercase tracking-wide mb-4">Skillsets</h3>
+                    <h3 className="text-xs font-medium text-[#999999] uppercase tracking-wider mb-4">Skillsets</h3>
                     <div className="flex flex-wrap gap-2">
                       {employee.skillsets.split(',').map((skill: string, index: number) => (
                         <Tag key={index} className="bg-[#F7F7F7] text-[#111111] hover:bg-[#EEEEEE] border-0 rounded-full px-3 py-1">
@@ -496,7 +496,7 @@ export function EmployeeDetailsPage() {
 
                   {/* Documents Section */}
                   <div>
-                    <h3 className="text-sm font-bold text-[#999999] uppercase tracking-wide mb-4">Attached Documents</h3>
+                    <h3 className="text-xs font-medium text-[#999999] uppercase tracking-wider mb-4">Attached Documents</h3>
                     {documents && documents.length > 0 ? (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {documents.map((doc: UserDocument) => (
@@ -516,7 +516,7 @@ export function EmployeeDetailsPage() {
                         <p className="text-xs font-medium text-[#666666] mb-1">
                           No documents uploaded
                         </p>
-                        <p className="text-[0.6875rem] text-[#999999] font-normal">
+                        <p className="text-xs text-[#999999] font-medium">
                           Documents will appear here once uploaded
                         </p>
                       </div>

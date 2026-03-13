@@ -57,7 +57,7 @@ export const RequirementApprovalModal = ({
       title={
         <div className="flex flex-col gap-1">
           <span className="text-lg font-bold">Approve Requirement</span>
-          <span className="text-xs text-gray-500 font-normal">
+          <span className="text-xs text-gray-500 font-medium">
             Requirement:{" "}
             <span className="font-semibold text-gray-800">
               {requirement.title || requirement.name || "Untitled"}
@@ -92,7 +92,7 @@ export const RequirementApprovalModal = ({
         <div>
           <label className="block text-sm font-medium mb-2 text-gray-700">
             Quality Rating{" "}
-            <span className="text-gray-400 font-normal">(optional)</span>
+            <span className="text-gray-400 font-medium">(optional)</span>
           </label>
           <Rate value={rating} onChange={setRating} />
           {rating > 0 && (
@@ -104,7 +104,7 @@ export const RequirementApprovalModal = ({
         <div>
           <label className="block text-sm font-medium mb-1.5 text-gray-700">
             Feedback{" "}
-            <span className="text-gray-400 font-normal">(optional)</span>
+            <span className="text-gray-400 font-medium">(optional)</span>
           </label>
           <TextArea
             rows={4}

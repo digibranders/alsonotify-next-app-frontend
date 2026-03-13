@@ -55,7 +55,7 @@ export function DebouncedSearchInput({
                 onChange={handleChange}
                 placeholder={placeholder}
                 aria-label={ariaLabel}
-                className={`w-full pl-9 py-1.5 bg-white border border-[#EEEEEE] rounded-lg text-[0.75rem] font-medium text-[#111111] placeholder:text-[#999999] focus:outline-none focus:border-[#111111] ${
+                className={`w-full pl-9 py-1.5 bg-white border border-[#EEEEEE] rounded-lg text-xs font-medium text-[#111111] placeholder:text-[#999999] focus:outline-none focus:border-[#111111] ${
                     localValue ? 'pr-9' : 'pr-4'
                 }`}
             />

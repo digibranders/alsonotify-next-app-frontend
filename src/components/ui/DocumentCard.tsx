@@ -91,7 +91,7 @@ export function DocumentCard({ document, onPreview, onDownload, showUpload, onUp
           <p className="text-xs font-semibold text-[#111111] mb-0.5 truncate leading-tight">
             {document.fileName}
           </p>
-          <p className="text-[0.6875rem] text-[#666666] font-normal leading-tight">
+          <p className="text-xs text-[#666666] font-medium leading-tight">
             {formatFileSize(document.fileSize)} • {formatDate(document.uploadedDate)}
           </p>
         </div>

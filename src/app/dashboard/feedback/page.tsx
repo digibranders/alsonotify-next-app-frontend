@@ -103,7 +103,7 @@ const UserAvatar = ({ name }: { name?: string | null }) => {
 
   return (
     <div
-      className="w-6 h-6 rounded-full flex items-center justify-center text-[0.625rem] font-bold text-white shrink-0"
+      className="w-6 h-6 rounded-full flex items-center justify-center text-2xs font-bold text-white shrink-0"
       style={{ backgroundColor: bgColor }}
     >
       {initials}
@@ -311,7 +311,7 @@ export default function AdminFeedbackPage() {
                       </div>
                       <div className="flex items-center gap-2">
                         <UserAvatar name={item.createdBy?.name} />
-                        <span className="text-[0.6875rem] text-[#999999] font-medium truncate">
+                        <span className="text-xs text-[#999999] font-medium truncate">
                            {item.description}
                         </span>
                       </div>
@@ -320,7 +320,7 @@ export default function AdminFeedbackPage() {
                     {/* Status */}
                     <div className="flex justify-center">
                       <div
-                        className="px-2 py-0.5 rounded-lg text-[0.6875rem] font-bold flex items-center gap-1.5 whitespace-nowrap"
+                        className="px-2 py-0.5 rounded-lg text-xs font-bold flex items-center gap-1.5 whitespace-nowrap"
                         style={{ backgroundColor: statusConfig.bgColor, color: statusConfig.color }}
                       >
                         {statusConfig.icon}
@@ -331,7 +331,7 @@ export default function AdminFeedbackPage() {
                     {/* Type */}
                     <div className="flex justify-center">
                       <div
-                        className="px-2 py-0.5 rounded-lg text-[0.6875rem] font-bold flex items-center gap-1.5 whitespace-nowrap"
+                        className="px-2 py-0.5 rounded-lg text-xs font-bold flex items-center gap-1.5 whitespace-nowrap"
                         style={{ backgroundColor: typeConfig.bgColor, color: typeConfig.color }}
                       >
                         {typeConfig.icon ? React.cloneElement(typeConfig.icon as React.ReactElement<any>, { className: 'w-3 h-3' }) : null}
@@ -340,7 +340,7 @@ export default function AdminFeedbackPage() {
                     </div>
 
                     {/* Date */}
-                    <div className="text-center text-[0.625rem] font-medium text-[#999999] whitespace-nowrap">
+                    <div className="text-center text-2xs font-medium text-[#999999] whitespace-nowrap">
                       {new Date(item.created_at).toLocaleDateString(undefined, {
                          day: '2-digit',
                          month: 'short',
@@ -401,7 +401,7 @@ export default function AdminFeedbackPage() {
                   <h2 className="text-xl font-bold text-[#111111] mb-3 leading-snug">
                     {selected.title}
                   </h2>
-                  <p className="text-[0.9375rem] text-[#666666] font-normal whitespace-pre-wrap mb-6 leading-relaxed">
+                  <p className="text-sm text-[#666666] font-medium whitespace-pre-wrap mb-6 leading-relaxed">
                     {selected.description}
                   </p>
 

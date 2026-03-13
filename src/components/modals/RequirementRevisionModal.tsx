@@ -105,7 +105,7 @@ export const RequirementRevisionModal = ({
       title={
         <div className="flex flex-col gap-1">
           <span className="text-lg font-bold">Request Revision</span>
-          <span className="text-xs text-gray-500 font-normal">
+          <span className="text-xs text-gray-500 font-medium">
             Requirement:{" "}
             <span className="font-semibold text-gray-800">{requirementName}</span>
           </span>
@@ -122,7 +122,7 @@ export const RequirementRevisionModal = ({
         <div>
           <label className="block text-sm font-medium mb-1.5 text-gray-700">
             Feedback / Requested Changes{" "}
-            <span className="text-gray-400 font-normal">(optional)</span>
+            <span className="text-gray-400 font-medium">(optional)</span>
           </label>
           <TextArea
             rows={5}
@@ -142,7 +142,7 @@ export const RequirementRevisionModal = ({
           <div>
             <label className="block text-sm font-medium mb-2 text-gray-700">
               Reference Existing Documents{" "}
-              <span className="text-gray-400 font-normal">(optional)</span>
+              <span className="text-gray-400 font-medium">(optional)</span>
             </label>
             <div className="flex flex-col gap-1.5 max-h-32 overflow-y-auto">
               {existingFiles.map((file) => (
@@ -162,7 +162,7 @@ export const RequirementRevisionModal = ({
         <div>
           <label className="block text-sm font-medium mb-1.5 text-gray-700">
             Attach New Documents{" "}
-            <span className="text-gray-400 font-normal">(optional)</span>
+            <span className="text-gray-400 font-medium">(optional)</span>
           </label>
           <Upload
             fileList={newFileList}

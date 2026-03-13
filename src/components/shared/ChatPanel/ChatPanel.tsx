@@ -259,7 +259,7 @@ export function ChatPanel({
                         <MessageSquare className="w-5 h-5 text-[#ff3b3b]" />
                         Activity & Chat
                     </h3>
-                    <p className="text-xs text-[#666666] font-normal mt-1">
+                    <p className="text-xs text-[#666666] font-medium mt-1">
                         Team collaboration and updates
                     </p>
                 </div>
@@ -288,7 +288,7 @@ export function ChatPanel({
                                 ? 'bg-[#F0F0F0]'
                                 : 'bg-gradient-to-br from-[#666666] to-[#999999]'
                                 }`}>
-                                <span className={`text-[0.6875rem] font-bold ${activity.isSystem ? 'text-[#999999]' : 'text-white'
+                                <span className={`text-xs font-bold ${activity.isSystem ? 'text-[#999999]' : 'text-white'
                                     }`}>
                                     {activity.avatar}
                                 </span>
@@ -300,7 +300,7 @@ export function ChatPanel({
                                         }`}>
                                         {activity.user}
                                     </span>
-                                    <span className="text-[0.6875rem] text-[#999999] font-normal">
+                                    <span className="text-xs text-[#999999] font-medium">
                                         {activity.date}
                                     </span>
                                 </div>
@@ -309,16 +309,16 @@ export function ChatPanel({
                                     ? 'bg-[#F7F7F7] p-3 rounded-[12px] rounded-tl-none'
                                     : ''
                                     }`}>
-                                    <p className="text-xs text-[#444444] font-normal">
+                                    <p className="text-xs text-[#444444] font-medium">
                                         {activity.message}
                                     </p>
 
                                     {activity.type === 'worklog' && activity.time && (
                                         <div className="flex items-center gap-2 mt-2">
-                                            <span className="px-2 py-1 rounded bg-white text-[#666666] text-[0.6875rem] font-mono border border-[#EEEEEE]">
+                                            <span className="px-2 py-1 rounded bg-white text-[#666666] text-xs font-mono border border-[#EEEEEE]">
                                                 {activity.time}
                                             </span>
-                                            <span className="text-[0.6875rem] text-[#ff3b3b] font-medium">
+                                            <span className="text-xs text-[#ff3b3b] font-medium">
                                                 {activity.task}
                                             </span>
                                         </div>
@@ -330,7 +330,7 @@ export function ChatPanel({
                                                 <div key={idx} className="flex items-center justify-between p-2 bg-white rounded border border-[#EEEEEE] group/file">
                                                     <div className="flex items-center gap-2 min-w-0 flex-1">
                                                         <Paperclip className="w-3.5 h-3.5 text-[#666666] shrink-0" />
-                                                        <span className="text-[0.6875rem] text-[#444444] truncate" title={file.file_name}>{file.file_name}</span>
+                                                        <span className="text-xs text-[#444444] truncate" title={file.file_name}>{file.file_name}</span>
                                                     </div>
                                                     <div className="flex items-center gap-1 shrink-0">
                                                         <button
@@ -380,7 +380,7 @@ export function ChatPanel({
                                 <div key={index} className="flex items-center justify-between p-2 bg-white rounded border border-[#EEEEEE]">
                                     <div className="flex items-center gap-2 flex-1 min-w-0">
                                         <Paperclip className="w-3.5 h-3.5 text-[#666666] shrink-0" />
-                                        <span className="text-[0.6875rem] text-[#444444] truncate">{file.name}</span>
+                                        <span className="text-xs text-[#444444] truncate">{file.name}</span>
                                     </div>
                                     <button
                                         onClick={() => setAttachments(attachments.filter((_, i) => i !== index))}
@@ -402,7 +402,7 @@ export function ChatPanel({
                                 zIndex: 1,
                                 color: '#111111',
                                 fontFamily: 'inherit',
-                                fontSize: '0.75rem',
+                                fontSize: "var(--font-size-xs)",
                                 lineHeight: '20px',
                                 fontWeight: 400,
                                 letterSpacing: 'normal'
@@ -427,7 +427,7 @@ export function ChatPanel({
                                 color: 'transparent',
                                 caretColor: '#111111',
                                 fontFamily: 'inherit',
-                                fontSize: '0.75rem',
+                                fontSize: "var(--font-size-xs)",
                                 lineHeight: '20px',
                                 fontWeight: 400,
                                 letterSpacing: 'normal'

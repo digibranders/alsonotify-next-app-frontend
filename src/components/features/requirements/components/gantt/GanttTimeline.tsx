@@ -112,7 +112,7 @@ export const GanttTimeline: React.FC = () => {
             <div className="flex flex-col items-center justify-center h-full gap-3 bg-[#FAFAFA]">
                 <BarChart2 className="w-10 h-10 text-[#CCCCCC]" />
                 <p className="text-xs font-semibold text-[#999999]">No tasks with dates to display</p>
-                <p className="text-[0.6875rem] font-normal text-[#BBBBBB]">Add start and end dates to tasks to see them here</p>
+                <p className="text-xs font-medium text-[#BBBBBB]">Add start and end dates to tasks to see them here</p>
             </div>
         );
     }
@@ -225,7 +225,7 @@ const TimelineRow: React.FC<{ task: GanttTask }> = ({ task }) => {
                         }}
                     />
                     <div className="relative z-10 flex items-center w-full px-2 overflow-hidden">
-                        <span className="text-[0.625rem] font-bold truncate uppercase tracking-tight"
+                        <span className="text-2xs font-bold truncate uppercase tracking-tight"
                             style={{ color: task.color }}>
                             {task.name}
                         </span>
@@ -240,22 +240,22 @@ const TimelineRow: React.FC<{ task: GanttTask }> = ({ task }) => {
                     style={{ left: `${tooltip.x}px`, top: `${tooltip.y}px` }}
                 >
                     <div className="bg-[#111111] text-white rounded-[8px] px-3 py-2 shadow-lg min-w-[160px]">
-                        <p className="text-[0.6875rem] font-bold mb-1.5 text-white truncate max-w-[220px]">{task.name}</p>
+                        <p className="text-xs font-bold mb-1.5 text-white truncate max-w-[220px]">{task.name}</p>
                         {task.start_date && (
-                            <p className="text-[0.625rem] font-normal text-[#AAAAAA]">
+                            <p className="text-2xs font-medium text-[#AAAAAA]">
                                 Start: <span className="text-white">{format(new Date(task.start_date), 'MMM d, yyyy')}</span>
                             </p>
                         )}
                         {task.end_date && (
-                            <p className="text-[0.625rem] font-normal text-[#AAAAAA]">
+                            <p className="text-2xs font-medium text-[#AAAAAA]">
                                 End: <span className="text-white">{format(new Date(task.end_date), 'MMM d, yyyy')}</span>
                             </p>
                         )}
                         {task.progress != null && (
                             <div className="mt-1.5">
                                 <div className="flex items-center justify-between mb-0.5">
-                                    <span className="text-[0.5625rem] font-bold text-[#AAAAAA] uppercase tracking-wide">Progress</span>
-                                    <span className="text-[0.5625rem] font-bold text-white">{task.progress}%</span>
+                                    <span className="text-2xs font-bold text-[#AAAAAA] uppercase tracking-wide">Progress</span>
+                                    <span className="text-2xs font-bold text-white">{task.progress}%</span>
                                 </div>
                                 <div className="h-1 bg-[#333333] rounded-full overflow-hidden">
                                     <div

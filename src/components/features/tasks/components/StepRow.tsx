@@ -38,21 +38,21 @@ export function StepRow({
         {/* Assignee */}
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#ff3b3b] to-[#ff6b6b] flex items-center justify-center">
-            <span className="text-[0.6875rem] text-white font-bold">
+            <span className="text-xs text-white font-bold">
               {step.assignee ? step.assignee.charAt(0) : 'U'}
             </span>
           </div>
-          <span className="text-[0.75rem] font-semibold text-[#111111]">{step.assignee || 'Unassigned'}</span>
+          <span className="text-xs font-semibold text-[#111111]">{step.assignee || 'Unassigned'}</span>
         </div>
 
         {/* Role */}
         <div>
-          <span className="text-[0.75rem] text-[#666666] font-medium">{step.role || 'N/A'}</span>
+          <span className="text-xs text-[#666666] font-medium">{step.role || 'N/A'}</span>
         </div>
 
         {/* Hours */}
         <div className="flex justify-center">
-          <span className="text-[0.75rem] text-[#111111] font-medium">{step.estHours || 0} hrs</span>
+          <span className="text-xs text-[#111111] font-medium">{step.estHours || 0} hrs</span>
         </div>
 
         {/* Status */}

@@ -138,7 +138,7 @@ export function CalendarPage() {
           <ChevronLeft className="w-4 h-4 text-[#666666]" />
         </button>
         <div className="px-4 py-2 bg-[#F7F7F7] rounded-[8px] border border-[#EEEEEE]">
-          <span className="font-['Manrope:SemiBold',sans-serif] text-[14px] text-[#111111]">
+          <span className="font-['Manrope:SemiBold',sans-serif] text-sm text-[#111111]">
             {currentMonth}
           </span>
         </div>
@@ -188,14 +188,14 @@ export function CalendarPage() {
                       {events.slice(0, 2).map((event) => (
                         <div
                           key={event.id}
-                          className="px-2 py-1 rounded-[4px] text-[10px] font-['Manrope:Medium',sans-serif] text-white truncate"
+                          className="px-2 py-1 rounded-[4px] text-2xs font-['Manrope:Medium',sans-serif] text-white truncate"
                           style={{ backgroundColor: event.color }}
                         >
                           {event.title}
                         </div>
                       ))}
                       {events.length > 2 && (
-                        <div className="text-[10px] font-['Manrope:Medium',sans-serif] text-[#666666] px-2">
+                        <div className="text-2xs font-['Manrope:Medium',sans-serif] text-[#666666] px-2">
                           +{events.length - 2} more
                         </div>
                       )}
@@ -211,7 +211,7 @@ export function CalendarPage() {
         <div className="flex flex-col gap-4 overflow-y-auto scrollbar-hide">
           {/* Today's Events */}
           <div className="bg-[#F7F7F7] rounded-[16px] p-5 flex-shrink-0">
-            <h4 className="font-['Manrope:SemiBold',sans-serif] text-[14px] text-[#111111] mb-4">
+            <h4 className="font-['Manrope:SemiBold',sans-serif] text-sm text-[#111111] mb-4">
               Today&apos;s Events
             </h4>
             <div className="space-y-3">
@@ -229,23 +229,23 @@ export function CalendarPage() {
                         <div className="font-['Manrope:SemiBold',sans-serif] text-xs text-[#111111] mb-1 break-words">
                           {event.title}
                         </div>
-                        <div className="flex items-center gap-1 text-[11px] font-['Manrope:Regular',sans-serif] text-[#666666] mb-2">
+                        <div className="flex items-center gap-1 text-xs font-['Manrope:Regular',sans-serif] text-[#666666] mb-2">
                           <Clock className="w-3 h-3" />
                           {event.time}
                         </div>
                         {event.location && (
-                          <div className="flex items-center gap-1 text-[11px] font-['Manrope:Regular',sans-serif] text-[#666666]">
+                          <div className="flex items-center gap-1 text-xs font-['Manrope:Regular',sans-serif] text-[#666666]">
                             <MapPin className="w-3 h-3" />
                             {event.location}
                           </div>
                         )}
                         {event.type === 'holiday' && (
-                          <div className="flex items-center gap-1 text-[11px] font-['Manrope:Regular',sans-serif] text-[#666666]">
+                          <div className="flex items-center gap-1 text-xs font-['Manrope:Regular',sans-serif] text-[#666666]">
                              Public Holiday
                           </div>
                         )}
                         {event.type === 'holiday' && (
-                          <div className="flex items-center gap-1 text-[11px] font-['Manrope:Regular',sans-serif] text-[#666666]">
+                          <div className="flex items-center gap-1 text-xs font-['Manrope:Regular',sans-serif] text-[#666666]">
                              Public Holiday
                           </div>
                         )}
@@ -263,7 +263,7 @@ export function CalendarPage() {
 
           {/* Upcoming Events */}
           <div className="bg-[#F7F7F7] rounded-[16px] p-5 flex-shrink-0">
-            <h4 className="font-['Manrope:SemiBold',sans-serif] text-[14px] text-[#111111] mb-4">
+            <h4 className="font-['Manrope:SemiBold',sans-serif] text-sm text-[#111111] mb-4">
               Upcoming
             </h4>
             <div className="space-y-3">
@@ -278,7 +278,7 @@ export function CalendarPage() {
                       <div className="font-['Manrope:SemiBold',sans-serif] text-xs text-[#111111] mb-1 break-words">
                         {event.title}
                       </div>
-                      <div className="flex items-center gap-1 text-[11px] font-['Manrope:Regular',sans-serif] text-[#666666]">
+                      <div className="flex items-center gap-1 text-xs font-['Manrope:Regular',sans-serif] text-[#666666]">
                         <CalendarIcon className="w-3 h-3" />
                         {new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} • {event.time}
                       </div>
@@ -291,33 +291,33 @@ export function CalendarPage() {
 
           {/* Event Types Legend */}
           <div className="bg-[#F7F7F7] rounded-[16px] p-5">
-            <h4 className="font-['Manrope:SemiBold',sans-serif] text-[14px] text-[#111111] mb-4">
+            <h4 className="font-['Manrope:SemiBold',sans-serif] text-sm text-[#111111] mb-4">
               Event Types
             </h4>
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-[#3B82F6]" />
-                <span className="text-[12px] font-['Manrope:Regular',sans-serif] text-[#666666]">Meetings</span>
+                <span className="text-xs font-['Manrope:Regular',sans-serif] text-[#666666]">Meetings</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-[#ff3b3b]" />
-                <span className="text-[12px] font-['Manrope:Regular',sans-serif] text-[#666666]">Deadlines</span>
+                <span className="text-xs font-['Manrope:Regular',sans-serif] text-[#666666]">Deadlines</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-[#8b5cf6]" />
-                <span className="text-[12px] font-['Manrope:Regular',sans-serif] text-[#666666]">Events</span>
+                <span className="text-xs font-['Manrope:Regular',sans-serif] text-[#666666]">Events</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-[#f59e0b]" />
-                <span className="text-[12px] font-['Manrope:Regular',sans-serif] text-[#666666]">Leaves</span>
+                <span className="text-xs font-['Manrope:Regular',sans-serif] text-[#666666]">Leaves</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-[#8B5CF6]" />
-                <span className="text-[12px] font-['Manrope:Regular',sans-serif] text-[#666666]">Holidays</span>
+                <span className="text-xs font-['Manrope:Regular',sans-serif] text-[#666666]">Holidays</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-[#8B5CF6]" />
-                <span className="text-[12px] font-['Manrope:Regular',sans-serif] text-[#666666]">Holidays</span>
+                <span className="text-xs font-['Manrope:Regular',sans-serif] text-[#666666]">Holidays</span>
               </div>
             </div>
           </div>

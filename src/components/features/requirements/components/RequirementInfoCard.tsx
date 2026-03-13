@@ -26,7 +26,7 @@ export function RequirementInfoCard({ requirement, tasks, timezone }: Requiremen
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {/* Type */}
           <div>
-            <p className="text-xxs font-bold text-[#999999] uppercase tracking-wider mb-2">Type</p>
+            <p className="text-xs font-medium text-[#999999] uppercase tracking-wider mb-2">Type</p>
             <p className="text-sm font-medium text-[#111111] uppercase">
               {requirement.type === 'outsourced'
                 ? (requirement.isReceiver ? 'Client work' : 'Outsourced')
@@ -36,7 +36,7 @@ export function RequirementInfoCard({ requirement, tasks, timezone }: Requiremen
 
           {/* Partner / Company */}
           <div>
-            <p className="text-xxs font-bold text-[#999999] uppercase tracking-wider mb-2">Partner / Company</p>
+            <p className="text-xs font-medium text-[#999999] uppercase tracking-wider mb-2">Partner / Company</p>
             <p className="text-sm font-medium text-[#111111]">
               {requirement.sender_company?.name || 'In-house'}
             </p>
@@ -44,7 +44,7 @@ export function RequirementInfoCard({ requirement, tasks, timezone }: Requiremen
 
           {/* Start Date */}
           <div>
-            <p className="text-xxs font-bold text-[#999999] uppercase tracking-wider mb-2">Start Date</p>
+            <p className="text-xs font-medium text-[#999999] uppercase tracking-wider mb-2">Start Date</p>
             <p className="text-sm font-medium text-[#111111]">
               {requirement.start_date ? formatDateForDisplay(requirement.start_date, timezone) : 'Not set'}
             </p>
@@ -52,7 +52,7 @@ export function RequirementInfoCard({ requirement, tasks, timezone }: Requiremen
 
           {/* End Date */}
           <div>
-            <p className="text-xxs font-bold text-[#999999] uppercase tracking-wider mb-2">Due Date</p>
+            <p className="text-xs font-medium text-[#999999] uppercase tracking-wider mb-2">Due Date</p>
             <p className="text-sm font-medium text-[#111111]">
               {requirement.end_date ? formatDateForDisplay(requirement.end_date, timezone) : 'Not set'}
             </p>
@@ -60,7 +60,7 @@ export function RequirementInfoCard({ requirement, tasks, timezone }: Requiremen
 
           {/* Contact Person */}
           <div>
-            <p className="text-xxs font-bold text-[#999999] uppercase tracking-wider mb-2">Contact Person</p>
+            <p className="text-xs font-medium text-[#999999] uppercase tracking-wider mb-2">Contact Person</p>
             <p className="text-sm font-medium text-[#111111]">
               {(typeof requirement.contact_person === 'string'
                 ? requirement.contact_person
@@ -71,7 +71,7 @@ export function RequirementInfoCard({ requirement, tasks, timezone }: Requiremen
           {/* Quoted Price - Hide for in-house */}
           {requirement.type !== 'inhouse' && !['inhouse', 'Inhouse'].includes(requirement.type || '') && (
             <div>
-              <p className="text-xxs font-bold text-[#999999] uppercase tracking-wider mb-2">Quoted Price</p>
+              <p className="text-xs font-medium text-[#999999] uppercase tracking-wider mb-2">Quoted Price</p>
               <p className="text-sm font-medium text-[#111111]">
                 ${requirement.quoted_price ? Number(requirement.quoted_price).toFixed(2) : '0.00'}
               </p>
@@ -80,7 +80,7 @@ export function RequirementInfoCard({ requirement, tasks, timezone }: Requiremen
 
           {/* Total Tasks */}
           <div>
-            <p className="text-xxs font-bold text-[#999999] uppercase tracking-wider mb-2">Total Tasks</p>
+            <p className="text-xs font-medium text-[#999999] uppercase tracking-wider mb-2">Total Tasks</p>
             <p className="text-sm font-medium text-[#111111]">
               {requirement.total_task || tasks.length || 0}
             </p>
@@ -89,7 +89,7 @@ export function RequirementInfoCard({ requirement, tasks, timezone }: Requiremen
           {/* Leader */}
           {requirement.leader_user && (
             <div>
-              <p className="text-xxs font-bold text-[#999999] uppercase tracking-wider mb-2">Leader</p>
+              <p className="text-xs font-medium text-[#999999] uppercase tracking-wider mb-2">Leader</p>
               <p className="text-sm font-medium text-[#111111]">
                 {requirement.leader_user.name || 'N/A'}
               </p>
@@ -99,7 +99,7 @@ export function RequirementInfoCard({ requirement, tasks, timezone }: Requiremen
           {/* Manager */}
           {requirement.manager_user && (
             <div>
-              <p className="text-xxs font-bold text-[#999999] uppercase tracking-wider mb-2">Manager</p>
+              <p className="text-xs font-medium text-[#999999] uppercase tracking-wider mb-2">Manager</p>
               <p className="text-sm font-medium text-[#111111]">
                 {requirement.manager_user.name || 'N/A'}
               </p>
@@ -109,7 +109,7 @@ export function RequirementInfoCard({ requirement, tasks, timezone }: Requiremen
           {/* Document Link */}
           {sanitizeUrl(requirement.document_link) && (
             <div>
-              <p className="text-xxs font-bold text-[#999999] uppercase tracking-wider mb-2">Document</p>
+              <p className="text-xs font-medium text-[#999999] uppercase tracking-wider mb-2">Document</p>
               <a
                 href={sanitizeUrl(requirement.document_link)}
                 target="_blank"
@@ -124,7 +124,7 @@ export function RequirementInfoCard({ requirement, tasks, timezone }: Requiremen
           {/* Priority */}
           {requirement.is_high_priority && (
             <div>
-              <p className="text-xxs font-bold text-[#999999] uppercase tracking-wider mb-2">Priority</p>
+              <p className="text-xs font-medium text-[#999999] uppercase tracking-wider mb-2">Priority</p>
               <span className="px-2 py-1 bg-[#FFF5F5] text-[#ff3b3b] text-xs font-bold rounded-full">
                 High Priority
               </span>
@@ -242,7 +242,7 @@ export function RequirementInfoCard({ requirement, tasks, timezone }: Requiremen
             <RotateCcw className="w-4 h-4 text-[#ff3b3b]" />
             Revision Requested
             {(requirement.revision_round ?? 0) > 0 && (
-              <span className="ml-2 px-2 py-0.5 bg-[#FFF5F5] text-[#ff3b3b] text-xxs font-bold rounded-full">
+              <span className="ml-2 px-2 py-0.5 bg-[#FFF5F5] text-[#ff3b3b] text-2xs font-bold rounded-full">
                 Round {requirement.revision_round}
               </span>
             )}

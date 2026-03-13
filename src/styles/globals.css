@@ -2,15 +2,54 @@
 @config "../../tailwind.config.js";
 
 @theme {
-    --font-size-xxs: 0.625rem;
-    --font-size-xs: 0.75rem;
-    --font-size-sm: 0.75rem;
-    --font-size-base: 0.875rem;
-    --font-size-lg: 1rem;
+    /* --- TYPOGRAPHY SCALE (Single Source of Truth) --- */
+    /* Major Third (1.25) Scale for Headings */
+
+    --text-2xs: 0.625rem;          /* 10px */
+    --text-2xs--line-height: 0.875rem; /* 14px (1.4) */
+
+    --text-xs: 0.75rem;            /* 12px */
+    --text-xs--line-height: 1.125rem; /* 18px (1.5) */
+
+    --text-sm: 0.875rem;           /* 14px */
+    --text-sm--line-height: 1.25rem; /* 20px (1.43) */
+
+    --text-base: 1rem;             /* 16px */
+    --text-base--line-height: 1.5rem; /* 24px (1.5) */
+
+    --text-lg: 1.125rem;           /* 18px */
+    --text-lg--line-height: 1.625rem; /* 26px (1.44) */
+
+    --text-xl: 1.25rem;            /* 20px */
+    --text-xl--line-height: 1.75rem; /* 28px (1.4) */
+
+    --text-2xl: 1.5rem;            /* 24px */
+    --text-2xl--line-height: 2rem; /* 32px (1.33) */
+
+    --text-3xl: 1.875rem;          /* 30px */
+    --text-3xl--line-height: 2.25rem; /* 36px (1.2) */
+
+    --text-4xl: 2.25rem;           /* 36px */
+    --text-4xl--line-height: 2.5rem; /* 40px (1.11) */
+
+    --text-5xl: 3rem;              /* 48px */
+    --text-5xl--line-height: 1.1; 
+    --text-5xl--letter-spacing: -0.02em;
+
+    --text-6xl: 3.75rem;           /* 60px */
+    --text-6xl--line-height: 1.1;
+    --text-6xl--letter-spacing: -0.02em;
+}
+
+/* Global Premium Refinements */
+html {
+    font-size: var(--font-size);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 :root {
-    --font-size: 16px;
+    --font-size: var(--text-base);
     --background: #ffffff;
     --foreground: oklch(0.145 0 0);
     --card: #ffffff;
@@ -31,8 +70,6 @@
     --input: transparent;
     --input-background: #f3f3f5;
     --switch-background: #cbced4;
-    --font-weight-medium: 500;
-    --font-weight-normal: 400;
     --ring: oklch(0.708 0 0);
     --chart-1: oklch(0.646 0.222 41.116);
     --chart-2: oklch(0.6 0.118 184.704);
@@ -70,8 +107,6 @@
     --border: oklch(0.269 0 0);
     --input: oklch(0.269 0 0);
     --ring: oklch(0.439 0 0);
-    --font-weight-medium: 500;
-    --font-weight-normal: 400;
     --chart-1: oklch(0.488 0.243 264.376);
     --chart-2: oklch(0.696 0.17 162.48);
     --chart-3: oklch(0.769 0.188 70.08);
@@ -238,7 +273,7 @@ select:disabled,
 
 .ant-select-item {
     font-family: "Manrope", sans-serif !important;
-    font-size: 0.75rem !important;
+    font-size: var(--text-xs) !important;
     color: #111111 !important;
     padding: 8px 12px !important;
     border-radius: 6px !important;
@@ -259,7 +294,7 @@ select:disabled,
     content: "✓" !important;
     float: right !important;
     color: #666666 !important;
-    font-size: 0.75rem !important;
+    font-size: var(--text-xs) !important;
     font-weight: 600 !important;
 }
 
@@ -274,7 +309,7 @@ select:disabled,
     padding: 0 12px !important;
     font-family: "Manrope", sans-serif !important;
     font-weight: 500 !important;
-    font-size: 0.75rem !important;
+    font-size: var(--text-xs) !important;
 }
 
 .ant-select-focused .ant-select-selector {
@@ -557,7 +592,7 @@ select:disabled,
 .ant-picker-header-view {
     font-family: "Manrope", sans-serif !important;
     font-weight: 700 !important;
-    font-size: 0.9375rem !important;
+    font-size: var(--text-sm) !important;
     color: #111111 !important;
 }
 
@@ -580,7 +615,7 @@ select:disabled,
 .ant-picker-content th {
     font-family: "Manrope", sans-serif !important;
     font-weight: 700 !important;
-    font-size: 0.75rem !important;
+    font-size: var(--text-xs) !important;
     color: #999999 !important;
     text-transform: uppercase !important;
     letter-spacing: 0.05em !important;
@@ -591,7 +626,7 @@ select:disabled,
 .ant-picker-cell-inner {
     font-family: "Manrope", sans-serif !important;
     font-weight: 500 !important;
-    font-size: 0.75rem !important;
+    font-size: var(--text-xs) !important;
     width: 34px !important;
     height: 34px !important;
     line-height: 34px !important;
@@ -786,4 +821,15 @@ input[type="number"]::-webkit-inner-spin-button {
 input[type="number"] {
     -moz-appearance: textfield;
     appearance: textfield;
+}
+
+/* Task Row Typography */
+.task-row-main {
+    font-size: var(--text-sm) !important;
+    line-height: var(--text-sm--line-height) !important;
+}
+
+.task-row-sub {
+    font-size: var(--text-xs) !important;
+    line-height: var(--text-xs--line-height) !important;
 }

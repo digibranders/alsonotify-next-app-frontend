@@ -132,7 +132,7 @@ export function TaskActionPanel({ task, currentUser, onAction, onCompleteRequest
           <span className="text-xs font-bold text-[#111111]">
             {canAct ? 'Action Required' : 'Status'}
           </span>
-          <span className="text-[0.6875rem] text-[#666666] font-medium">
+          <span className="text-xs text-[#666666] font-medium">
             {canAct ? subLabel : disabledReason}
           </span>
         </div>

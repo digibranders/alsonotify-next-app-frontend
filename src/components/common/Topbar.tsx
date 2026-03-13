@@ -338,7 +338,7 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
       {
         key: 'create-new',
         type: 'group',
-        label: <span className="text-[0.6875rem] text-[#999999] uppercase tracking-wider font-medium">Create New</span>,
+        label: <span className="text-xs text-[#999999] uppercase tracking-wider font-medium">Create New</span>,
         children
       }
     ];
@@ -353,7 +353,7 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
       key: 'account',
       type: 'group',
       label: (
-        <span className="text-[#111111] font-bold font-bold text-sm">
+        <span className="text-sm font-semibold text-[#111111]">
           {isIndividual ? 'Personal Account' : 'Organization Account'}
         </span>
       ),
@@ -387,7 +387,7 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
       <div className="bg-white rounded-full px-4 py-2 w-full">
         <div className="flex flex-row items-center justify-between w-full">
           {/* Left: Mobile menu button (below lg) + Greeting text */}
-          <div className="flex flex-col font-normal font-normal justify-center not-italic text-[#111111] text-nowrap">
+          <div className="flex flex-col font-medium font-medium justify-center not-italic text-[#111111] text-nowrap">
             <div className="flex items-center gap-3">
               {isNarrow && (
                 <button
@@ -407,8 +407,8 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
                 </>
               ) : (
                 <>
-                  <p className="leading-[normal] text-xl whitespace-pre hidden md:block">
-                    <span className="font-normal">{`👋 ${greeting}! `}</span>
+                  <p className="leading-[normal] text-base whitespace-pre hidden md:block">
+                    <span className="font-medium">{`👋 ${greeting}! `}</span>
                     <span className="font-semibold">{firstName}</span>
                   </p>
                   <div className="hidden md:block">
@@ -461,7 +461,7 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
                 {/* Notification Badge */}
                 {unreadCount > 0 && (
                   <span className="absolute top-0 right-0 w-3.5 h-3.5 bg-[#ff3b3b] rounded-full border-[1.5px] border-white flex items-center justify-center translate-x-1 -translate-y-1">
-                    <span className="text-[0.5rem] font-bold text-white leading-none">{unreadCount}</span>
+                    <span className="text-2xs font-bold text-white leading-none">{unreadCount}</span>
                   </span>
                 )}
               </button>

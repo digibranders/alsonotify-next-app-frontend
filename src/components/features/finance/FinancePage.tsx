@@ -410,11 +410,11 @@ export function FinancePage() {
                   </div>
                   <div className="w-1/2 pl-6 flex items-center gap-8">
                     <div className="flex flex-col">
-                      <span className="text-xxs uppercase tracking-wider font-bold text-[#999999]">Received</span>
+                      <span className="text-2xs uppercase tracking-wider font-bold text-[#999999]">Received</span>
                       <span className="text-sm font-bold text-[#0F9D58]">{currencySymbol}{kpiInvoiced.received.toLocaleString()}</span>
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-xxs uppercase tracking-wider font-bold text-[#999999]">Due</span>
+                      <span className="text-2xs uppercase tracking-wider font-bold text-[#999999]">Due</span>
                       <span className="text-sm font-bold text-[#FF3B3B]">{currencySymbol}{kpiInvoiced.due.toLocaleString()}</span>
                     </div>
                   </div>
@@ -520,7 +520,7 @@ export function FinancePage() {
                     ))
                   ) : filteredInvoices.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="px-6 py-12 text-center text-[#999999] font-normal">
+                      <td colSpan={6} className="px-6 py-12 text-center text-[#999999] font-medium">
                         No invoices found
                       </td>
                     </tr>
@@ -528,9 +528,9 @@ export function FinancePage() {
                     filteredInvoices.map(invoice => (
                       <tr key={invoice.id} className="hover:bg-[#F9FAFB] transition-colors group cursor-pointer" onClick={() => router.push(`/dashboard/finance/invoices/${invoice.id}`)}>
                         <td className="px-6 py-4 text-sm font-medium text-[#111111]">{invoice.invoiceNumber}</td>
-                        <td className="px-6 py-4 text-sm font-normal text-[#111111]">{invoice.client}</td>
-                        <td className="px-6 py-4 text-sm font-normal text-[#666666]">{dayjs(invoice.date).format('MMM D, YYYY')}</td>
-                        <td className="px-6 py-4 text-sm font-semibold text-[#111111]">{currencySymbol}{invoice.amount.toLocaleString()}</td>
+                        <td className="px-6 py-4 text-sm font-medium text-[#111111]">{invoice.client}</td>
+                        <td className="px-6 py-4 text-sm font-medium text-[#666666]">{dayjs(invoice.date).format('MMM D, YYYY')}</td>
+                        <td className="px-6 py-4 text-sm font-medium text-[#111111]">{currencySymbol}{invoice.amount.toLocaleString()}</td>
                         <td className="px-6 py-4">
                           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${getStatusColor(invoice.status)}`}>
                             {invoice.status}
@@ -625,7 +625,7 @@ function EmptyState({ icon, title, description }: { icon: React.ReactNode, title
       </div>
       <div>
         <h3 className="text-base font-semibold text-[#111111] mb-2">{title}</h3>
-        <p className="text-sm text-[#666666] font-normal">{description}</p>
+        <p className="text-sm text-[#666666] font-medium">{description}</p>
       </div>
     </div>
   );
@@ -684,10 +684,10 @@ function ClientGroup({
         <table className="w-full">
           <thead className="bg-white border-b border-[#EEEEEE]">
             <tr>
-              <th className="px-6 py-2 text-left text-xxs text-[#999999] uppercase font-bold">Requirement</th>
-              <th className="px-6 py-2 text-left text-xxs text-[#999999] uppercase font-bold">Type</th>
-              <th className="px-6 py-2 text-left text-xxs text-[#999999] uppercase font-bold">Due Date</th>
-              <th className="px-6 py-2 text-left text-xxs text-[#999999] uppercase font-bold">Amount</th>
+              <th className="px-6 py-2 text-left text-2xs text-[#999999] uppercase font-bold">Requirement</th>
+              <th className="px-6 py-2 text-left text-2xs text-[#999999] uppercase font-bold">Type</th>
+              <th className="px-6 py-2 text-left text-2xs text-[#999999] uppercase font-bold">Due Date</th>
+              <th className="px-6 py-2 text-left text-2xs text-[#999999] uppercase font-bold">Amount</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[#EEEEEE]">
@@ -700,7 +700,7 @@ function ClientGroup({
                   </div>
                 </td>
                 <td className="px-6 py-4">
-                  <span className="px-2 py-1 rounded-full bg-[#F7F7F7] text-[#666666] text-xxs">
+                  <span className="px-2 py-1 rounded-full bg-[#F7F7F7] text-[#666666] text-2xs">
                     {req.type}
                   </span>
                 </td>

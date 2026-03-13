@@ -279,7 +279,7 @@ export function RequirementHeader({
 
           <StatusBadge status={requirementStatus} showLabel />
           {requirement.is_high_priority && (
-            <span className="px-3 py-1.5 rounded-full text-[0.6875rem] font-semibold uppercase tracking-wide bg-[#FFF5F5] text-[#ff3b3b]">
+            <span className="px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wide bg-[#FFF5F5] text-[#ff3b3b]">
               HIGH PRIORITY
             </span>
           )}
@@ -288,7 +288,7 @@ export function RequirementHeader({
               const name = typeof person === 'string' ? person : person?.name || 'U';
               return (
                 <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-gradient-to-br from-[#ff3b3b] to-[#ff6b6b] flex items-center justify-center shadow-sm" title={name}>
-                  <span className="text-[0.625rem] text-white font-bold">
+                  <span className="text-2xs text-white font-bold">
                     {name.split(' ').map((n: string) => n[0]).join('').toUpperCase()}
                   </span>
                 </div>
