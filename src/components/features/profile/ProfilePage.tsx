@@ -1046,7 +1046,7 @@ export function ProfilePage() {
                                                 <Bell className="w-5 h-5 text-[#ff3b3b]" />
                                             </div>
                                             <div>
-                                                <div className="text-sm font-semibold text-[#111111] mb-1">
+                                                <div className="text-sm font-medium text-[#111111] mb-1">
                                                     Email Notifications
                                                 </div>
                                                 <div className="text-xs font-normal text-[#666666]">
@@ -1080,7 +1080,7 @@ export function ProfilePage() {
                                                 <Shield className="w-5 h-5 text-[#ff3b3b]" />
                                             </div>
                                             <div>
-                                                <div className="text-sm font-semibold text-[#111111] mb-1">
+                                                <div className="text-sm font-medium text-[#111111] mb-1">
                                                     Security Alerts
                                                 </div>
                                                 <div className="text-xs font-normal text-[#666666]">

@@ -103,7 +103,7 @@ export function EditManagerPartnersModal({
                     </div>
                     <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                            <h3 className="text-sm font-semibold text-[#111111]">
+                            <h3 className="text-sm font-medium text-[#111111]">
                                 {manager.name}
                             </h3>
                             {manager.role && (

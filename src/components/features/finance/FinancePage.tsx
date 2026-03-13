@@ -530,7 +530,7 @@ export function FinancePage() {
                         <td className="px-6 py-4 text-sm font-medium text-[#111111]">{invoice.invoiceNumber}</td>
                         <td className="px-6 py-4 text-sm font-normal text-[#111111]">{invoice.client}</td>
                         <td className="px-6 py-4 text-sm font-normal text-[#666666]">{dayjs(invoice.date).format('MMM D, YYYY')}</td>
-                        <td className="px-6 py-4 text-sm font-semibold text-[#111111]">{currencySymbol}{invoice.amount.toLocaleString()}</td>
+                        <td className="px-6 py-4 text-sm font-medium text-[#111111]">{currencySymbol}{invoice.amount.toLocaleString()}</td>
                         <td className="px-6 py-4">
                           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${getStatusColor(invoice.status)}`}>
                             {invoice.status}

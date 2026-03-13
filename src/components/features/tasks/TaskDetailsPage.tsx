@@ -461,7 +461,7 @@ export function TaskDetailsPage() {
                   <div className="bg-[#FAFAFA] p-5 rounded-xl border border-[#F5F5F5] flex items-center justify-between flex-1">
                     <div>
                       <p className="text-xs text-[#999999] mb-1 uppercase tracking-tighter">Start Date</p>
-                      <p className="text-sm font-semibold text-[#111111]">
+                      <p className="text-sm font-medium text-[#111111]">
                         {task.start_date ? format(new Date(task.start_date), 'MMM d, yyyy') : 'Not set'}
                       </p>
                     </div>
@@ -471,7 +471,7 @@ export function TaskDetailsPage() {
                     </div>
                     <div className="text-right">
                       <p className="text-xs text-[#999999] mb-1 uppercase tracking-tighter">Due Date</p>
-                      <p className="text-sm font-semibold text-[#111111]">
+                      <p className="text-sm font-medium text-[#111111]">
                         {task.end_date ? format(new Date(task.end_date), 'MMM d, yyyy') : 'Not set'}
                       </p>
                     </div>

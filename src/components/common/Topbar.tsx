@@ -353,7 +353,7 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
       key: 'account',
       type: 'group',
       label: (
-        <span className="text-[#111111] font-bold font-bold text-sm">
+        <span className="text-sm font-semibold text-[#111111]">
           {isIndividual ? 'Personal Account' : 'Organization Account'}
         </span>
       ),
@@ -407,7 +407,7 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
                 </>
               ) : (
                 <>
-                  <p className="leading-[normal] text-xl whitespace-pre hidden md:block">
+                  <p className="leading-[normal] text-base whitespace-pre hidden md:block">
                     <span className="font-normal">{`👋 ${greeting}! `}</span>
                     <span className="font-semibold">{firstName}</span>
                   </p>

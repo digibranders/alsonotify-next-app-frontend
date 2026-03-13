@@ -61,7 +61,7 @@ export default function ForgotPasswordPage() {
                     <h2 className="text-3xl font-bold text-[#111111] tracking-tight">
                         {isSubmitted ? "Check your inbox" : "Forgot Password?"}
                     </h2>
-                    <p className="text-[#666666]">
+                    <p className="text-sm font-normal text-[#666666]">
                         {isSubmitted
                             ? `We've sent a password reset link to ${email}`
                             : "Enter your email address and we'll send you a link to reset your password."
@@ -73,7 +73,7 @@ export default function ForgotPasswordPage() {
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <motion.div variants={itemVariants} className="space-y-5">
                             <div className="space-y-2">
-                                <label className="text-xs font-bold text-[#999999] uppercase tracking-widest">Email Address</label>
+                                <label className="text-xs font-medium text-[#999999] uppercase tracking-wider">Email Address</label>
                                 <div className="relative">
                                     <input
                                         type="email"

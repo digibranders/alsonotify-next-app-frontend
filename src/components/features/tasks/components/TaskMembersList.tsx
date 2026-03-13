@@ -199,7 +199,7 @@ export function TaskMembersList({ taskId, members, executionMode, currentUser, i
                 {/* Status Badge */}
                 <div className={`px-2.5 py-1.5 rounded-lg border flex items-center gap-1.5 shrink-0 ${statusColor}`}>
                   <StatusIcon className="w-3.5 h-3.5" />
-                  <span className="text-xs font-bold uppercase tracking-wider">
+                  <span className="text-xs font-semibold uppercase tracking-wider">
                     {member.status.replace('_', ' ')}
                   </span>
                 </div>

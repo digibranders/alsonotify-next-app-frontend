@@ -72,7 +72,7 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
                         </div>
                         <div>
                             <h2 className="text-lg font-bold text-[#111111] tracking-tight">Record Payment</h2>
-                            <p className="text-sm text-[#697386]">For Invoice {invoiceNumber}</p>
+                            <p className="text-sm text-[#999999]">For Invoice {invoiceNumber}</p>
                         </div>
                     </div>
                     <button
@@ -80,7 +80,7 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
                         disabled={isSaving}
                         className="p-2 hover:bg-gray-100 rounded-full transition-colors disabled:opacity-50"
                     >
-                        <X className="w-5 h-5 text-[#697386]" />
+                        <X className="w-5 h-5 text-[#999999]" />
                     </button>
                 </div>
 
@@ -89,7 +89,7 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
                     {/* Summary Cards */}
                     <div className="grid grid-cols-2 gap-3">
                         <div className="bg-[#F9FAFB] border border-[#EEEEEE] rounded-xl p-3">
-                            <p className="text-xs font-semibold text-[#697386] uppercase tracking-wider mb-1">Total Due</p>
+                            <p className="text-xs font-medium text-[#999999] uppercase tracking-wider mb-1">Total Due</p>
                             <p className="text-lg font-bold text-[#111111]">{currencySymbol}{totalAmount.toLocaleString()}</p>
                         </div>
                         <div className="bg-blue-50/50 border border-blue-100 rounded-xl p-3">
@@ -101,10 +101,10 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
                     <div className="space-y-4 pt-2">
                         {/* Amount Field */}
                         <div>
-                            <label className="block text-xs font-semibold text-[#697386] uppercase tracking-wider mb-1.5">Payment Amount</label>
+                            <label className="block text-xs font-medium text-[#999999] uppercase tracking-wider mb-1.5">Payment Amount</label>
                             <div className="relative">
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <span className="text-[#697386] font-medium">{currencySymbol}</span>
+                                    <span className="text-[#999999] font-medium">{currencySymbol}</span>
                                 </div>
                                 <input
                                     type="number"
@@ -130,7 +130,7 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
                         {/* Date & Method */}
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-xs font-semibold text-[#697386] uppercase tracking-wider mb-1.5">Payment Date</label>
+                                <label className="block text-xs font-medium text-[#999999] uppercase tracking-wider mb-1.5">Payment Date</label>
                                 <div className="relative">
                                     <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
                                         <Calendar className="w-4 h-4 text-[#a0aabf]" />
@@ -145,7 +145,7 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
                                 </div>
                             </div>
                             <div>
-                                <label className="block text-xs font-semibold text-[#697386] uppercase tracking-wider mb-1.5">Payment Method</label>
+                                <label className="block text-xs font-medium text-[#999999] uppercase tracking-wider mb-1.5">Payment Method</label>
                                 <select
                                     value={method}
                                     onChange={(e) => setMethod(e.target.value)}
@@ -163,7 +163,7 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
 
                         {/* Reference */}
                         <div>
-                            <label className="block text-xs font-semibold text-[#697386] uppercase tracking-wider mb-1.5">Reference / Notes (Optional)</label>
+                            <label className="block text-xs font-medium text-[#999999] uppercase tracking-wider mb-1.5">Reference / Notes (Optional)</label>
                             <div className="relative">
                                 <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
                                     <Hash className="w-4 h-4 text-[#a0aabf]" />
@@ -188,15 +188,15 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
                                     }`} />
                             </div>
                             <div className="flex-1">
-                                <p className="text-xs text-[#697386]">Status will change to</p>
+                                <p className="text-xs text-[#999999]">Status will change to</p>
                                 <p className={`text-sm font-bold uppercase tracking-wide mt-0.5 ${newStatus === 'paid' ? 'text-[#0F9D58]' : 'text-blue-600'
                                     }`}>
                                     {newStatus}
                                 </p>
                             </div>
                             <div className="text-right">
-                                <p className="text-xs text-[#697386]">New Balance</p>
-                                <p className="text-sm font-semibold text-[#111111] mt-0.5">
+                                <p className="text-xs text-[#999999]">New Balance</p>
+                                <p className="text-sm font-medium text-[#111111] mt-0.5">
                                     {currencySymbol}{newRemaining.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                 </p>
                             </div>

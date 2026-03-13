@@ -902,12 +902,12 @@ export function PartnersPageContent() {
                         <div className="grid grid-cols-2 gap-6">
                             <div>
                                 <p className="text-xs font-bold text-[#999999] uppercase tracking-wider mb-1">Contact Person</p>
-                                <p className="text-sm font-semibold text-[#111111]">{editingPartner.name}</p>
+                                <p className="text-sm font-medium text-[#111111]">{editingPartner.name}</p>
                             </div>
                             {editingPartner.company && (
                                 <div>
                                     <p className="text-xs font-bold text-[#999999] uppercase tracking-wider mb-1">Company Name</p>
-                                    <p className="text-sm font-semibold text-[#111111]">{editingPartner.company}</p>
+                                    <p className="text-sm font-medium text-[#111111]">{editingPartner.company}</p>
                                 </div>
                             )}
                         </div>

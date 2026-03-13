@@ -119,7 +119,7 @@ function RegisterForm() {
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Account Type Selector */}
           <motion.div variants={itemVariants} className="space-y-3">
-            <label className="text-xs font-bold text-[#999999] uppercase tracking-widest">Account Type</label>
+            <label className="text-xs font-medium text-[#999999] uppercase tracking-wider">Account Type</label>
             <div className="grid grid-cols-2 gap-3">
               {(['Organization', 'Individual'] as const).map((type) => (
                 <button
@@ -148,7 +148,7 @@ function RegisterForm() {
           <motion.div variants={itemVariants} className="space-y-5">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-xs font-bold text-[#999999] uppercase tracking-widest">First Name</label>
+                <label className="text-xs font-medium text-[#999999] uppercase tracking-wider">First Name</label>
                 <input
                   type="text"
                   placeholder="John"
@@ -159,7 +159,7 @@ function RegisterForm() {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-xs font-bold text-[#999999] uppercase tracking-widest">Last Name (Optional)</label>
+                <label className="text-xs font-medium text-[#999999] uppercase tracking-wider">Last Name (Optional)</label>
                 <input
                   type="text"
                   placeholder="Doe"
@@ -171,7 +171,7 @@ function RegisterForm() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-bold text-[#999999] uppercase tracking-widest">Email Address</label>
+              <label className="text-xs font-medium text-[#999999] uppercase tracking-wider">Email Address</label>
               <div className="relative">
                 <input
                   type="email"
@@ -187,7 +187,7 @@ function RegisterForm() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-bold text-[#999999] uppercase tracking-widest">Password</label>
+              <label className="text-xs font-medium text-[#999999] uppercase tracking-wider">Password</label>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}

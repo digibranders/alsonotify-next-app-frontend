@@ -56,7 +56,7 @@ function TableHeader({
         onClick={() => sortKey && onSort?.(sortKey)}
         disabled={!sortKey}
       >
-        <span className={`text-xs font-bold uppercase tracking-wide transition-colors text-left ${isSorted ? 'text-[#111111]' : 'text-[#999999] group-hover:text-[#666666]'} truncate`}>
+        <span className={`text-xs font-semibold uppercase tracking-wider transition-colors text-left ${isSorted ? 'text-[#111111]' : 'text-[#999999] group-hover:text-[#666666]'} truncate`}>
           {label}
         </span>
         {sortKey && isSorted && currentSort && (

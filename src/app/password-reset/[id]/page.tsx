@@ -106,7 +106,7 @@ export default function PasswordResetPage() {
               <h2 className="text-3xl font-bold text-[#111111] tracking-tight">
                 Reset Password
               </h2>
-              <p className="text-[#666666]">
+              <p className="text-sm font-normal text-[#666666]">
                 Enter your new password below.
               </p>
             </motion.div>
@@ -114,7 +114,7 @@ export default function PasswordResetPage() {
             <form onSubmit={handleSubmit} className="space-y-6">
               <motion.div variants={itemVariants} className="space-y-5">
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-[#999999] uppercase tracking-widest">
+                  <label className="text-xs font-medium text-[#999999] uppercase tracking-wider">
                       New Password <span className="text-[#ff3b3b]">*</span>                 </label>
                   <div className="relative">
                     <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#999999]" />
@@ -137,7 +137,7 @@ export default function PasswordResetPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-[#999999] uppercase tracking-widest">
+                  <label className="text-xs font-medium text-[#999999] uppercase tracking-wider">
                     Confirm New Password <span className="text-[#ff3b3b]">*</span>
                   </label>
                   <div className="relative">

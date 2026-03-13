@@ -84,7 +84,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ duration: 0.8, delay: 0.4 }}
-                        className="text-lg text-[#999999] leading-relaxed max-w-md"
+                        className="text-base font-normal text-[#999999] leading-relaxed max-w-md"
                     >
                         Streamline your agency operations with the platform designed for modern teams. Track profitability, manage resources, and scale your business.
                     </motion.p>

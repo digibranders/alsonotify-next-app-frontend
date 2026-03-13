@@ -300,7 +300,7 @@ function CompanyDetailsForm() {
           <h2 className="text-3xl font-bold text-[#111111] tracking-tight">
             Complete your profile
           </h2>
-          <p className="text-[#666666]">
+          <p className="text-sm font-normal text-[#666666]">
             Tell us more about your company to get started.
           </p>
         </motion.div>
@@ -392,7 +392,7 @@ function CompanyDetailsForm() {
                 {!isIndividual && (
                   <motion.div variants={itemVariants} className="grid grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <label htmlFor="company-name" className="text-xs font-bold text-[#999999] uppercase tracking-widest">
+                      <label htmlFor="company-name" className="text-xs font-medium text-[#999999] uppercase tracking-wider">
                         Company Name <span className="text-[#ff3b3b]">*</span>
                       </label>
                       <input
@@ -408,7 +408,7 @@ function CompanyDetailsForm() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <label htmlFor="website" className="text-xs font-bold text-[#999999] uppercase tracking-widest">
+                      <label htmlFor="website" className="text-xs font-medium text-[#999999] uppercase tracking-wider">
                         Website
                       </label>
                       <input
@@ -428,7 +428,7 @@ function CompanyDetailsForm() {
                 {!isIndividual && (
                   <motion.div variants={itemVariants} className="grid grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <label className="text-xs font-bold text-[#999999] uppercase tracking-widest">
+                      <label className="text-xs font-medium text-[#999999] uppercase tracking-wider">
                         Industry <span className="text-[#ff3b3b]">*</span>
                       </label>
                       <Select
@@ -452,7 +452,7 @@ function CompanyDetailsForm() {
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <label className="text-xs font-bold text-[#999999] uppercase tracking-widest">
+                      <label className="text-xs font-medium text-[#999999] uppercase tracking-wider">
                         Company Size
                       </label>
                       <Select
@@ -480,7 +480,7 @@ function CompanyDetailsForm() {
 
                 <motion.div variants={itemVariants} className="grid grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-[#999999] uppercase tracking-widest">
+                    <label className="text-xs font-medium text-[#999999] uppercase tracking-wider">
                       Country <span className="text-[#ff3b3b]">*</span>
                     </label>
                     <Select
@@ -504,7 +504,7 @@ function CompanyDetailsForm() {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-[#999999] uppercase tracking-widest">
+                    <label className="text-xs font-medium text-[#999999] uppercase tracking-wider">
                       Timezone <span className="text-[#ff3b3b]">*</span>
                     </label>
                     <Select
@@ -563,7 +563,7 @@ function CompanyDetailsForm() {
                     <div className="flex-1 space-y-6">
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <label className="text-xs font-bold text-[#999999] uppercase tracking-wider">
+                          <label className="text-xs font-medium text-[#999999] uppercase tracking-wider">
                             First Name <span className="text-[#ff3b3b]">*</span>
                           </label>
                           <Input
@@ -576,7 +576,7 @@ function CompanyDetailsForm() {
                           />
                         </div>
                         <div className="space-y-2">
-                          <label className="text-xs font-bold text-[#999999] uppercase tracking-wider">
+                          <label className="text-xs font-medium text-[#999999] uppercase tracking-wider">
                             Last Name
                           </label>
                           <Input
@@ -592,7 +592,7 @@ function CompanyDetailsForm() {
 
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <label className="text-xs font-bold text-[#999999] uppercase tracking-wider">
+                          <label className="text-xs font-medium text-[#999999] uppercase tracking-wider">
                             Country <span className="text-[#ff3b3b]">*</span>
                           </label>
                           <Select
@@ -611,7 +611,7 @@ function CompanyDetailsForm() {
                           </Select>
                         </div>
                         <div className="space-y-2">
-                          <label className="text-xs font-bold text-[#999999] uppercase tracking-widest">
+                          <label className="text-xs font-medium text-[#999999] uppercase tracking-wider">
                             Phone Number
                           </label>
                           <PhoneNumberInput
