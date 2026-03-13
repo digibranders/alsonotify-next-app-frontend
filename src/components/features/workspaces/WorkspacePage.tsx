@@ -336,11 +336,11 @@ export function WorkspacePage() {
             <div className="flex flex-col gap-3">
               <div className="grid grid-cols-[40px_1.5fr_1.8fr_0.8fr_0.5fr_40px] gap-4 px-4 py-3 items-center bg-white">
                 <div className="flex justify-center"><Checkbox disabled className="red-checkbox" /></div>
-                <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Workspace Name</p>
-                <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Requirements</p>
-                <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Organization</p>
-                <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Status</p>
-                <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide" />
+                <p className="text-xxs font-bold text-[#999999] uppercase tracking-wide">Workspace Name</p>
+                <p className="text-xxs font-bold text-[#999999] uppercase tracking-wide">Requirements</p>
+                <p className="text-xxs font-bold text-[#999999] uppercase tracking-wide">Organization</p>
+                <p className="text-xxs font-bold text-[#999999] uppercase tracking-wide">Status</p>
+                <p className="text-xxs font-bold text-[#999999] uppercase tracking-wide" />
               </div>
               {Array.from({ length: 10 }).map((_, i) => (
                 <div key={i} className="bg-white border border-[#F3F4F6] rounded-[12px] px-4 py-3 flex items-center animate-pulse">
@@ -393,19 +393,19 @@ export function WorkspacePage() {
                     onChange={toggleSelectAllWorkspaces}
                   />
                 </div>
-                <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">
+                <p className="text-xxs font-bold text-[#999999] uppercase tracking-wide">
                   Workspace Name
                 </p>
-                <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">
+                <p className="text-xxs font-bold text-[#999999] uppercase tracking-wide">
                   Requirements
                 </p>
-                <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">
+                <p className="text-xxs font-bold text-[#999999] uppercase tracking-wide">
                   Organization
                 </p>
-                <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">
+                <p className="text-xxs font-bold text-[#999999] uppercase tracking-wide">
                   Status
                 </p>
-                <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide" />
+                <p className="text-xxs font-bold text-[#999999] uppercase tracking-wide" />
               </div>
 
               {workspaces.map((workspace) => (
@@ -712,7 +712,7 @@ function WorkspaceListItem({
           {/* Requirements Stats */}
           <div className="flex items-center gap-6">
             <div className="flex flex-col">
-              <span className="text-[0.6875rem] text-[#999999] font-normal mb-0.5">
+              <span className="text-xxs text-[#999999] font-normal mb-0.5">
                 Total
               </span>
               <span className="text-xs font-bold text-[#111111]">
@@ -720,7 +720,7 @@ function WorkspaceListItem({
               </span>
             </div>
             <div className="flex flex-col">
-              <span className="text-[0.6875rem] text-[#999999] font-normal mb-0.5">
+              <span className="text-xxs text-[#999999] font-normal mb-0.5">
                 Progress
               </span>
               <span className="text-xs font-bold text-[#2F80ED]">
@@ -728,7 +728,7 @@ function WorkspaceListItem({
               </span>
             </div>
             <div className="flex flex-col">
-              <span className="text-[0.6875rem] text-[#999999] font-normal mb-0.5">
+              <span className="text-xxs text-[#999999] font-normal mb-0.5">
                 Delayed
               </span>
               <span className="text-xs font-bold text-[#ff3b3b]">

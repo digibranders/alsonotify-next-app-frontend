@@ -310,14 +310,14 @@ export function LeavesPage() {
               className="red-checkbox"
             />
           </div>
-          <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide"></p>
-          <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Employee</p>
-          <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Type</p>
-          <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Duration</p>
-          <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Days</p>
-          <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Status</p>
-          <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide">Actions</p>
-          <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide"></p>
+          <p className="text-xxs font-bold text-[#999999] uppercase tracking-wide"></p>
+          <p className="text-xxs font-bold text-[#999999] uppercase tracking-wide">Employee</p>
+          <p className="text-xxs font-bold text-[#999999] uppercase tracking-wide">Type</p>
+          <p className="text-xxs font-bold text-[#999999] uppercase tracking-wide">Duration</p>
+          <p className="text-xxs font-bold text-[#999999] uppercase tracking-wide">Days</p>
+          <p className="text-xxs font-bold text-[#999999] uppercase tracking-wide">Status</p>
+          <p className="text-xxs font-bold text-[#999999] uppercase tracking-wide">Actions</p>
+          <p className="text-xxs font-bold text-[#999999] uppercase tracking-wide"></p>
         </div>
 
         {isLoading ? (

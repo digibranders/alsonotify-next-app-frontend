@@ -145,7 +145,7 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
               <DollarSign className="w-5 h-5 text-[#0F9D58]" />
             </div>
             <div>
-              <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide mb-0.5">Quoted Price</p>
+              <p className="text-xxs font-bold text-[#999999] uppercase tracking-wide mb-0.5">Quoted Price</p>
               <p className="text-xl font-bold text-[#111111] leading-tight">{formatCurrency(summary.quotedPrice)}</p>
             </div>
           </div>
@@ -156,7 +156,7 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
               <Users className="w-5 h-5 text-[#ff3b3b]" />
             </div>
             <div>
-              <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide mb-0.5">Resource Cost</p>
+              <p className="text-xxs font-bold text-[#999999] uppercase tracking-wide mb-0.5">Resource Cost</p>
               <p className="text-xl font-bold text-[#111111] leading-tight">{formatCurrency(summary.totalResourceCost)}</p>
             </div>
           </div>
@@ -171,7 +171,7 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
               )}
             </div>
             <div>
-              <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide mb-0.5">
+              <p className="text-xxs font-bold text-[#999999] uppercase tracking-wide mb-0.5">
                 Net {summary.netProfit >= 0 ? 'Profit' : 'Loss'}
               </p>
               <p className={`text-xl font-bold leading-tight ${summary.netProfit >= 0 ? 'text-[#0F9D58]' : 'text-[#DC2626]'}`}>
@@ -186,7 +186,7 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
               <Clock className="w-5 h-5 text-[#2F80ED]" />
             </div>
             <div>
-              <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wide mb-0.5">Hours</p>
+              <p className="text-xxs font-bold text-[#999999] uppercase tracking-wide mb-0.5">Hours</p>
               <p className="text-xl font-bold text-[#111111] leading-tight">{summary.totalActualHours}h</p>
             </div>
           </div>
@@ -286,17 +286,17 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
           <table className="w-full text-left border-collapse">
             <thead className="bg-[#F7F7F7] border-b border-[#EEEEEE]">
               <tr>
-                <th className="px-5 py-4 text-[0.6875rem] font-bold text-[#666666] uppercase tracking-wider">Task</th>
-                <th className="px-5 py-4 text-[0.6875rem] font-bold text-[#666666] uppercase tracking-wider">Assignee</th>
-                <th className="px-5 py-4 text-[0.6875rem] font-bold text-[#666666] uppercase tracking-wider text-right">Est. Hours</th>
-                <th className="px-5 py-4 text-[0.6875rem] font-bold text-[#666666] uppercase tracking-wider text-right">Actual</th>
-                <th className="px-5 py-4 text-[0.6875rem] font-bold text-[#666666] uppercase tracking-wider text-right">Over/Under</th>
-                <th className="px-5 py-4 text-[0.6875rem] font-bold text-[#666666] uppercase tracking-wider text-right">
+                <th className="px-5 py-4 text-xxs font-bold text-[#666666] uppercase tracking-wider">Task</th>
+                <th className="px-5 py-4 text-xxs font-bold text-[#666666] uppercase tracking-wider">Assignee</th>
+                <th className="px-5 py-4 text-xxs font-bold text-[#666666] uppercase tracking-wider text-right">Est. Hours</th>
+                <th className="px-5 py-4 text-xxs font-bold text-[#666666] uppercase tracking-wider text-right">Actual</th>
+                <th className="px-5 py-4 text-xxs font-bold text-[#666666] uppercase tracking-wider text-right">Over/Under</th>
+                <th className="px-5 py-4 text-xxs font-bold text-[#666666] uppercase tracking-wider text-right">
                   <Tooltip title="Actual hours × hourly rate">
                     <span className="cursor-help">Cost</span>
                   </Tooltip>
                 </th>
-                <th className="px-5 py-4 text-[0.6875rem] font-bold text-[#666666] uppercase tracking-wider text-right">P/L</th>
+                <th className="px-5 py-4 text-xxs font-bold text-[#666666] uppercase tracking-wider text-right">P/L</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#EEEEEE]">
