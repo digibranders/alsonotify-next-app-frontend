@@ -338,7 +338,7 @@ export function DocumentsTab({ activityData }: DocumentsTabProps) {
                             <Paperclip className="w-8 h-8 text-[#999999]" />
                         </div>
                         <h4 className="text-base font-semibold text-[#111111] mb-2">No documents found</h4>
-                        <p className="text-sm text-[#666666] font-normal max-w-sm mx-auto">
+                        <p className="text-sm text-[#666666] font-medium max-w-sm mx-auto">
                             Files shared in the Activity & Chat section will automatically appear here.
                         </p>
                     </div>
@@ -354,7 +354,7 @@ export function DocumentsTab({ activityData }: DocumentsTabProps) {
                     <h3 className="text-sm md:text-base font-bold text-[#111111] mb-4 md:mb-6 flex items-center gap-2">
                         <Paperclip className="w-4 h-4 md:w-5 md:h-5 text-[#ff3b3b]" />
                         Documents
-                        <span className="text-xs md:text-xs font-normal text-[#999999] ml-1">
+                        <span className="text-xs md:text-xs font-medium text-[#999999] ml-1">
                             ({allDocuments.length})
                         </span>
                     </h3>
@@ -389,10 +389,10 @@ export function DocumentsTab({ activityData }: DocumentsTabProps) {
                                                 <span className="text-xs md:text-xs font-medium text-[#444444] whitespace-nowrap">{doc.uploadedBy}</span>
                                             </td>
                                             <td className="py-2 px-3 md:py-3 md:px-4">
-                                                <span className="text-xs md:text-xs font-normal text-[#666666] whitespace-nowrap">{doc.size}</span>
+                                                <span className="text-xs md:text-xs font-medium text-[#666666] whitespace-nowrap">{doc.size}</span>
                                             </td>
                                             <td className="py-2 px-3 md:py-3 md:px-4">
-                                                <span className="text-xs md:text-xs font-normal text-[#666666] whitespace-nowrap">{doc.date}</span>
+                                                <span className="text-xs md:text-xs font-medium text-[#666666] whitespace-nowrap">{doc.date}</span>
                                             </td>
                                             <td className="py-2 px-3 md:py-3 md:px-4">
                                                 <span className="text-2xs md:text-xs font-bold px-1.5 py-0.5 md:px-2 md:py-1 bg-[#F7F7F7] rounded text-[#666666] uppercase inline-block whitespace-nowrap">

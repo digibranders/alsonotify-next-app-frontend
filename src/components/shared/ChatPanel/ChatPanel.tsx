@@ -259,7 +259,7 @@ export function ChatPanel({
                         <MessageSquare className="w-5 h-5 text-[#ff3b3b]" />
                         Activity & Chat
                     </h3>
-                    <p className="text-xs text-[#666666] font-normal mt-1">
+                    <p className="text-xs text-[#666666] font-medium mt-1">
                         Team collaboration and updates
                     </p>
                 </div>
@@ -300,7 +300,7 @@ export function ChatPanel({
                                         }`}>
                                         {activity.user}
                                     </span>
-                                    <span className="text-xs text-[#999999] font-normal">
+                                    <span className="text-xs text-[#999999] font-medium">
                                         {activity.date}
                                     </span>
                                 </div>
@@ -309,7 +309,7 @@ export function ChatPanel({
                                     ? 'bg-[#F7F7F7] p-3 rounded-[12px] rounded-tl-none'
                                     : ''
                                     }`}>
-                                    <p className="text-xs text-[#444444] font-normal">
+                                    <p className="text-xs text-[#444444] font-medium">
                                         {activity.message}
                                     </p>
 

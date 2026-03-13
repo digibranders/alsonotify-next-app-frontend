@@ -123,7 +123,7 @@ export function KanbanBoardTab({ tasks, revisions }: KanbanBoardTabProps) {
                   })
                 ) : (
                   <div className="flex items-center justify-center h-24 border-2 border-dashed border-[#DDDDDD] rounded-[12px]">
-                    <p className="text-xs text-[#999999] font-normal">No tasks</p>
+                    <p className="text-xs text-[#999999] font-medium">No tasks</p>
                   </div>
                 )}
               </div>

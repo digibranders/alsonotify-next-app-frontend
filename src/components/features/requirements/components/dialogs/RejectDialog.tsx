@@ -46,7 +46,7 @@ export function RejectDialog({
       centered
     >
       <div className="space-y-4 py-4">
-        <p className="text-xs text-[#666666] font-normal">
+        <p className="text-xs text-[#666666] font-medium">
           Please provide a reason for rejecting this requirement. It will be moved to drafts.
         </p>
         <div className="space-y-2">

@@ -61,7 +61,7 @@ export default function ForgotPasswordPage() {
                     <h2 className="text-3xl font-bold text-[#111111] tracking-tight">
                         {isSubmitted ? "Check your inbox" : "Forgot Password?"}
                     </h2>
-                    <p className="text-sm font-normal text-[#666666]">
+                    <p className="text-sm font-medium text-[#666666]">
                         {isSubmitted
                             ? `We've sent a password reset link to ${email}`
                             : "Enter your email address and we'll send you a link to reset your password."

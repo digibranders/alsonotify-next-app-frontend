@@ -70,7 +70,7 @@ function LoginForm() {
           <h2 className="text-3xl font-bold text-[#111111] tracking-tight">
             Welcome Back
           </h2>
-          <p className="text-sm font-normal text-[#666666]">
+          <p className="text-sm font-medium text-[#666666]">
             Enter your details to access your workspace
           </p>
         </motion.div>

@@ -212,13 +212,13 @@ export function MeetingsWidget({ onNavigate }: { onNavigate?: (page: string) => 
             </div>
           ) : isError && !eventsData ? (
             <div className="flex items-center justify-center py-8">
-              <p className="text-sm font-normal text-[#666666]">
+              <p className="text-sm font-medium text-[#666666]">
                 Unable to load meetings at the moment. Please connect to Teams.
               </p>
             </div>
           ) : processedMeetings.length === 0 ? (
             <div className="bg-white rounded-[10px] border border-dashed border-[#CCCCCC] py-4 flex items-center justify-center">
-              <p className="text-sm font-normal text-[#888888]">No upcoming meetings</p>
+              <p className="text-sm font-medium text-[#888888]">No upcoming meetings</p>
             </div>
           ) : (
             <div className="flex flex-col gap-2.5">
@@ -351,7 +351,7 @@ function MeetingItem({
               <h4 className="font-semibold text-sm text-[#111111] mb-1.5 line-clamp-2 leading-tight">
                 {title}
               </h4>
-              <div className="flex items-center gap-1.5 text-[#666666] text-xs font-normal">
+              <div className="flex items-center gap-1.5 text-[#666666] text-xs font-medium">
                 <Clock className="size-3" strokeWidth={2} />
                 <span>{time}</span>
                 <span className="text-[#CCCCCC]">•</span>
@@ -364,14 +364,14 @@ function MeetingItem({
               {/* Host */}
               <div className="flex items-center gap-2">
                 <span className="text-xs font-medium text-[#999999] uppercase tracking-wide min-w-[45px]">Host</span>
-                <span className="text-xs font-normal text-[#111111]">{organizer}</span>
+                <span className="text-xs font-medium text-[#111111]">{organizer}</span>
               </div>
 
               {/* Date & Time */}
               {startDateTime && endDateTime && (
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-medium text-[#999999] uppercase tracking-wide min-w-[45px]">When</span>
-                  <span className="text-xs font-normal text-[#111111]">
+                  <span className="text-xs font-medium text-[#111111]">
                     {dayjs(startDateTime).format('MMM D, YYYY')} • {time} - {dayjs(endDateTime).format('h:mm A')}
                   </span>
                 </div>
@@ -382,7 +382,7 @@ function MeetingItem({
                 <div className="flex items-start gap-2">
                   <span className="text-xs font-medium text-[#999999] uppercase tracking-wide min-w-[45px] pt-0.5">With</span>
                   <div className="flex-1">
-                    <div className="text-xs font-normal text-[#111111] leading-relaxed">
+                    <div className="text-xs font-medium text-[#111111] leading-relaxed">
                       {allAttendees.slice(0, 3).map((a) => a.name).join(', ')}
                       {allAttendees.length > 3 && (
                         <span className="text-[#999999]"> +{allAttendees.length - 3} more</span>
@@ -470,12 +470,12 @@ function MeetingItem({
 
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2 flex-1 min-w-0">
-                    <div className="flex items-center gap-1 text-[#666666] text-xs font-normal">
+                    <div className="flex items-center gap-1 text-[#666666] text-xs font-medium">
                       <Clock className="size-3.5" strokeWidth={2} />
                       <span>{time}</span>
                     </div>
                     <div className="w-1 h-1 rounded-full bg-[#CCCCCC]" />
-                    <span className="text-[#666666] text-xs font-normal">Host: {truncateOrganizer(organizer)}</span>
+                    <span className="text-[#666666] text-xs font-medium">Host: {truncateOrganizer(organizer)}</span>
                   </div>
 
                   {/* Attendees - Aligned to the right on same line - Commented out to save space for time and host */}

@@ -1246,7 +1246,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
 
         {!isLoading && filteredTasks.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-[#999999] font-normal">
+            <p className="text-[#999999] font-medium">
               No tasks found
             </p>
           </div>

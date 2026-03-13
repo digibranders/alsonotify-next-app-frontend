@@ -520,7 +520,7 @@ export function FinancePage() {
                     ))
                   ) : filteredInvoices.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="px-6 py-12 text-center text-[#999999] font-normal">
+                      <td colSpan={6} className="px-6 py-12 text-center text-[#999999] font-medium">
                         No invoices found
                       </td>
                     </tr>
@@ -528,8 +528,8 @@ export function FinancePage() {
                     filteredInvoices.map(invoice => (
                       <tr key={invoice.id} className="hover:bg-[#F9FAFB] transition-colors group cursor-pointer" onClick={() => router.push(`/dashboard/finance/invoices/${invoice.id}`)}>
                         <td className="px-6 py-4 text-sm font-medium text-[#111111]">{invoice.invoiceNumber}</td>
-                        <td className="px-6 py-4 text-sm font-normal text-[#111111]">{invoice.client}</td>
-                        <td className="px-6 py-4 text-sm font-normal text-[#666666]">{dayjs(invoice.date).format('MMM D, YYYY')}</td>
+                        <td className="px-6 py-4 text-sm font-medium text-[#111111]">{invoice.client}</td>
+                        <td className="px-6 py-4 text-sm font-medium text-[#666666]">{dayjs(invoice.date).format('MMM D, YYYY')}</td>
                         <td className="px-6 py-4 text-sm font-medium text-[#111111]">{currencySymbol}{invoice.amount.toLocaleString()}</td>
                         <td className="px-6 py-4">
                           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${getStatusColor(invoice.status)}`}>
@@ -625,7 +625,7 @@ function EmptyState({ icon, title, description }: { icon: React.ReactNode, title
       </div>
       <div>
         <h3 className="text-base font-semibold text-[#111111] mb-2">{title}</h3>
-        <p className="text-sm text-[#666666] font-normal">{description}</p>
+        <p className="text-sm text-[#666666] font-medium">{description}</p>
       </div>
     </div>
   );

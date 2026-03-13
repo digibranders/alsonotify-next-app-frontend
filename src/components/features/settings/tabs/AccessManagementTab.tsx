@@ -48,7 +48,7 @@ export function AccessManagementTab({
       <div className="flex items-center justify-between mb-10">
         <div>
           <h2 className="text-lg font-bold text-[#111111]">Access Management</h2>
-          <p className="text-xs text-[#666666] mt-1 font-normal">
+          <p className="text-xs text-[#666666] mt-1 font-medium">
             Manage roles and define specific permissions for your team.
           </p>
         </div>

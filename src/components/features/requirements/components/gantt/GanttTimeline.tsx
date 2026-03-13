@@ -112,7 +112,7 @@ export const GanttTimeline: React.FC = () => {
             <div className="flex flex-col items-center justify-center h-full gap-3 bg-[#FAFAFA]">
                 <BarChart2 className="w-10 h-10 text-[#CCCCCC]" />
                 <p className="text-xs font-semibold text-[#999999]">No tasks with dates to display</p>
-                <p className="text-xs font-normal text-[#BBBBBB]">Add start and end dates to tasks to see them here</p>
+                <p className="text-xs font-medium text-[#BBBBBB]">Add start and end dates to tasks to see them here</p>
             </div>
         );
     }
@@ -242,12 +242,12 @@ const TimelineRow: React.FC<{ task: GanttTask }> = ({ task }) => {
                     <div className="bg-[#111111] text-white rounded-[8px] px-3 py-2 shadow-lg min-w-[160px]">
                         <p className="text-xs font-bold mb-1.5 text-white truncate max-w-[220px]">{task.name}</p>
                         {task.start_date && (
-                            <p className="text-2xs font-normal text-[#AAAAAA]">
+                            <p className="text-2xs font-medium text-[#AAAAAA]">
                                 Start: <span className="text-white">{format(new Date(task.start_date), 'MMM d, yyyy')}</span>
                             </p>
                         )}
                         {task.end_date && (
-                            <p className="text-2xs font-normal text-[#AAAAAA]">
+                            <p className="text-2xs font-medium text-[#AAAAAA]">
                                 End: <span className="text-white">{format(new Date(task.end_date), 'MMM d, yyyy')}</span>
                             </p>
                         )}

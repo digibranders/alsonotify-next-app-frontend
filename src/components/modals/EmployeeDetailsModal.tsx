@@ -250,7 +250,7 @@ export function EmployeeDetailsModal({
                 <p className="text-xs font-bold text-[#999999] uppercase tracking-wider mb-2">
                   Professional Bio
                 </p>
-                <p className="text-xs text-[#444444] leading-relaxed font-normal bg-[#F9FAFB] p-4 rounded-xl border border-[#EEEEEE]">
+                <p className="text-xs text-[#444444] leading-relaxed font-medium bg-[#F9FAFB] p-4 rounded-xl border border-[#EEEEEE]">
                   {currentEmployee.bio}
                 </p>
               </div>

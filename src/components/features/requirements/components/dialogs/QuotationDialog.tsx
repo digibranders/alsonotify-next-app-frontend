@@ -88,7 +88,7 @@ export function QuotationDialog({
         centered
       >
         <div className="space-y-4 py-4">
-          <p className="text-xs text-[#666666] font-normal">
+          <p className="text-xs text-[#666666] font-medium">
             Please provide the final quotation details for this {pricingModel === 'hourly' ? 'hourly' : 'project'} requirement.
           </p>
           {pricingModel === 'hourly' ? (

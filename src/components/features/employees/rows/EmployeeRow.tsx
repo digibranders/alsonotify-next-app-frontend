@@ -95,11 +95,11 @@ export function EmployeeRow({
             </span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="text-2xs font-normal text-[#666666]">
+            <span className="text-2xs font-medium text-[#666666]">
               {employee.role}
             </span>
             <span className="text-[#DDDDDD] text-2xs">|</span>
-            <span className="text-2xs font-normal text-[#666666]">
+            <span className="text-2xs font-medium text-[#666666]">
               {employee.department}
             </span>
           </div>
@@ -107,7 +107,7 @@ export function EmployeeRow({
 
         {/* Email */}
         <div>
-          <span className="text-xs text-[#111111] font-normal">
+          <span className="text-xs text-[#111111] font-medium">
             {employee.email}
           </span>
         </div>
@@ -120,21 +120,21 @@ export function EmployeeRow({
 
         {/* Employment Type */}
         <div>
-          <span className="text-xs font-normal text-[#111111]">
+          <span className="text-xs font-medium text-[#111111]">
             {employee.employment_type || 'Unknown'}
           </span>
         </div>
 
         {/* Hourly Rate */}
         <div>
-          <span className="text-xs font-normal text-[#111111]">
+          <span className="text-xs font-medium text-[#111111]">
             {employee.hourly_rates ? `$${employee.hourly_rates}/Hr` : 'N/Hr'}
           </span>
         </div>
 
         {/* Joining Date */}
         <div>
-          <span className="text-xs text-[#111111] font-normal">
+          <span className="text-xs text-[#111111] font-medium">
             {employee.formattedDateOfJoining || employee.date_of_joining || 'N/A'}
           </span>
         </div>

@@ -379,12 +379,12 @@ export function CalendarPage() {
                           <div className="w-1 h-full rounded-full mt-1" style={{ backgroundColor: event.color }} />
                           <div className="flex-1">
                             <div className="font-semibold text-xs text-[#111111] mb-1">{event.title}</div>
-                            <div className="flex items-center gap-1 text-2xs font-normal text-[#666666] mb-2">
+                            <div className="flex items-center gap-1 text-2xs font-medium text-[#666666] mb-2">
                               <Clock className="w-3 h-3" />
                               {event.time}
                             </div>
                             {event.location && (
-                              <div className="flex items-center gap-1 text-2xs font-normal text-[#666666]">
+                              <div className="flex items-center gap-1 text-2xs font-medium text-[#666666]">
                                 <MapPin className="w-3 h-3" />
                                 {event.location}
                               </div>
@@ -395,7 +395,7 @@ export function CalendarPage() {
                     </Popover>
                   ))
                 ) : (
-                  <div className="text-center py-6 text-xs font-normal text-[#999999]">
+                  <div className="text-center py-6 text-xs font-medium text-[#999999]">
                     No events today
                   </div>
                 )}
@@ -425,7 +425,7 @@ export function CalendarPage() {
                         <div className="w-1 h-full rounded-full mt-1" style={{ backgroundColor: event.color }} />
                         <div className="flex-1">
                           <div className="font-semibold text-xs text-[#111111] mb-1">{event.title}</div>
-                          <div className="flex items-center gap-1 text-2xs font-normal text-[#666666]">
+                          <div className="flex items-center gap-1 text-2xs font-medium text-[#666666]">
                             <CalendarIcon className="w-3 h-3" />
                             {event.endDate ? (
                               dayjs(event.date).month() === dayjs(event.endDate).month() ?
@@ -440,7 +440,7 @@ export function CalendarPage() {
                     </div>
                   </Popover>
                 ))) : (
-                  <div className="text-center py-6 text-xs font-normal text-[#999999]">No upcoming events</div>
+                  <div className="text-center py-6 text-xs font-medium text-[#999999]">No upcoming events</div>
                 )}
               </div>
             </div>

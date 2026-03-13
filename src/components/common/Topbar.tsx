@@ -387,7 +387,7 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
       <div className="bg-white rounded-full px-4 py-2 w-full">
         <div className="flex flex-row items-center justify-between w-full">
           {/* Left: Mobile menu button (below lg) + Greeting text */}
-          <div className="flex flex-col font-normal font-normal justify-center not-italic text-[#111111] text-nowrap">
+          <div className="flex flex-col font-medium font-medium justify-center not-italic text-[#111111] text-nowrap">
             <div className="flex items-center gap-3">
               {isNarrow && (
                 <button
@@ -408,7 +408,7 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
               ) : (
                 <>
                   <p className="leading-[normal] text-base whitespace-pre hidden md:block">
-                    <span className="font-normal">{`👋 ${greeting}! `}</span>
+                    <span className="font-medium">{`👋 ${greeting}! `}</span>
                     <span className="font-semibold">{firstName}</span>
                   </p>
                   <div className="hidden md:block">

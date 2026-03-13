@@ -674,7 +674,7 @@ export function PartnersPageContent() {
                                                                 {item.data.inviterName?.replace(' undefined', '')}
                                                             </span>
                                                             {item.data.inviterCompany && (
-                                                                <span className="text-xs text-[#999999] font-normal">
+                                                                <span className="text-xs text-[#999999] font-medium">
                                                                     {item.data.inviterCompany}
                                                                 </span>
                                                             )}
@@ -718,7 +718,7 @@ export function PartnersPageContent() {
                                                             <span className="font-bold text-sm text-[#111111]">
                                                                 {(item.data.name || item.data.email)?.replace(' undefined', '')}
                                                             </span>
-                                                            {item.data.company && <span className="text-xs text-[#999999] font-normal">{item.data.company}</span>}
+                                                            {item.data.company && <span className="text-xs text-[#999999] font-medium">{item.data.company}</span>}
                                                         </div>
                                                     </div>
                                                     <div className="flex items-center gap-2 text-[#666666] overflow-hidden">
@@ -841,7 +841,7 @@ export function PartnersPageContent() {
 
                                 {filteredPartners.length === 0 && (
                                     <div className="text-center py-12">
-                                        <p className="text-[#999999] font-normal">
+                                        <p className="text-[#999999] font-medium">
                                             No partners found
                                         </p>
                                     </div>

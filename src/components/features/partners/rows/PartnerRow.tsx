@@ -69,7 +69,7 @@ export function PartnerRow({
                             {partner.company}
                         </span>
                         {isOrg && (
-                            <span className="text-2xs text-[#999999] font-normal">
+                            <span className="text-2xs text-[#999999] font-medium">
                                 Organization
                             </span>
                         )}

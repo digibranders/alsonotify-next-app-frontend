@@ -53,7 +53,7 @@ export function SubTaskRow({
             </h3>
           </div>
           <div className="flex items-center gap-2">
-            <span className="task-row-sub text-[#999999] font-normal">
+            <span className="task-row-sub text-[#999999] font-medium">
               #{task.id}
             </span>
           </div>

@@ -885,7 +885,7 @@ export function CreateInvoicePage() {
                         <section className="space-y-6 pt-6">
                             <div>
                                 <label className="block text-sm font-bold text-[#111111] mb-2 flex items-center gap-2">
-                                    Memo <span className="text-xs font-normal text-[#999999] bg-[#F7F7F7] px-2 py-0.5 rounded-full">Visible to customer</span>
+                                    Memo <span className="text-xs font-medium text-[#999999] bg-[#F7F7F7] px-2 py-0.5 rounded-full">Visible to customer</span>
                                 </label>
                                 <textarea
                                     value={memo}
@@ -897,7 +897,7 @@ export function CreateInvoicePage() {
                             <div>
                                 <div className="flex justify-between items-center mb-2">
                                     <label className="block text-sm font-bold text-[#111111] flex items-center gap-2">
-                                        Payment Details <span className="text-xs font-normal text-[#999999] bg-[#F7F7F7] px-2 py-0.5 rounded-full">Footer</span>
+                                        Payment Details <span className="text-xs font-medium text-[#999999] bg-[#F7F7F7] px-2 py-0.5 rounded-full">Footer</span>
                                     </label>
 
                                     <div className="flex items-center gap-2">

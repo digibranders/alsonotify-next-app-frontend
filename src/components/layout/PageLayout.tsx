@@ -134,7 +134,7 @@ export function PageLayout({
                       value={searchValue}
                       onChange={(e) => onSearchChange(e.target.value)}
                       placeholder={searchPlaceholder}
-                      className="pl-10 pr-4 py-2.5 bg-white border border-[#EEEEEE] rounded-full text-sm font-normal text-[#111111] placeholder:text-[#999999] focus:outline-none focus:border-[#ff3b3b] w-full md:w-[280px]"
+                      className="pl-10 pr-4 py-2.5 bg-white border border-[#EEEEEE] rounded-full text-sm font-medium text-[#111111] placeholder:text-[#999999] focus:outline-none focus:border-[#ff3b3b] w-full md:w-[280px]"
                     />
                   </div>
                 )}

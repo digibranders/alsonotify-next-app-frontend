@@ -401,7 +401,7 @@ export default function AdminFeedbackPage() {
                   <h2 className="text-xl font-bold text-[#111111] mb-3 leading-snug">
                     {selected.title}
                   </h2>
-                  <p className="text-sm text-[#666666] font-normal whitespace-pre-wrap mb-6 leading-relaxed">
+                  <p className="text-sm text-[#666666] font-medium whitespace-pre-wrap mb-6 leading-relaxed">
                     {selected.description}
                   </p>
 

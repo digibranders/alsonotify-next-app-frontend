@@ -425,7 +425,7 @@ export function WorkspacePage() {
         {!isLoading && workspaces.length === 0 && (
           <div className="text-center py-12">
             <FolderOpen className="w-12 h-12 text-[#DDDDDD] mx-auto mb-3" />
-            <p className="text-[#999999] font-normal">
+            <p className="text-[#999999] font-medium">
               No workspaces found
             </p>
           </div>
@@ -712,7 +712,7 @@ function WorkspaceListItem({
           {/* Requirements Stats */}
           <div className="flex items-center gap-6">
             <div className="flex flex-col">
-              <span className="text-2xs text-[#999999] font-normal mb-0.5">
+              <span className="text-2xs text-[#999999] font-medium mb-0.5">
                 Total
               </span>
               <span className="text-xs font-bold text-[#111111]">
@@ -720,7 +720,7 @@ function WorkspaceListItem({
               </span>
             </div>
             <div className="flex flex-col">
-              <span className="text-2xs text-[#999999] font-normal mb-0.5">
+              <span className="text-2xs text-[#999999] font-medium mb-0.5">
                 Progress
               </span>
               <span className="text-xs font-bold text-[#2F80ED]">
@@ -728,7 +728,7 @@ function WorkspaceListItem({
               </span>
             </div>
             <div className="flex flex-col">
-              <span className="text-2xs text-[#999999] font-normal mb-0.5">
+              <span className="text-2xs text-[#999999] font-medium mb-0.5">
                 Delayed
               </span>
               <span className="text-xs font-bold text-[#ff3b3b]">

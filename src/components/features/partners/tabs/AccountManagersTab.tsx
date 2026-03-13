@@ -268,7 +268,7 @@ export function AccountManagersTab() {
                     <h2 className="text-lg font-bold text-[#111111]">
                         Account Managers
                     </h2>
-                    <p className="text-xs text-[#666666] mt-1 font-normal">
+                    <p className="text-xs text-[#666666] mt-1 font-medium">
                         Manage account managers and their partner assignments
                     </p>
                 </div>

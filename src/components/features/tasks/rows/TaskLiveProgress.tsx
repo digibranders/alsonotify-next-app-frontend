@@ -171,12 +171,12 @@ export function TaskLiveProgress({ task, currentUserId }: TaskLiveProgressProps)
         }}
       >
         <div className="flex items-center gap-2 w-fit">
-          <span className={`font-normal task-row-main whitespace-nowrap ${labelColor}`}>
+          <span className={`font-medium task-row-main whitespace-nowrap ${labelColor}`}>
             {totalLoggedHours.toFixed(1)}h{hasEst ? `/${effectiveEst.toFixed(1)}h` : ''}
           </span>
           <span className="text-[#E5E5E5] text-xs">|</span>
           {hasEst ? (
-            <span className={`task-row-main font-normal whitespace-nowrap ${isBleeding
+            <span className={`task-row-main font-medium whitespace-nowrap ${isBleeding
               ? 'text-[#FF3B3B]'
               : isWarning
                 ? 'text-[#EAB308]'
@@ -185,7 +185,7 @@ export function TaskLiveProgress({ task, currentUserId }: TaskLiveProgressProps)
               {isBleeding ? `+${Math.abs(remaining).toFixed(1)}h over` : `${remaining.toFixed(1)}h left`}
             </span>
           ) : (
-            <span className="task-row-main text-[#666666] font-normal whitespace-nowrap">No estimate</span>
+            <span className="task-row-main text-[#666666] font-medium whitespace-nowrap">No estimate</span>
           )}
         </div>
       </Tooltip>

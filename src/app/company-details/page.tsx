@@ -300,7 +300,7 @@ function CompanyDetailsForm() {
           <h2 className="text-3xl font-bold text-[#111111] tracking-tight">
             Complete your profile
           </h2>
-          <p className="text-sm font-normal text-[#666666]">
+          <p className="text-sm font-medium text-[#666666]">
             Tell us more about your company to get started.
           </p>
         </motion.div>

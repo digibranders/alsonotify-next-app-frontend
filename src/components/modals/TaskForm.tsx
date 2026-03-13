@@ -551,7 +551,7 @@ export function TaskForm({
         <span className="text-xs font-bold text-[#111111]">Description</span>
         <TextArea
           placeholder="Describe the mission objectives..."
-          className="font-normal rounded-lg border border-[#EEEEEE]"
+          className="font-medium rounded-lg border border-[#EEEEEE]"
           rows={formData.description ? 3 : 1}
           onFocus={(e) => e.target.rows = 3}
           value={formData.description}

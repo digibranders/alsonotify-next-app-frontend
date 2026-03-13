@@ -523,7 +523,7 @@ export function ProfilePage() {
                     <>
                         {/* Header Info - Static area */}
                         <div className="mb-4">
-                            <p className="text-xs text-[#666666] font-normal">
+                            <p className="text-xs text-[#666666] font-medium">
                                 Manage your account settings and preferences
                             </p>
                         </div>
@@ -911,7 +911,7 @@ export function ProfilePage() {
                                                             {docType.name}
                                                         </div>
                                                         {!docType.required && (
-                                                            <span className="text-xs text-[#999999] font-normal">
+                                                            <span className="text-xs text-[#999999] font-medium">
                                                                 Optional
                                                             </span>
                                                         )}
@@ -933,7 +933,7 @@ export function ProfilePage() {
                                         <p className="text-xs font-medium text-[#666666] mb-1">
                                             No documents configured
                                         </p>
-                                        <p className="text-xs text-[#999999] font-normal">
+                                        <p className="text-xs text-[#999999] font-medium">
                                             Add required documents in Settings to manage employee files.
                                         </p>
                                     </div>
@@ -1049,7 +1049,7 @@ export function ProfilePage() {
                                                 <div className="text-sm font-medium text-[#111111] mb-1">
                                                     Email Notifications
                                                 </div>
-                                                <div className="text-xs font-normal text-[#666666]">
+                                                <div className="text-xs font-medium text-[#666666]">
                                                     Receive updates via email for important activities.
                                                 </div>
                                             </div>
@@ -1083,7 +1083,7 @@ export function ProfilePage() {
                                                 <div className="text-sm font-medium text-[#111111] mb-1">
                                                     Security Alerts
                                                 </div>
-                                                <div className="text-xs font-normal text-[#666666]">
+                                                <div className="text-xs font-medium text-[#666666]">
                                                     Get notified about new sign-ins and suspicious activity.
                                                 </div>
                                             </div>

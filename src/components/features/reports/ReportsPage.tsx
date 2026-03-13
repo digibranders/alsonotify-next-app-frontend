@@ -885,11 +885,11 @@ export function ReportsPage() {
                         return (
                           <>
                             <div className="flex items-center gap-2">
-                                <span className="font-normal text-xs whitespace-nowrap text-[#111111]">
+                                <span className="font-medium text-xs whitespace-nowrap text-[#111111]">
                                   {row.engagedHrs?.toFixed(1)}h{(row.allottedHrs || 0) > 0 ? `/${row.allottedHrs.toFixed(1)}h` : ''}
                                 </span>
                                 <span className="text-[#E5E5E5] text-xs">|</span>
-                                <span className={`text-xs font-normal whitespace-nowrap ${isBleeding ? 'text-[#FF3B3B]' : isWarning ? 'text-[#EAB308]' : 'text-[#666666]'}`}>
+                                <span className={`text-xs font-medium whitespace-nowrap ${isBleeding ? 'text-[#FF3B3B]' : isWarning ? 'text-[#EAB308]' : 'text-[#666666]'}`}>
                                   {isBleeding ? `+${Math.abs(remaining).toFixed(1)}h over` : `${remaining.toFixed(1)}h left`}
                                 </span>
                             </div>
@@ -997,13 +997,13 @@ export function ReportsPage() {
                       </div>
 
                       {/* Requirement */}
-                      <div className="text-xs text-[#666666] font-normal min-w-0 truncate" title={row.requirement}>{row.requirement}</div>
+                      <div className="text-xs text-[#666666] font-medium min-w-0 truncate" title={row.requirement}>{row.requirement}</div>
 
                       {/* Leader */}
                       <div className="text-xs text-[#111111] font-semibold min-w-0 truncate" title={row.leader}>{row.leader}</div>
 
                       {/* Assigned */}
-                      <div className="text-xs text-[#666666] font-normal min-w-0 truncate" title={row.assigned}>{row.assigned}</div>
+                      <div className="text-xs text-[#666666] font-medium min-w-0 truncate" title={row.assigned}>{row.assigned}</div>
 
                       {/* Due Date */}
                       <div className="min-w-0">
@@ -1019,16 +1019,16 @@ export function ReportsPage() {
                       {/* Hours Variance */}
                       <div className="flex flex-col gap-1.5 justify-center items-start h-full min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="font-normal text-xs whitespace-nowrap text-[#111111]">
+                          <span className="font-medium text-xs whitespace-nowrap text-[#111111]">
                             {row.engagedHrs?.toFixed(1)}h{hasEstimate ? `/${row.allottedHrs?.toFixed(1)}h` : ''}
                           </span>
                           <span className="text-[#E5E5E5] text-xs">|</span>
                           {hasEstimate ? (
-                            <span className={`text-xs font-normal whitespace-nowrap ${isBleeding ? 'text-[#FF3B3B]' : isWarning ? 'text-[#EAB308]' : 'text-[#666666]'}`}>
+                            <span className={`text-xs font-medium whitespace-nowrap ${isBleeding ? 'text-[#FF3B3B]' : isWarning ? 'text-[#EAB308]' : 'text-[#666666]'}`}>
                               {isBleeding ? `+${Math.abs(remaining).toFixed(1)}h over` : `${remaining.toFixed(1)}h left`}
                             </span>
                           ) : (
-                            <span className="text-xs text-[#666666] font-normal whitespace-nowrap">No estimate</span>
+                            <span className="text-xs text-[#666666] font-medium whitespace-nowrap">No estimate</span>
                           )}
                         </div>
                         <div className="h-1.5 w-full rounded-full overflow-hidden bg-[#F0F0F0]">
@@ -1087,12 +1087,12 @@ export function ReportsPage() {
 
                     <div className="flex flex-col justify-center min-w-0">
                       <span className="text-xs text-[#111111] font-bold min-w-0 truncate" title={row.member}>{row.member}</span>
-                      <span className="text-2xs text-[#666666] font-normal min-w-0 truncate" title={`${row.designation} | ${row.department}`}>{row.designation} <span className="text-[#E5E5E5] mx-1">|</span> {row.department}</span>
+                      <span className="text-2xs text-[#666666] font-medium min-w-0 truncate" title={`${row.designation} | ${row.department}`}>{row.designation} <span className="text-[#E5E5E5] mx-1">|</span> {row.department}</span>
                     </div>
 
                     <div className="flex flex-col min-w-0">
                       <span className="text-xs text-[#111111] font-bold truncate">
-                        {row.taskStats.assigned} <span className="text-[#666666] font-normal text-2xs">Assigned</span>
+                        {row.taskStats.assigned} <span className="text-[#666666] font-medium text-2xs">Assigned</span>
                       </span>
                       <div className="flex gap-3 mt-1 text-2xs font-medium text-[#666666] overflow-hidden">
                         <div className="flex items-center gap-1.5 shrink-0">

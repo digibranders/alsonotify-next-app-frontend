@@ -932,7 +932,7 @@ export function MailPage() {
                 {replyOpen === "forward" ? "Forward" : replyOpen === "replyAll" ? "Reply All" : "Reply"}
               </span>
               {current ? (
-                <span className="text-gray-400 font-normal text-sm ml-1">
+                <span className="text-gray-400 font-medium text-sm ml-1">
                   to {formatFrom(current)}
                 </span>
               ) : null}

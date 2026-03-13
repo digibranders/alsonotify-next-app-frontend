@@ -256,7 +256,7 @@ function NoteCard({ note, onArchive, onDelete, onClick }: {
                 <div className="flex-1 overflow-hidden min-h-0 w-full pointer-events-none">
                     {(note.type === 'TEXT_NOTE' || (note.type as any) === 'text') && note.content && (
                         <div
-                            className="font-normal text-xs text-[#666666] line-clamp-4 leading-normal prose prose-sm max-w-none [&>p]:m-0 h-full"
+                            className="font-medium text-xs text-[#666666] line-clamp-4 leading-normal prose prose-sm max-w-none [&>p]:m-0 h-full"
                             dangerouslySetInnerHTML={{ __html: sanitizeRichText(note.content) }}
                         />
                     )}
@@ -276,7 +276,7 @@ function NoteCard({ note, onArchive, onDelete, onClick }: {
                                             disabled
                                             className="mt-0.5 custom-checkbox-wrapper"
                                         />
-                                        <span className="font-normal text-xs text-[#666666] line-clamp-1">
+                                        <span className="font-medium text-xs text-[#666666] line-clamp-1">
                                             {item.text}
                                         </span>
                                     </div>

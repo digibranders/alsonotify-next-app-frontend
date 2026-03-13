@@ -110,7 +110,7 @@ export function FeedbackWidget({ open, onClose }: FeedbackWidgetProps) {
               Give us feedback
             </h2>
             <div className="flex items-center gap-2">
-              <p className="text-xs font-normal text-[#666666]">
+              <p className="text-xs font-medium text-[#666666]">
                 Tell us how we can make AlsoNotify better for you.
               </p>
               <span className="text-[#EEEEEE]">|</span>
@@ -173,7 +173,7 @@ export function FeedbackWidget({ open, onClose }: FeedbackWidgetProps) {
                         <div className="text-xs font-bold text-[#111111] mb-0.5">
                           {opt.label}
                         </div>
-                        <div className="text-xs font-normal text-[#666666] leading-tight">
+                        <div className="text-xs font-medium text-[#666666] leading-tight">
                           {opt.description}
                         </div>
                       </div>

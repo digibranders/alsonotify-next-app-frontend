@@ -14,7 +14,7 @@ export function TaskStatusBadge({ status, showLabel }: StatusBadgeProps) {
     return (
       <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${color} border border-current/10`}>
         {icon}
-        <span className="task-row-main font-semibold uppercase tracking-wide italic lowercase first-letter:uppercase">
+        <span className="text-xs font-semibold uppercase tracking-wide lowercase first-letter:uppercase">
           {label}
         </span>
       </div>

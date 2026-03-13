@@ -224,7 +224,7 @@ export function DayView({ currentDate, events, isLoading, onTimeSlotClick }: Day
                                                 <div className="text-xs font-bold text-[#111111]">
                                                     {event.title}
                                                 </div>
-                                                <div className="text-2xs font-normal text-[#666666] mt-1">
+                                                <div className="text-2xs font-medium text-[#666666] mt-1">
                                                     {event.time} {event.location ? ` | ${event.location}` : ''}
                                                 </div>
                                             </div>

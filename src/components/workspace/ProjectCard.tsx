@@ -235,7 +235,7 @@ export function WorkspaceDetailsPage({ id }: { id: string }) {
   if (!workspace) {
     return (
       <div className="flex items-center justify-center h-full">
-        <p className="text-[#999999] font-normal">Workspace not found</p>
+        <p className="text-[#999999] font-medium">Workspace not found</p>
       </div>
     )
   }
@@ -362,12 +362,12 @@ export function WorkspaceDetailsPage({ id }: { id: string }) {
 
             {tasksLoading ? (
               <div className="text-center py-12">
-                <p className="text-[#999999] font-normal">Loading tasks...</p>
+                <p className="text-[#999999] font-medium">Loading tasks...</p>
               </div>
             ) : filteredTasks.length === 0 ? (
               <div className="text-center py-12">
                 <CheckCircle2 className="w-12 h-12 text-[#DDDDDD] mx-auto mb-3" />
-                <p className="text-[#999999] font-normal">No tasks found</p>
+                <p className="text-[#999999] font-medium">No tasks found</p>
               </div>
             ) : viewMode === 'list' ? (
               <div className="space-y-3">
@@ -502,7 +502,7 @@ export function WorkspaceDetailsPage({ id }: { id: string }) {
             <label className="text-xs font-bold text-[#111111]">Task Title <span className="text-[#ff3b3b]">*</span></label>
             <Input
               placeholder="E.g. Design Homepage Mockups"
-              className="h-10 font-normal"
+              className="h-10 font-medium"
               value={newTask.name}
               onChange={(e) => setNewTask({ ...newTask, name: e.target.value })}
             />
@@ -525,7 +525,7 @@ export function WorkspaceDetailsPage({ id }: { id: string }) {
             <div className="space-y-2">
               <label className="text-xs font-bold text-[#111111]">Due Date</label>
               <DatePicker
-                className="w-full h-10 font-normal"
+                className="w-full h-10 font-medium"
                 value={newTask.dueDate ? dayjs(newTask.dueDate) : null}
                 onChange={(date) => setNewTask({ ...newTask, dueDate: date ? date.toDate() : null })}
               />
@@ -564,7 +564,7 @@ export function WorkspaceDetailsPage({ id }: { id: string }) {
             <label className="text-xs font-bold text-[#111111]">Description</label>
             <TextArea
               placeholder="Add task details..."
-              className="min-h-[100px] font-normal py-2"
+              className="min-h-[100px] font-medium py-2"
               value={newTask.description}
               onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
             />

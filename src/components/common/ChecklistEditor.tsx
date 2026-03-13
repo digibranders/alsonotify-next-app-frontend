@@ -239,7 +239,7 @@ export function ChecklistEditor({ items, onChange, placeholder = "List", classNa
                 onChange={(e) => updateItem(item.id, { text: e.target.value })}
                 onKeyDown={(e) => handleKeyDown(e, item, actualIndex)}
                 placeholder={displayIndex === 0 && item.text === '' ? placeholder : ''}
-                className="flex-1 border-none outline-none bg-transparent font-normal text-sm text-[#111111] placeholder:text-[#999]"
+                className="flex-1 border-none outline-none bg-transparent font-medium text-sm text-[#111111] placeholder:text-[#999]"
                 style={{ padding: '4px 0' }}
               />
             </div>
@@ -273,7 +273,7 @@ export function ChecklistEditor({ items, onChange, placeholder = "List", classNa
                     value={item.text}
                     onChange={(e) => updateItem(item.id, { text: e.target.value })}
                     onKeyDown={(e) => handleKeyDown(e, item, actualIndex)}
-                    className="flex-1 border-none outline-none bg-transparent font-normal text-sm text-[#666666] line-through"
+                    className="flex-1 border-none outline-none bg-transparent font-medium text-sm text-[#666666] line-through"
                     style={{ padding: '4px 0' }}
                   />
                 </div>

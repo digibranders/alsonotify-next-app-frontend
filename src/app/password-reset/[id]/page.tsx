@@ -106,7 +106,7 @@ export default function PasswordResetPage() {
               <h2 className="text-3xl font-bold text-[#111111] tracking-tight">
                 Reset Password
               </h2>
-              <p className="text-sm font-normal text-[#666666]">
+              <p className="text-sm font-medium text-[#666666]">
                 Enter your new password below.
               </p>
             </motion.div>

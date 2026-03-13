@@ -32,7 +32,7 @@ export function PaginationBar({
 
     return (
         <div className={`mt-2 pt-2 flex items-center justify-between border-t border-[#EEEEEE] h-10 ${className}`}>
-            <p className="text-xs font-normal text-[#666666] leading-none flex items-center h-full">
+            <p className="text-xs font-medium text-[#666666] leading-none flex items-center h-full">
                 {Math.min(startIndex + 1, totalItems)}-{endIndex} of {totalItems} {itemLabel}
             </p>
 
@@ -90,7 +90,7 @@ export function PaginationBar({
                     value={pageSize}
                     onChange={(e) => onPageSizeChange(Number(e.target.value))}
                     aria-label="Items per page"
-                    className="ml-2 px-2 py-0.5 h-7 rounded-lg border border-[#EEEEEE] text-xs font-normal text-[#666666] bg-white hover:bg-[#F7F7F7] hover:border-[#EEEEEE] focus:outline-none focus:border-[#ff3b3b] focus-visible:ring-2 focus-visible:ring-[#111111] focus-visible:ring-offset-1 transition-colors cursor-pointer"
+                    className="ml-2 px-2 py-0.5 h-7 rounded-lg border border-[#EEEEEE] text-xs font-medium text-[#666666] bg-white hover:bg-[#F7F7F7] hover:border-[#EEEEEE] focus:outline-none focus:border-[#ff3b3b] focus-visible:ring-2 focus-visible:ring-[#111111] focus-visible:ring-offset-1 transition-colors cursor-pointer"
                 >
                     <option value={10}>10</option>
                     <option value={12}>12</option>

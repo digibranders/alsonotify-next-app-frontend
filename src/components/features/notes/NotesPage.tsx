@@ -351,7 +351,7 @@ export function NotesPage() {
               <h3 className="text-base font-semibold text-[#111111] mb-1">
                 {activeTab === 'archive' ? 'Archive is empty' : 'No notes found'}
               </h3>
-              <p className="text-xs font-normal text-[#666666]">
+              <p className="text-xs font-medium text-[#666666]">
                 {activeTab === 'archive' ? 'Archived notes will appear here' : 'Create your first note to get started'}
               </p>
             </div>
@@ -532,7 +532,7 @@ function NoteCard({ note, onArchive, onUnarchive, onDelete, onClick }: NoteCardP
         <div className="flex-1 overflow-hidden min-h-0">
           {normalizeNoteType(note.type) === 'text' && note.content && (
             <div
-              className="font-normal text-xs text-[#666666] line-clamp-[8] leading-relaxed prose prose-sm max-w-none [&>p]:mb-2 [&>p]:last:mb-0 h-full"
+              className="font-medium text-xs text-[#666666] line-clamp-[8] leading-relaxed prose prose-sm max-w-none [&>p]:mb-2 [&>p]:last:mb-0 h-full"
               dangerouslySetInnerHTML={{ __html: sanitizeRichText(note.content) }}
             />
           )}
@@ -557,7 +557,7 @@ function NoteCard({ note, onArchive, onUnarchive, onDelete, onClick }: NoteCardP
                         disabled
                         className="mt-0.5 custom-checkbox-wrapper"
                       />
-                      <span className="font-normal text-xs flex-1 leading-tight text-[#666666]">
+                      <span className="font-medium text-xs flex-1 leading-tight text-[#666666]">
                         {itemText}
                       </span>
                     </div>
@@ -587,7 +587,7 @@ function NoteCard({ note, onArchive, onUnarchive, onDelete, onClick }: NoteCardP
                             disabled
                             className="mt-0.5 custom-checkbox-wrapper"
                           />
-                          <span className="font-normal text-xs flex-1 leading-tight line-through text-[#999999]">
+                          <span className="font-medium text-xs flex-1 leading-tight line-through text-[#999999]">
                             {itemText}
                           </span>
                         </div>

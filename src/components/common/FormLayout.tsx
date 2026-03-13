@@ -62,7 +62,7 @@ export function FormLayout({
           {headerExtra}
         </div>
         {subtitle && (
-          <p className="text-xs text-[#666666] font-normal ml-10 mt-1">
+          <p className="text-xs text-[#666666] font-medium ml-10 mt-1">
             {subtitle}
           </p>
         )}

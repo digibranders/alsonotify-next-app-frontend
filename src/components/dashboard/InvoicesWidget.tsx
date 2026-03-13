@@ -61,7 +61,7 @@ function InvoiceItem({ id, client, amount, status}: { id: string; client: string
       {/* Invoice Details */}
       <div className="flex-1">
         <p className="font-semibold text-sm text-[#111111] mb-1">{id}</p>
-        <p className="font-normal text-xs text-[#666666]">{client}</p>
+        <p className="font-medium text-xs text-[#666666]">{client}</p>
       </div>
 
       {/* Amount & Status */}

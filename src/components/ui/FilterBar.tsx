@@ -106,7 +106,7 @@ export function FilterBar({
               onClick={() => setOpenDropdown(openDropdown === filter.id ? null : filter.id)}
               aria-haspopup="listbox"
               aria-expanded={openDropdown === filter.id}
-              className={`flex items-center gap-2 px-3 py-1.5 border rounded-lg text-xs font-normal transition-all duration-200 justify-between min-w-[120px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111111] focus-visible:ring-offset-1 ${hasSelection
+              className={`flex items-center gap-2 px-3 py-1.5 border rounded-lg text-xs font-medium transition-all duration-200 justify-between min-w-[120px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111111] focus-visible:ring-offset-1 ${hasSelection
                 ? 'bg-[#111111] text-white border-[#111111] shadow-sm'
                 : 'bg-white text-[#666666] border-[#EEEEEE] hover:border-[#CCCCCC] hover:text-[#333333]'
                 }`}
@@ -158,7 +158,7 @@ export function FilterBar({
                           setOpenDropdown(null);
                         }
                       }}
-                      className={`w-full text-left px-4 py-2.5 font-normal text-xs hover:bg-[#FAFAFA] transition-colors flex items-center justify-between group ${!isMulti && isSelected ? 'bg-[#FAFAFA] text-[#111111] font-medium' : 'text-[#666666]'
+                      className={`w-full text-left px-4 py-2.5 font-medium text-xs hover:bg-[#FAFAFA] transition-colors flex items-center justify-between group ${!isMulti && isSelected ? 'bg-[#FAFAFA] text-[#111111] font-medium' : 'text-[#666666]'
                         }`}
                     >
                       <span className={`truncate ${isSelected ? 'text-[#111111]' : ''}`}>{optLabel}</span>

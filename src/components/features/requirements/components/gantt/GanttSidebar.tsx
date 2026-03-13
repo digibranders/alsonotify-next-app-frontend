@@ -49,7 +49,7 @@ export const GanttSidebar: React.FC = () => {
                                     "ml-1.5 text-xs truncate",
                                     task._hasChildren
                                         ? "font-semibold text-[#111111]"
-                                        : "font-normal text-[#555555]"
+                                        : "font-medium text-[#555555]"
                                 )}>
                                     {task.name}
                                 </span>

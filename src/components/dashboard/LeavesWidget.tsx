@@ -151,13 +151,13 @@ export function LeavesWidget({ onNavigate }: { onNavigate?: (page: string) => vo
             </div>
           ) : error ? (
             <div className="flex items-center justify-center py-8">
-              <p className="text-sm font-normal text-[#666666]">
+              <p className="text-sm font-medium text-[#666666]">
                 Unable to load leaves at the moment. Please try again later.
               </p>
             </div>
           ) : processedLeaves.length === 0 ? (
             <div className="bg-white rounded-[10px] border border-dashed border-[#CCCCCC] py-4 flex items-center justify-center">
-              <p className="text-sm font-normal text-[#666666]">No leaves to display at the moment</p>
+              <p className="text-sm font-medium text-[#666666]">No leaves to display at the moment</p>
             </div>
           ) : (
             <>
@@ -213,14 +213,14 @@ function LeaveItem({ name, dateRange, duration, avatar, initials }: { name: stri
               <h4 className="font-semibold text-xs text-[#111111] line-clamp-1">
                 {name}
               </h4>
-              <span className="text-[#666666] text-xs font-normal mt-0.5">
+              <span className="text-[#666666] text-xs font-medium mt-0.5">
                 {dateRange}
               </span>
             </div>
 
             {/* Duration Badge vertically centered on the right */}
             <div className="flex-shrink-0 self-center">
-              <span className="inline-block px-2.5 py-1 rounded-full bg-[#EEEEEE] text-xs font-normal text-[#333333]">
+              <span className="inline-block px-2.5 py-1 rounded-full bg-[#EEEEEE] text-xs font-medium text-[#333333]">
                 {duration}
               </span>
             </div>

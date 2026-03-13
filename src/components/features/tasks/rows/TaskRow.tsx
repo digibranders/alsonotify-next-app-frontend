@@ -132,7 +132,7 @@ const TaskRowComponent = memo(function TaskRow({
               )}
             </div>
             <div className="flex items-center gap-2">
-              {/* <span className="text-xs text-[#999999] font-normal">
+              {/* <span className="text-xs text-[#999999] font-medium">
                 #{task.taskId}
               </span> */}
               <span
@@ -150,7 +150,7 @@ const TaskRowComponent = memo(function TaskRow({
                 <Link
                   href="/dashboard/workspace"
                   onClick={(e) => e.stopPropagation()}
-                  className="task-row-main !text-[#111111] visited:!text-[#111111] font-normal truncate block hover:text-[#ff3b3b] hover:underline cursor-help"
+                  className="task-row-main !text-[#111111] visited:!text-[#111111] font-medium truncate block hover:text-[#ff3b3b] hover:underline cursor-help"
                 >
                   {task.project}
                 </Link>

@@ -99,7 +99,7 @@ export function LeaveRow({
           <span className="font-bold text-xs text-[#111111] truncate group-hover:text-[#ff3b3b] transition-colors">
             {leave.employeeName}
           </span>
-          <span className="text-2xs text-[#999999] font-normal">
+          <span className="text-2xs text-[#999999] font-medium">
             Applied on {leave.appliedOn}
           </span>
         </div>

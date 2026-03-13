@@ -110,7 +110,7 @@ export function TodoWidget({ onNavigate }: { onNavigate?: (page: string) => void
         centered
         className="rounded-[16px] overflow-hidden"
       >
-        <div className="font-normal text-sm text-[#666666] mb-4">Create a new sticky note for quick reminders and tasks.</div>
+        <div className="font-medium text-sm text-[#666666] mb-4">Create a new sticky note for quick reminders and tasks.</div>
         <div className="space-y-4">
           <div>
             <label className="text-sm font-medium text-[#666666] mb-2 block">Title</label>
@@ -214,7 +214,7 @@ function NoteCard({ note, onToggleItem }: {
 
         {/* Content */}
         {note.type === 'text' && note.content && (
-          <p className="font-normal text-xs text-[#666666] line-clamp-4 whitespace-pre-line">
+          <p className="font-medium text-xs text-[#666666] line-clamp-4 whitespace-pre-line">
             {note.content}
           </p>
         )}
@@ -228,13 +228,13 @@ function NoteCard({ note, onToggleItem }: {
                   onChange={() => onToggleItem(note.id, index)}
                   className="custom-checkbox-wrapper"
                 />
-                <span className={`font-normal text-xs flex-1 leading-tight ${item.checked ? 'line-through text-[#999999]' : 'text-[#666666]'}`}>
+                <span className={`font-medium text-xs flex-1 leading-tight ${item.checked ? 'line-through text-[#999999]' : 'text-[#666666]'}`}>
                   {item.text}
                 </span>
               </div>
             ))}
             {note.items.length > 3 && (
-              <span className="font-normal text-2xs text-[#999999]">
+              <span className="font-medium text-2xs text-[#999999]">
                 +{note.items.length - 3} more
               </span>
             )}

@@ -381,7 +381,7 @@ export function RequirementCard({
             )}
           </div>
         )}
-        <p className="text-xs text-[#666666] font-normal line-clamp-3 leading-relaxed mb-0">
+        <p className="text-xs text-[#666666] font-medium line-clamp-3 leading-relaxed mb-0">
           {requirement.description}
         </p>
       </div>

@@ -493,7 +493,7 @@ export function FloatingTimerBar() {
                           }`}>
                           {task.name}
                         </p>
-                        <p className={`text-2xs font-normal mt-0.5 truncate ${currentDisplayTaskId === task.id ? 'text-white/80' : 'text-inherit opacity-70'
+                        <p className={`text-2xs font-medium mt-0.5 truncate ${currentDisplayTaskId === task.id ? 'text-white/80' : 'text-inherit opacity-70'
                           }`}>
                           {task.project}
                         </p>
