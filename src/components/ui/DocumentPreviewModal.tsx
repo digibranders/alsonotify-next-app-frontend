@@ -2,6 +2,7 @@ import { Modal, Skeleton, Segmented } from 'antd';
 import { X, Code, Eye, FileText, FileSpreadsheet, Download, FileWarning } from 'lucide-react';
 import { UserDocument } from '@/types/domain';
 import { useEffect, useState, useMemo } from 'react';
+import { sanitizeUrl } from '@/utils/sanitizeUrl';
 import { sanitizeEmailHtml } from '@/utils/sanitizeHtml';
 import { determineFileType } from '@/utils/fileTypeUtils';
 
@@ -92,7 +93,7 @@ function DocumentPreviewContent({ document }: { document: UserDocument }) {
         <div className="w-full h-full flex items-center justify-center bg-[#F9FAFB] rounded-lg overflow-hidden">
           {/* Using <img> instead of next/image for blob URL stability */}
           <img
-            src={document.fileUrl}
+            src={sanitizeUrl(document.fileUrl) || ""}
             alt={document.fileName}
             className="max-w-full max-h-[82vh] object-contain shadow-sm"
           />
@@ -104,7 +105,7 @@ function DocumentPreviewContent({ document }: { document: UserDocument }) {
       return (
         <div className="w-full h-full flex items-center justify-center bg-[#F9FAFB] rounded-lg overflow-hidden">
           <iframe
-            src={document.fileUrl}
+            src={sanitizeUrl(document.fileUrl) || ""}
             className="w-full h-[82vh] border-0"
             title={document.fileName}
           />
@@ -123,7 +124,7 @@ function DocumentPreviewContent({ document }: { document: UserDocument }) {
             Preview is not supported for Word files in the browser. Please download to view the full content.
           </p>
           <a
-            href={document.fileUrl}
+            href={sanitizeUrl(document.fileUrl) || ""}
             download={document.fileName}
             className="inline-flex items-center gap-2 px-6 py-3 bg-[#111111] hover:bg-[#333333] text-white rounded-full text-sm font-bold transition-all shadow-md active:scale-95"
           >
@@ -145,7 +146,7 @@ function DocumentPreviewContent({ document }: { document: UserDocument }) {
             Preview is not supported for Excel files in the browser. Please download to view the full content.
           </p>
           <a
-            href={document.fileUrl}
+            href={sanitizeUrl(document.fileUrl) || ""}
             download={document.fileName}
             className="inline-flex items-center gap-2 px-6 py-3 bg-[#111111] hover:bg-[#333333] text-white rounded-full text-sm font-bold transition-all shadow-md active:scale-95"
           >
@@ -198,7 +199,7 @@ function DocumentPreviewContent({ document }: { document: UserDocument }) {
           Preview is not available for this file type ({fileType}). Please download to view.
         </p>
         <a
-          href={document.fileUrl}
+          href={sanitizeUrl(document.fileUrl) || ""}
           download={document.fileName}
           className="inline-flex items-center gap-2 px-6 py-3 bg-[#111111] hover:bg-[#333333] text-white rounded-full text-sm font-bold transition-all shadow-md active:scale-95"
         >
