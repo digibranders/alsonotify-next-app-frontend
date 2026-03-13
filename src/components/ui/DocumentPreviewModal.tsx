@@ -1,9 +1,9 @@
 import { Modal, Skeleton, Segmented } from 'antd';
-import { X, Code, Eye } from 'lucide-react';
+import { X, Code, Eye, FileText, FileSpreadsheet, Download, FileWarning } from 'lucide-react';
 import { UserDocument } from '@/types/domain';
-import Image from 'next/image';
 import { useEffect, useState, useMemo } from 'react';
 import { sanitizeEmailHtml } from '@/utils/sanitizeHtml';
+import { determineFileType } from '@/utils/fileTypeUtils';
 
 type PreviewMode = 'rendered' | 'source';
 
@@ -28,7 +28,7 @@ export function DocumentPreviewModal({ open, onClose, document }: DocumentPrevie
           padding: 0,
         },
       }}
-      destroyOnHidden
+      destroyOnClose
     >
       {document && (
         <DocumentPreviewContent document={document} />
@@ -37,57 +37,70 @@ export function DocumentPreviewModal({ open, onClose, document }: DocumentPrevie
   );
 }
 
+const textFileTypes = ['text', 'code', 'csv'];
+
 function DocumentPreviewContent({ document }: { document: UserDocument }) {
   const [textContent, setTextContent] = useState<string | null>(null);
   const [loading, setLoading] = useState(() => {
-    const textExtensions = ['.txt', '.log', '.json', '.js', '.ts', '.css', '.html', '.md'];
-    const isActuallyText = ['text', 'csv'].includes(document.fileType) ||
-      textExtensions.some(ext => document.fileName.toLowerCase().endsWith(ext));
-    return !!(isActuallyText && document.fileUrl);
+    const fileType = determineFileType(document.fileName, document.fileType);
+    return !!((fileType === 'text' || fileType === 'code' || fileType === 'csv') && document.fileUrl);
   });
   const [previewMode, setPreviewMode] = useState<PreviewMode>('rendered');
 
+  const fileType = useMemo(() => 
+    determineFileType(document.fileName, document.fileType), 
+  [document]);
+
   const isHtmlMsg = useMemo(() => {
     const name = document.fileName.toLowerCase();
-    return name.endsWith('.html') || (document.fileType === 'text' && name.endsWith('.html'));
-  }, [document]);
+    return name.endsWith('.html') || (fileType === 'text' && name.endsWith('.html'));
+  }, [document.fileName, fileType]);
+
+  const [lastUrl, setLastUrl] = useState<string | null>(null);
+
+  // Synchronously update loading state when document changes to avoid FOUC and lint errors
+  if (document.fileUrl !== lastUrl) {
+    setLastUrl(document.fileUrl);
+    const isText = (fileType === 'text' || fileType === 'code' || fileType === 'csv');
+    if (isText && document.fileUrl) {
+      setLoading(true);
+    } else {
+      setLoading(false);
+      setTextContent(null);
+    }
+  }
 
   useEffect(() => {
-    const textExtensions = ['.txt', '.log', '.json', '.js', '.ts', '.css', '.html', '.md'];
-    const isActuallyText = ['text', 'csv'].includes(document.fileType) ||
-      textExtensions.some(ext => document.fileName.toLowerCase().endsWith(ext));
-
-    if (isActuallyText && document.fileUrl) {
-      // setLoading(true); // Handled by initializer for initial mount
+    if ((fileType === 'text' || fileType === 'code' || fileType === 'csv') && document.fileUrl) {
       fetch(document.fileUrl)
         .then(res => res.text())
         .then(text => {
           setTextContent(text);
           setLoading(false);
         })
-        .catch(() => {
+        .catch((err) => {
+          console.error('Failed to load text content:', err);
           setTextContent('Failed to load content.');
           setLoading(false);
         });
     }
-  }, [document.fileUrl, document.fileName, document.fileType]);
+  }, [document.fileUrl, fileType]);
 
   const renderPreview = () => {
-    if (document.fileType === 'image') {
+    if (fileType === 'image') {
       return (
         <div className="w-full h-full flex items-center justify-center bg-[#F9FAFB] rounded-lg overflow-hidden">
-          <Image
+          {/* Using <img> instead of next/image for blob URL stability */}
+          <img
             src={document.fileUrl}
             alt={document.fileName}
-            width={800}
-            height={600}
-            className="max-w-full max-h-[82vh] object-contain"
+            className="max-w-full max-h-[82vh] object-contain shadow-sm"
           />
         </div>
       );
     }
 
-    if (document.fileType === 'pdf') {
+    if (fileType === 'pdf') {
       return (
         <div className="w-full h-full flex items-center justify-center bg-[#F9FAFB] rounded-lg overflow-hidden">
           <iframe
@@ -99,213 +112,62 @@ function DocumentPreviewContent({ document }: { document: UserDocument }) {
       );
     }
 
-    // Code files - dark theme with syntax highlighting ready
-    if (document.fileType === 'code') {
-      if (loading) {
-        return <Skeleton active paragraph={{ rows: 15 }} />;
-      }
+    if (fileType === 'docx') {
       return (
-        <div className="w-full h-full bg-[#1E1E1E] rounded-lg overflow-hidden">
-          <div className="max-h-[82vh] overflow-auto p-6">
-            <pre className="text-sm font-mono text-[#D4D4D4] whitespace-pre-wrap selection:bg-blue-600/30">
-              <code>{textContent || 'Loading...'}</code>
-            </pre>
+        <div className="w-full h-full flex flex-col items-center justify-center bg-[#F9FAFB] rounded-lg p-12 text-center">
+          <div className="w-20 h-20 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-6 shadow-sm">
+            <FileText size={40} />
           </div>
+          <h3 className="text-xl font-bold text-[#111111] mb-2">Word Document</h3>
+          <p className="text-sm text-[#666666] max-w-sm mb-6">
+            Preview is not supported for Word files in the browser. Please download to view the full content.
+          </p>
+          <a
+            href={document.fileUrl}
+            download={document.fileName}
+            className="inline-flex items-center gap-2 px-6 py-3 bg-[#111111] hover:bg-[#333333] text-white rounded-full text-sm font-bold transition-all shadow-md active:scale-95"
+          >
+            <Download size={18} />
+            Download {document.fileName}
+          </a>
         </div>
       );
     }
 
-    // Audio files
-    if (document.fileType === 'audio') {
+    if (fileType === 'excel') {
       return (
-        <div className="w-full h-full flex items-center justify-center bg-[#F9FAFB] rounded-lg p-8">
-          <div className="max-w-2xl w-full">
-            <div className="flex items-center gap-4 mb-6 justify-center">
-              <div className="w-16 h-16 bg-[#ff3b3b]/10 rounded-full flex items-center justify-center">
-                <svg className="w-8 h-8 text-[#ff3b3b]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
-                </svg>
-              </div>
-              <div className="text-left">
-                <h3 className="text-lg font-semibold text-[#111111]">{document.fileName}</h3>
-                <p className="text-sm text-[#666666]">Audio File</p>
-              </div>
-            </div>
-            <audio controls className="w-full">
-              <source src={document.fileUrl} />
-              Your browser does not support the audio element.
-            </audio>
+        <div className="w-full h-full flex flex-col items-center justify-center bg-[#F9FAFB] rounded-lg p-12 text-center">
+          <div className="w-20 h-20 bg-green-50 text-green-600 rounded-2xl flex items-center justify-center mb-6 shadow-sm">
+            <FileSpreadsheet size={40} />
           </div>
-        </div>
-      );
-    }
-
-    // Video files
-    if (document.fileType === 'video') {
-      return (
-        <div className="w-full h-full flex items-center justify-center bg-black rounded-lg p-4">
-          <div className="max-w-4xl w-full">
-            <video controls className="w-full rounded-lg">
-              <source src={document.fileUrl} />
-              Your browser does not support the video element.
-            </video>
-          </div>
-        </div>
-      );
-    }
-
-    // PowerPoint presentations
-    if (document.fileType === 'powerpoint') {
-      return (
-        <div className="w-full h-full flex items-center justify-center bg-[#F9FAFB] rounded-lg p-8">
-          <div className="text-center max-w-md">
-            <div className="w-16 h-16 bg-[#D04A02]/10 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-[#D04A02]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-semibold mb-2 text-[#111111]">PowerPoint Presentation</h3>
-            <p className="text-sm text-[#666666] mb-4">Preview not available for PowerPoint files</p>
-            <a
-              href={document.fileUrl}
-              download={document.fileName}
-              className="inline-block px-6 py-2 bg-[#ff3b3b] hover:bg-[#ff3b3b]/90 text-white rounded-full text-[0.8125rem] font-semibold transition-colors"
-            >
-              Download File
-            </a>
-          </div>
-        </div>
-      );
-    }
-
-    // Archive files
-    if (document.fileType === 'archive') {
-      return (
-        <div className="w-full h-full flex items-center justify-center bg-[#F9FAFB] rounded-lg p-8">
-          <div className="text-center max-w-md">
-            <div className="w-16 h-16 bg-[#666666]/10 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-[#666666]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-semibold mb-2 text-[#111111]">Archive File</h3>
-            <p className="text-sm text-[#666666] mb-4">Preview not available for archive files (.zip, .rar, .7z, etc.)</p>
-            <a
-              href={document.fileUrl}
-              download={document.fileName}
-              className="inline-block px-6 py-2 bg-[#ff3b3b] hover:bg-[#ff3b3b]/90 text-white rounded-full text-[0.8125rem] font-semibold transition-colors"
-            >
-              Download File
-            </a>
-          </div>
-        </div>
-      );
-    }
-
-    // 3D & CAD files
-    if (document.fileType === '3d') {
-      return (
-        <div className="w-full h-full flex items-center justify-center bg-[#F9FAFB] rounded-lg p-8">
-          <div className="text-center max-w-md">
-            <div className="w-16 h-16 bg-[#4A90E2]/10 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-[#4A90E2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-semibold mb-2 text-[#111111]">3D/CAD File</h3>
-            <p className="text-sm text-[#666666] mb-4">Preview not available for 3D models and CAD files</p>
-            <a
-              href={document.fileUrl}
-              download={document.fileName}
-              className="inline-block px-6 py-2 bg-[#ff3b3b] hover:bg-[#ff3b3b]/90 text-white rounded-full text-[0.8125rem] font-semibold transition-colors"
-            >
-              Download File
-            </a>
-          </div>
-        </div>
-      );
-    }
-
-    // Font files
-    if (document.fileType === 'font') {
-      return (
-        <div className="w-full h-full flex items-center justify-center bg-[#F9FAFB] rounded-lg p-8">
-          <div className="text-center max-w-md">
-            <div className="w-16 h-16 bg-[#666666]/10 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-[#666666]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-semibold mb-2 text-[#111111]">Font File</h3>
-            <p className="text-sm text-[#666666] mb-4">Preview not available for font files</p>
-            <a
-              href={document.fileUrl}
-              download={document.fileName}
-              className="inline-block px-6 py-2 bg-[#ff3b3b] hover:bg-[#ff3b3b]/90 text-white rounded-full text-[0.8125rem] font-semibold transition-colors"
-            >
-              Download File
-            </a>
-          </div>
-        </div>
-      );
-    }
-
-    // eBook files
-    if (document.fileType === 'ebook') {
-      return (
-        <div className="w-full h-full flex items-center justify-center bg-[#F9FAFB] rounded-lg p-8">
-          <div className="text-center max-w-md">
-            <div className="w-16 h-16 bg-[#8B4513]/10 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-[#8B4513]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-semibold mb-2 text-[#111111]">eBook File</h3>
-            <p className="text-sm text-[#666666] mb-4">Preview not available for eBook files (.epub, .mobi, etc.)</p>
-            <a
-              href={document.fileUrl}
-              download={document.fileName}
-              className="inline-block px-6 py-2 bg-[#ff3b3b] hover:bg-[#ff3b3b]/90 text-white rounded-full text-[0.8125rem] font-semibold transition-colors"
-            >
-              Download File
-            </a>
-          </div>
-        </div>
-      );
-    }
-
-    // Design files
-    if (document.fileType === 'design') {
-      return (
-        <div className="w-full h-full flex items-center justify-center bg-[#F9FAFB] rounded-lg p-8">
-          <div className="text-center max-w-md">
-            <div className="w-16 h-16 bg-[#FF6B6B]/10 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-[#FF6B6B]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-semibold mb-2 text-[#111111]">Design File</h3>
-            <p className="text-sm text-[#666666] mb-4">Preview not available for design files (.sketch, .fig, .psd, etc.)</p>
-            <a
-              href={document.fileUrl}
-              download={document.fileName}
-              className="inline-block px-6 py-2 bg-[#ff3b3b] hover:bg-[#ff3b3b]/90 text-white rounded-full text-[0.8125rem] font-semibold transition-colors"
-            >
-              Download File
-            </a>
-          </div>
+          <h3 className="text-xl font-bold text-[#111111] mb-2">Excel Spreadsheet</h3>
+          <p className="text-sm text-[#666666] max-w-sm mb-6">
+            Preview is not supported for Excel files in the browser. Please download to view the full content.
+          </p>
+          <a
+            href={document.fileUrl}
+            download={document.fileName}
+            className="inline-flex items-center gap-2 px-6 py-3 bg-[#111111] hover:bg-[#333333] text-white rounded-full text-sm font-bold transition-all shadow-md active:scale-95"
+          >
+            <Download size={18} />
+            Download {document.fileName}
+          </a>
         </div>
       );
     }
 
     if (loading) {
-      return <Skeleton active paragraph={{ rows: 15 }} />;
+      return (
+        <div className="p-8">
+          <Skeleton active paragraph={{ rows: 12 }} />
+        </div>
+      );
     }
 
-    if (textContent !== null) {
+    if (textFileTypes.includes(fileType) && textContent !== null) {
       if (isHtmlMsg && previewMode === 'rendered') {
         return (
-          <div className="w-full h-full bg-white rounded-lg overflow-hidden border border-gray-200">
+          <div className="w-full h-full bg-white rounded-lg overflow-hidden border border-gray-100 italic">
             <iframe
               srcDoc={sanitizeEmailHtml(textContent, true)}
               className="w-full h-[82vh] border-0"
@@ -317,45 +179,51 @@ function DocumentPreviewContent({ document }: { document: UserDocument }) {
       }
 
       return (
-        <div className="w-full h-full bg-[#F9FAFB] rounded-lg overflow-hidden border border-gray-200">
-          <div className="max-h-[82vh] overflow-auto p-4 font-mono text-xs whitespace-pre-wrap selection:bg-blue-100">
+        <div className="w-full h-full bg-[#FAFAFA] rounded-lg overflow-hidden border border-gray-100">
+          <div className="max-h-[82vh] overflow-auto p-6 font-mono text-[13px] leading-relaxed text-[#333333] whitespace-pre-wrap selection:bg-blue-100 selection:text-blue-900">
             {textContent}
           </div>
         </div>
       );
     }
 
+    // Default Fallback
     return (
-      <div className="w-full h-full flex flex-col items-center justify-center bg-[#F9FAFB] rounded-lg p-8">
-        <div className="text-center">
-          <p className="text-base font-semibold text-[#111111] mb-2">
-            {document.fileName}
-          </p>
-          <p className="text-[0.8125rem] text-[#666666] font-normal mb-4">
-            Preview not available for this file type. Please download to view.
-          </p>
-          <a
-            href={document.fileUrl}
-            download={document.fileName}
-            className="inline-block px-6 py-2 bg-[#ff3b3b] hover:bg-[#ff3b3b]/90 text-white rounded-full text-[0.8125rem] font-semibold transition-colors"
-          >
-            Download File
-          </a>
+      <div className="w-full h-full flex flex-col items-center justify-center bg-[#F9FAFB] rounded-lg p-12 text-center">
+        <div className="w-20 h-20 bg-gray-50 text-gray-400 rounded-2xl flex items-center justify-center mb-6 shadow-sm">
+          <FileWarning size={40} />
         </div>
+        <h3 className="text-xl font-bold text-[#111111] mb-2">{document.fileName}</h3>
+        <p className="text-sm text-[#666666] max-w-sm mb-6">
+          Preview is not available for this file type ({fileType}). Please download to view.
+        </p>
+        <a
+          href={document.fileUrl}
+          download={document.fileName}
+          className="inline-flex items-center gap-2 px-6 py-3 bg-[#111111] hover:bg-[#333333] text-white rounded-full text-sm font-bold transition-all shadow-md active:scale-95"
+        >
+          <Download size={18} />
+          Download File
+        </a>
       </div>
     );
   };
 
   return (
-    <div className="bg-white p-2 md:p-3">
-      <div className="mb-2 px-2 flex items-center justify-between">
-        <div>
-          <h3 className="text-[0.9375rem] font-bold text-[#111111] mb-0">
+    <div className="bg-white">
+      <div className="h-16 px-6 border-b border-[#EEEEEE] flex items-center justify-between">
+        <div className="min-w-0 mr-4">
+          <h3 className="text-base font-bold text-[#111111] truncate mb-0.5" title={document.fileName}>
             {document.fileName}
           </h3>
-          <p className="text-[0.6875rem] text-[#666666] font-medium uppercase tracking-wider">
-            {document.documentTypeName}
-          </p>
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-bold text-white bg-[#ff3b3b] px-1.5 py-0.5 rounded uppercase tracking-wider">
+              {fileType}
+            </span>
+            <span className="text-[11px] text-[#999999] font-medium">
+              {document.documentTypeName}
+            </span>
+          </div>
         </div>
 
         {isHtmlMsg && textContent !== null && (
@@ -363,7 +231,7 @@ function DocumentPreviewContent({ document }: { document: UserDocument }) {
             options={[
               {
                 label: (
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 px-1">
                     <Eye size={14} />
                     <span>Rendered</span>
                   </div>
@@ -372,7 +240,7 @@ function DocumentPreviewContent({ document }: { document: UserDocument }) {
               },
               {
                 label: (
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 px-1">
                     <Code size={14} />
                     <span>Source</span>
                   </div>
@@ -382,11 +250,14 @@ function DocumentPreviewContent({ document }: { document: UserDocument }) {
             ]}
             value={previewMode}
             onChange={(v) => setPreviewMode(v)}
-            className="bg-[#F3F4F6]"
+            className="bg-[#F3F4F6] p-1 rounded-lg"
           />
         )}
       </div>
-      {renderPreview()}
+      <div className="p-4 md:p-6 bg-white overflow-hidden">
+        {renderPreview()}
+      </div>
     </div>
   );
 }
+

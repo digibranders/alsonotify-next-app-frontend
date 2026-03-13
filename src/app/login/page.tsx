@@ -130,7 +130,7 @@ function LoginForm() {
           <div className="pt-2">
             <Turnstile
               siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY as string}
-              onSuccess={(token) => setTurnstileToken(token)}
+              onSuccess={(token: string) => setTurnstileToken(token)}
               options={{
                 theme: 'light',
                 size: 'normal',

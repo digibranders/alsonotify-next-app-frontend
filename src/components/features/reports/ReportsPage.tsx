@@ -880,16 +880,17 @@ export function ReportsPage() {
                         const fillPercent = `${(fillRatio * 100).toFixed(1)}%`;
                         
                         // Determine colors
-                        const barColor = isBleeding ? 'bg-[#FF3B3B]' : isWarning ? 'bg-[#FF8A00]' : 'bg-[#111111]';
+                        const barColor = isBleeding ? 'bg-[#FF3B3B]' : isWarning ? 'bg-[#EAB308]' : 'bg-[#2F80ED]';
                         const trackColor = 'bg-[#F0F0F0]';
                         
                         return (
                           <>
                             <div className="flex items-center gap-2">
-                                <span className={`font-bold text-[0.75rem] truncate ${isBleeding ? 'text-[#FF3B3B]' : isWarning ? 'text-[#FF8A00]' : 'text-[#111111]'}`}>
-                                  {row.engagedHrs}h
+                                <span className="font-normal text-[0.75rem] whitespace-nowrap text-[#111111]">
+                                  {row.engagedHrs?.toFixed(1)}h{(row.allottedHrs || 0) > 0 ? `/${row.allottedHrs.toFixed(1)}h` : ''}
                                 </span>
-                                <span className={`text-[0.625rem] font-semibold truncate ${isBleeding ? 'text-[#FF3B3B] bg-[#FFF0F0] px-1.5 py-0.5 rounded' : isWarning ? 'text-[#FF8A00]' : 'text-[#999999]'}`}>
+                                <span className="text-[#E5E5E5] text-[0.75rem]">|</span>
+                                <span className={`text-[0.75rem] font-normal whitespace-nowrap ${isBleeding ? 'text-[#FF3B3B]' : isWarning ? 'text-[#EAB308]' : 'text-[#666666]'}`}>
                                   {isBleeding ? `+${Math.abs(remaining).toFixed(1)}h over` : `${remaining.toFixed(1)}h left`}
                                 </span>
                             </div>
@@ -1019,15 +1020,16 @@ export function ReportsPage() {
                       {/* Hours Variance */}
                       <div className="flex flex-col gap-1.5 justify-center items-start h-full min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className={`font-bold text-[0.75rem] truncate ${isBleeding ? 'text-[#FF3B3B]' : isWarning ? 'text-[#FF8A00]' : 'text-[#111111]'}`}>
-                            {row.engagedHrs}h
+                          <span className="font-normal text-[0.75rem] whitespace-nowrap text-[#111111]">
+                            {row.engagedHrs?.toFixed(1)}h{hasEstimate ? `/${row.allottedHrs?.toFixed(1)}h` : ''}
                           </span>
+                          <span className="text-[#E5E5E5] text-[0.75rem]">|</span>
                           {hasEstimate ? (
-                            <span className={`text-[0.625rem] font-semibold truncate ${isBleeding ? 'text-[#FF3B3B] bg-[#FFF0F0] px-1.5 py-0.5 rounded' : isWarning ? 'text-[#FF8A00]' : 'text-[#999999]'}`}>
+                            <span className={`text-[0.75rem] font-normal whitespace-nowrap ${isBleeding ? 'text-[#FF3B3B]' : isWarning ? 'text-[#EAB308]' : 'text-[#666666]'}`}>
                               {isBleeding ? `+${Math.abs(remaining).toFixed(1)}h over` : `${remaining.toFixed(1)}h left`}
                             </span>
                           ) : (
-                            <span className="text-[0.625rem] text-[#CCCCCC] font-medium">No estimate</span>
+                            <span className="text-[0.75rem] text-[#666666] font-normal whitespace-nowrap">No estimate</span>
                           )}
                         </div>
                         <div className="h-1.5 w-full rounded-full overflow-hidden bg-[#F0F0F0]">

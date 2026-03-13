@@ -21,18 +21,26 @@ import {
   Upload,
 } from "antd";
 import type { UploadFile } from "antd/es/upload/interface";
+import { fileService } from "@/services/file.service";
+import { determineFileType, safeFilename } from "@/utils/fileTypeUtils";
 import {
-  Eye,
-  EyeOff,
-  Forward,
-  Image as ImageIcon,
-  Mail,
-  Paperclip,
+  X,
   Reply,
   ReplyAll,
-  Send,
+  Forward,
   Trash2,
-  X,
+  Archive,
+  Download,
+  Eye,
+  FileText,
+  FileSpreadsheet,
+  FileWarning,
+  Code,
+  Paperclip,
+  Send,
+  Mail,
+  EyeOff,
+  Image as ImageIcon,
 } from "lucide-react";
 import dayjs from "dayjs";
 
@@ -110,10 +118,6 @@ function filesFromUploadList(list: UploadFile[]) {
   return list.map((f) => f.originFileObj).filter(Boolean) as File[];
 }
 
-function safeFilename(name?: string) {
-  return (name || "attachment").replace(/[^\w.\-() ]+/g, "_");
-}
-
 function isUnderMB(file: File, mb: number) {
   return file.size <= mb * 1024 * 1024;
 }
@@ -149,6 +153,8 @@ export function MailPage() {
   const [forwardTo, setForwardTo] = useState<string[]>([]);
   const [sendingQuick, setSendingQuick] = useState(false);
   const [quickFiles, setQuickFiles] = useState<UploadFile[]>([]);
+  const [downloadingIds, setDownloadingIds] = useState<Set<string>>(new Set());
+  const [previewingIds, setPreviewingIds] = useState<Set<string>>(new Set());
 
   // preview
   const [previewDoc, setPreviewDoc] = useState<UserDocument | null>(null);
@@ -289,59 +295,43 @@ export function MailPage() {
   };
 
   const doDownload = async (attId: string, name?: string) => {
-    if (!selectedId) return;
-    const blob = await downloadAttachment(selectedId, attId);
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = safeFilename(name);
-    a.click();
-    window.URL.revokeObjectURL(url);
+    if (!selectedId || downloadingIds.has(attId)) return;
+    setDownloadingIds(prev => new Set(prev).add(attId));
+    try {
+      const blob = await downloadAttachment(selectedId, attId);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = safeFilename(name);
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      
+      // Delay revocation to ensure browser captures the URL
+      setTimeout(() => {
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      }, 150);
+    } catch (err) {
+      console.error('Download error:', err);
+      message.error("Failed to download attachment");
+    } finally {
+      setDownloadingIds(prev => {
+        const next = new Set(prev);
+        next.delete(attId);
+        return next;
+      });
+    }
   };
 
   const doPreview = async (attId: string, name: string, contentType: string, size: number) => {
-    if (!selectedId) return;
+    if (!selectedId || previewingIds.has(attId)) return;
+    setPreviewingIds(prev => new Set(prev).add(attId));
     try {
       const blob = await downloadAttachment(selectedId, attId);
       const url = window.URL.createObjectURL(blob);
 
-      let fileType: UserDocument["fileType"] = "text";
-      const ct = (contentType || "").toLowerCase();
-      const nameLower = (name || "").toLowerCase();
-
-      if (ct.startsWith("image/")) {
-        fileType = "image";
-      } else if (ct === "application/pdf") {
-        fileType = "pdf";
-      } else if (
-        ct.includes("word") ||
-        nameLower.endsWith(".doc") ||
-        nameLower.endsWith(".docx")
-      ) {
-        fileType = "docx";
-      } else if (
-        ct.includes("csv") ||
-        nameLower.endsWith(".csv")
-      ) {
-        fileType = "csv";
-      } else if (
-        ct.includes("excel") ||
-        ct.includes("sheet") ||
-        nameLower.endsWith(".xls") ||
-        nameLower.endsWith(".xlsx")
-      ) {
-        fileType = "excel";
-      } else if (
-        ct.includes("text/") ||
-        ct.includes("json") ||
-        ct.includes("javascript") ||
-        nameLower.endsWith(".txt") ||
-        nameLower.endsWith(".log") ||
-        nameLower.endsWith(".json") ||
-        nameLower.endsWith(".md")
-      ) {
-        fileType = "text";
-      }
+      const fileType = determineFileType(name, contentType);
 
       setPreviewDoc({
         id: attId,
@@ -355,7 +345,14 @@ export function MailPage() {
         isRequired: false,
       });
     } catch (err) {
+      console.error('Preview error:', err);
       message.error("Failed to load preview");
+    } finally {
+      setPreviewingIds(prev => {
+        const next = new Set(prev);
+        next.delete(attId);
+        return next;
+      });
     }
   };
 
