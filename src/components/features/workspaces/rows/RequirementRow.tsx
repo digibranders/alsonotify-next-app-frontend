@@ -67,7 +67,7 @@ export const RequirementRow = React.memo(function RequirementRow({ req, workspac
       onClick={() =>
         router.push(`/dashboard/workspace/${workspaceId}/requirements/${req.id}`)
       }
-      className="group bg-white border border-[#EEEEEE] rounded-[16px] p-4 transition-all duration-300 cursor-pointer relative z-10 hover:border-[#ff3b3b]/20 hover:shadow-lg"
+      className="group bg-white border border-[#EEEEEE] rounded-[16px] px-4 py-2 transition-all duration-300 cursor-pointer relative z-10 hover:border-[#ff3b3b]/20 hover:shadow-lg"
     >
       <div className="grid grid-cols-[40px_2.6fr_1.6fr_1.2fr_1.4fr_1.4fr_0.7fr_0.3fr] gap-4 items-center">
         <div className="flex justify-center" onClick={(e) => e.stopPropagation()}>
@@ -85,11 +85,11 @@ export const RequirementRow = React.memo(function RequirementRow({ req, workspac
               }`}
           />
           <div>
-            <h3 className="font-semibold text-xs text-[#111111] group-hover:text-[#ff3b3b] transition-colors mb-1.5">
+            <h3 className="task-row-main font-bold text-[#111111] group-hover:text-[#ff3b3b] transition-colors mb-1.5">
               {req.title}
             </h3>
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-xs text-[#999999] font-medium">
+              <span className="task-row-sub text-[#666666] font-medium">
                 {req.client}
               </span>
               {req.department && (
@@ -102,13 +102,13 @@ export const RequirementRow = React.memo(function RequirementRow({ req, workspac
         </div>
 
         {/* Timeline */}
-        <div className="flex items-center gap-2 text-xs text-[#666666] font-medium">
+        <div className="flex items-center gap-2 task-row-main font-medium text-[#666666]">
           <CalendarIcon className="w-4 h-4 text-[#999999]" />
           <span>{req.timeline}</span>
         </div>
 
         {/* Budget */}
-        <div className="text-xs font-semibold text-[#16A34A]">
+        <div className="task-row-main font-semibold text-[#16A34A]">
           {req.budgetFormatted}
         </div>
 
@@ -143,7 +143,7 @@ export const RequirementRow = React.memo(function RequirementRow({ req, workspac
               )}
             </div>
           ) : (
-            <span className="text-xs text-[#999999] font-medium">
+            <span className="task-row-sub text-[#666666] font-medium">
               N/A
             </span>
           )}

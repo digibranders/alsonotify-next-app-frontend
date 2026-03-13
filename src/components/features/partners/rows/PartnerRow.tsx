@@ -36,7 +36,7 @@ export function PartnerRow({
         <div
             onClick={onEdit}
             className={`
-        group bg-white border rounded-[16px] px-4 py-3 transition-all duration-300 cursor-pointer relative z-10
+        group bg-white border rounded-[16px] px-4 py-2 transition-all duration-300 cursor-pointer relative z-10
         ${selected
                     ? 'border-[#ff3b3b] shadow-[0_0_0_1px_#ff3b3b] bg-[#FFF5F5]'
                     : 'border-[#EEEEEE] hover:border-[#ff3b3b]/20 hover:shadow-lg'
@@ -65,11 +65,11 @@ export function PartnerRow({
                         {getInitials(partner.company)}
                     </div>
                     <div className="flex flex-col">
-                        <span className="font-semibold text-xs text-[#111111] group-hover:text-[#ff3b3b] transition-colors">
+                        <span className="task-row-main font-bold text-[#111111] group-hover:text-[#ff3b3b] transition-colors">
                             {partner.company}
                         </span>
                         {isOrg && (
-                            <span className="text-xs text-[#999999] font-medium">
+                            <span className="task-row-sub text-[#666666] font-medium">
                                 Organization
                             </span>
                         )}
@@ -78,7 +78,7 @@ export function PartnerRow({
 
                 {/* Contact Person */}
                 <div>
-                    <span className="font-medium text-xs text-[#111111]">
+                    <span className="task-row-main font-medium text-[#111111]">
                         {partner.name}
                     </span>
                 </div>
@@ -97,14 +97,14 @@ export function PartnerRow({
                 {/* Email */}
                 <div onClick={(e) => e.stopPropagation()} className="flex items-center gap-2 text-[#666666] overflow-hidden">
                     <Mail className="w-3.5 h-3.5 shrink-0" />
-                    <span className="text-xs font-medium truncate block text-[#111111]">
+                    <span className="task-row-main font-medium truncate block text-[#111111]">
                         {partner.email}
                     </span>
                 </div>
 
                 {/* Onboarding */}
                 <div>
-                    <span className="text-xs text-[#111111] font-medium">
+                    <span className="task-row-main font-medium text-[#111111]">
                         {partner.onboarding}
                     </span>
                 </div>
@@ -125,7 +125,7 @@ export function PartnerRow({
                 {/* Country */}
                 <div className="flex items-center gap-2 text-[#666666]">
                     <Globe className="w-3.5 h-3.5 shrink-0" />
-                    <span className="text-xs font-medium">
+                    <span className="task-row-main font-medium">
                         {(() => {
                             if (!partner.country) return 'N/A';
                             try {

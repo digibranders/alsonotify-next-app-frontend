@@ -64,7 +64,7 @@ export function LeaveRow({
   return (
     <div
       className={`
-        group bg-white border rounded-[16px] px-4 py-3 transition-all duration-300 cursor-pointer relative
+        group bg-white border rounded-[16px] px-4 py-2 transition-all duration-300 cursor-pointer relative
         ${selected
           ? 'border-[#ff3b3b] shadow-[0_0_0_1px_#ff3b3b] bg-[#FFF5F5]'
           : 'border-[#EEEEEE] hover:border-[#ff3b3b]/20 hover:shadow-lg'
@@ -96,10 +96,10 @@ export function LeaveRow({
 
         {/* Employee */}
         <div className="flex flex-col min-w-0">
-          <span className="font-bold text-xs text-[#111111] truncate group-hover:text-[#ff3b3b] transition-colors">
+          <span className="task-row-main font-bold text-[#111111] truncate group-hover:text-[#ff3b3b] transition-colors">
             {leave.employeeName}
           </span>
-          <span className="text-xs text-[#999999] font-medium">
+          <span className="task-row-sub text-[#666666] font-medium">
             Applied on {leave.appliedOn}
           </span>
         </div>
@@ -113,7 +113,7 @@ export function LeaveRow({
 
         {/* Duration */}
         <div className="flex flex-col">
-          <div className="flex items-center gap-1.5 text-xs font-medium text-[#111111]">
+          <div className="flex items-center gap-1.5 task-row-main font-medium text-[#111111]">
             <Calendar className="w-3.5 h-3.5 text-[#666666]" />
             <span>{leave.startDate} - {leave.endDate}</span>
           </div>
@@ -122,7 +122,7 @@ export function LeaveRow({
         {/* Days */}
         <div className="flex items-center justify-start gap-1.5 label text-left">
           <Clock className="w-3.5 h-3.5 text-[#666666]" />
-          <span className="text-xs font-semibold text-[#111111]">
+          <span className="task-row-main font-semibold text-[#111111]">
             {leave.days} {leave.days === 1 ? 'Day' : 'Days'}
           </span>
         </div>
@@ -131,7 +131,7 @@ export function LeaveRow({
         <div className="flex justify-start">
           <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full ${statusConfig[leave.status].bgColor} ${statusConfig[leave.status].color}`}>
             <StatusIcon className="w-3.5 h-3.5" />
-            <span className="text-xs font-semibold uppercase tracking-wider">
+            <span className="task-row-sub font-semibold uppercase tracking-wider">
               {statusConfig[leave.status].label}
             </span>
           </div>
