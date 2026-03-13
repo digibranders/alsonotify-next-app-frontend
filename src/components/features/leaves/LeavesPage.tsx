@@ -310,14 +310,14 @@ export function LeavesPage() {
               className="red-checkbox"
             />
           </div>
-          <p className="text-2xs font-bold text-[#999999] uppercase tracking-wide"></p>
-          <p className="text-2xs font-bold text-[#999999] uppercase tracking-wide">Employee</p>
-          <p className="text-2xs font-bold text-[#999999] uppercase tracking-wide">Type</p>
-          <p className="text-2xs font-bold text-[#999999] uppercase tracking-wide">Duration</p>
-          <p className="text-2xs font-bold text-[#999999] uppercase tracking-wide">Days</p>
-          <p className="text-2xs font-bold text-[#999999] uppercase tracking-wide">Status</p>
-          <p className="text-2xs font-bold text-[#999999] uppercase tracking-wide">Actions</p>
-          <p className="text-2xs font-bold text-[#999999] uppercase tracking-wide"></p>
+          <p className="text-xs font-semibold text-[#999999] uppercase tracking-wider"></p>
+          <p className="text-xs font-semibold text-[#999999] uppercase tracking-wider">Employee</p>
+          <p className="text-xs font-semibold text-[#999999] uppercase tracking-wider">Type</p>
+          <p className="text-xs font-semibold text-[#999999] uppercase tracking-wider">Duration</p>
+          <p className="text-xs font-semibold text-[#999999] uppercase tracking-wider">Days</p>
+          <p className="text-xs font-semibold text-[#999999] uppercase tracking-wider">Status</p>
+          <p className="text-xs font-semibold text-[#999999] uppercase tracking-wider">Actions</p>
+          <p className="text-xs font-semibold text-[#999999] uppercase tracking-wider"></p>
         </div>
 
         {isLoading ? (

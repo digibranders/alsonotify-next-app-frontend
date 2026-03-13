@@ -443,9 +443,9 @@ function RequirementsFormContent({
                                         <div className="flex flex-col py-1">
                                             <div className="flex items-center gap-1">
                                                 <span className="font-semibold">{c.name}</span>
-                                                {c.role && <span className="text-gray-500 text-2xs">({c.role})</span>}
+                                                {c.role && <span className="text-gray-500 text-xs">({c.role})</span>}
                                             </div>
-                                            <span className="text-2xs text-gray-400 font-medium mt-0.5">{c.company_name}</span>
+                                            <span className="text-xs text-gray-400 font-medium mt-0.5">{c.company_name}</span>
                                         </div>
                                     ),
                                 }))
@@ -532,7 +532,7 @@ function RequirementsFormContent({
                             <p className="text-xs font-bold text-[#111111] mb-0.5">
                                 {selectedFiles.length} file(s) selected
                             </p>
-                            <div className="text-2xs text-[#666666] font-medium">
+                            <div className="text-xs text-[#666666] font-medium">
                                 {selectedFiles.map(f => f.name).join(', ')}
                             </div>
                         </div>
@@ -541,7 +541,7 @@ function RequirementsFormContent({
                             <p className="text-xs font-bold text-[#111111] mb-0.5">
                                 Choose files or drop them here
                             </p>
-                            <p className="text-2xs text-[#999999] font-medium">
+                            <p className="text-xs text-[#999999] font-medium">
                                 pdf, docx, xlsx - Up to 50MB
                             </p>
                         </>

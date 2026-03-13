@@ -124,7 +124,7 @@ export const SmartRequirementSelect: React.FC<SmartRequirementSelectProps> = ({
                                                 <span className="text-xs font-bold text-[#111111]">
                                                     ₹{remaining.toLocaleString()}
                                                 </span>
-                                                <span className="text-2xs font-bold text-[#999999] uppercase tracking-wider mt-0.5">
+                                                <span className="text-xs font-bold text-[#999999] uppercase tracking-wider mt-0.5">
                                                     Remaining
                                                 </span>
                                             </div>

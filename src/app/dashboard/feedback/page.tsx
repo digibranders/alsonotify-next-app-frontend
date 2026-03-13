@@ -340,7 +340,7 @@ export default function AdminFeedbackPage() {
                     </div>
 
                     {/* Date */}
-                    <div className="text-center text-2xs font-medium text-[#999999] whitespace-nowrap">
+                    <div className="text-center text-xs font-medium text-[#999999] whitespace-nowrap">
                       {new Date(item.created_at).toLocaleDateString(undefined, {
                          day: '2-digit',
                          month: 'short',

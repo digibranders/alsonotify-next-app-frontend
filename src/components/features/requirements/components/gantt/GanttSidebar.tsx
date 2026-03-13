@@ -11,7 +11,7 @@ export const GanttSidebar: React.FC = () => {
             {/* Sidebar Header */}
             <div className="h-[68px] border-b border-[#EEEEEE] flex items-center px-4 bg-[#FAFAFA] flex-shrink-0">
                 <div className="flex-grow text-xs font-bold text-[#999999] uppercase tracking-widest">Task</div>
-                <div className="w-14 text-center text-2xs font-bold text-[#999999] uppercase tracking-wider">Assignee</div>
+                <div className="w-14 text-center text-xs font-semibold text-[#999999] uppercase tracking-wider">Assignee</div>
             </div>
 
             {/* Sidebar Body */}

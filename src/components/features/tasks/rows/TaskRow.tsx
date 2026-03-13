@@ -97,9 +97,9 @@ const TaskRowComponent = memo(function TaskRow({
           }
       `}
       >
-        <div className={`grid gap-4 items-center ${hideRequirements ? 'grid-cols-[40px_3.6fr_0.9fr_0.7fr_1.5fr_0.5fr_40px]' : 'grid-cols-[40px_2fr_1.6fr_0.9fr_0.7fr_1.5fr_0.5fr_40px]'}`}>
+        <div className={`grid gap-4 items-start ${hideRequirements ? 'grid-cols-[40px_3.6fr_0.9fr_0.7fr_1.5fr_0.5fr_40px]' : 'grid-cols-[40px_2fr_1.6fr_0.9fr_0.7fr_1.5fr_0.5fr_40px]'}`}>
           {/* Checkbox */}
-          <div className="flex items-center" onClick={(e) => e.stopPropagation()}>
+          <div className="flex items-center self-center" onClick={(e) => e.stopPropagation()}>
             <Checkbox
               checked={selected}
               onChange={(e) => {
@@ -178,7 +178,7 @@ const TaskRowComponent = memo(function TaskRow({
           </div>
 
           {/* Assigned To (Avatar Stack) */}
-          <div className="flex items-center justify-center">
+          <div className="flex items-center justify-center self-center">
             <Avatar.Group size={24} max={{ count: 3, style: { color: '#666666', backgroundColor: '#EEEEEE' } }}>
               {task.task_members && task.task_members.length > 0 ? (
                 task.task_members.map((member) => (
@@ -207,7 +207,7 @@ const TaskRowComponent = memo(function TaskRow({
           <TaskLiveProgress task={task} currentUserId={currentUserId} />
 
           {/* Status (Aggregated) or Estimate Button */}
-          <div className="flex items-center justify-center min-w-0" onClick={(e) => e.stopPropagation()}>
+          <div className="flex items-center justify-center min-w-0 self-center" onClick={(e) => e.stopPropagation()}>
             {isPendingEstimate ? (
               // ESTIMATE Button when pending
               <Popover
@@ -262,7 +262,7 @@ const TaskRowComponent = memo(function TaskRow({
           </div>
 
           {/* Actions */}
-          <div className="flex justify-end" onClick={(e) => e.stopPropagation()}>
+          <div className="flex justify-end self-center" onClick={(e) => e.stopPropagation()}>
             <Dropdown
               menu={{
                 items: (() => {

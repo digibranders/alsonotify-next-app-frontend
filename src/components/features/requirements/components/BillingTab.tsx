@@ -166,7 +166,7 @@ export const BillingTab: React.FC<BillingTabProps> = ({ requirement }) => {
                                                 <p className="text-xs font-medium text-[#111111]">₹{inv.amount.toLocaleString()}</p>
                                             </td>
                                             <td className="px-4 py-3">
-                                                <span className={`inline-flex items-center px-2 py-1 rounded-full text-2xs font-bold uppercase tracking-wider ${inv.status === 'paid' ? 'bg-[#E8F5E9] text-[#0F9D58]' :
+                                                <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold uppercase tracking-wider ${inv.status === 'paid' ? 'bg-[#E8F5E9] text-[#0F9D58]' :
                                                         inv.status === 'sent' || inv.status === 'open' ? 'bg-blue-50 text-blue-600' :
                                                             inv.status === 'overdue' || inv.status === 'past_due' ? 'bg-red-50 text-[#D14343]' :
                                                                 inv.status === 'partial' ? 'bg-orange-50 text-orange-600' :

@@ -521,7 +521,7 @@ function EmployeeFormContent({
         </div>
 
         <div className="col-span-6 space-y-1">
-          <span className="text-xs font-bold text-[#111111]">Salary (CTC) <span className="text-[#666666] font-medium text-2xs ml-1">(Annual)</span></span>
+          <span className="text-xs font-bold text-[#111111]">Salary (CTC) <span className="text-[#666666] font-medium text-xs ml-1">(Annual)</span></span>
           <Space.Compact className="w-full employee-form-salary">
             {CurrencySelector}
             <Input
@@ -567,7 +567,7 @@ function EmployeeFormContent({
           </div>
         </div>
         <div className="col-span-6 space-y-1">
-          <span className="text-xs font-bold text-[#111111]">Hourly Cost <span className="text-[#666666] font-medium text-2xs ml-1">(Calculated)</span></span>
+          <span className="text-xs font-bold text-[#111111]">Hourly Cost <span className="text-[#666666] font-medium text-xs ml-1">(Calculated)</span></span>
           <Input
             placeholder="e.g. 25/Hr"
             readOnly

@@ -501,7 +501,7 @@ export function TaskDetailsPage() {
                     </div>
 
                     <div className="relative pt-2">
-                      <div className="flex justify-between text-2xs font-semibold text-[#999999] mb-2 uppercase tracking-wide">
+                      <div className="flex justify-between text-xs font-semibold text-[#999999] mb-2 uppercase tracking-wide">
                         <span>Logged: {formattedLogged}h</span>
                         <span>{Math.max(0, estimatedHours - workedHours).toFixed(1)}h left</span>
                       </div>

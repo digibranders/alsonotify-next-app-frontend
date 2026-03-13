@@ -167,7 +167,7 @@ export function EmployeeDetailsModal({
                 <div className="flex items-center gap-2 mt-0.5">
                   <AccessBadge role={currentEmployee.access} color={currentEmployee.roleColor} />
                   <span
-                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-2xs font-semibold ${currentEmployee.status === 'active'
+                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${currentEmployee.status === 'active'
                       ? 'bg-[#ECFDF3] text-[#12B76A]'
                       : 'bg-[#FEF3F2] text-[#F04438]'
                       }`}

@@ -108,7 +108,7 @@ export function EditManagerPartnersModal({
                             </h3>
                             {manager.role && (
                                 <span
-                                    className="px-2 py-0.5 rounded-full text-2xs font-bold uppercase"
+                                    className="px-2 py-0.5 rounded-full text-xs font-semibold uppercase"
                                     style={{
                                         backgroundColor: manager.roleColor ? `${manager.roleColor}20` : '#F5F5F5',
                                         color: manager.roleColor || '#666666'
@@ -181,7 +181,7 @@ export function EditManagerPartnersModal({
                                             <span className="truncate">{partner.contactPerson}</span>
                                             <span className="text-[#CCCCCC]">•</span>
                                             <span
-                                                className={`px-1.5 py-0.5 rounded text-2xs font-bold ${partner.status === 'active'
+                                                className={`px-1.5 py-0.5 rounded text-xs font-semibold ${partner.status === 'active'
                                                     ? 'bg-[#DCFCE7] text-[#16A34A]'
                                                     : 'bg-[#F5F5F5] text-[#999999]'
                                                     }`}

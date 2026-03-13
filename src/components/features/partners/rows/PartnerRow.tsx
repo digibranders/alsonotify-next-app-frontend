@@ -69,7 +69,7 @@ export function PartnerRow({
                             {partner.company}
                         </span>
                         {isOrg && (
-                            <span className="text-2xs text-[#999999] font-medium">
+                            <span className="text-xs text-[#999999] font-medium">
                                 Organization
                             </span>
                         )}
@@ -86,7 +86,7 @@ export function PartnerRow({
                 {/* Type */}
                 <div>
                     <span className={`
-             inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-2xs font-bold capitalize
+             inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold capitalize
              ${!isOrg ? 'bg-[#EFF6FF] text-[#2563EB]' : 'bg-[#FEF2F2] text-[#DC2626]'}
            `}>
                         {isOrg ? <Building className="w-3 h-3" /> : <User className="w-3 h-3" />}

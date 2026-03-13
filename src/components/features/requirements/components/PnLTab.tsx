@@ -321,7 +321,7 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
                       </div>
                       <div>
                         <p className="text-xs font-semibold text-[#111111]">{task.assigneeName}</p>
-                        <p className="text-2xs text-[#999999]">${task.hourlyRate}/hr</p>
+                        <p className="text-xs text-[#999999]">${task.hourlyRate}/hr</p>
                       </div>
                     </div>
                   </td>

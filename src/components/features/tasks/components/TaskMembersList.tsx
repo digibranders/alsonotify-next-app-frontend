@@ -109,7 +109,7 @@ export function TaskMembersList({ taskId, members, executionMode, currentUser, i
             </Tooltip>
           )}
         </div>
-        <span className={`px-2.5 py-1 rounded-full text-2xs uppercase font-bold tracking-wide ${executionMode === 'sequential' ? 'bg-[#FFF2E8] text-[#FA541C]' : 'bg-[#E6F4FF] text-[#0091FF]'
+        <span className={`px-2.5 py-1 rounded-full text-xs uppercase font-semibold tracking-wide ${executionMode === 'sequential' ? 'bg-[#FFF2E8] text-[#FA541C]' : 'bg-[#E6F4FF] text-[#0091FF]'
           }`}>
           {executionMode} Mode
         </span>
@@ -168,7 +168,7 @@ export function TaskMembersList({ taskId, members, executionMode, currentUser, i
                       {member.user.name || 'Unknown'} {isMe && '(You)'}
                     </p>
                     {isTurn && executionMode === 'sequential' && (
-                      <span className="text-2xs font-bold text-amber-600 bg-amber-50 px-1.5 rounded-full border border-amber-100 animate-pulse">
+                      <span className="text-xs font-semibold text-amber-600 bg-amber-50 px-1.5 rounded-full border border-amber-100 animate-pulse">
                         Current Turn
                       </span>
                     )}

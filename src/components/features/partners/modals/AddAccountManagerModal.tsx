@@ -166,7 +166,7 @@ export function AddAccountManagerModal({
                                                 {employee.name}
                                             </h4>
                                             {employee.roleName && (
-                                                <span className="px-2 py-0.5 rounded-full text-2xs font-bold uppercase bg-[#F5F5F5] text-[#666666]">
+                                                <span className="px-2 py-0.5 rounded-full text-xs font-semibold uppercase bg-[#F5F5F5] text-[#666666]">
                                                     {employee.roleName}
                                                 </span>
                                             )}

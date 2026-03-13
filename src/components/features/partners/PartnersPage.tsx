@@ -690,12 +690,12 @@ export function PartnersPageContent() {
                                                         {item.data.status === 'REJECTED' ? (
                                                             <div className="w-2 h-2 rounded-full bg-[#EF4444]" title="Rejected" />
                                                         ) : (
-                                                            <Tag color="processing" className="text-2xs font-bold uppercase rounded-full border-none px-2.5">Action Required</Tag>
+                                                            <Tag color="processing" className="text-xs font-semibold uppercase rounded-full border-none px-2.5">Action Required</Tag>
                                                         )}
                                                     </div>
                                                     <div className="flex justify-end gap-2 pr-5">
                                                         {item.data.status === 'REJECTED' ? (
-                                                            <Tag color="error" className="text-2xs font-bold uppercase rounded-full border-none px-2.5">Rejected</Tag>
+                                                            <Tag color="error" className="text-xs font-semibold uppercase rounded-full border-none px-2.5">Rejected</Tag>
                                                         ) : (
                                                             <>
                                                                 <button onClick={() => handleAcceptInvite(item.data.id)} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#DCFCE7] text-[#16A34A] transition-colors"><Check className="w-4 h-4" /></button>
@@ -725,7 +725,7 @@ export function PartnersPageContent() {
                                                         <Mail className="w-3.5 h-3.5 shrink-0" />
                                                         <span className="text-xs font-medium truncate block text-[#111111]">{item.data.email}</span>
                                                     </div>
-                                                    <div><Tag color="orange" className="text-2xs font-bold uppercase rounded-full border-none px-2.5">Pending</Tag></div>
+                                                    <div><Tag color="orange" className="text-xs font-semibold uppercase rounded-full border-none px-2.5">Pending</Tag></div>
                                                     <div className="flex justify-end pr-5">
                                                         <Dropdown
                                                             menu={{

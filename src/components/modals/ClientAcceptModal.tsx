@@ -91,7 +91,7 @@ export function ClientAcceptModal({
           >
             <div className="space-y-3">
               <div>
-                <p className="text-2xs text-[#999999] uppercase font-semibold tracking-wide mb-1">
+                <p className="text-xs text-[#999999] uppercase font-semibold tracking-wide mb-1">
                   Project
                 </p>
                 <p className="text-sm font-semibold text-[#111111]">
@@ -100,7 +100,7 @@ export function ClientAcceptModal({
               </div>
 
               <div>
-                <p className="text-2xs text-[#999999] uppercase font-semibold tracking-wide mb-1">
+                <p className="text-xs text-[#999999] uppercase font-semibold tracking-wide mb-1">
                   From
                 </p>
                 <p className="text-sm text-[#666666]">
@@ -110,7 +110,7 @@ export function ClientAcceptModal({
 
               {quotedPrice !== undefined && (
                 <div className="pt-2 border-t border-[#EEEEEE]">
-                  <p className="text-2xs text-[#999999] uppercase font-semibold tracking-wide mb-2">
+                  <p className="text-xs text-[#999999] uppercase font-semibold tracking-wide mb-2">
                     Quoted Amount
                   </p>
                   <p className="text-lg font-bold text-[#111111]">

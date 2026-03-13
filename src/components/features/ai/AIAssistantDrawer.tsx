@@ -172,7 +172,7 @@ export function AIAssistantDrawer({ open, onClose }: AIAssistantDrawerProps) {
                 <div className={`px-4 py-2 rounded-2xl ${msg.type === 'user' ? 'bg-[#111111] text-white rounded-tr-sm' : 'bg-white border border-gray-100 shadow-sm text-[#111111] rounded-tl-sm'}`}>
                   <p className="text-sm font-medium whitespace-pre-wrap">{msg.content}</p>
                 </div>
-                <span className="text-2xs text-gray-400 mt-1 px-1">{formatTime(msg.timestamp)}</span>
+                <span className="text-xs text-gray-400 mt-1 px-1">{formatTime(msg.timestamp)}</span>
               </div>
             </div>
           ))

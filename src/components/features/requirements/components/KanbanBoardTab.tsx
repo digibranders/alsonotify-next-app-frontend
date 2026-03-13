@@ -88,7 +88,7 @@ export function KanbanBoardTab({ tasks, revisions }: KanbanBoardTabProps) {
                             #{task.id}
                           </span>
                           {task.is_high_priority && (
-                            <span className="text-2xs font-bold text-[#ff3b3b] uppercase">
+                            <span className="text-xs font-semibold text-[#ff3b3b] uppercase">
                               High Priority
                             </span>
                           )}

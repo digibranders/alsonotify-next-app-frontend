@@ -60,7 +60,7 @@ export function EmailInput({ value, onChange, options, ...props }: Readonly<Emai
              {option?.name ? option.name : email}
            </Text>
            {option?.name && (
-             <Text className="text-2xs text-[#888]">{email}</Text>
+             <Text className="text-xs text-[#888]">{email}</Text>
            )}
         </div>
         {closable && (

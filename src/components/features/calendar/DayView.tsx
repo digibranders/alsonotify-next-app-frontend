@@ -230,7 +230,7 @@ export function DayView({ currentDate, events, isLoading, onTimeSlotClick }: Day
                                             </div>
                                         </div>
                                         {event.description && (
-                                            <div className="mt-2 text-2xs text-[#666666] line-clamp-2">
+                                            <div className="mt-2 text-xs text-[#666666] line-clamp-2">
                                                 {event.description}
                                             </div>
                                         )}
