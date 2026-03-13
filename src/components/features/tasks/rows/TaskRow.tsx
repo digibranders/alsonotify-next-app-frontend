@@ -115,7 +115,7 @@ const TaskRowComponent = memo(function TaskRow({
             <div className="flex items-center gap-1.5 min-w-0">
               <Tooltip title={task.name} placement="topLeft" mouseEnterDelay={0.5}>
                 <div className="flex items-center gap-2 min-w-0">
-                  <span className="font-bold text-[0.75rem] !text-[#111111] group-hover:text-[#ff3b3b] transition-colors truncate cursor-help block">
+                  <span className="font-bold text-xs !text-[#111111] group-hover:text-[#ff3b3b] transition-colors truncate cursor-help block">
                     {task.name}
                   </span>
                   {task.is_review_task && (
@@ -132,11 +132,11 @@ const TaskRowComponent = memo(function TaskRow({
               )}
             </div>
             <div className="flex items-center gap-2">
-              {/* <span className="text-[0.75rem] text-[#999999] font-normal">
+              {/* <span className="text-xs text-[#999999] font-normal">
                 #{task.taskId}
               </span> */}
               <span
-                className="text-[0.625rem] text-[#999999] font-medium truncate"
+                className="text-xxs text-[#999999] font-medium truncate"
               >
                 {task.client}
               </span>
@@ -150,7 +150,7 @@ const TaskRowComponent = memo(function TaskRow({
                 <Link
                   href="/dashboard/workspace"
                   onClick={(e) => e.stopPropagation()}
-                  className="text-[0.75rem] !text-[#111111] visited:!text-[#111111] font-normal truncate block hover:text-[#ff3b3b] hover:underline cursor-help"
+                  className="text-xs !text-[#111111] visited:!text-[#111111] font-normal truncate block hover:text-[#ff3b3b] hover:underline cursor-help"
                 >
                   {task.project}
                 </Link>
@@ -161,12 +161,12 @@ const TaskRowComponent = memo(function TaskRow({
           {/* Timeline */}
           <div className="flex flex-col gap-0.5">
             <Tooltip title={task.dueDate !== 'TBD' ? task.dueDate : undefined}>
-              <span className="text-[0.75rem] font-medium text-[#111111] w-fit">
+              <span className="text-xs font-medium text-[#111111] w-fit">
                 {task.timelineDate}
               </span>
             </Tooltip>
             <span
-              className={`text-[0.625rem] font-medium ${task.status === 'Delayed'
+              className={`text-xxs font-medium ${task.status === 'Delayed'
                 ? 'text-[#dc2626]'
                 : task.status === 'Review'
                   ? 'text-[#fbbf24]'
@@ -216,13 +216,13 @@ const TaskRowComponent = memo(function TaskRow({
                 trigger="click"
                 content={
                   <div className="p-2 w-48">
-                    <p className="text-[0.75rem] font-medium mb-2">Your Estimate</p>
+                    <p className="text-xs font-medium mb-2">Your Estimate</p>
                     <Input
                       type="number"
                       placeholder="Hours"
                       value={estimateHours}
                       onChange={(e) => setEstimateHours(e.target.value)}
-                      className="mb-4 text-[0.75rem]"
+                      className="mb-4 text-xs"
                     />
                     <Button
                       type="primary"
@@ -284,7 +284,7 @@ const TaskRowComponent = memo(function TaskRow({
                           setReviewDecisionType('Approve');
                           setReviewDecisionOpen(true);
                         },
-                        className: "text-[0.75rem] font-medium text-[#16a34a]"
+                        className: "text-xs font-medium text-[#16a34a]"
                       },
                       {
                         key: 'request_changes',
@@ -294,7 +294,7 @@ const TaskRowComponent = memo(function TaskRow({
                           setReviewDecisionType('RequestChanges');
                           setReviewDecisionOpen(true);
                         },
-                        className: "text-[0.75rem] font-medium text-[#ff3b3b]"
+                        className: "text-xs font-medium text-[#ff3b3b]"
                       }
                     );
                   }
@@ -315,7 +315,7 @@ const TaskRowComponent = memo(function TaskRow({
                           message.error('Failed to start review');
                         }
                       },
-                      className: "text-[0.75rem] font-medium text-[#7E22CE]"
+                      className: "text-xs font-medium text-[#7E22CE]"
                     });
                   }
 
@@ -341,7 +341,7 @@ const TaskRowComponent = memo(function TaskRow({
                       label: 'Duplicate',
                       icon: <Copy className="w-3.5 h-3.5" />,
                       onClick: () => onDuplicate?.(),
-                      className: "text-[0.75rem] font-medium"
+                      className: "text-xs font-medium"
                     });
 
                     if ((isAdmin || isLeader) && task.status !== 'In_Progress') {
@@ -351,7 +351,7 @@ const TaskRowComponent = memo(function TaskRow({
                         icon: <Trash2 className="w-3.5 h-3.5" />,
                         onClick: () => onDelete?.(),
                         danger: true,
-                        className: "text-[0.75rem] font-medium"
+                        className: "text-xs font-medium"
                       });
                     }
                   }

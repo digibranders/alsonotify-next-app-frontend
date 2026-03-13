@@ -18,7 +18,7 @@ export const GanttControls: React.FC = () => {
           <button
             key={mode}
             onClick={() => setViewMode(mode)}
-            className={`px-5 py-1.5 text-[0.6875rem] font-bold rounded-[6px] transition-all uppercase tracking-widest ${viewMode === mode
+            className={`px-5 py-1.5 text-xs-tight font-bold rounded-[6px] transition-all uppercase tracking-widest ${viewMode === mode
               ? 'bg-white text-[#ff3b3b] shadow-sm border border-[#EEEEEE]'
               : 'text-[#999999] hover:text-[#666666]'
               }`}

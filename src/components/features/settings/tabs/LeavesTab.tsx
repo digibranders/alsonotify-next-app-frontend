@@ -141,7 +141,7 @@ export function LeavesTab({
                   <div className="flex items-center gap-2">
                     <p className="text-sm font-bold text-[#111111]">{holiday.name}</p>
                     {holiday.is_api && (
-                      <span className="px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-600 text-[0.625rem] font-bold">
+                      <span className="px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-600 text-xxs font-bold">
                         Public
                       </span>
                     )}

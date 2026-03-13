@@ -390,7 +390,7 @@ export function RequirementCard({
       {!isPending && (
         <div className="mb-4 mt-auto">
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[0.625rem] text-[#999999] font-medium">
+            <span className="text-xxs text-[#999999] font-medium">
               Progress
             </span>
             <span className="text-xxs text-[#111111] font-bold">
@@ -434,7 +434,7 @@ export function RequirementCard({
             {(requirement.assignedTo || []).slice(0, 3).map((person: string, i: number) => (
               <div
                 key={i}
-                className="w-5 h-5 rounded-full bg-[#F7F7F7] border border-white flex items-center justify-center text-[0.5rem] font-bold text-[#666666] relative z-[3] hover:z-10 hover:scale-110 transition-all shadow-sm"
+                className="w-5 h-5 rounded-full bg-[#F7F7F7] border border-white flex items-center justify-center text-4xs font-bold text-[#666666] relative z-[3] hover:z-10 hover:scale-110 transition-all shadow-sm"
                 title={person}
               >
                 {person.charAt(0).toUpperCase()}

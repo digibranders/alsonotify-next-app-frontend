@@ -88,7 +88,7 @@ export const SplitPaymentModal: React.FC<SplitPaymentModalProps> = ({
                             { label: 'Remaining', value: remaining },
                         ].map(({ label, value }) => (
                             <div key={label} className="bg-[#F9FAFB] rounded-xl p-3 text-center border border-[#EEEEEE]">
-                                <p className="text-[10px] font-semibold text-[#697386] uppercase tracking-wider mb-1">{label}</p>
+                                <p className="text-xxs font-semibold text-[#697386] uppercase tracking-wider mb-1">{label}</p>
                                 <p className="text-sm font-bold text-[#111111]">{currencySymbol}{fmt(value)}</p>
                             </div>
                         ))}

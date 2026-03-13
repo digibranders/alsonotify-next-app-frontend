@@ -67,7 +67,7 @@ function InvoiceItem({ id, client, amount, status}: { id: string; client: string
       {/* Amount & Status */}
       <div className="flex flex-col items-end gap-2">
         <p className="font-bold text-sm text-[#111111]">{amount}</p>
-        <span className={`text-[0.6875rem] font-medium px-2 py-1 rounded ${getStatusColor()}`}>
+        <span className={`text-xs-tight font-medium px-2 py-1 rounded ${getStatusColor()}`}>
           {status}
         </span>
       </div>

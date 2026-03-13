@@ -10,8 +10,8 @@ export const GanttSidebar: React.FC = () => {
         <div className="flex flex-col h-full bg-white border-r border-[#EEEEEE]">
             {/* Sidebar Header */}
             <div className="h-[68px] border-b border-[#EEEEEE] flex items-center px-4 bg-[#FAFAFA] flex-shrink-0">
-                <div className="flex-grow text-[0.6875rem] font-bold text-[#999999] uppercase tracking-widest">Task</div>
-                <div className="w-14 text-center text-[0.625rem] font-bold text-[#999999] uppercase tracking-wider">Assignee</div>
+                <div className="flex-grow text-xs-tight font-bold text-[#999999] uppercase tracking-widest">Task</div>
+                <div className="w-14 text-center text-xxs font-bold text-[#999999] uppercase tracking-wider">Assignee</div>
             </div>
 
             {/* Sidebar Body */}
@@ -59,7 +59,7 @@ export const GanttSidebar: React.FC = () => {
                             <div className="w-14 flex-shrink-0 flex justify-center">
                                 {task.member_user ? (
                                     <div
-                                        className="w-6 h-6 rounded-full border-2 border-white flex items-center justify-center text-[0.5625rem] font-bold text-white shadow-sm"
+                                        className="w-6 h-6 rounded-full border-2 border-white flex items-center justify-center text-3xs font-bold text-white shadow-sm"
                                         style={{ backgroundColor: task.color || '#666666' }}
                                         title={task.member_user.name ?? undefined}
                                     >

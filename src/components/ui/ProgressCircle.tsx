@@ -49,7 +49,7 @@ export function ProgressCircle({ total, completed, inProgress, delayed, title, s
 
         {/* Center text */}
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <div className="flex flex-col font-bold justify-center leading-[0] not-italic text-[#111111] text-[48px]">
+          <div className="flex flex-col font-bold justify-center leading-[0] not-italic text-[#111111] text-5xl">
             <p className="leading-[normal]">{total}</p>
           </div>
           <div className="flex flex-col font-medium font-medium justify-center leading-[0] mt-[8px] not-italic text-[#666666] text-sm text-nowrap">
@@ -62,7 +62,7 @@ export function ProgressCircle({ total, completed, inProgress, delayed, title, s
       <div className="flex gap-[40px] items-center">
         {/* Completed */}
         <div className="flex flex-col gap-[8px] items-center">
-          <div className="flex flex-col font-bold justify-center leading-[0] not-italic text-[#111111] text-[1.75rem]">
+          <div className="flex flex-col font-bold justify-center leading-[0] not-italic text-[#111111] text-3xl">
             <p className="leading-[normal]">{completed}</p>
           </div>
           <div className="flex gap-[4px] items-center">
@@ -79,7 +79,7 @@ export function ProgressCircle({ total, completed, inProgress, delayed, title, s
 
         {/* In Progress */}
         <div className="flex flex-col gap-[8px] items-center">
-          <div className="flex flex-col font-bold justify-center leading-[0] not-italic text-[#111111] text-[1.75rem]">
+          <div className="flex flex-col font-bold justify-center leading-[0] not-italic text-[#111111] text-3xl">
             <p className="leading-[normal]">{inProgress}</p>
           </div>
           <div className="flex gap-[4px] items-center">
@@ -96,7 +96,7 @@ export function ProgressCircle({ total, completed, inProgress, delayed, title, s
 
         {/* Delayed */}
         <div className="flex flex-col gap-[8px] items-center">
-          <div className="flex flex-col font-bold justify-center leading-[0] not-italic text-[#111111] text-[1.75rem]">
+          <div className="flex flex-col font-bold justify-center leading-[0] not-italic text-[#111111] text-3xl">
             <p className="leading-[normal]">{delayed}</p>
           </div>
           <div className="flex gap-[4px] items-center">

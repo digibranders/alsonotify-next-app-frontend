@@ -101,7 +101,7 @@ export function IntegrationsTab() {
       {/* Header with Search */}
       {/* <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
         <div>
-          <h1 className="text-[1.75rem] font-bold text-[#111111] tracking-tight">Integrations</h1>
+          <h1 className="text-3xl font-bold text-[#111111] tracking-tight">Integrations</h1>
           <p className="text-sm text-[#666666] mt-1">Enhance your workflow by connecting your favorite enterprise tools.</p>
         </div>
         <div className="relative group min-w-[300px]">
@@ -172,7 +172,7 @@ export function IntegrationsTab() {
               onConnect={() => { }}
               onDisconnect={() => { }}
             />
-            <div className="absolute top-4 right-4 bg-white/80 backdrop-blur-sm px-2 py-1 rounded text-[0.625rem] font-bold uppercase tracking-widest text-[#111111] z-10 border border-[#eee]">Soon</div>
+            <div className="absolute top-4 right-4 bg-white/80 backdrop-blur-sm px-2 py-1 rounded text-xxs font-bold uppercase tracking-widest text-[#111111] z-10 border border-[#eee]">Soon</div>
           </div>
 
           <div className="opacity-60 grayscale pointer-events-none relative">
@@ -185,7 +185,7 @@ export function IntegrationsTab() {
               onConnect={() => { }}
               onDisconnect={() => { }}
             />
-            <div className="absolute top-4 right-4 bg-white/80 backdrop-blur-sm px-2 py-1 rounded text-[0.625rem] font-bold uppercase tracking-widest text-[#111111] z-10 border border-[#eee]">Soon</div>
+            <div className="absolute top-4 right-4 bg-white/80 backdrop-blur-sm px-2 py-1 rounded text-xxs font-bold uppercase tracking-widest text-[#111111] z-10 border border-[#eee]">Soon</div>
           </div> */}
         </div>
       </section>

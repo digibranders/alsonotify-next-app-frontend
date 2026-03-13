@@ -565,7 +565,7 @@ export function MailPage() {
                           <>
                             <span className="truncate flex-1">{f.displayName}</span>
                             {!!f.unreadItemCount && f.unreadItemCount > 0 && (
-                              <div className="bg-[#FEF3F2] text-[#ff3b3b] px-1.5 py-0.5 rounded-full text-[10px] font-bold min-w-[20px] text-center">
+                              <div className="bg-[#FEF3F2] text-[#ff3b3b] px-1.5 py-0.5 rounded-full text-xxs font-bold min-w-[20px] text-center">
                                 {f.unreadItemCount}
                               </div>
                             )}
@@ -634,7 +634,7 @@ export function MailPage() {
                                 </span>
                                 {m.importance === "high" ? <Tag color="red" className="m-0">High</Tag> : null}
                               </div>
-                              <span className="text-[12px] text-[#777] whitespace-nowrap">
+                              <span className="text-xs text-[#777] whitespace-nowrap">
                                 {m.receivedDateTime ? dayjs(m.receivedDateTime).format("MMM D, h:mm A") : ""}
                               </span>
                             </div>
@@ -646,7 +646,7 @@ export function MailPage() {
                               {m.hasAttachments ? <Paperclip className="w-4 h-4 opacity-60 shrink-0" /> : null}
                             </div>
 
-                            <div className="text-[12px] text-[#777] truncate mt-1">{m.bodyPreview || ""}</div>
+                            <div className="text-xs text-[#777] truncate mt-1">{m.bodyPreview || ""}</div>
                           </div>
                         </button>
                       );
@@ -686,11 +686,11 @@ export function MailPage() {
                   <div className="p-3 md:p-4 pb-0 shrink-0">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <h2 className="text-[16px] font-bold text-[#111111] font-['Manrope'] m-0 truncate">
+                        <h2 className="text-base font-bold text-[#111111] font-['Manrope'] m-0 truncate">
                           {current?.subject || "(no subject)"}
                         </h2>
 
-                        <div className="mt-1 text-[11px] space-y-0.5">
+                        <div className="mt-1 text-xs-tight space-y-0.5">
                           <div className="flex items-center gap-1.5 truncate">
                             <span className="text-[#999999] font-medium min-w-[36px]">From:</span>
                             <span className="text-[#434343] font-semibold">{formatFrom(current)}</span>
@@ -763,14 +763,14 @@ export function MailPage() {
                       <div className="flex bg-white ring-1 ring-black/5 rounded-full p-1 self-start">
                         <button
                           onClick={() => setBodyView("html")}
-                          className={`px-3 py-1 text-[12px] font-semibold rounded-full transition-all ${bodyView === "html" ? "bg-[#111111] text-white shadow-sm" : "text-[#777777] hover:text-[#111111]"
+                          className={`px-3 py-1 text-xs font-semibold rounded-full transition-all ${bodyView === "html" ? "bg-[#111111] text-white shadow-sm" : "text-[#777777] hover:text-[#111111]"
                             }`}
                         >
                           HTML
                         </button>
                         <button
                           onClick={() => setBodyView("text")}
-                          className={`px-3 py-1 text-[12px] font-semibold rounded-full transition-all ${bodyView === "text" ? "bg-[#111111] text-white shadow-sm" : "text-[#777777] hover:text-[#111111]"
+                          className={`px-3 py-1 text-xs font-semibold rounded-full transition-all ${bodyView === "text" ? "bg-[#111111] text-white shadow-sm" : "text-[#777777] hover:text-[#111111]"
                             }`}
                         >
                           Text
@@ -780,7 +780,7 @@ export function MailPage() {
                       {bodyView === "html" ? (
                         <button
                           onClick={() => setLoadImages((s) => !s)}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white ring-1 ring-black/5 text-[12px] font-medium text-[#434343] hover:bg-[#F7F7F7] transition-all"
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white ring-1 ring-black/5 text-xs font-medium text-[#434343] hover:bg-[#F7F7F7] transition-all"
                         >
                           {loadImages ? <EyeOff size={14} /> : <Eye size={14} />}
                           {loadImages ? "Hide images" : "Load images"}
@@ -789,7 +789,7 @@ export function MailPage() {
                     </div>
 
                     {bodyView === "html" && !loadImages ? (
-                      <div className="flex items-center gap-1.5 text-[11px] text-[#999999]">
+                      <div className="flex items-center gap-1.5 text-xs-tight text-[#999999]">
                         <ImageIcon size={14} />
                         Images are blocked
                       </div>
@@ -821,7 +821,7 @@ export function MailPage() {
                     <div className="h-px bg-[#EEEEEE] my-6" />
 
                     <div className="min-w-full inline-block align-top">
-                      <h3 className="text-[16px] font-bold text-[#111111] font-['Manrope'] mt-0 mb-4">
+                      <h3 className="text-base font-bold text-[#111111] font-['Manrope'] mt-0 mb-4">
                         Attachments
                       </h3>
 
@@ -842,7 +842,7 @@ export function MailPage() {
                                 </div>
                                 <div className="min-w-0">
                                   <div className="font-semibold text-xs text-[#111111] truncate">{a.name || 'Unnamed'}</div>
-                                  <div className="text-[11px] text-[#777]">
+                                  <div className="text-xs-tight text-[#777]">
                                     {a.contentType || "file"} • {formatBytes(a.size || 0)}
                                   </div>
                                 </div>

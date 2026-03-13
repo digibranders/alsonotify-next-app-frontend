@@ -901,12 +901,12 @@ export function PartnersPageContent() {
                     <div className="mt-6 space-y-6">
                         <div className="grid grid-cols-2 gap-6">
                             <div>
-                                <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wider mb-1">Contact Person</p>
+                                <p className="text-xs-tight font-bold text-[#999999] uppercase tracking-wider mb-1">Contact Person</p>
                                 <p className="text-sm font-semibold text-[#111111]">{editingPartner.name}</p>
                             </div>
                             {editingPartner.company && (
                                 <div>
-                                    <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wider mb-1">Company Name</p>
+                                    <p className="text-xs-tight font-bold text-[#999999] uppercase tracking-wider mb-1">Company Name</p>
                                     <p className="text-sm font-semibold text-[#111111]">{editingPartner.company}</p>
                                 </div>
                             )}
@@ -914,14 +914,14 @@ export function PartnersPageContent() {
 
                         <div className="grid grid-cols-2 gap-6">
                             <div>
-                                <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wider mb-1">Email Address</p>
+                                <p className="text-xs-tight font-bold text-[#999999] uppercase tracking-wider mb-1">Email Address</p>
                                 <div className="flex items-center gap-2">
                                     <MailOutlined className="text-[#666666] text-xs" />
                                     <p className="text-sm font-medium text-[#111111]">{editingPartner.email}</p>
                                 </div>
                             </div>
                             <div>
-                                <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wider mb-1">Contact</p>
+                                <p className="text-xs-tight font-bold text-[#999999] uppercase tracking-wider mb-1">Contact</p>
                                 <div className="flex items-center gap-2">
                                     <PhoneOutlined className="text-[#666666] text-xs" />
                                     <p className="text-sm font-medium text-[#111111]">
@@ -938,7 +938,7 @@ export function PartnersPageContent() {
 
                         <div className="grid grid-cols-2 gap-6">
                             <div>
-                                <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wider mb-1">Country</p>
+                                <p className="text-xs-tight font-bold text-[#999999] uppercase tracking-wider mb-1">Country</p>
                                 <div className="flex items-center gap-2">
                                     <Globe className="w-3.5 h-3.5 text-[#666666]" />
                                     <p className="text-sm font-medium text-[#111111]">
@@ -954,7 +954,7 @@ export function PartnersPageContent() {
                                 </div>
                             </div>
                             <div>
-                                <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wider mb-1">Timezone</p>
+                                <p className="text-xs-tight font-bold text-[#999999] uppercase tracking-wider mb-1">Timezone</p>
                                 <p className="text-sm font-medium text-[#111111]">{editingPartner.timezone || 'N/A'}</p>
                             </div>
                         </div>

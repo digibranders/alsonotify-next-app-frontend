@@ -320,12 +320,12 @@ function AttendeesField({ attendees, onAddAttendee, onRemoveAttendee, employeesD
                   setSearchValue('');
                 }}
               >
-                <div className="w-6 h-6 rounded-full bg-[#111111] text-white flex items-center justify-center text-[0.625rem]">
+                <div className="w-6 h-6 rounded-full bg-[#111111] text-white flex items-center justify-center text-xxs">
                   {emp.name.charAt(0)}
                 </div>
                 <div>
                   <div className="text-xs font-medium text-[#111111]">{emp.name}</div>
-                  <div className="text-[0.6875rem] text-[#666666]">{emp.email}</div>
+                  <div className="text-xs-tight text-[#666666]">{emp.email}</div>
                 </div>
               </div>
             ))}

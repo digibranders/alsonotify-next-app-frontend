@@ -238,7 +238,7 @@ export function NoteViewModal({ open, note, onClose }: NoteViewModalProps) {
             }}
             placeholder="Title"
             className="text-xl font-semibold border-none p-0 shadow-none focus:shadow-none hover:border-none"
-            style={{ fontSize: '20px', fontWeight: 600 }}
+            className="text-xl font-semibold"
           />
         </div>
 

@@ -49,7 +49,7 @@ export const TimelineHeader: React.FC = () => {
                         style={{ width: `${week.width}px` }}
                         className="flex-shrink-0 border-r border-[#EEEEEE] flex items-center px-3"
                     >
-                        <span className="text-[0.625rem] font-bold text-[#999999] uppercase tracking-[0.12em] truncate select-none">
+                        <span className="text-xxs font-bold text-[#999999] uppercase tracking-[0.12em] truncate select-none">
                             {week.label}
                         </span>
                     </div>
@@ -77,11 +77,11 @@ export const TimelineHeader: React.FC = () => {
 
                             {/* Day number — today gets a red circle */}
                             {isToday ? (
-                                <span className="w-4.5 h-4.5 flex items-center justify-center rounded-full bg-[#ff3b3b] text-white text-[0.5625rem] font-bold select-none">
+                                <span className="w-4.5 h-4.5 flex items-center justify-center rounded-full bg-[#ff3b3b] text-white text-3xs font-bold select-none">
                                     {format(day, 'd')}
                                 </span>
                             ) : (
-                                <span className={`text-[0.5625rem] font-bold select-none
+                                <span className={`text-3xs font-bold select-none
                                     ${isNonWorkingDay ? 'text-[#BBBBBB]' : 'text-[#666666]'}`}>
                                     {format(day, 'd')}
                                 </span>

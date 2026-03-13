@@ -103,12 +103,12 @@ export function EditManagerPartnersModal({
                     </div>
                     <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                            <h3 className="text-[0.9375rem] font-semibold text-[#111111]">
+                            <h3 className="text-sm-plus font-semibold text-[#111111]">
                                 {manager.name}
                             </h3>
                             {manager.role && (
                                 <span
-                                    className="px-2 py-0.5 rounded-full text-[0.625rem] font-bold uppercase"
+                                    className="px-2 py-0.5 rounded-full text-xxs font-bold uppercase"
                                     style={{
                                         backgroundColor: manager.roleColor ? `${manager.roleColor}20` : '#F5F5F5',
                                         color: manager.roleColor || '#666666'
@@ -152,7 +152,7 @@ export function EditManagerPartnersModal({
                             </Option>
                         ))}
                     </Select>
-                    <p className="text-[0.6875rem] text-[#666666] mt-1">
+                    <p className="text-xs-tight text-[#666666] mt-1">
                         {selectedPartnerIds.length} partner{selectedPartnerIds.length !== 1 ? 's' : ''} assigned
                     </p>
                 </div>
@@ -176,12 +176,12 @@ export function EditManagerPartnersModal({
                                         <h5 className="text-xs font-semibold text-[#111111] truncate">
                                             {partner.name}
                                         </h5>
-                                        <div className="flex items-center gap-2 text-[0.6875rem] text-[#666666]">
+                                        <div className="flex items-center gap-2 text-xs-tight text-[#666666]">
                                             <Users className="w-3 h-3" />
                                             <span className="truncate">{partner.contactPerson}</span>
                                             <span className="text-[#CCCCCC]">•</span>
                                             <span
-                                                className={`px-1.5 py-0.5 rounded text-[0.625rem] font-bold ${partner.status === 'active'
+                                                className={`px-1.5 py-0.5 rounded text-xxs font-bold ${partner.status === 'active'
                                                     ? 'bg-[#DCFCE7] text-[#16A34A]'
                                                     : 'bg-[#F5F5F5] text-[#999999]'
                                                     }`}

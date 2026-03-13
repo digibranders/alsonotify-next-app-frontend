@@ -114,7 +114,7 @@ export const SmartRequirementSelect: React.FC<SmartRequirementSelectProps> = ({
                                                 <p className="text-xs font-semibold text-[#111111] truncate mb-0.5">
                                                     {req.name || `Requirement #${req.id}`}
                                                 </p>
-                                                <div className="flex items-center gap-2 text-[11px] text-[#697386]">
+                                                <div className="flex items-center gap-2 text-xs-tight text-[#697386]">
                                                     <span>Total: ₹{estimatedCost.toLocaleString()}</span>
                                                     <span className="w-1 h-1 rounded-full bg-[#D9D9D9]" />
                                                     <span className="text-[#0F9D58] font-medium">Billed: ₹{totalBilled.toLocaleString()}</span>
@@ -124,7 +124,7 @@ export const SmartRequirementSelect: React.FC<SmartRequirementSelectProps> = ({
                                                 <span className="text-xs font-bold text-[#111111]">
                                                     ₹{remaining.toLocaleString()}
                                                 </span>
-                                                <span className="text-[9px] font-bold text-[#697386] uppercase tracking-wider mt-0.5">
+                                                <span className="text-3xs font-bold text-[#697386] uppercase tracking-wider mt-0.5">
                                                     Remaining
                                                 </span>
                                             </div>

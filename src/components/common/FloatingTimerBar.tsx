@@ -464,7 +464,7 @@ export function FloatingTimerBar() {
             ref={dropdownRef}
             className="absolute bottom-full mb-3 bg-white rounded-[20px] shadow-xl border border-[#EEEEEE] p-3 animate-in slide-in-from-bottom-2 duration-200 z-[10000] w-[320px]">
             <div className="flex items-center gap-2 mb-2 px-2">
-              <span className="text-[0.625rem] text-[#999999] font-semibold uppercase tracking-wide">
+              <span className="text-xxs text-[#999999] font-semibold uppercase tracking-wide">
                 Select Task
               </span>
               <div className="flex-1 h-px bg-[#EEEEEE]" />
@@ -493,7 +493,7 @@ export function FloatingTimerBar() {
                           }`}>
                           {task.name}
                         </p>
-                        <p className={`text-[0.625rem] font-normal mt-0.5 truncate ${currentDisplayTaskId === task.id ? 'text-white/80' : 'text-inherit opacity-70'
+                        <p className={`text-xxs font-normal mt-0.5 truncate ${currentDisplayTaskId === task.id ? 'text-white/80' : 'text-inherit opacity-70'
                           }`}>
                           {task.project}
                         </p>

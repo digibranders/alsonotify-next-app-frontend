@@ -532,7 +532,7 @@ function RequirementsFormContent({
                             <p className="text-xs font-bold text-[#111111] mb-0.5">
                                 {selectedFiles.length} file(s) selected
                             </p>
-                            <div className="text-[0.625rem] text-[#666666] font-normal">
+                            <div className="text-xxs text-[#666666] font-normal">
                                 {selectedFiles.map(f => f.name).join(', ')}
                             </div>
                         </div>
@@ -541,7 +541,7 @@ function RequirementsFormContent({
                             <p className="text-xs font-bold text-[#111111] mb-0.5">
                                 Choose files or drop them here
                             </p>
-                            <p className="text-[0.625rem] text-[#999999] font-normal">
+                            <p className="text-xxs text-[#999999] font-normal">
                                 pdf, docx, xlsx - Up to 50MB
                             </p>
                         </>

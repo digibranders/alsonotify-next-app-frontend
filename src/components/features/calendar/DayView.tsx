@@ -133,7 +133,7 @@ export function DayView({ currentDate, events, isLoading, onTimeSlotClick }: Day
                 {allDayEvents.length > 0 && (
                     <div className="border-b border-[#EEEEEE] flex">
                         <div className="w-16 flex-shrink-0 border-r border-[#EEEEEE] bg-white flex items-center justify-center">
-                            <span className="text-[0.625rem] text-[#666666] font-medium">All day</span>
+                            <span className="text-xxs text-[#666666] font-medium">All day</span>
                         </div>
                         <div className="flex-1 p-2 space-y-1">
                             {allDayEvents.map(event => (
@@ -167,7 +167,7 @@ export function DayView({ currentDate, events, isLoading, onTimeSlotClick }: Day
                             className="absolute right-0 w-full h-[2px] z-30 pointer-events-none flex items-center justify-end pr-1"
                             style={{ top: dayjs().hour() * 60 + dayjs().minute() }}
                         >
-                            <div className="text-[0.625rem] font-bold text-white bg-[#ff3b3b] px-1.5 py-0.5 rounded-[4px] relative -top-[1px]">
+                            <div className="text-xxs font-bold text-white bg-[#ff3b3b] px-1.5 py-0.5 rounded-[4px] relative -top-[1px]">
                                 {dayjs().format('h:mm')}
                             </div>
                         </div>

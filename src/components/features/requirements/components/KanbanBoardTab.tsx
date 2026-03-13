@@ -83,12 +83,12 @@ export function KanbanBoardTab({ tasks, revisions }: KanbanBoardTabProps) {
                       >
                         {/* Task ID Badge */}
                         <div className="flex items-center justify-between mb-2">
-                          <span className={`text-[0.625rem] px-1.5 py-0.5 rounded font-mono ${isRevision ? 'bg-[#FFF5F5] text-[#ff3b3b]' : 'bg-[#F7F7F7] text-[#999999]'
+                          <span className={`text-xxs px-1.5 py-0.5 rounded font-mono ${isRevision ? 'bg-[#FFF5F5] text-[#ff3b3b]' : 'bg-[#F7F7F7] text-[#999999]'
                             }`}>
                             #{task.id}
                           </span>
                           {task.is_high_priority && (
-                            <span className="text-[0.5625rem] font-bold text-[#ff3b3b] uppercase">
+                            <span className="text-3xs font-bold text-[#ff3b3b] uppercase">
                               High Priority
                             </span>
                           )}
@@ -101,7 +101,7 @@ export function KanbanBoardTab({ tasks, revisions }: KanbanBoardTabProps) {
 
                         {/* Due Date */}
                         {task.end_date && (
-                          <div className="flex items-center gap-1.5 mb-3 text-[0.6875rem] text-[#666666]">
+                          <div className="flex items-center gap-1.5 mb-3 text-xs-tight text-[#666666]">
                             <Clock className="w-3 h-3" />
                             <span>Due {format(new Date(task.end_date), 'MMM d')}</span>
                           </div>
@@ -110,11 +110,11 @@ export function KanbanBoardTab({ tasks, revisions }: KanbanBoardTabProps) {
                         {/* Assignee */}
                         <div className="flex items-center gap-2 pt-2 border-t border-[#EEEEEE]">
                           <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#ff3b3b] to-[#ff6b6b] flex items-center justify-center shadow-sm">
-                            <span className="text-[0.5625rem] text-white font-bold">
+                            <span className="text-3xs text-white font-bold">
                               {assignee.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
                             </span>
                           </div>
-                          <span className="text-[0.6875rem] text-[#666666] font-medium truncate">
+                          <span className="text-xs-tight text-[#666666] font-medium truncate">
                             {assignee.name}
                           </span>
                         </div>

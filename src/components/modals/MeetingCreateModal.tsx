@@ -434,7 +434,7 @@ function AttendeesField({
                       {suggestion.name || suggestion.email}
                     </div>
                     {suggestion.name && suggestion.email && (
-                      <div className="text-[0.6875rem] font-normal text-[#666666]">
+                      <div className="text-xs-tight font-normal text-[#666666]">
                         {suggestion.email}
                       </div>
                     )}

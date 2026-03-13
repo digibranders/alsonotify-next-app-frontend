@@ -89,11 +89,11 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
                     {/* Summary Cards */}
                     <div className="grid grid-cols-2 gap-3">
                         <div className="bg-[#F9FAFB] border border-[#EEEEEE] rounded-xl p-3">
-                            <p className="text-[11px] font-semibold text-[#697386] uppercase tracking-wider mb-1">Total Due</p>
+                            <p className="text-xs-tight font-semibold text-[#697386] uppercase tracking-wider mb-1">Total Due</p>
                             <p className="text-lg font-bold text-[#111111]">{currencySymbol}{totalAmount.toLocaleString()}</p>
                         </div>
                         <div className="bg-blue-50/50 border border-blue-100 rounded-xl p-3">
-                            <p className="text-[11px] font-semibold text-blue-600 uppercase tracking-wider mb-1">Remaining</p>
+                            <p className="text-xs-tight font-semibold text-blue-600 uppercase tracking-wider mb-1">Remaining</p>
                             <p className="text-lg font-bold text-blue-700">{currencySymbol}{remainingAmount.toLocaleString()}</p>
                         </div>
                     </div>

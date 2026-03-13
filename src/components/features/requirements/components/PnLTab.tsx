@@ -227,7 +227,7 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
               />
               <RechartsTooltip 
                 contentStyle={{ backgroundColor: '#fff', borderRadius: '12px', border: '1px solid #EEEEEE', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}
-                itemStyle={{ fontSize: '12px', fontWeight: '500' }}
+                itemStyle={{ fontSize: "var(--font-size-xs)", fontWeight: '500' }}
               />
               <Legend wrapperStyle={{ paddingTop: '20px' }} />
               <Area 
@@ -304,7 +304,7 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
                 <tr key={task.id} className="bg-white hover:bg-[#FAFAFA] transition-colors">
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-2">
-                      <span className="text-[0.625rem] px-1.5 py-0.5 rounded font-mono bg-[#F7F7F7] text-[#999999]">
+                      <span className="text-xxs px-1.5 py-0.5 rounded font-mono bg-[#F7F7F7] text-[#999999]">
                         #{task.id}
                       </span>
                       <span className="text-xs font-semibold text-[#111111] truncate max-w-[200px]">
@@ -315,13 +315,13 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-2">
                       <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#ff3b3b] to-[#ff6b6b] flex items-center justify-center shadow-sm">
-                        <span className="text-[0.5625rem] text-white font-bold">
+                        <span className="text-3xs text-white font-bold">
                           {task.assigneeName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
                         </span>
                       </div>
                       <div>
                         <p className="text-xs font-semibold text-[#111111]">{task.assigneeName}</p>
-                        <p className="text-[0.625rem] text-[#999999]">${task.hourlyRate}/hr</p>
+                        <p className="text-xxs text-[#999999]">${task.hourlyRate}/hr</p>
                       </div>
                     </div>
                   </td>

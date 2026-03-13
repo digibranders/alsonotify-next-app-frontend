@@ -911,7 +911,7 @@ export function ProfilePage() {
                                                             {docType.name}
                                                         </div>
                                                         {!docType.required && (
-                                                            <span className="text-[0.6875rem] text-[#999999] font-normal">
+                                                            <span className="text-xs-tight text-[#999999] font-normal">
                                                                 Optional
                                                             </span>
                                                         )}
@@ -933,7 +933,7 @@ export function ProfilePage() {
                                         <p className="text-xs font-medium text-[#666666] mb-1">
                                             No documents configured
                                         </p>
-                                        <p className="text-[0.6875rem] text-[#999999] font-normal">
+                                        <p className="text-xs-tight text-[#999999] font-normal">
                                             Add required documents in Settings to manage employee files.
                                         </p>
                                     </div>

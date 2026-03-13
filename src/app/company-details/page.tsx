@@ -392,7 +392,7 @@ function CompanyDetailsForm() {
                 {!isIndividual && (
                   <motion.div variants={itemVariants} className="grid grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <label htmlFor="company-name" className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-widest">
+                      <label htmlFor="company-name" className="text-xs-tight font-bold text-[#999999] uppercase tracking-widest">
                         Company Name <span className="text-[#ff3b3b]">*</span>
                       </label>
                       <input
@@ -408,7 +408,7 @@ function CompanyDetailsForm() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <label htmlFor="website" className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-widest">
+                      <label htmlFor="website" className="text-xs-tight font-bold text-[#999999] uppercase tracking-widest">
                         Website
                       </label>
                       <input
@@ -428,7 +428,7 @@ function CompanyDetailsForm() {
                 {!isIndividual && (
                   <motion.div variants={itemVariants} className="grid grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <label className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-widest">
+                      <label className="text-xs-tight font-bold text-[#999999] uppercase tracking-widest">
                         Industry <span className="text-[#ff3b3b]">*</span>
                       </label>
                       <Select
@@ -452,7 +452,7 @@ function CompanyDetailsForm() {
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-widest">
+                      <label className="text-xs-tight font-bold text-[#999999] uppercase tracking-widest">
                         Company Size
                       </label>
                       <Select
@@ -480,7 +480,7 @@ function CompanyDetailsForm() {
 
                 <motion.div variants={itemVariants} className="grid grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-widest">
+                    <label className="text-xs-tight font-bold text-[#999999] uppercase tracking-widest">
                       Country <span className="text-[#ff3b3b]">*</span>
                     </label>
                     <Select
@@ -504,7 +504,7 @@ function CompanyDetailsForm() {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-widest">
+                    <label className="text-xs-tight font-bold text-[#999999] uppercase tracking-widest">
                       Timezone <span className="text-[#ff3b3b]">*</span>
                     </label>
                     <Select
@@ -563,7 +563,7 @@ function CompanyDetailsForm() {
                     <div className="flex-1 space-y-6">
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <label className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wider">
+                          <label className="text-xs-tight font-bold text-[#999999] uppercase tracking-wider">
                             First Name <span className="text-[#ff3b3b]">*</span>
                           </label>
                           <Input
@@ -576,7 +576,7 @@ function CompanyDetailsForm() {
                           />
                         </div>
                         <div className="space-y-2">
-                          <label className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wider">
+                          <label className="text-xs-tight font-bold text-[#999999] uppercase tracking-wider">
                             Last Name
                           </label>
                           <Input
@@ -592,7 +592,7 @@ function CompanyDetailsForm() {
 
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <label className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wider">
+                          <label className="text-xs-tight font-bold text-[#999999] uppercase tracking-wider">
                             Country <span className="text-[#ff3b3b]">*</span>
                           </label>
                           <Select
@@ -611,7 +611,7 @@ function CompanyDetailsForm() {
                           </Select>
                         </div>
                         <div className="space-y-2">
-                          <label className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-widest">
+                          <label className="text-xs-tight font-bold text-[#999999] uppercase tracking-widest">
                             Phone Number
                           </label>
                           <PhoneNumberInput
@@ -643,7 +643,7 @@ function CompanyDetailsForm() {
                     !companyData.country ||
                     !companyData.timezone))
               }
-              className="h-12 px-8 bg-[#ff3b3b] hover:bg-[#E63535] text-white rounded-[16px] font-bold text-[0.9375rem] shadow-lg shadow-[#ff3b3b]/25 transition-all hover:shadow-[#ff3b3b]/40 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="h-12 px-8 bg-[#ff3b3b] hover:bg-[#E63535] text-white rounded-[16px] font-bold text-sm-plus shadow-lg shadow-[#ff3b3b]/25 transition-all hover:shadow-[#ff3b3b]/40 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {completeSignupMutation.isPending ? (
                 <>

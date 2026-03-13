@@ -76,7 +76,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8, delay: 0.2 }}
-                        className="text-[56px] font-extrabold leading-[1.1] tracking-tight"
+                        className="text-6xl font-extrabold leading-[1.1] tracking-tight"
                     >
                         Manage projects, clients, and tasks all in <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#ffce64] via-[#ff5b52] to-[#ffffff]">one place.</span>
                     </motion.h1>

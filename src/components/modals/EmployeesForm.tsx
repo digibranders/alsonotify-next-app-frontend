@@ -655,7 +655,7 @@ function EmployeeFormContent({
             border-radius: 4px !important;
             color: #004182 !important;
             font-family: 'Manrope:SemiBold', sans-serif !important;
-            font-size: 12px !important;
+            font-size: var(--font-size-xs) !important;
             height: 24px !important;
             line-height: 22px !important;
             margin: 0 4px 0 0 !important;

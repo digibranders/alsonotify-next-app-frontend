@@ -1081,7 +1081,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
             className="flex items-center gap-1 group outline-none cursor-pointer"
             onClick={() => handleSort('name')}
           >
-            <span className={`text-[0.75rem] font-bold uppercase tracking-wide transition-colors ${sortColumn === 'name' ? 'text-[#111111]' : 'text-[#999999] group-hover:text-[#666666]'}`}>
+            <span className={`text-xs font-bold uppercase tracking-wide transition-colors ${sortColumn === 'name' ? 'text-[#111111]' : 'text-[#999999] group-hover:text-[#666666]'}`}>
               Task
             </span>
             {getSortIcon('name')}
@@ -1091,7 +1091,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
             className="flex items-center gap-1 group outline-none cursor-pointer"
             onClick={() => handleSort('project')}
           >
-            <span className={`text-[0.75rem] font-bold uppercase tracking-wide transition-colors ${sortColumn === 'project' ? 'text-[#111111]' : 'text-[#999999] group-hover:text-[#666666]'}`}>
+            <span className={`text-xs font-bold uppercase tracking-wide transition-colors ${sortColumn === 'project' ? 'text-[#111111]' : 'text-[#999999] group-hover:text-[#666666]'}`}>
               Requirements
             </span>
             {getSortIcon('project')}
@@ -1101,7 +1101,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
             className="flex items-center gap-1 group outline-none cursor-pointer"
             onClick={() => handleSort('timeline')}
           >
-            <span className={`text-[0.75rem] font-bold uppercase tracking-wide transition-colors ${sortColumn === 'timeline' ? 'text-[#111111]' : 'text-[#999999] group-hover:text-[#666666]'}`}>
+            <span className={`text-xs font-bold uppercase tracking-wide transition-colors ${sortColumn === 'timeline' ? 'text-[#111111]' : 'text-[#999999] group-hover:text-[#666666]'}`}>
               Due Date
             </span>
             {getSortIcon('timeline')}
@@ -1111,7 +1111,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
             className="flex items-center gap-1 group outline-none cursor-pointer"
             onClick={() => handleSort('assignedTo')}
           >
-            <span className={`text-[0.75rem] font-bold uppercase tracking-wide transition-colors ${sortColumn === 'assignedTo' ? 'text-[#111111]' : 'text-[#999999] group-hover:text-[#666666]'}`}>
+            <span className={`text-xs font-bold uppercase tracking-wide transition-colors ${sortColumn === 'assignedTo' ? 'text-[#111111]' : 'text-[#999999] group-hover:text-[#666666]'}`}>
               Assigned
             </span>
             {getSortIcon('assignedTo')}
@@ -1121,7 +1121,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
             className="flex items-center gap-1 group outline-none cursor-pointer"
             onClick={() => handleSort('timeSpent')}
           >
-            <span className={`text-[0.75rem] font-bold uppercase tracking-wide transition-colors ${sortColumn === 'timeSpent' ? 'text-[#111111]' : 'text-[#999999] group-hover:text-[#666666]'}`}>
+            <span className={`text-xs font-bold uppercase tracking-wide transition-colors ${sortColumn === 'timeSpent' ? 'text-[#111111]' : 'text-[#999999] group-hover:text-[#666666]'}`}>
               Hours
             </span>
             {getSortIcon('timeSpent')}
@@ -1131,7 +1131,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
             className="flex items-center gap-1 group outline-none cursor-pointer"
             onClick={() => handleSort('status')}
           >
-            <span className={`text-[0.75rem] font-bold uppercase tracking-wide transition-colors ${sortColumn === 'status' ? 'text-[#111111]' : 'text-[#999999] group-hover:text-[#666666]'}`}>
+            <span className={`text-xs font-bold uppercase tracking-wide transition-colors ${sortColumn === 'status' ? 'text-[#111111]' : 'text-[#999999] group-hover:text-[#666666]'}`}>
               Status
             </span>
             {getSortIcon('status')}

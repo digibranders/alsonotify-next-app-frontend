@@ -461,18 +461,18 @@ function WorkspaceRequirementsSummary({
 }) {
   return (
     <div>
-      <p className="text-[0.625rem] text-[#999999] font-bold uppercase tracking-wider text-center mb-3">Requirements</p>
+      <p className="text-xxs text-[#999999] font-bold uppercase tracking-wider text-center mb-3">Requirements</p>
       <div className="grid grid-cols-3 divide-x divide-[#EEEEEE]">
         <div className="flex flex-col items-center px-1">
-          <span className="text-[0.625rem] text-[#999999] font-medium uppercase tracking-wider mb-0.5">Total</span>
+          <span className="text-xxs text-[#999999] font-medium uppercase tracking-wider mb-0.5">Total</span>
           <span className="text-xs text-[#111111] font-bold">{total}</span>
         </div>
         <div className="flex flex-col items-center px-1">
-          <span className="text-[0.625rem] text-[#999999] font-medium uppercase tracking-wider mb-0.5">Progress</span>
+          <span className="text-xxs text-[#999999] font-medium uppercase tracking-wider mb-0.5">Progress</span>
           <span className="text-xs text-[#0284C7] font-bold">{inProgress}</span>
         </div>
         <div className="flex flex-col items-center px-1">
-          <span className="text-[0.625rem] text-[#999999] font-medium uppercase tracking-wider mb-0.5">Delayed</span>
+          <span className="text-xxs text-[#999999] font-medium uppercase tracking-wider mb-0.5">Delayed</span>
           <span className="text-xs text-[#DC2626] font-bold">{delayed}</span>
         </div>
       </div>

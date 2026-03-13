@@ -100,14 +100,14 @@ export function PageLayout({
                         key={tab.id}
                         onClick={() => onTabChange?.(tab.id)}
                         aria-current={activeTab === tab.id ? 'page' : undefined}
-                        className={`pb-3 px-1 relative font-semibold text-[0.875rem] transition-colors flex items-center gap-2 ${activeTab === tab.id
+                        className={`pb-3 px-1 relative font-semibold text-sm transition-colors flex items-center gap-2 ${activeTab === tab.id
                           ? 'text-[#ff3b3b]'
                           : 'text-[#666666] hover:text-[#111111]'
                           }`}
                       >
                         {tab.label}
                         {tab.count !== undefined && tab.count > 0 && (
-                          <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[0.6875rem] font-semibold leading-none ${activeTab === tab.id
+                          <span className={`w-5 h-5 rounded-full flex items-center justify-center text-xs-tight font-semibold leading-none ${activeTab === tab.id
                             ? 'bg-[#ff3b3b] text-white'
                             : 'bg-[#F7F7F7] text-[#666666]'
                             }`}>

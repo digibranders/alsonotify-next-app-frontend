@@ -281,12 +281,12 @@ export function WorkspaceDetailsPage({ id }: { id: string }) {
               <div className="flex -space-x-2 mr-2">
                 {/* Assigned Users Avatars could go here */}
                 {workspace.assigned_users?.slice(0, 3).map((user: { name: string }, i: number) => (
-                  <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-[#F7F7F7] flex items-center justify-center text-[0.625rem] font-bold text-[#666666]">
+                  <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-[#F7F7F7] flex items-center justify-center text-xxs font-bold text-[#666666]">
                     {user.name?.[0]}
                   </div>
                 ))}
                 {(workspace.assigned_users?.length || 0) > 3 && (
-                  <div className="w-8 h-8 rounded-full border-2 border-white bg-[#F0F9FF] flex items-center justify-center text-[0.625rem] font-bold text-[#0284C7]">
+                  <div className="w-8 h-8 rounded-full border-2 border-white bg-[#F0F9FF] flex items-center justify-center text-xxs font-bold text-[#0284C7]">
                     +{(workspace.assigned_users?.length || 0) - 3}
                   </div>
                 )}
@@ -377,10 +377,10 @@ export function WorkspaceDetailsPage({ id }: { id: string }) {
                     <div className="flex-1 min-w-0">
                       <h4 className="font-semibold text-[#111111] text-sm truncate">{task.name}</h4>
                       <div className="flex items-center gap-3 mt-1 text-xs text-[#666666]">
-                        <span className={`px-2 py-0.5 rounded-full border text-[0.625rem] font-bold ${getStatusColor(task.status)}`}>
+                        <span className={`px-2 py-0.5 rounded-full border text-xxs font-bold ${getStatusColor(task.status)}`}>
                           {task.status}
                         </span>
-                        <span className={`px-2 py-0.5 rounded-full border text-[0.625rem] font-bold ${getPriorityColor(task.priority)}`}>
+                        <span className={`px-2 py-0.5 rounded-full border text-xxs font-bold ${getPriorityColor(task.priority)}`}>
                           {task.priority}
                         </span>
                         {task.dueDate && (
@@ -395,7 +395,7 @@ export function WorkspaceDetailsPage({ id }: { id: string }) {
                     <div className="flex items-center gap-4">
                       {task.assignee && (
                         <Tooltip title={task.assignee.name}>
-                          <div className="w-8 h-8 rounded-full bg-[#F7F7F7] flex items-center justify-center text-[0.625rem] font-bold text-[#666666]">
+                          <div className="w-8 h-8 rounded-full bg-[#F7F7F7] flex items-center justify-center text-xxs font-bold text-[#666666]">
                             {task.assignee.name[0]}
                           </div>
                         </Tooltip>
@@ -423,7 +423,7 @@ export function WorkspaceDetailsPage({ id }: { id: string }) {
                 {filteredTasks.map((task: ProjectTaskUI) => (
                   <div key={task.id} className="group bg-white border border-[#EEEEEE] rounded-[16px] p-5 hover:border-[#ff3b3b] hover:shadow-sm transition-all flex flex-col h-full">
                     <div className="flex items-start justify-between mb-3">
-                      <span className={`px-2 py-0.5 rounded-full border text-[0.625rem] font-bold ${getPriorityColor(task.priority)}`}>
+                      <span className={`px-2 py-0.5 rounded-full border text-xxs font-bold ${getPriorityColor(task.priority)}`}>
                         {task.priority}
                       </span>
                       <Dropdown
@@ -441,9 +441,9 @@ export function WorkspaceDetailsPage({ id }: { id: string }) {
                         </button>
                       </Dropdown>
                     </div>
-                    <h4 className="font-semibold text-[#111111] text-[0.9375rem] mb-2 line-clamp-2 flex-grow">{task.name}</h4>
+                    <h4 className="font-semibold text-[#111111] text-sm-plus mb-2 line-clamp-2 flex-grow">{task.name}</h4>
                     <div className="flex items-center gap-2 mb-4">
-                      <span className={`px-2 py-0.5 rounded-full border text-[0.625rem] font-bold ${getStatusColor(task.status)}`}>
+                      <span className={`px-2 py-0.5 rounded-full border text-xxs font-bold ${getStatusColor(task.status)}`}>
                         {task.status}
                       </span>
                     </div>
@@ -456,7 +456,7 @@ export function WorkspaceDetailsPage({ id }: { id: string }) {
                       )}
                       {task.assignee && (
                         <Tooltip title={task.assignee.name}>
-                          <div className="w-6 h-6 rounded-full bg-[#F7F7F7] flex items-center justify-center text-[0.5625rem] font-bold text-[#666666]">
+                          <div className="w-6 h-6 rounded-full bg-[#F7F7F7] flex items-center justify-center text-3xs font-bold text-[#666666]">
                             {task.assignee.name[0]}
                           </div>
                         </Tooltip>

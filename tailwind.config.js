@@ -87,13 +87,21 @@ module.exports = {
                 shimmer: "shimmer 2s infinite",
             },
             fontSize: {
+                '4xs': ['0.5rem', { lineHeight: '0.75rem' }], // 8px
+                '3xs': ['0.5625rem', { lineHeight: '0.875rem' }], // 9px
                 'xxs': ['0.625rem', { lineHeight: '1rem' }], // 10px
+                'xs-tight': ['0.6875rem', { lineHeight: '1rem' }], // 11px
                 'xs': ['0.75rem', { lineHeight: '1.25rem' }], // 12px
                 'sm': ['0.875rem', { lineHeight: '1.25rem' }], // 14px
+                'sm-plus': ['0.9375rem', { lineHeight: '1.25rem' }], // 15px
                 'base': ['1rem', { lineHeight: '1.5rem' }], // 16px
+                'base-plus': ['1.0625rem', { lineHeight: '1.625rem' }], // 17px
                 'lg': ['1.125rem', { lineHeight: '1.75rem' }], // 18px
                 'xl': ['1.25rem', { lineHeight: '1.75rem' }], // 20px
                 '2xl': ['1.5rem', { lineHeight: '1.75rem' }], // 24px
+                '3xl': ['1.75rem', { lineHeight: '2.25rem' }], // 28px
+                '5xl': ['3rem', { lineHeight: '1.1' }], // 48px
+                '6xl': ['3.5rem', { lineHeight: '1.1' }], // 56px
             },
         },
     },

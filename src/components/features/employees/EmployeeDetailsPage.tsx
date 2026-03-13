@@ -516,7 +516,7 @@ export function EmployeeDetailsPage() {
                         <p className="text-xs font-medium text-[#666666] mb-1">
                           No documents uploaded
                         </p>
-                        <p className="text-[0.6875rem] text-[#999999] font-normal">
+                        <p className="text-xs-tight text-[#999999] font-normal">
                           Documents will appear here once uploaded
                         </p>
                       </div>

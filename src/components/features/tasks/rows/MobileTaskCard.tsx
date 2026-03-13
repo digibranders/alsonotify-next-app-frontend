@@ -305,7 +305,7 @@ export const MobileTaskCard = memo(function MobileTaskCard({
         {/* Row 4: Members & Progress */}
         <div className="flex items-center justify-between gap-3 pt-1">
           <div className="flex items-center -space-x-2">
-            <Avatar.Group max={{ count: 3, style: { color: '#666666', backgroundColor: '#EEEEEE', fontSize: '12px', width: '24px', height: '24px', lineHeight: '24px' } }}>
+            <Avatar.Group max={{ count: 3, style: { color: '#666666', backgroundColor: '#EEEEEE', fontSize: "var(--font-size-xs)", width: '24px', height: '24px', lineHeight: '24px' } }}>
               {(task.task_members || []).map((member) => (
                 <Tooltip key={member.id} title={member.user.name}>
                   {member.user.profile_pic ? (
