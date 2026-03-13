@@ -294,7 +294,7 @@ export function TaskDetailsPage() {
       }
       action={
         <div className="flex items-center gap-3 flex-wrap">
-          <TaskStatusBadge status={task.status || 'todo'} showLabel />
+          <TaskStatusBadge status={task.status || 'Assigned'} showLabel />
           {task.is_high_priority && (
             <span className="px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wide bg-[#FFF5F5] text-[#ff3b3b]">
               HIGH PRIORITY
