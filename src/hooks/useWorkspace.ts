@@ -212,8 +212,11 @@ export const useUpdateRequirement = () => {
         queryClient.invalidateQueries({ queryKey: queryKeys.requirements.byWorkspace(variables.workspace_id) });
         queryClient.invalidateQueries({ queryKey: queryKeys.workspaces.detail(variables.workspace_id) });
       }
-      // Invalidate all requirements queries
+      // Invalidate all requirements queries (both list and workspace-scoped)
       queryClient.invalidateQueries({ queryKey: queryKeys.requirements.all() });
+      // Also invalidate all workspace-scoped requirement queries to ensure UI refresh
+      queryClient.invalidateQueries({ queryKey: ['requirements', 'workspace'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.requirements.collaborative() });
     },
   });
 };
@@ -240,6 +243,9 @@ export const useApproveRequirement = () => {
     mutationFn: (params: ApproveRequirementRequestDto) => approveRequirement(params),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.requirements.all() });
+      // Invalidate all workspace-scoped requirement queries to ensure UI refresh
+      queryClient.invalidateQueries({ queryKey: ['requirements', 'workspace'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.requirements.collaborative() });
     },
   });
 };
@@ -251,6 +257,9 @@ export const useSubmitForReview = () => {
       submitRequirementForReview(requirementId, body ?? {}),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.requirements.all() });
+      // Invalidate all workspace-scoped requirement queries to ensure UI refresh
+      queryClient.invalidateQueries({ queryKey: ['requirements', 'workspace'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.requirements.collaborative() });
     },
   });
 };

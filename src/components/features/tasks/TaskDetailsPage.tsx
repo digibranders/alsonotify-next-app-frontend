@@ -533,7 +533,6 @@ export function TaskDetailsPage() {
         onClose={() => setReviewDecisionOpen(false)}
         onConfirm={handleReviewDecisionConfirm}
       />
-      {/* TaskActionPanel removed as per request */}
       <Modal
         title="Mark as Complete"
         open={showCompleteModal}

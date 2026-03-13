@@ -251,7 +251,6 @@ function getStatusColor(status?: string): string {
     if (s.includes('progress')) return '#2F80ED';
     if (s.includes('review')) return '#9C27B0';
     if (s.includes('complete') || s.includes('done')) return '#0F9D58';
-    if (s.includes('delay') || s.includes('impediment')) return '#FF3B3B';
-    if (s.includes('stuck')) return '#EF6C00';
+    if (s.includes('delay')) return '#FF3B3B';
     return '#666666'; // Default for Assigned/To Do
 }

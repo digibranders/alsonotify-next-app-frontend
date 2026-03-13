@@ -1,5 +1,5 @@
 import { Avatar, Tooltip, App, Button } from 'antd';
-import { CheckCircle2, Clock, Hourglass, HandMetal, History, GripVertical } from 'lucide-react';
+import { CheckCircle2, Clock, Hourglass, HandMetal, History, GripVertical, Eye, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useQueryClient } from '@tanstack/react-query';
 import { overrideBaton, reclaimBaton, reorderTaskMembers } from '@/services/task';
@@ -131,6 +131,12 @@ export function TaskMembersList({ taskId, members, executionMode, currentUser, i
             } else if (member.status === 'In_Progress') {
               statusColor = 'text-blue-600 bg-blue-50 border-blue-100';
               StatusIcon = Clock;
+            } else if (member.status === 'Review') {
+              statusColor = 'text-purple-600 bg-purple-50 border-purple-100';
+              StatusIcon = Eye;
+            } else if (member.status === 'Delayed') {
+              statusColor = 'text-red-500 bg-red-50 border-red-100';
+              StatusIcon = AlertCircle;
             }
 
             return (

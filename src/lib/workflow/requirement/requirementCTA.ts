@@ -230,7 +230,6 @@ function getClientWorkReceiverCTA(
         isPending: false,
         tab,
         primaryAction: createAction('Submit for Approval', 'primary', 'submit_approval'),
-        secondaryAction: createAction('Mark Blocked', 'danger', 'none', 'mark_blocked'),
       };
 
     case 'Review':
@@ -489,7 +488,6 @@ function getReceiverCTA(
         isPending: false,
         tab,
         primaryAction: createAction('Submit for Approval', 'primary', 'submit_approval'),
-        secondaryAction: createAction('Mark Blocked', 'danger', 'none', 'mark_blocked'),
       };
 
     case 'Review':
@@ -635,7 +633,6 @@ function getInternalCTA(
         isPending: false,
         tab,
         primaryAction: createAction('Submit for Approval', 'primary', 'submit_approval'),
-        secondaryAction: createAction('Mark Blocked', 'danger', 'none', 'mark_blocked'),
       };
 
     case 'Review':

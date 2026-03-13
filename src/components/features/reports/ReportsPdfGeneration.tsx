@@ -71,7 +71,6 @@ const getStatusColor = (status: string) => {
     if (s === 'in progress' || s === 'in-progress' || s === 'in_progress') return { bg: '#E3F2FD', text: '#2F80ED', label: 'In Progress' };
     if (s === 'delayed') return { bg: '#FFF5F5', text: '#ff3b3b', label: 'Delayed' };
     if (s === 'review' || s === 'in review' || s === 'in-review') return { bg: '#F3E5F5', text: '#9C27B0', label: 'In Review' };
-    if (s === 'stuck' || s === 'impediment') return { bg: '#FFF3E0', text: '#EF6C00', label: status.charAt(0).toUpperCase() + status.slice(1) };
     if (s === 'paid' || s === 'payment received') return { bg: '#E8F5E9', text: '#7ccf00', label: 'Payment Received' };
     if (s === 'billed' || s === 'invoice sent') return { bg: '#E3F2FD', text: '#2196F3', label: 'Invoice Sent' };
     if (s === 'draft') return { bg: '#F5F5F5', text: '#666666', label: 'Draft' };

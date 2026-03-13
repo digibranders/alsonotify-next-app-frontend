@@ -95,7 +95,7 @@ export interface SubTask {
   taskId: string;
   assignedTo: string;
   dueDate: string;
-  status: 'impediment' | 'in-progress' | 'completed' | 'todo' | 'delayed';
+  status: 'in-progress' | 'completed' | 'todo' | 'delayed';
   type?: 'task' | 'revision';
 }
 

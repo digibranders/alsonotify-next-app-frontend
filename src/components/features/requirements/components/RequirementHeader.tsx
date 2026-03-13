@@ -66,11 +66,11 @@ export function RequirementHeader({
       case 'pause': return 'On_Hold';
       case 'reopen': return 'Assigned';
       case 'resubmit': return 'Review';
-      case 'mark_blocked': return 'On_Hold';
       case 'pull_back': return 'In_Progress';
       case 'retract': return 'Waiting';
       case 'restart': return 'Assigned';
       case 'submit_for_work': return 'Assigned';
+      case 'client_accept': return 'Assigned';
       default: return requirement.status;
     }
   }, [requirement.status]);
@@ -79,7 +79,7 @@ export function RequirementHeader({
     if (!action) return;
 
     // Handle modal triggers
-    if (action.modal === 'mapping') {
+    if (action.modal === 'mapping' || action.modal === 'client_accept') {
       setIsMappingModalOpen(true);
       return;
     }
@@ -248,7 +248,7 @@ export function RequirementHeader({
         <div className="flex items-center gap-4">
           {/* CTA Buttons */}
           <div className="flex items-center gap-2 mr-2">
-            {ctaConfig?.secondaryAction && ctaConfig.secondaryAction.apiAction !== 'mark_blocked' && (
+            {ctaConfig?.secondaryAction && (
               <Button
                 size="middle"
                 className={`rounded-full px-5 font-semibold ${ctaConfig.secondaryAction.type === 'danger' ? 'text-[#ff3b3b] border-[#ff3b3b]' : ''
