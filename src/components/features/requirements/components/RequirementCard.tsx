@@ -355,7 +355,7 @@ export function RequirementCard({
       {/* Tags */}
       <div className="flex flex-wrap gap-1.5 mb-4">
         {requirement.departments && requirement.departments.length > 0 && requirement.departments.slice(0, 3).map((dept: string, i: number) => (
-          <span key={i} className="px-1.5 py-0.5 rounded-md bg-white border border-[#E5E5E5] text-2xs text-[#666666] font-medium">
+          <span key={i} className="px-1.5 py-0.5 rounded-md bg-white border border-[#E5E5E5] text-xs text-[#666666] font-medium">
             {dept}
           </span>
         ))}
@@ -397,7 +397,7 @@ export function RequirementCard({
               {requirement.progress}%
             </span>
           </div>
-          <div className="w-full h-1.5 bg-[#F0F0F0] rounded-full overflow-hidden">
+          <div className="w-full h-[3.5px] bg-[#F0F0F0] rounded-full overflow-hidden">
             <div
               className={`h-full rounded-full transition-all duration-500 ${requirement.status === 'completed'
                 ? 'bg-[#7ccf00]'
@@ -508,7 +508,7 @@ export function RequirementCard({
           ) : (
             <div
               className={`
-                    flex items-center gap-1.5 px-2 py-0.5 rounded text-2xs font-bold border transition-all
+                    flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-semibold border transition-all
                     ${statusConfig.className}
                 `}
             >

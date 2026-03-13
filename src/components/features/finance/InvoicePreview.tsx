@@ -107,7 +107,7 @@ export const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(({
                         <p className="text-xs text-[#999999]">
                             {invoiceId}
                             {invoiceType === 'TAX' && proformaRefId && (
-                                <span className="ml-2 px-1.5 py-0.5 bg-[#F3F4F6] text-[#666666] rounded-md text-2xs font-medium">
+                                <span className="ml-2 px-1.5 py-0.5 bg-[#F3F4F6] text-[#666666] rounded-md text-xs font-medium">
                                     Ref: PRO-{proformaRefId}
                                 </span>
                             )}
@@ -127,15 +127,15 @@ export const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(({
                 {/* Invoice Details Row - Compact */}
                 <div className="flex gap-12 mb-6 pb-5 border-b border-[#e6e6e6]">
                     <div>
-                        <p className="text-2xs font-semibold text-[#999999] uppercase tracking-wider mb-0.5">Issue Date</p>
+                        <p className="text-xs font-semibold text-[#999999] uppercase tracking-wider mb-0.5">Issue Date</p>
                         <p className="text-xs text-[#1a1a1a] font-medium">{dayjs(issueDate).format('MMM D, YYYY')}</p>
                     </div>
                     <div>
-                        <p className="text-2xs font-semibold text-[#999999] uppercase tracking-wider mb-0.5">Due Date</p>
+                        <p className="text-xs font-semibold text-[#999999] uppercase tracking-wider mb-0.5">Due Date</p>
                         <p className="text-xs text-[#1a1a1a] font-medium">{dayjs(dueDate).format('MMM D, YYYY')}</p>
                     </div>
                     <div className="ml-auto text-right">
-                        <p className="text-2xs font-semibold text-[#999999] uppercase tracking-wider mb-0.5">Amount Due</p>
+                        <p className="text-xs font-semibold text-[#999999] uppercase tracking-wider mb-0.5">Amount Due</p>
                         <p className="text-xl text-[#1a1a1a] font-bold">{symbol}{amountDue.toLocaleString()}</p>
                     </div>
                 </div>
@@ -143,7 +143,7 @@ export const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(({
                 {/* Billed To / From Section - Compact */}
                 <div className="flex justify-between mb-6">
                     <div className="max-w-[260px]">
-                        <p className="text-2xs font-semibold text-[#999999] uppercase tracking-wider mb-2">From</p>
+                        <p className="text-xs font-semibold text-[#999999] uppercase tracking-wider mb-2">From</p>
                         <p className="text-sm font-semibold text-[#1a1a1a] mb-1">{senderName}</p>
                         <div className="text-xs text-[#999999] leading-snug space-y-px whitespace-pre-wrap">
                             <p>{senderAddress}</p>
@@ -152,7 +152,7 @@ export const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(({
                         </div>
                     </div>
                     <div className="max-w-[260px] text-right">
-                        <p className="text-2xs font-semibold text-[#999999] uppercase tracking-wider mb-2">Bill To</p>
+                        <p className="text-xs font-semibold text-[#999999] uppercase tracking-wider mb-2">Bill To</p>
                         <p className="text-sm font-semibold text-[#1a1a1a] mb-1">{clientName}</p>
                         <div className="text-xs text-[#999999] leading-snug space-y-px whitespace-pre-wrap">
                             <p>{clientAddress}</p>
@@ -168,10 +168,10 @@ export const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(({
                     <table className="w-full">
                         <thead>
                             <tr className="border-b-2 border-[#1a1a1a]">
-                                <th className="text-left py-2 text-2xs font-semibold text-[#999999] uppercase tracking-wider">Description</th>
-                                <th className="text-center py-2 text-2xs font-semibold text-[#999999] uppercase tracking-wider w-16">Qty</th>
-                                <th className="text-right py-2 text-2xs font-semibold text-[#999999] uppercase tracking-wider w-24">Unit Price</th>
-                                <th className="text-right py-2 text-2xs font-semibold text-[#999999] uppercase tracking-wider w-24">Amount</th>
+                                <th className="text-left py-2 text-xs font-semibold text-[#999999] uppercase tracking-wider">Description</th>
+                                <th className="text-center py-2 text-xs font-semibold text-[#999999] uppercase tracking-wider w-16">Qty</th>
+                                <th className="text-right py-2 text-xs font-semibold text-[#999999] uppercase tracking-wider w-24">Unit Price</th>
+                                <th className="text-right py-2 text-xs font-semibold text-[#999999] uppercase tracking-wider w-24">Amount</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -241,7 +241,7 @@ export const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(({
                 {/* Memo - Compact */}
                 {memo && (
                     <div className="mt-6 pt-4 border-t border-[#e6e6e6]">
-                        <p className="text-2xs font-semibold text-[#999999] uppercase tracking-wider mb-1">Notes</p>
+                        <p className="text-xs font-semibold text-[#999999] uppercase tracking-wider mb-1">Notes</p>
                         <p className="text-xs text-[#999999] leading-relaxed">{memo}</p>
                     </div>
                 )}
@@ -253,7 +253,7 @@ export const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(({
                             {symbol}
                         </div>
                         <div className="flex-1">
-                            <p className="text-2xs font-semibold text-[#999999] uppercase tracking-wider mb-1.5">Payment Instructions</p>
+                            <p className="text-xs font-semibold text-[#999999] uppercase tracking-wider mb-1.5">Payment Instructions</p>
                             <div className="text-xs text-[#1a1a1a] whitespace-pre-wrap leading-relaxed font-medium">
                                 {footer}
                             </div>

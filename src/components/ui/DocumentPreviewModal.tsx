@@ -218,7 +218,7 @@ function DocumentPreviewContent({ document }: { document: UserDocument }) {
             {document.fileName}
           </h3>
           <div className="flex items-center gap-2">
-            <span className="text-2xs font-bold text-white bg-[#ff3b3b] px-1.5 py-0.5 rounded uppercase tracking-wider">
+            <span className="text-xs font-semibold text-white bg-[#ff3b3b] px-1.5 py-0.5 rounded uppercase tracking-wider">
               {fileType}
             </span>
             <span className="text-xs text-[#999999] font-medium">

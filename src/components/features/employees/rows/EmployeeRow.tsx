@@ -95,11 +95,11 @@ export function EmployeeRow({
             </span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="text-2xs font-medium text-[#666666]">
+            <span className="text-xs font-medium text-[#666666]">
               {employee.role}
             </span>
             <span className="text-[#DDDDDD] text-2xs">|</span>
-            <span className="text-2xs font-medium text-[#666666]">
+            <span className="text-xs font-medium text-[#666666]">
               {employee.department}
             </span>
           </div>

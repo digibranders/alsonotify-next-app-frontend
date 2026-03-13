@@ -6,7 +6,7 @@ import { PageLayout } from '../../layout/PageLayout';
 import { FilterBar, FilterOption } from '../../ui/FilterBar';
 import { TaskStatusBadge } from '@/components/features/tasks/components/TaskStatusBadge';
 import { DateRangeSelector } from '../../common/DateRangeSelector';
-import { Tooltip, Button } from "antd";
+import { Tooltip, Button, Avatar } from "antd";
 import { Skeleton } from '../../ui/Skeleton';
 import dynamic from 'next/dynamic';
 const ReportsPdfTemplate = dynamic(() => import('./ReportsPdfGeneration').then(m => m.ReportsPdfTemplate), { ssr: false });
@@ -50,9 +50,9 @@ function TableHeader({
   const isSorted = currentSort?.key === sortKey;
 
   return (
-    <div className={`flex items-center gap-0.5 ${align === 'right' ? 'justify-end' : align === 'center' ? 'justify-center' : 'justify-start'} min-w-0`}>
+    <div className={`flex items-center gap-1.5 ${align === 'right' ? 'justify-end' : align === 'center' ? 'justify-center' : 'justify-start'} min-w-0`}>
       <button
-        className={`flex items-center gap-0.5 group outline-none p-0 ${sortKey ? 'cursor-pointer' : 'cursor-default'} ${align === 'right' ? 'justify-end' : align === 'center' ? 'justify-center' : 'justify-start'}`}
+        className={`flex items-center gap-1 group outline-none p-0 min-w-0 ${sortKey ? 'cursor-pointer' : 'cursor-default'} ${align === 'right' ? 'justify-end' : align === 'center' ? 'justify-center' : 'justify-start'}`}
         onClick={() => sortKey && onSort?.(sortKey)}
         disabled={!sortKey}
       >
@@ -642,7 +642,7 @@ export function ReportsPage() {
                   </div>
                   <div className="flex items-baseline gap-2">
                     <span className="text-xl font-bold text-[#FF3B3B]">{kpi.delayed}</span>
-                    <span className="text-2xs font-medium text-[#FF3B3B]">(+{kpi.totalExtraHrs}h)</span>
+                    <span className="text-xs font-medium text-[#FF3B3B]">(+{kpi.totalExtraHrs}h)</span>
                   </div>
                 </div>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'requirement' ? '' : 'hidden'}`}>
@@ -707,7 +707,7 @@ export function ReportsPage() {
                   </div>
                   <div className="flex items-baseline gap-2">
                     <span className="text-xl font-bold text-[#FF3B3B]">{taskKPI.delayed}</span>
-                    <span className="text-2xs font-medium text-[#FF3B3B]">(+{taskKPI.totalExtraHrs}h)</span>
+                    <span className="text-xs font-medium text-[#FF3B3B]">(+{taskKPI.totalExtraHrs}h)</span>
                   </div>
                 </div>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'task' ? '' : 'hidden'}`}>
@@ -839,17 +839,17 @@ export function ReportsPage() {
                 {filteredRequirements.map((row, idx) => (
                   <div
                     key={row.id}
-                    className="group min-w-[900px] bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[40px_1.8fr_1.2fr_120px_140px_100px_140px_80px] gap-2 px-4 py-3 items-center hover:border-[#ff3b3b]/20 hover:shadow-lg transition-all duration-300"
+                    className="group min-w-[900px] bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[40px_1.8fr_1.2fr_120px_140px_100px_140px_80px] gap-2 px-4 py-3 items-start hover:border-[#ff3b3b]/20 hover:shadow-lg transition-all duration-300"
                   >
-                    <div className="text-xs text-[#999999] font-medium">{idx + 1}</div>
+                    <div className="text-xs text-[#999999] font-medium self-center">{idx + 1}</div>
 
                     <div className="flex flex-col justify-center gap-1 min-w-0">
                       <span className="text-xs text-[#111111] font-bold leading-tight truncate" title={row.requirement}>{row.requirement}</span>
-                      <span className="text-2xs text-[#666666] font-medium truncate" title={row.partner}>
+                      <span className="text-xs text-[#666666] font-medium truncate" title={row.partner}>
                         {row.partner}
                       </span>
                       {/* Tags Row */}
-                      <div className="flex flex-wrap gap-1.5 items-center text-2xs font-bold uppercase tracking-wider mt-0.5">
+                      <div className="flex flex-wrap gap-1.5 items-center text-xs font-semibold uppercase tracking-wider mt-0.5">
                          {row.type && <span className="bg-[#F5F5F5] text-[#888888] px-1.5 py-0.5 rounded" title="Type">{row.type}</span>}
                          {row.priority && <span className={`px-1.5 py-0.5 rounded ${row.priority === 'High' ? 'bg-[#FFF0F0] text-[#FF3B3B]' : 'bg-[#F0F8FF] text-[#2196F3]'}`} title="Priority">{row.priority}</span>}
                          {row.department && <span className="bg-[#F0FDF4] text-[#0F9D58] px-1.5 py-0.5 rounded truncate max-w-[80px]" title="Department">{row.department}</span>}
@@ -857,44 +857,43 @@ export function ReportsPage() {
                     </div>
 
                     <div className="flex flex-col justify-center gap-0.5 min-w-0">
-                      <span className="text-xs text-[#111111] font-bold truncate" title={row.manager || 'Unassigned'}>{row.manager || 'Unassigned'}</span>
+                      <span className="text-xs text-[#111111] font-medium truncate" title={row.manager || 'Unassigned'}>{row.manager || 'Unassigned'}</span>
                     </div>
 
                     <div className="flex flex-col items-start gap-0.5 min-w-0">
                       <span className="text-xs text-[#111111] font-medium truncate">{formatWithTimezone(row.startDate, 'MMM DD')}</span>
-                      <span className={`text-2xs truncate ${dayjs().isAfter(dayjs(row.endDate), 'day') && row.status !== 'Completed' ? 'text-[#FF3B3B] font-bold' : 'text-[#999999]'}`}>
+                      <span className={`text-xs truncate ${dayjs().isAfter(dayjs(row.endDate), 'day') && row.status !== 'Completed' ? 'text-[#FF3B3B] font-bold' : 'text-[#999999]'}`}>
                         to {formatWithTimezone(row.endDate, 'MMM DD')}
                       </span>
                     </div>
 
-                    <div className="flex flex-col gap-1.5 justify-center items-start h-full min-w-0">
+                    <div className="flex flex-col gap-1.5 justify-center items-start min-w-0">
                       {(() => {
                         const remaining = (row.allottedHrs || 0) - (row.engagedHrs || 0);
                         const isBleeding = row.engagedHrs > (row.allottedHrs || 0);
                         const isWarning = !isBleeding && (row.allottedHrs || 0) > 0 && row.engagedHrs >= ((row.allottedHrs || 0) * 0.8);
-                        
+
                         // Calculate visualization percentages (max 100%)
                         const total = (row.allottedHrs || 0) > 0 ? row.allottedHrs : Math.max(row.engagedHrs || 1, 1);
                         const fillRatio = Math.min((row.engagedHrs || 0) / total, 1);
                         const fillPercent = `${(fillRatio * 100).toFixed(1)}%`;
-                        
+
                         // Determine colors
                         const barColor = isBleeding ? 'bg-[#FF3B3B]' : isWarning ? 'bg-[#EAB308]' : 'bg-[#2F80ED]';
                         const trackColor = 'bg-[#F0F0F0]';
-                        
+
                         return (
                           <>
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center justify-between w-full">
                                 <span className="font-medium text-xs whitespace-nowrap text-[#111111]">
                                   {row.engagedHrs?.toFixed(1)}h{(row.allottedHrs || 0) > 0 ? `/${row.allottedHrs.toFixed(1)}h` : ''}
                                 </span>
-                                <span className="text-[#E5E5E5] text-xs">|</span>
                                 <span className={`text-xs font-medium whitespace-nowrap ${isBleeding ? 'text-[#FF3B3B]' : isWarning ? 'text-[#EAB308]' : 'text-[#666666]'}`}>
                                   {isBleeding ? `+${Math.abs(remaining).toFixed(1)}h over` : `${remaining.toFixed(1)}h left`}
                                 </span>
                             </div>
                             {/* Micro-visualization Sparkline */}
-                            <div className={`h-1.5 w-full rounded-full overflow-hidden ${trackColor}`}>
+                            <div className={`h-[3.5px] w-full rounded-full overflow-hidden ${trackColor}`}>
                                 <div 
                                     className={`h-full rounded-full transition-all duration-300 ${barColor}`} 
                                     style={{ width: fillPercent }} 
@@ -905,7 +904,7 @@ export function ReportsPage() {
                       })()}
                     </div>
 
-                    <div className="text-xs font-semibold flex items-center justify-start gap-1 min-w-0">
+                    <div className="text-xs font-semibold flex items-center justify-start gap-1 min-w-0 self-center">
                       {row.revision > 0 ? (
                         <span className={`px-2 py-0.5 rounded-md ${row.revision > 1 ? 'bg-[#FFF4EC] text-[#FF8A00]' : 'bg-[#F5F5F5] text-[#666666]'}`}>
                           v{row.revision + 1}
@@ -916,7 +915,7 @@ export function ReportsPage() {
                     </div>
 
                     <div className="flex flex-col items-start text-xs min-w-0">
-                      <div className="text-[#999999] text-2xs" title={currencySymbol + (row.revenue || 0).toLocaleString()}>
+                      <div className="text-[#999999] text-xs" title={currencySymbol + (row.revenue || 0).toLocaleString()}>
                         {currencySymbol}{(row.revenue || 0).toLocaleString()}
                       </div>
                       <div className={`font-bold flex items-center gap-1 ${row.profit >= 0 ? 'text-[#00A389]' : 'text-[#FF3B3B]'}`} title={currencySymbol + (row.profit || 0).toLocaleString()}>
@@ -924,7 +923,7 @@ export function ReportsPage() {
                       </div>
                     </div>
 
-                    <div className="flex justify-start"><TaskStatusBadge status={row.status} /></div>
+                    <div className="flex justify-start self-center"><TaskStatusBadge status={row.status} /></div>
                   </div>
                 ))}
 
@@ -949,7 +948,7 @@ export function ReportsPage() {
                     <Skeleton className="h-4 w-20" />
                     <Skeleton className="h-4 w-20" />
                     <Skeleton className="h-4 w-14" />
-                    <div className="flex flex-col gap-1"><Skeleton className="h-4 w-3/4" /><Skeleton className="h-1.5 w-full rounded-full" /></div>
+                    <div className="flex flex-col gap-1"><Skeleton className="h-4 w-3/4" /><Skeleton className="h-[3.5px] w-full rounded-full" /></div>
                     <Skeleton className="h-6 w-20 rounded-full mx-auto" />
                   </div>
                 ))}
@@ -962,10 +961,10 @@ export function ReportsPage() {
                   <TableHeader label="Task" sortKey="task" currentSort={sortConfig} onSort={handleSort} />
                   <TableHeader label="Requirement" sortKey="requirement" currentSort={sortConfig} onSort={handleSort} />
                   <TableHeader label="Leader" sortKey="leader" currentSort={sortConfig} onSort={handleSort} />
-                  <TableHeader label="Assigned" sortKey="assigned" currentSort={sortConfig} onSort={handleSort} />
+                  <TableHeader label="Assigned" sortKey="assigned" currentSort={sortConfig} onSort={handleSort} align="center" />
                   <TableHeader label="Due Date" sortKey="dueDate" currentSort={sortConfig} onSort={handleSort} tooltip="Task due date. Red = overdue." />
                   <TableHeader label="Hours Variance" sortKey="engagedHrs" currentSort={sortConfig} onSort={handleSort} tooltip="Engaged (logged) vs. Allotted (estimated) hours." />
-                  <TableHeader label="Status" sortKey="status" currentSort={sortConfig} onSort={handleSort} />
+                  <TableHeader label="Status" sortKey="status" currentSort={sortConfig} onSort={handleSort} align="center" />
                 </div>
 
                 {/* Rows */}
@@ -983,46 +982,51 @@ export function ReportsPage() {
                   return (
                     <div
                       key={row.id}
-                      className="group min-w-[900px] bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[40px_2.2fr_1.2fr_0.9fr_0.9fr_75px_150px_85px] gap-2 px-4 py-3 items-center hover:border-[#ff3b3b]/20 hover:shadow-lg transition-all duration-300"
+                      className="group min-w-[900px] bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[40px_2.2fr_1.2fr_0.9fr_0.9fr_75px_150px_85px] gap-2 px-4 py-3 items-start hover:border-[#ff3b3b]/20 hover:shadow-lg transition-all duration-300"
                     >
                       {/* No */}
-                      <div className="text-xs text-[#999999] font-medium">{idx + 1}</div>
+                      <div className="text-xs text-[#999999] font-medium self-center">{idx + 1}</div>
 
                       {/* Task + Workspace */}
                       <div className="flex flex-col justify-center gap-0.5 min-w-0">
-                        <span className="text-xs text-[#111111] font-bold leading-tight truncate" title={row.task}>{row.task}</span>
+                        <span className="text-sm text-[#111111] font-bold leading-tight truncate" title={row.task}>{row.task}</span>
                         {row.workspaceName && (
-                          <span className="text-2xs text-[#999999] font-medium truncate" title={row.workspaceName}>{row.workspaceName}</span>
+                          <span className="text-xs text-[#999999] font-medium truncate" title={row.workspaceName}>{row.workspaceName}</span>
                         )}
                       </div>
 
                       {/* Requirement */}
-                      <div className="text-xs text-[#666666] font-medium min-w-0 truncate" title={row.requirement}>{row.requirement}</div>
+                      <div className="text-sm text-[#111111] font-medium min-w-0 truncate" title={row.requirement}>{row.requirement}</div>
 
                       {/* Leader */}
-                      <div className="text-xs text-[#111111] font-semibold min-w-0 truncate" title={row.leader}>{row.leader}</div>
+                      <div className="text-sm text-[#111111] font-medium min-w-0 truncate" title={row.leader}>{row.leader}</div>
 
                       {/* Assigned */}
-                      <div className="text-xs text-[#666666] font-medium min-w-0 truncate" title={row.assigned}>{row.assigned}</div>
+                      <div className="flex items-center justify-center self-center">
+                        <Tooltip title={row.assigned}>
+                          <Avatar size={26} style={{ backgroundColor: '#CCCCCC', color: '#111111' }}>
+                            {row.assigned ? row.assigned.charAt(0).toUpperCase() : 'U'}
+                          </Avatar>
+                        </Tooltip>
+                      </div>
 
                       {/* Due Date */}
                       <div className="min-w-0">
                         {row.dueDate ? (
-                          <span className={`text-xs font-${isOverdue ? 'bold' : 'medium'} ${isOverdue ? 'text-[#FF3B3B]' : 'text-[#111111]'} truncate`}>
+                          <span className={`text-sm ${isOverdue ? 'font-bold text-[#FF3B3B]' : 'font-medium text-[#111111]'} truncate`}>
                             {formatWithTimezone(row.dueDate, 'MMM DD')}
                           </span>
                         ) : (
-                          <span className="text-xs text-[#CCCCCC]">-</span>
+                          <span className="text-sm text-[#CCCCCC]">-</span>
                         )}
                       </div>
 
                       {/* Hours Variance */}
-                      <div className="flex flex-col gap-1.5 justify-center items-start h-full min-w-0">
-                        <div className="flex items-center gap-2">
+                      <div className="flex flex-col gap-1.5 justify-center items-start min-w-0">
+                        <div className="flex items-center justify-between w-full">
                           <span className="font-medium text-xs whitespace-nowrap text-[#111111]">
                             {row.engagedHrs?.toFixed(1)}h{hasEstimate ? `/${row.allottedHrs?.toFixed(1)}h` : ''}
                           </span>
-                          <span className="text-[#E5E5E5] text-xs">|</span>
                           {hasEstimate ? (
                             <span className={`text-xs font-medium whitespace-nowrap ${isBleeding ? 'text-[#FF3B3B]' : isWarning ? 'text-[#EAB308]' : 'text-[#666666]'}`}>
                               {isBleeding ? `+${Math.abs(remaining).toFixed(1)}h over` : `${remaining.toFixed(1)}h left`}
@@ -1031,13 +1035,13 @@ export function ReportsPage() {
                             <span className="text-xs text-[#666666] font-medium whitespace-nowrap">No estimate</span>
                           )}
                         </div>
-                        <div className="h-1.5 w-full rounded-full overflow-hidden bg-[#F0F0F0]">
+                        <div className="h-[3px] w-full rounded-full overflow-hidden bg-[#F0F0F0]">
                           <div className={`h-full rounded-full transition-all duration-300 ${barColor}`} style={{ width: fillPercent }} />
                         </div>
                       </div>
 
                       {/* Status */}
-                      <div className="flex justify-start">
+                      <div className="flex justify-center self-center">
                         <TaskStatusBadge status={row.status} showLabel={false} />
                       </div>
                     </div>
@@ -1080,21 +1084,21 @@ export function ReportsPage() {
                 {filteredEmployees.map((row, idx) => (
                   <div
                     key={row.id}
-                    className="group min-w-[1000px] bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[50px_2.5fr_2fr_1fr_1.2fr_1.2fr_1.2fr] gap-4 px-4 py-3 items-center hover:border-[#ff3b3b]/20 hover:shadow-lg transition-all duration-300 cursor-pointer"
+                    className="group min-w-[1000px] bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[50px_2.5fr_2fr_1fr_1.2fr_1.2fr_1.2fr] gap-4 px-4 py-3 items-start hover:border-[#ff3b3b]/20 hover:shadow-lg transition-all duration-300 cursor-pointer"
                     onClick={() => setSelectedMemberId(String(row.id))}
                   >
-                    <div className="text-xs text-[#999999] font-medium">{idx + 1}</div>
+                    <div className="text-xs text-[#999999] font-medium self-center">{idx + 1}</div>
 
                     <div className="flex flex-col justify-center min-w-0">
-                      <span className="text-xs text-[#111111] font-bold min-w-0 truncate" title={row.member}>{row.member}</span>
-                      <span className="text-2xs text-[#666666] font-medium min-w-0 truncate" title={`${row.designation} | ${row.department}`}>{row.designation} <span className="text-[#E5E5E5] mx-1">|</span> {row.department}</span>
+                      <span className="text-sm text-[#111111] font-bold min-w-0 truncate" title={row.member}>{row.member}</span>
+                      <span className="text-xs text-[#666666] font-medium min-w-0 truncate" title={`${row.designation} | ${row.department}`}>{row.designation} <span className="text-[#E5E5E5] mx-1">|</span> {row.department}</span>
                     </div>
 
                     <div className="flex flex-col min-w-0">
-                      <span className="text-xs text-[#111111] font-bold truncate">
-                        {row.taskStats.assigned} <span className="text-[#666666] font-medium text-2xs">Assigned</span>
+                      <span className="text-sm text-[#111111] font-bold truncate">
+                        {row.taskStats.assigned} <span className="text-[#666666] font-medium text-xs">Assigned</span>
                       </span>
-                      <div className="flex gap-3 mt-1 text-2xs font-medium text-[#666666] overflow-hidden">
+                      <div className="flex gap-3 mt-1 text-xs font-medium text-[#666666] overflow-hidden">
                         <div className="flex items-center gap-1.5 shrink-0">
                           <div className="w-1.5 h-1.5 rounded-full bg-[#0F9D58]"></div>
                           <span>{row.taskStats.completed}</span>
@@ -1112,10 +1116,10 @@ export function ReportsPage() {
 
                     {/* Load / Utilization */}
                     <div className="flex flex-col gap-1.5 justify-center min-w-0">
-                      <div className="flex justify-between text-2xs">
-                        <span className="font-medium text-[#111111] truncate">{row.utilization}%</span>
+                      <div className="flex justify-between">
+                        <span className="text-xs font-medium text-[#111111] truncate">{row.utilization}%</span>
                       </div>
-                      <div className="w-full h-1.5 bg-[#F0F0F0] rounded-full overflow-hidden">
+                      <div className="w-full h-[3.5px] bg-[#F0F0F0] rounded-full overflow-hidden">
                         <div
                           className={`h-full rounded-full ${row.utilization > 100 ? 'bg-[#FF3B3B]' : 'bg-[#111111]'}`}
                           style={{ width: `${Math.min(row.utilization, 100)}%` }}
@@ -1123,9 +1127,9 @@ export function ReportsPage() {
                       </div>
                     </div>
 
-                    <div className="text-xs text-[#111111] font-bold text-left min-w-0 truncate" title={currencySymbol + (row.expenses || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}>{currencySymbol}{(row.expenses || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
-                    <div className="text-xs text-[#111111] font-bold text-left min-w-0 truncate" title={currencySymbol + (row.revenue || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}>{currencySymbol}{(row.revenue || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
-                    <div className={`text-xs font-bold text-left min-w-0 truncate ${row.profit >= 0 ? 'text-[#0F9D58]' : 'text-[#FF3B3B]'}`} title={(row.profit >= 0 ? '+' : '') + currencySymbol + (row.profit || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}>
+                    <div className="text-sm text-[#111111] font-medium text-left min-w-0 truncate self-center" title={currencySymbol + (row.expenses || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}>{currencySymbol}{(row.expenses || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                    <div className="text-sm text-[#111111] font-medium text-left min-w-0 truncate self-center" title={currencySymbol + (row.revenue || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}>{currencySymbol}{(row.revenue || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                    <div className={`text-sm font-bold text-left min-w-0 truncate self-center ${row.profit >= 0 ? 'text-[#0F9D58]' : 'text-[#FF3B3B]'}`} title={(row.profit >= 0 ? '+' : '') + currencySymbol + (row.profit || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}>
                       {row.profit >= 0 ? '+' : ''}{currencySymbol}{(row.profit || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}
                     </div>
                   </div>

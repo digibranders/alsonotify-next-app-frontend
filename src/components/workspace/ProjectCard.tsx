@@ -377,10 +377,10 @@ export function WorkspaceDetailsPage({ id }: { id: string }) {
                     <div className="flex-1 min-w-0">
                       <h4 className="font-semibold text-[#111111] text-sm truncate">{task.name}</h4>
                       <div className="flex items-center gap-3 mt-1 text-xs text-[#666666]">
-                        <span className={`px-2 py-0.5 rounded-full border text-2xs font-bold ${getStatusColor(task.status)}`}>
+                        <span className={`px-2 py-0.5 rounded-full border text-xs font-semibold ${getStatusColor(task.status)}`}>
                           {task.status}
                         </span>
-                        <span className={`px-2 py-0.5 rounded-full border text-2xs font-bold ${getPriorityColor(task.priority)}`}>
+                        <span className={`px-2 py-0.5 rounded-full border text-xs font-semibold ${getPriorityColor(task.priority)}`}>
                           {task.priority}
                         </span>
                         {task.dueDate && (
@@ -423,7 +423,7 @@ export function WorkspaceDetailsPage({ id }: { id: string }) {
                 {filteredTasks.map((task: ProjectTaskUI) => (
                   <div key={task.id} className="group bg-white border border-[#EEEEEE] rounded-[16px] p-5 hover:border-[#ff3b3b] hover:shadow-sm transition-all flex flex-col h-full">
                     <div className="flex items-start justify-between mb-3">
-                      <span className={`px-2 py-0.5 rounded-full border text-2xs font-bold ${getPriorityColor(task.priority)}`}>
+                      <span className={`px-2 py-0.5 rounded-full border text-xs font-semibold ${getPriorityColor(task.priority)}`}>
                         {task.priority}
                       </span>
                       <Dropdown
@@ -443,7 +443,7 @@ export function WorkspaceDetailsPage({ id }: { id: string }) {
                     </div>
                     <h4 className="font-semibold text-[#111111] text-sm mb-2 line-clamp-2 flex-grow">{task.name}</h4>
                     <div className="flex items-center gap-2 mb-4">
-                      <span className={`px-2 py-0.5 rounded-full border text-2xs font-bold ${getStatusColor(task.status)}`}>
+                      <span className={`px-2 py-0.5 rounded-full border text-xs font-semibold ${getStatusColor(task.status)}`}>
                         {task.status}
                       </span>
                     </div>

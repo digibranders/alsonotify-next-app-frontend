@@ -157,7 +157,7 @@ export function TaskLiveProgress({ task, currentUserId }: TaskLiveProgressProps)
   );
 
   return (
-    <div className="flex flex-col gap-1.5 h-full min-w-0 cursor-default">
+    <div className="flex flex-col gap-1.5 min-w-0 cursor-default">
       {/* Text row with Summary Tooltip */}
       <Tooltip
         title={summaryTooltip}
@@ -170,11 +170,10 @@ export function TaskLiveProgress({ task, currentUserId }: TaskLiveProgressProps)
           padding: '10px 12px',
         }}
       >
-        <div className="flex items-center gap-2 w-fit">
+        <div className="flex items-center justify-between w-full">
           <span className={`font-medium task-row-main whitespace-nowrap ${labelColor}`}>
             {totalLoggedHours.toFixed(1)}h{hasEst ? `/${effectiveEst.toFixed(1)}h` : ''}
           </span>
-          <span className="text-[#E5E5E5] text-xs">|</span>
           {hasEst ? (
             <span className={`task-row-main font-medium whitespace-nowrap ${isBleeding
               ? 'text-[#FF3B3B]'
@@ -192,7 +191,7 @@ export function TaskLiveProgress({ task, currentUserId }: TaskLiveProgressProps)
 
       {/* Progress bar — segmented for multi-member, single for one */}
       {isMultiMember && totalMemberEst > 0 ? (
-        <div className="h-[5px] w-full rounded-full overflow-hidden bg-[#F0F0F0] flex">
+        <div className="h-[3px] w-full rounded-full overflow-hidden bg-[#F0F0F0] flex">
           {segments
             .filter((seg) => seg.widthPct > 0)
             .map((seg, i, arr) => {
@@ -261,7 +260,7 @@ export function TaskLiveProgress({ task, currentUserId }: TaskLiveProgressProps)
             padding: '10px 12px',
           }}
         >
-          <div className="h-[5px] w-full rounded-full overflow-hidden bg-[#F0F0F0] cursor-pointer">
+          <div className="h-[3px] w-full rounded-full overflow-hidden bg-[#F0F0F0] cursor-pointer">
             <div
               className="h-full rounded-full transition-all duration-300"
               style={{ width: singleFill, backgroundColor: singleBarColorHex }}

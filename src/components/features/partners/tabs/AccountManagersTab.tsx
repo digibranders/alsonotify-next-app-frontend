@@ -227,8 +227,8 @@ export function AccountManagersTab() {
                             {manager.name}
                         </h3>
                         {manager.role && (
-                            <span 
-                                className="text-2xs font-bold px-1.5 py-0.5 rounded-md uppercase shrink-0 ml-2"
+                            <span
+                                className="text-xs font-semibold px-1.5 py-0.5 rounded-md uppercase shrink-0 ml-2"
                                 style={{
                                     backgroundColor: manager.roleColor ? `${manager.roleColor}15` : '#EEEEEE',
                                     color: manager.roleColor || '#666666'

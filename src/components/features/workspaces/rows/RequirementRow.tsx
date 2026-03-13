@@ -89,7 +89,7 @@ export const RequirementRow = React.memo(function RequirementRow({ req, workspac
               {req.title}
             </h3>
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-2xs text-[#999999] font-medium">
+              <span className="text-xs text-[#999999] font-medium">
                 {req.client}
               </span>
               {req.department && (

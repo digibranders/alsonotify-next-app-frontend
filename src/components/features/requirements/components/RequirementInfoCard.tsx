@@ -242,7 +242,7 @@ export function RequirementInfoCard({ requirement, tasks, timezone }: Requiremen
             <RotateCcw className="w-4 h-4 text-[#ff3b3b]" />
             Revision Requested
             {(requirement.revision_round ?? 0) > 0 && (
-              <span className="ml-2 px-2 py-0.5 bg-[#FFF5F5] text-[#ff3b3b] text-2xs font-bold rounded-full">
+              <span className="ml-2 px-2 py-0.5 bg-[#FFF5F5] text-[#ff3b3b] text-xs font-semibold rounded-full">
                 Round {requirement.revision_round}
               </span>
             )}

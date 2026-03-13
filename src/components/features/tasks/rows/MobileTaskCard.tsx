@@ -106,7 +106,7 @@ export const MobileTaskCard = memo(function MobileTaskCard({
                 {task.name}
               </span>
               {task.is_review_task && (
-                <span className="px-1.5 py-0.5 rounded-md bg-[#F3E8FF] text-[#7E22CE] text-2xs font-bold border border-[#E9D5FF] flex-shrink-0 animate-pulse">
+                <span className="px-1.5 py-0.5 rounded-md bg-[#F3E8FF] text-[#7E22CE] text-xs font-semibold border border-[#E9D5FF] flex-shrink-0 animate-pulse">
                   REVIEW
                 </span>
               )}
@@ -239,7 +239,7 @@ export const MobileTaskCard = memo(function MobileTaskCard({
         {/* Row 3: Status & Dates */}
         <div className="flex items-center justify-between gap-2 border-t border-dashed border-[#F5F5F5] pt-3 mt-1">
           <div className="flex flex-col gap-0.5">
-            <span className="text-2xs uppercase font-bold text-[#999999] tracking-wider">Due Date</span>
+            <span className="text-xs uppercase font-semibold text-[#999999] tracking-wider">Due Date</span>
             <div className="flex items-center gap-1.5">
               <span className="text-xs font-medium text-[#111111]">
                 {task.timelineDate}

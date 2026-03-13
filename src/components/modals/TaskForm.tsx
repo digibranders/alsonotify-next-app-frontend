@@ -347,7 +347,7 @@ export function TaskForm({
                 <Option key={ws.id} value={ws.id.toString()} label={ws.name}>
                   <div className="flex flex-col py-1">
                     <span className="font-medium text-[#111111] leading-tight">{ws.name}</span>
-                    <span className="text-2xs text-[#999999] leading-tight">
+                    <span className="text-xs text-[#999999] leading-tight">
                       {ws.in_house ? ws.company_name : ws.partner_name || 'Organization'}
                     </span>
                   </div>
@@ -477,7 +477,7 @@ export function TaskForm({
                         <Avatar size="small" shape="circle" className="w-6 h-6 text-2xs" src={user.profile_pic}>{user.name.charAt(0)}</Avatar>
                         <span className="text-xs font-semibold text-gray-800">{user.name}</span>
                         {String(user.id) !== currentUserId && (
-                          <span className="xs:inline hidden text-2xs text-amber-500 bg-amber-50 px-1.5 py-0.5 rounded-full border border-amber-100">
+                          <span className="xs:inline hidden text-xs font-semibold text-amber-500 bg-amber-50 px-1.5 py-0.5 rounded-full border border-amber-100">
                             Estimate Pending
                           </span>
                         )}

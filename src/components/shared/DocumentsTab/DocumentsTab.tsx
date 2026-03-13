@@ -364,12 +364,12 @@ export function DocumentsTab({ activityData }: DocumentsTabProps) {
                             <table className="w-full text-left border-collapse min-w-[600px]">
                                 <thead>
                                     <tr className="bg-[#F7F7F7] border-b border-[#EEEEEE]">
-                                        <th className="py-2 px-3 md:py-3 md:px-4 text-2xs md:text-xs font-bold text-[#666666] uppercase tracking-wider w-[40%] whitespace-nowrap">File Name</th>
-                                        <th className="py-2 px-3 md:py-3 md:px-4 text-2xs md:text-xs font-bold text-[#666666] uppercase tracking-wider whitespace-nowrap">Sender</th>
-                                        <th className="py-2 px-3 md:py-3 md:px-4 text-2xs md:text-xs font-bold text-[#666666] uppercase tracking-wider whitespace-nowrap">Size</th>
-                                        <th className="py-2 px-3 md:py-3 md:px-4 text-2xs md:text-xs font-bold text-[#666666] uppercase tracking-wider whitespace-nowrap">Date</th>
-                                        <th className="py-2 px-3 md:py-3 md:px-4 text-2xs md:text-xs font-bold text-[#666666] uppercase tracking-wider whitespace-nowrap">Type</th>
-                                        <th className="py-2 px-3 md:py-3 md:px-4 text-2xs md:text-xs font-bold text-[#666666] uppercase tracking-wider text-center whitespace-nowrap">Actions</th>
+                                        <th className="py-2 px-3 md:py-3 md:px-4 text-xs font-semibold text-[#999999] uppercase tracking-wider w-[40%] whitespace-nowrap">File Name</th>
+                                        <th className="py-2 px-3 md:py-3 md:px-4 text-xs font-semibold text-[#999999] uppercase tracking-wider whitespace-nowrap">Sender</th>
+                                        <th className="py-2 px-3 md:py-3 md:px-4 text-xs font-semibold text-[#999999] uppercase tracking-wider whitespace-nowrap">Size</th>
+                                        <th className="py-2 px-3 md:py-3 md:px-4 text-xs font-semibold text-[#999999] uppercase tracking-wider whitespace-nowrap">Date</th>
+                                        <th className="py-2 px-3 md:py-3 md:px-4 text-xs font-semibold text-[#999999] uppercase tracking-wider whitespace-nowrap">Type</th>
+                                        <th className="py-2 px-3 md:py-3 md:px-4 text-xs font-semibold text-[#999999] uppercase tracking-wider text-center whitespace-nowrap">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -395,7 +395,7 @@ export function DocumentsTab({ activityData }: DocumentsTabProps) {
                                                 <span className="text-xs md:text-xs font-medium text-[#666666] whitespace-nowrap">{doc.date}</span>
                                             </td>
                                             <td className="py-2 px-3 md:py-3 md:px-4">
-                                                <span className="text-2xs md:text-xs font-bold px-1.5 py-0.5 md:px-2 md:py-1 bg-[#F7F7F7] rounded text-[#666666] uppercase inline-block whitespace-nowrap">
+                                                <span className="text-xs font-semibold px-1.5 py-0.5 md:px-2 md:py-1 bg-[#F7F7F7] rounded text-[#666666] uppercase inline-block whitespace-nowrap">
                                                     {doc.type}
                                                 </span>
                                             </td>

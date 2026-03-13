@@ -425,7 +425,7 @@ function HoursBar({ data, onClick }: HoursBarProps) {
 
         {/* Progress Bar Section */}
         <div className="flex-1 flex flex-col gap-1 min-w-0">
-          <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
+          <div className="h-[3.5px] bg-gray-200 rounded-full overflow-hidden">
             <div
               className={`h-full transition-all duration-500 rounded-full ${isOverCapacity
                 ? 'bg-gradient-to-r from-[#ff3b3b] to-[#e02020]'
