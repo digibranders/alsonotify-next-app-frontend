@@ -141,10 +141,13 @@ export function RequirementHeader({
 
   const handleMappingSubmit = useCallback(async (selectedWorkspaceId: number) => {
     try {
+      const isClientWork = requirement.type === 'client';
       await updateRequirement({
         id: requirement.id,
-        receiver_workspace_id: selectedWorkspaceId,
-        status: 'Assigned'
+        ...(isClientWork
+          ? { workspace_id: selectedWorkspaceId }
+          : { receiver_workspace_id: selectedWorkspaceId }),
+        status: 'Assigned',
       });
       message.success("Requirement mapped successfully!");
     } catch (error: unknown) {
