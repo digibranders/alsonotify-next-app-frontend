@@ -155,7 +155,7 @@ export function RequirementHeader({
       message.error(errorMessage || "Failed to map requirement");
       throw error;
     }
-  }, [requirement.id, updateRequirement, message]);
+  }, [requirement.id, requirement.type, updateRequirement, message]);
 
   const handleSubmitForApproval = useCallback(async (data: { remark?: string; attachment_ids?: number[] }) => {
     await submitForReviewMutation.mutateAsync({
