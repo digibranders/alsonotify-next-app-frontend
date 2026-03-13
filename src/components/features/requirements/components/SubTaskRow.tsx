@@ -48,12 +48,12 @@ export function SubTaskRow({
         {/* Task Info */}
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <h3 className="font-semibold text-xs text-[#111111] group-hover:text-[#ff3b3b] transition-colors">
+            <h3 className="font-semibold task-row-main text-[#111111] group-hover:text-[#ff3b3b] transition-colors">
               {task.name}
             </h3>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-xxs text-[#999999] font-normal">
+            <span className="task-row-sub text-[#999999] font-normal">
               #{task.id}
             </span>
           </div>
@@ -62,7 +62,7 @@ export function SubTaskRow({
         {/* Assigned To */}
         <div className="flex items-center justify-center gap-2">
           <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#ff3b3b] to-[#ff6b6b] flex items-center justify-center">
-            <span className="text-xs-tight text-white font-bold">
+            <span className="text-xs text-white font-bold">
               {initials}
             </span>
           </div>
@@ -70,7 +70,7 @@ export function SubTaskRow({
 
         {/* Due Date */}
         <div className="flex justify-center">
-          <span className="text-xs text-[#666666] font-medium">
+          <span className="task-row-main text-[#666666] font-medium">
             {task.due_date ? format(new Date(task.due_date), 'MMM d, yyyy') : 'N/A'}
           </span>
         </div>

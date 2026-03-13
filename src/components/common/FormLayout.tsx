@@ -51,7 +51,7 @@ export function FormLayout({
       {/* Fixed Header */}
       <div className="flex-shrink-0 border-b border-[#EEEEEE] px-6 py-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-base-plus font-bold text-[#111111]">
+          <div className="flex items-center gap-2 text-base font-bold text-[#111111]">
             {Icon && (
               <div className="p-1.5 rounded-full bg-[#F7F7F7]">
                 <Icon className="w-4 h-4 text-[#666666]" />

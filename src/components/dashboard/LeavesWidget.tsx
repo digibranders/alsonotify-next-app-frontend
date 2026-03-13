@@ -213,14 +213,14 @@ function LeaveItem({ name, dateRange, duration, avatar, initials }: { name: stri
               <h4 className="font-semibold text-xs text-[#111111] line-clamp-1">
                 {name}
               </h4>
-              <span className="text-[#666666] text-xs-tight font-normal mt-0.5">
+              <span className="text-[#666666] text-xs font-normal mt-0.5">
                 {dateRange}
               </span>
             </div>
 
             {/* Duration Badge vertically centered on the right */}
             <div className="flex-shrink-0 self-center">
-              <span className="inline-block px-2.5 py-1 rounded-full bg-[#EEEEEE] text-xs-tight font-normal text-[#333333]">
+              <span className="inline-block px-2.5 py-1 rounded-full bg-[#EEEEEE] text-xs font-normal text-[#333333]">
                 {duration}
               </span>
             </div>

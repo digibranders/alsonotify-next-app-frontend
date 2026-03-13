@@ -315,7 +315,7 @@ export function RequirementCard({
         {/* Context Row: [TYPE] | [Contact Name] | [Company Name] */}
         <div className="flex items-center gap-2 mb-2">
           {/* Type Badge: For outsourced reqs, receiver sees INHOUSE, sender sees OUTSOURCED */}
-          <span className="px-1.5 py-0.5 rounded text-xxs font-medium bg-[#F5F5F5] text-[#666666] uppercase border border-[#EEEEEE] tracking-wide whitespace-nowrap">
+          <span className="px-1.5 py-0.5 rounded text-2xs font-medium bg-[#F5F5F5] text-[#666666] uppercase border border-[#EEEEEE] tracking-wide whitespace-nowrap">
             {requirement.type === 'outsourced'
               ? (requirement.isReceiver ? 'client work' : 'outsourced')
               : (['client', 'Client work', 'Client Work'].includes(requirement.type || '')
@@ -326,8 +326,8 @@ export function RequirementCard({
           {/* Contact Person Name - only show if available */}
           {requirement.headerContact && (
             <>
-              <span className="text-[#E5E5E5] text-xxs">|</span>
-              <span className="font-bold text-[#111111] text-xxs truncate max-w-[100px]" title={requirement.headerContact}>
+              <span className="text-[#E5E5E5] text-2xs">|</span>
+              <span className="font-bold text-[#111111] text-2xs truncate max-w-[100px]" title={requirement.headerContact}>
                 {requirement.headerContact}
               </span>
             </>
@@ -336,8 +336,8 @@ export function RequirementCard({
           {/* Company Name - Use headerCompany which is correctly computed, no hardcoded fallbacks */}
           {requirement.headerCompany && (
             <>
-              <span className="text-[#E5E5E5] shrink-0 text-xxs">|</span>
-              <span className="font-bold uppercase tracking-wider text-[#999999] text-xxs truncate max-w-[100px]" title={requirement.headerCompany}>
+              <span className="text-[#E5E5E5] shrink-0 text-2xs">|</span>
+              <span className="font-bold uppercase tracking-wider text-[#999999] text-2xs truncate max-w-[100px]" title={requirement.headerCompany}>
                 {requirement.headerCompany}
               </span>
             </>
@@ -355,12 +355,12 @@ export function RequirementCard({
       {/* Tags */}
       <div className="flex flex-wrap gap-1.5 mb-4">
         {requirement.departments && requirement.departments.length > 0 && requirement.departments.slice(0, 3).map((dept: string, i: number) => (
-          <span key={i} className="px-1.5 py-0.5 rounded-md bg-white border border-[#E5E5E5] text-xxs text-[#666666] font-medium">
+          <span key={i} className="px-1.5 py-0.5 rounded-md bg-white border border-[#E5E5E5] text-2xs text-[#666666] font-medium">
             {dept}
           </span>
         ))}
         {requirement.departments && requirement.departments.length > 3 && (
-          <span className="px-1.5 py-0.5 text-xxs text-[#999999]">+{requirement.departments.length - 3}</span>
+          <span className="px-1.5 py-0.5 text-2xs text-[#999999]">+{requirement.departments.length - 3}</span>
         )}
       </div>
 
@@ -390,10 +390,10 @@ export function RequirementCard({
       {!isPending && (
         <div className="mb-4 mt-auto">
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-xxs text-[#999999] font-medium">
+            <span className="text-2xs text-[#999999] font-medium">
               Progress
             </span>
-            <span className="text-xxs text-[#111111] font-bold">
+            <span className="text-2xs text-[#111111] font-bold">
               {requirement.progress}%
             </span>
           </div>
@@ -434,7 +434,7 @@ export function RequirementCard({
             {(requirement.assignedTo || []).slice(0, 3).map((person: string, i: number) => (
               <div
                 key={i}
-                className="w-5 h-5 rounded-full bg-[#F7F7F7] border border-white flex items-center justify-center text-4xs font-bold text-[#666666] relative z-[3] hover:z-10 hover:scale-110 transition-all shadow-sm"
+                className="w-5 h-5 rounded-full bg-[#F7F7F7] border border-white flex items-center justify-center text-2xs font-bold text-[#666666] relative z-[3] hover:z-10 hover:scale-110 transition-all shadow-sm"
                 title={person}
               >
                 {person.charAt(0).toUpperCase()}
@@ -479,7 +479,7 @@ export function RequirementCard({
               {ctaConfig.tab === 'draft' && (
                 <button
                   onClick={(e) => { e.stopPropagation(); onEdit?.(); }}
-                  className="px-3 h-6 flex items-center justify-center rounded-full bg-white border border-[#E5E5E5] text-[#666666] hover:bg-[#F3F4F6] hover:text-[#111111] transition-all shadow-sm text-xxs font-bold"
+                  className="px-3 h-6 flex items-center justify-center rounded-full bg-white border border-[#E5E5E5] text-[#666666] hover:bg-[#F3F4F6] hover:text-[#111111] transition-all shadow-sm text-2xs font-bold"
                 >
                   Edit
                 </button>
@@ -498,7 +498,7 @@ export function RequirementCard({
                       onAccept?.();
                     }
                   }}
-                  className={`px-2 h-6 flex items-center justify-center rounded-full bg-[#7ccf00] text-white hover:bg-[#6bb800] transition-all shadow-sm text-xxs font-bold whitespace-nowrap`}
+                  className={`px-2 h-6 flex items-center justify-center rounded-full bg-[#7ccf00] text-white hover:bg-[#6bb800] transition-all shadow-sm text-2xs font-bold whitespace-nowrap`}
                   title={ctaConfig.primaryAction.label}
                 >
                   {ctaConfig.primaryAction.label}
@@ -508,7 +508,7 @@ export function RequirementCard({
           ) : (
             <div
               className={`
-                    flex items-center gap-1.5 px-2 py-0.5 rounded text-xxs font-bold border transition-all
+                    flex items-center gap-1.5 px-2 py-0.5 rounded text-2xs font-bold border transition-all
                     ${statusConfig.className}
                 `}
             >

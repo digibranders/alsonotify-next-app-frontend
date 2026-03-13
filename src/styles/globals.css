@@ -2,21 +2,50 @@
 @config "../../tailwind.config.js";
 
 @theme {
-    --font-size-4xs: 0.5rem;
-    --font-size-3xs: 0.5625rem;
-    --font-size-xxs: 0.625rem;
-    --font-size-xs-tight: 0.6875rem;
-    --font-size-xs: 0.75rem;
-    --font-size-sm: 0.875rem;
-    --font-size-sm-plus: 0.9375rem;
-    --font-size-base: 1rem;
-    --font-size-base-plus: 1.0625rem;
-    --font-size-lg: 1.125rem;
-    --font-size-xl: 1.25rem;
-    --font-size-2xl: 1.5rem;
-    --font-size-3xl: 1.75rem;
-    --font-size-5xl: 3rem;
-    --font-size-6xl: 3.5rem;
+    /* --- TYPOGRAPHY SCALE (Single Source of Truth) --- */
+    /* Major Third (1.25) Scale for Headings */
+
+    --font-size-2xs: 0.625rem;          /* 10px */
+    --font-size-2xs--line-height: 0.875rem; /* 14px (1.4) */
+
+    --font-size-xs: 0.75rem;            /* 12px */
+    --font-size-xs--line-height: 1.125rem; /* 18px (1.5) */
+
+    --font-size-sm: 0.875rem;           /* 14px */
+    --font-size-sm--line-height: 1.25rem; /* 20px (1.43) */
+
+    --font-size-base: 1rem;             /* 16px */
+    --font-size-base--line-height: 1.5rem; /* 24px (1.5) */
+
+    --font-size-lg: 1.125rem;           /* 18px */
+    --font-size-lg--line-height: 1.625rem; /* 26px (1.44) */
+
+    --font-size-xl: 1.25rem;            /* 20px */
+    --font-size-xl--line-height: 1.75rem; /* 28px (1.4) */
+
+    --font-size-2xl: 1.5rem;            /* 24px */
+    --font-size-2xl--line-height: 2rem; /* 32px (1.33) */
+
+    --font-size-3xl: 1.875rem;          /* 30px */
+    --font-size-3xl--line-height: 2.25rem; /* 36px (1.2) */
+
+    --font-size-4xl: 2.25rem;           /* 36px */
+    --font-size-4xl--line-height: 2.5rem; /* 40px (1.11) */
+
+    --font-size-5xl: 3rem;              /* 48px */
+    --font-size-5xl--line-height: 1.1; 
+    --font-size-5xl--letter-spacing: -0.02em;
+
+    --font-size-6xl: 3.75rem;           /* 60px */
+    --font-size-6xl--line-height: 1.1;
+    --font-size-6xl--letter-spacing: -0.02em;
+}
+
+/* Global Premium Refinements */
+html {
+    font-size: var(--font-size);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 :root {
@@ -41,8 +70,6 @@
     --input: transparent;
     --input-background: #f3f3f5;
     --switch-background: #cbced4;
-    --font-weight-medium: 500;
-    --font-weight-normal: 400;
     --ring: oklch(0.708 0 0);
     --chart-1: oklch(0.646 0.222 41.116);
     --chart-2: oklch(0.6 0.118 184.704);
@@ -80,8 +107,6 @@
     --border: oklch(0.269 0 0);
     --input: oklch(0.269 0 0);
     --ring: oklch(0.439 0 0);
-    --font-weight-medium: 500;
-    --font-weight-normal: 400;
     --chart-1: oklch(0.488 0.243 264.376);
     --chart-2: oklch(0.696 0.17 162.48);
     --chart-3: oklch(0.769 0.188 70.08);
@@ -567,7 +592,7 @@ select:disabled,
 .ant-picker-header-view {
     font-family: "Manrope", sans-serif !important;
     font-weight: 700 !important;
-    font-size: var(--font-size-sm-plus) !important;
+    font-size: var(--font-size-sm) !important;
     color: #111111 !important;
 }
 
@@ -796,4 +821,15 @@ input[type="number"]::-webkit-inner-spin-button {
 input[type="number"] {
     -moz-appearance: textfield;
     appearance: textfield;
+}
+
+/* Task Row Typography */
+.task-row-main {
+    font-size: var(--font-size-sm) !important;
+    line-height: var(--font-size-sm--line-height) !important;
+}
+
+.task-row-sub {
+    font-size: var(--font-size-xs) !important;
+    line-height: var(--font-size-xs--line-height) !important;
 }

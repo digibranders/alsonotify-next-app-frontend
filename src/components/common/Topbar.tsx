@@ -338,7 +338,7 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
       {
         key: 'create-new',
         type: 'group',
-        label: <span className="text-xs-tight text-[#999999] uppercase tracking-wider font-medium">Create New</span>,
+        label: <span className="text-xs text-[#999999] uppercase tracking-wider font-medium">Create New</span>,
         children
       }
     ];
@@ -461,7 +461,7 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
                 {/* Notification Badge */}
                 {unreadCount > 0 && (
                   <span className="absolute top-0 right-0 w-3.5 h-3.5 bg-[#ff3b3b] rounded-full border-[1.5px] border-white flex items-center justify-center translate-x-1 -translate-y-1">
-                    <span className="text-4xs font-bold text-white leading-none">{unreadCount}</span>
+                    <span className="text-2xs font-bold text-white leading-none">{unreadCount}</span>
                   </span>
                 )}
               </button>

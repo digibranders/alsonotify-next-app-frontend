@@ -115,7 +115,7 @@ const TaskRowComponent = memo(function TaskRow({
             <div className="flex items-center gap-1.5 min-w-0">
               <Tooltip title={task.name} placement="topLeft" mouseEnterDelay={0.5}>
                 <div className="flex items-center gap-2 min-w-0">
-                  <span className="font-bold text-xs !text-[#111111] group-hover:text-[#ff3b3b] transition-colors truncate cursor-help block">
+                  <span className="font-bold task-row-main !text-[#111111] group-hover:text-[#ff3b3b] transition-colors truncate cursor-help block">
                     {task.name}
                   </span>
                   {task.is_review_task && (
@@ -136,7 +136,7 @@ const TaskRowComponent = memo(function TaskRow({
                 #{task.taskId}
               </span> */}
               <span
-                className="text-xxs text-[#999999] font-medium truncate"
+                className="task-row-sub text-[#999999] font-medium truncate"
               >
                 {task.client}
               </span>
@@ -150,7 +150,7 @@ const TaskRowComponent = memo(function TaskRow({
                 <Link
                   href="/dashboard/workspace"
                   onClick={(e) => e.stopPropagation()}
-                  className="text-xs !text-[#111111] visited:!text-[#111111] font-normal truncate block hover:text-[#ff3b3b] hover:underline cursor-help"
+                  className="task-row-main !text-[#111111] visited:!text-[#111111] font-normal truncate block hover:text-[#ff3b3b] hover:underline cursor-help"
                 >
                   {task.project}
                 </Link>
@@ -161,12 +161,12 @@ const TaskRowComponent = memo(function TaskRow({
           {/* Timeline */}
           <div className="flex flex-col gap-0.5">
             <Tooltip title={task.dueDate !== 'TBD' ? task.dueDate : undefined}>
-              <span className="text-xs font-medium text-[#111111] w-fit">
+              <span className="task-row-main font-medium text-[#111111] w-fit">
                 {task.timelineDate}
               </span>
             </Tooltip>
             <span
-              className={`text-xxs font-medium ${task.status === 'Delayed'
+              className={`task-row-sub font-medium ${task.status === 'Delayed'
                 ? 'text-[#dc2626]'
                 : task.status === 'Review'
                   ? 'text-[#fbbf24]'

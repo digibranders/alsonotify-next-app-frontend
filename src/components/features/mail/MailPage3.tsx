@@ -565,7 +565,7 @@ export function MailPage() {
                           <>
                             <span className="truncate flex-1">{f.displayName}</span>
                             {!!f.unreadItemCount && f.unreadItemCount > 0 && (
-                              <div className="bg-[#FEF3F2] text-[#ff3b3b] px-1.5 py-0.5 rounded-full text-xxs font-bold min-w-[20px] text-center">
+                              <div className="bg-[#FEF3F2] text-[#ff3b3b] px-1.5 py-0.5 rounded-full text-2xs font-bold min-w-[20px] text-center">
                                 {f.unreadItemCount}
                               </div>
                             )}
@@ -690,7 +690,7 @@ export function MailPage() {
                           {current?.subject || "(no subject)"}
                         </h2>
 
-                        <div className="mt-1 text-xs-tight space-y-0.5">
+                        <div className="mt-1 text-xs space-y-0.5">
                           <div className="flex items-center gap-1.5 truncate">
                             <span className="text-[#999999] font-medium min-w-[36px]">From:</span>
                             <span className="text-[#434343] font-semibold">{formatFrom(current)}</span>
@@ -789,7 +789,7 @@ export function MailPage() {
                     </div>
 
                     {bodyView === "html" && !loadImages ? (
-                      <div className="flex items-center gap-1.5 text-xs-tight text-[#999999]">
+                      <div className="flex items-center gap-1.5 text-xs text-[#999999]">
                         <ImageIcon size={14} />
                         Images are blocked
                       </div>
@@ -842,7 +842,7 @@ export function MailPage() {
                                 </div>
                                 <div className="min-w-0">
                                   <div className="font-semibold text-xs text-[#111111] truncate">{a.name || 'Unnamed'}</div>
-                                  <div className="text-xs-tight text-[#777]">
+                                  <div className="text-xs text-[#777]">
                                     {a.contentType || "file"} • {formatBytes(a.size || 0)}
                                   </div>
                                 </div>

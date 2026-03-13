@@ -54,7 +54,7 @@ export default function RegisterSuccess({ email }: RegisterSuccessProps) {
             Verify your email
           </h2>
 
-          <p className="text-sm-plus text-[#666666] leading-relaxed">
+          <p className="text-sm text-[#666666] leading-relaxed">
             We've sent a verification link to <span className="font-bold text-[#111111]">{email}</span>.
             <br />
             Please check your inbox to activate your account.
@@ -66,7 +66,7 @@ export default function RegisterSuccess({ email }: RegisterSuccessProps) {
             href={email.includes("@gmail.com") ? "https://mail.google.com" : "https://outlook.live.com/mail/"}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex h-12 px-8 items-center justify-center !bg-[#ff3b3b] hover:!bg-[#E63535] !text-white rounded-[16px] font-bold text-sm-plus shadow-lg shadow-[#ff3b3b]/25 transition-all hover:shadow-[#ff3b3b]/40 w-full"
+            className="inline-flex h-12 px-8 items-center justify-center !bg-[#ff3b3b] hover:!bg-[#E63535] !text-white rounded-[16px] font-bold text-sm shadow-lg shadow-[#ff3b3b]/25 transition-all hover:shadow-[#ff3b3b]/40 w-full"
           >
             {/* Open {email.includes("@gmail.com") ? "Gmail" : "Outlook"} */}
             Verify Email
@@ -74,7 +74,7 @@ export default function RegisterSuccess({ email }: RegisterSuccessProps) {
 
           <Link
             href="/login"
-            className="inline-flex h-12 px-8 items-center justify-center bg-transparent hover:bg-[#F5F5F5] text-[#666666] hover:text-[#111111] rounded-[16px] font-bold text-sm-plus transition-all w-full"
+            className="inline-flex h-12 px-8 items-center justify-center bg-transparent hover:bg-[#F5F5F5] text-[#666666] hover:text-[#111111] rounded-[16px] font-bold text-sm transition-all w-full"
           >
             Back to Login
           </Link>

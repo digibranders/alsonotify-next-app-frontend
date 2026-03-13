@@ -173,7 +173,7 @@ export function FeedbackWidget({ open, onClose }: FeedbackWidgetProps) {
                         <div className="text-xs font-bold text-[#111111] mb-0.5">
                           {opt.label}
                         </div>
-                        <div className="text-xs-tight font-normal text-[#666666] leading-tight">
+                        <div className="text-xs font-normal text-[#666666] leading-tight">
                           {opt.description}
                         </div>
                       </div>

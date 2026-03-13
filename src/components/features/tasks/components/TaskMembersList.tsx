@@ -102,14 +102,14 @@ export function TaskMembersList({ taskId, members, executionMode, currentUser, i
                 type="dashed"
                 icon={<History className="w-3 h-3" />}
                 onClick={handleReclaimBaton}
-                className="text-xxs h-6 flex items-center gap-1 border-amber-200 text-amber-700 hover:text-amber-800 hover:border-amber-300 bg-amber-50/50"
+                className="text-2xs h-6 flex items-center gap-1 border-amber-200 text-amber-700 hover:text-amber-800 hover:border-amber-300 bg-amber-50/50"
               >
                 Reclaim
               </Button>
             </Tooltip>
           )}
         </div>
-        <span className={`px-2.5 py-1 rounded-full text-xxs uppercase font-bold tracking-wide ${executionMode === 'sequential' ? 'bg-[#FFF2E8] text-[#FA541C]' : 'bg-[#E6F4FF] text-[#0091FF]'
+        <span className={`px-2.5 py-1 rounded-full text-2xs uppercase font-bold tracking-wide ${executionMode === 'sequential' ? 'bg-[#FFF2E8] text-[#FA541C]' : 'bg-[#E6F4FF] text-[#0091FF]'
           }`}>
           {executionMode} Mode
         </span>
@@ -149,7 +149,7 @@ export function TaskMembersList({ taskId, members, executionMode, currentUser, i
                 {/* Drag Handle or Index */}
                 {executionMode === 'sequential' && (
                   <div className={cn(
-                    "flex items-center justify-center w-6 h-6 rounded-full text-xxs font-bold shrink-0",
+                    "flex items-center justify-center w-6 h-6 rounded-full text-2xs font-bold shrink-0",
                     isTurn ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-400'
                   )}>
                     {isLeader ? <GripVertical className="w-3 h-3" /> : (member.queue_order || index + 1)}
@@ -168,12 +168,12 @@ export function TaskMembersList({ taskId, members, executionMode, currentUser, i
                       {member.user.name || 'Unknown'} {isMe && '(You)'}
                     </p>
                     {isTurn && executionMode === 'sequential' && (
-                      <span className="text-xxs font-bold text-amber-600 bg-amber-50 px-1.5 rounded-full border border-amber-100 animate-pulse">
+                      <span className="text-2xs font-bold text-amber-600 bg-amber-50 px-1.5 rounded-full border border-amber-100 animate-pulse">
                         Current Turn
                       </span>
                     )}
                   </div>
-                  <div className="flex items-center gap-3 text-xs-tight text-[#888888] mt-0.5">
+                  <div className="flex items-center gap-3 text-xs text-[#888888] mt-0.5">
                     <span className="flex items-center gap-1">
                       est: <span className="text-[#111111]">{member.estimated_time || 0}h</span>
                     </span>
@@ -199,7 +199,7 @@ export function TaskMembersList({ taskId, members, executionMode, currentUser, i
                 {/* Status Badge */}
                 <div className={`px-2.5 py-1.5 rounded-lg border flex items-center gap-1.5 shrink-0 ${statusColor}`}>
                   <StatusIcon className="w-3.5 h-3.5" />
-                  <span className="text-xs-tight font-bold uppercase tracking-wider">
+                  <span className="text-xs font-bold uppercase tracking-wider">
                     {member.status.replace('_', ' ')}
                   </span>
                 </div>

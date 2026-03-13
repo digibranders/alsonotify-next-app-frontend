@@ -86,15 +86,15 @@ export const BillingTab: React.FC<BillingTabProps> = ({ requirement }) => {
                 {/* Summary Row */}
                 <div className="grid grid-cols-3 gap-6 mb-8">
                     <div className="p-4 rounded-xl border border-[#EEEEEE] bg-[#F9FAFB]">
-                        <p className="text-xs-tight font-semibold text-[#697386] uppercase tracking-wider mb-1">Total Quoted / Estimated</p>
+                        <p className="text-xs font-semibold text-[#697386] uppercase tracking-wider mb-1">Total Quoted / Estimated</p>
                         <p className="text-2xl font-bold text-[#111111]">₹{estimatedCost.toLocaleString()}</p>
                     </div>
                     <div className="p-4 rounded-xl border border-[#EEEEEE] bg-[#F9FAFB]">
-                        <p className="text-xs-tight font-semibold text-[#697386] uppercase tracking-wider mb-1">Total Billed</p>
+                        <p className="text-xs font-semibold text-[#697386] uppercase tracking-wider mb-1">Total Billed</p>
                         <p className="text-2xl font-bold text-[#111111]">₹{totalBilled.toLocaleString()}</p>
                     </div>
                     <div className="p-4 rounded-xl border border-[#EEEEEE] bg-blue-50/50">
-                        <p className="text-xs-tight font-semibold text-blue-600 uppercase tracking-wider mb-1">Remaining Balance</p>
+                        <p className="text-xs font-semibold text-blue-600 uppercase tracking-wider mb-1">Remaining Balance</p>
                         <p className="text-2xl font-bold text-blue-700">₹{remainingBalance.toLocaleString()}</p>
                     </div>
                 </div>
@@ -146,11 +146,11 @@ export const BillingTab: React.FC<BillingTabProps> = ({ requirement }) => {
                             <table className="w-full text-left border-collapse">
                                 <thead>
                                     <tr className="bg-[#F9FAFB] border-b border-[#EEEEEE]">
-                                        <th className="px-4 py-3 text-xs-tight font-semibold text-[#697386] uppercase tracking-wider">Invoice #</th>
-                                        <th className="px-4 py-3 text-xs-tight font-semibold text-[#697386] uppercase tracking-wider">Date</th>
-                                        <th className="px-4 py-3 text-xs-tight font-semibold text-[#697386] uppercase tracking-wider">Amount</th>
-                                        <th className="px-4 py-3 text-xs-tight font-semibold text-[#697386] uppercase tracking-wider">Status</th>
-                                        <th className="px-4 py-3 text-xs-tight font-semibold text-[#697386] uppercase tracking-wider text-right">Actions</th>
+                                        <th className="px-4 py-3 text-xs font-semibold text-[#697386] uppercase tracking-wider">Invoice #</th>
+                                        <th className="px-4 py-3 text-xs font-semibold text-[#697386] uppercase tracking-wider">Date</th>
+                                        <th className="px-4 py-3 text-xs font-semibold text-[#697386] uppercase tracking-wider">Amount</th>
+                                        <th className="px-4 py-3 text-xs font-semibold text-[#697386] uppercase tracking-wider">Status</th>
+                                        <th className="px-4 py-3 text-xs font-semibold text-[#697386] uppercase tracking-wider text-right">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -166,7 +166,7 @@ export const BillingTab: React.FC<BillingTabProps> = ({ requirement }) => {
                                                 <p className="text-xs font-medium text-[#111111]">₹{inv.amount.toLocaleString()}</p>
                                             </td>
                                             <td className="px-4 py-3">
-                                                <span className={`inline-flex items-center px-2 py-1 rounded-full text-xxs font-bold uppercase tracking-wider ${inv.status === 'paid' ? 'bg-[#E8F5E9] text-[#0F9D58]' :
+                                                <span className={`inline-flex items-center px-2 py-1 rounded-full text-2xs font-bold uppercase tracking-wider ${inv.status === 'paid' ? 'bg-[#E8F5E9] text-[#0F9D58]' :
                                                         inv.status === 'sent' || inv.status === 'open' ? 'bg-blue-50 text-blue-600' :
                                                             inv.status === 'overdue' || inv.status === 'past_due' ? 'bg-red-50 text-[#D14343]' :
                                                                 inv.status === 'partial' ? 'bg-orange-50 text-orange-600' :

@@ -575,7 +575,7 @@ function NoteCard({ note, onArchive, onUnarchive, onDelete, onClick }: NoteCardP
 
                 return (
                   <div className="mt-2 pt-2 border-t border-[#EEEEEE] flex-shrink-0">
-                    <div className="text-xs-tight font-medium text-[#999] mb-1 uppercase">
+                    <div className="text-xs font-medium text-[#999] mb-1 uppercase">
                       Completed ({completedItems.length})
                     </div>
                     {completedItems.slice(0, 2).map((item, index) => {

@@ -189,7 +189,7 @@ export function MonthView({ currentDate, events, isLoading, selectedDate, onSele
                                             <div className={`font-semibold text-xs mb-1 flex justify-between items-center ${dayObj.isCurrentMonth ? 'text-[#111111]' : 'text-[#999999]'
                                                 } ${isToday ? 'text-[#ff3b3b]' : ''}`}>
                                                 <span aria-hidden="true">{dayObj.day}</span>
-                                                {isToday && <span className="text-xxs bg-[#ff3b3b] text-white px-1.5 rounded" aria-hidden="true">Today</span>}
+                                                {isToday && <span className="text-2xs bg-[#ff3b3b] text-white px-1.5 rounded" aria-hidden="true">Today</span>}
                                             </div>
                                             <div className="space-y-1 flex-1">
                                                 {dayEvents.slice(0, 3).map((event) => (
@@ -212,7 +212,7 @@ export function MonthView({ currentDate, events, isLoading, selectedDate, onSele
                                                 ))}
                                                 {dayEvents.length > 3 && (
                                                     <div 
-                                                        className="text-xxs font-medium text-[#666666] px-2 mt-1 cursor-pointer hover:underline"
+                                                        className="text-2xs font-medium text-[#666666] px-2 mt-1 cursor-pointer hover:underline"
                                                         onClick={(e) => handleMoreClick(e, dayObj.date)}
                                                     >
                                                         +{dayEvents.length - 3} more
@@ -243,7 +243,7 @@ export function MonthView({ currentDate, events, isLoading, selectedDate, onSele
                                 style={{ backgroundColor: event.color }}
                             >
                                 <div className="font-semibold">{event.title}</div>
-                                <div className="text-xxs opacity-90">{event.time}</div>
+                                <div className="text-2xs opacity-90">{event.time}</div>
                             </div>
                         </Popover>
                     ))}

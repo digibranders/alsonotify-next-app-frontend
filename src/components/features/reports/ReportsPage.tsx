@@ -642,7 +642,7 @@ export function ReportsPage() {
                   </div>
                   <div className="flex items-baseline gap-2">
                     <span className="text-xl font-bold text-[#FF3B3B]">{kpi.delayed}</span>
-                    <span className="text-xxs font-medium text-[#FF3B3B]">(+{kpi.totalExtraHrs}h)</span>
+                    <span className="text-2xs font-medium text-[#FF3B3B]">(+{kpi.totalExtraHrs}h)</span>
                   </div>
                 </div>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'requirement' ? '' : 'hidden'}`}>
@@ -707,7 +707,7 @@ export function ReportsPage() {
                   </div>
                   <div className="flex items-baseline gap-2">
                     <span className="text-xl font-bold text-[#FF3B3B]">{taskKPI.delayed}</span>
-                    <span className="text-xxs font-medium text-[#FF3B3B]">(+{taskKPI.totalExtraHrs}h)</span>
+                    <span className="text-2xs font-medium text-[#FF3B3B]">(+{taskKPI.totalExtraHrs}h)</span>
                   </div>
                 </div>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'task' ? '' : 'hidden'}`}>
@@ -845,11 +845,11 @@ export function ReportsPage() {
 
                     <div className="flex flex-col justify-center gap-1 min-w-0">
                       <span className="text-xs text-[#111111] font-bold leading-tight truncate" title={row.requirement}>{row.requirement}</span>
-                      <span className="text-xxs text-[#666666] font-medium truncate" title={row.partner}>
+                      <span className="text-2xs text-[#666666] font-medium truncate" title={row.partner}>
                         {row.partner}
                       </span>
                       {/* Tags Row */}
-                      <div className="flex flex-wrap gap-1.5 items-center text-xxs font-bold uppercase tracking-wider mt-0.5">
+                      <div className="flex flex-wrap gap-1.5 items-center text-2xs font-bold uppercase tracking-wider mt-0.5">
                          {row.type && <span className="bg-[#F5F5F5] text-[#888888] px-1.5 py-0.5 rounded" title="Type">{row.type}</span>}
                          {row.priority && <span className={`px-1.5 py-0.5 rounded ${row.priority === 'High' ? 'bg-[#FFF0F0] text-[#FF3B3B]' : 'bg-[#F0F8FF] text-[#2196F3]'}`} title="Priority">{row.priority}</span>}
                          {row.department && <span className="bg-[#F0FDF4] text-[#0F9D58] px-1.5 py-0.5 rounded truncate max-w-[80px]" title="Department">{row.department}</span>}
@@ -862,7 +862,7 @@ export function ReportsPage() {
 
                     <div className="flex flex-col items-start gap-0.5 min-w-0">
                       <span className="text-xs text-[#111111] font-medium truncate">{formatWithTimezone(row.startDate, 'MMM DD')}</span>
-                      <span className={`text-xxs truncate ${dayjs().isAfter(dayjs(row.endDate), 'day') && row.status !== 'Completed' ? 'text-[#FF3B3B] font-bold' : 'text-[#999999]'}`}>
+                      <span className={`text-2xs truncate ${dayjs().isAfter(dayjs(row.endDate), 'day') && row.status !== 'Completed' ? 'text-[#FF3B3B] font-bold' : 'text-[#999999]'}`}>
                         to {formatWithTimezone(row.endDate, 'MMM DD')}
                       </span>
                     </div>
@@ -916,7 +916,7 @@ export function ReportsPage() {
                     </div>
 
                     <div className="flex flex-col items-start text-xs min-w-0">
-                      <div className="text-[#999999] text-xxs" title={currencySymbol + (row.revenue || 0).toLocaleString()}>
+                      <div className="text-[#999999] text-2xs" title={currencySymbol + (row.revenue || 0).toLocaleString()}>
                         {currencySymbol}{(row.revenue || 0).toLocaleString()}
                       </div>
                       <div className={`font-bold flex items-center gap-1 ${row.profit >= 0 ? 'text-[#00A389]' : 'text-[#FF3B3B]'}`} title={currencySymbol + (row.profit || 0).toLocaleString()}>
@@ -992,7 +992,7 @@ export function ReportsPage() {
                       <div className="flex flex-col justify-center gap-0.5 min-w-0">
                         <span className="text-xs text-[#111111] font-bold leading-tight truncate" title={row.task}>{row.task}</span>
                         {row.workspaceName && (
-                          <span className="text-xxs text-[#999999] font-medium truncate" title={row.workspaceName}>{row.workspaceName}</span>
+                          <span className="text-2xs text-[#999999] font-medium truncate" title={row.workspaceName}>{row.workspaceName}</span>
                         )}
                       </div>
 
@@ -1087,14 +1087,14 @@ export function ReportsPage() {
 
                     <div className="flex flex-col justify-center min-w-0">
                       <span className="text-xs text-[#111111] font-bold min-w-0 truncate" title={row.member}>{row.member}</span>
-                      <span className="text-xxs text-[#666666] font-normal min-w-0 truncate" title={`${row.designation} | ${row.department}`}>{row.designation} <span className="text-[#E5E5E5] mx-1">|</span> {row.department}</span>
+                      <span className="text-2xs text-[#666666] font-normal min-w-0 truncate" title={`${row.designation} | ${row.department}`}>{row.designation} <span className="text-[#E5E5E5] mx-1">|</span> {row.department}</span>
                     </div>
 
                     <div className="flex flex-col min-w-0">
                       <span className="text-xs text-[#111111] font-bold truncate">
-                        {row.taskStats.assigned} <span className="text-[#666666] font-normal text-xxs">Assigned</span>
+                        {row.taskStats.assigned} <span className="text-[#666666] font-normal text-2xs">Assigned</span>
                       </span>
-                      <div className="flex gap-3 mt-1 text-xxs font-medium text-[#666666] overflow-hidden">
+                      <div className="flex gap-3 mt-1 text-2xs font-medium text-[#666666] overflow-hidden">
                         <div className="flex items-center gap-1.5 shrink-0">
                           <div className="w-1.5 h-1.5 rounded-full bg-[#0F9D58]"></div>
                           <span>{row.taskStats.completed}</span>
@@ -1112,7 +1112,7 @@ export function ReportsPage() {
 
                     {/* Load / Utilization */}
                     <div className="flex flex-col gap-1.5 justify-center min-w-0">
-                      <div className="flex justify-between text-xxs">
+                      <div className="flex justify-between text-2xs">
                         <span className="font-medium text-[#111111] truncate">{row.utilization}%</span>
                       </div>
                       <div className="w-full h-1.5 bg-[#F0F0F0] rounded-full overflow-hidden">

@@ -167,7 +167,7 @@ export function EmployeeDetailsModal({
                 <div className="flex items-center gap-2 mt-0.5">
                   <AccessBadge role={currentEmployee.access} color={currentEmployee.roleColor} />
                   <span
-                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-3xs font-semibold ${currentEmployee.status === 'active'
+                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-2xs font-semibold ${currentEmployee.status === 'active'
                       ? 'bg-[#ECFDF3] text-[#12B76A]'
                       : 'bg-[#FEF3F2] text-[#F04438]'
                       }`}
@@ -247,7 +247,7 @@ export function EmployeeDetailsModal({
             </div>
             {currentEmployee.bio && (
               <div className="mt-5 pl-3">
-                <p className="text-xs-tight font-bold text-[#999999] uppercase tracking-wider mb-2">
+                <p className="text-xs font-bold text-[#999999] uppercase tracking-wider mb-2">
                   Professional Bio
                 </p>
                 <p className="text-xs text-[#444444] leading-relaxed font-normal bg-[#F9FAFB] p-4 rounded-xl border border-[#EEEEEE]">
@@ -287,7 +287,7 @@ export function EmployeeDetailsModal({
                     <ShieldAlert className="w-5 h-5" />
                   </div>
                   <div>
-                    <p className="text-xs-tight font-bold text-[#B42318] uppercase tracking-wider">Emergency Contact</p>
+                    <p className="text-xs font-bold text-[#B42318] uppercase tracking-wider">Emergency Contact</p>
                     <p className="text-sm font-semibold text-[#912018]">{currentEmployee.emergencyContactName || 'N/A'}</p>
                   </div>
                 </div>
@@ -308,7 +308,7 @@ export function EmployeeDetailsModal({
             <div className="space-y-6 pl-3">
               {/* Skillsets */}
               <div>
-                <p className="text-xs-tight font-bold text-[#999999] uppercase tracking-wider mb-3">
+                <p className="text-xs font-bold text-[#999999] uppercase tracking-wider mb-3">
                   Professional Skillsets
                 </p>
                 <div className="flex flex-wrap gap-2">
@@ -329,7 +329,7 @@ export function EmployeeDetailsModal({
 
               {/* Documents */}
               <div>
-                <p className="text-xs-tight font-bold text-[#999999] uppercase tracking-wider mb-3">
+                <p className="text-xs font-bold text-[#999999] uppercase tracking-wider mb-3">
                   Uploaded Documents
                 </p>
                 {documents && documents.length > 0 ? (
@@ -406,7 +406,7 @@ function DetailItem({ label, value, icon }: { label: string; value: string | nul
         {icon}
       </div>
       <div>
-        <p className="text-xs-tight font-bold text-[#999999] uppercase tracking-wider mb-0.5">
+        <p className="text-xs font-bold text-[#999999] uppercase tracking-wider mb-0.5">
           {label}
         </p>
         <p className="text-sm font-medium text-[#111111]">
@@ -424,7 +424,7 @@ function StatCard({ label, value, icon }: { label: string; value: string; icon: 
         {icon}
       </div>
       <div>
-        <p className="text-xs-tight font-medium text-[#666666] mb-0.5">{label}</p>
+        <p className="text-xs font-medium text-[#666666] mb-0.5">{label}</p>
         <p className="text-base font-bold text-[#111111]">{value}</p>
       </div>
     </div>

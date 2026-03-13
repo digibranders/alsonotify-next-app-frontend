@@ -250,7 +250,7 @@ export function ChecklistEditor({ items, onChange, placeholder = "List", classNa
       {/* Checked Items Section */}
       {checkedItems.length > 0 && (
         <div className="mt-4 pt-4 border-t border-[#EEEEEE]">
-          <div className="text-xs-tight font-medium text-[#999] mb-2 uppercase">
+          <div className="text-xs font-medium text-[#999] mb-2 uppercase">
             Completed
           </div>
           <div className="space-y-1">

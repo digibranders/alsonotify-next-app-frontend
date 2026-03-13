@@ -270,7 +270,7 @@ export function DateRangeSelector({
                         >
                             <ChevronLeft className="w-4 h-4 text-[#111111]" />
                         </button>
-                        <h4 className=" font-bold text-sm-plus text-[#111111]">
+                        <h4 className=" font-bold text-sm text-[#111111]">
                             {currentMonth.format('MMMM YYYY')}
                         </h4>
                         <button
@@ -283,7 +283,7 @@ export function DateRangeSelector({
 
                     <div className="grid grid-cols-7 gap-1 mb-2">
                         {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map((day) => (
-                            <div key={day} className="text-center text-xs-tight font-bold text-[#999999] uppercase tracking-wider py-1">
+                            <div key={day} className="text-center text-xs font-bold text-[#999999] uppercase tracking-wider py-1">
                                 {day}
                             </div>
                         ))}

@@ -933,7 +933,7 @@ export function MailPage() {
 
           {/* To */}
           <div className="flex items-start gap-3 border-b border-gray-100 pb-2">
-            <span className="text-gray-400 text-xs-tight font-bold tracking-wide w-10 mt-1.5">TO</span>
+            <span className="text-gray-400 text-xs font-bold tracking-wide w-10 mt-1.5">TO</span>
             <div className="flex-1">
               <Select
                 mode="tags"
@@ -964,7 +964,7 @@ export function MailPage() {
           {showComposeCc ? (
             <div className="mt-2 space-y-2">
               <div className="flex items-start gap-3 border-b border-gray-100 pb-2">
-                <span className="text-gray-400 text-xs-tight font-bold tracking-wide w-10 mt-1.5">CC</span>
+                <span className="text-gray-400 text-xs font-bold tracking-wide w-10 mt-1.5">CC</span>
                 <Select
                   mode="tags"
                   open={false}
@@ -977,7 +977,7 @@ export function MailPage() {
               </div>
 
               <div className="flex items-start gap-3 border-b border-gray-100 pb-2">
-                <span className="text-gray-400 text-xs-tight font-bold tracking-wide w-10 mt-1.5">BCC</span>
+                <span className="text-gray-400 text-xs font-bold tracking-wide w-10 mt-1.5">BCC</span>
                 <Select
                   mode="tags"
                   open={false}
@@ -993,7 +993,7 @@ export function MailPage() {
 
           {/* subject */}
           <div className="flex items-center gap-3 border-b border-gray-100 pb-2 pt-3">
-            <span className="text-gray-400 text-xs-tight font-bold tracking-wide w-10">SUB</span>
+            <span className="text-gray-400 text-xs font-bold tracking-wide w-10">SUB</span>
             <Input
               variant="borderless"
               value={composeSubject}
@@ -1110,7 +1110,7 @@ export function MailPage() {
           {/* forward to */}
           {replyOpen === "forward" ? (
             <div className="flex items-start gap-3 border-b border-gray-100 pb-2 mb-3">
-              <span className="text-gray-400 text-xs-tight font-bold tracking-wide uppercase w-8 mt-1.5">To</span>
+              <span className="text-gray-400 text-xs font-bold tracking-wide uppercase w-8 mt-1.5">To</span>
               <div className="flex-1">
                 <Select
                   mode="tags"

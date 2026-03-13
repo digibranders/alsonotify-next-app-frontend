@@ -42,12 +42,12 @@ export function IntegrationCard({
                     </div>
                     <div className="flex flex-col items-end gap-2">
                         {connected ? (
-                            <Tag color={isExpired ? "error" : "success"} className="rounded-full px-3 border-none flex items-center gap-1 font-bold text-xxs uppercase tracking-wider py-0.5">
+                            <Tag color={isExpired ? "error" : "success"} className="rounded-full px-3 border-none flex items-center gap-1 font-bold text-2xs uppercase tracking-wider py-0.5">
                                 {isExpired ? <AlertCircle className="w-3 h-3" /> : <Check className="w-3 h-3" />}
                                 {isExpired ? "Action Required" : "Connected"}
                             </Tag>
                         ) : (
-                            <Tag className="rounded-full px-3 bg-[#F0F0F0] text-[#999999] border-none font-bold text-xxs uppercase tracking-wider py-0.5">
+                            <Tag className="rounded-full px-3 bg-[#F0F0F0] text-[#999999] border-none font-bold text-2xs uppercase tracking-wider py-0.5">
                                 Available
                             </Tag>
                         )}
@@ -110,14 +110,14 @@ export function IntegrationCard({
             {connected && metadata && (
                 <div className="px-6 py-4 bg-[#FAFAFA] border-t border-[#F0F0F0] flex items-center justify-between">
                     <div className="flex flex-col">
-                        <span className="text-3xs text-[#999999] uppercase tracking-tighter font-bold">Updated</span>
-                        <span className="text-xs-tight text-[#333333] font-medium">
+                        <span className="text-2xs text-[#999999] uppercase tracking-tighter font-bold">Updated</span>
+                        <span className="text-xs text-[#333333] font-medium">
                             {metadata.updated_at ? new Date(metadata.updated_at).toLocaleDateString() : 'Never'}
                         </span>
                     </div>
                     <div className="flex flex-col items-end">
-                        <span className="text-3xs text-[#999999] uppercase tracking-tighter font-bold">Admin</span>
-                        <span className="text-xs-tight text-[#333333] font-medium truncate max-w-[80px]">{metadata.connected_by || 'Admin'}</span>
+                        <span className="text-2xs text-[#999999] uppercase tracking-tighter font-bold">Admin</span>
+                        <span className="text-xs text-[#333333] font-medium truncate max-w-[80px]">{metadata.connected_by || 'Admin'}</span>
                     </div>
                 </div>
             )}

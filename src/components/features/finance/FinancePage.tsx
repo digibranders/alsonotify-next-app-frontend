@@ -410,11 +410,11 @@ export function FinancePage() {
                   </div>
                   <div className="w-1/2 pl-6 flex items-center gap-8">
                     <div className="flex flex-col">
-                      <span className="text-xxs uppercase tracking-wider font-bold text-[#999999]">Received</span>
+                      <span className="text-2xs uppercase tracking-wider font-bold text-[#999999]">Received</span>
                       <span className="text-sm font-bold text-[#0F9D58]">{currencySymbol}{kpiInvoiced.received.toLocaleString()}</span>
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-xxs uppercase tracking-wider font-bold text-[#999999]">Due</span>
+                      <span className="text-2xs uppercase tracking-wider font-bold text-[#999999]">Due</span>
                       <span className="text-sm font-bold text-[#FF3B3B]">{currencySymbol}{kpiInvoiced.due.toLocaleString()}</span>
                     </div>
                   </div>
@@ -684,10 +684,10 @@ function ClientGroup({
         <table className="w-full">
           <thead className="bg-white border-b border-[#EEEEEE]">
             <tr>
-              <th className="px-6 py-2 text-left text-xxs text-[#999999] uppercase font-bold">Requirement</th>
-              <th className="px-6 py-2 text-left text-xxs text-[#999999] uppercase font-bold">Type</th>
-              <th className="px-6 py-2 text-left text-xxs text-[#999999] uppercase font-bold">Due Date</th>
-              <th className="px-6 py-2 text-left text-xxs text-[#999999] uppercase font-bold">Amount</th>
+              <th className="px-6 py-2 text-left text-2xs text-[#999999] uppercase font-bold">Requirement</th>
+              <th className="px-6 py-2 text-left text-2xs text-[#999999] uppercase font-bold">Type</th>
+              <th className="px-6 py-2 text-left text-2xs text-[#999999] uppercase font-bold">Due Date</th>
+              <th className="px-6 py-2 text-left text-2xs text-[#999999] uppercase font-bold">Amount</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[#EEEEEE]">
@@ -700,7 +700,7 @@ function ClientGroup({
                   </div>
                 </td>
                 <td className="px-6 py-4">
-                  <span className="px-2 py-1 rounded-full bg-[#F7F7F7] text-[#666666] text-xxs">
+                  <span className="px-2 py-1 rounded-full bg-[#F7F7F7] text-[#666666] text-2xs">
                     {req.type}
                   </span>
                 </td>

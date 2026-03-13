@@ -89,7 +89,7 @@ export const RequirementRow = React.memo(function RequirementRow({ req, workspac
               {req.title}
             </h3>
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-xxs text-[#999999] font-normal">
+              <span className="text-2xs text-[#999999] font-normal">
                 {req.client}
               </span>
               {req.department && (
@@ -127,7 +127,7 @@ export const RequirementRow = React.memo(function RequirementRow({ req, workspac
                 return (
                   <Tooltip key={i} title={person}>
                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#ff3b3b] to-[#ff6b6b] flex items-center justify-center border-2 border-white shadow-sm relative z-[5] hover:z-10 transition-all">
-                      <span className="text-xxs text-white font-bold">
+                      <span className="text-2xs text-white font-bold">
                         {initials}
                       </span>
                     </div>
@@ -136,7 +136,7 @@ export const RequirementRow = React.memo(function RequirementRow({ req, workspac
               })}
               {req.assignedTo.length > 4 && (
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#ff3b3b] to-[#ff6b6b] flex items-center justify-center border-2 border-white shadow-sm relative z-[1]">
-                  <span className="text-xxs text-white font-bold">
+                  <span className="text-2xs text-white font-bold">
                     +{req.assignedTo.length - 4}
                   </span>
                 </div>
@@ -153,10 +153,10 @@ export const RequirementRow = React.memo(function RequirementRow({ req, workspac
         <div className="flex items-center gap-2">
           <div className="flex-1 min-w-[80px]">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-xxs text-[#666666] font-medium">
+              <span className="text-2xs text-[#666666] font-medium">
                 {req.tasksCompleted}/{req.tasksTotal} Tasks
               </span>
-              <span className="text-xxs text-[#111111] font-bold">
+              <span className="text-2xs text-[#111111] font-bold">
                 {req.progress}%
               </span>
             </div>

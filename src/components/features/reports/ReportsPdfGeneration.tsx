@@ -199,7 +199,7 @@ export const ReportsPdfTemplate = ({ activeTab, data, kpis, dateRange, companyNa
                         paddingTop: '20px'
                     }}>
                         <img src={BrandLogo.src} alt="Alsonotify" className="h-6 object-contain" />
-                        <span style={{ fontSize: "var(--font-size-xxs)", color: '#999999' }}>Page {pageIndex + 1} of {totalPages}</span>
+                        <span style={{ fontSize: "var(--font-size-2xs)", color: '#999999' }}>Page {pageIndex + 1} of {totalPages}</span>
                     </div>
                 </div>
             ))}
@@ -288,21 +288,21 @@ export const IndividualEmployeePdfTemplate = ({ member, worklogs, dateRange, com
 
                             <div style={{ display: 'flex', gap: '10px', flex: 3 }}>
                                 <div style={{ flex: 1, padding: '12px', borderRadius: '12px', border: '1px solid #EEEEEE', backgroundColor: '#FAFAFA', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                    <span style={{ fontSize: "var(--font-size-xxs)", fontWeight: 500, color: '#666666', textTransform: 'uppercase' }}>Total Hours</span>
+                                    <span style={{ fontSize: "var(--font-size-2xs)", fontWeight: 500, color: '#666666', textTransform: 'uppercase' }}>Total Hours</span>
                                     <span style={{ fontSize: "var(--font-size-xl)", fontFamily: "'Manrope', sans-serif", fontWeight: 700, color: '#111111' }}>{member.totalWorkingHrs}h</span>
                                 </div>
                                 <div style={{ flex: 1, padding: '12px', borderRadius: '12px', border: '1px solid #EEEEEE', backgroundColor: '#FAFAFA', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                    <span style={{ fontSize: "var(--font-size-xxs)", fontWeight: 500, color: '#666666', textTransform: 'uppercase' }}>Engaged</span>
+                                    <span style={{ fontSize: "var(--font-size-2xs)", fontWeight: 500, color: '#666666', textTransform: 'uppercase' }}>Engaged</span>
                                     <span style={{ fontSize: "var(--font-size-xl)", fontFamily: "'Manrope', sans-serif", fontWeight: 700, color: '#111111' }}>{member.actualEngagedHrs}h</span>
                                 </div>
                                 <div style={{ flex: 1, padding: '12px', borderRadius: '12px', border: '1px solid #EEEEEE', backgroundColor: '#FAFAFA', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                    <span style={{ fontSize: "var(--font-size-xxs)", fontWeight: 500, color: '#666666', textTransform: 'uppercase' }}>Efficiency</span>
+                                    <span style={{ fontSize: "var(--font-size-2xs)", fontWeight: 500, color: '#666666', textTransform: 'uppercase' }}>Efficiency</span>
                                     <span style={{ fontSize: "var(--font-size-xl)", fontFamily: "'Manrope', sans-serif", fontWeight: 700, color: taskEfficiency >= 75 ? '#0F9D58' : taskEfficiency >= 50 ? '#2196F3' : '#FF3B3B' }}>
                                         {taskEfficiency}%
                                     </span>
                                 </div>
                                 <div style={{ flex: 1, padding: '12px', borderRadius: '12px', border: '1px solid #EEEEEE', backgroundColor: '#FAFAFA', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                    <span style={{ fontSize: "var(--font-size-xxs)", fontWeight: 500, color: '#666666', textTransform: 'uppercase' }}>Occupancy</span>
+                                    <span style={{ fontSize: "var(--font-size-2xs)", fontWeight: 500, color: '#666666', textTransform: 'uppercase' }}>Occupancy</span>
                                     <span style={{ fontSize: "var(--font-size-xl)", fontFamily: "'Manrope', sans-serif", fontWeight: 700, color: occupancy >= 70 ? '#0F9D58' : '#FF3B3B' }}>
                                         {occupancy}%
                                     </span>
@@ -358,7 +358,7 @@ export const IndividualEmployeePdfTemplate = ({ member, worklogs, dateRange, com
                         paddingTop: '20px'
                     }}>
                         <img src={BrandLogo.src} alt="Alsonotify" className="h-6 object-contain" />
-                        <span style={{ fontSize: "var(--font-size-xxs)", color: '#999999' }}>Page {pageIndex + 1} of {totalPages}</span>
+                        <span style={{ fontSize: "var(--font-size-2xs)", color: '#999999' }}>Page {pageIndex + 1} of {totalPages}</span>
                     </div>
                 </div>
             ))}
@@ -480,22 +480,22 @@ function renderReqRow(row: RequirementReport, idx: number, timezone?: string, cu
                 <div style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, fontSize: "var(--font-size-xs)", color: '#111111' }}>
                   {row.requirement}
                 </div>
-                <div style={{ fontSize: "var(--font-size-xs-tight)", color: '#666666', fontWeight: 500, marginTop: '2px' }}>
+                <div style={{ fontSize: "var(--font-size-xs)", color: '#666666', fontWeight: 500, marginTop: '2px' }}>
                   {row.workspaceName}
                 </div>
                 <div style={{ display: 'flex', gap: '4px', marginTop: '4px' }}>
-                     {row.type && <span style={{ fontSize: "var(--font-size-3xs)", backgroundColor: '#F5F5F5', color: '#888888', padding: '2px 4px', borderRadius: '4px', textTransform: 'uppercase' }}>{row.type}</span>}
-                     {row.priority && <span style={{ fontSize: "var(--font-size-3xs)", backgroundColor: row.priority === 'High' ? '#FFF0F0' : '#F0F8FF', color: row.priority === 'High' ? '#FF3B3B' : '#2196F3', padding: '2px 4px', borderRadius: '4px', textTransform: 'uppercase' }}>{row.priority}</span>}
+                     {row.type && <span style={{ fontSize: "var(--font-size-2xs)", backgroundColor: '#F5F5F5', color: '#888888', padding: '2px 4px', borderRadius: '4px', textTransform: 'uppercase' }}>{row.type}</span>}
+                     {row.priority && <span style={{ fontSize: "var(--font-size-2xs)", backgroundColor: row.priority === 'High' ? '#FFF0F0' : '#F0F8FF', color: row.priority === 'High' ? '#FF3B3B' : '#2196F3', padding: '2px 4px', borderRadius: '4px', textTransform: 'uppercase' }}>{row.priority}</span>}
                 </div>
             </Td>
             <Td>
-                 <div style={{ fontWeight: 700, fontSize: "var(--font-size-xs-tight)", color: '#111111' }}>{row.partner}</div>
-                 <div style={{ fontSize: "var(--font-size-xxs)", color: '#666666' }}>{row.manager || '-'}</div>
+                 <div style={{ fontWeight: 700, fontSize: "var(--font-size-xs)", color: '#111111' }}>{row.partner}</div>
+                 <div style={{ fontSize: "var(--font-size-2xs)", color: '#666666' }}>{row.manager || '-'}</div>
             </Td>
             <Td>
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
                     <span style={{ fontWeight: 600, color: '#111' }}>{row.startDate ? dayjs(row.startDate).tz(timezone || 'Asia/Kolkata').format('MMM DD') : '-'}</span>
-                    <span style={{ fontSize: "var(--font-size-xxs)", color: (row.status !== 'Completed' && row.endDate && dayjs().isAfter(dayjs(row.endDate), 'day')) ? '#FF3B3B' : '#666', fontWeight: (row.status !== 'Completed' && row.endDate && dayjs().isAfter(dayjs(row.endDate), 'day')) ? 700 : 400 }}>
+                    <span style={{ fontSize: "var(--font-size-2xs)", color: (row.status !== 'Completed' && row.endDate && dayjs().isAfter(dayjs(row.endDate), 'day')) ? '#FF3B3B' : '#666', fontWeight: (row.status !== 'Completed' && row.endDate && dayjs().isAfter(dayjs(row.endDate), 'day')) ? 700 : 400 }}>
                        to {row.endDate ? dayjs(row.endDate).tz(timezone || 'Asia/Kolkata').format('MMM DD') : '-'}
                     </span>
                 </div>
@@ -522,7 +522,7 @@ function renderReqRow(row: RequirementReport, idx: number, timezone?: string, cu
                                 <span style={{ fontWeight: 700, fontSize: "var(--font-size-xs)", color: isBleeding ? '#FF3B3B' : isWarning ? '#FF8A00' : '#111111' }}>
                                   {row.engagedHrs}h
                                 </span>
-                                <span style={{ fontSize: "var(--font-size-xxs)", fontWeight: 600, padding: isBleeding ? '2px 6px' : '0', backgroundColor: isBleeding ? '#FFF0F0' : 'transparent', borderRadius: '4px', color: isBleeding ? '#FF3B3B' : isWarning ? '#FF8A00' : '#999999' }}>
+                                <span style={{ fontSize: "var(--font-size-2xs)", fontWeight: 600, padding: isBleeding ? '2px 6px' : '0', backgroundColor: isBleeding ? '#FFF0F0' : 'transparent', borderRadius: '4px', color: isBleeding ? '#FF3B3B' : isWarning ? '#FF8A00' : '#999999' }}>
                                   {isBleeding ? `+${Math.abs(remaining).toFixed(1)}h over` : `${remaining.toFixed(1)}h left`}
                                 </span>
                             </div>
@@ -536,7 +536,7 @@ function renderReqRow(row: RequirementReport, idx: number, timezone?: string, cu
                     </div>
             </Td>
             <Td>
-                <div style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 600, fontSize: "var(--font-size-xs-tight)", color: '#111111' }}>
+                <div style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 600, fontSize: "var(--font-size-xs)", color: '#111111' }}>
                     {row.revision > 0 ? (
                         <span style={{ padding: '2px 8px', borderRadius: '4px', backgroundColor: row.revision > 1 ? '#FFF4EC' : '#F5F5F5', color: row.revision > 1 ? '#FF8A00' : '#666666' }}>
                             v{row.revision + 1}
@@ -547,10 +547,10 @@ function renderReqRow(row: RequirementReport, idx: number, timezone?: string, cu
                 </div>
             </Td>
             <Td style={{ fontFamily: "'Manrope', sans-serif", textAlign: 'right', verticalAlign: 'middle' }}>
-                <div style={{ fontSize: "var(--font-size-3xs)", color: '#999999', fontWeight: 500 }}>
+                <div style={{ fontSize: "var(--font-size-2xs)", color: '#999999', fontWeight: 500 }}>
                     {currSym}{(row.revenue || 0).toLocaleString()}
                 </div>
-                <div style={{ fontWeight: 700, fontSize: "var(--font-size-xs-tight)", color: row.profit >= 0 ? '#00A389' : '#FF3B3B', marginTop: '1px' }}>
+                <div style={{ fontWeight: 700, fontSize: "var(--font-size-xs)", color: row.profit >= 0 ? '#00A389' : '#FF3B3B', marginTop: '1px' }}>
                     {row.profit >= 0 ? '+' : ''}{currSym}{(row.profit || 0).toLocaleString()}
                 </div>
             </Td>
@@ -559,7 +559,7 @@ function renderReqRow(row: RequirementReport, idx: number, timezone?: string, cu
                     display: 'inline-block',
                     padding: '4px 10px',
                     borderRadius: '6px',
-                    fontSize: "var(--font-size-xxs)",
+                    fontSize: "var(--font-size-2xs)",
                     fontWeight: 700,
                     backgroundColor: getStatusColor(row.status).bg,
                     color: getStatusColor(row.status).text,
@@ -592,7 +592,7 @@ function renderTaskRow(row: TaskReport, idx: number) {
                     {row.task}
                 </div>
                 {row.workspaceName && (
-                    <div style={{ fontSize: "var(--font-size-xs-tight)", color: '#999999', fontWeight: 500, marginTop: '2px' }}>
+                    <div style={{ fontSize: "var(--font-size-xs)", color: '#999999', fontWeight: 500, marginTop: '2px' }}>
                         {row.workspaceName}
                     </div>
                 )}
@@ -620,11 +620,11 @@ function renderTaskRow(row: TaskReport, idx: number) {
                             {row.engagedHrs}h
                         </span>
                         {hasEstimate ? (
-                            <span style={{ fontSize: "var(--font-size-xxs)", fontWeight: 600, padding: isBleeding ? '2px 6px' : '0', backgroundColor: isBleeding ? '#FFF0F0' : 'transparent', borderRadius: '4px', color: isBleeding ? '#FF3B3B' : isWarning ? '#FF8A00' : '#999999' }}>
+                            <span style={{ fontSize: "var(--font-size-2xs)", fontWeight: 600, padding: isBleeding ? '2px 6px' : '0', backgroundColor: isBleeding ? '#FFF0F0' : 'transparent', borderRadius: '4px', color: isBleeding ? '#FF3B3B' : isWarning ? '#FF8A00' : '#999999' }}>
                                 {isBleeding ? `+${Math.abs(remaining).toFixed(1)}h over` : `${remaining.toFixed(1)}h left`}
                             </span>
                         ) : (
-                            <span style={{ fontSize: "var(--font-size-xxs)", color: '#CCCCCC' }}>No estimate</span>
+                            <span style={{ fontSize: "var(--font-size-2xs)", color: '#CCCCCC' }}>No estimate</span>
                         )}
                     </div>
                     <div style={{ height: '4px', width: '100%', borderRadius: '4px', overflow: 'hidden', backgroundColor: trackColor }}>
@@ -637,7 +637,7 @@ function renderTaskRow(row: TaskReport, idx: number) {
                     display: 'inline-block',
                     padding: '4px 10px',
                     borderRadius: '6px',
-                    fontSize: "var(--font-size-xxs)",
+                    fontSize: "var(--font-size-2xs)",
                     fontWeight: 700,
                     backgroundColor: getStatusColor(row.status).bg,
                     color: getStatusColor(row.status).text,
@@ -656,12 +656,12 @@ function renderEmpRow(row: EmployeeReport, idx: number, currSym: string = '$') {
             <Td>{idx + 1}</Td>
             <Td>
                 <div style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, fontSize: "var(--font-size-xs)", color: '#111111' }}>{row.member}</div>
-                <div style={{ fontSize: "var(--font-size-xs-tight)", color: '#666666' }}>{row.designation} <span style={{ color: '#E5E5E5' }}>|</span> {row.department}</div>
+                <div style={{ fontSize: "var(--font-size-xs)", color: '#666666' }}>{row.designation} <span style={{ color: '#E5E5E5' }}>|</span> {row.department}</div>
             </Td>
             <Td>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                     <span style={{ fontWeight: 700, fontSize: "var(--font-size-xs)" }}>{row.taskStats.assigned} <span style={{ fontWeight: 400, color: '#666' }}>Assigned</span></span>
-                    <div style={{ display: 'flex', gap: '8px', fontSize: "var(--font-size-xxs)", color: '#666' }}>
+                    <div style={{ display: 'flex', gap: '8px', fontSize: "var(--font-size-2xs)", color: '#666' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><div style={{ width: 6, height: 6, borderRadius: '50%', background: '#0F9D58' }}></div> {row.taskStats.completed}</div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><div style={{ width: 6, height: 6, borderRadius: '50%', background: '#1A73E8' }}></div> {row.taskStats.inProgress}</div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><div style={{ width: 6, height: 6, borderRadius: '50%', background: '#FF3B3B' }}></div> {row.taskStats.delayed}</div>
@@ -670,7 +670,7 @@ function renderEmpRow(row: EmployeeReport, idx: number, currSym: string = '$') {
             </Td>
             <Td>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: "var(--font-size-xs-tight)" }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: "var(--font-size-xs)" }}>
                         <span style={{ fontWeight: 700, color: '#111111' }}>{row.utilization}%</span>
                     </div>
                     <ProgressBar filled={row.utilization} total={100} color={row.utilization > 100 ? '#FF3B3B' : '#111111'} />
@@ -694,7 +694,7 @@ const KPICard = ({ label, value, color = '#111111', subValue = null }: { label: 
         padding: '15px'
     }}>
         <span style={{
-            fontSize: "var(--font-size-xs-tight)",
+            fontSize: "var(--font-size-xs)",
             fontWeight: 500,
             color: '#666666',
             textTransform: 'uppercase',
@@ -723,7 +723,7 @@ const Th = ({ children, style, ...props }: React.ThHTMLAttributes<HTMLTableCellE
         fontWeight: 600,
         textAlign: 'left',
         padding: '12px 15px',
-        fontSize: "var(--font-size-xs-tight)",
+        fontSize: "var(--font-size-xs)",
         textTransform: 'uppercase',
         letterSpacing: '0.5px',
         ...style

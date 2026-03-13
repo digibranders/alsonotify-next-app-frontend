@@ -121,7 +121,7 @@ export function InvitationPopup() {
             className="invitation-popup"
         >
             <div className="py-4 space-y-4">
-                <p className="text-[#666666] text-sm-plus">
+                <p className="text-[#666666] text-sm">
                     You have {invites.length} pending invitation{invites.length > 1 ? 's' : ''} to join as a partner.
                 </p>
 

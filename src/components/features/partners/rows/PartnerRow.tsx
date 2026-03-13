@@ -59,7 +59,7 @@ export function PartnerRow({
                 {/* Business / Name */}
                 <div className="flex items-center gap-3">
                     <div className={`
-             w-9 h-9 rounded-full flex items-center justify-center text-xxs font-bold shrink-0
+             w-9 h-9 rounded-full flex items-center justify-center text-2xs font-bold shrink-0
              ${isOrg ? 'bg-[#FEF2F2] text-[#DC2626]' : 'bg-[#EFF6FF] text-[#2563EB]'}
            `}>
                         {getInitials(partner.company)}
@@ -69,7 +69,7 @@ export function PartnerRow({
                             {partner.company}
                         </span>
                         {isOrg && (
-                            <span className="text-xxs text-[#999999] font-normal">
+                            <span className="text-2xs text-[#999999] font-normal">
                                 Organization
                             </span>
                         )}
@@ -86,7 +86,7 @@ export function PartnerRow({
                 {/* Type */}
                 <div>
                     <span className={`
-             inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xxs font-bold capitalize
+             inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-2xs font-bold capitalize
              ${!isOrg ? 'bg-[#EFF6FF] text-[#2563EB]' : 'bg-[#FEF2F2] text-[#DC2626]'}
            `}>
                         {isOrg ? <Building className="w-3 h-3" /> : <User className="w-3 h-3" />}

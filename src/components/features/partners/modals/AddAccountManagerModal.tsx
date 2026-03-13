@@ -166,12 +166,12 @@ export function AddAccountManagerModal({
                                                 {employee.name}
                                             </h4>
                                             {employee.roleName && (
-                                                <span className="px-2 py-0.5 rounded-full text-3xs font-bold uppercase bg-[#F5F5F5] text-[#666666]">
+                                                <span className="px-2 py-0.5 rounded-full text-2xs font-bold uppercase bg-[#F5F5F5] text-[#666666]">
                                                     {employee.roleName}
                                                 </span>
                                             )}
                                         </div>
-                                        <div className="flex items-center gap-2 text-xs-tight text-[#666666]">
+                                        <div className="flex items-center gap-2 text-xs text-[#666666]">
                                             {employee.designation && (
                                                 <span className="truncate">{employee.designation}</span>
                                             )}

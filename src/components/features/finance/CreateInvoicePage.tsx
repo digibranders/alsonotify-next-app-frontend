@@ -729,10 +729,10 @@ export function CreateInvoicePage() {
 
                             {/* Table Headers for Editor */}
                             <div className="flex gap-3 mb-2 px-1">
-                                <span className="flex-1 text-xs-tight font-bold text-[#999999] uppercase">Description</span>
-                                <span className="w-20 text-xs-tight font-bold text-[#999999] uppercase text-right">Qty</span>
-                                <span className="w-32 text-xs-tight font-bold text-[#999999] uppercase text-right">Price</span>
-                                <span className="w-28 text-xs-tight font-bold text-[#999999] uppercase text-right">Total</span>
+                                <span className="flex-1 text-xs font-bold text-[#999999] uppercase">Description</span>
+                                <span className="w-20 text-xs font-bold text-[#999999] uppercase text-right">Qty</span>
+                                <span className="w-32 text-xs font-bold text-[#999999] uppercase text-right">Price</span>
+                                <span className="w-28 text-xs font-bold text-[#999999] uppercase text-right">Total</span>
                                 <span className="w-8"></span> {/* Spacer for delete icon */}
                             </div>
 
@@ -885,7 +885,7 @@ export function CreateInvoicePage() {
                         <section className="space-y-6 pt-6">
                             <div>
                                 <label className="block text-sm font-bold text-[#111111] mb-2 flex items-center gap-2">
-                                    Memo <span className="text-xs-tight font-normal text-[#999999] bg-[#F7F7F7] px-2 py-0.5 rounded-full">Visible to customer</span>
+                                    Memo <span className="text-xs font-normal text-[#999999] bg-[#F7F7F7] px-2 py-0.5 rounded-full">Visible to customer</span>
                                 </label>
                                 <textarea
                                     value={memo}
@@ -897,7 +897,7 @@ export function CreateInvoicePage() {
                             <div>
                                 <div className="flex justify-between items-center mb-2">
                                     <label className="block text-sm font-bold text-[#111111] flex items-center gap-2">
-                                        Payment Details <span className="text-xs-tight font-normal text-[#999999] bg-[#F7F7F7] px-2 py-0.5 rounded-full">Footer</span>
+                                        Payment Details <span className="text-xs font-normal text-[#999999] bg-[#F7F7F7] px-2 py-0.5 rounded-full">Footer</span>
                                     </label>
 
                                     <div className="flex items-center gap-2">

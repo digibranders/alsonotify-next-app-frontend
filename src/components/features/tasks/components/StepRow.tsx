@@ -38,7 +38,7 @@ export function StepRow({
         {/* Assignee */}
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#ff3b3b] to-[#ff6b6b] flex items-center justify-center">
-            <span className="text-xs-tight text-white font-bold">
+            <span className="text-xs text-white font-bold">
               {step.assignee ? step.assignee.charAt(0) : 'U'}
             </span>
           </div>

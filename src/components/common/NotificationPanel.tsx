@@ -327,7 +327,7 @@ function NotificationItemComponent({
                 {displayTitle}
               </Linkify>
             </div>
-            <span className="text-xs-tight text-[#999999] whitespace-nowrap font-normal shrink-0 mt-0.5">
+            <span className="text-xs text-[#999999] whitespace-nowrap font-normal shrink-0 mt-0.5">
               {notification.time}
             </span>
           </div>
@@ -408,7 +408,7 @@ export function NotificationPanel({
         <div className="flex items-center gap-3">
           <h3 className="font-bold text-lg text-[#111111]">Notifications</h3>
           {unreadCount > 0 && (
-            <span className="px-2.5 py-0.5 rounded-full bg-[#ff3b3b] text-white text-xs-tight font-bold">
+            <span className="px-2.5 py-0.5 rounded-full bg-[#ff3b3b] text-white text-xs font-bold">
               {unreadCount} New
             </span>
           )}

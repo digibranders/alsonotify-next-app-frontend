@@ -107,7 +107,7 @@ export function PageLayout({
                       >
                         {tab.label}
                         {tab.count !== undefined && tab.count > 0 && (
-                          <span className={`w-5 h-5 rounded-full flex items-center justify-center text-xs-tight font-semibold leading-none ${activeTab === tab.id
+                          <span className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-semibold leading-none ${activeTab === tab.id
                             ? 'bg-[#ff3b3b] text-white'
                             : 'bg-[#F7F7F7] text-[#666666]'
                             }`}>

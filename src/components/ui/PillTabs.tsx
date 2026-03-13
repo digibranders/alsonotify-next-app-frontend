@@ -26,7 +26,7 @@ export function PillTabs({ tabs, activeTab, onTabChange }: PillTabsProps) {
         >
           {tab.label}
           {tab.count !== undefined && tab.count > 0 && (
-            <span className={`px-2 py-0.5 rounded-full text-xs-tight ${activeTab === tab.id
+            <span className={`px-2 py-0.5 rounded-full text-xs ${activeTab === tab.id
                 ? 'bg-white/20 text-white'
                 : 'bg-[#F7F7F7] text-[#666666]'
               }`}>

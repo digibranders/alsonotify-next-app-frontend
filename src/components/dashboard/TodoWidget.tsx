@@ -228,13 +228,13 @@ function NoteCard({ note, onToggleItem }: {
                   onChange={() => onToggleItem(note.id, index)}
                   className="custom-checkbox-wrapper"
                 />
-                <span className={`font-normal text-xs-tight flex-1 leading-tight ${item.checked ? 'line-through text-[#999999]' : 'text-[#666666]'}`}>
+                <span className={`font-normal text-xs flex-1 leading-tight ${item.checked ? 'line-through text-[#999999]' : 'text-[#666666]'}`}>
                   {item.text}
                 </span>
               </div>
             ))}
             {note.items.length > 3 && (
-              <span className="font-normal text-xxs text-[#999999]">
+              <span className="font-normal text-2xs text-[#999999]">
                 +{note.items.length - 3} more
               </span>
             )}

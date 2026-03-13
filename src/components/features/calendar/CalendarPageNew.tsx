@@ -188,14 +188,14 @@ export function CalendarPage() {
                       {events.slice(0, 2).map((event) => (
                         <div
                           key={event.id}
-                          className="px-2 py-1 rounded-[4px] text-xxs font-['Manrope:Medium',sans-serif] text-white truncate"
+                          className="px-2 py-1 rounded-[4px] text-2xs font-['Manrope:Medium',sans-serif] text-white truncate"
                           style={{ backgroundColor: event.color }}
                         >
                           {event.title}
                         </div>
                       ))}
                       {events.length > 2 && (
-                        <div className="text-xxs font-['Manrope:Medium',sans-serif] text-[#666666] px-2">
+                        <div className="text-2xs font-['Manrope:Medium',sans-serif] text-[#666666] px-2">
                           +{events.length - 2} more
                         </div>
                       )}
@@ -229,23 +229,23 @@ export function CalendarPage() {
                         <div className="font-['Manrope:SemiBold',sans-serif] text-xs text-[#111111] mb-1 break-words">
                           {event.title}
                         </div>
-                        <div className="flex items-center gap-1 text-xs-tight font-['Manrope:Regular',sans-serif] text-[#666666] mb-2">
+                        <div className="flex items-center gap-1 text-xs font-['Manrope:Regular',sans-serif] text-[#666666] mb-2">
                           <Clock className="w-3 h-3" />
                           {event.time}
                         </div>
                         {event.location && (
-                          <div className="flex items-center gap-1 text-xs-tight font-['Manrope:Regular',sans-serif] text-[#666666]">
+                          <div className="flex items-center gap-1 text-xs font-['Manrope:Regular',sans-serif] text-[#666666]">
                             <MapPin className="w-3 h-3" />
                             {event.location}
                           </div>
                         )}
                         {event.type === 'holiday' && (
-                          <div className="flex items-center gap-1 text-xs-tight font-['Manrope:Regular',sans-serif] text-[#666666]">
+                          <div className="flex items-center gap-1 text-xs font-['Manrope:Regular',sans-serif] text-[#666666]">
                              Public Holiday
                           </div>
                         )}
                         {event.type === 'holiday' && (
-                          <div className="flex items-center gap-1 text-xs-tight font-['Manrope:Regular',sans-serif] text-[#666666]">
+                          <div className="flex items-center gap-1 text-xs font-['Manrope:Regular',sans-serif] text-[#666666]">
                              Public Holiday
                           </div>
                         )}
@@ -278,7 +278,7 @@ export function CalendarPage() {
                       <div className="font-['Manrope:SemiBold',sans-serif] text-xs text-[#111111] mb-1 break-words">
                         {event.title}
                       </div>
-                      <div className="flex items-center gap-1 text-xs-tight font-['Manrope:Regular',sans-serif] text-[#666666]">
+                      <div className="flex items-center gap-1 text-xs font-['Manrope:Regular',sans-serif] text-[#666666]">
                         <CalendarIcon className="w-3 h-3" />
                         {new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} • {event.time}
                       </div>

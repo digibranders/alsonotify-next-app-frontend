@@ -172,7 +172,7 @@ export function IntegrationsTab() {
               onConnect={() => { }}
               onDisconnect={() => { }}
             />
-            <div className="absolute top-4 right-4 bg-white/80 backdrop-blur-sm px-2 py-1 rounded text-xxs font-bold uppercase tracking-widest text-[#111111] z-10 border border-[#eee]">Soon</div>
+            <div className="absolute top-4 right-4 bg-white/80 backdrop-blur-sm px-2 py-1 rounded text-2xs font-bold uppercase tracking-widest text-[#111111] z-10 border border-[#eee]">Soon</div>
           </div>
 
           <div className="opacity-60 grayscale pointer-events-none relative">
@@ -185,7 +185,7 @@ export function IntegrationsTab() {
               onConnect={() => { }}
               onDisconnect={() => { }}
             />
-            <div className="absolute top-4 right-4 bg-white/80 backdrop-blur-sm px-2 py-1 rounded text-xxs font-bold uppercase tracking-widest text-[#111111] z-10 border border-[#eee]">Soon</div>
+            <div className="absolute top-4 right-4 bg-white/80 backdrop-blur-sm px-2 py-1 rounded text-2xs font-bold uppercase tracking-widest text-[#111111] z-10 border border-[#eee]">Soon</div>
           </div> */}
         </div>
       </section>
