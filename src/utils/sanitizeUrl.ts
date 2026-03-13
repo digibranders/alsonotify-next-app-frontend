@@ -15,7 +15,7 @@ export function sanitizeUrl(url?: string | null): string | undefined {
   const cleanedUrl = trimmed.replace(/[\u0000-\u001F\u007F-\u009F]/g, '');
 
   // Allowed protocols
-  const safeProtocols = ['http:', 'https:', 'mailto:', 'tel:'];
+  const safeProtocols = ['http:', 'https:', 'mailto:', 'tel:', 'blob:'];
 
   try {
     // If it's a relative URL, URL() constructor will throw.
