@@ -1,4 +1,4 @@
-import axiosApi, { setAuthToken } from "../config/axios";
+import axiosApi from "../config/axios";
 import { ApiResponse } from "../constants/constants";
 
 import { LoginResponseDTO, GenericSuccessDTO, RegisterCompleteResponseDTO, VerifyTokenResponseDTO } from "../types/dto/auth.dto";
@@ -26,10 +26,6 @@ export const doSignup = async (
       accountType,
       turnstileToken,
     });
-    // If registration immediately logs in, set token
-    if (data.success && data.result?.token) {
-        setAuthToken(data.result.token);
-    }
     return data;
 };
 
@@ -55,7 +51,6 @@ export const doCompleteSignup = async (
       lastName,
       phone
     });
-    setAuthToken(data.result.token);
     return data;
 };
 
@@ -84,5 +79,9 @@ export const resendVerificationEmail = async (email: string): Promise<ApiRespons
       email,
     });
     return data;
+};
+
+export const doLogout = async (): Promise<void> => {
+    await axiosApi.post("/auth/logout");
 };
 

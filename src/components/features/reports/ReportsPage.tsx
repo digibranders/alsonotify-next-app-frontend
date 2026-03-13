@@ -839,13 +839,13 @@ export function ReportsPage() {
                 {filteredRequirements.map((row, idx) => (
                   <div
                     key={row.id}
-                    className="group min-w-[900px] bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[40px_1.8fr_1.2fr_120px_140px_100px_140px_80px] gap-2 px-4 py-3 items-start hover:border-[#ff3b3b]/20 hover:shadow-lg transition-all duration-300"
+                    className="group min-w-[900px] bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[40px_1.8fr_1.2fr_120px_140px_100px_140px_80px] gap-2 px-4 py-2 items-start hover:border-[#ff3b3b]/20 hover:shadow-lg transition-all duration-300"
                   >
-                    <div className="text-xs text-[#999999] font-medium self-center">{idx + 1}</div>
+                    <div className="task-row-sub text-[#666666] font-medium self-center">{idx + 1}</div>
 
                     <div className="flex flex-col justify-center gap-1 min-w-0">
-                      <span className="text-xs text-[#111111] font-bold leading-tight truncate" title={row.requirement}>{row.requirement}</span>
-                      <span className="text-xs text-[#666666] font-medium truncate" title={row.partner}>
+                      <span className="task-row-main text-[#111111] font-bold leading-tight truncate" title={row.requirement}>{row.requirement}</span>
+                      <span className="task-row-sub text-[#666666] font-medium truncate" title={row.partner}>
                         {row.partner}
                       </span>
                       {/* Tags Row */}
@@ -857,12 +857,12 @@ export function ReportsPage() {
                     </div>
 
                     <div className="flex flex-col justify-center gap-0.5 min-w-0">
-                      <span className="text-xs text-[#111111] font-medium truncate" title={row.manager || 'Unassigned'}>{row.manager || 'Unassigned'}</span>
+                      <span className="task-row-main text-[#111111] font-medium truncate" title={row.manager || 'Unassigned'}>{row.manager || 'Unassigned'}</span>
                     </div>
 
                     <div className="flex flex-col items-start gap-0.5 min-w-0">
-                      <span className="text-xs text-[#111111] font-medium truncate">{formatWithTimezone(row.startDate, 'MMM DD')}</span>
-                      <span className={`text-xs truncate ${dayjs().isAfter(dayjs(row.endDate), 'day') && row.status !== 'Completed' ? 'text-[#FF3B3B] font-bold' : 'text-[#999999]'}`}>
+                      <span className="task-row-main text-[#111111] font-medium truncate">{formatWithTimezone(row.startDate, 'MMM DD')}</span>
+                      <span className={`task-row-sub truncate ${dayjs().isAfter(dayjs(row.endDate), 'day') && row.status !== 'Completed' ? 'text-[#FF3B3B] font-bold' : 'text-[#666666]'}`}>
                         to {formatWithTimezone(row.endDate, 'MMM DD')}
                       </span>
                     </div>
@@ -885,10 +885,10 @@ export function ReportsPage() {
                         return (
                           <>
                             <div className="flex items-center justify-between w-full">
-                                <span className="font-medium text-xs whitespace-nowrap text-[#111111]">
+                                <span className="task-row-main font-medium whitespace-nowrap text-[#111111]">
                                   {row.engagedHrs?.toFixed(1)}h{(row.allottedHrs || 0) > 0 ? `/${row.allottedHrs.toFixed(1)}h` : ''}
                                 </span>
-                                <span className={`text-xs font-medium whitespace-nowrap ${isBleeding ? 'text-[#FF3B3B]' : isWarning ? 'text-[#EAB308]' : 'text-[#666666]'}`}>
+                                <span className={`task-row-sub font-medium whitespace-nowrap ${isBleeding ? 'text-[#FF3B3B]' : isWarning ? 'text-[#EAB308]' : 'text-[#666666]'}`}>
                                   {isBleeding ? `+${Math.abs(remaining).toFixed(1)}h over` : `${remaining.toFixed(1)}h left`}
                                 </span>
                             </div>
@@ -904,7 +904,7 @@ export function ReportsPage() {
                       })()}
                     </div>
 
-                    <div className="text-xs font-semibold flex items-center justify-start gap-1 min-w-0 self-center">
+                    <div className="task-row-sub font-semibold flex items-center justify-start gap-1 min-w-0 self-center">
                       {row.revision > 0 ? (
                         <span className={`px-2 py-0.5 rounded-md ${row.revision > 1 ? 'bg-[#FFF4EC] text-[#FF8A00]' : 'bg-[#F5F5F5] text-[#666666]'}`}>
                           v{row.revision + 1}
@@ -914,11 +914,11 @@ export function ReportsPage() {
                       )}
                     </div>
 
-                    <div className="flex flex-col items-start text-xs min-w-0">
-                      <div className="text-[#999999] text-xs" title={currencySymbol + (row.revenue || 0).toLocaleString()}>
+                    <div className="flex flex-col items-start min-w-0">
+                      <div className="task-row-sub text-[#666666]" title={currencySymbol + (row.revenue || 0).toLocaleString()}>
                         {currencySymbol}{(row.revenue || 0).toLocaleString()}
                       </div>
-                      <div className={`font-bold flex items-center gap-1 ${row.profit >= 0 ? 'text-[#00A389]' : 'text-[#FF3B3B]'}`} title={currencySymbol + (row.profit || 0).toLocaleString()}>
+                      <div className={`task-row-main font-bold flex items-center gap-1 ${row.profit >= 0 ? 'text-[#00A389]' : 'text-[#FF3B3B]'}`} title={currencySymbol + (row.profit || 0).toLocaleString()}>
                         {row.profit >= 0 ? '+' : ''}{currencySymbol}{(row.profit || 0).toLocaleString()}
                       </div>
                     </div>
@@ -982,24 +982,24 @@ export function ReportsPage() {
                   return (
                     <div
                       key={row.id}
-                      className="group min-w-[900px] bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[40px_2.2fr_1.2fr_0.9fr_0.9fr_75px_150px_85px] gap-2 px-4 py-3 items-start hover:border-[#ff3b3b]/20 hover:shadow-lg transition-all duration-300"
+                      className="group min-w-[900px] bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[40px_2.2fr_1.2fr_0.9fr_0.9fr_75px_150px_85px] gap-2 px-4 py-2 items-start hover:border-[#ff3b3b]/20 hover:shadow-lg transition-all duration-300"
                     >
                       {/* No */}
-                      <div className="text-xs text-[#999999] font-medium self-center">{idx + 1}</div>
+                      <div className="task-row-sub text-[#666666] font-medium self-center">{idx + 1}</div>
 
                       {/* Task + Workspace */}
                       <div className="flex flex-col justify-center gap-0.5 min-w-0">
-                        <span className="text-sm text-[#111111] font-bold leading-tight truncate" title={row.task}>{row.task}</span>
+                        <span className="task-row-main text-[#111111] font-bold leading-tight truncate" title={row.task}>{row.task}</span>
                         {row.workspaceName && (
-                          <span className="text-xs text-[#999999] font-medium truncate" title={row.workspaceName}>{row.workspaceName}</span>
+                          <span className="task-row-sub text-[#666666] font-medium truncate" title={row.workspaceName}>{row.workspaceName}</span>
                         )}
                       </div>
 
                       {/* Requirement */}
-                      <div className="text-sm text-[#111111] font-medium min-w-0 truncate" title={row.requirement}>{row.requirement}</div>
+                      <div className="task-row-main text-[#111111] font-medium min-w-0 truncate" title={row.requirement}>{row.requirement}</div>
 
                       {/* Leader */}
-                      <div className="text-sm text-[#111111] font-medium min-w-0 truncate" title={row.leader}>{row.leader}</div>
+                      <div className="task-row-main text-[#111111] font-medium min-w-0 truncate" title={row.leader}>{row.leader}</div>
 
                       {/* Assigned */}
                       <div className="flex items-center justify-center self-center">
@@ -1013,26 +1013,26 @@ export function ReportsPage() {
                       {/* Due Date */}
                       <div className="min-w-0">
                         {row.dueDate ? (
-                          <span className={`text-sm ${isOverdue ? 'font-bold text-[#FF3B3B]' : 'font-medium text-[#111111]'} truncate`}>
+                          <span className={`task-row-main ${isOverdue ? 'font-bold text-[#FF3B3B]' : 'font-medium text-[#111111]'} truncate`}>
                             {formatWithTimezone(row.dueDate, 'MMM DD')}
                           </span>
                         ) : (
-                          <span className="text-sm text-[#CCCCCC]">-</span>
+                          <span className="task-row-main text-[#CCCCCC]">-</span>
                         )}
                       </div>
 
                       {/* Hours Variance */}
                       <div className="flex flex-col gap-1.5 justify-center items-start min-w-0">
                         <div className="flex items-center justify-between w-full">
-                          <span className="font-medium text-xs whitespace-nowrap text-[#111111]">
+                          <span className="task-row-main font-medium whitespace-nowrap text-[#111111]">
                             {row.engagedHrs?.toFixed(1)}h{hasEstimate ? `/${row.allottedHrs?.toFixed(1)}h` : ''}
                           </span>
                           {hasEstimate ? (
-                            <span className={`text-xs font-medium whitespace-nowrap ${isBleeding ? 'text-[#FF3B3B]' : isWarning ? 'text-[#EAB308]' : 'text-[#666666]'}`}>
+                            <span className={`task-row-sub font-medium whitespace-nowrap ${isBleeding ? 'text-[#FF3B3B]' : isWarning ? 'text-[#EAB308]' : 'text-[#666666]'}`}>
                               {isBleeding ? `+${Math.abs(remaining).toFixed(1)}h over` : `${remaining.toFixed(1)}h left`}
                             </span>
                           ) : (
-                            <span className="text-xs text-[#666666] font-medium whitespace-nowrap">No estimate</span>
+                            <span className="task-row-sub text-[#666666] font-medium whitespace-nowrap">No estimate</span>
                           )}
                         </div>
                         <div className="h-[3px] w-full rounded-full overflow-hidden bg-[#F0F0F0]">
@@ -1084,21 +1084,21 @@ export function ReportsPage() {
                 {filteredEmployees.map((row, idx) => (
                   <div
                     key={row.id}
-                    className="group min-w-[1000px] bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[50px_2.5fr_2fr_1fr_1.2fr_1.2fr_1.2fr] gap-4 px-4 py-3 items-start hover:border-[#ff3b3b]/20 hover:shadow-lg transition-all duration-300 cursor-pointer"
+                    className="group min-w-[1000px] bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[50px_2.5fr_2fr_1fr_1.2fr_1.2fr_1.2fr] gap-4 px-4 py-2 items-start hover:border-[#ff3b3b]/20 hover:shadow-lg transition-all duration-300 cursor-pointer"
                     onClick={() => setSelectedMemberId(String(row.id))}
                   >
-                    <div className="text-xs text-[#999999] font-medium self-center">{idx + 1}</div>
+                    <div className="task-row-sub text-[#666666] font-medium self-center">{idx + 1}</div>
 
                     <div className="flex flex-col justify-center min-w-0">
-                      <span className="text-sm text-[#111111] font-bold min-w-0 truncate" title={row.member}>{row.member}</span>
-                      <span className="text-xs text-[#666666] font-medium min-w-0 truncate" title={`${row.designation} | ${row.department}`}>{row.designation} <span className="text-[#E5E5E5] mx-1">|</span> {row.department}</span>
+                      <span className="task-row-main text-[#111111] font-bold min-w-0 truncate" title={row.member}>{row.member}</span>
+                      <span className="task-row-sub text-[#666666] font-medium min-w-0 truncate" title={`${row.designation} | ${row.department}`}>{row.designation} <span className="text-[#E5E5E5] mx-1">|</span> {row.department}</span>
                     </div>
 
                     <div className="flex flex-col min-w-0">
-                      <span className="text-sm text-[#111111] font-bold truncate">
-                        {row.taskStats.assigned} <span className="text-[#666666] font-medium text-xs">Assigned</span>
+                      <span className="task-row-main text-[#111111] font-bold truncate">
+                        {row.taskStats.assigned} <span className="task-row-sub text-[#666666] font-medium">Assigned</span>
                       </span>
-                      <div className="flex gap-3 mt-1 text-xs font-medium text-[#666666] overflow-hidden">
+                      <div className="flex gap-3 mt-1 task-row-sub font-medium text-[#666666] overflow-hidden">
                         <div className="flex items-center gap-1.5 shrink-0">
                           <div className="w-1.5 h-1.5 rounded-full bg-[#0F9D58]"></div>
                           <span>{row.taskStats.completed}</span>
@@ -1117,7 +1117,7 @@ export function ReportsPage() {
                     {/* Load / Utilization */}
                     <div className="flex flex-col gap-1.5 justify-center min-w-0">
                       <div className="flex justify-between">
-                        <span className="text-xs font-medium text-[#111111] truncate">{row.utilization}%</span>
+                        <span className="task-row-main font-medium text-[#111111] truncate">{row.utilization}%</span>
                       </div>
                       <div className="w-full h-[3.5px] bg-[#F0F0F0] rounded-full overflow-hidden">
                         <div
@@ -1127,9 +1127,9 @@ export function ReportsPage() {
                       </div>
                     </div>
 
-                    <div className="text-sm text-[#111111] font-medium text-left min-w-0 truncate self-center" title={currencySymbol + (row.expenses || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}>{currencySymbol}{(row.expenses || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
-                    <div className="text-sm text-[#111111] font-medium text-left min-w-0 truncate self-center" title={currencySymbol + (row.revenue || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}>{currencySymbol}{(row.revenue || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
-                    <div className={`text-sm font-bold text-left min-w-0 truncate self-center ${row.profit >= 0 ? 'text-[#0F9D58]' : 'text-[#FF3B3B]'}`} title={(row.profit >= 0 ? '+' : '') + currencySymbol + (row.profit || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}>
+                    <div className="task-row-main text-[#111111] font-medium text-left min-w-0 truncate self-center" title={currencySymbol + (row.expenses || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}>{currencySymbol}{(row.expenses || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                    <div className="task-row-main text-[#111111] font-medium text-left min-w-0 truncate self-center" title={currencySymbol + (row.revenue || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}>{currencySymbol}{(row.revenue || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                    <div className={`task-row-main font-bold text-left min-w-0 truncate self-center ${row.profit >= 0 ? 'text-[#0F9D58]' : 'text-[#FF3B3B]'}`} title={(row.profit >= 0 ? '+' : '') + currencySymbol + (row.profit || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}>
                       {row.profit >= 0 ? '+' : ''}{currencySymbol}{(row.profit || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}
                     </div>
                   </div>

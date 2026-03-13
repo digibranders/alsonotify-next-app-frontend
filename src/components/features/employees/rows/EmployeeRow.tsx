@@ -67,7 +67,7 @@ export function EmployeeRow({
     <div
       onClick={() => onViewDetails?.()}
       className={`
-        group bg-white border rounded-[16px] px-4 py-3 transition-all duration-300 cursor-pointer relative z-10
+        group bg-white border rounded-[16px] px-4 py-2 transition-all duration-300 cursor-pointer relative z-10
         ${selected
           ? 'border-[#ff3b3b] shadow-[0_0_0_1px_#ff3b3b] bg-[#FFF5F5]'
           : 'border-[#EEEEEE] hover:border-[#ff3b3b]/20 hover:shadow-lg'
@@ -90,16 +90,16 @@ export function EmployeeRow({
         {/* Employee Info - Name, Role & Dept */}
         <div>
           <div className="flex items-center gap-2">
-            <span className="font-semibold text-xs text-[#111111] group-hover:text-[#ff3b3b] transition-colors">
+            <span className="task-row-main font-bold text-[#111111] group-hover:text-[#ff3b3b] transition-colors">
               {employee.name}
             </span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="text-xs font-medium text-[#666666]">
+            <span className="task-row-sub font-medium text-[#666666]">
               {employee.role}
             </span>
             <span className="text-[#DDDDDD] text-2xs">|</span>
-            <span className="text-xs font-medium text-[#666666]">
+            <span className="task-row-sub font-medium text-[#666666]">
               {employee.department}
             </span>
           </div>
@@ -107,7 +107,7 @@ export function EmployeeRow({
 
         {/* Email */}
         <div>
-          <span className="text-xs text-[#111111] font-medium">
+          <span className="task-row-main font-medium text-[#111111]">
             {employee.email}
           </span>
         </div>
@@ -120,21 +120,21 @@ export function EmployeeRow({
 
         {/* Employment Type */}
         <div>
-          <span className="text-xs font-medium text-[#111111]">
+          <span className="task-row-main font-medium text-[#111111]">
             {employee.employment_type || 'Unknown'}
           </span>
         </div>
 
         {/* Hourly Rate */}
         <div>
-          <span className="text-xs font-medium text-[#111111]">
+          <span className="task-row-main font-medium text-[#111111]">
             {employee.hourly_rates ? `$${employee.hourly_rates}/Hr` : 'N/Hr'}
           </span>
         </div>
 
         {/* Joining Date */}
         <div>
-          <span className="text-xs text-[#111111] font-medium">
+          <span className="task-row-main font-medium text-[#111111]">
             {employee.formattedDateOfJoining || employee.date_of_joining || 'N/A'}
           </span>
         </div>

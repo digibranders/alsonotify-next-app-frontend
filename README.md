@@ -88,7 +88,7 @@ graph TD
 2.  **Install dependencies:**
 
     ```bash
-    npm install
+    pnpm install
     # or
     bun install
     ```
@@ -102,7 +102,7 @@ graph TD
 
 4.  **Run Development Server:**
     ```bash
-    npm run dev
+    pnpm run dev
     # or
     bun dev
     ```

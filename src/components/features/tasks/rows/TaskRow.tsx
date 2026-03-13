@@ -136,7 +136,7 @@ const TaskRowComponent = memo(function TaskRow({
                 #{task.taskId}
               </span> */}
               <span
-                className="task-row-sub text-[#999999] font-medium truncate"
+                className="task-row-sub text-[#666666] font-medium truncate"
               >
                 {task.client}
               </span>
@@ -170,7 +170,7 @@ const TaskRowComponent = memo(function TaskRow({
                 ? 'text-[#dc2626]'
                 : task.status === 'Review'
                   ? 'text-[#fbbf24]'
-                  : 'text-[#999999]'
+                  : 'text-[#666666]'
                 }`}
             >
               {task.timelineLabel}

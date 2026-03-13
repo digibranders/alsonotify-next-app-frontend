@@ -4,7 +4,6 @@ import { useLogin, useLogout, useRegister, useForgotPassword, useUser, useAuth }
 import * as AuthService from '@/services/auth';
 import * as UserService from '@/services/user';
 import * as CookieService from '@/services/cookies';
-import * as AxiosConfig from '@/config/axios';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 import { LoginResponseDTO } from '@/types/dto/auth.dto';
@@ -24,8 +23,11 @@ vi.mock('@/services/auth');
 vi.mock('@/services/user');
 vi.mock('@/services/cookies');
 vi.mock('@/config/axios', () => ({
-  default: { defaults: { headers: { common: {} } } },
-  setAuthToken: vi.fn(),
+  default: {
+    defaults: { headers: { common: {} } },
+    post: vi.fn(),
+    create: vi.fn(),
+  },
 }));
 
 const createQueryClient = () =>
@@ -68,7 +70,7 @@ describe('useAuth Hooks', () => {
   });
 
   describe('useLogin', () => {
-    it('should call doLogin and set token on success', async () => {
+    it('should call doLogin and set auth flag on success', async () => {
       const mockResponse = {
         success: true,
         message: 'Login successful',
@@ -78,7 +80,7 @@ describe('useAuth Hooks', () => {
         },
       };
       vi.spyOn(AuthService, 'doLogin').mockResolvedValue(mockResponse);
-      vi.spyOn(CookieService, 'setToken').mockImplementation(() => { });
+      vi.spyOn(CookieService, 'setAuthFlag').mockImplementation(() => { });
 
       const { result } = renderHook(() => useLogin(), {
         wrapper: createWrapper(queryClient),
@@ -95,8 +97,7 @@ describe('useAuth Hooks', () => {
         password: 'password123',
         turnstileToken: null,
       });
-      expect(CookieService.setToken).toHaveBeenCalledWith('test-token-123');
-      expect(AxiosConfig.setAuthToken).toHaveBeenCalledWith('test-token-123');
+      expect(CookieService.setAuthFlag).toHaveBeenCalled();
       expect(mockPush).toHaveBeenCalledWith('/dashboard');
     });
 
@@ -107,7 +108,7 @@ describe('useAuth Hooks', () => {
         result: { token: 'test-token', user: { id: 1, name: 'Test', email: 'test@example.com' } },
       };
       vi.spyOn(AuthService, 'doLogin').mockResolvedValue(mockResponse);
-      vi.spyOn(CookieService, 'setToken').mockImplementation(() => { });
+      vi.spyOn(CookieService, 'setAuthFlag').mockImplementation(() => { });
 
       const { result } = renderHook(() => useLogin(), {
         wrapper: createWrapper(queryClient),
@@ -147,21 +148,38 @@ describe('useAuth Hooks', () => {
   });
 
   describe('useLogout', () => {
-    it('should clear token and redirect to login', async () => {
-      vi.spyOn(CookieService, 'deleteToken').mockImplementation(() => true);
+    it('should call backend logout, clear auth flag, and redirect to login', async () => {
+      vi.spyOn(AuthService, 'doLogout').mockResolvedValue();
+      vi.spyOn(CookieService, 'clearAuthFlag').mockImplementation(() => { });
 
       const { result } = renderHook(() => useLogout(), {
         wrapper: createWrapper(queryClient),
       });
 
       await act(async () => {
-        result.current();
+        await result.current();
       });
 
-      expect(CookieService.deleteToken).toHaveBeenCalled();
-      expect(AxiosConfig.setAuthToken).toHaveBeenCalledWith(null);
+      expect(AuthService.doLogout).toHaveBeenCalled();
+      expect(CookieService.clearAuthFlag).toHaveBeenCalled();
       expect(localStorage.removeItem).toHaveBeenCalledWith('profileCompletionBannerDismissed');
       expect(localStorage.removeItem).toHaveBeenCalledWith('user');
+      expect(mockPush).toHaveBeenCalledWith('/login');
+    });
+
+    it('should still clear auth and redirect even if backend logout fails', async () => {
+      vi.spyOn(AuthService, 'doLogout').mockRejectedValue(new Error('Network error'));
+      vi.spyOn(CookieService, 'clearAuthFlag').mockImplementation(() => { });
+
+      const { result } = renderHook(() => useLogout(), {
+        wrapper: createWrapper(queryClient),
+      });
+
+      await act(async () => {
+        await result.current();
+      });
+
+      expect(CookieService.clearAuthFlag).toHaveBeenCalled();
       expect(mockPush).toHaveBeenCalledWith('/login');
     });
   });
@@ -219,9 +237,9 @@ describe('useAuth Hooks', () => {
   });
 
   describe('useUser', () => {
-    it('should fetch user details when token exists', async () => {
+    it('should fetch user details when authenticated', async () => {
       const mockUser = { id: 1, name: 'Test User', email: 'test@example.com' };
-      vi.spyOn(CookieService, 'getToken').mockReturnValue('valid-token');
+      vi.spyOn(CookieService, 'isAuthenticated').mockReturnValue(true);
       vi.spyOn(UserService, 'getUserDetails').mockResolvedValue({
         success: true,
         message: 'Success',
@@ -236,8 +254,8 @@ describe('useAuth Hooks', () => {
       expect(result.current.data?.result.user).toEqual(mockUser);
     });
 
-    it('should not fetch when no token', () => {
-      vi.spyOn(CookieService, 'getToken').mockReturnValue(null);
+    it('should not fetch when not authenticated', () => {
+      vi.spyOn(CookieService, 'isAuthenticated').mockReturnValue(false);
 
       const { result } = renderHook(() => useUser(), {
         wrapper: createWrapper(queryClient),
@@ -248,8 +266,8 @@ describe('useAuth Hooks', () => {
   });
 
   describe('useAuth', () => {
-    it('should return token and user from context', async () => {
-      vi.spyOn(CookieService, 'getToken').mockReturnValue('test-token');
+    it('should return isAuthenticated and user from context', async () => {
+      vi.spyOn(CookieService, 'isAuthenticated').mockReturnValue(true);
       vi.spyOn(UserService, 'getUserDetails').mockResolvedValue({
         success: true,
         message: 'Success',
@@ -260,7 +278,7 @@ describe('useAuth Hooks', () => {
         wrapper: createWrapper(queryClient),
       });
 
-      expect(result.current.token).toBe('test-token');
+      expect(result.current.isAuthenticated).toBe(true);
     });
   });
 });

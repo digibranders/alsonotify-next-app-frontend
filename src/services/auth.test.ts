@@ -4,17 +4,12 @@ import * as authService from './auth';
 import axiosApi from '../config/axios';
 
 // Mock axios
-vi.mock('../config/axios', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('../config/axios')>();
-  return {
-    ...actual,
-    default: {
-      post: vi.fn(),
-      get: vi.fn(),
-    },
-    setAuthToken: vi.fn(),
-  };
-});
+vi.mock('../config/axios', () => ({
+  default: {
+    post: vi.fn(),
+    get: vi.fn(),
+  },
+}));
 
 describe('Auth Service', () => {
   beforeEach(() => {

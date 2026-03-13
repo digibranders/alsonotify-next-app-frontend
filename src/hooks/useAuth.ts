@@ -1,8 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { doLogin, doSignup, forgetPassword, doCompleteSignup, verifyRegisterToken } from "../services/auth";
-import { setToken, deleteToken, getToken } from "../services/cookies";
-import { setAuthToken } from "../config/axios";
+import { doLogin, doSignup, doCompleteSignup, verifyRegisterToken, doLogout } from "../services/auth";
+import { setAuthFlag, clearAuthFlag, isAuthenticated } from "../services/cookies";
 import { getUserDetails } from "../services/user";
 import { UpgradeOrgDto } from "@/types/dto/user.dto";
 import { queryKeys } from "../lib/queryKeys";
@@ -16,8 +15,7 @@ export const useLogin = () => {
     mutationFn: (credentials: { email: string; password: string; turnstileToken: string | null; redirect?: string }) => doLogin(credentials),
     onSuccess: (data, variables) => {
       if (data.success && data.result.token) {
-        setToken(data.result.token);
-        setAuthToken(data.result.token);
+        setAuthFlag();
         if (data.result.user) {
           // Invalidate to fetch full details (including access rights) instead of setting partial data
           queryClient.invalidateQueries({ queryKey: queryKeys.users.me() });
@@ -32,12 +30,12 @@ export const useLogin = () => {
 
 export const useRegister = () => {
   return useMutation({
-    mutationFn: (params: { 
-      firstName: string; 
-      lastName: string; 
-      email: string; 
-      password: string; 
-      token: string | null; 
+    mutationFn: (params: {
+      firstName: string;
+      lastName: string;
+      email: string;
+      password: string;
+      token: string | null;
       accountType: string;
       turnstileToken: string | null;
     }) =>
@@ -47,7 +45,7 @@ export const useRegister = () => {
 
 export const useForgotPassword = () => {
   return useMutation({
-    mutationFn: (email: string) => forgetPassword(email),
+    mutationFn: (email: string) => import("../services/auth").then(mod => mod.forgetPassword(email)),
   });
 };
 
@@ -61,9 +59,13 @@ export const useLogout = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  return () => {
-    deleteToken();
-    setAuthToken(null);
+  return async () => {
+    try {
+      await doLogout();
+    } catch {
+      // Best-effort — cookie may already be expired
+    }
+    clearAuthFlag();
     queryClient.clear();
     // Clear profile completion banner dismissal so it shows again on next login
     if (typeof window !== 'undefined') {
@@ -75,12 +77,12 @@ export const useLogout = () => {
 };
 
 export const useUser = () => {
-  const token = getToken();
+  const authenticated = isAuthenticated();
 
   return useQuery({
     queryKey: queryKeys.users.me(),
     queryFn: getUserDetails,
-    enabled: !!token,
+    enabled: authenticated,
     retry: false,
   });
 };
@@ -122,8 +124,7 @@ export const useCompleteSignup = () => {
       ),
     onSuccess: (data) => {
       if (data.success && data.result.token) {
-        setToken(data.result.token);
-        setAuthToken(data.result.token);
+        setAuthFlag();
         if (data.result.user) {
           // Invalidate to fetch full details
           queryClient.invalidateQueries({ queryKey: queryKeys.users.me() });
@@ -141,8 +142,7 @@ export const useUpgradeToOrg = () => {
     mutationFn: (params: UpgradeOrgDto) => import("../services/user").then(mod => mod.upgradeToOrganization(params)),
     onSuccess: (data) => {
       if (data.success && data.result.token) {
-        setToken(data.result.token);
-        setAuthToken(data.result.token);
+        setAuthFlag();
         // Invalidate to fetch full details including new role and company
         queryClient.invalidateQueries({ queryKey: queryKeys.users.me() });
       }
@@ -151,7 +151,7 @@ export const useUpgradeToOrg = () => {
 };
 
 export const useAuth = () => {
-  const token = getToken();
+  const authenticated = isAuthenticated();
   const { data: userDetails } = useUserDetails();
-  return { token, user: userDetails?.result };
+  return { isAuthenticated: authenticated, user: userDetails?.result };
 };
