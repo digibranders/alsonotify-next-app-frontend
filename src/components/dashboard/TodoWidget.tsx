@@ -120,16 +120,16 @@ export function TodoWidget({ onNavigate }: { onNavigate?: (page: string) => void
             <label className="text-sm font-medium text-[#666666] mb-2 flex items-center justify-between">
               <span>Content</span>
               <div className="flex gap-1">
-                <button className="p-1 hover:bg-[#F7F7F7] rounded transition-colors" title="Bold">
+                <button className="p-1 hover:bg-[#F7F7F7] rounded transition-colors" title="Bold" aria-label="Bold">
                   <Bold className="size-4 text-[#666666]" />
                 </button>
-                <button className="p-1 hover:bg-[#F7F7F7] rounded transition-colors" title="Italic">
+                <button className="p-1 hover:bg-[#F7F7F7] rounded transition-colors" title="Italic" aria-label="Italic">
                   <Italic className="size-4 text-[#666666]" />
                 </button>
-                <button className="p-1 hover:bg-[#F7F7F7] rounded transition-colors" title="List">
+                <button className="p-1 hover:bg-[#F7F7F7] rounded transition-colors" title="List" aria-label="List">
                   <List className="size-4 text-[#666666]" />
                 </button>
-                <button className="p-1 hover:bg-[#F7F7F7] rounded transition-colors" title="Checklist">
+                <button className="p-1 hover:bg-[#F7F7F7] rounded transition-colors" title="Checklist" aria-label="Checklist">
                   <CheckSquare className="size-4 text-[#666666]" />
                 </button>
               </div>
@@ -142,6 +142,7 @@ export function TodoWidget({ onNavigate }: { onNavigate?: (page: string) => void
               {['#ff3b3b', '#3b8eff', '#9b59b6', '#FFA500', '#2ecc71', '#e74c3c'].map((color) => (
                 <button
                   key={color}
+                  aria-label={`Select note color ${color}`}
                   className="w-10 h-10 rounded-lg border-2 border-transparent hover:border-[#ff3b3b] transition-colors"
                   style={{ backgroundColor: color }}
                 />
