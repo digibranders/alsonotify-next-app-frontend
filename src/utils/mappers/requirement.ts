@@ -1,5 +1,6 @@
 import { RequirementDto } from '../../types/dto/requirement.dto';
 import { Requirement, RequirementStatus } from '../../types/domain';
+import { REQUIREMENT_STATUSES } from '@/lib/workflow';
 
 export function mapRequirementToDomain(dto: RequirementDto): Requirement {
   return {
@@ -19,7 +20,9 @@ export function mapRequirementToDomain(dto: RequirementDto): Requirement {
     startDate: dto.start_date || undefined,
     is_high_priority: dto.is_high_priority ?? false,
 
-    status: (dto.status as RequirementStatus) || 'draft',
+    status: dto.status && (REQUIREMENT_STATUSES as readonly string[]).includes(dto.status)
+      ? (dto.status as RequirementStatus)
+      : 'Draft',
     rawStatus: dto.status,
     progress: dto.progress ?? (dto.total_tasks || dto.total_task ? Math.round(((dto.completed_tasks || dto.tasks_completed || 0) / (dto.total_tasks || dto.total_task || 1)) * 100) : 0),
     tasksCompleted: dto.completed_tasks || dto.tasks_completed || 0,

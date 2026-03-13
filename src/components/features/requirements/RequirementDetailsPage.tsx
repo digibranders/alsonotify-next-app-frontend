@@ -8,7 +8,7 @@ import {
 import { Checkbox, Button, App, Input, Modal } from 'antd';
 import { Skeleton } from '../../ui/Skeleton';
 import { useWorkspace, useRequirements, useUpdateRequirement, useWorkspaces } from '@/hooks/useWorkspace';
-import { useTasks, useRequestRevision, useCreateTask, useUpdateTask } from '@/hooks/useTask';
+import { useTasks, useRequestRevision, useCreateTask, useUpdateTask, useUpdateTaskStatus } from '@/hooks/useTask';
 import { TaskForm } from '../../modals/TaskForm';
 import { CreateTaskRequestDto, UpdateTaskRequestDto } from '@/types/dto/task.dto';
 import { getErrorMessage } from '@/types/api-utils';
@@ -52,6 +52,7 @@ export function RequirementDetailsPage() {
   const { data: tasksData } = useTasks(`workspace_id=${workspaceId}`);
   const createTaskMutation = useCreateTask();
   const updateTaskMutation = useUpdateTask();
+  const updateTaskStatusMutation = useUpdateTaskStatus();
 
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
@@ -111,7 +112,7 @@ export function RequirementDetailsPage() {
   const mapRequirementStatus = (status: string): 'in-progress' | 'completed' | 'delayed' => {
     const statusLower = status?.toLowerCase() || '';
     if (statusLower.includes('completed') || statusLower === 'done') return 'completed';
-    if (statusLower.includes('delayed') || statusLower.includes('stuck') || statusLower.includes('impediment')) return 'delayed';
+    if (statusLower.includes('delayed')) return 'delayed';
     return 'in-progress';
   };
 
@@ -126,7 +127,8 @@ export function RequirementDetailsPage() {
   }, [tasksData, requirement, reqId]);
 
   const allTasksCompleted = useMemo(() => {
-    if (tasks.length === 0) return false;
+    // If no tasks exist, allow submission (tasks are optional)
+    if (tasks.length === 0) return true;
     return tasks.every((t: Task) => t.status === 'Completed');
   }, [tasks]);
 
@@ -448,7 +450,19 @@ export function RequirementDetailsPage() {
                             setEditingTask(task);
                             setIsTaskModalOpen(true);
                           }}
-                          onStatusChange={() => { }}
+                          onStatusChange={(newStatus: string) => {
+                            updateTaskStatusMutation.mutate(
+                              { id: Number(task.id), status: newStatus },
+                              {
+                                onSuccess: () => {
+                                  message.success(`Task status updated to ${newStatus}`);
+                                },
+                                onError: (error: Error) => {
+                                  message.error(error.message || 'Failed to update task status');
+                                },
+                              }
+                            );
+                          }}
                           hideRequirements={true}
                           onRequestRevision={getRoleFromUser(user) !== 'Employee' ? () => {
                             setTargetTaskId(Number(task.id));

@@ -18,7 +18,6 @@ export function mapTaskToDomain(dto: TaskDto): Task {
   // assignedTo name resolution
   let assignedToName = 'Unassigned';
   if (dto.member_user?.name) assignedToName = dto.member_user.name;
-  if (dto.member_user?.name) assignedToName = dto.member_user.name;
   else if (dto.task_members && dto.task_members.length > 0) {
     assignedToName = dto.task_members[0].user?.name || 'Unassigned';
   }

@@ -73,10 +73,9 @@ export function TaskLiveProgress({ task, currentUserId }: TaskLiveProgressProps)
   // Function to determine color based on status and overtime (from old implementation)
   const getSegmentColor = (m: any, ratio: number) => {
     const isOvertime = ratio > 1;
-    // Check for blocked/delayed status
-    const isMemberBlocked = ['Impediment', 'Stuck', 'Delayed'].includes(m.status);
+    const isMemberDelayed = m.status === 'Delayed';
 
-    if (isMemberBlocked || isOvertime) {
+    if (isMemberDelayed || isOvertime) {
       return '#FF3B3B'; // Red
     }
     if (m.status === 'Review') {

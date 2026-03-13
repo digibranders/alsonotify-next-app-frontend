@@ -20,12 +20,11 @@ export const TASK_STATUSES = [
 
 /**
  * TaskStatus - All possible states for a task.
- * Derived from TASK_STATUSES constant (7 values).
+ * Derived from TASK_STATUSES constant (5 values).
  *
  * Workflow stages:
  * - Normal Flow: Assigned → In_Progress → Review → Completed
- * - Blocking:
- * - Scheduling: Delayed
+ * - Delayed: Task is paused/blocked, can resume to Assigned or In_Progress
  */
 export type TaskStatus = (typeof TASK_STATUSES)[number];
 

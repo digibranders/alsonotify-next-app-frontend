@@ -142,7 +142,7 @@ export function WorkspacePage() {
         const status = (req.status || '').toLowerCase();
         if (status.includes('completed') || status === 'done') {
           // Completed - don't count in progress or delayed
-        } else if (status.includes('delayed') || status.includes('stuck') || status.includes('impediment')) {
+        } else if (status.includes('delayed')) {
           delayedRequirements++;
         } else {
           // In progress, assigned, etc.
