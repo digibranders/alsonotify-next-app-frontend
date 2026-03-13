@@ -80,7 +80,7 @@ export default function RegisterSuccess({ email }: RegisterSuccessProps) {
           </Link>
         </div>
 
-        <p className="text-[0.8125rem] text-[#999999]">
+        <p className="text-xs text-[#999999]">
           Didn't receive the email? <button onClick={handleResend} disabled={resendEmailMutation.isPending} className="text-[#ff3b3b] hover:text-[#E63535] font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed">{resendEmailMutation.isPending ? "Sending..." : "Click to resend"}</button>
         </p>
       </motion.div>

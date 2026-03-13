@@ -146,7 +146,7 @@ export function PageLayout({
                     className="flex items-center gap-2 px-4 py-2.5 bg-white border border-[#EEEEEE] rounded-[12px] hover:bg-[#F7F7F7] transition-colors"
                   >
                     <Filter24Filled className="w-4 h-4 text-[#666666]" />
-                    <span className="font-semibold text-[0.8125rem] text-[#666666]">
+                    <span className="font-semibold text-xs text-[#666666]">
                       Filter
                     </span>
                   </button>
@@ -163,7 +163,7 @@ export function PageLayout({
                     className="flex items-center gap-2 px-4 py-2.5 bg-white border border-[#EEEEEE] rounded-full hover:bg-[#F7F7F7] transition-colors"
                   >
                     {action.icon}
-                    <span className="font-semibold text-[0.8125rem] text-[#666666]">
+                    <span className="font-semibold text-xs text-[#666666]">
                       {action.label}
                     </span>
                   </button>
@@ -176,7 +176,7 @@ export function PageLayout({
                     className="flex items-center gap-2 px-4 py-2.5 bg-white border border-[#EEEEEE] rounded-full hover:bg-[#F7F7F7] transition-colors"
                   >
                     <ArrowDownload24Filled className="w-4 h-4 text-[#666666]" />
-                    <span className="font-semibold text-[0.8125rem] text-[#666666]">
+                    <span className="font-semibold text-xs text-[#666666]">
                       Export
                     </span>
                   </button>

@@ -56,7 +56,7 @@ export function EmailInput({ value, onChange, options, ...props }: Readonly<Emai
             {name?.[0]?.toUpperCase() || '?'}
         </Avatar>
         <div className="flex flex-col leading-none py-0.5">
-           <Text className={`text-[0.8125rem] ${isEmailValid ? 'text-[#333]' : 'text-red-500'}`}>
+           <Text className={`text-xs ${isEmailValid ? 'text-[#333]' : 'text-red-500'}`}>
              {option?.name ? option.name : email}
            </Text>
            {option?.name && (
@@ -91,7 +91,7 @@ export function EmailInput({ value, onChange, options, ...props }: Readonly<Emai
       options={options.map(o => ({
         label: (
             <div className="flex flex-col py-1">
-                <Text strong className="text-[0.8125rem]">{o.name}</Text>
+                <Text strong className="text-xs">{o.name}</Text>
                 <Text type="secondary" className="text-xs">{o.email}</Text>
             </div>
         ),

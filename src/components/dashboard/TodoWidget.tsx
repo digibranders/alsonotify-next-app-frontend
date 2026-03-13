@@ -177,12 +177,12 @@ function NoteCard({ note, onToggleItem }: {
   const items: MenuProps['items'] = [
     {
       key: 'archive',
-      label: <span className="text-[0.8125rem] font-medium">Archive</span>,
+      label: <span className="text-xs font-medium">Archive</span>,
       icon: <Archive className="size-3.5" />,
     },
     {
       key: 'delete',
-      label: <span className="text-[0.8125rem] font-medium text-[#ff3b3b]">Delete</span>,
+      label: <span className="text-xs font-medium text-[#ff3b3b]">Delete</span>,
       icon: <Trash2 className="size-3.5 text-[#ff3b3b]" />,
       danger: true,
     },

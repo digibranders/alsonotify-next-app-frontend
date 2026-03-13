@@ -167,7 +167,7 @@ export function InvitationPopup() {
                 </div>
 
                 <div className="pt-2 text-center">
-                    <button onClick={handleClose} className="text-[#999999] text-[0.8125rem] hover:text-[#111111] transition-colors">
+                    <button onClick={handleClose} className="text-[#999999] text-xs hover:text-[#111111] transition-colors">
                         Remind me later
                     </button>
                 </div>

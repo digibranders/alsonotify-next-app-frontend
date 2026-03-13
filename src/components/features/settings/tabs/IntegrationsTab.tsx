@@ -203,7 +203,7 @@ export function IntegrationsTab() {
             </p>
           </div>
         </div>
-        <a href="/dashboard/calendar" className="bg-[#111111] text-white px-8 h-12 rounded-full flex items-center justify-center font-bold text-[0.8125rem] hover:bg-[#333333] transition-all whitespace-nowrap">
+        <a href="/dashboard/calendar" className="bg-[#111111] text-white px-8 h-12 rounded-full flex items-center justify-center font-bold text-xs hover:bg-[#333333] transition-all whitespace-nowrap">
           Go to My Calendar
         </a>
       </div>

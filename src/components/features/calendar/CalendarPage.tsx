@@ -440,7 +440,7 @@ export function CalendarPage() {
                     </div>
                   </Popover>
                 ))) : (
-                  <div className="text-center py-6 text-[0.8125rem] font-normal text-[#999999]">No upcoming events</div>
+                  <div className="text-center py-6 text-xs font-normal text-[#999999]">No upcoming events</div>
                 )}
               </div>
             </div>

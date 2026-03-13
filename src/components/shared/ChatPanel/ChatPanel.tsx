@@ -296,7 +296,7 @@ export function ChatPanel({
 
                             <div className="flex-1 min-w-0">
                                 <div className="flex items-baseline gap-2 mb-1">
-                                    <span className={`text-[0.8125rem] font-semibold ${activity.isSystem ? 'text-[#999999]' : 'text-[#111111]'
+                                    <span className={`text-xs font-semibold ${activity.isSystem ? 'text-[#999999]' : 'text-[#111111]'
                                         }`}>
                                         {activity.user}
                                     </span>
@@ -309,7 +309,7 @@ export function ChatPanel({
                                     ? 'bg-[#F7F7F7] p-3 rounded-[12px] rounded-tl-none'
                                     : ''
                                     }`}>
-                                    <p className="text-[0.8125rem] text-[#444444] font-normal">
+                                    <p className="text-xs text-[#444444] font-normal">
                                         {activity.message}
                                     </p>
 
@@ -402,7 +402,7 @@ export function ChatPanel({
                                 zIndex: 1,
                                 color: '#111111',
                                 fontFamily: 'inherit',
-                                fontSize: '0.8125rem',
+                                fontSize: '0.75rem',
                                 lineHeight: '20px',
                                 fontWeight: 400,
                                 letterSpacing: 'normal'
@@ -427,7 +427,7 @@ export function ChatPanel({
                                 color: 'transparent',
                                 caretColor: '#111111',
                                 fontFamily: 'inherit',
-                                fontSize: '0.8125rem',
+                                fontSize: '0.75rem',
                                 lineHeight: '20px',
                                 fontWeight: 400,
                                 letterSpacing: 'normal'

@@ -150,7 +150,7 @@ function WorkspaceFormContent({ onCancel, onSuccess, initialData }: WorkspaceFor
             <div className="grid grid-cols-2 gap-6">
                 {/* Workspace Name */}
                 <div className="space-y-2">
-                    <label className="text-[0.8125rem] font-bold text-[#111111]">Workspace Name <span className="text-[#ff3b3b]">*</span></label>
+                    <label className="text-xs font-bold text-[#111111]">Workspace Name <span className="text-[#ff3b3b]">*</span></label>
                     <Input
                         placeholder="e.g. Website Redesign"
                         className="h-11 rounded-xl border-[#EEEEEE] font-medium"
@@ -161,7 +161,7 @@ function WorkspaceFormContent({ onCancel, onSuccess, initialData }: WorkspaceFor
 
                 {/* Organization (Partner Company) */}
                 <div className="space-y-2">
-                    <label className="text-[0.8125rem] font-bold text-[#111111]">Organization</label>
+                    <label className="text-xs font-bold text-[#111111]">Organization</label>
                     <Select
                         showSearch={{
                             filterOption: (input, option) =>
@@ -198,7 +198,7 @@ function WorkspaceFormContent({ onCancel, onSuccess, initialData }: WorkspaceFor
 
                 {/* Description - Full Width */}
                 <div className="col-span-2 space-y-2">
-                    <label className="text-[0.8125rem] font-bold text-[#111111]">Description</label>
+                    <label className="text-xs font-bold text-[#111111]">Description</label>
                     <TextArea
                         placeholder="Describe your workspace..."
                         className="rounded-xl border-[#EEEEEE] font-medium py-3"

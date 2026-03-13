@@ -110,13 +110,13 @@ export function FeedbackWidget({ open, onClose }: FeedbackWidgetProps) {
               Give us feedback
             </h2>
             <div className="flex items-center gap-2">
-              <p className="text-[0.8125rem] font-normal text-[#666666]">
+              <p className="text-xs font-normal text-[#666666]">
                 Tell us how we can make AlsoNotify better for you.
               </p>
               <span className="text-[#EEEEEE]">|</span>
               <a 
                 href="/dashboard/feedback" 
-                className="text-[0.8125rem] font-semibold text-[#ff3b3b] hover:underline"
+                className="text-xs font-semibold text-[#ff3b3b] hover:underline"
                 onClick={(e) => {
                   e.preventDefault();
                   window.location.href = '/dashboard/feedback';
@@ -144,7 +144,7 @@ export function FeedbackWidget({ open, onClose }: FeedbackWidgetProps) {
           >
             {/* Category Selection */}
             <div className="mb-5">
-              <label className="block text-[0.8125rem] font-bold text-[#111111] mb-3">
+              <label className="block text-xs font-bold text-[#111111] mb-3">
                 Category
               </label>
               <div className="grid grid-cols-2 gap-3">
@@ -170,7 +170,7 @@ export function FeedbackWidget({ open, onClose }: FeedbackWidgetProps) {
                         {opt.icon}
                       </div>
                       <div className="min-w-0">
-                        <div className="text-[0.8125rem] font-bold text-[#111111] mb-0.5">
+                        <div className="text-xs font-bold text-[#111111] mb-0.5">
                           {opt.label}
                         </div>
                         <div className="text-[0.6875rem] font-normal text-[#666666] leading-tight">
@@ -187,7 +187,7 @@ export function FeedbackWidget({ open, onClose }: FeedbackWidgetProps) {
             <Form.Item
               name="description"
               label={
-                <span className="text-[0.8125rem] font-bold text-[#111111]">
+                <span className="text-xs font-bold text-[#111111]">
                   Details <span className="text-[#ff3b3b]">*</span>
                 </span>
               }

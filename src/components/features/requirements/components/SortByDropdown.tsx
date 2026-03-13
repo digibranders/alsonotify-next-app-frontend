@@ -42,7 +42,7 @@ export function SortByDropdown({ value, onChange }: Readonly<SortByDropdownProps
                 <div className="w-px h-5 bg-[#EEEEEE]" />
                 <button
                     onClick={() => setOpen(prev => !prev)}
-                    className={`flex items-center gap-2 px-3 py-1.5 border rounded-lg text-[0.8125rem] font-normal transition-all duration-200 justify-between min-w-[120px] ${hasSelection
+                    className={`flex items-center gap-2 px-3 py-1.5 border rounded-lg text-xs font-normal transition-all duration-200 justify-between min-w-[120px] ${hasSelection
                             ? 'bg-[#111111] text-white border-[#111111] shadow-sm'
                             : 'bg-white text-[#666666] border-[#EEEEEE] hover:border-[#CCCCCC] hover:text-[#333333]'
                         }`}

@@ -111,7 +111,7 @@ export const GanttTimeline: React.FC = () => {
         return (
             <div className="flex flex-col items-center justify-center h-full gap-3 bg-[#FAFAFA]">
                 <BarChart2 className="w-10 h-10 text-[#CCCCCC]" />
-                <p className="text-[0.8125rem] font-semibold text-[#999999]">No tasks with dates to display</p>
+                <p className="text-xs font-semibold text-[#999999]">No tasks with dates to display</p>
                 <p className="text-[0.6875rem] font-normal text-[#BBBBBB]">Add start and end dates to tasks to see them here</p>
             </div>
         );

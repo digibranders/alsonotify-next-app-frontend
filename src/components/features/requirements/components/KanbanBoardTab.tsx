@@ -95,7 +95,7 @@ export function KanbanBoardTab({ tasks, revisions }: KanbanBoardTabProps) {
                         </div>
 
                         {/* Task Title */}
-                        <h4 className="text-[0.8125rem] font-semibold text-[#111111] mb-3 line-clamp-2">
+                        <h4 className="text-xs font-semibold text-[#111111] mb-3 line-clamp-2">
                           {task.name}
                         </h4>
 

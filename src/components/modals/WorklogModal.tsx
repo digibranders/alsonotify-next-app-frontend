@@ -64,7 +64,7 @@ export function WorklogModal({
       <div className="space-y-5">
         {/* Worklog Description */}
         <div className="space-y-2">
-          <span className="text-[0.8125rem] font-bold text-[#111111]">
+          <span className="text-xs font-bold text-[#111111]">
             Worklog Description <span className="text-red-500">*</span>
           </span>
           <TextArea

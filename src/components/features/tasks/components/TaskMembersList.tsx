@@ -164,7 +164,7 @@ export function TaskMembersList({ taskId, members, executionMode, currentUser, i
                 {/* Info */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <p className={`text-[0.8125rem] font-semibold truncate ${isMe ? 'text-[#111111]' : 'text-[#444444]'}`}>
+                    <p className={`text-xs font-semibold truncate ${isMe ? 'text-[#111111]' : 'text-[#444444]'}`}>
                       {member.user.name || 'Unknown'} {isMe && '(You)'}
                     </p>
                     {isTurn && executionMode === 'sequential' && (

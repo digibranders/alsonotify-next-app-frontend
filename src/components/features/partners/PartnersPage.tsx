@@ -964,7 +964,7 @@ export function PartnersPageContent() {
                         <div className="grid grid-cols-2 gap-4">
                             <Form.Item
                                 name="firstName"
-                                label={<span className="font-bold text-[0.8125rem]">First Name</span>}
+                                label={<span className="font-bold text-xs">First Name</span>}
                                 rules={[{ required: true, message: 'First name is required' }]}
                             >
                                 <Input
@@ -976,7 +976,7 @@ export function PartnersPageContent() {
 
                             <Form.Item
                                 name="lastName"
-                                label={<span className="font-bold text-[0.8125rem]">Last Name</span>}
+                                label={<span className="font-bold text-xs">Last Name</span>}
                             >
                                 <Input
                                     prefix={<UserOutlined className="text-gray-400" />}
@@ -988,7 +988,7 @@ export function PartnersPageContent() {
 
                         <Form.Item
                             name="email"
-                            label={<span className="font-bold text-[0.8125rem]">Email Address</span>}
+                            label={<span className="font-bold text-xs">Email Address</span>}
                             rules={[{ required: true, type: 'email', message: 'Valid email is required' }]}
                         >
                             <Input

@@ -10,7 +10,7 @@ export function TabButton({ active, onClick, icon: Icon, label }: { active: bool
       `}
     >
       <Icon className="w-4 h-4" />
-      <span className="text-[0.8125rem] font-bold">{label}</span>
+      <span className="text-xs font-bold">{label}</span>
       {active && <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#ff3b3b]" />}
     </button>
   );

@@ -380,19 +380,19 @@ export function DocumentsTab({ activityData }: DocumentsTabProps) {
                                                     <div className="w-6 h-6 md:w-8 md:h-8 rounded bg-[#FFF5F5] flex items-center justify-center text-[#ff3b3b] shrink-0">
                                                         <FileText className="w-3 h-3 md:w-4 md:h-4" />
                                                     </div>
-                                                    <span className="text-[0.6875rem] md:text-[0.8125rem] font-semibold text-[#111111] truncate max-w-[150px] md:max-w-[200px]" title={doc.name}>
+                                                    <span className="text-[0.6875rem] md:text-xs font-semibold text-[#111111] truncate max-w-[150px] md:max-w-[200px]" title={doc.name}>
                                                         {doc.name}
                                                     </span>
                                                 </div>
                                             </td>
                                             <td className="py-2 px-3 md:py-3 md:px-4">
-                                                <span className="text-[0.6875rem] md:text-[0.8125rem] font-medium text-[#444444] whitespace-nowrap">{doc.uploadedBy}</span>
+                                                <span className="text-[0.6875rem] md:text-xs font-medium text-[#444444] whitespace-nowrap">{doc.uploadedBy}</span>
                                             </td>
                                             <td className="py-2 px-3 md:py-3 md:px-4">
-                                                <span className="text-[0.6875rem] md:text-[0.8125rem] font-normal text-[#666666] whitespace-nowrap">{doc.size}</span>
+                                                <span className="text-[0.6875rem] md:text-xs font-normal text-[#666666] whitespace-nowrap">{doc.size}</span>
                                             </td>
                                             <td className="py-2 px-3 md:py-3 md:px-4">
-                                                <span className="text-[0.6875rem] md:text-[0.8125rem] font-normal text-[#666666] whitespace-nowrap">{doc.date}</span>
+                                                <span className="text-[0.6875rem] md:text-xs font-normal text-[#666666] whitespace-nowrap">{doc.date}</span>
                                             </td>
                                             <td className="py-2 px-3 md:py-3 md:px-4">
                                                 <span className="text-[0.5625rem] md:text-[0.6875rem] font-bold px-1.5 py-0.5 md:px-2 md:py-1 bg-[#F7F7F7] rounded text-[#666666] uppercase inline-block whitespace-nowrap">

@@ -55,7 +55,7 @@ export function LeavesTab({
         {leaves.map((leave) => (
           <div key={leave.id} className="space-y-2 group/leave">
             <div className="flex items-center justify-between">
-              <span className="text-[0.8125rem] font-bold text-[#111111]">{leave.name}</span>
+              <span className="text-xs font-bold text-[#111111]">{leave.name}</span>
               {canEditLeaves && isEditing && leaves.length > 1 && (
                 <button
                   onClick={() => handleDeleteLeaveType(leave.id)}
@@ -71,7 +71,7 @@ export function LeavesTab({
                 value={leave.count}
                 onChange={(e) => handleUpdateLeaveCount(String(leave.id), e.target.value)}
                 disabled={!canEditLeaves || !isEditing}
-                className={`h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-medium text-[0.8125rem] ${!isEditing ? 'bg-[#F7F7F7] cursor-not-allowed' : 'bg-white'}`}
+                className={`h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-medium text-xs ${!isEditing ? 'bg-[#F7F7F7] cursor-not-allowed' : 'bg-white'}`}
               />
               {canEditLeaves && !isEditing && (
                 <button
@@ -87,13 +87,13 @@ export function LeavesTab({
 
         {canEditLeaves && isEditing && (
           <div className="pt-4 border-t border-[#EEEEEE] space-y-3">
-            <span className="text-[0.8125rem] font-bold text-[#111111]">Add Custom Leave Type</span>
+            <span className="text-xs font-bold text-[#111111]">Add Custom Leave Type</span>
             <div className="flex flex-col gap-2">
               <Input
                 placeholder="E.g., Birthday Leave, Paternity Leave"
                 value={newLeaveName}
                 onChange={(e) => setNewLeaveName(e.target.value)}
-                className="h-11 rounded-lg border-[#EEEEEE] font-medium text-[0.8125rem]"
+                className="h-11 rounded-lg border-[#EEEEEE] font-medium text-xs"
               />
               <Button
                 onClick={onAddLeaveTypeClick}
@@ -108,8 +108,8 @@ export function LeavesTab({
 
         <div className="pt-6 space-y-6">
           <div className="space-y-2">
-            <span className="text-[0.8125rem] font-bold text-[#666666]">Total Leaves</span>
-            <div className="h-11 px-3 flex items-center rounded-lg border border-[#EEEEEE] bg-[#F7F7F7] text-[#666666] font-medium text-[0.8125rem]">
+            <span className="text-xs font-bold text-[#666666]">Total Leaves</span>
+            <div className="h-11 px-3 flex items-center rounded-lg border border-[#EEEEEE] bg-[#F7F7F7] text-[#666666] font-medium text-xs">
               {leaves.reduce((acc, curr) => acc + curr.count, 0)} days
             </div>
           </div>
@@ -133,7 +133,7 @@ export function LeavesTab({
 
         <div className="space-y-4">
           {isLoadingHolidays ? (
-            <div className="text-center py-4 text-[0.8125rem] text-[#999999]">Loading holidays...</div>
+            <div className="text-center py-4 text-xs text-[#999999]">Loading holidays...</div>
           ) : publicHolidays.length > 0 ? (
             publicHolidays.map((holiday) => (
               <div key={holiday.id} className="p-4 border border-[#EEEEEE] rounded-[12px] flex items-center justify-between bg-white hover:shadow-sm transition-shadow">
@@ -181,7 +181,7 @@ export function LeavesTab({
               </div>
             ))
           ) : (
-            <div className="text-center py-4 text-[0.8125rem] text-[#999999]">No holidays added yet</div>
+            <div className="text-center py-4 text-xs text-[#999999]">No holidays added yet</div>
           )}
         </div>
 
@@ -190,7 +190,7 @@ export function LeavesTab({
           <button className="w-8 h-8 flex items-center justify-center rounded-full text-[#999999] hover:bg-[#F7F7F7] disabled:opacity-50" disabled>
             &lt;
           </button>
-          <div className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#ff3b3b] text-[#ff3b3b] font-bold text-[0.8125rem]">
+          <div className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#ff3b3b] text-[#ff3b3b] font-bold text-xs">
             1
           </div>
           <button className="w-8 h-8 flex items-center justify-center rounded-full text-[#999999] hover:bg-[#F7F7F7]">

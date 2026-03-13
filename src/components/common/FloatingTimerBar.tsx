@@ -489,7 +489,7 @@ export function FloatingTimerBar() {
                         }`}
                     >
                       <div className="flex-1 min-w-0">
-                        <p className={`text-[0.8125rem] font-semibold truncate ${currentDisplayTaskId === task.id ? 'text-white' : 'text-inherit'
+                        <p className={`text-xs font-semibold truncate ${currentDisplayTaskId === task.id ? 'text-white' : 'text-inherit'
                           }`}>
                           {task.name}
                         </p>

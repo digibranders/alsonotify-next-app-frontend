@@ -242,7 +242,7 @@ export function TaskDetailsPage() {
         <div className="flex flex-col items-center justify-center h-full p-8 text-[#666666]">
           <AlertCircle className="w-12 h-12 mb-4 text-[#ff3b3b] opacity-50" />
           <p className="text-base font-semibold">You don't have permission to view this task.</p>
-          <p className="text-[0.8125rem] mt-2 opacity-70 text-center max-w-md">This task is only accessible to assigned members, their leader, and supervisory staff.</p>
+          <p className="text-xs mt-2 opacity-70 text-center max-w-md">This task is only accessible to assigned members, their leader, and supervisory staff.</p>
           <button onClick={() => router.push('/dashboard/tasks')} className="mt-6 text-[#ff3b3b] hover:font-bold transition-all flex items-center gap-2">
             <ArrowRight className="w-4 h-4 rotate-180" /> Back to Tasks
           </button>
@@ -409,7 +409,7 @@ export function TaskDetailsPage() {
                         {leader?.name ? leader.name.charAt(0).toUpperCase() : '?'}
                       </div>
                       <div className="overflow-hidden">
-                        <p className="text-[0.8125rem] font-bold text-[#111111] truncate">{leader?.name || 'Unknown'}</p>
+                        <p className="text-xs font-bold text-[#111111] truncate">{leader?.name || 'Unknown'}</p>
                         <p className="text-[0.6875rem] text-[#666666] truncate">Squad Leader</p>
                       </div>
                     </div>
@@ -423,7 +423,7 @@ export function TaskDetailsPage() {
                         <Briefcase className="w-4 h-4" />
                       </div>
                       <div className="overflow-hidden">
-                        <p className="text-[0.8125rem] font-bold text-[#111111] truncate">
+                        <p className="text-xs font-bold text-[#111111] truncate">
                           {workspace?.name || 'In-House'}
                         </p>
                         <p className="text-[0.6875rem] text-[#666666] truncate">
@@ -441,7 +441,7 @@ export function TaskDetailsPage() {
                         <FolderOpen className="w-4 h-4" />
                       </div>
                       <div className="overflow-hidden">
-                        <p className="text-[0.8125rem] font-bold text-[#111111] truncate">
+                        <p className="text-xs font-bold text-[#111111] truncate">
                           {requirement?.name || 'No Scope'}
                         </p>
                         <p className="text-[0.6875rem] text-[#666666] truncate">Scope</p>
@@ -454,7 +454,7 @@ export function TaskDetailsPage() {
               {/* Timeline & Progress Row */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-8 border-t border-[#EEEEEE]">
                 <div className="flex flex-col">
-                  <h4 className="text-[0.8125rem] font-bold text-[#111111] mb-4 flex items-center gap-2">
+                  <h4 className="text-xs font-bold text-[#111111] mb-4 flex items-center gap-2">
                     <Calendar className="w-4 h-4 text-[#999999]" />
                     Timeline
                   </h4>
@@ -479,7 +479,7 @@ export function TaskDetailsPage() {
                 </div>
 
                 <div className="flex flex-col">
-                  <h4 className="text-[0.8125rem] font-bold text-[#111111] mb-4 flex items-center gap-2">
+                  <h4 className="text-xs font-bold text-[#111111] mb-4 flex items-center gap-2">
                     <Clock className="w-4 h-4 text-[#999999]" />
                     Progress
                   </h4>
@@ -488,7 +488,7 @@ export function TaskDetailsPage() {
                       <div>
                         <div className="flex items-baseline gap-1">
                           <span className="text-2xl font-bold text-[#111111] leading-none">{estimatedHours}</span>
-                          <span className="text-[0.8125rem] text-[#666666] font-medium">hrs estimated</span>
+                          <span className="text-xs text-[#666666] font-medium">hrs estimated</span>
                         </div>
                       </div>
                       <div className="text-right">

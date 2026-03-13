@@ -263,7 +263,7 @@ export function WorkspaceDetailsPage({ id }: { id: string }) {
               </div>
               <div>
                 <h1 className="text-2xl font-semibold text-[#111111] mb-2">{workspace.name}</h1>
-                <div className="flex items-center gap-4 text-[0.8125rem] text-[#666666]">
+                <div className="flex items-center gap-4 text-xs text-[#666666]">
                   <span className="flex items-center gap-1.5 font-medium">
                     <UserPlus className="w-4 h-4" />
                     {workspace.client_company_name || 'No Client'}
@@ -304,8 +304,8 @@ export function WorkspaceDetailsPage({ id }: { id: string }) {
           {/* Progress Bar */}
           <div className="w-full max-w-2xl">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[0.8125rem] font-semibold text-[#111111]">Project Progress</span>
-              <span className="text-[0.8125rem] font-semibold text-[#111111]">
+              <span className="text-xs font-semibold text-[#111111]">Project Progress</span>
+              <span className="text-xs font-semibold text-[#111111]">
                 {(workspace.total_task || 0) > 0 ? Math.round(((workspace.total_task_completed || 0) / (workspace.total_task || 1)) * 100) : 0}%
               </span>
             </div>
@@ -474,7 +474,7 @@ export function WorkspaceDetailsPage({ id }: { id: string }) {
           <div className="flex flex-col items-center justify-center h-64 text-center">
             <Paperclip className="w-12 h-12 text-[#DDDDDD] mb-3" />
             <h3 className="text-base font-semibold text-[#111111]">No files uploaded</h3>
-            <p className="text-[0.8125rem] text-[#666666]">Upload files to share with your team.</p>
+            <p className="text-xs text-[#666666]">Upload files to share with your team.</p>
             <Button className="mt-4 font-semibold" icon={<Plus className="w-4 h-4" />}>Upload File</Button>
           </div>
         )}
@@ -499,7 +499,7 @@ export function WorkspaceDetailsPage({ id }: { id: string }) {
       >
         <div className="mt-6 space-y-4">
           <div className="space-y-2">
-            <label className="text-[0.8125rem] font-bold text-[#111111]">Task Title <span className="text-[#ff3b3b]">*</span></label>
+            <label className="text-xs font-bold text-[#111111]">Task Title <span className="text-[#ff3b3b]">*</span></label>
             <Input
               placeholder="E.g. Design Homepage Mockups"
               className="h-10 font-normal"
@@ -510,7 +510,7 @@ export function WorkspaceDetailsPage({ id }: { id: string }) {
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-[0.8125rem] font-bold text-[#111111]">Assignee</label>
+              <label className="text-xs font-bold text-[#111111]">Assignee</label>
               <Select
                 className="w-full h-10"
                 placeholder="Select assignee"
@@ -523,7 +523,7 @@ export function WorkspaceDetailsPage({ id }: { id: string }) {
               </Select>
             </div>
             <div className="space-y-2">
-              <label className="text-[0.8125rem] font-bold text-[#111111]">Due Date</label>
+              <label className="text-xs font-bold text-[#111111]">Due Date</label>
               <DatePicker
                 className="w-full h-10 font-normal"
                 value={newTask.dueDate ? dayjs(newTask.dueDate) : null}
@@ -534,7 +534,7 @@ export function WorkspaceDetailsPage({ id }: { id: string }) {
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-[0.8125rem] font-bold text-[#111111]">Status</label>
+              <label className="text-xs font-bold text-[#111111]">Status</label>
               <Select
                 className="w-full h-10"
                 value={newTask.status}
@@ -547,7 +547,7 @@ export function WorkspaceDetailsPage({ id }: { id: string }) {
               </Select>
             </div>
             <div className="space-y-2">
-              <label className="text-[0.8125rem] font-bold text-[#111111]">Priority</label>
+              <label className="text-xs font-bold text-[#111111]">Priority</label>
               <Select
                 className="w-full h-10"
                 value={newTask.priority}
@@ -561,7 +561,7 @@ export function WorkspaceDetailsPage({ id }: { id: string }) {
           </div>
 
           <div className="space-y-2">
-            <label className="text-[0.8125rem] font-bold text-[#111111]">Description</label>
+            <label className="text-xs font-bold text-[#111111]">Description</label>
             <TextArea
               placeholder="Add task details..."
               className="min-h-[100px] font-normal py-2"

@@ -126,7 +126,7 @@ export function ClientAcceptModal({
 
           {/* Workspace Selector */}
           <div className="space-y-3">
-            <label className="text-[0.8125rem] font-bold text-[#111111]">
+            <label className="text-xs font-bold text-[#111111]">
               Map to your workspace <span className="text-[#ff3b3b]">*</span>
             </label>
             <Select

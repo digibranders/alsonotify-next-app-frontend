@@ -60,7 +60,7 @@ export function TimerWarningModal({
                         <p className="text-sm font-semibold text-[#111111]">
                             Active Timer Detected
                         </p>
-                        <p className="text-[0.8125rem] font-normal text-[#666666]">
+                        <p className="text-xs font-normal text-[#666666]">
                             The timer for <span className="font-semibold text-[#111111]">{taskName}</span> is currently running.
                             Editing task details while the timer is active may cause inconsistencies in time tracking.
                         </p>
@@ -69,14 +69,14 @@ export function TimerWarningModal({
 
                 {/* Recommendation */}
                 <div className="space-y-2">
-                    <p className="text-[0.8125rem] font-bold text-[#111111]">
+                    <p className="text-xs font-bold text-[#111111]">
                         Recommended Actions:
                     </p>
                     <ul className="space-y-1.5 ml-4">
-                        <li className="text-[0.8125rem] font-normal text-[#666666] list-disc">
+                        <li className="text-xs font-normal text-[#666666] list-disc">
                             <span className="font-semibold text-[#111111]">Pause & Edit:</span> Stops the timer and opens the edit modal
                         </li>
-                        <li className="text-[0.8125rem] font-normal text-[#666666] list-disc">
+                        <li className="text-xs font-normal text-[#666666] list-disc">
                             <span className="font-semibold text-[#111111]">Edit Anyway:</span> Keeps the timer running while you edit (not recommended)
                         </li>
                     </ul>

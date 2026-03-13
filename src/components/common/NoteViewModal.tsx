@@ -247,7 +247,7 @@ export function NoteViewModal({ open, note, onClose }: NoteViewModalProps) {
           <Button
             type="text"
             onClick={handleTypeToggle}
-            className="text-[0.8125rem] font-medium text-[#666666] hover:text-[#111111] p-0 h-auto"
+            className="text-xs font-medium text-[#666666] hover:text-[#111111] p-0 h-auto"
           >
             {isTextNote ? (
               <>

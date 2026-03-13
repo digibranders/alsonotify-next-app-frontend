@@ -458,7 +458,7 @@ export function RequirementDetailsPage() {
                       );
                     })
                   ) : (
-                    <div className="text-center py-8 text-[#999999] text-[0.8125rem]">No tasks created yet</div>
+                    <div className="text-center py-8 text-[#999999] text-xs">No tasks created yet</div>
                   )}
                 </div>
 

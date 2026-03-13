@@ -239,16 +239,16 @@ export function CompanyDetailsTab({
             {/* Row 1: Name & Tax ID */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <span className="text-[0.8125rem] font-bold text-[#111111]">Company Name</span>
+                <span className="text-xs font-bold text-[#111111]">Company Name</span>
                 <Input
                   value={companyName}
                   onChange={(e) => setCompanyName(e.target.value)}
                   disabled={!isEditing}
-                  className={`h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-medium text-[0.8125rem] ${!isEditing ? 'bg-[#FAFAFA] text-[#666666]' : 'bg-white'}`}
+                  className={`h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-medium text-xs ${!isEditing ? 'bg-[#FAFAFA] text-[#666666]' : 'bg-white'}`}
                 />
               </div>
               <div className="space-y-2">
-                <span className="text-[0.8125rem] font-bold text-[#111111]">Country</span>
+                <span className="text-xs font-bold text-[#111111]">Country</span>
                 <Select
                   value={country || undefined}
                   onChange={(v) => setCountry(String(v))}
@@ -274,7 +274,7 @@ export function CompanyDetailsTab({
             {/* Row 2: TimeZone & Currency */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <span className="text-[0.8125rem] font-bold text-[#111111]">Time Zone</span>
+                <span className="text-xs font-bold text-[#111111]">Time Zone</span>
                 <Select
                   value={timeZone}
                   onChange={(v) => setTimeZone(String(v))}
@@ -310,7 +310,7 @@ export function CompanyDetailsTab({
                 </Select>
               </div>
               <div className="space-y-2">
-                <span className="text-[0.8125rem] font-bold text-[#111111]">Currency</span>
+                <span className="text-xs font-bold text-[#111111]">Currency</span>
                 <Select
                   value={currency}
                   onChange={(v) => setCurrency(String(v))}
@@ -330,56 +330,56 @@ export function CompanyDetailsTab({
         <div className="space-y-6 mt-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <span className="text-[0.8125rem] font-bold text-[#111111]">Address Line 1</span>
+              <span className="text-xs font-bold text-[#111111]">Address Line 1</span>
               <Input
                 value={addressLine1}
                 onChange={(e) => setAddressLine1(e.target.value)}
                 placeholder="Street address, P.O. box"
                 disabled={!isEditing}
-                className={`h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-medium text-[0.8125rem] ${!isEditing ? 'bg-[#FAFAFA] text-[#666666]' : 'bg-white'}`}
+                className={`h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-medium text-xs ${!isEditing ? 'bg-[#FAFAFA] text-[#666666]' : 'bg-white'}`}
               />
             </div>
             <div className="space-y-2">
-              <span className="text-[0.8125rem] font-bold text-[#111111]">Address Line 2 (Optional)</span>
+              <span className="text-xs font-bold text-[#111111]">Address Line 2 (Optional)</span>
               <Input
                 value={addressLine2}
                 onChange={(e) => setAddressLine2(e.target.value)}
                 placeholder="Apartment, suite, unit, building, floor, etc."
                 disabled={!isEditing}
-                className={`h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-medium text-[0.8125rem] ${!isEditing ? 'bg-[#FAFAFA] text-[#666666]' : 'bg-white'}`}
+                className={`h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-medium text-xs ${!isEditing ? 'bg-[#FAFAFA] text-[#666666]' : 'bg-white'}`}
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="space-y-2">
-              <span className="text-[0.8125rem] font-bold text-[#111111]">City</span>
+              <span className="text-xs font-bold text-[#111111]">City</span>
               <Input
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
                 placeholder="City"
                 disabled={!isEditing}
-                className={`h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-medium text-[0.8125rem] ${!isEditing ? 'bg-[#FAFAFA] text-[#666666]' : 'bg-white'}`}
+                className={`h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-medium text-xs ${!isEditing ? 'bg-[#FAFAFA] text-[#666666]' : 'bg-white'}`}
               />
             </div>
             <div className="space-y-2">
-              <span className="text-[0.8125rem] font-bold text-[#111111]">State / Province</span>
+              <span className="text-xs font-bold text-[#111111]">State / Province</span>
               <Input
                 value={state}
                 onChange={(e) => setState(e.target.value)}
                 placeholder="State or Province"
                 disabled={!isEditing}
-                className={`h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-medium text-[0.8125rem] ${!isEditing ? 'bg-[#FAFAFA] text-[#666666]' : 'bg-white'}`}
+                className={`h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-medium text-xs ${!isEditing ? 'bg-[#FAFAFA] text-[#666666]' : 'bg-white'}`}
               />
             </div>
             <div className="space-y-2">
-              <span className="text-[0.8125rem] font-bold text-[#111111]">Zip / Postal Code</span>
+              <span className="text-xs font-bold text-[#111111]">Zip / Postal Code</span>
               <Input
                 value={zipcode}
                 onChange={(e) => setZipcode(e.target.value)}
                 placeholder="Zipcode"
                 disabled={!isEditing}
-                className={`h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-medium text-[0.8125rem] ${!isEditing ? 'bg-[#FAFAFA] text-[#666666]' : 'bg-white'}`}
+                className={`h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-medium text-xs ${!isEditing ? 'bg-[#FAFAFA] text-[#666666]' : 'bg-white'}`}
               />
             </div>
           </div>
@@ -388,7 +388,7 @@ export function CompanyDetailsTab({
         {/* Full Width: Tax ID with Type */}
         <div className="mb-6">
           <div className="space-y-2">
-            <span className="text-[0.8125rem] font-bold text-[#111111]">Tax ID</span>
+            <span className="text-xs font-bold text-[#111111]">Tax ID</span>
             <div className="flex gap-4">
               <div className="w-[180px] flex-none">
                 <Select
@@ -420,7 +420,7 @@ export function CompanyDetailsTab({
                   }
                   disabled={!isEditing}
                   status={taxIdError ? 'error' : ''}
-                  className={`h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-medium text-[0.8125rem] ${!isEditing ? 'bg-[#FAFAFA] text-[#666666]' : 'bg-white'}`}
+                  className={`h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-medium text-xs ${!isEditing ? 'bg-[#FAFAFA] text-[#666666]' : 'bg-white'}`}
                 />
                 {taxIdError && <div className="text-red-500 text-xs mt-1">{taxIdError}</div>}
               </div>
@@ -454,14 +454,14 @@ export function CompanyDetailsTab({
                 {departments.map((dept) => (
                   <div key={dept.id} className="flex items-end gap-6 group">
                     <div className="space-y-2 flex-1">
-                      <span className={`text-[0.8125rem] font-bold ${!isEditing ? 'text-[#666666]' : 'text-[#111111]'}`}>
+                      <span className={`text-xs font-bold ${!isEditing ? 'text-[#666666]' : 'text-[#111111]'}`}>
                         Department Name
                       </span>
                       <Input
                         value={dept.name}
                         readOnly
                         disabled={!isEditing}
-                        className={`h-11 rounded-lg border-[#EEEEEE] font-medium text-[0.8125rem] ${!isEditing ? '!bg-[#F7F7F7] !text-[#666666] cursor-not-allowed opacity-100' : 'bg-white'}`}
+                        className={`h-11 rounded-lg border-[#EEEEEE] font-medium text-xs ${!isEditing ? '!bg-[#F7F7F7] !text-[#666666] cursor-not-allowed opacity-100' : 'bg-white'}`}
                         style={!isEditing ? { backgroundColor: '#F7F7F7', color: '#666666' } : undefined}
                       />
                     </div>
@@ -496,7 +496,7 @@ export function CompanyDetailsTab({
                 {isAddingDept && (
                   <div className="flex items-end gap-6 animate-in fade-in slide-in-from-top-2 duration-200">
                     <div className="space-y-2 flex-1">
-                      <span className="text-[0.8125rem] font-bold text-[#111111]">
+                      <span className="text-xs font-bold text-[#111111]">
                         New Department Name
                       </span>
                       <Input
@@ -504,7 +504,7 @@ export function CompanyDetailsTab({
                         onChange={(e) => setNewDeptName(e.target.value)}
                         placeholder="e.g. Marketing"
                         autoFocus
-                        className="h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-medium text-[0.8125rem]"
+                        className="h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-medium text-xs"
                         onKeyDown={(e) => e.key === "Enter" && handleAddDepartment()}
                       />
                     </div>
@@ -548,14 +548,14 @@ export function CompanyDetailsTab({
                 {requiredDocuments.map((doc) => (
                   <div key={doc.id} className="flex items-end gap-6 group">
                     <div className="space-y-2 flex-1">
-                      <span className={`text-[0.8125rem] font-bold ${!isEditing ? 'text-[#666666]' : 'text-[#111111]'}`}>
+                      <span className={`text-xs font-bold ${!isEditing ? 'text-[#666666]' : 'text-[#111111]'}`}>
                         Document Name
                       </span>
                       <Input
                         value={doc.name}
                         readOnly
                         disabled={!isEditing}
-                        className={`h-11 rounded-lg border-[#EEEEEE] font-medium text-[0.8125rem] ${!isEditing ? '!bg-[#F7F7F7] !text-[#666666] cursor-not-allowed opacity-100' : 'bg-white'}`}
+                        className={`h-11 rounded-lg border-[#EEEEEE] font-medium text-xs ${!isEditing ? '!bg-[#F7F7F7] !text-[#666666] cursor-not-allowed opacity-100' : 'bg-white'}`}
                         style={!isEditing ? { backgroundColor: '#F7F7F7', color: '#666666' } : undefined}
                       />
                     </div>
@@ -590,7 +590,7 @@ export function CompanyDetailsTab({
                 {isAddingDoc && (
                   <div className="flex items-end gap-6 animate-in fade-in slide-in-from-top-2 duration-200">
                     <div className="space-y-2 flex-1">
-                      <span className="text-[0.8125rem] font-bold text-[#111111]">
+                      <span className="text-xs font-bold text-[#111111]">
                         New Document Name
                       </span>
                       <Input
@@ -598,7 +598,7 @@ export function CompanyDetailsTab({
                         onChange={(e) => setNewDocName(e.target.value)}
                         placeholder="e.g. Passport"
                         autoFocus
-                        className="h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-medium text-[0.8125rem]"
+                        className="h-11 rounded-lg border-[#EEEEEE] focus:border-[#ff3b3b] font-medium text-xs"
                         onKeyDown={(e) => e.key === "Enter" && handleAddDocument()}
                       />
                     </div>

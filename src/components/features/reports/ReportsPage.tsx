@@ -474,7 +474,7 @@ export function ReportsPage() {
   const filterOptions: FilterOption[] = useMemo(() => {
     if (activeTab === 'requirement') {
       return [
-        { id: 'partner', label: 'Partner', options: partnerOptions, defaultValue: 'All', placeholder: 'Select Partner', multiSelect: true },
+        { id: 'partner', label: 'Contact Person', options: partnerOptions, defaultValue: 'All', placeholder: 'Select Contact Person', multiSelect: true },
         {
           id: 'status', label: 'Status', options: [
             { label: 'All', value: 'All' },
@@ -809,7 +809,7 @@ export function ReportsPage() {
             {isLoadingRequirements ? (
               <div className="space-y-2 px-1">
                 {Array.from({ length: 8 }).map((_, i) => (
-                  <div key={i} className="bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[40px_2fr_1.2fr_120px_140px_80px_140px_80px] gap-2 px-4 py-4 items-center min-w-[900px]">
+                  <div key={i} className="bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[40px_1.8fr_1.2fr_120px_140px_100px_140px_80px] gap-2 px-4 py-4 items-center min-w-[900px]">
                     <Skeleton className="h-4 w-4" />
                     <Skeleton className="h-4 w-3/4" />
                     <Skeleton className="h-4 w-12" />
@@ -824,10 +824,10 @@ export function ReportsPage() {
             ) : (
               <div className="px-1 space-y-2">
                 {/* Header */}
-                <div className="sticky top-0 z-20 min-w-[900px] bg-white border border-transparent grid grid-cols-[40px_2fr_1.2fr_120px_140px_80px_140px_80px] gap-2 px-4 py-3 mb-2 items-center">
+                <div className="sticky top-0 z-20 min-w-[900px] bg-white border border-transparent grid grid-cols-[40px_1.8fr_1.2fr_120px_140px_100px_140px_80px] gap-2 px-4 py-3 mb-2 items-center">
                   <div><TableHeader label="No" /></div>
                   <TableHeader label="Requirement" sortKey="requirement" currentSort={sortConfig} onSort={handleSort} />
-                  <TableHeader label="Partner" sortKey="manager" currentSort={sortConfig} onSort={handleSort} tooltip="Company and Contact Person" />
+                  <TableHeader label="Contact Person" sortKey="manager" currentSort={sortConfig} onSort={handleSort} tooltip="Contact Person" />
                   <TableHeader label="Timeline" />
                   <TableHeader label="Hours Utilization" sortKey="efficiency" currentSort={sortConfig} onSort={handleSort} tooltip="Engaged (logged) hours versus Allotted (budget) hours." />
                   <TableHeader label="Revision" sortKey="revision" currentSort={sortConfig} onSort={handleSort} tooltip="Number of revisions (scope changes)." />
@@ -839,14 +839,14 @@ export function ReportsPage() {
                 {filteredRequirements.map((row, idx) => (
                   <div
                     key={row.id}
-                    className="group min-w-[900px] bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[40px_2fr_1.2fr_120px_140px_80px_140px_80px] gap-2 px-4 py-3 items-center hover:border-[#ff3b3b]/20 hover:shadow-lg transition-all duration-300"
+                    className="group min-w-[900px] bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[40px_1.8fr_1.2fr_120px_140px_100px_140px_80px] gap-2 px-4 py-3 items-center hover:border-[#ff3b3b]/20 hover:shadow-lg transition-all duration-300"
                   >
                     <div className="text-[0.75rem] text-[#999999] font-medium">{idx + 1}</div>
 
                     <div className="flex flex-col justify-center gap-1 min-w-0">
                       <span className="text-[0.75rem] text-[#111111] font-bold leading-tight truncate" title={row.requirement}>{row.requirement}</span>
-                      <span className="text-[0.625rem] text-[#666666] font-medium truncate" title={row.workspaceName}>
-                        {row.workspaceName}
+                      <span className="text-[0.625rem] text-[#666666] font-medium truncate" title={row.partner}>
+                        {row.partner}
                       </span>
                       {/* Tags Row */}
                       <div className="flex flex-wrap gap-1.5 items-center text-[0.625rem] font-bold uppercase tracking-wider mt-0.5">
@@ -857,8 +857,7 @@ export function ReportsPage() {
                     </div>
 
                     <div className="flex flex-col justify-center gap-0.5 min-w-0">
-                      <span className="text-[0.75rem] text-[#111111] font-bold truncate" title={row.partner}>{row.partner}</span>
-                      <span className="text-[0.625rem] text-[#666666] font-medium truncate" title={row.manager || 'Unassigned'}>{row.manager || 'Unassigned'}</span>
+                      <span className="text-[0.75rem] text-[#111111] font-bold truncate" title={row.manager || 'Unassigned'}>{row.manager || 'Unassigned'}</span>
                     </div>
 
                     <div className="flex flex-col items-start gap-0.5 min-w-0">
@@ -943,7 +942,7 @@ export function ReportsPage() {
             {isLoadingTasks ? (
               <div className="space-y-2 px-1">
                 {Array.from({ length: 10 }).map((_, i) => (
-                  <div key={i} className="bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[40px_2.2fr_1.8fr_0.9fr_0.9fr_75px_115px_85px] gap-2 px-4 py-4 items-center min-w-[900px]">
+                  <div key={i} className="bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[40px_2.2fr_1.2fr_0.9fr_0.9fr_75px_150px_85px] gap-2 px-4 py-4 items-center min-w-[900px]">
                     <Skeleton className="h-4 w-4" />
                     <div className="flex flex-col gap-1"><Skeleton className="h-4 w-3/4" /><Skeleton className="h-3 w-1/2" /></div>
                     <Skeleton className="h-4 w-2/3" />
@@ -958,7 +957,7 @@ export function ReportsPage() {
             ) : (
               <div className="px-1 space-y-2">
                 {/* Header */}
-                <div className="sticky top-0 z-20 min-w-[900px] bg-white border border-transparent grid grid-cols-[40px_2.2fr_1.8fr_0.9fr_0.9fr_75px_115px_85px] gap-2 px-4 py-3 mb-2 items-center">
+                <div className="sticky top-0 z-20 min-w-[900px] bg-white border border-transparent grid grid-cols-[40px_2.2fr_1.2fr_0.9fr_0.9fr_75px_150px_85px] gap-2 px-4 py-3 mb-2 items-center">
                   <div><TableHeader label="No" /></div>
                   <TableHeader label="Task" sortKey="task" currentSort={sortConfig} onSort={handleSort} />
                   <TableHeader label="Requirement" sortKey="requirement" currentSort={sortConfig} onSort={handleSort} />
@@ -984,7 +983,7 @@ export function ReportsPage() {
                   return (
                     <div
                       key={row.id}
-                      className="group min-w-[900px] bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[40px_2.2fr_1.8fr_0.9fr_0.9fr_75px_115px_85px] gap-2 px-4 py-3 items-center hover:border-[#ff3b3b]/20 hover:shadow-lg transition-all duration-300"
+                      className="group min-w-[900px] bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[40px_2.2fr_1.2fr_0.9fr_0.9fr_75px_150px_85px] gap-2 px-4 py-3 items-center hover:border-[#ff3b3b]/20 hover:shadow-lg transition-all duration-300"
                     >
                       {/* No */}
                       <div className="text-[0.75rem] text-[#999999] font-medium">{idx + 1}</div>

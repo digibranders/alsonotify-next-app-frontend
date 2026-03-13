@@ -404,7 +404,7 @@ function MeetingItem({
                     }
                     setShowDetails(false);
                   }}
-                  className="w-full h-9 rounded-lg bg-[#111111] hover:bg-[#000000]/90 text-white text-[0.8125rem] font-semibold transition-all active:scale-95 border-none flex items-center justify-center gap-2 shadow-sm"
+                  className="w-full h-9 rounded-lg bg-[#111111] hover:bg-[#000000]/90 text-white text-xs font-semibold transition-all active:scale-95 border-none flex items-center justify-center gap-2 shadow-sm"
                   icon={<Video className="w-3.5 h-3.5" />}
                 >
                   Join {platform} Meeting
@@ -440,7 +440,7 @@ function MeetingItem({
             <div className="flex-1 min-w-0">
               {/* Title & Platform Tag */}
               <div className="flex items-start justify-between gap-2 mb-1">
-                <h4 className="font-semibold text-[0.8125rem] text-[#111111] line-clamp-1 flex-1">
+                <h4 className="font-semibold text-xs text-[#111111] line-clamp-1 flex-1">
                   {truncateTitle(title)}
                 </h4>
                 {joinUrl ? (

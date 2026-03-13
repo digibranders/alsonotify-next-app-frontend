@@ -285,7 +285,7 @@ export function NoteComposerModal({ open, onClose, onSave, initialNote }: Readon
                 <Button
                   type="text"
                   onClick={handleTypeToggle}
-                  className="text-[0.8125rem] font-medium text-[#666666] hover:text-[#111111] p-0 h-auto"
+                  className="text-xs font-medium text-[#666666] hover:text-[#111111] p-0 h-auto"
                 >
                   {noteType === 'TEXT_NOTE' ? (
                     <>

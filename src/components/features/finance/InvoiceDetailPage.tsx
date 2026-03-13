@@ -226,7 +226,7 @@ export function InvoiceDetailPage() {
                     {canSend && (
                         <button
                             onClick={() => setIsSendModalOpen(true)}
-                            className="px-4 py-2 flex items-center gap-2 bg-[#2196F3] text-white rounded-full font-bold text-[0.8125rem] hover:bg-[#1976D2] transition-colors"
+                            className="px-4 py-2 flex items-center gap-2 bg-[#2196F3] text-white rounded-full font-bold text-xs hover:bg-[#1976D2] transition-colors"
                         >
                             <Send className="w-4 h-4" />
                             Send
@@ -236,7 +236,7 @@ export function InvoiceDetailPage() {
                         <button
                             onClick={handleConvertToTax}
                             disabled={isConverting}
-                            className="px-4 py-2 flex items-center gap-2 bg-[#f59e0b] text-white rounded-full font-bold text-[0.8125rem] hover:bg-[#d97706] transition-colors disabled:opacity-50"
+                            className="px-4 py-2 flex items-center gap-2 bg-[#f59e0b] text-white rounded-full font-bold text-xs hover:bg-[#d97706] transition-colors disabled:opacity-50"
                         >
                             {isConverting ? 'Converting...' : 'Convert to Tax Invoice'}
                         </button>
@@ -244,7 +244,7 @@ export function InvoiceDetailPage() {
                     {canRecordPayment && (
                         <button
                             onClick={() => setIsPaymentModalOpen(true)}
-                            className="px-4 py-2 flex items-center gap-2 bg-[#0F9D58] text-white rounded-full font-bold text-[0.8125rem] hover:bg-[#0a7d46] transition-colors"
+                            className="px-4 py-2 flex items-center gap-2 bg-[#0F9D58] text-white rounded-full font-bold text-xs hover:bg-[#0a7d46] transition-colors"
                         >
                             <CreditCard className="w-4 h-4" />
                             Record Payment
@@ -254,7 +254,7 @@ export function InvoiceDetailPage() {
                         <button
                             onClick={handleRevise}
                             disabled={isRevising}
-                            className="px-4 py-2 flex items-center gap-2 border border-[#EEEEEE] bg-white text-[#111111] rounded-full font-bold text-[0.8125rem] hover:bg-[#F7F7F7] transition-colors disabled:opacity-50"
+                            className="px-4 py-2 flex items-center gap-2 border border-[#EEEEEE] bg-white text-[#111111] rounded-full font-bold text-xs hover:bg-[#F7F7F7] transition-colors disabled:opacity-50"
                         >
                             <ArrowLeft className="w-4 h-4 transform rotate-180" /> {/* A makeshift rotate-ccw icon, though ArrowLeft rotated works, or could use another standard one if RotateCcw imported */}
                             {isRevising ? 'Revising...' : 'Revise'}
@@ -263,7 +263,7 @@ export function InvoiceDetailPage() {
                     <button
                         onClick={handleDownloadPDF}
                         disabled={isDownloading}
-                        className="px-4 py-2 flex items-center gap-2 border border-[#EEEEEE] bg-white text-[#111111] rounded-full font-bold text-[0.8125rem] hover:bg-[#F7F7F7] transition-colors disabled:opacity-50"
+                        className="px-4 py-2 flex items-center gap-2 border border-[#EEEEEE] bg-white text-[#111111] rounded-full font-bold text-xs hover:bg-[#F7F7F7] transition-colors disabled:opacity-50"
                     >
                         <Download className="w-4 h-4" />
                         {isDownloading ? 'Downloading...' : 'Download PDF'}
@@ -272,7 +272,7 @@ export function InvoiceDetailPage() {
                         <button
                             onClick={handleVoid}
                             disabled={isUpdatingStatus}
-                            className="px-4 py-2 flex items-center gap-2 text-[#666666] hover:text-[#ff3b3b] rounded-full font-bold text-[0.8125rem] hover:bg-[#FFF0F0] transition-colors disabled:opacity-50"
+                            className="px-4 py-2 flex items-center gap-2 text-[#666666] hover:text-[#ff3b3b] rounded-full font-bold text-xs hover:bg-[#FFF0F0] transition-colors disabled:opacity-50"
                             title="Void Invoice"
                         >
                             <X className="w-4 h-4" />

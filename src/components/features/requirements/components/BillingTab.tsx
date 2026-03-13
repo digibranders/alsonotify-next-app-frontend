@@ -160,10 +160,10 @@ export const BillingTab: React.FC<BillingTabProps> = ({ requirement }) => {
                                                 <p className="text-sm font-semibold text-[#111111]">{inv.invoiceNumber}</p>
                                             </td>
                                             <td className="px-4 py-3">
-                                                <p className="text-[0.8125rem] text-[#697386]">{inv.date ? dayjs(inv.date).format('MMM D, YYYY') : '--'}</p>
+                                                <p className="text-xs text-[#697386]">{inv.date ? dayjs(inv.date).format('MMM D, YYYY') : '--'}</p>
                                             </td>
                                             <td className="px-4 py-3">
-                                                <p className="text-[0.8125rem] font-medium text-[#111111]">₹{inv.amount.toLocaleString()}</p>
+                                                <p className="text-xs font-medium text-[#111111]">₹{inv.amount.toLocaleString()}</p>
                                             </td>
                                             <td className="px-4 py-3">
                                                 <span className={`inline-flex items-center px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${inv.status === 'paid' ? 'bg-[#E8F5E9] text-[#0F9D58]' :

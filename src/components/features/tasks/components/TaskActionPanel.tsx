@@ -129,7 +129,7 @@ export function TaskActionPanel({ task, currentUser, onAction, onCompleteRequest
         </Button>
 
         <div className="flex flex-col">
-          <span className="text-[0.8125rem] font-bold text-[#111111]">
+          <span className="text-xs font-bold text-[#111111]">
             {canAct ? 'Action Required' : 'Status'}
           </span>
           <span className="text-[0.6875rem] text-[#666666] font-medium">

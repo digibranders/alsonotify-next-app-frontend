@@ -185,15 +185,15 @@ export function CalendarEventForm({
           {eventType === 'event' ? (
             <>
               <div className="space-y-2">
-                <span className="text-[0.8125rem] font-bold text-[#111111]">Title <span className="text-[#ff3b3b]">*</span></span>
+                <span className="text-xs font-bold text-[#111111]">Title <span className="text-[#ff3b3b]">*</span></span>
                 <Input placeholder="Event title" className={`h-11 rounded-lg border border-[#EEEEEE] focus:border-[#EEEEEE] font-medium ${formData.title ? 'bg-white' : 'bg-[#F9FAFB]'}`} value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} />
               </div>
               <div className="space-y-2">
-                <span className="text-[0.8125rem] font-bold text-[#111111]">Start Date & Time <span className="text-[#ff3b3b]">*</span></span>
+                <span className="text-xs font-bold text-[#111111]">Start Date & Time <span className="text-[#ff3b3b]">*</span></span>
                 <DatePicker showTime format="YYYY-MM-DD HH:mm" placeholder="Select start date & time" className={`w-full h-11 rounded-lg border border-[#EEEEEE] focus:border-[#EEEEEE] ${formData.startDateTime ? 'bg-white' : 'bg-[#F9FAFB]'}`} value={formData.startDateTime} onChange={(date) => setFormData({ ...formData, startDateTime: date })} suffixIcon={<CalendarIcon className="w-4 h-4 text-[#666666]" />} disabledDate={(current) => current && current < dayjs().startOf('day')} />
               </div>
               <div className="space-y-2">
-                <span className="text-[0.8125rem] font-bold text-[#111111]">End Time <span className="text-[#ff3b3b]">*</span></span>
+                <span className="text-xs font-bold text-[#111111]">End Time <span className="text-[#ff3b3b]">*</span></span>
                 <div className="flex items-center gap-3">
                   <Select placeholder="Select duration" className={`flex-1 h-11 rounded-lg border border-[#EEEEEE] focus:border-[#EEEEEE] ${formData.duration ? 'bg-white' : 'bg-[#F9FAFB]'}`} value={formData.duration} onChange={(value) => setFormData({ ...formData, duration: value })}>
                     <Option value="30 mins">30 mins</Option>
@@ -207,7 +207,7 @@ export function CalendarEventForm({
               </div>
               <AttendeesField attendees={formData.attendees} onAddAttendee={(attendee) => { if (!formData.attendees.some(a => a.email.toLowerCase() === attendee.email.toLowerCase())) { setFormData({ ...formData, attendees: [...formData.attendees, attendee] }); } }} onRemoveAttendee={(index) => { setFormData({ ...formData, attendees: formData.attendees.filter((_, i) => i !== index) }); }} employeesData={employeesData} />
               <div className="space-y-2">
-                <span className="text-[0.8125rem] font-bold text-[#111111]">Description</span>
+                <span className="text-xs font-bold text-[#111111]">Description</span>
                 <div className="space-y-2">
                   <TextArea placeholder="Agenda, notes, etc." className={`min-h-[120px] rounded-lg border border-[#EEEEEE] focus:border-[#EEEEEE] font-medium resize-none ${formData.description ? 'bg-white' : 'bg-[#F9FAFB]'}`} rows={4} value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} />
                 </div>
@@ -217,7 +217,7 @@ export function CalendarEventForm({
             <>
               {/* Leave Type */}
               <div className="space-y-2">
-                <span className="text-[0.8125rem] font-bold text-[#111111]">Leave Type <span className="text-[#ff3b3b]">*</span></span>
+                <span className="text-xs font-bold text-[#111111]">Leave Type <span className="text-[#ff3b3b]">*</span></span>
                 <Select
                   placeholder="Select leave type"
                   className={`w-full h-11 rounded-lg border border-[#EEEEEE] focus:border-[#EEEEEE] ${formData.leaveType ? 'bg-white' : 'bg-[#F9FAFB]'}`}
@@ -231,18 +231,18 @@ export function CalendarEventForm({
               {/* Dates */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <span className="text-[0.8125rem] font-bold text-[#111111]">Start Date <span className="text-[#ff3b3b]">*</span></span>
+                  <span className="text-xs font-bold text-[#111111]">Start Date <span className="text-[#ff3b3b]">*</span></span>
                   <DatePicker format="YYYY-MM-DD" placeholder="Start Date" className={`w-full h-11 rounded-lg border border-[#EEEEEE] focus:border-[#EEEEEE] ${formData.startDateTime ? 'bg-white' : 'bg-[#F9FAFB]'}`} value={formData.startDateTime} onChange={(date) => setFormData({ ...formData, startDateTime: date })} suffixIcon={<CalendarIcon className="w-4 h-4 text-[#666666]" />} />
                 </div>
                 <div className="space-y-2">
-                  <span className="text-[0.8125rem] font-bold text-[#111111]">End Date <span className="text-[#ff3b3b]">*</span></span>
+                  <span className="text-xs font-bold text-[#111111]">End Date <span className="text-[#ff3b3b]">*</span></span>
                   <DatePicker format="YYYY-MM-DD" placeholder="End Date" className={`w-full h-11 rounded-lg border border-[#EEEEEE] focus:border-[#EEEEEE] ${formData.endDateTime ? 'bg-white' : 'bg-[#F9FAFB]'}`} value={formData.endDateTime} onChange={(date) => setFormData({ ...formData, endDateTime: date })} suffixIcon={<CalendarIcon className="w-4 h-4 text-[#666666]" />} />
                 </div>
               </div>
 
               {/* Day Type */}
               <div className="space-y-2">
-                <span className="text-[0.8125rem] font-bold text-[#111111]">Day Type <span className="text-[#ff3b3b]">*</span></span>
+                <span className="text-xs font-bold text-[#111111]">Day Type <span className="text-[#ff3b3b]">*</span></span>
                 <Radio.Group
                   value={formData.dayType}
                   onChange={(e) => setFormData({ ...formData, dayType: e.target.value })}
@@ -256,7 +256,7 @@ export function CalendarEventForm({
 
               {/* Reason */}
               <div className="space-y-2">
-                <span className="text-[0.8125rem] font-bold text-[#111111]">Reason <span className="text-[#ff3b3b]">*</span></span>
+                <span className="text-xs font-bold text-[#111111]">Reason <span className="text-[#ff3b3b]">*</span></span>
                 <TextArea placeholder="Reason for leave" className={`min-h-[120px] rounded-lg border border-[#EEEEEE] focus:border-[#EEEEEE] font-medium resize-none ${formData.description ? 'bg-white' : 'bg-[#F9FAFB]'}`} rows={4} value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} />
               </div>
             </>
@@ -282,11 +282,11 @@ function AttendeesField({ attendees, onAddAttendee, onRemoveAttendee, employeesD
 
   return (
     <div className="space-y-2">
-      <span className="text-[0.8125rem] font-bold text-[#111111]">Attendees</span>
+      <span className="text-xs font-bold text-[#111111]">Attendees</span>
       <div className="flex flex-wrap gap-2 mb-2">
         {attendees.map((attendee, index) => (
           <div key={index} className="flex items-center gap-1 bg-[#F7F7F7] px-2 py-1 rounded-md border border-[#EEEEEE]">
-            <span className="text-[0.8125rem] font-medium text-[#111111]">{attendee.name || attendee.email}</span>
+            <span className="text-xs font-medium text-[#111111]">{attendee.name || attendee.email}</span>
             <button onClick={() => onRemoveAttendee(index)} className="text-[#666666] hover:text-[#FF3B3B]">
               <X className="w-3 h-3" />
             </button>
@@ -324,7 +324,7 @@ function AttendeesField({ attendees, onAddAttendee, onRemoveAttendee, employeesD
                   {emp.name.charAt(0)}
                 </div>
                 <div>
-                  <div className="text-[0.8125rem] font-medium text-[#111111]">{emp.name}</div>
+                  <div className="text-xs font-medium text-[#111111]">{emp.name}</div>
                   <div className="text-[0.6875rem] text-[#666666]">{emp.email}</div>
                 </div>
               </div>

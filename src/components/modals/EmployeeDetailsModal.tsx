@@ -250,7 +250,7 @@ export function EmployeeDetailsModal({
                 <p className="text-[0.6875rem] font-bold text-[#999999] uppercase tracking-wider mb-2">
                   Professional Bio
                 </p>
-                <p className="text-[0.8125rem] text-[#444444] leading-relaxed font-normal bg-[#F9FAFB] p-4 rounded-xl border border-[#EEEEEE]">
+                <p className="text-xs text-[#444444] leading-relaxed font-normal bg-[#F9FAFB] p-4 rounded-xl border border-[#EEEEEE]">
                   {currentEmployee.bio}
                 </p>
               </div>
@@ -262,7 +262,7 @@ export function EmployeeDetailsModal({
             <div className="flex items-center gap-2 mb-4">
               <div className="w-1 h-4 bg-[#111111] rounded-full"></div>
               <h3 className="text-sm font-bold text-[#111111]">Employment & HR Details</h3>
-              <div className="text-[0.8125rem] text-[#666666]">Leaves: <span className="text-[#111111] font-medium">{currentEmployee.leaves_count}</span></div>
+              <div className="text-xs text-[#666666]">Leaves: <span className="text-[#111111] font-medium">{currentEmployee.leaves_count}</span></div>
             </div>
             <div className="grid grid-cols-3 gap-4 mb-6 pl-3">
               <StatCard label="Experience" value={experience} icon={<Briefcase className="w-4 h-4 text-gray-400" />} />
@@ -292,8 +292,8 @@ export function EmployeeDetailsModal({
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-[0.8125rem] text-[#666666] mb-1">Working Hours: <span className="text-[#111111] font-medium">{workingHours}</span></div>
-                  <p className="text-[0.8125rem] font-medium text-[#B42318]">{currentEmployee.emergencyContactPhone || '-'}</p>
+                  <div className="text-xs text-[#666666] mb-1">Working Hours: <span className="text-[#111111] font-medium">{workingHours}</span></div>
+                  <p className="text-xs font-medium text-[#B42318]">{currentEmployee.emergencyContactPhone || '-'}</p>
                 </div>
               </div>
             )}
