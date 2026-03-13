@@ -1,10 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // Mock headers storage with vi.hoisted to make it available before vi.mock hoisting
-const { mockHeaders } = vi.hoisted(() => ({
-  mockHeaders: {
-    common: {} as Record<string, string | undefined>,
-  },
+const { mockResponseUse } = vi.hoisted(() => ({
+  mockResponseUse: vi.fn(),
 }));
 
 // Mock axios before importing
@@ -12,70 +10,43 @@ vi.mock('axios', () => ({
   default: {
     create: vi.fn(() => ({
       defaults: {
-        headers: mockHeaders,
+        headers: { common: {} },
       },
       interceptors: {
         request: { use: vi.fn() },
-        response: { use: vi.fn() },
+        response: { use: mockResponseUse },
       },
     })),
   },
 }));
 
-// Mock universal-cookie with vi.hoisted
-vi.mock('universal-cookie', () => ({
-  default: class MockCookies {
-    get = vi.fn().mockReturnValue('');
-    remove = vi.fn();
-  },
+// Mock cookies service
+vi.mock('../services/cookies', () => ({
+  clearAuthFlag: vi.fn(),
 }));
-
-// Import after mocking
-import { setAuthToken } from './axios';
 
 describe('axios config', () => {
   beforeEach(() => {
-    // Clear headers before each test
-    mockHeaders.common = {};
+    vi.clearAllMocks();
   });
 
-  describe('setAuthToken', () => {
-    it('should set Authorization header when token is provided', () => {
-      setAuthToken('test-bearer-token');
+  it('should create axios instance with withCredentials', async () => {
+    const axios = await import('axios');
+    // Re-import to trigger module execution
+    vi.resetModules();
+    await import('./axios');
 
-      expect(mockHeaders.common['Authorization']).toBe('Bearer test-bearer-token');
-    });
+    expect(axios.default.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        withCredentials: true,
+      })
+    );
+  });
 
-    it('should set header to the token value', () => {
-      const token = 'Bearer xyz123';
-      setAuthToken(token);
+  it('should register a response interceptor', async () => {
+    vi.resetModules();
+    await import('./axios');
 
-      expect(mockHeaders.common['Authorization']).toBe(`Bearer ${token}`);
-    });
-
-    it('should remove Authorization header when token is null', () => {
-      // First set the headers
-      mockHeaders.common['Authorization'] = 'existing-token';
-
-      setAuthToken(null);
-
-      expect(mockHeaders.common['Authorization']).toBeUndefined();
-    });
-
-    it('should handle empty string token by removing headers', () => {
-      mockHeaders.common['Authorization'] = 'existing-token';
-
-      // Empty string is falsy, so should remove headers
-      setAuthToken('');
-
-      expect(mockHeaders.common['Authorization']).toBeUndefined();
-    });
-
-    it('should preserve token format exactly as provided', () => {
-      const rawToken = 'raw-token-no-bearer-prefix';
-      setAuthToken(rawToken);
-
-      expect(mockHeaders.common['Authorization']).toBe(`Bearer ${rawToken}`);
-    });
+    expect(mockResponseUse).toHaveBeenCalled();
   });
 });
