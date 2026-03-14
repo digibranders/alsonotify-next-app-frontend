@@ -57,13 +57,7 @@ export function PartnerRow({
                 </div>
 
                 {/* Business / Name */}
-                <div className="flex items-center gap-3">
-                    <div className={`
-             w-9 h-9 rounded-full flex items-center justify-center text-2xs font-bold shrink-0
-             ${isOrg ? 'bg-[#FEF2F2] text-[#DC2626]' : 'bg-[#EFF6FF] text-[#2563EB]'}
-           `}>
-                        {getInitials(partner.company)}
-                    </div>
+                <div className="flex items-center">
                     <div className="flex flex-col">
                         <span className="task-row-main font-bold text-[#111111] group-hover:text-[#ff3b3b] transition-colors">
                             {partner.company}
