@@ -82,6 +82,18 @@ export interface RequirementDto {
   company?: string | null;
   client?: string | null;
 
+  // Advance billing fields
+  advance_invoice_id?: number | null;
+  advance_amount?: number | null;
+  advance_received?: number;
+  advance_invoice?: {
+    id: number;
+    status: string;
+    invoice_number: string;
+    total: number;
+    amount_received: number;
+  } | null;
+
   // ─── Legacy / Deprecated fields ───────────────────────────────────────────
 
 }

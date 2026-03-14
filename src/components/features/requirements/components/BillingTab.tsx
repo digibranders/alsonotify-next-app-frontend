@@ -1,11 +1,14 @@
 import React, { useMemo, useState } from 'react';
 import { Requirement } from '@/types/domain';
-import { useInvoices } from '@/hooks/useInvoice';
+import { useInvoices, useRequirementAdvanceStatus } from '@/hooks/useInvoice';
 import { FileText, Plus, Download, ChevronRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { getInvoicePdfBlob } from '@/services/invoice';
 import { toast } from 'sonner';
 import dayjs from 'dayjs';
+import { AdvanceBillingStatusWidget } from '@/components/features/finance/AdvanceBillingStatusWidget';
+import { RaiseAdvanceProformaModal } from '@/components/features/finance/RaiseAdvanceProformaModal';
+import { RaiseFinalInvoiceModal } from '@/components/features/finance/RaiseFinalInvoiceModal';
 
 interface BillingTabProps {
     requirement: Requirement;
@@ -15,6 +18,9 @@ export const BillingTab: React.FC<BillingTabProps> = ({ requirement }) => {
     const router = useRouter();
     const { data: dbInvoicesData, isLoading } = useInvoices({ requirement_id: requirement.id });
     const [isDownloading, setIsDownloading] = useState<Record<string, boolean>>({});
+    const [showAdvanceModal, setShowAdvanceModal] = useState(false);
+    const [showFinalModal, setShowFinalModal] = useState(false);
+    const { data: advanceStatus } = useRequirementAdvanceStatus(requirement.id);
 
     // The backend should return invoices filtered by requirement_id.
     const invoices = useMemo(() => {
@@ -64,9 +70,24 @@ export const BillingTab: React.FC<BillingTabProps> = ({ requirement }) => {
         }
     };
 
+    const receiverCompanyId = requirement.receiver_company_id ?? 0;
+    const senderCompanyId   = requirement.sender_company_id ?? 0;
+    const quotedPrice = Number(requirement.quoted_price ?? requirement.estimated_cost ?? 0);
+    const currency = requirement.currency ?? 'INR';
+
     return (
         <div className="max-w-5xl mx-auto space-y-8">
             <div className="bg-white rounded-[16px] p-8 border border-[#EEEEEE] shadow-sm">
+                {/* Advance Billing Status Widget */}
+                <AdvanceBillingStatusWidget
+                    requirementId={requirement.id}
+                    quotedPrice={quotedPrice}
+                    currency={currency}
+                    requirementStatus={String(requirement.status ?? '')}
+                    onRaiseAdvance={() => setShowAdvanceModal(true)}
+                    onRaiseFinal={() => setShowFinalModal(true)}
+                />
+
                 <div className="flex items-center justify-between mb-6">
                     <h3 className="text-base font-bold text-[#111111] flex items-center gap-2">
                         <FileText className="w-5 h-5 text-[#ff3b3b]" />
@@ -206,6 +227,33 @@ export const BillingTab: React.FC<BillingTabProps> = ({ requirement }) => {
                     )}
                 </div>
             </div>
+
+            {/* Advance Proforma Modal */}
+            {showAdvanceModal && receiverCompanyId && senderCompanyId && (
+                <RaiseAdvanceProformaModal
+                    isOpen={showAdvanceModal}
+                    onClose={() => setShowAdvanceModal(false)}
+                    requirementId={requirement.id}
+                    requirementTitle={requirement.title || requirement.name || ''}
+                    quotedPrice={quotedPrice}
+                    currency={currency}
+                    receiverCompanyId={receiverCompanyId}
+                    senderCompanyId={senderCompanyId}
+                />
+            )}
+
+            {/* Final Invoice Modal */}
+            {showFinalModal && advanceStatus && receiverCompanyId && senderCompanyId && (
+                <RaiseFinalInvoiceModal
+                    isOpen={showFinalModal}
+                    onClose={() => setShowFinalModal(false)}
+                    requirementId={requirement.id}
+                    requirementTitle={requirement.title || requirement.name || ''}
+                    advanceStatus={advanceStatus}
+                    receiverCompanyId={receiverCompanyId}
+                    senderCompanyId={senderCompanyId}
+                />
+            )}
         </div>
     );
 };

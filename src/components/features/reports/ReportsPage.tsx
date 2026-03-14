@@ -885,7 +885,7 @@ export function ReportsPage() {
                         return (
                           <>
                             <div className="flex items-center justify-between w-full">
-                                <span className="task-row-main font-medium whitespace-nowrap text-[#111111]">
+                                <span className="task-row-sub font-medium whitespace-nowrap text-[#111111]">
                                   {row.engagedHrs?.toFixed(1)}h{(row.allottedHrs || 0) > 0 ? `/${row.allottedHrs.toFixed(1)}h` : ''}
                                 </span>
                                 <span className={`task-row-sub font-medium whitespace-nowrap ${isBleeding ? 'text-[#FF3B3B]' : isWarning ? 'text-[#EAB308]' : 'text-[#666666]'}`}>
@@ -1034,7 +1034,7 @@ export function ReportsPage() {
                       {/* Hours Variance */}
                       <div className="flex flex-col gap-1.5 justify-center items-start min-w-0">
                         <div className="flex items-center justify-between w-full">
-                          <span className="task-row-main font-medium whitespace-nowrap text-[#111111]">
+                          <span className="task-row-sub font-medium whitespace-nowrap text-[#111111]">
                             {row.engagedHrs?.toFixed(1)}h{hasEstimate ? `/${row.allottedHrs?.toFixed(1)}h` : ''}
                           </span>
                           {hasEstimate ? (

@@ -12,6 +12,7 @@ interface RecordPaymentModalProps {
     onSave: (data: { amount: number, date: string, method: string, reference?: string }) => void;
     isSaving?: boolean;
     currencySymbol?: string;
+    advanceDeducted?: number;
 }
 
 export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
@@ -22,7 +23,8 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
     amountReceived,
     onSave,
     isSaving = false,
-    currencySymbol = '₹'
+    currencySymbol = '₹',
+    advanceDeducted = 0,
 }) => {
     const remainingAmount = Math.max(0, totalAmount - amountReceived);
 
@@ -89,7 +91,9 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
                     {/* Summary Cards */}
                     <div className="grid grid-cols-2 gap-3">
                         <div className="bg-[#F9FAFB] border border-[#EEEEEE] rounded-xl p-3">
-                            <p className="text-xs font-medium text-[#999999] uppercase tracking-wider mb-1">Total Due</p>
+                            <p className="text-xs font-medium text-[#666666] uppercase tracking-wider mb-1">
+                                {advanceDeducted > 0 ? 'Invoice Total (after advance deduction)' : 'Total Due'}
+                            </p>
                             <p className="text-lg font-bold text-[#111111]">{currencySymbol}{totalAmount.toLocaleString()}</p>
                         </div>
                         <div className="bg-blue-50/50 border border-blue-100 rounded-xl p-3">
