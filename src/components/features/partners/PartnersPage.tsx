@@ -766,7 +766,7 @@ export function PartnersPageContent() {
                 {/* 3. Standard View (Active/Inactive) (Toggle Visibility) */}
                 <div className={activeTab !== 'requests' && activeTab !== 'account-managers' ? '' : 'hidden'}>
                     {/* Header */}
-                    <div className="sticky top-0 z-20 bg-white grid grid-cols-[40px_1.8fr_1fr_0.8fr_1fr_0.8fr_0.7fr_0.7fr_40px] gap-4 px-4 py-3 items-center">
+                    <div className="sticky top-0 z-20 bg-white grid grid-cols-[40px_1.2fr_1fr_0.8fr_1.6fr_0.8fr_0.7fr_0.7fr_40px] gap-4 px-4 py-3 items-center">
                         <div className="flex justify-center">
                             <Checkbox
                                 checked={paginatedPartners.length > 0 && selectedPartners.length === paginatedPartners.length}
@@ -791,7 +791,7 @@ export function PartnersPageContent() {
                         {loading ? (
                             Array.from({ length: 10 }).map((_, i) => (
                                 <div key={i} className="bg-white border border-[#EEEEEE] rounded-[16px] px-4 py-3 animate-pulse">
-                                    <div className="grid grid-cols-[40px_1.8fr_1fr_0.8fr_1.5fr_1fr_0.8fr_0.7fr_0.7fr_40px] gap-4 items-center">
+                                    <div className="grid grid-cols-[40px_1.2fr_1fr_0.8fr_1.6fr_0.8fr_0.7fr_0.7fr_40px] gap-4 items-center">
                                         <div className="flex justify-center">
                                             <Skeleton className="h-4 w-4 rounded" />
                                         </div>

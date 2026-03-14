@@ -43,7 +43,7 @@ export function PartnerRow({
                 }
       `}
         >
-            <div className="grid grid-cols-[40px_1.8fr_1fr_0.8fr_1fr_0.8fr_0.7fr_0.7fr_40px] gap-4 items-center">
+            <div className="grid grid-cols-[40px_1.2fr_1fr_0.8fr_1.6fr_0.8fr_0.7fr_0.7fr_40px] gap-4 items-center">
                 {/* Checkbox */}
                 <div className="flex justify-center" onClick={(e) => e.stopPropagation()}>
                     <Checkbox
