@@ -809,7 +809,7 @@ export function ReportsPage() {
             {isLoadingRequirements ? (
               <div className="space-y-2 px-1">
                 {Array.from({ length: 8 }).map((_, i) => (
-                  <div key={i} className="bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[40px_1.8fr_1.2fr_120px_140px_100px_140px_80px] gap-2 px-4 py-4 items-center min-w-[900px]">
+                  <div key={i} className="bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[36px_2fr_0.9fr_0.75fr_1.4fr_0.6fr_1fr_0.6fr] gap-2 px-4 py-4 items-center min-w-[900px]">
                     <Skeleton className="h-4 w-4" />
                     <Skeleton className="h-4 w-3/4" />
                     <Skeleton className="h-4 w-12" />
@@ -824,7 +824,7 @@ export function ReportsPage() {
             ) : (
               <div className="px-1 space-y-2">
                 {/* Header */}
-                <div className="sticky top-0 z-20 min-w-[900px] bg-white border border-transparent grid grid-cols-[40px_1.8fr_1.2fr_120px_140px_100px_140px_80px] gap-2 px-4 py-3 mb-2 items-center">
+                <div className="sticky top-0 z-20 min-w-[900px] bg-white border border-transparent grid grid-cols-[36px_2fr_0.9fr_0.75fr_1.4fr_0.6fr_1fr_0.6fr] gap-2 px-4 py-3 mb-2 items-center">
                   <div><TableHeader label="No" /></div>
                   <TableHeader label="Requirement" sortKey="requirement" currentSort={sortConfig} onSort={handleSort} />
                   <TableHeader label="Contact Person" sortKey="manager" currentSort={sortConfig} onSort={handleSort} tooltip="Contact Person" />
@@ -839,7 +839,7 @@ export function ReportsPage() {
                 {filteredRequirements.map((row, idx) => (
                   <div
                     key={row.id}
-                    className="group min-w-[900px] bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[40px_1.8fr_1.2fr_120px_140px_100px_140px_80px] gap-2 px-4 py-2 items-start hover:border-[#ff3b3b]/20 hover:shadow-lg transition-all duration-300"
+                    className="group min-w-[900px] bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[36px_2fr_0.9fr_0.75fr_1.4fr_0.6fr_1fr_0.6fr] gap-2 px-4 py-2 items-start min-h-[72px] hover:border-[#ff3b3b]/20 hover:shadow-lg transition-all duration-300"
                   >
                     <div className="task-row-sub text-[#666666] font-medium self-center">{idx + 1}</div>
 
@@ -941,7 +941,7 @@ export function ReportsPage() {
             {isLoadingTasks ? (
               <div className="space-y-2 px-1">
                 {Array.from({ length: 10 }).map((_, i) => (
-                  <div key={i} className="bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[40px_2.2fr_1.2fr_0.9fr_0.9fr_75px_150px_85px] gap-2 px-4 py-4 items-center min-w-[900px]">
+                  <div key={i} className="bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[36px_2.4fr_1fr_1.1fr_56px_0.75fr_1.2fr_0.5fr] gap-2 px-4 py-4 items-center min-w-[900px]">
                     <Skeleton className="h-4 w-4" />
                     <div className="flex flex-col gap-1"><Skeleton className="h-4 w-3/4" /><Skeleton className="h-3 w-1/2" /></div>
                     <Skeleton className="h-4 w-2/3" />
@@ -956,7 +956,7 @@ export function ReportsPage() {
             ) : (
               <div className="px-1 space-y-2">
                 {/* Header */}
-                <div className="sticky top-0 z-20 min-w-[900px] bg-white border border-transparent grid grid-cols-[40px_2.2fr_1.2fr_0.9fr_0.9fr_75px_150px_85px] gap-2 px-4 py-3 mb-2 items-center">
+                <div className="sticky top-0 z-20 min-w-[900px] bg-white border border-transparent grid grid-cols-[36px_2.4fr_1fr_1.1fr_56px_0.75fr_1.2fr_0.5fr] gap-2 px-4 py-3 mb-2 items-center">
                   <div><TableHeader label="No" /></div>
                   <TableHeader label="Task" sortKey="task" currentSort={sortConfig} onSort={handleSort} />
                   <TableHeader label="Requirement" sortKey="requirement" currentSort={sortConfig} onSort={handleSort} />
@@ -982,7 +982,7 @@ export function ReportsPage() {
                   return (
                     <div
                       key={row.id}
-                      className="group min-w-[900px] bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[40px_2.2fr_1.2fr_0.9fr_0.9fr_75px_150px_85px] gap-2 px-4 py-2 items-start hover:border-[#ff3b3b]/20 hover:shadow-lg transition-all duration-300"
+                      className="group min-w-[900px] bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[36px_2.4fr_1fr_1.1fr_56px_0.75fr_1.2fr_0.5fr] gap-2 px-4 py-2 items-start min-h-[72px] hover:border-[#ff3b3b]/20 hover:shadow-lg transition-all duration-300"
                     >
                       {/* No */}
                       <div className="task-row-sub text-[#666666] font-medium self-center">{idx + 1}</div>
@@ -1060,7 +1060,7 @@ export function ReportsPage() {
             {isLoadingEmployees ? (
               <div className="space-y-2 px-1">
                 {Array.from({ length: 8 }).map((_, i) => (
-                  <div key={i} className="bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[50px_2.5fr_2fr_1fr_1.2fr_1.2fr_1.2fr] gap-4 px-4 py-4 items-center">
+                  <div key={i} className="bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[36px_2.5fr_1.8fr_1fr_1fr_1fr_1.2fr] gap-4 px-4 py-4 items-center">
                     <Skeleton className="h-4 w-4" />
                     <Skeleton className="h-4 w-1/4" />
                     <Skeleton className="h-3 w-1/3" />
@@ -1070,7 +1070,7 @@ export function ReportsPage() {
             ) : (
               <div className="px-1 space-y-2">
                 {/* Header */}
-                <div className="sticky top-0 z-20 min-w-[1000px] bg-white border border-transparent grid grid-cols-[50px_2.5fr_2fr_1fr_1.2fr_1.2fr_1.2fr] gap-4 px-4 py-3 mb-2 items-center">
+                <div className="sticky top-0 z-20 min-w-[1000px] bg-white border border-transparent grid grid-cols-[36px_2.5fr_1.8fr_1fr_1fr_1fr_1.2fr] gap-4 px-4 py-3 mb-2 items-center">
                   <div><TableHeader label="No" /></div>
                   <TableHeader label="Member" sortKey="member" currentSort={sortConfig} onSort={handleSort} />
                   <TableHeader label="Tasks Performance" tooltip="Breakdown of assigned tasks: Completed (green), In-progress (blue), Delayed (red)." />
@@ -1084,7 +1084,7 @@ export function ReportsPage() {
                 {filteredEmployees.map((row, idx) => (
                   <div
                     key={row.id}
-                    className="group min-w-[1000px] bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[50px_2.5fr_2fr_1fr_1.2fr_1.2fr_1.2fr] gap-4 px-4 py-2 items-start hover:border-[#ff3b3b]/20 hover:shadow-lg transition-all duration-300 cursor-pointer"
+                    className="group min-w-[1000px] bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[36px_2.5fr_1.8fr_1fr_1fr_1fr_1.2fr] gap-4 px-4 py-2 items-start min-h-[72px] hover:border-[#ff3b3b]/20 hover:shadow-lg transition-all duration-300 cursor-pointer"
                     onClick={() => setSelectedMemberId(String(row.id))}
                   >
                     <div className="task-row-sub text-[#666666] font-medium self-center">{idx + 1}</div>
