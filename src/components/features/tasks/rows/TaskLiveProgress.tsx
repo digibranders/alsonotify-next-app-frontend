@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Tooltip } from 'antd';
 import { useTimer } from '@/context/TimerContext';
 import { Task } from '@/types/domain';
+import { formatDecimalHours } from '@/utils/timeFormat';
 
 interface TaskLiveProgressProps {
   task: Task;
@@ -136,10 +137,10 @@ export function TaskLiveProgress({ task, currentUserId }: TaskLiveProgressProps)
   // --- Tooltip content ---
   const summaryTooltip = (
     <div style={{ minWidth: 160 }}>
-      <Row label="Total Logged" value={`${totalLoggedHours.toFixed(1)}h`} bold />
+      <Row label="Total Logged" value={formatDecimalHours(totalLoggedHours)} bold />
       {hasEst && (
         <>
-          <Row label="Total Estimated" value={`${effectiveEst.toFixed(1)}h`} />
+          <Row label="Total Estimated" value={formatDecimalHours(effectiveEst)} />
           <Row
             label="Used"
             value={`${usedPct}%`}
@@ -147,7 +148,7 @@ export function TaskLiveProgress({ task, currentUserId }: TaskLiveProgressProps)
           />
           <Row
             label={isBleeding ? 'Over budget' : 'Remaining'}
-            value={isBleeding ? `+${Math.abs(remaining).toFixed(1)}h` : `${remaining.toFixed(1)}h`}
+            value={isBleeding ? `+${formatDecimalHours(Math.abs(remaining))}` : formatDecimalHours(remaining)}
             color={isBleeding ? '#FF6B6B' : '#4ADE80'}
           />
         </>
@@ -171,7 +172,7 @@ export function TaskLiveProgress({ task, currentUserId }: TaskLiveProgressProps)
       >
         <div className="flex items-center justify-between w-full">
           <span className={`font-medium task-row-sub whitespace-nowrap ${labelColor}`}>
-            {totalLoggedHours.toFixed(1)}h{hasEst ? `/${effectiveEst.toFixed(1)}h` : ''}
+            {formatDecimalHours(totalLoggedHours)}{hasEst ? `/${formatDecimalHours(effectiveEst)}` : ''}
           </span>
           {hasEst ? (
             <span className={`task-row-sub font-medium whitespace-nowrap ${isBleeding
@@ -180,7 +181,7 @@ export function TaskLiveProgress({ task, currentUserId }: TaskLiveProgressProps)
                 ? 'text-[#EAB308]'
                 : 'text-[#666666]'
               }`}>
-              {isBleeding ? `+${Math.abs(remaining).toFixed(1)}h over` : `${remaining.toFixed(1)}h left`}
+              {isBleeding ? `+${formatDecimalHours(Math.abs(remaining))} over` : `${formatDecimalHours(remaining)} left`}
             </span>
           ) : (
             <span className="task-row-sub text-[#666666] font-medium whitespace-nowrap">No estimate</span>
@@ -200,10 +201,10 @@ export function TaskLiveProgress({ task, currentUserId }: TaskLiveProgressProps)
                   <div className="font-bold text-xs mb-0.5">{seg.user?.name || 'Unknown'}</div>
                   <div className="text-2xs opacity-70 mb-1">Status: {seg.status}</div>
                   <div className="text-xs font-medium">
-                    {seg.loggedHours.toFixed(1)}h / {seg.segEst.toFixed(1)}h
+                    {formatDecimalHours(seg.loggedHours)} / {formatDecimalHours(seg.segEst)}
                     {overtime > 0 && (
                       <span className="text-[#FF6B6B] font-bold ml-1.5">
-                        (+{overtime.toFixed(1)}h)
+                        (+{formatDecimalHours(overtime)})
                       </span>
                     )}
                   </div>

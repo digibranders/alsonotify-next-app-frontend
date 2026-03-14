@@ -26,6 +26,7 @@ import { ReviewDecisionModal } from './components/ReviewDecisionModal';
 
 
 import { Linkify } from '@/components/common/Linkify';
+import { formatDecimalHours } from '@/utils/timeFormat';
 
 interface TaskActivityAttachment {
   id: number;
@@ -262,7 +263,7 @@ export function TaskDetailsPage() {
   const progressPercent = estimatedHours > 0
     ? Math.min(Math.round((workedHours / estimatedHours) * 100), 100)
     : 0;
-  const formattedLogged = workedHours < 0.1 && workedHours > 0 ? '< 0.1' : workedHours.toFixed(1);
+  const formattedLogged = workedHours < 0.1 && workedHours > 0 ? '< 1m' : formatDecimalHours(workedHours);
 
   // Enable Start only when current member has provided estimate (align with FloatingTimerBar)
 
@@ -294,7 +295,7 @@ export function TaskDetailsPage() {
       }
       action={
         <div className="flex items-center gap-3 flex-wrap">
-          <TaskStatusBadge status={task.status || 'Assigned'} showLabel />
+          <TaskStatusBadge status={task.status || 'Assigned'} />
           {task.is_high_priority && (
             <span className="px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wide bg-[#FFF5F5] text-[#ff3b3b]">
               HIGH PRIORITY
@@ -502,8 +503,8 @@ export function TaskDetailsPage() {
 
                     <div className="relative pt-2">
                       <div className="flex justify-between text-xs font-semibold text-[#999999] mb-2 uppercase tracking-wide">
-                        <span>Logged: {formattedLogged}h</span>
-                        <span>{Math.max(0, estimatedHours - workedHours).toFixed(1)}h left</span>
+                        <span>Logged: {formattedLogged}</span>
+                        <span>{formatDecimalHours(Math.max(0, estimatedHours - workedHours))} left</span>
                       </div>
                       <div className="w-full h-2 bg-[#E0E0E0] rounded-full overflow-hidden">
                         <div
