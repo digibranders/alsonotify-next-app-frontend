@@ -77,6 +77,9 @@ export function InvoiceDetailPage() {
             },
             memo: invoice.memo ?? '',
             footer: invoice.payment_details ?? '',
+            invoiceType: invoice.invoice_type as 'TAX' | 'PROFORMA' | undefined,
+            advanceDeducted: Number(invoice.advance_deducted ?? 0),
+            proformaRefId: invoice.proforma_ref_id?.toString(),
         }
         : null;
 
@@ -159,7 +162,7 @@ export function InvoiceDetailPage() {
     const canVoid = status !== 'paid' && status !== 'void';
 
     // Check if it's a Proforma and if it hasn't been converted yet
-    const isProforma = invoice.invoice_number?.startsWith('PROF-');
+    const isProforma = invoice.invoice_type === 'PROFORMA';
 
     const currencySymbol = (() => {
         try {
@@ -303,6 +306,7 @@ export function InvoiceDetailPage() {
                 totalAmount={invoice.total}
                 amountReceived={invoice.amount_received ?? 0}
                 currencySymbol={currencySymbol}
+                advanceDeducted={Number(invoice.advance_deducted ?? 0)}
                 isSaving={isRecordingPayment}
                 onSave={async (data) => {
                     try {

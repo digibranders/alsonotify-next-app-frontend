@@ -52,6 +52,7 @@ interface Invoice {
   amount: number;
   amountReceived: number;
   status: string;
+  invoice_type?: string;
   items: Array<{ id: string; requirementId: string; description: string; quantity: number; unitPrice: number; amount: number }>;
 }
 
@@ -75,6 +76,7 @@ export function FinancePage() {
       amount: inv.total,
       amountReceived: inv.amount_received ?? 0,
       status: inv.status?.toLowerCase() ?? 'draft',
+      invoice_type: inv.invoice_type,
       items: (inv.particulars || []).map(p => ({
         id: p.id || crypto.randomUUID(),
         requirementId: String(p.requirement_id ?? ''),
@@ -261,7 +263,7 @@ export function FinancePage() {
   // --- Stats ---
 
   const kpiInvoiced = useMemo(() => {
-    const activeInvoices = invoices.filter(i => i.status !== 'draft' && i.status !== 'void');
+    const activeInvoices = invoices.filter(i => i.status !== 'draft' && i.status !== 'void' && i.invoice_type !== 'PROFORMA');
     const total = activeInvoices.reduce((sum, inv) => sum + inv.amount, 0);
     const received = activeInvoices.filter(i => i.status === 'paid').reduce((sum, inv) => sum + inv.amount, 0);
     // Rough estimate for partials if any (mock doesn't have partial amounts received, assume 0 for simplicity or use db fields if available, but for now due = total - received)

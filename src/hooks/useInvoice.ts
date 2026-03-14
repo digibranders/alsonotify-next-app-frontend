@@ -4,6 +4,8 @@ import {
   getInvoices, getInvoiceById, createInvoice, updateInvoice,
   reviseInvoice, recordPayment, sendInvoiceEmail,
   updateInvoiceStatus, getRequirementBillingStatus, Particular,
+  getRequirementAdvanceStatus, createAdvanceProforma, createFinalInvoice,
+  CreateAdvanceProformaPayload, CreateFinalInvoicePayload,
 } from '../services/invoice';
 import { toQueryParams } from '../utils/queryParams';
 
@@ -175,5 +177,44 @@ export const useRequirementBillingStatus = (requirementId?: number | string) => 
       return res.result;
     },
     enabled: !!requirementId,
+  });
+};
+
+export const useRequirementAdvanceStatus = (requirementId?: number) => {
+  return useQuery({
+    queryKey: ['requirement-advance-status', requirementId],
+    queryFn: async () => {
+      const res = await getRequirementAdvanceStatus(requirementId!);
+      return res.result;
+    },
+    enabled: !!requirementId,
+  });
+};
+
+export const useCreateAdvanceProforma = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ requirementId, data }: { requirementId: number; data: CreateAdvanceProformaPayload }) =>
+      createAdvanceProforma(requirementId, data),
+    onSuccess: (_, { requirementId }) => {
+      queryClient.invalidateQueries({ queryKey: ['requirement-advance-status', requirementId] });
+      queryClient.invalidateQueries({ queryKey: ['requirement-billing-status', requirementId] });
+      queryClient.invalidateQueries({ queryKey: ['requirements'] });
+      queryClient.invalidateQueries({ queryKey: ['invoices'] });
+    },
+  });
+};
+
+export const useCreateFinalInvoice = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ requirementId, data }: { requirementId: number; data: CreateFinalInvoicePayload }) =>
+      createFinalInvoice(requirementId, data),
+    onSuccess: (_, { requirementId }) => {
+      queryClient.invalidateQueries({ queryKey: ['requirement-advance-status', requirementId] });
+      queryClient.invalidateQueries({ queryKey: ['requirement-billing-status', requirementId] });
+      queryClient.invalidateQueries({ queryKey: ['requirements'] });
+      queryClient.invalidateQueries({ queryKey: ['invoices'] });
+    },
   });
 };
