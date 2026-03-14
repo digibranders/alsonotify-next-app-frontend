@@ -327,7 +327,7 @@ export function RequirementCard({
           {requirement.headerContact && (
             <>
               <span className="text-[#E5E5E5] text-2xs">|</span>
-              <span className="font-bold text-[#111111] text-2xs truncate max-w-[100px]" title={requirement.headerContact}>
+              <span className="font-bold text-[#111111] text-xs truncate max-w-[100px]" title={requirement.headerContact}>
                 {requirement.headerContact}
               </span>
             </>
@@ -337,7 +337,7 @@ export function RequirementCard({
           {requirement.headerCompany && (
             <>
               <span className="text-[#E5E5E5] shrink-0 text-2xs">|</span>
-              <span className="font-bold uppercase tracking-wider text-[#999999] text-2xs truncate max-w-[100px]" title={requirement.headerCompany}>
+              <span className="font-bold text-[#999999] text-xs truncate max-w-[100px]" title={requirement.headerCompany}>
                 {requirement.headerCompany}
               </span>
             </>
