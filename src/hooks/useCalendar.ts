@@ -9,7 +9,7 @@ export const useTeamsConnectionStatus = () => {
     queryFn: () => getTeamsConnectionStatus(),
     refetchOnWindowFocus: true,
     refetchInterval: 30000, // Refetch every 30 seconds to check connection status
-    staleTime: 0, // Always consider data stale to ensure fresh status
+    staleTime: 30_000,
   });
 };
 
