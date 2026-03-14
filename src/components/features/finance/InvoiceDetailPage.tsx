@@ -4,8 +4,9 @@ import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Download, Send, CreditCard, X } from 'lucide-react';
 import { toast } from 'sonner';
-import { useInvoice, useRecordPayment, useUpdateInvoiceStatus, useReviseInvoice } from '@/hooks/useInvoice';
+import { useInvoice, useRecordPayment, useUpdateInvoiceStatus, useReviseInvoice, usePaymentHistory } from '@/hooks/useInvoice';
 import { getInvoicePdfBlob, convertProformaToTaxInvoice } from '@/services/invoice';
+import dayjs from 'dayjs';
 import { InvoicePreview, InvoicePreviewData } from './InvoicePreview';
 import { SendInvoiceModal } from './SendInvoiceModal';
 import { RecordPaymentModal } from './RecordPaymentModal';
@@ -20,6 +21,7 @@ export function InvoiceDetailPage() {
     const { mutateAsync: recordPaymentMutation, isPending: isRecordingPayment } = useRecordPayment();
     const { mutateAsync: updateStatus, isPending: isUpdatingStatus } = useUpdateInvoiceStatus();
     const { mutateAsync: reviseInvoiceMutation, isPending: isRevising } = useReviseInvoice();
+    const { data: payments, isLoading: isLoadingPayments } = usePaymentHistory(id ? Number(id) : null);
 
     const [isSendModalOpen, setIsSendModalOpen] = useState(false);
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
@@ -285,9 +287,68 @@ export function InvoiceDetailPage() {
                 </div>
             </div>
 
-            {/* Invoice Preview */}
-            <div className="flex-1 overflow-y-auto p-8 flex justify-center">
-                {previewData && <InvoicePreview data={previewData} />}
+            {/* Invoice Preview + Payment History */}
+            <div className="flex-1 overflow-y-auto p-8">
+                <div className="flex justify-center">
+                    {previewData && <InvoicePreview data={previewData} />}
+                </div>
+
+                {/* Payment History */}
+                <div className="max-w-4xl mx-auto mt-8">
+                    <h4 className="text-sm font-bold text-[#111111] mb-4">Payment History</h4>
+
+                    {isLoadingPayments ? (
+                        <div className="text-center py-8 text-[#999999] text-sm">Loading payments...</div>
+                    ) : !payments || payments.length === 0 ? (
+                        <div className="text-center py-8 rounded-xl border border-dashed border-[#DDDDDD] bg-[#FAFAFA]">
+                            <CreditCard className="w-6 h-6 text-[#CCCCCC] mx-auto mb-2" />
+                            <p className="text-sm font-medium text-[#111111]">No payments recorded</p>
+                            <p className="text-xs text-[#666666] mt-1">Payments will appear here once recorded.</p>
+                        </div>
+                    ) : (
+                        <div className="border border-[#EEEEEE] rounded-xl overflow-hidden">
+                            <table className="w-full text-left border-collapse">
+                                <thead>
+                                    <tr className="bg-[#F9FAFB] border-b border-[#EEEEEE]">
+                                        <th className="px-4 py-3 text-xs font-semibold text-[#666666] uppercase tracking-wider">Date</th>
+                                        <th className="px-4 py-3 text-xs font-semibold text-[#666666] uppercase tracking-wider">Amount</th>
+                                        <th className="px-4 py-3 text-xs font-semibold text-[#666666] uppercase tracking-wider">Method</th>
+                                        <th className="px-4 py-3 text-xs font-semibold text-[#666666] uppercase tracking-wider">Notes</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {payments.map((payment, idx) => (
+                                        <tr
+                                            key={payment.id}
+                                            className={idx !== payments.length - 1 ? 'border-b border-[#EEEEEE]' : ''}
+                                        >
+                                            <td className="px-4 py-3">
+                                                <p className="text-xs text-[#666666]">
+                                                    {payment.payment_date ? dayjs(payment.payment_date).format('MMM D, YYYY') : '--'}
+                                                </p>
+                                            </td>
+                                            <td className="px-4 py-3">
+                                                <p className="text-xs font-medium text-[#111111]">
+                                                    {currencySymbol}{Number(payment.amount).toLocaleString()}
+                                                </p>
+                                            </td>
+                                            <td className="px-4 py-3">
+                                                <p className="text-xs text-[#666666] capitalize">
+                                                    {payment.payment_method || '--'}
+                                                </p>
+                                            </td>
+                                            <td className="px-4 py-3">
+                                                <p className="text-xs text-[#666666]">
+                                                    {payment.reference || payment.notes || '--'}
+                                                </p>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                </div>
             </div>
 
             {/* Modals */}

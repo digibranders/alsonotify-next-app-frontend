@@ -86,16 +86,19 @@ export interface RequirementDto {
   advance_invoice_id?: number | null;
   advance_amount?: number | null;
   advance_received?: number;
+  requires_advance_payment?: boolean;
+  advance_payment_due_date?: string | null;
   advance_invoice?: {
     id: number;
     status: string;
     invoice_number: string;
     total: number;
     amount_received: number;
+    due_date?: string | null;
   } | null;
 
-  // ─── Legacy / Deprecated fields ───────────────────────────────────────────
-
+  // Revision
+  max_revisions?: number;
 }
 
 export interface CreateRequirementRequestDto {
@@ -122,6 +125,9 @@ export interface CreateRequirementRequestDto {
   leader_id?: number;
   receiver_workspace_id?: number;
   sender_company_id?: number;
+  requires_advance_payment?: boolean;
+  advance_amount?: number;
+  advance_payment_due_date?: string;
 }
 
 export interface UpdateRequirementRequestDto extends Partial<CreateRequirementRequestDto> {

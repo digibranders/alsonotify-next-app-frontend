@@ -10,8 +10,6 @@ interface AdvanceBillingStatusWidgetProps {
     quotedPrice: number;
     currency: string;
     requirementStatus: string;
-    onRaiseAdvance: () => void;
-    onRaiseFinal: () => void;
 }
 
 type BillingStatusConfig = {
@@ -29,6 +27,7 @@ const BILLING_STATUS_CONFIG: Record<string, BillingStatusConfig> = {
     Advance_Paid_In_Progress:{ label: 'Advance Paid',          color: 'text-[#0F9D58]',  bgColor: 'bg-[#E8F5E9]' },
     Ready_For_Final_Invoice: { label: 'Ready for Final Invoice',color: 'text-blue-600',   bgColor: 'bg-blue-50' },
     Invoiced:                { label: 'Invoiced',               color: 'text-[#2196F3]',  bgColor: 'bg-[#E3F2FD]' },
+    Advance_Overdue:         { label: 'Advance Overdue',        color: 'text-[#D14343]',  bgColor: 'bg-red-50' },
     Paid:                    { label: 'Paid',                   color: 'text-[#0F9D58]',  bgColor: 'bg-[#E8F5E9]' },
 };
 
@@ -37,8 +36,6 @@ export const AdvanceBillingStatusWidget: React.FC<AdvanceBillingStatusWidgetProp
     quotedPrice,
     currency,
     requirementStatus,
-    onRaiseAdvance,
-    onRaiseFinal,
 }) => {
     const router = useRouter();
     const { data: advanceStatus, isLoading } = useRequirementAdvanceStatus(requirementId);
@@ -150,49 +147,34 @@ export const AdvanceBillingStatusWidget: React.FC<AdvanceBillingStatusWidgetProp
                 </div>
             )}
 
-            {/* Action Buttons */}
-            <div className="flex gap-2 mt-2">
-                {/* Show Raise Advance when requirement is not complete and no advance proforma yet */}
-                {!advInvoice && !finalInvoice && isCompleted && (
-                    <button
-                        onClick={onRaiseAdvance}
-                        className="flex-1 py-2 text-xs font-semibold text-[#111111] border border-[#EEEEEE] rounded-xl hover:bg-[#F9FAFB] transition-colors flex items-center justify-center gap-1.5"
-                    >
-                        <FileText className="w-3.5 h-3.5" /> Raise Advance
-                    </button>
-                )}
-                {!advInvoice && !finalInvoice && !isCompleted && (
-                    <button
-                        onClick={onRaiseAdvance}
-                        className="flex-1 py-2 text-xs font-semibold text-[#111111] border border-[#EEEEEE] rounded-xl hover:bg-[#F9FAFB] transition-colors flex items-center justify-center gap-1.5"
-                    >
-                        <FileText className="w-3.5 h-3.5" /> Raise Advance Proforma
-                    </button>
-                )}
-
-                {/* Show Raise Final when advance is paid and requirement is complete */}
-                {(status === 'Ready_For_Final_Invoice' || (isCompleted && !finalInvoice)) && (
-                    <button
-                        onClick={onRaiseFinal}
-                        className="flex-1 py-2 text-xs font-semibold bg-[#111111] text-white rounded-xl hover:bg-black transition-colors flex items-center justify-center gap-1.5"
-                    >
-                        <CheckCircle2 className="w-3.5 h-3.5" /> Raise Final Invoice
-                    </button>
-                )}
-
-                {/* Status-specific hints */}
+            {/* Status Hints */}
+            <div className="mt-2 space-y-2">
                 {(status === 'Advance_Draft' || status === 'Advance_Sent' || status === 'Advance_Partial') && (
-                    <div className="flex-1 flex items-center justify-center gap-1.5 py-2 text-xs text-[#666666]">
+                    <div className="flex items-center justify-center gap-1.5 py-2 text-xs text-[#666666]">
                         <Clock className="w-3.5 h-3.5" />
                         {status === 'Advance_Draft' ? 'Proforma not yet sent' : 'Awaiting advance payment'}
                     </div>
                 )}
+                {status === 'Advance_Overdue' && (
+                    <div className="flex items-center justify-center gap-1.5 py-2 text-xs text-[#D14343]">
+                        <AlertCircle className="w-3.5 h-3.5" />
+                        Advance payment is overdue
+                    </div>
+                )}
                 {status === 'Advance_Paid_In_Progress' && (
-                    <div className="flex-1 flex items-center justify-center gap-1.5 py-2 text-xs text-[#666666]">
+                    <div className="flex items-center justify-center gap-1.5 py-2 text-xs text-[#666666]">
                         <AlertCircle className="w-3.5 h-3.5" />
                         Work in progress
                     </div>
                 )}
+
+                {/* Manage in Finance link */}
+                <button
+                    onClick={() => router.push('/dashboard/finance')}
+                    className="w-full py-1.5 text-xs font-medium text-blue-600 hover:underline flex items-center justify-center gap-1"
+                >
+                    Manage in Finance <ArrowRight className="w-3 h-3" />
+                </button>
             </div>
         </div>
     );

@@ -19,7 +19,9 @@ import dayjs from 'dayjs';
 import { useCurrentUserCompany, usePartners } from '@/hooks/useUser';
 import { useCreateInvoice } from '@/hooks/useInvoice';
 import { useCollaborativeRequirements } from '@/hooks/useRequirement';
-import { getNextInvoiceNumber, getTaxPreview } from '@/services/invoice';
+import { getNextInvoiceNumber, getTaxPreview, searchHsnSacCodes, getTdsSections } from '@/services/invoice';
+import type { HsnSacCode, TdsSection } from '@/services/invoice';
+import { AutoComplete, Select } from 'antd';
 import { InvoicePreview } from './InvoicePreview';
 import { useInvoicePresets, InvoicePaymentPreset } from '@/hooks/useInvoicePresets';
 import { trimStr } from '@/utils/trim';
@@ -31,6 +33,7 @@ interface LineItem {
     quantity: number;
     unitPrice: number;
     taxRate: number; // Percentage
+    hsn_sac?: string;
     requirement_id?: number;
 }
 
@@ -65,6 +68,15 @@ export function CreateInvoicePage() {
     const [invoiceType, setInvoiceType] = useState<'TAX' | 'PROFORMA'>('TAX');
     const [advanceDeducted, setAdvanceDeducted] = useState<number>(0);
     const [proformaRefId, setProformaRefId] = useState<string>('');
+
+    // --- TDS State ---
+    const [tdsSection, setTdsSection] = useState<string | undefined>(undefined);
+    const [tdsRate, setTdsRate] = useState<number>(0);
+    const [tdsSections, setTdsSections] = useState<TdsSection[]>([]);
+
+    // --- HSN/SAC State ---
+    const [hsnSacOptions, setHsnSacOptions] = useState<Record<string, { value: string; label: string }[]>>({});
+    const hsnSearchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const [isDownloading, setIsDownloading] = useState(false);
     const previewRef = useRef<HTMLDivElement>(null);
@@ -239,6 +251,34 @@ export function CreateInvoicePage() {
             }
         }
     }, [taxPreviewData]);
+
+    // --- Fetch TDS Sections ---
+    useEffect(() => {
+        getTdsSections().then(setTdsSections).catch(() => { /* ignore */ });
+    }, []);
+
+    // --- HSN/SAC Debounced Search ---
+    const handleHsnSacSearch = useCallback((itemId: string, query: string) => {
+        if (hsnSearchTimerRef.current) clearTimeout(hsnSearchTimerRef.current);
+        if (!query || query.length < 2) {
+            setHsnSacOptions(prev => ({ ...prev, [itemId]: [] }));
+            return;
+        }
+        hsnSearchTimerRef.current = setTimeout(async () => {
+            try {
+                const results = await searchHsnSacCodes(query, undefined, 10);
+                setHsnSacOptions(prev => ({
+                    ...prev,
+                    [itemId]: results.map((r: HsnSacCode) => ({
+                        value: r.code,
+                        label: `${r.code} — ${r.description}`,
+                    })),
+                }));
+            } catch {
+                setHsnSacOptions(prev => ({ ...prev, [itemId]: [] }));
+            }
+        }, 300);
+    }, []);
 
     // Payment Presets State using Hook
     const { presets: paymentPresets, addPreset, deletePreset } = useInvoicePresets();
@@ -417,6 +457,7 @@ export function CreateInvoicePage() {
                 unit_price: item.unitPrice,
                 amount: item.quantity * item.unitPrice,
                 tax_rate: item.taxRate,
+                hsn_sac: item.hsn_sac,
                 requirement_id: item.requirement_id,
             }));
 
@@ -444,6 +485,11 @@ export function CreateInvoicePage() {
                 total: totals.total,
                 memo,
                 payment_details: footer,
+                ...(tdsSection ? {
+                    tds_section: tdsSection,
+                    tds_rate: tdsRate,
+                    tds_amount: (totals.subtotal * tdsRate) / 100,
+                } : {}),
                 ...(invoiceDetails.length > 0 && { metadata: { invoiceDetails } }),
             };
             const created = await createInvoiceMutation(payload);
@@ -730,6 +776,7 @@ export function CreateInvoicePage() {
                             {/* Table Headers for Editor */}
                             <div className="flex gap-3 mb-2 px-1">
                                 <span className="flex-1 text-xs font-bold text-[#999999] uppercase">Description</span>
+                                <span className="w-36 text-xs font-bold text-[#999999] uppercase">HSN/SAC</span>
                                 <span className="w-20 text-xs font-bold text-[#999999] uppercase text-right">Qty</span>
                                 <span className="w-32 text-xs font-bold text-[#999999] uppercase text-right">Price</span>
                                 <span className="w-28 text-xs font-bold text-[#999999] uppercase text-right">Total</span>
@@ -746,6 +793,17 @@ export function CreateInvoicePage() {
                                                 value={item.description}
                                                 onChange={(e) => handleUpdateItem(item.id, 'description', e.target.value)}
                                                 className="w-full px-3 py-2 bg-white border border-[#EEEEEE] rounded-[8px] text-sm text-[#111111] placeholder:text-[#999999] focus:ring-1 focus:ring-[#ff3b3b] outline-none transition-all"
+                                            />
+                                        </div>
+                                        <div className="w-36">
+                                            <AutoComplete
+                                                value={item.hsn_sac ?? ''}
+                                                options={hsnSacOptions[item.id] ?? []}
+                                                onSearch={(val) => handleHsnSacSearch(item.id, val)}
+                                                onSelect={(val) => handleUpdateItem(item.id, 'hsn_sac', val)}
+                                                onChange={(val) => handleUpdateItem(item.id, 'hsn_sac', val)}
+                                                placeholder="HSN/SAC"
+                                                className="w-full [&_.ant-select-selector]:!rounded-[8px] [&_.ant-select-selector]:!border-[#EEEEEE] [&_.ant-select-selector]:!py-0.5 [&_.ant-select-selector]:!text-sm"
                                             />
                                         </div>
                                         <div className="w-20">
@@ -873,6 +931,31 @@ export function CreateInvoicePage() {
                                     </select>
                                 </div>
                                 <span className="font-bold text-[#111111]">{currencySymbol}{totals.totalTax.toLocaleString()}</span>
+                            </div>
+
+                            {/* TDS Section Selector */}
+                            <div className="space-y-1">
+                                <label className="text-xs font-bold text-[#111111]">TDS Section <span className="font-normal text-[#666666]">— optional</span></label>
+                                <Select
+                                    allowClear
+                                    placeholder="Select TDS section..."
+                                    className="w-full"
+                                    value={tdsSection}
+                                    onChange={(val) => {
+                                        setTdsSection(val);
+                                        const section = tdsSections.find(s => s.section === val);
+                                        setTdsRate(section?.rate ?? 0);
+                                    }}
+                                    options={tdsSections.map(s => ({
+                                        value: s.section,
+                                        label: `${s.section} — ${s.description} (${s.rate}%)`,
+                                    }))}
+                                />
+                                {tdsSection && (
+                                    <p className="text-xs text-[#666666] mt-1">
+                                        TDS: {tdsRate}% = {currencySymbol} {((totals.subtotal * tdsRate) / 100).toFixed(2)}
+                                    </p>
+                                )}
                             </div>
 
                             <div className="flex justify-between items-center text-base pt-4 border-t border-[#EEEEEE]">

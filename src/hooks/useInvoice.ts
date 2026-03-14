@@ -6,6 +6,8 @@ import {
   updateInvoiceStatus, getRequirementBillingStatus, Particular,
   getRequirementAdvanceStatus, createAdvanceProforma, createFinalInvoice,
   CreateAdvanceProformaPayload, CreateFinalInvoicePayload,
+  getCreditNotes, createCreditNote, updateCreditNoteStatus,
+  getPaymentHistory,
 } from '../services/invoice';
 import { toQueryParams } from '../utils/queryParams';
 
@@ -218,3 +220,53 @@ export const useCreateFinalInvoice = () => {
     },
   });
 };
+
+// =============================================================================
+// Payment History
+// =============================================================================
+
+export function usePaymentHistory(invoiceId: number | null) {
+  return useQuery({
+    queryKey: ['invoice-payments', invoiceId],
+    queryFn: async () => {
+      const res = await getPaymentHistory(invoiceId!);
+      return res.result || [];
+    },
+    enabled: !!invoiceId,
+  });
+}
+
+// =============================================================================
+// Credit Notes
+// =============================================================================
+
+export function useCreditNotes(invoiceId: number | null) {
+  return useQuery({
+    queryKey: ['invoice-credit-notes', invoiceId],
+    queryFn: () => getCreditNotes(invoiceId!),
+    enabled: !!invoiceId,
+  });
+}
+
+export function useCreateCreditNote() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ invoiceId, data }: { invoiceId: number; data: { reason: string; amount: number; tax?: number } }) =>
+      createCreditNote(invoiceId, data),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['invoice-credit-notes', variables.invoiceId] });
+      queryClient.invalidateQueries({ queryKey: ['invoices'] });
+    },
+  });
+}
+
+export function useUpdateCreditNoteStatus() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ creditNoteId, status }: { creditNoteId: number; status: string }) =>
+      updateCreditNoteStatus(creditNoteId, status),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['invoice-credit-notes'] });
+    },
+  });
+}
