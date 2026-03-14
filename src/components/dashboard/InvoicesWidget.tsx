@@ -9,7 +9,7 @@ export function InvoicesWidget() {
   ];
 
   return (
-    <div className="bg-white rounded-[24px] p-6 w-full h-full flex flex-col">
+    <div className="bg-white rounded-[24px] p-4 w-full h-full flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between mb-2">
         <h3 className="font-semibold text-xl text-[#111111]">Invoices</h3>

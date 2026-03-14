@@ -149,7 +149,7 @@ export function NotesWidget() {
 
     return (
         <>
-            <div className="bg-white rounded-[24px] p-5 w-full h-full flex flex-col border border-[#EEEEEE]">
+            <div className="bg-white rounded-[24px] p-4 w-full h-full flex flex-col border border-[#EEEEEE]">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-1.5 h-[32px]">
                     <div className="flex items-center gap-2">
