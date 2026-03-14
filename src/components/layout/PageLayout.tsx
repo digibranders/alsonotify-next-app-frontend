@@ -65,7 +65,7 @@ export function PageLayout({
 }: Readonly<PageLayoutProps>) {
   return (
     <div className={`w-full h-full bg-white rounded-[24px] border border-[#EEEEEE] flex overflow-hidden ${className || ''}`}>
-      <div className="flex-1 p-4 md:p-6 flex flex-col overflow-hidden">
+      <div className="flex-1 p-4 flex flex-col overflow-hidden">
         {/* Header Section */}
         <div className={(tabs && tabs.length > 0) || onSearchChange || showFilter || customFilters || secondaryActions || showExport || action ? "mb-3" : "mb-3"}>
           {/* Title Row */}

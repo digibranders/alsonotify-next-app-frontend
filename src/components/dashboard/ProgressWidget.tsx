@@ -330,7 +330,7 @@ export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => 
   const isLoading = isLoadingTasks || isLoadingWorkspaces || isLoadingRequirements;
 
   return (
-    <div className="bg-white rounded-[24px] p-5 w-full h-full flex flex-col overflow-y-auto border border-[#EEEEEE]">
+    <div className="bg-white rounded-[24px] p-4 w-full h-full flex flex-col overflow-y-auto border border-[#EEEEEE]">
       {/* Header */}
       <div className="flex items-center justify-between mb-3 shrink-0">
         <h3 className="font-semibold text-xl text-[#111111]">Progress</h3>

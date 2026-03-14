@@ -197,8 +197,8 @@ export const Sidebar = React.memo(function Sidebar({ userRole, permissions, coll
 
   return (
     <div
-      className={`bg-white rounded-[24px] ${isCollapsed ? 'px-2' : 'px-6'} py-6 w-full flex flex-col transition-all duration-300 relative group/sidebar`}
-      style={isInDrawer ? { height: '100%' } : { height: 'calc(100dvh - 40px)' }}
+      className={`bg-white rounded-[24px] ${isCollapsed ? 'px-2' : 'px-4'} py-4 w-full flex flex-col transition-all duration-300 relative group/sidebar`}
+      style={isInDrawer ? { height: '100%' } : { height: 'calc(100dvh - 24px)' }}
     >
       {/* Toggle Button - collapse on desktop; close drawer when in drawer */}
       <button

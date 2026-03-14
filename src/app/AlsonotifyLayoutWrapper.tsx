@@ -195,9 +195,9 @@ function AlsonotifyLayoutContent({ children }: Readonly<AlsonotifyLayoutWrapperP
   return (
     <TimerProvider>
       <>
-        <div className="w-full h-screen bg-[#F7F7F7] p-5 flex overflow-hidden outline-none" tabIndex={-1}>
+        <div className="w-full h-screen bg-[#F7F7F7] p-3 flex overflow-hidden outline-none" tabIndex={-1}>
           {/* Main Layout - Visible on all screens */}
-          <div className="flex gap-5 w-full h-full overflow-hidden">
+          <div className="flex gap-3 w-full h-full overflow-hidden">
             {/* Left Sidebar - Hidden on mobile, visible on lg+ */}
             <div
               className={`hidden lg:block shrink-0 h-full overflow-y-auto transition-all duration-300 ${isCollapsed ? 'w-[80px]' : 'w-[240px]'}`}
@@ -206,7 +206,7 @@ function AlsonotifyLayoutContent({ children }: Readonly<AlsonotifyLayoutWrapperP
             </div>
 
             {/* Main Content Area */}
-            <div className="flex-1 flex flex-col gap-5 h-full overflow-hidden">
+            <div className="flex-1 flex flex-col gap-3 h-full overflow-hidden">
               {/* Header/Taskbar - Fixed Height */}
               <div className="shrink-0">
                 <Header userRole={userRole} roleColor={userRoleColor} />

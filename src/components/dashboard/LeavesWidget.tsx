@@ -106,7 +106,7 @@ export function LeavesWidget({ onNavigate }: { onNavigate?: (page: string) => vo
 
   return (
     <>
-      <div className="bg-white rounded-[24px] p-5 w-full h-full flex flex-col">
+      <div className="bg-white rounded-[24px] p-4 w-full h-full flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between mb-1.5">
           <div className="flex items-center gap-2">
