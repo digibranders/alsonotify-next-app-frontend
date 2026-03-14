@@ -82,27 +82,3 @@ export const getRoleFromUser = (user: UserLike | null | undefined): UserRole => 
 
     return 'Employee';
 };
-
-/**
- * Checks if a user is a "Super Admin" or "Developer".
- * This is used to restrict access to sensitive features like Feedbacks.
- * Currently hardcoded to specific emails or logic, as requested.
- */
-export const isSuperAdmin = (user: UserLike | null | undefined): boolean => {
-    if (!user) return false;
-
-    const role = getRoleFromUser(user);
-    if (role !== 'Admin') return false;
-
-    // Check environment variable for developer emails (comma-separated)
-    const envDeveloperEmails = process.env.NEXT_PUBLIC_DEVELOPER_EMAILS || '';
-    const DEVELOPER_EMAILS = envDeveloperEmails.split(',').map(e => e.trim()).filter(Boolean);
-
-    // If user has a specific email property, check it
-    const email = user.email;
-    if (email && DEVELOPER_EMAILS.includes(email)) {
-        return true;
-    }
-
-    return false;
-};
