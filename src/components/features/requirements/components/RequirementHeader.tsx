@@ -280,7 +280,7 @@ export function RequirementHeader({
             )}
           </div>
 
-          <StatusBadge status={requirementStatus} showLabel />
+          <StatusBadge status={requirementStatus} />
           {requirement.is_high_priority && (
             <span className="px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wide bg-[#FFF5F5] text-[#ff3b3b]">
               HIGH PRIORITY

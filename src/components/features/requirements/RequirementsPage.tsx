@@ -419,38 +419,29 @@ export function RequirementsPage() {
     setIsDialogOpen(true);
   };
 
-  const handleQuotationConfirm = (data: { cost?: number; rate?: number; hours?: number; currency?: string }) => {
+  const handleQuotationConfirm = (data: { cost?: number; rate?: number; hours?: number; currency?: string; requires_advance_payment?: boolean; advance_amount?: number; advance_payment_due_date?: string }) => {
     const amount = data.cost || 0;
     const hours = data.hours || 0;
     const currency = data.currency || 'USD';
-    // Determine the ID: editingReq for basic edits, or pendingReqId for workflow actions
     const reqId = pendingReqId;
     if (!reqId) {
       return;
     }
 
-    // Call mutation to update requirement with quote
-    // Call mutation to update requirement with quote
     const payload: UpdateRequirementRequestDto = {
       id: reqId,
       project_id: requirements.find(r => r.id === reqId)?.workspace_id || 0,
       workspace_id: requirements.find(r => r.id === reqId)?.workspace_id || 0,
       quoted_price: amount,
       currency: currency,
-      // estimated_hours: hours, // Not in DTO interface? Check DTO.
-      // DTO has budget, pricing_model etc. `estimated_hours` might not be in UpdateRequirementRequestDto.
-      // Assuming it is for now or I will add it if needed.
-      status: 'Submitted'
+      estimated_hours: hours,
+      status: 'Submitted',
+      requires_advance_payment: data.requires_advance_payment ?? false,
+      advance_amount: data.advance_amount,
+      advance_payment_due_date: data.advance_payment_due_date,
     };
 
-    // Check if estimated_hours is supported in DTO, if not we might need to cast or update DTO.
-    // Use 'as any' only if key is missing in strictly typed DTO but backed supports it.
-    // For now, let's assume strictness.
-
-    updateRequirementMutation.mutate({
-      ...payload,
-      estimated_hours: hours // Adding it here, assuming backend supports it even if DTO missing
-    } as UpdateRequirementRequestDto, {
+    updateRequirementMutation.mutate(payload, {
       onSuccess: () => {
         messageRef.current.success("Quotation submitted successfully");
         setIsQuotationOpen(false);

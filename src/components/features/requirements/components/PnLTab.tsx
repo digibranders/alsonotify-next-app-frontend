@@ -6,6 +6,7 @@ import { Tooltip } from 'antd';
 import { Task, Requirement } from '@/types/domain';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend } from 'recharts';
 import { getRequirementPnLChart, PnLChartDataPoint } from '@/services/workspace';
+import { formatDecimalHours } from '@/utils/timeFormat';
 
 interface PnLTabProps {
   requirement: Requirement;
@@ -124,8 +125,7 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
   };
 
   const formatHours = (hours: number) => {
-    if (hours < 1) return `${Math.round(hours * 60)}m`;
-    return `${Math.round(hours * 10) / 10}h`;
+    return formatDecimalHours(hours);
   };
 
   return (
@@ -187,7 +187,7 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
             </div>
             <div>
               <p className="text-xs font-medium text-[#999999] uppercase tracking-wider mb-0.5">Hours</p>
-              <p className="text-xl font-bold text-[#111111] leading-tight">{summary.totalActualHours}h</p>
+              <p className="text-xl font-bold text-[#111111] leading-tight">{formatDecimalHours(summary.totalActualHours)}</p>
             </div>
           </div>
         </div>

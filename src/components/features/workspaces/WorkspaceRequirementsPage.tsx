@@ -493,7 +493,7 @@ export function WorkspaceRequirementsPage() {
         setIsDialogOpen(true);
     };
 
-    const handleQuotationConfirm = (data: { cost?: number; rate?: number; hours?: number; currency?: string }) => {
+    const handleQuotationConfirm = (data: { cost?: number; rate?: number; hours?: number; currency?: string; requires_advance_payment?: boolean; advance_amount?: number; advance_payment_due_date?: string }) => {
         const amount = data.cost || 0;
         const hours = data.hours || 0;
         const currency = data.currency || 'USD';
@@ -506,10 +506,14 @@ export function WorkspaceRequirementsPage() {
             workspace_id: requirementsRef.current.find(r => r.id === reqId)?.workspace_id || 0,
             quoted_price: amount,
             currency,
+            estimated_hours: hours,
             status: 'Submitted',
+            requires_advance_payment: data.requires_advance_payment ?? false,
+            advance_amount: data.advance_amount,
+            advance_payment_due_date: data.advance_payment_due_date,
         };
 
-        updateRequirementMutation.mutate({ ...payload, estimated_hours: hours } as UpdateRequirementRequestDto, {
+        updateRequirementMutation.mutate(payload, {
             onSuccess: () => {
                 messageRef.current.success('Quotation submitted successfully');
                 setIsQuotationOpen(false);

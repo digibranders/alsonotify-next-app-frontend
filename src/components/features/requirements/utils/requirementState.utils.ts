@@ -112,10 +112,17 @@ export function mapRequirementToContext(
     }
   }
 
+  // Advance payment is pending when requires_advance_payment is true
+  // and the advance invoice is not yet paid
+  const isAdvancePending = !!req.requires_advance_payment
+    && !!req.advance_invoice_id
+    && req.advance_invoice?.status !== 'paid';
+
   return {
     isWorkspaceMapped,
     isRejectedBySender,
     hasQuotedPrice,
+    isAdvancePending,
   };
 }
 
