@@ -129,12 +129,11 @@ export function LeaveRow({
 
         {/* Status Badge */}
         <div className="flex justify-start">
-          <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full ${statusConfig[leave.status].bgColor} ${statusConfig[leave.status].color}`}>
-            <StatusIcon className="w-3.5 h-3.5" />
-            <span className="task-row-sub font-semibold uppercase tracking-wider">
-              {statusConfig[leave.status].label}
-            </span>
-          </div>
+          <Tooltip title={statusConfig[leave.status].label}>
+            <div className={`flex items-center justify-center w-7 h-7 rounded-full cursor-help transition-transform hover:scale-110 ${statusConfig[leave.status].bgColor} ${statusConfig[leave.status].color}`}>
+              <StatusIcon className="w-3.5 h-3.5" />
+            </div>
+          </Tooltip>
         </div>
 
         {/* Actions (Approve/Reject) */}

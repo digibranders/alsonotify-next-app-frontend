@@ -41,3 +41,18 @@ export function parseAsUTC(dateString: string): Date {
   // Otherwise, append 'Z' to treat as UTC
   return new Date(dateString + 'Z');
 }
+
+/**
+ * Convert decimal hours to human-readable "Xh Ym" format.
+ * Uses Math.floor for minutes to match backend work history truncation.
+ *
+ * @param decimalHours - Hours as a decimal (e.g., 2.23 = 2h 13m)
+ * @returns Formatted string (e.g., "2h 13m", "8h", "0h")
+ */
+export function formatDecimalHours(decimalHours: number): string {
+    if (decimalHours <= 0) return '0h';
+    const h = Math.floor(decimalHours);
+    const m = Math.floor((decimalHours - h) * 60);
+    if (m === 0) return `${h}h`;
+    return `${h}h ${m}m`;
+}
