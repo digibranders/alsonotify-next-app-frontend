@@ -15,6 +15,11 @@ export function AntDesignProvider({ children }: { children: ReactNode }) {
             borderRadius: 8,
             fontFamily: "var(--font-manrope), sans-serif",
           },
+          components: {
+            Tabs: {
+              titleFontSize: 14,
+            },
+          },
         }}
       >
         <App>

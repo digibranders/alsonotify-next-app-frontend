@@ -148,8 +148,12 @@ export function RequirementsPage() {
   // Unified Requirements Fetching (Server-Side Paginated)
   const { data: requirementsData, isLoading: isLoadingRequirements } = useAllRequirements(queryOptions);
 
-  const totalCount = useMemo(() => {
-    return requirementsData?.result?.[0]?.total_count || 0;
+  const { totalCount, statusCounts } = useMemo(() => {
+    const firstItem = requirementsData?.result?.[0];
+    return {
+      totalCount: firstItem?.total_count || 0,
+      statusCounts: firstItem?.status_counts || {}
+    };
   }, [requirementsData]);
 
   // Fetch collaborative requirements (where my company is receiver)
@@ -870,8 +874,8 @@ export function RequirementsPage() {
   // Tabs Configuration
   const tabs = [
     { id: 'active', label: 'Active' },
-    { id: 'pending', label: 'Pending' },
-    { id: 'draft', label: 'Drafts' },
+    { id: 'pending', label: 'Pending', count: statusCounts.Pending },
+    { id: 'draft', label: 'Drafts', count: statusCounts.Draft },
     { id: 'delayed', label: 'Delayed' },
     { id: 'completed', label: 'Completed' },
     { id: 'archived', label: 'Archive' }

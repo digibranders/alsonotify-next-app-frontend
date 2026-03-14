@@ -82,6 +82,7 @@ export interface TaskReport {
     workspaceName: string | null;
     requirement: string;
     leader: string;
+    leaderAvatar?: string | null;
     assigned: string;
     allottedHrs: number;
     engagedHrs: number;
