@@ -13,7 +13,8 @@ export const useRequirementActivities = (requirementId: number) => {
     queryKey: queryKeys.requirements.activities(requirementId),
     queryFn: () => getRequirementActivities(requirementId),
     enabled: !!requirementId,
-    refetchInterval: 3000, // Poll every 3 seconds for near real-time chat with simple architecture
+    staleTime: 10_000,
+    refetchInterval: 10_000, // Poll every 10 seconds for near real-time activity updates
     refetchIntervalInBackground: false, // Pause polling when tab is inactive to save resources
   });
 

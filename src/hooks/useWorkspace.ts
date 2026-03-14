@@ -174,7 +174,8 @@ export const useAllRequirements = (options: string = "") => {
     queryKey: queryKeys.requirements.all(options),
     queryFn: () => getAllRequirements(options),
     select: selectRequirements,
-    refetchInterval: 5000,
+    staleTime: 30_000,
+    refetchInterval: 30_000,
   });
 };
 
@@ -182,7 +183,8 @@ export const useCollaborativeRequirements = () => {
   return useQuery({
     queryKey: queryKeys.requirements.collaborative(),
     queryFn: () => getCollaborativeRequirements(),
-    refetchInterval: 5000,
+    staleTime: 30_000,
+    refetchInterval: 30_000,
   });
 };
 

@@ -11,7 +11,8 @@ export const useTaskActivities = (taskId: number) => {
     queryKey: queryKeys.tasks.activities(taskId),
     queryFn: () => getTaskActivities(taskId),
     enabled: !!taskId,
-    refetchInterval: 3000, // Poll every 3 seconds for near real-time chat
+    staleTime: 10_000,
+    refetchInterval: 10_000, // Poll every 10 seconds for near real-time chat
     refetchIntervalInBackground: false, // Pause polling when tab is inactive
   });
 };
