@@ -4,6 +4,7 @@ import { Download, Loader2, Info } from 'lucide-react';
 import { MemberWorklog, EmployeeReport } from '../../../../services/report';
 import { useResizable } from '@/hooks/useResizable';
 import Link from 'next/link';
+import { formatDecimalHours } from '../../../../utils/timeFormat';
 
 interface EmployeeDetailsDrawerProps {
     isOpen: boolean;
@@ -142,7 +143,7 @@ const EmployeeDetailsDrawer: React.FC<EmployeeDetailsDrawerProps> = ({
                                     <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0 hover:text-[#666666] transition-colors" />
                                 </Tooltip>
                             </div>
-                            <span className="text-2xl font-bold text-[#111111]">{member.totalWorkingHrs}h</span>
+                            <span className="text-2xl font-bold text-[#111111]">{formatDecimalHours(member.totalWorkingHrs)}</span>
                         </div>
                         <div className="p-4 bg-[#FAFAFA] rounded-xl border border-[#EEEEEE] flex flex-col items-center text-center">
                             <div className="flex items-center gap-1 mb-1">
@@ -151,7 +152,7 @@ const EmployeeDetailsDrawer: React.FC<EmployeeDetailsDrawerProps> = ({
                                     <Info className="w-3 h-3 text-[#AAAAAA] cursor-help flex-shrink-0 hover:text-[#666666] transition-colors" />
                                 </Tooltip>
                             </div>
-                            <span className="text-2xl font-bold text-[#111111]">{member.actualEngagedHrs}h</span>
+                            <span className="text-2xl font-bold text-[#111111]">{formatDecimalHours(member.actualEngagedHrs)}</span>
                         </div>
                         <div className="p-4 bg-[#FAFAFA] rounded-xl border border-[#EEEEEE] flex flex-col items-center text-center">
                             <div className="flex items-center gap-1 mb-1">

@@ -5,6 +5,7 @@ import dayjs from '@/utils/dayjs';
 import BrandLogo from '@/assets/images/logo.png';
 import { RequirementReport, TaskReport, EmployeeReport, ReportKPI, EmployeeKPI, TaskReportsResponse } from '../../../services/report';
 import { getCurrencySymbol } from '@/utils/currencyUtils';
+import { formatDecimalHours } from '../../../utils/timeFormat';
 
 // --- Types ---
 export interface MemberRow {
@@ -288,11 +289,11 @@ export const IndividualEmployeePdfTemplate = ({ member, worklogs, dateRange, com
                             <div style={{ display: 'flex', gap: '10px', flex: 3 }}>
                                 <div style={{ flex: 1, padding: '12px', borderRadius: '12px', border: '1px solid #EEEEEE', backgroundColor: '#FAFAFA', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                                     <span style={{ fontSize: "var(--font-size-2xs)", fontWeight: 500, color: '#666666', textTransform: 'uppercase' }}>Total Hours</span>
-                                    <span style={{ fontSize: "var(--font-size-xl)", fontFamily: "'Manrope', sans-serif", fontWeight: 700, color: '#111111' }}>{member.totalWorkingHrs}h</span>
+                                    <span style={{ fontSize: "var(--font-size-xl)", fontFamily: "'Manrope', sans-serif", fontWeight: 700, color: '#111111' }}>{formatDecimalHours(member.totalWorkingHrs)}</span>
                                 </div>
                                 <div style={{ flex: 1, padding: '12px', borderRadius: '12px', border: '1px solid #EEEEEE', backgroundColor: '#FAFAFA', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                                     <span style={{ fontSize: "var(--font-size-2xs)", fontWeight: 500, color: '#666666', textTransform: 'uppercase' }}>Engaged</span>
-                                    <span style={{ fontSize: "var(--font-size-xl)", fontFamily: "'Manrope', sans-serif", fontWeight: 700, color: '#111111' }}>{member.actualEngagedHrs}h</span>
+                                    <span style={{ fontSize: "var(--font-size-xl)", fontFamily: "'Manrope', sans-serif", fontWeight: 700, color: '#111111' }}>{formatDecimalHours(member.actualEngagedHrs)}</span>
                                 </div>
                                 <div style={{ flex: 1, padding: '12px', borderRadius: '12px', border: '1px solid #EEEEEE', backgroundColor: '#FAFAFA', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                                     <span style={{ fontSize: "var(--font-size-2xs)", fontWeight: 500, color: '#666666', textTransform: 'uppercase' }}>Efficiency</span>
@@ -519,10 +520,10 @@ function renderReqRow(row: RequirementReport, idx: number, timezone?: string, cu
                           <>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                                 <span style={{ fontWeight: 700, fontSize: "var(--font-size-xs)", color: isBleeding ? '#FF3B3B' : isWarning ? '#FF8A00' : '#111111' }}>
-                                  {row.engagedHrs}h
+                                  {formatDecimalHours(row.engagedHrs || 0)}
                                 </span>
                                 <span style={{ fontSize: "var(--font-size-2xs)", fontWeight: 600, padding: isBleeding ? '2px 6px' : '0', backgroundColor: isBleeding ? '#FFF0F0' : 'transparent', borderRadius: '4px', color: isBleeding ? '#FF3B3B' : isWarning ? '#FF8A00' : '#999999' }}>
-                                  {isBleeding ? `+${Math.abs(remaining).toFixed(1)}h over` : `${remaining.toFixed(1)}h left`}
+                                  {isBleeding ? `+${formatDecimalHours(Math.abs(remaining))} over` : `${formatDecimalHours(remaining)} left`}
                                 </span>
                             </div>
                             {/* Micro-visualization Sparkline inline style */}
@@ -616,11 +617,11 @@ function renderTaskRow(row: TaskReport, idx: number) {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', paddingRight: '8px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                         <span style={{ fontWeight: 700, fontSize: "var(--font-size-xs)", color: isBleeding ? '#FF3B3B' : isWarning ? '#FF8A00' : '#111111' }}>
-                            {row.engagedHrs}h
+                            {formatDecimalHours(row.engagedHrs || 0)}
                         </span>
                         {hasEstimate ? (
                             <span style={{ fontSize: "var(--font-size-2xs)", fontWeight: 600, padding: isBleeding ? '2px 6px' : '0', backgroundColor: isBleeding ? '#FFF0F0' : 'transparent', borderRadius: '4px', color: isBleeding ? '#FF3B3B' : isWarning ? '#FF8A00' : '#999999' }}>
-                                {isBleeding ? `+${Math.abs(remaining).toFixed(1)}h over` : `${remaining.toFixed(1)}h left`}
+                                {isBleeding ? `+${formatDecimalHours(Math.abs(remaining))} over` : `${formatDecimalHours(remaining)} left`}
                             </span>
                         ) : (
                             <span style={{ fontSize: "var(--font-size-2xs)", color: '#CCCCCC' }}>No estimate</span>
@@ -765,7 +766,7 @@ function renderRequirementKPIs(kpi: ReportKPI) {
                 label="Delayed"
                 value={kpi.delayed}
                 color="#FF3B3B"
-                subValue={kpi.totalExtraHrs > 0 ? <span style={{ fontSize: "var(--font-size-xs)", fontWeight: 500, color: '#666' }}>(+{kpi.totalExtraHrs}h)</span> : null}
+                subValue={kpi.totalExtraHrs > 0 ? <span style={{ fontSize: "var(--font-size-xs)", fontWeight: 500, color: '#666' }}>(+{formatDecimalHours(kpi.totalExtraHrs)})</span> : null}
             />
             <KPICard label="Efficiency" value={`${kpi.efficiency}%`} color="#2196F3" />
         </>
@@ -783,7 +784,7 @@ function renderTaskKPIs(kpis: TaskReportsResponse['kpi']) {
                 label="Delayed"
                 value={kpis.delayed}
                 color="#FF3B3B"
-                subValue={kpis.totalExtraHrs > 0 ? <span style={{ fontSize: "var(--font-size-xs)", fontWeight: 500, color: '#666' }}>(+{kpis.totalExtraHrs}h)</span> : null}
+                subValue={kpis.totalExtraHrs > 0 ? <span style={{ fontSize: "var(--font-size-xs)", fontWeight: 500, color: '#666' }}>(+{formatDecimalHours(kpis.totalExtraHrs)})</span> : null}
             />
             <KPICard label="Efficiency" value={`${kpis.efficiency}%`} color="#2196F3" />
         </>
