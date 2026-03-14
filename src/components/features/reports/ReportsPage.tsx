@@ -839,7 +839,7 @@ export function ReportsPage() {
                 {filteredRequirements.map((row, idx) => (
                   <div
                     key={row.id}
-                    className="group min-w-[900px] bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[36px_2fr_0.9fr_0.75fr_1.4fr_0.6fr_1fr_0.6fr] gap-2 px-4 py-2 items-start min-h-[72px] hover:border-[#ff3b3b]/20 hover:shadow-lg transition-all duration-300"
+                    className="group min-w-[900px] bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[36px_2fr_0.9fr_0.75fr_1.4fr_0.6fr_1fr_0.6fr] gap-2 px-4 py-2 items-center hover:border-[#ff3b3b]/20 hover:shadow-lg transition-all duration-300"
                   >
                     <div className="task-row-sub text-[#666666] font-medium self-center">{idx + 1}</div>
 
@@ -982,7 +982,7 @@ export function ReportsPage() {
                   return (
                     <div
                       key={row.id}
-                      className="group min-w-[900px] bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[36px_2.4fr_1fr_0.8fr_0.8fr_0.75fr_1.2fr_0.5fr] gap-2 px-4 py-2 items-start min-h-[72px] hover:border-[#ff3b3b]/20 hover:shadow-lg transition-all duration-300"
+                      className="group min-w-[900px] bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[36px_2.4fr_1fr_0.8fr_0.8fr_0.75fr_1.2fr_0.5fr] gap-2 px-4 py-2 items-center hover:border-[#ff3b3b]/20 hover:shadow-lg transition-all duration-300"
                     >
                       {/* No */}
                       <div className="task-row-sub text-[#666666] font-medium self-center">{idx + 1}</div>
@@ -1084,7 +1084,7 @@ export function ReportsPage() {
                 {filteredEmployees.map((row, idx) => (
                   <div
                     key={row.id}
-                    className="group min-w-[1000px] bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[36px_2.5fr_1.8fr_1fr_1fr_1fr_1.2fr] gap-4 px-4 py-2 items-start min-h-[72px] hover:border-[#ff3b3b]/20 hover:shadow-lg transition-all duration-300 cursor-pointer"
+                    className="group min-w-[1000px] bg-white border border-[#EEEEEE] rounded-[16px] grid grid-cols-[36px_2.5fr_1.8fr_1fr_1fr_1fr_1.2fr] gap-4 px-4 py-2 items-center hover:border-[#ff3b3b]/20 hover:shadow-lg transition-all duration-300 cursor-pointer"
                     onClick={() => setSelectedMemberId(String(row.id))}
                   >
                     <div className="task-row-sub text-[#666666] font-medium self-center">{idx + 1}</div>
