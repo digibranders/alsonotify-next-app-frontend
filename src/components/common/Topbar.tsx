@@ -28,7 +28,6 @@ import { NotificationPanel } from './NotificationPanel';
 import { Skeleton } from '../ui/Skeleton';
 import { FeedbackWidget } from './FeedbackWidget';
 import { useUserDetails, useCurrentUserCompany } from '@/hooks/useUser';
-import { isSuperAdmin } from '@/utils/roleUtils';
 import { useAccountType } from '@/utils/accountTypeUtils';
 import { useNotifications, useMarkAllNotificationsRead, useMarkNotificationRead } from '../../hooks/useNotification';
 import { useWorkspaces, useCreateRequirement } from '../../hooks/useWorkspace';
