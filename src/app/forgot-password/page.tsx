@@ -7,7 +7,7 @@ import { useForgotPassword } from "@/hooks/useAuth";
 import { trimStr } from "@/utils/trim";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import AuthLayout from "@/components/auth/AuthLayout";
+import AuthLayout from "@/components/features/auth/AuthLayout";
 
 export default function ForgotPasswordPage() {
     const { message } = App.useApp();

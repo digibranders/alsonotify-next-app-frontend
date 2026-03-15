@@ -3,7 +3,7 @@ import { useRouter } from 'next/navigation';
 import { useTabSync } from '@/hooks/useTabSync';
 import { useUpdateCompany, useCurrentUserCompany, useRoles, useUpsertRole, useUpdateRolePermissions, useUserDetails } from '@/hooks/useUser';
 import { usePublicHolidays, useCreateHoliday, useUpdateHoliday } from '@/hooks/useHoliday';
-import { useAccountType } from '@/utils/accountTypeUtils';
+import { useAccountType } from '@/utils/format/accountTypeUtils';
 import { getRoleFromUser } from '@/utils/roleUtils';
 import { SettingsContent } from './SettingsContent';
 import { Skeleton } from '@/components/ui/Skeleton';

@@ -11,19 +11,19 @@ import { Skeleton } from '../../ui/Skeleton';
 import dynamic from 'next/dynamic';
 const ReportsPdfTemplate = dynamic(() => import('./ReportsPdfGeneration').then(m => m.ReportsPdfTemplate), { ssr: false });
 const IndividualEmployeePdfTemplate = dynamic(() => import('./ReportsPdfGeneration').then(m => m.IndividualEmployeePdfTemplate), { ssr: false });
-import dayjs from '@/utils/dayjs';
+import dayjs from '@/utils/date/dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 import { useTabSync } from '@/hooks/useTabSync';
 import { useQuery } from '@tanstack/react-query';
 import { usePartners, useEmployees, useCompanyDepartments } from '@/hooks/useUser';
 
 import { useTimezone } from '@/hooks/useTimezone';
-import { getCurrencySymbol } from '@/utils/currencyUtils';
+import { getCurrencySymbol } from '@/utils/format/currencyUtils';
 import { getRequirementReports, getTaskReports, getEmployeeReports, getMemberWorklogs, RequirementReport, TaskReport, EmployeeReport, MemberWorklog, RequirementReportsResponse, TaskReportsResponse, EmployeeReportsResponse } from '../../../services/report';
 import EmployeeDetailsDrawer from './components/EmployeeDetailsDrawer';
 import { PaginationBar } from '../../ui/PaginationBar';
 import { getPartnerCompanyId, getPartnerName, isValidPartner } from '@/utils/partnerUtils';
-import { formatDecimalHours } from '@/utils/timeFormat';
+import { formatDecimalHours } from '@/utils/date/timeFormat';
 
 // Initialize dayjs plugins
 dayjs.extend(isBetween);

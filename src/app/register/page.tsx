@@ -8,8 +8,8 @@ import { useRegister } from "@/hooks/useAuth";
 import { trimStr } from "@/utils/trim";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import AuthLayout from "@/components/auth/AuthLayout";
-import RegisterSuccess from "@/components/auth/RegisterSuccess";
+import AuthLayout from "@/components/features/auth/AuthLayout";
+import RegisterSuccess from "@/components/features/auth/RegisterSuccess";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { Turnstile } from "@marsidev/react-turnstile";
 

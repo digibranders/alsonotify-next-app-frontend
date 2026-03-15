@@ -4,7 +4,7 @@ import { Download, Loader2, Info } from 'lucide-react';
 import { MemberWorklog, EmployeeReport } from '../../../../services/report';
 import { useResizable } from '@/hooks/useResizable';
 import Link from 'next/link';
-import { formatDecimalHours } from '../../../../utils/timeFormat';
+import { formatDecimalHours } from '../../../../utils/date/timeFormat';
 
 interface EmployeeDetailsDrawerProps {
     isOpen: boolean;

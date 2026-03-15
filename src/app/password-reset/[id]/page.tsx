@@ -6,7 +6,7 @@ import { App } from "antd";
 import { Lock, Eye, EyeOff, CheckCircle2, ArrowRight, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { resetPassword } from "@/services/auth";
-import AuthLayout from "@/components/auth/AuthLayout";
+import AuthLayout from "@/components/features/auth/AuthLayout";
 
 export default function PasswordResetPage() {
   const router = useRouter();

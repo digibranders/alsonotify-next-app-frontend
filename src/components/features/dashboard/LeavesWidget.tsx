@@ -1,13 +1,13 @@
-import svgPaths from "../../constants/iconPaths";
+import svgPaths from "@/constants/iconPaths";
 import { Plus } from 'lucide-react';
 import { useState, useMemo } from 'react';
-import { Skeleton } from '../ui/Skeleton';
+import { Skeleton } from '@/components/ui/Skeleton';
 import Image from "next/image";
 import dayjs from "dayjs";
-import { useCompanyLeaves } from "../../hooks/useLeave";
+import { useCompanyLeaves } from "@/hooks/useLeave";
 import { useCurrentUserCompany } from "@/hooks/useUser";
-import { LeaveType } from "../../services/leave";
-import { LeaveApplyModal } from "../modals/LeaveApplyModal";
+import { LeaveType } from "@/services/leave";
+import { LeaveApplyModal } from "@/components/modals/LeaveApplyModal";
 
 // Helper function to get initials from name
 const getInitials = (name: string | null | undefined): string => {

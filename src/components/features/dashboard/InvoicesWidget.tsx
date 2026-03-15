@@ -1,4 +1,4 @@
-import svgPaths from "../../constants/iconPaths";
+import svgPaths from "@/constants/iconPaths";
 
 export function InvoicesWidget() {
   const invoices = [

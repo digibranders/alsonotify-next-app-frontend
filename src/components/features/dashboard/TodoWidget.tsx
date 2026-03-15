@@ -1,5 +1,5 @@
 
-import svgPaths from "../../constants/iconPaths";
+import svgPaths from "@/constants/iconPaths";
 import { Plus, Bold, Italic, List, CheckSquare, MoreVertical, Archive, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { Modal, Input, Button, Checkbox, Dropdown, MenuProps } from 'antd';

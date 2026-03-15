@@ -2,10 +2,10 @@
 
 import { useRouter } from 'next/navigation';
 
-import { ProgressWidget } from '../../components/dashboard/ProgressWidget';
-import { MeetingsWidget } from '../../components/dashboard/MeetingsWidget';
-import { LeavesWidget } from '../../components/dashboard/LeavesWidget';
-import { NotesWidget } from '../../components/dashboard/NotesWidget';
+import { ProgressWidget } from '../../components/features/dashboard/ProgressWidget';
+import { MeetingsWidget } from '../../components/features/dashboard/MeetingsWidget';
+import { LeavesWidget } from '../../components/features/dashboard/LeavesWidget';
+import { NotesWidget } from '../../components/features/dashboard/NotesWidget';
 
 // ... (imports)
 

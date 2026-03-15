@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Calendar as CalendarIcon, Clock, CheckCircle2, Plus, MoreHorizontal, Paperclip, ChevronRight, LayoutGrid, List, UserPlus, FolderOpen, MoreVertical, Edit, Trash2 } from 'lucide-react';
-import { FilterBar, FilterOption } from '../ui/FilterBar';
+import { FilterBar, FilterOption } from '@/components/ui/FilterBar';
 import { Button, Input, Select, Checkbox, Dropdown, Breadcrumb, DatePicker, Tooltip, Progress, Tabs, App, Modal } from 'antd';
 import { useWorkspaces, useWorkspaceTasks } from '@/hooks/useWorkspace';
 import { useCreateTask, useDeleteTask } from '@/hooks/useTask';

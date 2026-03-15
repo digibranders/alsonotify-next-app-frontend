@@ -2,7 +2,7 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { act } from 'react';
 import { createRoot } from 'react-dom/client';
 import { RichTextEditor } from './RichTextEditor';
-import { sanitizeRichTextForEditor } from '../../utils/sanitizeHtml';
+import { sanitizeRichTextForEditor } from '../../utils/security/sanitizeHtml';
 
 // Mock sanitizeHtml to verify it's being called
 vi.mock('../../utils/sanitizeHtml', () => ({

@@ -16,7 +16,7 @@ import { useEmployees, useEmployeesDropdown, usePartners, useCurrentUserCompany 
 import { useRequirementActivities } from '@/hooks/useRequirementActivity';
 import { useAuth } from '@/hooks/useAuth';
 import { format } from 'date-fns';
-import { getTodayForApi } from '@/utils/date';
+import { getTodayForApi } from '@/utils/date/date';
 import { TaskRow } from '@/components/features/tasks/rows/TaskRow';
 import { Requirement, Task } from '@/types/domain';
 import {

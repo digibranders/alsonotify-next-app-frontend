@@ -6,7 +6,7 @@ import { App } from 'antd';
 import { DocumentPreviewModal } from '@/components/ui/DocumentPreviewModal';
 import { UserDocument } from '@/types/domain';
 import { fileService } from '@/services/file.service';
-import { AttachmentObject } from '@/components/shared/ChatPanel';
+import { AttachmentObject } from '@/components/common/ChatPanel';
 
 export interface DocumentItem {
     name: string;

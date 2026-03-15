@@ -6,7 +6,7 @@ import { Mentions, App } from 'antd';
 import { fileService } from '@/services/file.service';
 import { DocumentPreviewModal } from '@/components/ui/DocumentPreviewModal';
 import { UserDocument } from '@/types/domain';
-import { parseMentionsAndTasks, MentionOption } from '@/utils/textUtils';
+import { parseMentionsAndTasks, MentionOption } from '@/utils/format/textUtils';
 import { useResizable } from '@/hooks/useResizable';
 import { determineFileType } from '@/utils/fileTypeUtils';
 

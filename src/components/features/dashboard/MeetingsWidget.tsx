@@ -1,15 +1,15 @@
-import svgPaths from "../../constants/iconPaths";
+import svgPaths from "@/constants/iconPaths";
 import { Video, Clock, Plus } from "lucide-react";
 import { useState, useMemo, useEffect } from 'react';
 import { Button, Popover } from 'antd';
-import { Skeleton } from '../ui/Skeleton';
+import { Skeleton } from '@/components/ui/Skeleton';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import { useCurrentUserCompany } from '@/hooks/useUser';
-import { useTeamsConnectionStatus, useCalendarEvents } from '../../hooks/useCalendar';
-import { GraphEvent } from '../../services/calendar';
-import { MeetingCreateModal } from '../modals/MeetingCreateModal';
+import { useTeamsConnectionStatus, useCalendarEvents } from '@/hooks/useCalendar';
+import { GraphEvent } from '@/services/calendar';
+import { MeetingCreateModal } from '@/components/modals/MeetingCreateModal';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);

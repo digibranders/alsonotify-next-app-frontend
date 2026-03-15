@@ -1,11 +1,11 @@
 import React from 'react';
 // Imports removed to be dynamic
 
-import dayjs from '@/utils/dayjs';
+import dayjs from '@/utils/date/dayjs';
 import BrandLogo from '@/assets/images/logo.png';
 import { RequirementReport, TaskReport, EmployeeReport, ReportKPI, EmployeeKPI, TaskReportsResponse } from '../../../services/report';
-import { getCurrencySymbol } from '@/utils/currencyUtils';
-import { formatDecimalHours } from '../../../utils/timeFormat';
+import { getCurrencySymbol } from '@/utils/format/currencyUtils';
+import { formatDecimalHours } from '../../../utils/date/timeFormat';
 
 // --- Types ---
 export interface MemberRow {

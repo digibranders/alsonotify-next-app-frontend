@@ -1,45 +1,45 @@
 'use client';
 
 import { useEffect, ReactNode, useMemo } from 'react';
-import { Sidebar } from '../components/common/Sidebar';
-import { Header } from '../components/common/Topbar';
-import { ProfileCompletionBanner } from '../components/common/ProfileCompletionBanner';
+import { Sidebar } from '@/components/common/Sidebar';
+import { Header } from '@/components/common/Topbar';
+import { ProfileCompletionBanner } from '@/components/common/ProfileCompletionBanner';
 import { useUserDetails } from '@/hooks/useUser';
 import { getRoleFromUser, UserRole } from '@/utils/roleUtils';
-import { TimerProvider } from '../context/TimerContext';
+import { TimerProvider } from '@/context/TimerContext';
 // FloatingProductivityWidget removed - using FloatingTimerBar as the sole floating timer
 import { usePathname, useRouter } from 'next/navigation';
-import { navPermissionMap } from '@/utils/navUtils';
+import { navPermissionMap } from '@/utils/navigation/navUtils';
 import { Shield24Regular } from '@fluentui/react-icons';
 import { Button, Drawer } from 'antd';
 import Link from 'next/link';
-import { InvitationPopup } from '../components/common/InvitationPopup';
-import { FloatingMenuProvider } from '../context/FloatingMenuContext';
-import { FloatingTimerBar } from '../components/common/FloatingTimerBar';
+import { InvitationPopup } from '@/components/common/InvitationPopup';
+import { FloatingMenuProvider } from '@/context/FloatingMenuContext';
+import { FloatingTimerBar } from '@/components/common/FloatingTimerBar';
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
-import { SidebarProvider, useSidebar } from '../context/SidebarContext';
+import { SidebarProvider, useSidebar } from '@/context/SidebarContext';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useWebSocket } from '@/hooks/useWebSocket';
 
-interface AlsonotifyLayoutWrapperProps {
+interface AppShellProps {
   children: ReactNode;
 }
 
-export function AlsonotifyLayoutWrapper({ children }: Readonly<AlsonotifyLayoutWrapperProps>) {
+export function AppShell({ children }: Readonly<AppShellProps>) {
   return (
     <ErrorBoundary>
       <SidebarProvider>
         <FloatingMenuProvider>
-          <AlsonotifyLayoutContent>
+          <AppShellContent>
             {children}
-          </AlsonotifyLayoutContent>
+          </AppShellContent>
         </FloatingMenuProvider>
       </SidebarProvider>
     </ErrorBoundary>
   );
 }
 
-function AlsonotifyLayoutContent({ children }: Readonly<AlsonotifyLayoutWrapperProps>) {
+function AppShellContent({ children }: Readonly<AppShellProps>) {
   const { isCollapsed, mobileOpen, closeMobileSidebar } = useSidebar();
   const { data: userDetailsData, isLoading, isError } = useUserDetails();
   const router = useRouter();

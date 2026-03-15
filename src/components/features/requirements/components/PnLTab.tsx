@@ -6,7 +6,7 @@ import { Tooltip } from 'antd';
 import { Task, Requirement } from '@/types/domain';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend } from 'recharts';
 import { getRequirementPnLChart, PnLChartDataPoint } from '@/services/workspace';
-import { formatDecimalHours } from '@/utils/timeFormat';
+import { formatDecimalHours } from '@/utils/date/timeFormat';
 
 interface PnLTabProps {
   requirement: Requirement;

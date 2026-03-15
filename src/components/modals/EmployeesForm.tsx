@@ -5,12 +5,12 @@ import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import PhoneNumberInput from "@/components/ui/PhoneNumberInput";
 import { useCurrentUserCompany, useRoles } from "@/hooks/useUser";
-import { currencies, getCurrencySymbol } from "@/utils/currencyUtils";
+import { currencies, getCurrencySymbol } from "@/utils/format/currencyUtils";
 import { Role } from '@/types/domain';
 import { FormLayout } from '@/components/common/FormLayout';
 
 dayjs.extend(customParseFormat);
-import { DATE_FORMAT_DISPLAY, formatDateForApi } from "@/utils/date";
+import { DATE_FORMAT_DISPLAY, formatDateForApi } from "@/utils/date/date";
 
 const { Option } = Select;
 

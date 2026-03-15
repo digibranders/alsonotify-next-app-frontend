@@ -2,8 +2,8 @@ import { Modal, Skeleton, Segmented } from 'antd';
 import { X, Code, Eye, FileText, FileSpreadsheet, Download, FileWarning } from 'lucide-react';
 import { UserDocument } from '@/types/domain';
 import { useEffect, useState, useMemo } from 'react';
-import { sanitizeUrl } from '@/utils/sanitizeUrl';
-import { sanitizeEmailHtml } from '@/utils/sanitizeHtml';
+import { sanitizeUrl } from '@/utils/security/sanitizeUrl';
+import { sanitizeEmailHtml } from '@/utils/security/sanitizeHtml';
 import { determineFileType } from '@/utils/fileTypeUtils';
 
 type PreviewMode = 'rendered' | 'source';
