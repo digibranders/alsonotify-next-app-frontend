@@ -32,24 +32,35 @@ The production web application for AlsoNotify — a B2B SaaS project management 
 
 The frontend follows a **feature-based component architecture** with clear boundaries between routing (pages), domain components, shared UI, and data-fetching logic.
 
-```
-Browser
-  │
-  ▼
-┌──────────────────────────────────────────────────────────────┐
-│  Next.js App Router  (src/app/**)                            │
-│  Server Components by default — "use client" only as needed  │
-├──────────────────────────────────────────────────────────────┤
-│  Feature Components  (src/components/features/[module]/)     │
-│  Custom Hooks        (src/hooks/use[Feature].ts)             │
-├──────────────────────────────────────────────────────────────┤
-│  TanStack Query      (server state, caching, mutations)      │
-│  React Context       (client state: auth, timers, UI prefs)  │
-├──────────────────────────────────────────────────────────────┤
-│  Axios Services      (src/services/ — typed API clients)     │
-├──────────────────────────────────────────────────────────────┤
-│  AlsoNotify Backend API  (http://localhost:4000/api/v1)      │
-└──────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    B([Browser]) --> NR[Next.js App Router\nsrc/app/**\nServer Components by default]
+
+    subgraph Guard ["Route Guard"]
+        NR --> AC{Auth\ncookie?}
+        AC -->|missing| LP[/login]
+        AC -->|present| DB[/dashboard/*]
+    end
+
+    subgraph UI ["UI Layer"]
+        DB  --> FC[Feature Components\nsrc/components/features/]
+        FC  --> SU[Shared UI\ncomponents/ui + modals]
+        FC  --> ANT[Ant Design v6\nrobust component behaviour]
+        SU  --> ANT
+        ANT --> CSS[globals.css\nAntD overrides · Tailwind v4]
+    end
+
+    subgraph Data ["Data Layer"]
+        FC  --> CH[Custom Hooks\nsrc/hooks/use*.ts]
+        CH  --> TQ[TanStack Query v5\nuseQuery · useMutation · cache]
+        CH  --> RC[React Context\nAuth · client-only state]
+        TQ  --> AX[Axios Services\nsrc/services/]
+    end
+
+    AX  --> API[AlsoNotify API\nlocalhost:4000/api/v1]
+    CH  --> WSH[useWebSocket]
+    WSH --> WS[WebSocket\nws://localhost:4000/ws]
+    WS  --> API
 ```
 
 ### Data Flow Contract
@@ -57,6 +68,53 @@ Browser
 - All **server state** goes through TanStack Query (`useQuery` / `useMutation`). Never fetch directly in components with `useEffect`.
 - All **business logic** lives in custom hooks in `src/hooks/`, not in components.
 - **Types in `src/types/`** must stay in sync with backend response shapes. Any backend schema change requires a frontend type update.
+
+```mermaid
+flowchart LR
+    P[Page\nsrc/app/dashboard/tasks/] --> C[Feature Component\ncomponents/features/tasks/]
+    C --> H[Custom Hook\nhooks/useTask.ts]
+    H --> Q[TanStack Query\nuseQuery / useMutation]
+    Q --> S[Axios Service\nservices/taskService.ts]
+    S --> A[Backend API\n/api/v1/task/*]
+
+    A -->|JSON| S
+    S -->|typed DTO| Q
+    Q -->|cached state| H
+    H -->|data · isLoading · mutate| C
+    C -->|JSX| P
+```
+
+### Authentication & Route Flow
+
+```mermaid
+sequenceDiagram
+    participant U  as User
+    participant FE as Next.js
+    participant BE as Backend API
+
+    U->>FE: Navigate to /dashboard/tasks
+    FE->>FE: Read auth cookie
+    Note over FE: Token missing or expired
+    FE-->>U: Redirect → /login
+
+    U->>FE: Submit email + password
+    FE->>BE: POST /api/v1/auth/login
+    BE->>BE: Validate credentials
+    BE-->>FE: { token, user }
+    FE->>FE: Store JWT in cookie
+    FE-->>U: Redirect → /dashboard
+
+    Note over FE,BE: All subsequent data requests
+    FE->>BE: GET /api/v1/task (Authorization: Bearer token)
+    BE->>BE: verifyToken decorator
+    BE-->>FE: Task list (typed JSON)
+    FE-->>U: Render task board
+
+    Note over FE,BE: Real-time updates
+    FE->>BE: WS connect (Sec-WebSocket-Protocol: token)
+    BE-->>FE: {"type":"NOTIFICATION", payload:{...}}
+    FE->>FE: TanStack Query invalidate → refetch
+```
 
 ---
 
