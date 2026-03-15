@@ -20,12 +20,12 @@ import { useWorkspaces } from '@/hooks/useWorkspace';
 import { useUserDetails, useCurrentUserCompany } from '@/hooks/useUser';
 import { Task } from '@/types/domain';
 import { getRequirementsByWorkspaceId } from '@/services/workspace';
-import { DateRangeSelector } from '../common/DateRangeSelector';
-import { Skeleton } from '../ui/Skeleton';
+import { DateRangeSelector } from '@/components/common/DateRangeSelector';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { ApiResponse } from '@/types/api';
 import { RequirementDto } from '@/types/dto/requirement.dto';
-import { useAccountType } from '@/utils/accountTypeUtils';
-import { getWorkingDaysCount } from '@/utils/date';
+import { useAccountType } from '@/utils/format/accountTypeUtils';
+import { getWorkingDaysCount } from '@/utils/date/date';
 import { useTimezone } from '@/hooks/useTimezone';
 import { usePublicHolidays } from '@/hooks/useHoliday';
 

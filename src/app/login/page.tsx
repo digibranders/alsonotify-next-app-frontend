@@ -8,7 +8,7 @@ import { useLogin } from "@/hooks/useAuth";
 import { trimStr } from "@/utils/trim";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import AuthLayout from "@/components/auth/AuthLayout";
+import AuthLayout from "@/components/features/auth/AuthLayout";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { Turnstile } from "@marsidev/react-turnstile";
 

@@ -2,7 +2,7 @@ import { PageLayout } from '../../layout/PageLayout';
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { useTabSync } from '@/hooks/useTabSync';
 import { useNotes, useCreateNote, useUpdateNote, useDeleteNote, useArchiveNote, useUnarchiveNote } from '../../../hooks/useNotes';
-import { sanitizeRichText } from '../../../utils/sanitizeHtml';
+import { sanitizeRichText } from '../../../utils/security/sanitizeHtml';
 import { Plus, Archive, Trash2, FileText, ArchiveRestore } from 'lucide-react';
 import { Checkbox, App } from 'antd';
 import { Skeleton } from '../../ui/Skeleton';
@@ -10,9 +10,9 @@ import { NoteComposerModal } from '../../common/NoteComposerModal';
 import { NoteViewModal } from '../../common/NoteViewModal';
 import { Note, ChecklistItem } from '../../../types/domain';
 import { NoteTypeDto as NoteType } from '../../../types/dto/note.dto';
-import { DEFAULT_NOTE_COLOR } from '../../../utils/colorUtils';
+import { DEFAULT_NOTE_COLOR } from '../../../utils/format/colorUtils';
 import { isArray } from '../../../utils/validation';
-import { normalizeNoteType } from '../../../utils/noteUtils';
+import { normalizeNoteType } from '../../../utils/format/noteUtils';
 
 type TabType = 'all' | 'text' | 'checklist' | 'archive';
 

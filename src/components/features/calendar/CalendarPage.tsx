@@ -6,8 +6,8 @@ import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Clock, MapPin, Vid
 import { Skeleton } from '../../ui/Skeleton';
 import { PageLayout } from '../../layout/PageLayout';
 import { Popover, Button, App, Popconfirm } from 'antd';
-import dayjs from '@/utils/dayjs';
-import { formatDateForApi } from '@/utils/date';
+import dayjs from '@/utils/date/dayjs';
+import { formatDateForApi } from '@/utils/date/date';
 
 
 import { useMeetings } from '@/hooks/useMeeting';

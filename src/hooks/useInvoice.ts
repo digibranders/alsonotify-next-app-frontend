@@ -9,7 +9,7 @@ import {
   getCreditNotes, createCreditNote, updateCreditNoteStatus,
   getPaymentHistory,
 } from '../services/invoice';
-import { toQueryParams } from '../utils/queryParams';
+import { toQueryParams } from '../utils/navigation/queryParams';
 
 export type InvoiceStatusValue =
   | 'draft'

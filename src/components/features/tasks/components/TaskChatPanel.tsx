@@ -8,10 +8,10 @@ import { useEmployees, usePartners } from '@/hooks/useUser';
 import { useTaskActivities, useCreateTaskActivity } from '@/hooks/useTaskActivity';
 import { getPartnerId, getPartnerName, isValidPartner } from '@/utils/partnerUtils';
 import { fileService } from '@/services/file.service';
-import { ChatPanel } from '@/components/shared/ChatPanel';
+import { ChatPanel } from '@/components/common/ChatPanel';
 import { Employee, Task } from '@/types/domain';
 import { UserDto } from '@/types/dto/user.dto';
-import { parseMentionsAndTasks } from '@/utils/textUtils';
+import { parseMentionsAndTasks } from '@/utils/format/textUtils';
 
 interface TaskActivityAttachment {
   id: number;

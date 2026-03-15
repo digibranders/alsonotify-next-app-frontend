@@ -2,19 +2,19 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNotes } from "@/hooks/useNotes";
-import { Skeleton } from "../ui/Skeleton";
-import { sanitizeRichText } from "@/utils/sanitizeHtml";
+import { Skeleton } from "@/components/ui/Skeleton";
+import { sanitizeRichText } from "@/utils/security/sanitizeHtml";
 import { Archive, Plus, Trash2 } from "lucide-react";
-import { queryKeys } from "../../lib/queryKeys";
+import { queryKeys } from "@/lib/queryKeys";
 import { Checkbox, App } from 'antd';
 import { createNote, deleteNote, archiveNote } from "@/services/notes";
 import { Note } from "@/types/domain";
 import { NoteTypeDto as NoteType } from "@/types/dto/note.dto";
 import { ChecklistItem } from "@/types/domain";
 import Link from "next/link";
-import svgPaths from "../../constants/iconPaths";
-import { NoteComposerModal } from "../common/NoteComposerModal";
-import { NoteViewModal } from "../common/NoteViewModal";
+import svgPaths from "@/constants/iconPaths";
+import { NoteComposerModal } from "@/components/common/NoteComposerModal";
+import { NoteViewModal } from "@/components/common/NoteViewModal";
 
 export function NotesWidget() {
     const queryClient = useQueryClient();

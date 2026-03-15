@@ -6,7 +6,7 @@ import { overrideBaton, reclaimBaton, reorderTaskMembers } from '@/services/task
 import { queryKeys } from '@/lib/queryKeys';
 import { Reorder } from 'framer-motion';
 import { useState } from 'react';
-import { formatDecimalHours } from '@/utils/timeFormat';
+import { formatDecimalHours } from '@/utils/date/timeFormat';
 
 interface TaskMember {
   id: number;

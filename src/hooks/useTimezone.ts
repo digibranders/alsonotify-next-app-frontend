@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import dayjs from '@/utils/dayjs';
+import dayjs from '@/utils/date/dayjs';
 import { useCurrentUserCompany } from './useUser';
 
 export const useTimezone = () => {

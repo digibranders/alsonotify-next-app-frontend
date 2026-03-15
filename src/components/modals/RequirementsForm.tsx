@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import dayjs from '@/utils/dayjs';
-import { formatDateForApi, getTodayForApi } from '@/utils/date';
+import dayjs from '@/utils/date/dayjs';
+import { formatDateForApi, getTodayForApi } from '@/utils/date/date';
 import { Input, DatePicker, Checkbox, App, Button, Modal, Select, Space } from 'antd';
 import { Upload as UploadIcon, FileText, ChevronDown } from 'lucide-react';
 import { useEmployeesDropdown } from '@/hooks/useUser';
@@ -10,7 +10,7 @@ import { FormLayout } from '@/components/common/FormLayout';
 import { trimStr } from '@/utils/trim';
 import { WorkspaceForm } from './WorkspaceForm';
 import { useCurrentUserCompany } from '@/hooks/useUser';
-import { currencies } from '@/utils/currencyUtils';
+import { currencies } from '@/utils/format/currencyUtils';
 // NO UNUSED IMPORTS
 
 const { TextArea } = Input;

@@ -1,6 +1,6 @@
 import { UserDto } from '../../types/dto/user.dto';
 import { Employee, UserPermissions } from '../../types/domain';
-import { formatDateForApi, formatDateForDisplay } from '../date';
+import { formatDateForApi, formatDateForDisplay } from '../date/date';
 
 export const mapUserDtoToEmployee = (dto: UserDto, permissions?: UserPermissions): Employee => {
   // Strict ID Normalization:

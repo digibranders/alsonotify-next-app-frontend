@@ -1,7 +1,7 @@
 import { FileText, Briefcase, Star, RotateCcw, Clock } from 'lucide-react';
 import { Rate } from 'antd';
-import { formatDateForDisplay } from '@/utils/date';
-import { sanitizeUrl } from '@/utils/sanitizeUrl';
+import { formatDateForDisplay } from '@/utils/date/date';
+import { sanitizeUrl } from '@/utils/security/sanitizeUrl';
 import { Linkify } from '@/components/common/Linkify';
 import { Requirement, Workspace, Task } from '@/types/domain';
 

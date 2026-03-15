@@ -3,9 +3,9 @@ import { App } from 'antd';
 import { format } from 'date-fns';
 import { useRequirementActivities, useCreateRequirementActivity } from '@/hooks/useRequirementActivity';
 import { fileService } from '@/services/file.service';
-import { ChatPanel } from '@/components/shared/ChatPanel';
+import { ChatPanel } from '@/components/common/ChatPanel';
 
-import { parseMentionsAndTasks, MentionOption } from '@/utils/textUtils';
+import { parseMentionsAndTasks, MentionOption } from '@/utils/format/textUtils';
 
 import { ApiResponse } from '@/types/api';
 import { Employee, Task } from '@/types/domain';

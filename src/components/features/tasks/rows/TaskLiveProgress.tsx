@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Tooltip } from 'antd';
 import { useTimer } from '@/context/TimerContext';
 import { Task } from '@/types/domain';
-import { formatDecimalHours } from '@/utils/timeFormat';
+import { formatDecimalHours } from '@/utils/date/timeFormat';
 
 interface TaskLiveProgressProps {
   task: Task;
