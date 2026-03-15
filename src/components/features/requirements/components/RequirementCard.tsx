@@ -7,10 +7,11 @@ import {
   Receipt,
   Clock,
   FilePlus,
-  Trash2
+  Trash2,
+  AlertCircle
 } from 'lucide-react';
 import React, { useMemo, useState } from 'react';
-import { format, differenceInDays, isPast, isToday } from 'date-fns';
+import { format, differenceInDays, isPast, isToday, parseISO } from 'date-fns';
 import {
   getRequirementCTAConfig,
   type RequirementStatus,
@@ -211,6 +212,20 @@ export function RequirementCard({
 
   const costDisplay = getCostDisplay();
 
+  // Advance overdue badge
+  const advanceOverdueInfo = useMemo(() => {
+    if (!requirement.requires_advance_payment) return null;
+    const advInvoice = requirement.advance_invoice;
+    if (!advInvoice) return null;
+    const isOverdue = advInvoice.status === 'overdue'
+      || (advInvoice.due_date && isPast(parseISO(advInvoice.due_date)) && advInvoice.status !== 'paid');
+    if (!isOverdue) return null;
+    const dueDate = advInvoice.due_date;
+    if (!dueDate) return { text: 'Advance overdue' };
+    const days = differenceInDays(new Date(), parseISO(dueDate));
+    return { text: `Advance overdue by ${days} day${days !== 1 ? 's' : ''}` };
+  }, [requirement]);
+
   return (
     <div
       onClick={onNavigate}
@@ -361,6 +376,12 @@ export function RequirementCard({
         ))}
         {requirement.departments && requirement.departments.length > 3 && (
           <span className="px-1.5 py-0.5 text-2xs text-[#999999]">+{requirement.departments.length - 3}</span>
+        )}
+        {advanceOverdueInfo && (
+          <span className="px-1.5 py-0.5 rounded-md bg-red-50 border border-red-200 text-xs text-[#D14343] font-semibold flex items-center gap-1">
+            <AlertCircle className="w-3 h-3" />
+            {advanceOverdueInfo.text}
+          </span>
         )}
       </div>
 

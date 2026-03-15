@@ -135,6 +135,23 @@ export const getRequirementBillingStatus = async (requirementId: number | string
     const { data } = await axiosApi.get(`/requirements/${requirementId}/billing-status`);
     return data;
 };
+export interface PaymentRecord {
+    id: number;
+    invoice_id: number;
+    amount: number;
+    payment_date: string;
+    payment_method: string | null;
+    reference: string | null;
+    notes: string | null;
+    recorded_by: number;
+    created_at: string;
+}
+
+export const getPaymentHistory = async (invoiceId: number): Promise<ApiResponse<PaymentRecord[]>> => {
+    const { data } = await axiosApi.get<ApiResponse<PaymentRecord[]>>(`/invoice/${invoiceId}/payments`);
+    return data;
+};
+
 export const getTaxPreview = async (billFromCompanyId: number, billToCompanyId: number): Promise<ApiResponse<{
     taxLines: { name: string; rate: number }[];
     taxLabel: string;
@@ -240,3 +257,51 @@ export const createFinalInvoice = async (
     );
     return data;
 };
+
+// =============================================================================
+// Credit Notes — API Functions
+// =============================================================================
+
+export async function getCreditNotes(invoiceId: number) {
+    const response = await axiosApi.get(`/invoice/${invoiceId}/credit-notes`);
+    return response.data?.result || [];
+}
+
+export async function createCreditNote(invoiceId: number, data: { reason: string; amount: number; tax?: number }) {
+    const response = await axiosApi.post(`/invoice/${invoiceId}/credit-note`, data);
+    return response.data;
+}
+
+export async function updateCreditNoteStatus(creditNoteId: number, status: string) {
+    const response = await axiosApi.patch(`/invoice/credit-note/${creditNoteId}/status`, { status });
+    return response.data;
+}
+
+// =============================================================================
+// HSN/SAC Codes & TDS Sections
+// =============================================================================
+
+export interface HsnSacCode {
+    code: string;
+    description: string;
+    type: string;
+}
+
+export interface TdsSection {
+    section: string;
+    description: string;
+    rate: number;
+}
+
+export async function searchHsnSacCodes(q: string, type?: string, limit?: number): Promise<HsnSacCode[]> {
+    const params = new URLSearchParams({ q });
+    if (type) params.set('type', type);
+    if (limit) params.set('limit', String(limit));
+    const response = await axiosApi.get(`/invoice/hsn-sac/search?${params.toString()}`);
+    return response.data?.result || [];
+}
+
+export async function getTdsSections(): Promise<TdsSection[]> {
+    const response = await axiosApi.get('/invoice/tds-sections');
+    return response.data?.result || [];
+}

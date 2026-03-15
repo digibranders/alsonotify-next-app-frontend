@@ -6,6 +6,7 @@ import { overrideBaton, reclaimBaton, reorderTaskMembers } from '@/services/task
 import { queryKeys } from '@/lib/queryKeys';
 import { Reorder } from 'framer-motion';
 import { useState } from 'react';
+import { formatDecimalHours } from '@/utils/timeFormat';
 
 interface TaskMember {
   id: number;
@@ -181,11 +182,11 @@ export function TaskMembersList({ taskId, members, executionMode, currentUser, i
                   </div>
                   <div className="flex items-center gap-3 text-xs text-[#888888] mt-0.5">
                     <span className="flex items-center gap-1">
-                      est: <span className="text-[#111111]">{member.estimated_time || 0}h</span>
+                      est: <span className="text-[#111111]">{formatDecimalHours(member.estimated_time || 0)}</span>
                     </span>
                     <span className="w-[1px] h-3 bg-gray-200"></span>
                     <span className="flex items-center gap-1">
-                      logged: <span className="text-[#111111]">{(member.seconds_spent / 3600).toFixed(1)}h</span>
+                      logged: <span className="text-[#111111]">{formatDecimalHours(member.seconds_spent / 3600)}</span>
                     </span>
                   </div>
                 </div>
@@ -203,12 +204,11 @@ export function TaskMembersList({ taskId, members, executionMode, currentUser, i
                 )}
 
                 {/* Status Badge */}
-                <div className={`px-2.5 py-1.5 rounded-lg border flex items-center gap-1.5 shrink-0 ${statusColor}`}>
-                  <StatusIcon className="w-3.5 h-3.5" />
-                  <span className="text-xs font-semibold uppercase tracking-wider">
-                    {member.status.replace('_', ' ')}
-                  </span>
-                </div>
+                <Tooltip title={member.status.replace('_', ' ')}>
+                  <div className={`flex items-center justify-center w-7 h-7 rounded-full border shrink-0 cursor-help transition-transform hover:scale-110 ${statusColor}`}>
+                    <StatusIcon className="w-3.5 h-3.5" />
+                  </div>
+                </Tooltip>
               </Reorder.Item>
             );
           })}

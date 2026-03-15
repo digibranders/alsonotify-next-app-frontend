@@ -297,7 +297,7 @@ export const MobileTaskCard = memo(function MobileTaskCard({
                 </button>
               </Popover>
             ) : (
-              <TaskStatusBadge status={task.status || 'Assigned'} showLabel={true} />
+              <TaskStatusBadge status={task.status || 'Assigned'} />
             )}
           </div>
         </div>

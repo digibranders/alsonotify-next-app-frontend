@@ -134,4 +134,5 @@ export interface RequirementContext {
   readonly isWorkspaceMapped: boolean;
   readonly isRejectedBySender: boolean;
   readonly hasQuotedPrice: boolean;
+  readonly isAdvancePending: boolean;
 }

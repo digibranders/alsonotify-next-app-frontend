@@ -1,20 +1,30 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Modal, Input, App, Select, Space } from 'antd';
+import { useState } from 'react';
+import { Modal, Input, App, Select, Space, Checkbox, DatePicker } from 'antd';
+import dayjs from 'dayjs';
 
 const { Option } = Select;
 
 interface QuotationDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onConfirm: (data: { cost?: number; rate?: number; hours?: number; currency: string }) => void;
+  onConfirm: (data: {
+    cost?: number;
+    rate?: number;
+    hours?: number;
+    currency: string;
+    requires_advance_payment?: boolean;
+    advance_amount?: number;
+    advance_payment_due_date?: string;
+  }) => void;
   pricingModel?: 'hourly' | 'project';
 }
 
 /**
  * Dialog for submitting quotations for requirements.
  * Supports both hourly and project-based pricing models.
+ * Optionally allows vendor to require advance payment before work starts.
  */
 export function QuotationDialog({
   open,
@@ -28,6 +38,11 @@ export function QuotationDialog({
   const [hours, setHours] = useState('');
   const [currency, setCurrency] = useState('USD');
 
+  // Advance payment fields
+  const [requiresAdvance, setRequiresAdvance] = useState(false);
+  const [advanceAmount, setAdvanceAmount] = useState('');
+  const [advanceDueDate, setAdvanceDueDate] = useState('');
+
   const [prevOpen, setPrevOpen] = useState(open);
   if (open && !prevOpen) {
     setPrevOpen(open);
@@ -35,6 +50,9 @@ export function QuotationDialog({
     setRate('');
     setHours('');
     setCurrency('USD');
+    setRequiresAdvance(false);
+    setAdvanceAmount('');
+    setAdvanceDueDate('');
   } else if (!open && prevOpen) {
     setPrevOpen(open);
   }
@@ -45,22 +63,50 @@ export function QuotationDialog({
         messageApi.error("Please enter rate and hours");
         return;
       }
-      onConfirm({
-        rate: parseFloat(rate),
-        hours: parseFloat(hours),
-        cost: parseFloat(rate) * parseFloat(hours),
-        currency
-      });
     } else {
       if (!amount) {
         messageApi.error("Please enter an amount");
         return;
       }
-      onConfirm({
-        cost: parseFloat(amount),
-        currency
-      });
     }
+
+    // Validate advance payment fields
+    if (requiresAdvance) {
+      if (!advanceAmount || parseFloat(advanceAmount) <= 0) {
+        messageApi.error("Please enter a valid advance amount");
+        return;
+      }
+      if (!advanceDueDate) {
+        messageApi.error("Please select a payment due date");
+        return;
+      }
+      const totalCost = pricingModel === 'hourly'
+        ? parseFloat(rate) * parseFloat(hours)
+        : parseFloat(amount);
+      if (parseFloat(advanceAmount) > totalCost) {
+        messageApi.error("Advance amount cannot exceed total cost");
+        return;
+      }
+    }
+
+    const baseData = pricingModel === 'hourly'
+      ? {
+          rate: parseFloat(rate),
+          hours: parseFloat(hours),
+          cost: parseFloat(rate) * parseFloat(hours),
+          currency,
+        }
+      : {
+          cost: parseFloat(amount),
+          currency,
+        };
+
+    onConfirm({
+      ...baseData,
+      requires_advance_payment: requiresAdvance,
+      advance_amount: requiresAdvance ? parseFloat(advanceAmount) : undefined,
+      advance_payment_due_date: requiresAdvance ? advanceDueDate : undefined,
+    });
     onOpenChange(false);
   };
 
@@ -84,7 +130,7 @@ export function QuotationDialog({
         okText="Send Quotation"
         cancelText="Cancel"
         okButtonProps={{ className: 'bg-[#111111] hover:bg-[#000000]/90' }}
-        width="min(400px, 95vw)"
+        width="min(440px, 95vw)"
         centered
       >
         <div className="space-y-4 py-4">
@@ -138,6 +184,46 @@ export function QuotationDialog({
               </Space.Compact>
             </div>
           )}
+
+          {/* Advance Payment Section */}
+          <div className="pt-4 border-t border-[#EEEEEE]">
+            <Checkbox
+              checked={requiresAdvance}
+              onChange={(e) => setRequiresAdvance(e.target.checked)}
+            >
+              <span className="text-xs font-bold text-[#111111]">
+                Require advance payment before work starts
+              </span>
+            </Checkbox>
+
+            {requiresAdvance && (
+              <div className="mt-3 space-y-3 pl-6">
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-[#111111]">Advance Amount</label>
+                  <Space.Compact className="w-full quotation-dialog-currency">
+                    {currencySelector}
+                    <Input
+                      type="number"
+                      placeholder="0.00"
+                      className="h-11 rounded-lg bg-white"
+                      value={advanceAmount}
+                      onChange={(e) => setAdvanceAmount(e.target.value)}
+                    />
+                  </Space.Compact>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-[#111111]">Payment Due Date</label>
+                  <DatePicker
+                    value={advanceDueDate ? dayjs(advanceDueDate) : null}
+                    onChange={(d) => setAdvanceDueDate(d ? d.format('YYYY-MM-DD') : '')}
+                    className="w-full h-11 rounded-lg"
+                    format="MMM D, YYYY"
+                    disabledDate={(current) => current && current < dayjs().startOf('day')}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </Modal>
       <style jsx global>{`

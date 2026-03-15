@@ -23,6 +23,7 @@ import { getRequirementReports, getTaskReports, getEmployeeReports, getMemberWor
 import EmployeeDetailsDrawer from './components/EmployeeDetailsDrawer';
 import { PaginationBar } from '../../ui/PaginationBar';
 import { getPartnerCompanyId, getPartnerName, isValidPartner } from '@/utils/partnerUtils';
+import { formatDecimalHours } from '@/utils/timeFormat';
 
 // Initialize dayjs plugins
 dayjs.extend(isBetween);
@@ -642,7 +643,7 @@ export function ReportsPage() {
                   </div>
                   <div className="flex items-baseline gap-2">
                     <span className="text-xl font-bold text-[#FF3B3B]">{kpi.delayed}</span>
-                    <span className="text-xs font-medium text-[#FF3B3B]">(+{kpi.totalExtraHrs}h)</span>
+                    <span className="text-xs font-medium text-[#FF3B3B]">(+{formatDecimalHours(kpi.totalExtraHrs)})</span>
                   </div>
                 </div>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'requirement' ? '' : 'hidden'}`}>
@@ -707,7 +708,7 @@ export function ReportsPage() {
                   </div>
                   <div className="flex items-baseline gap-2">
                     <span className="text-xl font-bold text-[#FF3B3B]">{taskKPI.delayed}</span>
-                    <span className="text-xs font-medium text-[#FF3B3B]">(+{taskKPI.totalExtraHrs}h)</span>
+                    <span className="text-xs font-medium text-[#FF3B3B]">(+{formatDecimalHours(taskKPI.totalExtraHrs)})</span>
                   </div>
                 </div>
                 <div className={`p-3 rounded-xl border border-[#EEEEEE] bg-[#FAFAFA] flex flex-col gap-0.5 justify-center ${activeTab === 'task' ? '' : 'hidden'}`}>
@@ -886,10 +887,10 @@ export function ReportsPage() {
                           <>
                             <div className="flex items-center justify-between w-full">
                                 <span className="task-row-sub font-medium whitespace-nowrap text-[#111111]">
-                                  {row.engagedHrs?.toFixed(1)}h{(row.allottedHrs || 0) > 0 ? `/${row.allottedHrs.toFixed(1)}h` : ''}
+                                  {formatDecimalHours(row.engagedHrs || 0)}{(row.allottedHrs || 0) > 0 ? `/${formatDecimalHours(row.allottedHrs)}` : ''}
                                 </span>
                                 <span className={`task-row-sub font-medium whitespace-nowrap ${isBleeding ? 'text-[#FF3B3B]' : isWarning ? 'text-[#EAB308]' : 'text-[#666666]'}`}>
-                                  {isBleeding ? `+${Math.abs(remaining).toFixed(1)}h over` : `${remaining.toFixed(1)}h left`}
+                                  {isBleeding ? `+${formatDecimalHours(Math.abs(remaining))} over` : `${formatDecimalHours(remaining)} left`}
                                 </span>
                             </div>
                             {/* Micro-visualization Sparkline */}
@@ -1035,11 +1036,11 @@ export function ReportsPage() {
                       <div className="flex flex-col gap-1.5 justify-center items-start min-w-0">
                         <div className="flex items-center justify-between w-full">
                           <span className="task-row-sub font-medium whitespace-nowrap text-[#111111]">
-                            {row.engagedHrs?.toFixed(1)}h{hasEstimate ? `/${row.allottedHrs?.toFixed(1)}h` : ''}
+                            {formatDecimalHours(row.engagedHrs || 0)}{hasEstimate ? `/${formatDecimalHours(row.allottedHrs || 0)}` : ''}
                           </span>
                           {hasEstimate ? (
                             <span className={`task-row-sub font-medium whitespace-nowrap ${isBleeding ? 'text-[#FF3B3B]' : isWarning ? 'text-[#EAB308]' : 'text-[#666666]'}`}>
-                              {isBleeding ? `+${Math.abs(remaining).toFixed(1)}h over` : `${remaining.toFixed(1)}h left`}
+                              {isBleeding ? `+${formatDecimalHours(Math.abs(remaining))} over` : `${formatDecimalHours(remaining)} left`}
                             </span>
                           ) : (
                             <span className="task-row-sub text-[#666666] font-medium whitespace-nowrap">No estimate</span>

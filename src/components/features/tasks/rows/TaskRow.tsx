@@ -257,7 +257,7 @@ const TaskRowComponent = memo(function TaskRow({
                 </button>
               </Popover>
             ) : (
-              <TaskStatusBadge status={task.status || 'Assigned'} showLabel={false} />
+              <TaskStatusBadge status={task.status || 'Assigned'} />
             )}
           </div>
 

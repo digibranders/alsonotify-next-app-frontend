@@ -578,6 +578,15 @@ function getReceiverAssignedCTA(
     };
   }
 
+  // Block work when advance payment is pending
+  if (context.isAdvancePending) {
+    return {
+      displayStatus: 'Awaiting Advance Payment',
+      isPending: true,
+      tab,
+    };
+  }
+
   return {
     displayStatus: 'Ready to Start',
     isPending: false,
