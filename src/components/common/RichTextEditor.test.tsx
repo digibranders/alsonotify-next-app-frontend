@@ -5,7 +5,7 @@ import { RichTextEditor } from './RichTextEditor';
 import { sanitizeRichTextForEditor } from '../../utils/security/sanitizeHtml';
 
 // Mock sanitizeHtml to verify it's being called
-vi.mock('../../utils/sanitizeHtml', () => ({
+vi.mock('../../utils/security/sanitizeHtml', () => ({
   sanitizeRichTextForEditor: vi.fn((html) => {
     if (html && html.includes('<script>')) return html.replace(/<script>.*?<\/script>/g, '');
     return html;
