@@ -12,7 +12,7 @@ import {
 import { useCompleteSignup, useVerifyToken } from "@/hooks/useAuth";
 import { trimStr } from "@/utils/trim";
 import { industryToBusinessType, commonCountries, commonTimezones } from "@/data/defaultData";
-import AuthLayout from "@/components/auth/AuthLayout";
+import AuthLayout from "@/components/features/auth/AuthLayout";
 import PhoneNumberInput from "@/components/ui/PhoneNumberInput";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { fileService } from "@/services/file.service";

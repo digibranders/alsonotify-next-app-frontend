@@ -3,7 +3,7 @@ import { Clock, MapPin, Video } from 'lucide-react';
 import dayjs from 'dayjs';
 import { CalendarEvent } from './types';
 import { GraphEvent } from '@/services/calendar';
-import { sanitizeUrl } from '@/utils/sanitizeUrl';
+import { sanitizeUrl } from '@/utils/security/sanitizeUrl';
 import { Linkify } from '@/components/common/Linkify';
 
 interface CalendarEventPopupProps {

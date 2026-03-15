@@ -11,7 +11,7 @@ import {
 import { Breadcrumb, App, Modal, Input, Button } from 'antd';
 import { TaskStatusBadge, TaskChatPanel } from './components';
 import { TaskMembersList } from './components/TaskMembersList';
-import { DocumentsTab } from '@/components/shared/DocumentsTab';
+import { DocumentsTab } from '@/components/common/DocumentsTab';
 import { useTask, useTaskTimer, useUpdateMemberStatus } from '@/hooks/useTask';
 import { useTaskActivities } from '@/hooks/useTaskActivity';
 import { useTimer } from '@/context/TimerContext';
@@ -26,7 +26,7 @@ import { ReviewDecisionModal } from './components/ReviewDecisionModal';
 
 
 import { Linkify } from '@/components/common/Linkify';
-import { formatDecimalHours } from '@/utils/timeFormat';
+import { formatDecimalHours } from '@/utils/date/timeFormat';
 
 interface TaskActivityAttachment {
   id: number;

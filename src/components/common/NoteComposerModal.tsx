@@ -5,7 +5,7 @@ import { RichTextEditor, formatText } from './RichTextEditor';
 import { ChecklistEditor } from './ChecklistEditor';
 import { FormLayout } from './FormLayout';
 import { NoteType, ChecklistItem, convertTextToChecklist, convertChecklistToText, isNoteEmpty, createEmptyChecklistItem } from '../../types/notes';
-import { DEFAULT_NOTE_COLOR, NOTE_COLORS } from '../../utils/colorUtils';
+import { DEFAULT_NOTE_COLOR, NOTE_COLORS } from '../../utils/format/colorUtils';
 
 type ComposerState = 'COLLAPSED' | 'EXPANDED_TEXT' | 'EXPANDED_CHECKLIST';
 

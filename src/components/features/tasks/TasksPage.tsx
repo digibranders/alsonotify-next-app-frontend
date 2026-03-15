@@ -37,7 +37,7 @@ dayjs.extend(isSameOrAfter);
 
 import { Task, TaskStatus } from '@/types/domain';
 import { CreateTaskRequestDto, UpdateTaskRequestDto } from '@/types/dto/task.dto';
-import { toQueryParams } from '@/utils/queryParams';
+import { toQueryParams } from '@/utils/navigation/queryParams';
 import { Employee } from '@/types/domain';
 import { ApiResponse } from '@/types/api';
 import { CompanyProfile } from '@/types/auth';

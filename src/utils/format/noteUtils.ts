@@ -2,7 +2,7 @@
  * Utility functions for note operations
  */
 
-import { NoteType } from '../types/notes';
+import { NoteType } from '../../types/notes';
 
 /**
  * Normalize note type for filtering and display

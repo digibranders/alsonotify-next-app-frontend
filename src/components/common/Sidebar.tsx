@@ -39,7 +39,7 @@ type NavItemConfig = {
   allowedRoles: UserRole[];
 };
 
-import { navPermissionMap } from '@/utils/navUtils';
+import { navPermissionMap } from '@/utils/navigation/navUtils';
 import { UserRole } from '@/utils/roleUtils';
 
 // Define navItems outside component to avoid recreation
@@ -132,7 +132,7 @@ const NAV_ITEMS: NavItemConfig[] = [
 ];
 
 import { useSidebar } from '@/context/SidebarContext';
-import { useAccountType } from '@/utils/accountTypeUtils';
+import { useAccountType } from '@/utils/format/accountTypeUtils';
 
 // ... existing imports ...
 

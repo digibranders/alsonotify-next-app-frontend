@@ -50,7 +50,7 @@ import { UserDocument } from "@/types/domain";
 import { useMailAttachments, useMailFolders, useMailMessage, useMailMessages } from "@/hooks/useMail";
 import { useIsNarrow } from "@/hooks/useBreakpoint";
 import { trimStr } from "@/utils/trim";
-import { sanitizeEmailHtml } from "@/utils/sanitizeHtml";
+import { sanitizeEmailHtml } from "@/utils/security/sanitizeHtml";
 import {
   deleteMail,
   downloadAttachment,

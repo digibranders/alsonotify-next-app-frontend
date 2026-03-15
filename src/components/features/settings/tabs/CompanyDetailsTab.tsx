@@ -2,7 +2,7 @@ import { Plus, Trash2, Pencil, Building2 } from 'lucide-react';
 import { Button, Input, Select, Switch, Divider, message, Upload } from "antd";
 import { commonCountries } from '@/data/defaultData';
 import { fileService } from '@/services/file.service';
-import { getTimezones } from '@/utils/timezones';
+import { getTimezones } from '@/utils/date/timezones';
 import { Department, DocumentType } from '@/types/domain';
 // const { TextArea } = Input;
 const { Option } = Select;

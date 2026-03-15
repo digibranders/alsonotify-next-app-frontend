@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState } from 'react';
-import { sanitizeRichTextForEditor } from '../../utils/sanitizeHtml';
+import { sanitizeRichTextForEditor } from '../../utils/security/sanitizeHtml';
 
 interface RichTextEditorProps {
   value: string;

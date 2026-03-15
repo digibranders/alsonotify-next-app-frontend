@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { Manrope } from 'next/font/google';
 import '../styles/globals.css';
 import { AntDesignProvider } from '../components/AntDesignProvider';
-import ReactQueryProvider from '../provider/ReactQueryClient';
+import ReactQueryProvider from '../context/ReactQueryClient';
 import BrowserPolyfills from '../components/BrowserPolyfills';
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Analytics } from '@vercel/analytics/next'

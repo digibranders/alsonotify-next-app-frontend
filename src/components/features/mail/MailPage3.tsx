@@ -47,7 +47,7 @@ import { DocumentPreviewModal } from "../../ui/DocumentPreviewModal";
 import { UserDocument } from "@/types/domain";
 import { useMailAttachments, useMailFolders, useMailMessage, useMailMessages } from "@/hooks/useMail";
 import { useDebounce } from "@/hooks/useDebounce";
-import { sanitizeEmailHtml } from "@/utils/sanitizeHtml";
+import { sanitizeEmailHtml } from "@/utils/security/sanitizeHtml";
 import { determineFileType, safeFilename } from "@/utils/fileTypeUtils";
 import {
   deleteMail,
