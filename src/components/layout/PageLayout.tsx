@@ -1,10 +1,10 @@
 import {
   Add24Filled,
   ArrowDownload24Filled,
+  Search24Filled,
   Filter24Filled
 } from '@fluentui/react-icons';
 import { ReactNode } from 'react';
-import { DebouncedSearchInput } from '@/components/common/DebouncedSearchInput';
 
 interface PageLayoutProps {
   title: ReactNode;
@@ -127,12 +127,16 @@ export function PageLayout({
               <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
                 {/* Search - full width on mobile */}
                 {onSearchChange && (
-                  <DebouncedSearchInput
-                    className="w-full md:w-[240px]"
-                    placeholder={searchPlaceholder}
-                    onSearch={onSearchChange}
-                    initialValue={searchValue}
-                  />
+                  <div className="relative w-full md:w-auto flex-1 min-w-0 md:flex-none">
+                    <Search24Filled className="absolute left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[#999999]" />
+                    <input
+                      type="text"
+                      value={searchValue}
+                      onChange={(e) => onSearchChange(e.target.value)}
+                      placeholder={searchPlaceholder}
+                      className="pl-10 pr-4 py-2.5 bg-white border border-[#EEEEEE] rounded-full text-sm font-medium text-[#111111] placeholder:text-[#999999] focus:outline-none focus:border-[#ff3b3b] w-full md:w-[280px]"
+                    />
+                  </div>
                 )}
 
                 {/* Filter */}

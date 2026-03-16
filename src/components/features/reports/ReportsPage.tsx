@@ -562,9 +562,6 @@ export function ReportsPage() {
       ]}
       activeTab={activeTab}
       onTabChange={(tabId) => setActiveTab(tabId as 'requirement' | 'task' | 'member')}
-      searchPlaceholder="Search reports..."
-      searchValue={searchQuery}
-      onSearchChange={setSearchQuery}
       customFilters={
         <Button
           onClick={handleExport}
@@ -584,6 +581,9 @@ export function ReportsPage() {
             selectedFilters={filters}
             onFilterChange={handleFilterChange}
             onClearFilters={clearFilters}
+            searchPlaceholder="Search reports..."
+            searchValue={searchQuery}
+            onSearchChange={setSearchQuery}
             showClearButton={true}
             extraContent={
               <DateRangeSelector

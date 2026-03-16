@@ -921,9 +921,6 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
       ]}
       activeTab={activeTab}
       onTabChange={(tabId) => handleTabChange(tabId as StatusTab)}
-      searchPlaceholder="Search"
-      searchValue={searchQuery}
-      onSearchChange={handleSearchChange}
     >
       <Modal
         open={isDialogOpen}
@@ -1048,6 +1045,9 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
           selectedFilters={filters}
           onFilterChange={handleFilterChange}
           onClearFilters={clearFilters}
+          searchPlaceholder="Search"
+          searchValue={searchQuery}
+          onSearchChange={handleSearchChange}
           extraContent={
             <DateRangeSelector
               value={dateRange}

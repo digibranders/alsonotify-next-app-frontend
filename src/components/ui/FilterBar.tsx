@@ -205,7 +205,7 @@ export function FilterBar({
       {
         onSearchChange && (
           <DebouncedSearchInput
-            className="ml-auto w-[240px]"
+            className="ml-auto w-full min-w-[140px] max-w-[240px]"
             placeholder={searchPlaceholder}
             onSearch={onSearchChange}
             initialValue={searchValue}
