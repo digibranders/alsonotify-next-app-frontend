@@ -865,9 +865,9 @@ export function RequirementsPage() {
   // Tabs Configuration
   const tabs = [
     { id: 'active', label: 'Active' },
-    { id: 'pending', label: 'Pending', count: statusCounts.Pending },
+    { id: 'pending', label: 'Pending', count: activeStatusTab === 'pending' ? totalCount : statusCounts.Pending },
     { id: 'draft', label: 'Drafts', count: statusCounts.Draft },
-    { id: 'delayed', label: 'Delayed' },
+    { id: 'delayed', label: 'Delayed', count: activeStatusTab === 'delayed' ? totalCount : statusCounts.Delayed },
     { id: 'completed', label: 'Completed' },
     { id: 'archived', label: 'Archive' }
   ];

@@ -18,7 +18,7 @@ export interface NoteDto {
   title: string;
   type: NoteTypeDto;
   color: string;
-  isPinned?: boolean;
+  is_pinned: boolean;
   is_archived: boolean;
   labels?: string[];
   created_at: string;

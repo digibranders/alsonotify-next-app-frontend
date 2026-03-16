@@ -11,7 +11,7 @@ export function mapNoteToDomain(dto: NoteDto): Note {
     title: dto.title,
     type: (dto.type as 'TEXT_NOTE' | 'CHECKLIST_NOTE'),
     color: dto.color,
-    isPinned: dto.isPinned || false,
+    isPinned: dto.is_pinned || false,
     isArchived: dto.is_archived,
     is_archived: dto.is_archived,
     labels: dto.labels,

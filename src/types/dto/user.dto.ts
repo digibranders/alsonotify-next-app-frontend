@@ -23,7 +23,7 @@ export interface UserDto {
   status?: string;
   date_of_birth?: string;
   employee_id?: string;
-  account_type?: string; // INDIVIDUAL or ORGANIZATION
+  account_type?: 'INDIVIDUAL' | 'ORGANIZATION' | null;
 
   // Nested structure often found in employee responses
   user_employee?: {
@@ -31,7 +31,7 @@ export interface UserDto {
     role_id?: number;
     role?: { id?: number; name?: string; color?: string };
     salary?: number;
-    salary_yearly?: number;
+    salary_yearly?: number | null;
   };
 
   department_id?: number;
@@ -40,7 +40,7 @@ export interface UserDto {
   manager?: { id: number; name: string };
 
   employment_type?: string;
-  salary_yearly?: number;
+  salary_yearly?: number | null;
   salary?: number;
   hourly_rates?: number;
   working_hours?: {
@@ -60,7 +60,7 @@ export interface UserDto {
   country?: string;
   profile_pic?: string;
   date_of_joining?: string;
-  late_time?: string;
+  late_time?: number | null;
 
   user_profile?: {
     mobile_number?: string;
@@ -167,7 +167,7 @@ export interface CreateEmployeeRequestDto {
   skills?: string[];
   manager_id?: number;
   profile_pic?: string;
-  late_time?: string;
+  late_time?: number | null;
 }
 
 export interface UpdateEmployeeRequestDto extends Partial<CreateEmployeeRequestDto> {

@@ -11,9 +11,9 @@ export interface RegisterCompleteResponseDTO {
 }
 
 export interface VerifyTokenResponseDTO {
-  isValid: boolean;
-  email?: string;
-  name?: string;
+  id: number;
+  email: string;
+  name: string | null;
 }
 
 export interface GenericSuccessDTO {
