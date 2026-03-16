@@ -353,14 +353,6 @@ export function FinancePage() {
       searchValue={searchQuery}
       onSearchChange={setSearchQuery}
       showFilter={false} // We implement custom filter bar
-      customFilters={
-        <div className="flex items-center gap-3">
-          <DateRangeSelector
-            value={dateRange}
-            onChange={setDateRange}
-          />
-        </div>
-      }
     >
       <div className="flex flex-col h-full relative">
         {/* Filter Bar */}
@@ -373,6 +365,12 @@ export function FinancePage() {
             }}
             onFilterChange={handleFilterChange}
             onClearFilters={clearFilters}
+            extraContent={
+              <DateRangeSelector
+                value={dateRange}
+                onChange={setDateRange}
+              />
+            }
           />
 
           {/* KPI Cards */}
