@@ -4,7 +4,7 @@ import React, { useMemo, useEffect, useState } from 'react';
 import { TrendingUp, TrendingDown, DollarSign, Users, Percent, AlertTriangle } from 'lucide-react';
 import { Tooltip } from 'antd';
 import { Task, Requirement } from '@/types/domain';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { getRequirementPnLChart, PnLChartDataPoint, getRequirementTaskPnL, TaskPnLResult } from '@/services/workspace';
 import { formatDecimalHours } from '@/utils/date/timeFormat';
 import { getCurrencySymbol } from '@/utils/format/currencyUtils';
@@ -100,6 +100,55 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
     };
   }, [taskPnLData, tasks, requirement]);
 
+  // Enriched chart data with forecast projection
+  const enrichedChartData = useMemo(() => {
+    if (chartData.length < 2) return chartData.map(p => ({ ...p, forecast: null as number | null }));
+
+    const lastIdx = chartData.length - 1;
+    const lastPoint = chartData[lastIdx];
+    const prevPoint = chartData[lastIdx - 1];
+
+    // Burn rate: change in cost per period
+    const burnRate = (lastPoint.invested || 0) - (prevPoint.invested || 0);
+
+    // Enrich existing data — forecast connects from last actual point
+    const enriched: Array<{ name: string; price: number; invested: number | null; forecast: number | null }> = chartData.map((point, idx) => ({
+      ...point,
+      forecast: idx === lastIdx ? point.invested : null,
+    }));
+
+    // Only project if there's meaningful cost data and positive burn rate
+    if ((lastPoint.invested || 0) > 0 && burnRate > 0) {
+      const lastNameMatch = lastPoint.name?.match(/(\d+)/);
+      const lastNum = lastNameMatch ? parseInt(lastNameMatch[1]) : chartData.length;
+      const prefix = lastPoint.name?.replace(/\d+/, '').trim() || 'Week ';
+
+      for (let i = 1; i <= 2; i++) {
+        enriched.push({
+          name: `${prefix}${lastNum + i}`,
+          price: lastPoint.price,
+          invested: null,
+          forecast: (lastPoint.invested || 0) + burnRate * i,
+        });
+      }
+    }
+
+    return enriched;
+  }, [chartData]);
+
+  // Check if forecast exceeds budget
+  const forecastExceedsBudget = useMemo(() => {
+    const lastForecast = enrichedChartData.filter(d => d.forecast != null).pop();
+    return lastForecast ? (lastForecast.forecast || 0) > summary.quotedPrice : false;
+  }, [enrichedChartData, summary.quotedPrice]);
+
+  // Projected final cost (for annotation)
+  const projectedFinalCost = useMemo(() => {
+    const forecastPoints = enrichedChartData.filter(d => d.forecast != null && d.invested == null);
+    if (forecastPoints.length === 0) return null;
+    return forecastPoints[forecastPoints.length - 1].forecast;
+  }, [enrichedChartData]);
+
   const pnlTasks = taskPnLData?.tasks || [];
 
   const formatCurrency = (value: number) => {
@@ -115,89 +164,146 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
     return formatDecimalHours(hours);
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (!active || !payload || payload.length === 0) return null;
+
+    const planned = payload.find((p: any) => p.dataKey === 'price')?.value;
+    const actual = payload.find((p: any) => p.dataKey === 'invested')?.value;
+    const forecast = payload.find((p: any) => p.dataKey === 'forecast')?.value;
+
+    const costValue = actual ?? forecast;
+    const variance = planned != null && costValue != null ? planned - costValue : null;
+    const budgetUsedPct = summary.quotedPrice > 0 && costValue != null
+      ? (costValue / summary.quotedPrice) * 100
+      : null;
+    const isForecastPoint = actual == null && forecast != null;
+
+    return (
+      <div className="bg-white rounded-xl border border-[#EEEEEE] p-3 min-w-[200px]" style={{ boxShadow: '0 4px 16px rgba(0,0,0,0.08)' }}>
+        <p className="text-xs font-semibold text-[#111111] mb-2">{label}</p>
+        {planned != null && (
+          <div className="flex justify-between items-center gap-4 mb-1">
+            <div className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-[#ff3b3b] inline-block" />
+              <span className="text-xs text-[#999999]">Budget</span>
+            </div>
+            <span className="text-xs font-medium text-[#111111]">{currencySymbol}{Number(planned).toLocaleString()}</span>
+          </div>
+        )}
+        {actual != null && (
+          <div className="flex justify-between items-center gap-4 mb-1">
+            <div className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-[#111111] inline-block" />
+              <span className="text-xs text-[#999999]">Actual</span>
+            </div>
+            <span className="text-xs font-medium text-[#111111]">{currencySymbol}{Number(actual).toLocaleString()}</span>
+          </div>
+        )}
+        {isForecastPoint && (
+          <div className="flex justify-between items-center gap-4 mb-1">
+            <div className="flex items-center gap-1.5">
+              <span className={`w-2 h-2 rounded-full inline-block ${forecastExceedsBudget ? 'bg-[#DC2626]' : 'bg-[#0F9D58]'}`} />
+              <span className="text-xs text-[#999999]">Projected</span>
+            </div>
+            <span className={`text-xs font-medium italic ${forecastExceedsBudget ? 'text-[#DC2626]' : 'text-[#111111]'}`}>
+              {currencySymbol}{Number(forecast).toLocaleString()}
+            </span>
+          </div>
+        )}
+        {variance != null && (
+          <>
+            <div className="border-t border-[#F0F0F0] my-1.5" />
+            <div className="flex justify-between items-center gap-4">
+              <span className="text-xs text-[#999999]">Variance</span>
+              <span className={`text-xs font-bold ${variance >= 0 ? 'text-[#0F9D58]' : 'text-[#DC2626]'}`}>
+                {variance >= 0 ? '+' : '-'}{currencySymbol}{Math.abs(variance).toLocaleString()}
+              </span>
+            </div>
+          </>
+        )}
+        {budgetUsedPct != null && (
+          <div className="flex justify-between items-center gap-4 mt-1">
+            <span className="text-xs text-[#999999]">Budget used</span>
+            <span className="text-xs font-medium text-[#666666]">{budgetUsedPct.toFixed(1)}%</span>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       {/* Title */}
-      <div className="bg-white rounded-[16px] p-6 border border-[#EEEEEE] shadow-sm overflow-hidden">
-        <h3 className="text-base font-bold text-[#111111] mb-6 flex items-center gap-2">
-           <TrendingUp className="w-5 h-5 text-[#ff3b3b]" />
+      <div className="bg-white rounded-[16px] p-5 border border-[#EEEEEE] shadow-sm overflow-hidden">
+        <h3 className="text-sm font-bold text-[#111111] mb-4 flex items-center gap-2">
+           <TrendingUp className="w-4 h-4 text-[#ff3b3b]" />
            Profit & Loss Analysis
         </h3>
 
-        {/* Summary Cards - Row 1: Financial */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-8">
+        {/* Summary Cards */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 mb-4">
           {/* Quoted Price */}
-          <div className="bg-white rounded-[14px] px-5 py-4 border border-[#EEEEEE] shadow-sm flex items-center gap-4">
-            <div className="w-10 h-10 rounded-full bg-[#E8F5E9] flex items-center justify-center flex-shrink-0">
-              <DollarSign className="w-5 h-5 text-[#0F9D58]" />
-            </div>
-            <div>
-              <p className="text-xs font-medium text-[#999999] uppercase tracking-wider mb-0.5">Quoted Price</p>
-              <p className="text-xl font-bold text-[#111111] leading-tight">{formatCurrency(summary.quotedPrice)}</p>
-            </div>
+          <div className="bg-[#FAFAFA] rounded-lg px-3 py-2.5 border border-[#EEEEEE]">
+            <p className="text-2xs font-medium text-[#999999] uppercase tracking-wider mb-1">Quoted Price</p>
+            <p className="text-sm sm:text-base font-bold text-[#111111] leading-tight">{formatCurrency(summary.quotedPrice)}</p>
+            {summary.quotedPrice > 0 && (
+              <div className="mt-1.5">
+                <div className="w-full h-1 bg-[#EEEEEE] rounded-full overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-all duration-500"
+                    style={{
+                      width: `${Math.min(100, (summary.totalResourceCost / summary.quotedPrice) * 100)}%`,
+                      backgroundColor: (summary.totalResourceCost / summary.quotedPrice) >= 0.8 ? '#DC2626' :
+                                        (summary.totalResourceCost / summary.quotedPrice) >= 0.5 ? '#F9A825' : '#0F9D58'
+                    }}
+                  />
+                </div>
+                <p className="text-2xs text-[#999999] mt-0.5">{Math.round((summary.totalResourceCost / summary.quotedPrice) * 100)}% used</p>
+              </div>
+            )}
           </div>
 
           {/* Resource Cost */}
-          <div className="bg-white rounded-[14px] px-5 py-4 border border-[#EEEEEE] shadow-sm flex items-center gap-4">
-            <div className="w-10 h-10 rounded-full bg-[#FFF5F5] flex items-center justify-center flex-shrink-0">
-              <Users className="w-5 h-5 text-[#ff3b3b]" />
-            </div>
-            <div>
-              <p className="text-xs font-medium text-[#999999] uppercase tracking-wider mb-0.5">Resource Cost</p>
-              <p className="text-xl font-bold text-[#111111] leading-tight">{formatCurrency(summary.totalResourceCost)}</p>
-            </div>
+          <div className="bg-[#FAFAFA] rounded-lg px-3 py-2.5 border border-[#EEEEEE]">
+            <p className="text-2xs font-medium text-[#999999] uppercase tracking-wider mb-1">Resource Cost</p>
+            <p className="text-sm sm:text-base font-bold text-[#111111] leading-tight">{formatCurrency(summary.totalResourceCost)}</p>
           </div>
 
           {/* Gross Profit / Loss */}
-          <div className={`bg-white rounded-[14px] px-5 py-4 border shadow-sm flex items-center gap-4 ${summary.grossProfit >= 0 ? 'border-[#0F9D58]' : 'border-[#DC2626]'}`}>
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${summary.grossProfit >= 0 ? 'bg-[#E8F5E9]' : 'bg-[#FEE2E2]'}`}>
-              {summary.grossProfit >= 0 ? (
-                <TrendingUp className="w-5 h-5 text-[#0F9D58]" />
-              ) : (
-                <TrendingDown className="w-5 h-5 text-[#DC2626]" />
-              )}
-            </div>
-            <div>
-              <p className="text-xs font-medium text-[#999999] uppercase tracking-wider mb-0.5">
-                Gross {summary.grossProfit >= 0 ? 'Profit' : 'Loss'}
-              </p>
-              <p className={`text-xl font-bold leading-tight ${summary.grossProfit >= 0 ? 'text-[#0F9D58]' : 'text-[#DC2626]'}`}>
-                {summary.grossProfit >= 0 ? '+' : ''}{formatCurrency(summary.grossProfit)}
-              </p>
-            </div>
+          <div className={`bg-[#FAFAFA] rounded-lg px-3 py-2.5 border ${summary.grossProfit >= 0 ? 'border-[#0F9D58]' : 'border-[#DC2626]'}`}>
+            <p className="text-2xs font-medium text-[#999999] uppercase tracking-wider mb-1">
+              Gross {summary.grossProfit >= 0 ? 'Profit' : 'Loss'}
+            </p>
+            <p className={`text-sm sm:text-base font-bold leading-tight ${summary.grossProfit >= 0 ? 'text-[#0F9D58]' : 'text-[#DC2626]'}`}>
+              {summary.grossProfit >= 0 ? '+' : ''}{formatCurrency(summary.grossProfit)}
+            </p>
           </div>
 
           {/* Profit Margin */}
-          <div className="bg-white rounded-[14px] px-5 py-4 border border-[#EEEEEE] shadow-sm flex items-center gap-4">
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${summary.profitMargin >= 20 ? 'bg-[#E8F5E9]' : summary.profitMargin >= 0 ? 'bg-[#FFF8E1]' : 'bg-[#FEE2E2]'}`}>
-              <Percent className={`w-5 h-5 ${summary.profitMargin >= 20 ? 'text-[#0F9D58]' : summary.profitMargin >= 0 ? 'text-[#F9A825]' : 'text-[#DC2626]'}`} />
-            </div>
-            <div>
-              <p className="text-xs font-medium text-[#999999] uppercase tracking-wider mb-0.5">Profit Margin</p>
-              <p className={`text-xl font-bold leading-tight ${summary.profitMargin >= 20 ? 'text-[#0F9D58]' : summary.profitMargin >= 0 ? 'text-[#F9A825]' : 'text-[#DC2626]'}`}>
-                {summary.profitMargin.toFixed(1)}%
-              </p>
-            </div>
+          <div className="bg-[#FAFAFA] rounded-lg px-3 py-2.5 border border-[#EEEEEE]">
+            <p className="text-2xs font-medium text-[#999999] uppercase tracking-wider mb-1">Profit Margin</p>
+            <p className={`text-sm sm:text-base font-bold leading-tight ${summary.profitMargin >= 20 ? 'text-[#0F9D58]' : summary.profitMargin >= 0 ? 'text-[#F9A825]' : 'text-[#DC2626]'}`}>
+              {summary.profitMargin.toFixed(1)}%
+            </p>
           </div>
         </div>
 
       {/* P&L Chart - Earned Value Management */}
-      <div className="h-[280px] sm:h-[350px] lg:h-[400px] w-full mt-8">
+      <div className="w-full mt-2">
         {loadingChart ? (
-          <div className="w-full h-full flex items-center justify-center bg-[#F7F7F7] rounded-xl border border-[#EEEEEE]">
+          <div className="w-full h-[280px] sm:h-[350px] lg:h-[400px] flex items-center justify-center bg-[#F7F7F7] rounded-xl border border-[#EEEEEE]">
             <span className="text-gray-400">Loading Chart...</span>
           </div>
         ) : chartData.length > 0 ? (
+          <div className="space-y-4">
+          <div className="h-[280px] sm:h-[350px] lg:h-[400px]">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+            <AreaChart data={enrichedChartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
               <defs>
-                <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#ff3b3b" stopOpacity={0.2}/>
-                  <stop offset="95%" stopColor="#ff3b3b" stopOpacity={0}/>
-                </linearGradient>
-                <linearGradient id="colorInvested" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#111111" stopOpacity={0.2}/>
-                  <stop offset="95%" stopColor="#111111" stopOpacity={0}/>
+                <linearGradient id="colorBudgetEnvelope" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#ff3b3b" stopOpacity={0.06}/>
+                  <stop offset="95%" stopColor="#ff3b3b" stopOpacity={0.01}/>
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F0F0F0" />
@@ -215,33 +321,80 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
                 tickFormatter={(value) => `${currencySymbol}${value.toLocaleString()}`}
               />
               <RechartsTooltip
-                contentStyle={{ backgroundColor: '#fff', borderRadius: '12px', border: '1px solid #EEEEEE', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}
-                itemStyle={{ fontSize: "var(--font-size-xs)", fontWeight: '500' }}
-                formatter={(value) => [`${currencySymbol}${Number(value ?? 0).toLocaleString()}`, undefined]}
+                content={<CustomTooltip />}
+                cursor={{ stroke: '#CCCCCC', strokeDasharray: '4 4' }}
               />
-              <Legend wrapperStyle={{ paddingTop: '20px' }} />
+
+              {/* Budget Ceiling — horizontal dashed reference line */}
+              <ReferenceLine
+                y={summary.quotedPrice}
+                stroke="#DC2626"
+                strokeDasharray="6 4"
+                strokeWidth={1}
+                label={{ value: `Budget Ceiling`, position: 'insideTopRight', fill: '#DC2626', fontSize: 11, fontWeight: 600 }}
+              />
+
+              {/* Planned Budget area (subtle fill = budget envelope) */}
               <Area
                 type="monotone"
                 dataKey="price"
-                name="Planned Budget (Linear)"
                 stroke="#ff3b3b"
                 strokeWidth={2}
                 fillOpacity={1}
-                fill="url(#colorPrice)"
+                fill="url(#colorBudgetEnvelope)"
+                dot={false}
+                connectNulls
               />
+
+              {/* Actual Cost line (no fill, solid line) */}
               <Area
                 type="monotone"
                 dataKey="invested"
-                name="Actual Cost (Cumulative)"
                 stroke="#111111"
+                strokeWidth={2.5}
+                fill="none"
+                dot={false}
+                connectNulls={false}
+                activeDot={{ r: 4, stroke: '#111111', strokeWidth: 2, fill: '#fff' }}
+              />
+
+              {/* Forecast projection (dashed line, color indicates risk) */}
+              <Area
+                type="monotone"
+                dataKey="forecast"
+                stroke={forecastExceedsBudget ? '#DC2626' : '#0F9D58'}
                 strokeWidth={2}
-                fillOpacity={1}
-                fill="url(#colorInvested)"
+                strokeDasharray="6 4"
+                fill="none"
+                dot={false}
+                connectNulls={false}
               />
             </AreaChart>
           </ResponsiveContainer>
+          </div>
+
+          {/* Inline Legend */}
+          <div className="flex items-center justify-center gap-6">
+            <div className="flex items-center gap-1.5">
+              <span className="w-5 h-0.5 bg-[#ff3b3b] inline-block rounded" />
+              <span className="text-xs text-[#999999]">Planned Budget</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-5 h-0.5 bg-[#111111] inline-block rounded" style={{ height: '2.5px' }} />
+              <span className="text-xs text-[#999999]">Actual Cost</span>
+            </div>
+            {projectedFinalCost != null && (
+              <div className="flex items-center gap-1.5">
+                <span className={`w-5 inline-block border-t-2 border-dashed ${forecastExceedsBudget ? 'border-[#DC2626]' : 'border-[#0F9D58]'}`} />
+                <span className="text-xs text-[#999999]">
+                  Projected → {currencySymbol}{Math.round(projectedFinalCost).toLocaleString()}
+                </span>
+              </div>
+            )}
+          </div>
+          </div>
         ) : (
-           <div className="w-full h-full flex items-center justify-center bg-[#F7F7F7] rounded-xl border border-[#EEEEEE]">
+           <div className="w-full h-[280px] sm:h-[350px] lg:h-[400px] flex items-center justify-center bg-[#F7F7F7] rounded-xl border border-[#EEEEEE]">
             <span className="text-gray-400">No chart data available</span>
           </div>
         )}
