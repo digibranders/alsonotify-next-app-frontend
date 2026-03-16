@@ -131,10 +131,6 @@ export const getEmailRecipients = async (invoiceId: number): Promise<ApiResponse
     return data;
 };
 
-export const getRequirementBillingStatus = async (requirementId: number | string): Promise<ApiResponse<{ billingStatus: string; invoiceId: number | null; invoiceNumber: string | null; invoiceStatus: string | null; invoiceTotal: number | null }>> => {
-    const { data } = await axiosApi.get(`/requirements/${requirementId}/billing-status`);
-    return data;
-};
 export interface PaymentRecord {
     id: number;
     invoice_id: number;
@@ -268,12 +264,12 @@ export async function getCreditNotes(invoiceId: number) {
 }
 
 export async function createCreditNote(invoiceId: number, data: { reason: string; amount: number; tax?: number }) {
-    const response = await axiosApi.post(`/invoice/${invoiceId}/credit-note`, data);
+    const response = await axiosApi.post(`/invoice/credit-notes`, { invoice_id: invoiceId, ...data });
     return response.data;
 }
 
 export async function updateCreditNoteStatus(creditNoteId: number, status: string) {
-    const response = await axiosApi.patch(`/invoice/credit-note/${creditNoteId}/status`, { status });
+    const response = await axiosApi.patch(`/invoice/credit-notes/${creditNoteId}/status`, { status });
     return response.data;
 }
 

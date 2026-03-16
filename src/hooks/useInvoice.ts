@@ -3,12 +3,13 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   getInvoices, getInvoiceById, createInvoice, updateInvoice,
   reviseInvoice, recordPayment, sendInvoiceEmail,
-  updateInvoiceStatus, getRequirementBillingStatus, Particular,
+  updateInvoiceStatus, Particular,
   getRequirementAdvanceStatus, createAdvanceProforma, createFinalInvoice,
   CreateAdvanceProformaPayload, CreateFinalInvoicePayload,
   getCreditNotes, createCreditNote, updateCreditNoteStatus,
   getPaymentHistory,
 } from '../services/invoice';
+import { getRequirementBillingStatus } from '../services/workspace';
 import { toQueryParams } from '../utils/navigation/queryParams';
 
 export type InvoiceStatusValue =
@@ -175,7 +176,7 @@ export const useRequirementBillingStatus = (requirementId?: number | string) => 
     queryKey: ['requirement-billing-status', requirementId],
     queryFn: async () => {
       if (!requirementId) return null;
-      const res = await getRequirementBillingStatus(requirementId);
+      const res = await getRequirementBillingStatus(Number(requirementId));
       return res.result;
     },
     enabled: !!requirementId,

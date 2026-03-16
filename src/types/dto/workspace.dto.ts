@@ -7,8 +7,8 @@ export interface WorkspaceDto {
   status?: WorkspaceStatus;
   client_id?: number;
   partner_id?: number;
-  start_date?: string;
-  end_date?: string;
+  start_date?: string | null;
+  end_date?: string | null;
   in_house?: boolean;
   is_active?: boolean;
 
