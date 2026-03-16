@@ -562,21 +562,18 @@ export function ReportsPage() {
       ]}
       activeTab={activeTab}
       onTabChange={(tabId) => setActiveTab(tabId as 'requirement' | 'task' | 'member')}
+      searchPlaceholder="Search reports..."
+      searchValue={searchQuery}
+      onSearchChange={setSearchQuery}
       customFilters={
-        <div className="flex items-center gap-3">
-          <Button
-            onClick={handleExport}
-            icon={<Download className="w-4 h-4" />}
-            className="font-semibold text-xs rounded-full"
-            disabled={isDownloading}
-          >
-            {isDownloading ? 'Generating...' : 'Download'}
-          </Button>
-          <DateRangeSelector
-            value={dateRange}
-            onChange={setDateRange}
-          />
-        </div>
+        <Button
+          onClick={handleExport}
+          icon={<Download className="w-4 h-4" />}
+          className="font-semibold text-xs rounded-full"
+          disabled={isDownloading}
+        >
+          {isDownloading ? 'Generating...' : 'Download'}
+        </Button>
       }
     >
       <div className="flex flex-col h-full relative overflow-hidden">
@@ -587,10 +584,13 @@ export function ReportsPage() {
             selectedFilters={filters}
             onFilterChange={handleFilterChange}
             onClearFilters={clearFilters}
-            searchPlaceholder="Search reports..."
-            searchValue={searchQuery}
-            onSearchChange={setSearchQuery}
             showClearButton={true}
+            extraContent={
+              <DateRangeSelector
+                value={dateRange}
+                onChange={setDateRange}
+              />
+            }
           />
 
           {/* Summary Cards */}

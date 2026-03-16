@@ -902,14 +902,6 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
     }
   }, [selectedTasks]);
 
-  const DateFilter = (
-    <DateRangeSelector
-      value={dateRange}
-      onChange={setDateRange}
-      availablePresets={['today', 'yesterday', 'this_week', 'this_month', 'last_month', 'this_year', 'all_time', 'custom']}
-    />
-  );
-
   return (
     <PageLayout
       title="Tasks"
@@ -929,8 +921,9 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
       ]}
       activeTab={activeTab}
       onTabChange={(tabId) => handleTabChange(tabId as StatusTab)}
-
-      customFilters={DateFilter}
+      searchPlaceholder="Search"
+      searchValue={searchQuery}
+      onSearchChange={handleSearchChange}
     >
       <Modal
         open={isDialogOpen}
@@ -1050,19 +1043,19 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
       )}
       {/* Filters Bar */}
       <div className="mb-2">
-        <div className="flex items-center gap-3">
-          <div className="flex-1">
-            <FilterBar
-              filters={filterOptions}
-              selectedFilters={filters}
-              onFilterChange={handleFilterChange}
-              onClearFilters={clearFilters}
-              searchPlaceholder="Search"
-              searchValue={searchQuery}
-              onSearchChange={handleSearchChange}
+        <FilterBar
+          filters={filterOptions}
+          selectedFilters={filters}
+          onFilterChange={handleFilterChange}
+          onClearFilters={clearFilters}
+          extraContent={
+            <DateRangeSelector
+              value={dateRange}
+              onChange={setDateRange}
+              availablePresets={['today', 'yesterday', 'this_week', 'this_month', 'last_month', 'this_year', 'all_time', 'custom']}
             />
-          </div>
-        </div>
+          }
+        />
       </div>
 
       {/* Tasks List */}
