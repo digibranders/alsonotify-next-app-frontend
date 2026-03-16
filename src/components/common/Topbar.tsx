@@ -26,7 +26,7 @@ import { RequirementsForm, RequirementFormData } from '../modals/RequirementsFor
 import { WorkspaceForm } from '../modals/WorkspaceForm';
 import { NotificationPanel } from './NotificationPanel';
 import { Skeleton } from '../ui/Skeleton';
-import { FeedbackWidget } from './FeedbackWidget';
+
 import { useUserDetails, useCurrentUserCompany } from '@/hooks/useUser';
 import { useAccountType } from '@/utils/format/accountTypeUtils';
 import { useNotifications, useMarkAllNotificationsRead, useMarkNotificationRead } from '../../hooks/useNotification';
@@ -105,7 +105,7 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
   const [showTaskDialog, setShowTaskDialog] = useState(false);
   const [showRequirementDialog, setShowRequirementDialog] = useState(false);
   const [showNoteDialog, setShowNoteDialog] = useState(false);
-  const [showFeedbackDialog, setShowFeedbackDialog] = useState(false);
+
   const [showMeetingDialog, setShowMeetingDialog] = useState(false);
   const [showLeaveDialog, setShowLeaveDialog] = useState(false);
   const [notificationDrawerOpen, setNotificationDrawerOpen] = useState(false);
@@ -442,7 +442,7 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
 
             {/* Feedback Toggle */}
             <button
-              onClick={() => setShowFeedbackDialog(true)}
+              onClick={() => router.push('/dashboard/feedback')}
               className="hidden md:flex w-9 h-9 min-w-[36px] rounded-full bg-[#ff3b3b] hover:bg-[#ff6b6b] items-center justify-center transition-all cursor-pointer border-none shadow-none"
               title="Give Feedback"
             >
@@ -580,12 +580,6 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
         open={showNoteDialog}
         onClose={() => setShowNoteDialog(false)}
         onSave={handleCreateNote}
-      />
-
-      {/* Feedback Modal */}
-      <FeedbackWidget
-        open={showFeedbackDialog}
-        onClose={() => setShowFeedbackDialog(false)}
       />
 
       {/* Meeting Modal */}
