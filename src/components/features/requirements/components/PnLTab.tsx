@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo, useEffect, useState } from 'react';
-import { TrendingUp, TrendingDown, DollarSign, Clock, Users, AlertTriangle, Receipt, Percent } from 'lucide-react';
+import { TrendingUp, TrendingDown, DollarSign, Users, Percent, AlertTriangle } from 'lucide-react';
 import { Tooltip } from 'antd';
 import { Task, Requirement } from '@/types/domain';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend } from 'recharts';
@@ -125,7 +125,7 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
         </h3>
 
         {/* Summary Cards - Row 1: Financial */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-8">
           {/* Quoted Price */}
           <div className="bg-white rounded-[14px] px-5 py-4 border border-[#EEEEEE] shadow-sm flex items-center gap-4">
             <div className="w-10 h-10 rounded-full bg-[#E8F5E9] flex items-center justify-center flex-shrink-0">
@@ -181,58 +181,8 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
           </div>
         </div>
 
-        {/* Summary Cards - Row 2: Billing + Hours */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          {/* Invoiced */}
-          <div className="bg-white rounded-[14px] px-5 py-4 border border-[#EEEEEE] shadow-sm flex items-center gap-4">
-            <div className="w-10 h-10 rounded-full bg-[#E3F2FD] flex items-center justify-center flex-shrink-0">
-              <Receipt className="w-5 h-5 text-[#2F80ED]" />
-            </div>
-            <div>
-              <p className="text-xs font-medium text-[#999999] uppercase tracking-wider mb-0.5">Total Invoiced</p>
-              <p className="text-xl font-bold text-[#111111] leading-tight">{formatCurrency(summary.totalInvoiced)}</p>
-            </div>
-          </div>
-
-          {/* Collected */}
-          <div className="bg-white rounded-[14px] px-5 py-4 border border-[#EEEEEE] shadow-sm flex items-center gap-4">
-            <div className="w-10 h-10 rounded-full bg-[#E8F5E9] flex items-center justify-center flex-shrink-0">
-              <DollarSign className="w-5 h-5 text-[#0F9D58]" />
-            </div>
-            <div>
-              <p className="text-xs font-medium text-[#999999] uppercase tracking-wider mb-0.5">Collected</p>
-              <p className="text-xl font-bold text-[#0F9D58] leading-tight">{formatCurrency(summary.totalCollected)}</p>
-            </div>
-          </div>
-
-          {/* Hours */}
-          <div className="bg-white rounded-[14px] px-5 py-4 border border-[#EEEEEE] shadow-sm flex items-center gap-4">
-            <div className="w-10 h-10 rounded-full bg-[#E3F2FD] flex items-center justify-center flex-shrink-0">
-              <Clock className="w-5 h-5 text-[#2F80ED]" />
-            </div>
-            <div>
-              <p className="text-xs font-medium text-[#999999] uppercase tracking-wider mb-0.5">Hours Spent</p>
-              <p className="text-xl font-bold text-[#111111] leading-tight">{formatDecimalHours(summary.totalActualHours)}</p>
-              <p className="text-2xs text-[#999999]">of {formatDecimalHours(summary.totalEstimatedHours)} est.</p>
-            </div>
-          </div>
-
-          {/* Over Budget Tasks */}
-          <div className="bg-white rounded-[14px] px-5 py-4 border border-[#EEEEEE] shadow-sm flex items-center gap-4">
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${summary.overBudgetTasks > 0 ? 'bg-[#FEE2E2]' : 'bg-[#E8F5E9]'}`}>
-              <AlertTriangle className={`w-5 h-5 ${summary.overBudgetTasks > 0 ? 'text-[#DC2626]' : 'text-[#0F9D58]'}`} />
-            </div>
-            <div>
-              <p className="text-xs font-medium text-[#999999] uppercase tracking-wider mb-0.5">Over Budget</p>
-              <p className={`text-xl font-bold leading-tight ${summary.overBudgetTasks > 0 ? 'text-[#DC2626]' : 'text-[#0F9D58]'}`}>
-                {summary.overBudgetTasks} / {summary.taskCount}
-              </p>
-            </div>
-          </div>
-        </div>
-
       {/* P&L Chart - Earned Value Management */}
-      <div className="h-[400px] w-full mt-8">
+      <div className="h-[280px] sm:h-[350px] lg:h-[400px] w-full mt-8">
         {loadingChart ? (
           <div className="w-full h-full flex items-center justify-center bg-[#F7F7F7] rounded-xl border border-[#EEEEEE]">
             <span className="text-gray-400">Loading Chart...</span>
@@ -326,7 +276,7 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
           {loadingTaskPnL ? (
             <div className="text-center py-12 text-[#999999] text-sm">Loading task P&L data...</div>
           ) : (
-          <table className="w-full text-left border-collapse">
+          <table className="w-full text-left border-collapse min-w-[700px]">
             <thead className="bg-[#F7F7F7] border-b border-[#EEEEEE]">
               <tr>
                 <th className="px-5 py-4 text-xs font-medium text-[#999999] uppercase tracking-wider">Task</th>

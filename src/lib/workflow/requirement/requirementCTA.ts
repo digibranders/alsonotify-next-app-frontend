@@ -269,7 +269,8 @@ function getClientWorkReceiverCTA(
         displayStatus: 'Delayed',
         isPending: false,
         tab,
-        primaryAction: createAction('Resume Work', 'primary', 'none', 'resume'),
+        primaryAction: createAction('Submit for Review', 'primary', 'submit_approval'),
+        secondaryAction: createAction('Resume Work', 'secondary', 'none', 'resume'),
       };
 
     case 'Draft':
@@ -527,7 +528,8 @@ function getReceiverCTA(
         displayStatus: 'Delayed',
         isPending: false,
         tab,
-        primaryAction: createAction('Resume Work', 'primary', 'none', 'resume'),
+        primaryAction: createAction('Submit for Review', 'primary', 'submit_approval'),
+        secondaryAction: createAction('Resume Work', 'secondary', 'none', 'resume'),
       };
 
     default: {
@@ -690,7 +692,8 @@ function getInternalCTA(
         displayStatus: 'Delayed',
         isPending: false,
         tab,
-        primaryAction: createAction('Resume', 'primary', 'none', 'resume'),
+        primaryAction: createAction('Submit for Review', 'primary', 'submit_approval'),
+        secondaryAction: createAction('Resume', 'secondary', 'none', 'resume'),
       };
 
     default: {
