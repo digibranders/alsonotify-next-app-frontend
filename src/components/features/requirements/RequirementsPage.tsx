@@ -962,9 +962,6 @@ export function RequirementsPage() {
         // useTabSync handles URL updates automatically
         setActiveStatusTab(tabId as RequirementTab);
       }}
-      searchPlaceholder="Search requirements..."
-      searchValue={searchQuery}
-      onSearchChange={setSearchQuery}
     >
       {/* Filters Bar */}
       <div className="mb-2">
@@ -973,6 +970,9 @@ export function RequirementsPage() {
           selectedFilters={filters}
           onFilterChange={handleFilterChange}
           onClearFilters={clearFilters}
+          searchPlaceholder="Search requirements..."
+          searchValue={searchQuery}
+          onSearchChange={setSearchQuery}
           extraContent={
             <DateRangeSelector
               value={dateRange}
