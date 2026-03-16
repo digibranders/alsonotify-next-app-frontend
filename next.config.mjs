@@ -89,7 +89,7 @@ const nextConfig = {
                             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
                             "img-src 'self' data: blob: https://s3.amazonaws.com https://*.s3.amazonaws.com https://*.s3.*.amazonaws.com",
                             "font-src 'self' data: https://fonts.gstatic.com",
-                            `connect-src 'self' ${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000'} https://*.sentry.io https://challenges.cloudflare.com ws: wss:`,
+                            `connect-src 'self' ${new URL(process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000').origin} https://*.sentry.io https://challenges.cloudflare.com ws: wss:`,
                             "frame-src 'self' https://challenges.cloudflare.com",
                             "object-src 'none'",
                             "base-uri 'self'",
