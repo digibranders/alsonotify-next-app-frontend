@@ -170,7 +170,7 @@ export function SendInvoiceModal({
             open={isOpen}
             onCancel={onClose}
             width={512}
-            destroyOnClose
+            destroyOnHidden
             centered
             closeIcon={<X className="w-4 h-4 text-[#666666]" />}
             footer={

@@ -179,6 +179,7 @@ export function TaskForm({
     const missingFields: string[] = [];
     if (!formData.name) missingFields.push('Task Title');
     if (!formData.workspace_id) missingFields.push('Workspace');
+    if (!formData.requirement_id) missingFields.push('Requirement');
     if (!formData.end_date) missingFields.push('Due Date');
     // Estimated time is conditional now, but if visible, it should be validated.
     // However, validation logic needs to know if it's visible. 
@@ -362,7 +363,7 @@ export function TaskForm({
         {/* Requirement: Col Span 6 */}
         <div className="col-span-12 sm:col-span-6 space-y-1.5">
           <span className="text-xs font-bold text-[#111111]">
-            Requirement
+            Requirement <span className="text-red-500">*</span>
           </span>
           <Select
             className="w-full h-11"
@@ -376,8 +377,6 @@ export function TaskForm({
             }}
             disabled={disabledFields.requirement || (!formData.workspace_id && !formData.requirement_id)}
             suffixIcon={<div className="text-gray-400">⌄</div>}
-            allowClear
-            onClear={() => setFormData(prev => ({ ...prev, requirement_id: "" }))}
             showSearch
             filterOption={(input, option) =>
               String(option?.label ?? '').toLowerCase().includes(input.toLowerCase())

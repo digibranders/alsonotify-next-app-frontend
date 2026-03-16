@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alsonotify — Reports KPI Calculations Reference</title>
+    <style>
+        :root {
+            --bg: #FAFAFA;
+            --card: #FFFFFF;
+            --border: #EEEEEE;
+            --text: #111111;
+            --muted: #666666;
+            --label: #999999;
+            --accent: #FF3B3B;
+            --green: #0F9D58;
+            --blue: #2196F3;
+            --red: #FF3B3B;
+            --orange: #EAB308;
+            --font: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .subtitle {
+            color: var(--muted);
+            font-size: 14px;
+            margin-bottom: 40px;
+        }
+
+        .tab-section {
+            margin-bottom: 48px;
+        }
+
+        .tab-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--text);
+        }
+
+        .tab-header h2 {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .tab-badge {
+            background: var(--text);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+
+        .kpi-group-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--label);
+            margin: 24px 0 12px;
+        }
+
+        .kpi-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 12px;
+        }
+
+        .kpi-card h3 {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .kpi-card h3 .color-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            flex-shrink: 0;
+        }
+
+        .kpi-card .description {
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 12px;
+        }
+
+        .formula-box {
+            background: #F5F5F7;
+            border: 1px solid #E5E5E5;
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 13px;
+            color: var(--text);
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+
+        .formula-box .keyword {
+            color: var(--blue);
+            font-weight: 600;
+        }
+
+        .formula-box .comment {
+            color: var(--label);
+            font-style: italic;
+        }
+
+        .note {
+            font-size: 12px;
+            color: var(--label);
+            margin-top: 8px;
+            padding-left: 12px;
+            border-left: 2px solid var(--border);
+        }
+
+        .threshold {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 8px;
+            margin-right: 12px;
+        }
+
+        .threshold .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+
+        .row-metric {
+            background: #FAFCFF;
+            border: 1px solid #E8EEF5;
+        }
+
+        .api-tag {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--blue);
+            background: #E6F0FF;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .divider {
+            height: 1px;
+            background: var(--border);
+            margin: 32px 0;
+        }
+
+        .toc {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 40px;
+        }
+
+        .toc h3 {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--label);
+            margin-bottom: 12px;
+        }
+
+        .toc ul {
+            list-style: none;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px 24px;
+        }
+
+        .toc a {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text);
+            text-decoration: none;
+            transition: color 0.15s;
+        }
+
+        .toc a:hover {
+            color: var(--accent);
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px 0 20px;
+            font-size: 12px;
+            color: var(--label);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <h1>Reports — KPI Calculations Reference</h1>
+        <p class="subtitle">Complete documentation of every KPI metric across all report tabs and the employee drawer. <br>Backend: <code>report.service.ts</code> &nbsp;|&nbsp; API Prefix: <code>/api/v1/report/</code></p>
+
+        <!-- Table of Contents -->
+        <div class="toc">
+            <h3>Contents</h3>
+            <ul>
+                <li><a href="#req-kpi">1. Requirement Tab — KPI Cards</a></li>
+                <li><a href="#req-row">2. Requirement Tab — Row Metrics</a></li>
+                <li><a href="#task-kpi">3. Tasks Tab — KPI Cards</a></li>
+                <li><a href="#task-row">4. Tasks Tab — Row Metrics</a></li>
+                <li><a href="#emp-kpi">5. Employee Tab — KPI Cards</a></li>
+                <li><a href="#emp-row">6. Employee Tab — Row Metrics</a></li>
+                <li><a href="#emp-drawer">7. Employee Drawer — KPI Cards</a></li>
+                <li><a href="#helpers">8. Helper Functions</a></li>
+            </ul>
+        </div>
+
+        <!-- ============================================ -->
+        <!-- REQUIREMENT TAB -->
+        <!-- ============================================ -->
+        <div class="tab-section" id="req-kpi">
+            <div class="tab-header">
+                <h2>Requirement Tab</h2>
+                <span class="tab-badge">KPI Cards</span>
+                <span class="api-tag">GET /report/requirements</span>
+            </div>
+
+            <div class="kpi-card">
+                <h3><span class="color-dot" style="background:#111"></span> Total Requirements</h3>
+                <p class="description">Count of all non-deleted, non-archived requirements that overlap the selected date range. Excludes statuses: Draft, Waiting, Submitted, Rejected. Includes Completed (for KPI accuracy).</p>
+                <div class="formula-box">
+                    <span class="keyword">totalRequirements</span> = COUNT(requirements)<br>
+                    <span class="comment">// WHERE is_deleted = false AND is_archived = false</span><br>
+                    <span class="comment">// AND status NOT IN (Draft, Waiting, Submitted, Rejected)</span><br>
+                    <span class="comment">// AND start_date &lt;= filterEndDate AND end_date &gt;= filterStartDate</span>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <h3><span class="color-dot" style="background:#0F9D58"></span> On Time Completed</h3>
+                <p class="description">Requirements completed within budget (engaged hours ≤ allotted hours). Over-budget completions are excluded and counted under "Delayed" instead.</p>
+                <div class="formula-box">
+                    <span class="keyword">onTimeCompleted</span> = totalCompleted − delayedCompleted<br><br>
+                    <span class="comment">// totalCompleted = requirements with status = "Completed"</span><br>
+                    <span class="comment">// delayedCompleted = completed requirements WHERE engagedHrs &gt; allottedHrs</span>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <h3><span class="color-dot" style="background:#111"></span> In Progress</h3>
+                <p class="description">Requirements currently being worked on. Includes statuses: Assigned, In_Progress, Review, Revision, Delayed, On_Hold.</p>
+                <div class="formula-box">
+                    <span class="keyword">inProgress</span> = COUNT(requirements WHERE status IN (Assigned, In_Progress, Review, Revision, Delayed, On_Hold))
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <h3><span class="color-dot" style="background:#FF3B3B"></span> Delayed</h3>
+                <p class="description">Requirements that are past their end date (not yet completed) + completed requirements that went over budget. The "+Xh" suffix shows total extra hours logged across all delayed-completed requirements.</p>
+                <div class="formula-box">
+                    <span class="keyword">delayed</span> = COUNT(reqs WHERE status ≠ Completed AND end_date &lt; NOW)<br><br>
+                    <span class="keyword">totalExtraHrs</span> = SUM(engagedHrs − allottedHrs)<br>
+                    <span class="comment">// For each completed requirement where engagedHrs &gt; allottedHrs</span>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <h3><span class="color-dot" style="background:#2196F3"></span> Efficiency</h3>
+                <p class="description">Percentage of requirements completed on time and within budget, relative to total requirements.</p>
+                <div class="formula-box">
+                    <span class="keyword">efficiency</span> = ROUND((onTimeCompleted / totalRequirements) × 100)%<br>
+                    <span class="comment">// Returns 0 if totalRequirements = 0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Requirement Row Metrics -->
+        <div class="tab-section" id="req-row">
+            <div class="tab-header">
+                <h2>Requirement Tab</h2>
+                <span class="tab-badge">Row Metrics</span>
+            </div>
+
+            <div class="kpi-card row-metric">
+                <h3>Hours Utilization</h3>
+                <p class="description">Per-requirement bar showing engaged (logged) hours vs. allotted (budget) hours. Color-coded by status.</p>
+                <div class="formula-box">
+                    <span class="keyword">allottedHrs</span> = SUM(task.estimated_time) for all tasks in requirement<br>
+                    <span class="keyword">engagedHrs</span> = SUM(worklog.time_in_seconds) / 3600 for all worklogs<br>
+                    <span class="keyword">remaining</span> = allottedHrs − engagedHrs<br>
+                    <span class="keyword">fillPercent</span> = MIN(engagedHrs / allottedHrs, 1) × 100
+                </div>
+                <div>
+                    <span class="threshold"><span class="dot" style="background:#2F80ED"></span> Normal — within budget</span>
+                    <span class="threshold"><span class="dot" style="background:#EAB308"></span> Warning — ≥ 80% used</span>
+                    <span class="threshold"><span class="dot" style="background:#FF3B3B"></span> Bleeding — over budget</span>
+                </div>
+            </div>
+
+            <div class="kpi-card row-metric">
+                <h3>Revenue / P&L</h3>
+                <p class="description">Revenue from quoted price (or budget fallback) and profit/loss for each requirement.</p>
+                <div class="formula-box">
+                    <span class="keyword">revenue</span> = quoted_price || budget || 0<br>
+                    <span class="keyword">cost</span> = SUM((worklog_seconds / 3600) × member_hourly_rate)<br>
+                    <span class="keyword">profit</span> = revenue − cost
+                </div>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- ============================================ -->
+        <!-- TASKS TAB -->
+        <!-- ============================================ -->
+        <div class="tab-section" id="task-kpi">
+            <div class="tab-header">
+                <h2>Tasks Tab</h2>
+                <span class="tab-badge">KPI Cards</span>
+                <span class="api-tag">GET /report/tasks</span>
+            </div>
+
+            <div class="kpi-card">
+                <h3><span class="color-dot" style="background:#111"></span> Total Tasks</h3>
+                <p class="description">Count of active, non-deleted tasks (excluding sub-tasks unless they are revisions) within the date range.</p>
+                <div class="formula-box">
+                    <span class="keyword">totalTasks</span> = COUNT(tasks WHERE is_active = true AND (parent_id IS NULL OR is_revision = true))<br>
+                    <span class="comment">// AND start_date BETWEEN filterStart..filterEnd</span>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <h3><span class="color-dot" style="background:#0F9D58"></span> On Time Completed</h3>
+                <p class="description">Tasks completed within their estimated hours (no extra hours logged).</p>
+                <div class="formula-box">
+                    <span class="keyword">onTimeCompleted</span> = COUNT(tasks WHERE status = "Completed" AND engagedHrs ≤ allottedHrs)
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <h3><span class="color-dot" style="background:#111"></span> In Progress</h3>
+                <p class="description">Tasks with active statuses (not past deadline).</p>
+                <div class="formula-box">
+                    <span class="keyword">inProgress</span> = COUNT(tasks WHERE status IN (In_Progress, Assigned, Review))
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <h3><span class="color-dot" style="background:#FF3B3B"></span> Delayed</h3>
+                <p class="description">Tasks with explicit "Delayed" status OR past their due date (not yet completed). "+Xh" shows total extra hours from over-budget completions.</p>
+                <div class="formula-box">
+                    <span class="keyword">delayed</span> = COUNT(tasks WHERE status = "Delayed" OR (end_date &lt; NOW AND status ≠ "Completed"))<br><br>
+                    <span class="keyword">delayedCompleted</span> = COUNT(tasks WHERE status = "Completed" AND engagedHrs &gt; allottedHrs)<br>
+                    <span class="keyword">totalExtraHrs</span> = SUM(engagedHrs − allottedHrs) for delayedCompleted tasks
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <h3><span class="color-dot" style="background:#2196F3"></span> Efficiency</h3>
+                <p class="description">Percentage of tasks completed on time (within estimated hours) relative to total tasks.</p>
+                <div class="formula-box">
+                    <span class="keyword">efficiency</span> = ROUND((onTimeCompleted / totalTasks) × 100)%<br>
+                    <span class="comment">// Returns 0 if totalTasks = 0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Task Row Metrics -->
+        <div class="tab-section" id="task-row">
+            <div class="tab-header">
+                <h2>Tasks Tab</h2>
+                <span class="tab-badge">Row Metrics</span>
+            </div>
+
+            <div class="kpi-card row-metric">
+                <h3>Hours Variance</h3>
+                <p class="description">Per-task bar showing engaged vs. allotted hours with color-coded status.</p>
+                <div class="formula-box">
+                    <span class="keyword">allottedHrs</span> = task.estimated_time<br>
+                    <span class="keyword">engagedHrs</span> = SUM(worklog.time_in_seconds) / 3600<br>
+                    <span class="keyword">remaining</span> = allottedHrs − engagedHrs<br>
+                    <span class="keyword">fillPercent</span> = MIN(engagedHrs / allottedHrs, 1) × 100
+                </div>
+                <div>
+                    <span class="threshold"><span class="dot" style="background:#111"></span> Normal — within estimate</span>
+                    <span class="threshold"><span class="dot" style="background:#FF8A00"></span> Warning — ≥ 80% used</span>
+                    <span class="threshold"><span class="dot" style="background:#FF3B3B"></span> Over — exceeded estimate</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- ============================================ -->
+        <!-- EMPLOYEE TAB -->
+        <!-- ============================================ -->
+        <div class="tab-section" id="emp-kpi">
+            <div class="tab-header">
+                <h2>Employee Tab</h2>
+                <span class="tab-badge">KPI Cards</span>
+                <span class="api-tag">GET /report/employees</span>
+            </div>
+
+            <div class="kpi-card">
+                <h3><span class="color-dot" style="background:#111"></span> Total Expenses</h3>
+                <p class="description">Aggregate labour cost = sum of each employee's logged hours × their hourly rate.</p>
+                <div class="formula-box">
+                    <span class="keyword">totalExpenses</span> = SUM(employee.engagedHrs × employee.hourlyCost)<br>
+                    <span class="comment">// Computed across ALL employees matching filters (not paginated)</span>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <h3><span class="color-dot" style="background:#0F9D58"></span> Total Revenue</h3>
+                <p class="description">Revenue generated, prorated by each employee's contribution (logged hours) to requirements with a quoted price or budget.</p>
+                <div class="formula-box">
+                    <span class="keyword">totalRevenue</span> = SUM(employee_revenue)<br><br>
+                    <span class="comment">// Per employee, per worklog:</span><br>
+                    <span class="keyword">revenue</span> += requirement_price × (worklog_seconds / total_requirement_seconds)<br>
+                    <span class="comment">// requirement_price = quoted_price || budget || 0</span><br>
+                    <span class="comment">// In-house requirements with no price = $0 revenue</span>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <h3><span class="color-dot" style="background:#0F9D58"></span> Net Profit</h3>
+                <p class="description">Total Revenue minus Total Expenses. Positive = profitable workforce.</p>
+                <div class="formula-box">
+                    <span class="keyword">netProfit</span> = totalRevenue − totalExpenses
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <h3><span class="color-dot" style="background:#2196F3"></span> Avg. Rate/Hr</h3>
+                <p class="description">Average hourly cost rate across all filtered employees.</p>
+                <div class="formula-box">
+                    <span class="keyword">avgRatePerHr</span> = SUM(employee.hourlyCost) / COUNT(employees)<br><br>
+                    <span class="comment">// hourlyCost per employee:</span><br>
+                    <span class="comment">// 1. Use hourly_rates if set</span><br>
+                    <span class="comment">// 2. Fallback: salary_yearly / annualWorkingHours</span><br>
+                    <span class="keyword">annualWorkingHours</span> = (daysPerWeek × 52 − holidays − leaves) × dailyHours
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <h3><span class="color-dot" style="background:#0F9D58"></span> Occupancy</h3>
+                <p class="description">Average workforce utilization: ratio of engaged (logged) hours to available capacity. ≥70% is considered healthy.</p>
+                <div class="formula-box">
+                    <span class="keyword">avgOccupancy</span> = AVG(employee.utilization)<br><br>
+                    <span class="comment">// Per employee:</span><br>
+                    <span class="keyword">utilization</span> = (engagedHrs / periodCapacity) × 100<br><br>
+                    <span class="keyword">periodCapacity</span> = workingDaysInRange × dailyHours<br>
+                    <span class="comment">// workingDaysInRange = count of non-holiday weekdays matching the user's schedule</span><br>
+                    <span class="comment">// within the selected date range (considers per-user working_hours config)</span>
+                </div>
+                <div>
+                    <span class="threshold"><span class="dot" style="background:#0F9D58"></span> Healthy — ≥ 70%</span>
+                    <span class="threshold"><span class="dot" style="background:#FF3B3B"></span> Low — &lt; 70%</span>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <h3><span class="color-dot" style="background:#FF3B3B"></span> Efficiency</h3>
+                <p class="description">Average on-time task delivery rate across all employees. ≥75% is considered good.</p>
+                <div class="formula-box">
+                    <span class="keyword">avgEfficiency</span> = AVG(employee.efficiency)<br><br>
+                    <span class="comment">// Per employee:</span><br>
+                    <span class="keyword">efficiency</span> = (completedOnTime / totalAssignedTasks) × 100<br><br>
+                    <span class="comment">// "On time" = task.status = "Completed"</span><br>
+                    <span class="comment">//   AND (task.end_date IS NULL OR completed_at ≤ task.end_date)</span><br>
+                    <span class="comment">// Tasks sourced from task_members junction table (per-user assignment)</span><br>
+                    <span class="comment">// Returns 0 if employee has 0 assigned tasks</span>
+                </div>
+                <div>
+                    <span class="threshold"><span class="dot" style="background:#0F9D58"></span> Good — ≥ 75%</span>
+                    <span class="threshold"><span class="dot" style="background:#FF3B3B"></span> Low — &lt; 75%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Employee Row Metrics -->
+        <div class="tab-section" id="emp-row">
+            <div class="tab-header">
+                <h2>Employee Tab</h2>
+                <span class="tab-badge">Row Metrics</span>
+            </div>
+
+            <div class="kpi-card row-metric">
+                <h3>Tasks Performance</h3>
+                <p class="description">Per-employee task breakdown with colour-coded status dots.</p>
+                <div class="formula-box">
+                    <span class="keyword">assigned</span> = total tasks assigned via task_members junction<br>
+                    <span style="color:#0F9D58">●</span> <span class="keyword">completed</span> = tasks WHERE status = "Completed"<br>
+                    <span style="color:#2196F3">●</span> <span class="keyword">inProgress</span> = tasks WHERE status IN (In_Progress, Assigned, Review) AND NOT overdue<br>
+                    <span style="color:#FF3B3B">●</span> <span class="keyword">delayed</span> = tasks WHERE status = "Delayed" OR (end_date &lt; NOW AND status ≠ "Completed")
+                </div>
+                <p class="note">Categories are mutually exclusive: overdue tasks count as "delayed" even if status is "In_Progress".</p>
+            </div>
+
+            <div class="kpi-card row-metric">
+                <h3>Load (Occupancy)</h3>
+                <p class="description">Per-employee utilization bar. Red bar = logged hours exceed capacity (&gt;100%).</p>
+                <div class="formula-box">
+                    <span class="keyword">load</span> = ROUND((engagedHrs / periodCapacity) × 100)%
+                </div>
+            </div>
+
+            <div class="kpi-card row-metric">
+                <h3>Expenses</h3>
+                <p class="description">Total labour cost for this employee during the period.</p>
+                <div class="formula-box">
+                    <span class="keyword">expenses</span> = engagedHrs × hourlyCost
+                </div>
+            </div>
+
+            <div class="kpi-card row-metric">
+                <h3>Revenue</h3>
+                <p class="description">Revenue attributed to this employee, prorated by their worklog contribution to priced requirements.</p>
+                <div class="formula-box">
+                    <span class="keyword">revenue</span> = SUM(req_price × (my_worklog_seconds / total_req_worklog_seconds))
+                </div>
+            </div>
+
+            <div class="kpi-card row-metric">
+                <h3>Net Profit</h3>
+                <p class="description">Revenue minus expenses for this employee.</p>
+                <div class="formula-box">
+                    <span class="keyword">profit</span> = revenue − expenses
+                </div>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- ============================================ -->
+        <!-- EMPLOYEE DRAWER -->
+        <!-- ============================================ -->
+        <div class="tab-section" id="emp-drawer">
+            <div class="tab-header">
+                <h2>Employee Drawer</h2>
+                <span class="tab-badge">Detail KPIs</span>
+                <span class="api-tag">GET /report/member/worklogs</span>
+            </div>
+
+            <div class="kpi-card">
+                <h3>Total Hours</h3>
+                <p class="description">Total available working hours (capacity) for the employee during the selected period.</p>
+                <div class="formula-box">
+                    <span class="keyword">totalWorkingHrs</span> = periodCapacity<br>
+                    <span class="comment">// periodCapacity = workingDaysInRange × dailyHours</span><br>
+                    <span class="comment">// workingDaysInRange = non-holiday weekdays matching user's schedule in date range</span>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <h3>Engaged</h3>
+                <p class="description">Total actual hours logged by this employee (from worklogs) during the period.</p>
+                <div class="formula-box">
+                    <span class="keyword">engagedHrs</span> = SUM(worklog.time_in_seconds) / 3600<br>
+                    <span class="comment">// Includes active timers: if end_datetime IS NULL, adds elapsed time up to NOW</span>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <h3>Occupancy</h3>
+                <p class="description">How much of the employee's available capacity was utilized.</p>
+                <div class="formula-box">
+                    <span class="keyword">occupancy</span> = ROUND((engagedHrs / totalWorkingHrs) × 100)%
+                </div>
+                <div>
+                    <span class="threshold"><span class="dot" style="background:#7ccf00"></span> Excellent — ≥ 90%</span>
+                    <span class="threshold"><span class="dot" style="background:#2196F3"></span> Good — ≥ 75%</span>
+                    <span class="threshold"><span class="dot" style="background:#FF3B3B"></span> Low — &lt; 75%</span>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <h3>Efficiency</h3>
+                <p class="description">Percentage of this employee's assigned tasks that were completed on or before their due dates.</p>
+                <div class="formula-box">
+                    <span class="keyword">efficiency</span> = ROUND((completedOnTime / totalAssignedTasks) × 100)%<br><br>
+                    <span class="comment">// completedOnTime = tasks WHERE status = "Completed"</span><br>
+                    <span class="comment">//   AND (end_date IS NULL OR completed_at ≤ end_date)</span><br>
+                    <span class="comment">// If completed_at is null but task has deadline → NOT on time</span><br>
+                    <span class="comment">// Returns 0 if totalAssignedTasks = 0</span>
+                </div>
+                <div>
+                    <span class="threshold"><span class="dot" style="background:#7ccf00"></span> Excellent — ≥ 90%</span>
+                    <span class="threshold"><span class="dot" style="background:#2196F3"></span> Good — ≥ 75%</span>
+                    <span class="threshold"><span class="dot" style="background:#FF3B3B"></span> Low — &lt; 75%</span>
+                </div>
+            </div>
+
+            <p class="kpi-group-label">Work History Table</p>
+            <div class="kpi-card row-metric">
+                <h3>Worklog Entries</h3>
+                <p class="description">Individual time log entries from <code>GET /report/member/worklogs</code>. Each row shows:</p>
+                <div class="formula-box">
+                    <span class="keyword">date</span> — worklog date (company timezone)<br>
+                    <span class="keyword">task</span> — linked task name (clickable)<br>
+                    <span class="keyword">details</span> — worklog description/notes<br>
+                    <span class="keyword">time</span> — start_time – end_time (company timezone)<br>
+                    <span class="keyword">status</span> — session status (e.g. "Completed")<br>
+                    <span class="keyword">duration</span> — engaged time in HH:mm format
+                </div>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- ============================================ -->
+        <!-- HELPER FUNCTIONS -->
+        <!-- ============================================ -->
+        <div class="tab-section" id="helpers">
+            <div class="tab-header">
+                <h2>Helper Functions</h2>
+                <span class="tab-badge">Shared Logic</span>
+            </div>
+
+            <div class="kpi-card">
+                <h3>computeHourlyCost(profile)</h3>
+                <p class="description">Derives the hourly cost for an employee. Used in expense and rate calculations.</p>
+                <div class="formula-box">
+                    <span class="comment">// Priority 1: Direct hourly rate</span><br>
+                    <span class="keyword">IF</span> profile.hourly_rates → <span class="keyword">RETURN</span> hourly_rates<br><br>
+                    <span class="comment">// Priority 2: Derive from annual salary</span><br>
+                    <span class="keyword">annualWorkingHours</span> = (daysPerWeek × 52 − publicHolidays − personalLeaves) × dailyHours<br>
+                    <span class="keyword">hourlyCost</span> = salary_yearly / annualWorkingHours
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <h3>getScheduleStats(workingHours)</h3>
+                <p class="description">Parses the working hours JSON config (company or user level) to determine schedule parameters.</p>
+                <div class="formula-box">
+                    <span class="comment">// Modern format:</span><br>
+                    { start_time: "09:00", end_time: "18:00", break_time: 60, working_days: ["monday", ...] }<br><br>
+                    <span class="keyword">dailyHours</span> = (end_time − start_time − break_time) in hours<br>
+                    <span class="keyword">daysPerWeek</span> = working_days.length<br><br>
+                    <span class="comment">// Legacy format: { monday: { start_time, end_time }, ... }</span><br>
+                    <span class="keyword">daysPerWeek</span> = count of active day keys<br>
+                    <span class="keyword">dailyHours</span> = parsed from first active day<br><br>
+                    <span class="comment">// Default (no config): 5 days/week, 8 hours/day</span>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <h3>getLogDurationSeconds(log)</h3>
+                <p class="description">Calculates total elapsed seconds for a worklog entry. Handles active (running) timers.</p>
+                <div class="formula-box">
+                    <span class="keyword">seconds</span> = log.time_in_seconds || 0<br>
+                    <span class="keyword">IF</span> log.end_datetime IS NULL AND log.start_datetime EXISTS:<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;seconds += (NOW − start_datetime) in seconds<br>
+                    <span class="keyword">RETURN</span> seconds
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <h3>computeUtilization(engagedHrs, profile)</h3>
+                <p class="description">Calculates the occupancy/load percentage for an employee during the selected period.</p>
+                <div class="formula-box">
+                    <span class="keyword">mergedSchedule</span> = { ...companyWorkingHours, ...userWorkingHours }<br>
+                    <span class="keyword">periodCapacity</span> = countWorkingDays(mergedSchedule, dateRange, holidays) × dailyHours<br>
+                    <span class="keyword">utilization</span> = (engagedHrs / periodCapacity) × 100<br>
+                    <span class="comment">// Returns 0 if periodCapacity = 0</span>
+                </div>
+                <p class="note">User-level working hours override company defaults. Holiday dates and the date range determine the exact number of working days.</p>
+            </div>
+
+            <div class="kpi-card">
+                <h3>computeEfficiency(taskMemberRecords)</h3>
+                <p class="description">Calculates the on-time delivery rate for an employee's tasks.</p>
+                <div class="formula-box">
+                    <span class="keyword">totalTasks</span> = taskMemberRecords.length<br>
+                    <span class="keyword">completedOnTime</span> = COUNT WHERE:<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;task.status = "Completed"<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;AND (task.end_date IS NULL → always on time<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR completed_at ≤ task.end_date)<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;AND completed_at IS NOT NULL (if deadline exists)<br><br>
+                    <span class="keyword">efficiency</span> = ROUND((completedOnTime / totalTasks) × 100)%<br>
+                    <span class="comment">// Returns 0 if totalTasks = 0</span>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <h3>computeRevenue(userLogs)</h3>
+                <p class="description">Prorates requirement revenue to individual employees based on their logged time contribution.</p>
+                <div class="formula-box">
+                    <span class="keyword">FOR EACH</span> worklog in userLogs:<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;reqPrice = requirement.quoted_price || requirement.budget || 0<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;totalReqSeconds = total seconds logged by ALL users on this requirement<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">revenue</span> += reqPrice × (worklog_seconds / totalReqSeconds)<br><br>
+                    <span class="comment">// If no one logged time on the requirement, revenue = 0</span><br>
+                    <span class="comment">// In-house requirements with $0 price contribute $0 revenue</span>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            Alsonotify KPI Reference — Generated March 2026<br>
+            Source: <code>alsonotify-backend/src/modules/report/report.service.ts</code>
+        </footer>
+
+    </div>
+</body>
+</html>

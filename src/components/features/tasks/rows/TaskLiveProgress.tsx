@@ -163,12 +163,7 @@ export function TaskLiveProgress({ task, currentUserId }: TaskLiveProgressProps)
         title={summaryTooltip}
         placement="top"
         mouseEnterDelay={0.3}
-        overlayInnerStyle={{
-          background: '#1A1A1A',
-          border: '1px solid rgba(255,255,255,0.08)',
-          borderRadius: 10,
-          padding: '10px 12px',
-        }}
+        styles={{ container: { background: '#1A1A1A', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: '10px 12px' } }}
       >
         <div className="flex items-center justify-between w-full">
           <span className={`font-medium task-row-sub whitespace-nowrap ${labelColor}`}>
@@ -217,12 +212,7 @@ export function TaskLiveProgress({ task, currentUserId }: TaskLiveProgressProps)
                   title={segmentTooltip}
                   placement="top"
                   mouseEnterDelay={0.1}
-                  overlayInnerStyle={{
-                    background: '#1A1A1A',
-                    border: '1px solid rgba(255,255,255,0.08)',
-                    borderRadius: 10,
-                    padding: '8px 12px',
-                  }}
+                  styles={{ container: { background: '#1A1A1A', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: '8px 12px' } }}
                 >
                   <div
                     style={{ width: `${seg.widthPct}%`, position: 'relative' }}
@@ -253,12 +243,7 @@ export function TaskLiveProgress({ task, currentUserId }: TaskLiveProgressProps)
           title={summaryTooltip}
           placement="top"
           mouseEnterDelay={0.3}
-          overlayInnerStyle={{
-            background: '#1A1A1A',
-            border: '1px solid rgba(255,255,255,0.08)',
-            borderRadius: 10,
-            padding: '10px 12px',
-          }}
+          styles={{ container: { background: '#1A1A1A', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: '10px 12px' } }}
         >
           <div className="h-[3px] w-full rounded-full overflow-hidden bg-[#F0F0F0] cursor-pointer">
             <div

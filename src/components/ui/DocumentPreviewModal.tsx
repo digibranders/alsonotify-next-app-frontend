@@ -29,7 +29,7 @@ export function DocumentPreviewModal({ open, onClose, document }: DocumentPrevie
           padding: 0,
         },
       }}
-      destroyOnClose
+      destroyOnHidden
     >
       {document && (
         <DocumentPreviewContent document={document} />
