@@ -162,7 +162,7 @@ export function RequirementHeader({
       requirementId: requirement.id,
       body: data,
     });
-    message.success("Requirement submitted for approval successfully!");
+    message.success("Requirement submitted for review successfully!");
   }, [requirement.id, submitForReviewMutation, message]);
 
   const handleApproval = useCallback(async (data: { rating?: number; remark?: string }) => {

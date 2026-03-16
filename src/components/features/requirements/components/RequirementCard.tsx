@@ -467,7 +467,7 @@ export function RequirementCard({
         {/* Right: Status or Action */}
         <div className="flex items-center gap-3">
           {costDisplay && (
-            <span className={`text-xs font-bold ${requirement.type === 'outsourced' ? 'text-[#ff3b3b]' : 'text-[#7ccf00]'}`}>
+            <span className="text-xs font-bold text-[#111111]">
               {costDisplay}
             </span>
           )}

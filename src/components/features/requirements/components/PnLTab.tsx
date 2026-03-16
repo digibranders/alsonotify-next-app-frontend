@@ -1,36 +1,27 @@
 'use client';
 
-import React, { useMemo , useEffect, useState } from 'react';
-import { TrendingUp, TrendingDown, DollarSign, Clock, Users, AlertTriangle } from 'lucide-react';
+import React, { useMemo, useEffect, useState } from 'react';
+import { TrendingUp, TrendingDown, DollarSign, Clock, Users, AlertTriangle, Receipt, Percent } from 'lucide-react';
 import { Tooltip } from 'antd';
 import { Task, Requirement } from '@/types/domain';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend } from 'recharts';
-import { getRequirementPnLChart, PnLChartDataPoint } from '@/services/workspace';
+import { getRequirementPnLChart, PnLChartDataPoint, getRequirementTaskPnL, TaskPnLResult } from '@/services/workspace';
 import { formatDecimalHours } from '@/utils/date/timeFormat';
+import { getCurrencySymbol } from '@/utils/format/currencyUtils';
 
 interface PnLTabProps {
   requirement: Requirement;
   tasks: Task[];
-
-}
-
-interface TaskPnLData {
-  id: string | number;
-  name: string;
-  assigneeName: string;
-  assigneeRole: string;
-  hourlyRate: number;
-  estimatedHours: number;
-  actualHours: number;
-  extraHours: number;
-  resourceCost: number;
-  profitLoss: number;
-  status: string;
 }
 
 export function PnLTab({ requirement, tasks }: PnLTabProps) {
   const [chartData, setChartData] = useState<PnLChartDataPoint[]>([]);
   const [loadingChart, setLoadingChart] = useState(false);
+  const [taskPnLData, setTaskPnLData] = useState<TaskPnLResult | null>(null);
+  const [loadingTaskPnL, setLoadingTaskPnL] = useState(false);
+
+  const currency = requirement.currency || 'INR';
+  const currencySymbol = getCurrencySymbol(currency);
 
   useEffect(() => {
     if (requirement.id) {
@@ -48,77 +39,73 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
         }
       };
 
+      const fetchTaskPnL = async () => {
+        setLoadingTaskPnL(true);
+        try {
+          const res = await getRequirementTaskPnL(requirement.id);
+          if (res.success && res.result) {
+            setTaskPnLData(res.result);
+          }
+        } catch (err) {
+          console.error("Failed to load task P&L", err);
+        } finally {
+          setLoadingTaskPnL(false);
+        }
+      };
+
       fetchChartData();
+      fetchTaskPnL();
     }
   }, [requirement.id]);
 
-  // Calculate P&L data from real task data
-  const pnlData = useMemo((): TaskPnLData[] => {
-    return tasks.map((task) => {
-      // Get assignee info
-      const assignee = task.member_user || task.task_members?.[0]?.user;
-      const assigneeName = assignee?.name || 'Unassigned';
-
-      // Get hourly rate from task member or use default
-      const hourlyRate = 25; // Default rate, should come from employee data
-
-      // Calculate hours
-      const estimatedSeconds = (Number(task.estimated_time) || 0) * 3600;
-      const actualSeconds = task.total_seconds_spent || task.totalSecondsSpent || 0;
-
-      const estimatedHours = estimatedSeconds / 3600;
-      const actualHours = actualSeconds / 3600;
-      const extraHours = Math.max(0, actualHours - estimatedHours);
-
-      // Calculate costs
-      const resourceCost = actualHours * hourlyRate;
-      const budgetedCost = estimatedHours * hourlyRate;
-      const profitLoss = budgetedCost - resourceCost;
+  // Use backend data if available, fallback to local computation
+  const summary = useMemo(() => {
+    if (taskPnLData) {
+      const totalEstimatedHours = taskPnLData.tasks.reduce((s, t) => s + t.estimatedHours, 0);
+      const totalActualHours = taskPnLData.tasks.reduce((s, t) => s + t.actualHours, 0);
+      const totalExtraHours = taskPnLData.tasks.reduce((s, t) => s + t.extraHours, 0);
 
       return {
-        id: task.id,
-        name: task.name || 'Untitled Task',
-        assigneeName,
-        assigneeRole: 'Team Member',
-        hourlyRate,
-        estimatedHours: Math.round(estimatedHours * 10) / 10,
-        actualHours: Math.round(actualHours * 10) / 10,
-        extraHours: Math.round(extraHours * 10) / 10,
-        resourceCost: Math.round(resourceCost * 100) / 100,
-        profitLoss: Math.round(profitLoss * 100) / 100,
-        status: task.status || 'Pending'
+        quotedPrice: taskPnLData.quotedPrice,
+        totalResourceCost: taskPnLData.totalResourceCost,
+        grossProfit: taskPnLData.grossProfit,
+        profitMargin: taskPnLData.profitMargin,
+        totalInvoiced: taskPnLData.totalInvoiced,
+        totalCollected: taskPnLData.totalCollected,
+        totalEstimatedHours: Math.round(totalEstimatedHours * 10) / 10,
+        totalActualHours: Math.round(totalActualHours * 10) / 10,
+        totalExtraHours: Math.round(totalExtraHours * 10) / 10,
+        taskCount: taskPnLData.tasks.length,
+        overBudgetTasks: taskPnLData.tasks.filter(t => t.costVariance < 0).length,
       };
-    });
-  }, [tasks]);
+    }
 
-  // Calculate summary metrics
-  const summary = useMemo(() => {
-    const totalEstimatedHours = pnlData.reduce((sum, t) => sum + t.estimatedHours, 0);
-    const totalActualHours = pnlData.reduce((sum, t) => sum + t.actualHours, 0);
-    const totalResourceCost = pnlData.reduce((sum, t) => sum + t.resourceCost, 0);
-    const totalExtraHours = pnlData.reduce((sum, t) => sum + t.extraHours, 0);
-
+    // Fallback: compute locally (without real hourly rates)
+    const totalEstimatedHours = tasks.reduce((sum, t) => sum + ((Number(t.estimated_time) || 0)), 0);
+    const totalActualHours = tasks.reduce((sum, t) => sum + ((t.total_seconds_spent || t.totalSecondsSpent || 0) / 3600), 0);
     const quotedPrice = Number(requirement.quoted_price) || 0;
-    const netProfit = quotedPrice - totalResourceCost;
-    const profitMargin = quotedPrice > 0 ? (netProfit / quotedPrice) * 100 : 0;
 
     return {
       quotedPrice,
+      totalResourceCost: 0,
+      grossProfit: 0,
+      profitMargin: 0,
+      totalInvoiced: 0,
+      totalCollected: 0,
       totalEstimatedHours: Math.round(totalEstimatedHours * 10) / 10,
       totalActualHours: Math.round(totalActualHours * 10) / 10,
-      totalExtraHours: Math.round(totalExtraHours * 10) / 10,
-      totalResourceCost: Math.round(totalResourceCost * 100) / 100,
-      netProfit: Math.round(netProfit * 100) / 100,
-      profitMargin: Math.round(profitMargin * 10) / 10,
-      taskCount: pnlData.length,
-      overBudgetTasks: pnlData.filter(t => t.profitLoss < 0).length
+      totalExtraHours: Math.round(Math.max(0, totalActualHours - totalEstimatedHours) * 10) / 10,
+      taskCount: tasks.length,
+      overBudgetTasks: 0,
     };
-  }, [pnlData, requirement]);
+  }, [taskPnLData, tasks, requirement]);
+
+  const pnlTasks = taskPnLData?.tasks || [];
 
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('en-IN', {
       style: 'currency',
-      currency: 'USD',
+      currency: currency,
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
     }).format(value);
@@ -136,9 +123,9 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
            <TrendingUp className="w-5 h-5 text-[#ff3b3b]" />
            Profit & Loss Analysis
         </h3>
-      
-        {/* Summary Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+
+        {/* Summary Cards - Row 1: Financial */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
           {/* Quoted Price */}
           <div className="bg-white rounded-[14px] px-5 py-4 border border-[#EEEEEE] shadow-sm flex items-center gap-4">
             <div className="w-10 h-10 rounded-full bg-[#E8F5E9] flex items-center justify-center flex-shrink-0">
@@ -161,10 +148,10 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
             </div>
           </div>
 
-          {/* Net Profit/Loss */}
-          <div className={`bg-white rounded-[14px] px-5 py-4 border shadow-sm flex items-center gap-4 ${summary.netProfit >= 0 ? 'border-[#0F9D58]' : 'border-[#DC2626]'}`}>
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${summary.netProfit >= 0 ? 'bg-[#E8F5E9]' : 'bg-[#FEE2E2]'}`}>
-              {summary.netProfit >= 0 ? (
+          {/* Gross Profit / Loss */}
+          <div className={`bg-white rounded-[14px] px-5 py-4 border shadow-sm flex items-center gap-4 ${summary.grossProfit >= 0 ? 'border-[#0F9D58]' : 'border-[#DC2626]'}`}>
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${summary.grossProfit >= 0 ? 'bg-[#E8F5E9]' : 'bg-[#FEE2E2]'}`}>
+              {summary.grossProfit >= 0 ? (
                 <TrendingUp className="w-5 h-5 text-[#0F9D58]" />
               ) : (
                 <TrendingDown className="w-5 h-5 text-[#DC2626]" />
@@ -172,27 +159,79 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
             </div>
             <div>
               <p className="text-xs font-medium text-[#999999] uppercase tracking-wider mb-0.5">
-                Net {summary.netProfit >= 0 ? 'Profit' : 'Loss'}
+                Gross {summary.grossProfit >= 0 ? 'Profit' : 'Loss'}
               </p>
-              <p className={`text-xl font-bold leading-tight ${summary.netProfit >= 0 ? 'text-[#0F9D58]' : 'text-[#DC2626]'}`}>
-                {summary.netProfit >= 0 ? '+' : ''}{formatCurrency(summary.netProfit)}
+              <p className={`text-xl font-bold leading-tight ${summary.grossProfit >= 0 ? 'text-[#0F9D58]' : 'text-[#DC2626]'}`}>
+                {summary.grossProfit >= 0 ? '+' : ''}{formatCurrency(summary.grossProfit)}
               </p>
             </div>
           </div>
 
-          {/* Hours Summary */}
+          {/* Profit Margin */}
+          <div className="bg-white rounded-[14px] px-5 py-4 border border-[#EEEEEE] shadow-sm flex items-center gap-4">
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${summary.profitMargin >= 20 ? 'bg-[#E8F5E9]' : summary.profitMargin >= 0 ? 'bg-[#FFF8E1]' : 'bg-[#FEE2E2]'}`}>
+              <Percent className={`w-5 h-5 ${summary.profitMargin >= 20 ? 'text-[#0F9D58]' : summary.profitMargin >= 0 ? 'text-[#F9A825]' : 'text-[#DC2626]'}`} />
+            </div>
+            <div>
+              <p className="text-xs font-medium text-[#999999] uppercase tracking-wider mb-0.5">Profit Margin</p>
+              <p className={`text-xl font-bold leading-tight ${summary.profitMargin >= 20 ? 'text-[#0F9D58]' : summary.profitMargin >= 0 ? 'text-[#F9A825]' : 'text-[#DC2626]'}`}>
+                {summary.profitMargin.toFixed(1)}%
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Summary Cards - Row 2: Billing + Hours */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          {/* Invoiced */}
+          <div className="bg-white rounded-[14px] px-5 py-4 border border-[#EEEEEE] shadow-sm flex items-center gap-4">
+            <div className="w-10 h-10 rounded-full bg-[#E3F2FD] flex items-center justify-center flex-shrink-0">
+              <Receipt className="w-5 h-5 text-[#2F80ED]" />
+            </div>
+            <div>
+              <p className="text-xs font-medium text-[#999999] uppercase tracking-wider mb-0.5">Total Invoiced</p>
+              <p className="text-xl font-bold text-[#111111] leading-tight">{formatCurrency(summary.totalInvoiced)}</p>
+            </div>
+          </div>
+
+          {/* Collected */}
+          <div className="bg-white rounded-[14px] px-5 py-4 border border-[#EEEEEE] shadow-sm flex items-center gap-4">
+            <div className="w-10 h-10 rounded-full bg-[#E8F5E9] flex items-center justify-center flex-shrink-0">
+              <DollarSign className="w-5 h-5 text-[#0F9D58]" />
+            </div>
+            <div>
+              <p className="text-xs font-medium text-[#999999] uppercase tracking-wider mb-0.5">Collected</p>
+              <p className="text-xl font-bold text-[#0F9D58] leading-tight">{formatCurrency(summary.totalCollected)}</p>
+            </div>
+          </div>
+
+          {/* Hours */}
           <div className="bg-white rounded-[14px] px-5 py-4 border border-[#EEEEEE] shadow-sm flex items-center gap-4">
             <div className="w-10 h-10 rounded-full bg-[#E3F2FD] flex items-center justify-center flex-shrink-0">
               <Clock className="w-5 h-5 text-[#2F80ED]" />
             </div>
             <div>
-              <p className="text-xs font-medium text-[#999999] uppercase tracking-wider mb-0.5">Hours</p>
+              <p className="text-xs font-medium text-[#999999] uppercase tracking-wider mb-0.5">Hours Spent</p>
               <p className="text-xl font-bold text-[#111111] leading-tight">{formatDecimalHours(summary.totalActualHours)}</p>
+              <p className="text-2xs text-[#999999]">of {formatDecimalHours(summary.totalEstimatedHours)} est.</p>
+            </div>
+          </div>
+
+          {/* Over Budget Tasks */}
+          <div className="bg-white rounded-[14px] px-5 py-4 border border-[#EEEEEE] shadow-sm flex items-center gap-4">
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${summary.overBudgetTasks > 0 ? 'bg-[#FEE2E2]' : 'bg-[#E8F5E9]'}`}>
+              <AlertTriangle className={`w-5 h-5 ${summary.overBudgetTasks > 0 ? 'text-[#DC2626]' : 'text-[#0F9D58]'}`} />
+            </div>
+            <div>
+              <p className="text-xs font-medium text-[#999999] uppercase tracking-wider mb-0.5">Over Budget</p>
+              <p className={`text-xl font-bold leading-tight ${summary.overBudgetTasks > 0 ? 'text-[#DC2626]' : 'text-[#0F9D58]'}`}>
+                {summary.overBudgetTasks} / {summary.taskCount}
+              </p>
             </div>
           </div>
         </div>
 
-      {/* P&L Chart */}
+      {/* P&L Chart - Earned Value Management */}
       <div className="h-[400px] w-full mt-8">
         {loadingChart ? (
           <div className="w-full h-full flex items-center justify-center bg-[#F7F7F7] rounded-xl border border-[#EEEEEE]">
@@ -212,41 +251,42 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F0F0F0" />
-              <XAxis 
-                dataKey="name" 
-                axisLine={false} 
-                tickLine={false} 
-                tick={{ fill: '#999999', fontSize: 12 }} 
+              <XAxis
+                dataKey="name"
+                axisLine={false}
+                tickLine={false}
+                tick={{ fill: '#999999', fontSize: 12 }}
                 dy={10}
               />
-              <YAxis 
-                axisLine={false} 
-                tickLine={false} 
-                tick={{ fill: '#999999', fontSize: 12 }} 
-                tickFormatter={(value) => `$${value}`}
+              <YAxis
+                axisLine={false}
+                tickLine={false}
+                tick={{ fill: '#999999', fontSize: 12 }}
+                tickFormatter={(value) => `${currencySymbol}${value.toLocaleString()}`}
               />
-              <RechartsTooltip 
+              <RechartsTooltip
                 contentStyle={{ backgroundColor: '#fff', borderRadius: '12px', border: '1px solid #EEEEEE', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}
                 itemStyle={{ fontSize: "var(--font-size-xs)", fontWeight: '500' }}
+                formatter={(value: number) => [`${currencySymbol}${value.toLocaleString()}`, undefined]}
               />
               <Legend wrapperStyle={{ paddingTop: '20px' }} />
-              <Area 
-                type="monotone" 
-                dataKey="price" 
-                name="Total Requirement Price" 
-                stroke="#ff3b3b" 
+              <Area
+                type="monotone"
+                dataKey="price"
+                name="Planned Budget (Linear)"
+                stroke="#ff3b3b"
                 strokeWidth={2}
-                fillOpacity={1} 
-                fill="url(#colorPrice)" 
+                fillOpacity={1}
+                fill="url(#colorPrice)"
               />
-              <Area 
-                type="monotone" 
-                dataKey="invested" 
-                name="Amount Invested" 
-                stroke="#111111" 
+              <Area
+                type="monotone"
+                dataKey="invested"
+                name="Actual Cost (Cumulative)"
+                stroke="#111111"
                 strokeWidth={2}
-                fillOpacity={1} 
-                fill="url(#colorInvested)" 
+                fillOpacity={1}
+                fill="url(#colorInvested)"
               />
             </AreaChart>
           </ResponsiveContainer>
@@ -283,6 +323,9 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
         </div>
 
         <div className="overflow-x-auto">
+          {loadingTaskPnL ? (
+            <div className="text-center py-12 text-[#999999] text-sm">Loading task P&L data...</div>
+          ) : (
           <table className="w-full text-left border-collapse">
             <thead className="bg-[#F7F7F7] border-b border-[#EEEEEE]">
               <tr>
@@ -292,15 +335,19 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
                 <th className="px-5 py-4 text-xs font-medium text-[#999999] uppercase tracking-wider text-right">Actual</th>
                 <th className="px-5 py-4 text-xs font-medium text-[#999999] uppercase tracking-wider text-right">Over/Under</th>
                 <th className="px-5 py-4 text-xs font-medium text-[#999999] uppercase tracking-wider text-right">
-                  <Tooltip title="Actual hours × hourly rate">
+                  <Tooltip title="Actual hours × member hourly rate">
                     <span className="cursor-help">Cost</span>
                   </Tooltip>
                 </th>
-                <th className="px-5 py-4 text-xs font-medium text-[#999999] uppercase tracking-wider text-right">P/L</th>
+                <th className="px-5 py-4 text-xs font-medium text-[#999999] uppercase tracking-wider text-right">
+                  <Tooltip title="Budget variance: (Est. hours × rate) − (Actual hours × rate)">
+                    <span className="cursor-help">Variance</span>
+                  </Tooltip>
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#EEEEEE]">
-              {pnlData.length > 0 ? pnlData.map((task) => (
+              {pnlTasks.length > 0 ? pnlTasks.map((task) => (
                 <tr key={task.id} className="bg-white hover:bg-[#FAFAFA] transition-colors">
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-2">
@@ -321,7 +368,7 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
                       </div>
                       <div>
                         <p className="text-xs font-semibold text-[#111111]">{task.assigneeName}</p>
-                        <p className="text-xs text-[#999999]">${task.hourlyRate}/hr</p>
+                        <p className="text-xs text-[#999999]">{currencySymbol}{task.hourlyRate}/hr</p>
                       </div>
                     </div>
                   </td>
@@ -354,15 +401,15 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
                     </span>
                   </td>
                   <td className="px-5 py-4 text-right">
-                    <div className={`flex items-center justify-end gap-1 ${task.profitLoss >= 0 ? 'text-[#0F9D58]' : 'text-[#DC2626]'
+                    <div className={`flex items-center justify-end gap-1 ${task.costVariance >= 0 ? 'text-[#0F9D58]' : 'text-[#DC2626]'
                       }`}>
-                      {task.profitLoss >= 0 ? (
+                      {task.costVariance >= 0 ? (
                         <TrendingUp className="w-3.5 h-3.5" />
                       ) : (
                         <TrendingDown className="w-3.5 h-3.5" />
                       )}
                       <span className="text-xs font-bold">
-                        {task.profitLoss >= 0 ? '+' : ''}{formatCurrency(task.profitLoss)}
+                        {task.costVariance >= 0 ? '+' : ''}{formatCurrency(task.costVariance)}
                       </span>
                     </div>
                   </td>
@@ -378,7 +425,7 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
                 </tr>
               )}
             </tbody>
-            {pnlData.length > 0 && (
+            {pnlTasks.length > 0 && (
               <tfoot className="bg-[#F7F7F7] border-t-2 border-[#EEEEEE]">
                 <tr>
                   <td colSpan={2} className="px-5 py-4">
@@ -413,15 +460,15 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
                     </span>
                   </td>
                   <td className="px-5 py-4 text-right">
-                    <div className={`flex items-center justify-end gap-1 ${summary.netProfit >= 0 ? 'text-[#0F9D58]' : 'text-[#DC2626]'
+                    <div className={`flex items-center justify-end gap-1 ${summary.grossProfit >= 0 ? 'text-[#0F9D58]' : 'text-[#DC2626]'
                       }`}>
-                      {summary.netProfit >= 0 ? (
+                      {summary.grossProfit >= 0 ? (
                         <TrendingUp className="w-4 h-4" />
                       ) : (
                         <TrendingDown className="w-4 h-4" />
                       )}
                       <span className="text-sm font-bold">
-                        {summary.netProfit >= 0 ? '+' : ''}{formatCurrency(summary.netProfit)}
+                        {summary.grossProfit >= 0 ? '+' : ''}{formatCurrency(summary.grossProfit)}
                       </span>
                     </div>
                   </td>
@@ -429,6 +476,7 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
               </tfoot>
             )}
           </table>
+          )}
         </div>
       </div>
     </div>
