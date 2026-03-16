@@ -267,7 +267,7 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
               <RechartsTooltip
                 contentStyle={{ backgroundColor: '#fff', borderRadius: '12px', border: '1px solid #EEEEEE', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}
                 itemStyle={{ fontSize: "var(--font-size-xs)", fontWeight: '500' }}
-                formatter={(value: number) => [`${currencySymbol}${value.toLocaleString()}`, undefined]}
+                formatter={(value) => [`${currencySymbol}${Number(value ?? 0).toLocaleString()}`, undefined]}
               />
               <Legend wrapperStyle={{ paddingTop: '20px' }} />
               <Area

@@ -28,6 +28,8 @@ import {
 } from 'recharts';
 import { useRouter } from 'next/navigation';
 import dayjs from 'dayjs';
+import quarterOfYear from 'dayjs/plugin/quarterOfYear';
+dayjs.extend(quarterOfYear);
 import {
   getPnLStatement,
   getRevenueBreakdown,
@@ -190,7 +192,7 @@ export function PnLDashboard() {
                 <YAxis axisLine={false} tickLine={false} tick={{ fill: '#999999', fontSize: 12 }} tickFormatter={(v) => `${currencySymbol}${(v / 1000).toFixed(0)}k`} />
                 <Tooltip
                   contentStyle={{ backgroundColor: '#fff', borderRadius: '12px', border: '1px solid #EEEEEE', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}
-                  formatter={(value: number, name: string) => [fmt(value), name]}
+                  formatter={(value, name) => [fmt(Number(value ?? 0)), String(name)]}
                 />
                 <Legend />
                 <Bar dataKey="revenue" name="Revenue" fill="#2F80ED" radius={[4, 4, 0, 0]} />
@@ -222,13 +224,13 @@ export function PnLDashboard() {
                     outerRadius={100}
                     paddingAngle={2}
                     dataKey="value"
-                    label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                    label={({ name, percent }: { name?: string; percent?: number }) => `${name ?? ''} (${((percent ?? 0) * 100).toFixed(0)}%)`}
                   >
                     {revenueByClient.map((_, idx) => (
                       <Cell key={idx} fill={PIE_COLORS[idx % PIE_COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(value: number) => fmt(value)} />
+                  <Tooltip formatter={(value) => fmt(Number(value ?? 0))} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
