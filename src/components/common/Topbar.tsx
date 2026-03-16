@@ -459,8 +459,8 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
                 <Alert24Filled className="w-5 h-5 text-[#111111]" />
                 {/* Notification Badge */}
                 {unreadCount > 0 && (
-                  <span className="absolute top-0 right-0 w-3.5 h-3.5 bg-[#ff3b3b] rounded-full border-[1.5px] border-white flex items-center justify-center translate-x-1 -translate-y-1">
-                    <span className="text-2xs font-bold text-white leading-none">{unreadCount}</span>
+                  <span className="absolute top-0 right-0 min-w-[0.875rem] h-3.5 px-0.5 bg-[#ff3b3b] rounded-full border-[1.5px] border-white flex items-center justify-center translate-x-1 -translate-y-1">
+                    <span className="text-[0.5rem] font-bold text-white leading-none tracking-tight">{unreadCount > 99 ? '99+' : unreadCount}</span>
                   </span>
                 )}
               </button>
