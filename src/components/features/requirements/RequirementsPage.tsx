@@ -148,13 +148,54 @@ export function RequirementsPage() {
   // Unified Requirements Fetching (Server-Side Paginated)
   const { data: requirementsData, isLoading: isLoadingRequirements } = useAllRequirements(queryOptions);
 
-  const { totalCount, statusCounts } = useMemo(() => {
+  const totalCount = useMemo(() => {
     const firstItem = requirementsData?.result?.[0];
-    return {
-      totalCount: firstItem?.total_count || 0,
-      statusCounts: firstItem?.status_counts || {}
-    };
+    return firstItem?.total_count || 0;
   }, [requirementsData]);
+
+  // Separate tab-independent query for consistent tab counts across all tabs
+  const countsQueryOptions = useMemo(() => {
+    const params = new URLSearchParams();
+    params.append('limit', '1');
+    params.append('skip', '0');
+
+    if (searchQuery) params.append('name', searchQuery);
+    if (filters.priority !== 'All') params.append('priority', filters.priority);
+    if (filters.partner !== 'All') params.append('partner_id', filters.partner);
+    if (filters.type !== 'All') {
+      const typeMap: Record<string, string> = {
+        'In-house': 'inhouse',
+        'Outsourced': 'outsourced',
+        'Client Work': 'client'
+      };
+      const selectedTypes = filters.type.split(',').map(t => t.trim());
+      const mappedTypes = selectedTypes.map(t => typeMap[t] || t.toLowerCase());
+      params.append('type', mappedTypes.join(','));
+    }
+    if (filters.department_id !== 'All') params.append('department_id', filters.department_id);
+    if (filters.billing !== 'All') {
+      const billingStatusMap: Record<string, string> = {
+        'Paid': 'Paid',
+        'Invoiced': 'Invoiced',
+        'Ready to Bill': 'Ready to Bill'
+      };
+      params.append('billing_status', billingStatusMap[filters.billing] || filters.billing);
+    }
+    if (dateRange && dateRange[0] && dateRange[1]) {
+      params.append('from_date', dateRange[0].startOf('day').toISOString());
+      params.append('to_date', dateRange[1].endOf('day').toISOString());
+    }
+    params.append('is_archived', 'false');
+
+    return params.toString();
+  }, [searchQuery, filters, dateRange]);
+
+  const { data: countsData } = useAllRequirements(countsQueryOptions);
+
+  const statusCounts = useMemo(() => {
+    const firstItem = countsData?.result?.[0];
+    return firstItem?.status_counts || {};
+  }, [countsData]);
 
   // Fetch collaborative requirements (where my company is receiver)
   useCollaborativeRequirements();
@@ -865,9 +906,9 @@ export function RequirementsPage() {
   // Tabs Configuration
   const tabs = [
     { id: 'active', label: 'Active' },
-    { id: 'pending', label: 'Pending', count: activeStatusTab === 'pending' ? totalCount : statusCounts.Pending },
+    { id: 'pending', label: 'Pending', count: statusCounts.Pending },
     { id: 'draft', label: 'Drafts', count: statusCounts.Draft },
-    { id: 'delayed', label: 'Delayed', count: activeStatusTab === 'delayed' ? totalCount : statusCounts.Delayed },
+    { id: 'delayed', label: 'Delayed', count: statusCounts.Delayed },
     { id: 'completed', label: 'Completed' },
     { id: 'archived', label: 'Archive' }
   ];

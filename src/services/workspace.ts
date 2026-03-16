@@ -184,3 +184,37 @@ export const getRequirementPnLChart = async (
   return data;
 };
 
+export interface TaskPnLItem {
+  id: number;
+  name: string;
+  assigneeName: string;
+  hourlyRate: number;
+  estimatedHours: number;
+  actualHours: number;
+  extraHours: number;
+  resourceCost: number;
+  budgetedCost: number;
+  costVariance: number;
+  status: string;
+}
+
+export interface TaskPnLResult {
+  currency: string;
+  quotedPrice: number;
+  totalResourceCost: number;
+  grossProfit: number;
+  profitMargin: number;
+  totalInvoiced: number;
+  totalCollected: number;
+  tasks: TaskPnLItem[];
+}
+
+export const getRequirementTaskPnL = async (
+  requirementId: number
+): Promise<ApiResponse<TaskPnLResult>> => {
+  const { data } = await axiosApi.get<ApiResponse<TaskPnLResult>>(
+    `/requirement/${requirementId}/task-pnl`
+  );
+  return data;
+};
+

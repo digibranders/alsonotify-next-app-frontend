@@ -70,7 +70,7 @@ export const SubmitForApprovalModal = ({
       });
       handleClose();
     } catch (err: unknown) {
-      message.error(getErrorMessage(err, "Failed to submit for approval."));
+      message.error(getErrorMessage(err, "Failed to submit for review."));
     } finally {
       setLoading(false);
     }
@@ -82,7 +82,7 @@ export const SubmitForApprovalModal = ({
     <Modal
       title={
         <div className="flex flex-col gap-1">
-          <span className="text-lg font-bold">Submit for Approval</span>
+          <span className="text-lg font-bold">Submit for Review</span>
           <span className="text-xs text-gray-500 font-medium">
             Requirement:{" "}
             <span className="font-semibold text-gray-800">
@@ -173,7 +173,7 @@ export const SubmitForApprovalModal = ({
             loading={loading}
             disabled={uploading}
           >
-            Submit for Approval
+            Submit for Review
           </Button>
         </div>
       </div>

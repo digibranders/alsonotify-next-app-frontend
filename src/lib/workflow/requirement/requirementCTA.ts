@@ -229,7 +229,7 @@ function getClientWorkReceiverCTA(
         displayStatus: 'Work In Progress',
         isPending: false,
         tab,
-        primaryAction: createAction('Submit for Approval', 'primary', 'submit_approval'),
+        primaryAction: createAction('Submit for Review', 'primary', 'submit_approval'),
       };
 
     case 'Review':
@@ -487,7 +487,7 @@ function getReceiverCTA(
         displayStatus: 'Work In Progress',
         isPending: false,
         tab,
-        primaryAction: createAction('Submit for Approval', 'primary', 'submit_approval'),
+        primaryAction: createAction('Submit for Review', 'primary', 'submit_approval'),
       };
 
     case 'Review':
@@ -641,7 +641,7 @@ function getInternalCTA(
         displayStatus: 'In Progress',
         isPending: false,
         tab,
-        primaryAction: createAction('Submit for Approval', 'primary', 'submit_approval'),
+        primaryAction: createAction('Submit for Review', 'primary', 'submit_approval'),
       };
 
     case 'Review':
