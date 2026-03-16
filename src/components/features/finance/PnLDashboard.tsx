@@ -131,24 +131,24 @@ export function PnLDashboard() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6 sm:space-y-8 pb-12">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
           <button onClick={() => router.push('/dashboard/finance')} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
             <ChevronLeft className="w-5 h-5 text-[#666666]" />
           </button>
           <div>
-            <h1 className="text-2xl font-bold text-[#111111]">Profit & Loss</h1>
-            <p className="text-sm text-[#999999]">Revenue recognition & financial analysis (ASC 606 / IFRS 15)</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-[#111111]">Profit & Loss</h1>
+            <p className="text-xs sm:text-sm text-[#999999]">Revenue recognition & financial analysis (ASC 606 / IFRS 15)</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap pl-10 sm:pl-0">
           {DATE_PRESETS.map((preset, idx) => (
             <button
               key={preset.label}
               onClick={() => handlePreset(idx)}
-              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
+              className={`px-2.5 sm:px-3 py-1.5 text-xs font-medium rounded-lg transition-colors whitespace-nowrap ${
                 activePreset === idx
                   ? 'bg-[#111111] text-white'
                   : 'bg-white border border-[#EEEEEE] text-[#666666] hover:bg-gray-50'
@@ -162,7 +162,7 @@ export function PnLDashboard() {
 
       {/* P&L Summary Cards */}
       {pnl && (
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
           <KPICard icon={<DollarSign className="w-5 h-5 text-[#2F80ED]" />} label="Gross Revenue" value={fmt(pnl.grossRevenue)} bgColor="bg-[#E3F2FD]" />
           <KPICard icon={<FileText className="w-5 h-5 text-[#F9A825]" />} label="Credit Adjustments" value={`-${fmt(pnl.creditNoteAdjustments)}`} bgColor="bg-[#FFF8E1]" />
           <KPICard icon={<DollarSign className="w-5 h-5 text-[#0F9D58]" />} label="Net Revenue" value={fmt(pnl.netRevenue)} bgColor="bg-[#E8F5E9]" />
@@ -184,7 +184,7 @@ export function PnLDashboard() {
             <BarChart3 className="w-5 h-5 text-[#ff3b3b]" />
             Monthly P&L Trend
           </h3>
-          <div className="h-[350px]">
+          <div className="h-[280px] sm:h-[350px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={pnl.monthly} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F0F0F0" />
@@ -259,7 +259,7 @@ export function PnLDashboard() {
               <p className="text-3xl font-bold text-[#111111]">{fmt(arAging.totalOutstanding)}</p>
               <p className="text-xs text-[#999999] mt-1">Total Outstanding</p>
             </div>
-            <div className="grid grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {arAging.buckets.map((bucket) => (
                 <div
                   key={bucket.key}
