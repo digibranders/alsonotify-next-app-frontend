@@ -32,6 +32,7 @@ export const queryKeys = {
     allRoot: () => ['requirements', 'all'] as const,
     byWorkspace: (workspaceId: number) => ['requirements', 'workspace', workspaceId] as const,
     collaborative: () => ['requirements', 'collaborative'] as const,
+    dropdownRoot: () => ['requirements', 'dropdown'] as const,
     activities: (requirementId: number) => ['requirements', 'activities', requirementId] as const,
   },
   tasks: {
