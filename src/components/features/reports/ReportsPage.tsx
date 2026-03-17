@@ -1000,16 +1000,17 @@ export function ReportsPage() {
                       <div className="task-row-main text-[#111111] font-medium min-w-0 truncate" title={row.requirement}>{row.requirement}</div>
 
                       {/* Leader */}
-                      <div className="flex items-center gap-2 min-w-0">
-                        <Avatar 
-                          size={26} 
-                          src={row.leaderAvatar}
-                          style={{ backgroundColor: '#F0F0F0', color: '#111111', fontSize: '10px', flexShrink: 0 }}
-                          className="border border-[#EEEEEE]"
-                        >
-                          {row.leader ? row.leader.charAt(0).toUpperCase() : 'L'}
-                        </Avatar>
-                        <span className="task-row-main text-[#111111] font-medium truncate" title={row.leader}>{row.leader}</span>
+                      <div className="flex items-center justify-center self-center">
+                        <Tooltip title={row.leader}>
+                          <Avatar
+                            size={26}
+                            src={row.leaderAvatar}
+                            style={{ backgroundColor: '#F0F0F0', color: '#111111', fontSize: '10px' }}
+                            className="border border-[#EEEEEE]"
+                          >
+                            {row.leader ? row.leader.charAt(0).toUpperCase() : 'L'}
+                          </Avatar>
+                        </Tooltip>
                       </div>
 
                       {/* Assigned */}
