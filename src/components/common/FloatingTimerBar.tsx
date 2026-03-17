@@ -80,20 +80,31 @@ export function FloatingTimerBar() {
     // Initial check
     checkFormOpen();
 
-    // Create observer
-    const observer = new MutationObserver(() => {
-      checkFormOpen();
-    });
+    // Debounce via requestAnimationFrame to coalesce rapid DOM mutations
+    let rafId: number | null = null;
+    const debouncedCheck = () => {
+      if (rafId !== null) return; // Already scheduled
+      rafId = requestAnimationFrame(() => {
+        checkFormOpen();
+        rafId = null;
+      });
+    };
 
-    // Start observing body for class changes and DOM mutations
+    const observer = new MutationObserver(debouncedCheck);
+
+    // Only observe body class changes and direct children (Ant Design appends modals/drawers
+    // as direct children of body). subtree: false prevents firing on every DOM mutation in the page.
     observer.observe(document.body, {
       attributes: true,
-      attributeFilter: ['class', 'style'],
+      attributeFilter: ['class'],
       childList: true,
-      subtree: true
+      subtree: false,
     });
 
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      if (rafId !== null) cancelAnimationFrame(rafId);
+    };
   }, []);
 
   const { expandedContent } = useFloatingMenu();
@@ -143,7 +154,7 @@ export function FloatingTimerBar() {
     pathname.includes('/dashboard/requirements/') ||
     // Hide when these tabs are active
     ['gantt', 'kanban', 'pnl'].includes(activeTab || '')
-  )) || (isFormOpen && !showCompleteModal);
+  )) || (isFormOpen && !showCompleteModal && !showReviewerModal);
 
   // Sync selected task with running timer ONLY if user hasn't actively selected another one?
   // Or strictly follow the running timer.
