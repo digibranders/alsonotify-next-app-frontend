@@ -217,7 +217,7 @@ export async function generateReportPdf(
     const reportTitle = activeTab === 'requirement' ? 'Requirements Report' : activeTab === 'task' ? 'Tasks Report' : 'Employees Report';
 
     // --- Build KPI data ---
-    let kpiCards: Array<{ label: string; value: string; color?: RGB }> = [];
+    let kpiCards: Array<{ label: string; value: string; color?: RGB }>;
 
     if (activeTab === 'requirement') {
         const k = kpis as ReportKPI;
@@ -254,9 +254,9 @@ export async function generateReportPdf(
     tableStartY = drawKPICards(pdf, kpiCards, tableStartY);
 
     // --- Build table data ---
-    let head: string[][] = [];
-    let body: Array<Array<string | { content: string; styles?: Record<string, unknown> }>> = [];
-    let columnStyles: Record<number, Record<string, unknown>> = {};
+    let head: string[][];
+    const body: Array<Array<string | { content: string; styles?: Record<string, unknown> }>> = [];
+    let columnStyles: Record<number, Record<string, unknown>>;
 
     if (activeTab === 'requirement') {
         head = [['No', 'Requirement', 'Contact Person', 'Timeline', 'Hours Utilization', 'Rev', 'Revenue / P&L', 'Status']];
@@ -346,7 +346,7 @@ export async function generateReportPdf(
         });
     }
 
-    let totalPages = 0;
+    let totalPages: number;
 
     autoTable(pdf, {
         head,

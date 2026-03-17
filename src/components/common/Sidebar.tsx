@@ -44,6 +44,7 @@ import { UserRole } from '@/utils/roleUtils';
 
 // Define navItems outside component to avoid recreation
 const NAV_ITEMS: NavItemConfig[] = [
+  // Home
   {
     id: 'dashboard',
     path: '/dashboard',
@@ -51,20 +52,7 @@ const NAV_ITEMS: NavItemConfig[] = [
     icon: <LayoutDashboard size={20} />,
     allowedRoles: ['Admin', 'Manager', 'Head', 'Finance', 'HR', 'Employee', 'Coordinator']
   },
-  {
-    id: 'employees',
-    path: '/dashboard/employees',
-    label: 'Employees',
-    icon: <Users size={20} />,
-    allowedRoles: ['Admin', 'Manager', 'Head', 'Finance', 'HR'] // Employee & Coordinator excluded
-  },
-  {
-    id: 'partners',
-    path: '/dashboard/partners',
-    label: 'Partners',
-    icon: <Handshake size={20} />,
-    allowedRoles: ['Admin', 'Manager', 'Head', 'Finance', 'Coordinator']
-  },
+  // Daily Work
   {
     id: 'workspace',
     path: '/dashboard/workspace',
@@ -86,14 +74,7 @@ const NAV_ITEMS: NavItemConfig[] = [
     icon: <ListTodo size={20} />,
     allowedRoles: ['Admin', 'Manager', 'Head', 'Finance', 'HR', 'Employee', 'Coordinator']
   },
-  {
-    id: 'reports',
-    path: '/dashboard/reports',
-    label: 'Reports',
-    icon: <BarChart3 size={20} />,
-    allowedRoles: ['Admin', 'Manager', 'Head', 'Finance', 'HR', 'Coordinator']
-  },
-
+  // Communication
   {
     id: 'calendar',
     path: '/dashboard/calendar',
@@ -102,11 +83,34 @@ const NAV_ITEMS: NavItemConfig[] = [
     allowedRoles: ['Admin', 'Manager', 'Head', 'Finance', 'HR', 'Employee', 'Coordinator']
   },
   {
-    id: 'leaves',
-    path: '/dashboard/leaves',
-    label: 'Leaves',
-    icon: <CalendarOff size={20} />,
+    id: 'mail',
+    path: '/dashboard/mail',
+    label: 'Mail',
+    icon: <Mail size={20} />,
     allowedRoles: ['Admin', 'Manager', 'Head', 'Finance', 'HR', 'Employee', 'Coordinator']
+  },
+  // People
+  {
+    id: 'employees',
+    path: '/dashboard/employees',
+    label: 'Employees',
+    icon: <Users size={20} />,
+    allowedRoles: ['Admin', 'Manager', 'Head', 'Finance', 'HR'] // Employee & Coordinator excluded
+  },
+  {
+    id: 'partners',
+    path: '/dashboard/partners',
+    label: 'Partners',
+    icon: <Handshake size={20} />,
+    allowedRoles: ['Admin', 'Manager', 'Head', 'Finance', 'Coordinator']
+  },
+  // Analytics
+  {
+    id: 'reports',
+    path: '/dashboard/reports',
+    label: 'Reports',
+    icon: <BarChart3 size={20} />,
+    allowedRoles: ['Admin', 'Manager', 'Head', 'Finance', 'HR', 'Coordinator']
   },
   {
     id: 'finance',
@@ -115,11 +119,12 @@ const NAV_ITEMS: NavItemConfig[] = [
     icon: <CircleDollarSign size={20} />,
     allowedRoles: ['Admin', 'Manager', 'Head', 'Finance']
   },
+  // Personal
   {
-    id: 'mail',
-    path: '/dashboard/mail',
-    label: 'Mail',
-    icon: <Mail size={20} />,
+    id: 'leaves',
+    path: '/dashboard/leaves',
+    label: 'Leaves',
+    icon: <CalendarOff size={20} />,
     allowedRoles: ['Admin', 'Manager', 'Head', 'Finance', 'HR', 'Employee', 'Coordinator']
   },
   {
