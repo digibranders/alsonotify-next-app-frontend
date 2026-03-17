@@ -1,75 +1,78 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState, useRef } from "react";
 import {
   App,
   Button,
   Divider,
-  Drawer,
+  DatePicker,
   Input,
   Layout,
-  Modal,
   Segmented,
-  Select,
-  Skeleton,
   Space,
+  Spin,
   Tag,
   Typography,
   Tooltip,
-  Upload,
 } from "antd";
-import type { UploadFile } from "antd/es/upload/interface";
-import { fileService } from "@/services/file.service";
-import { determineFileType, safeFilename } from "@/utils/fileTypeUtils";
+import type { Dayjs } from "dayjs";
+import type { UploadFile } from "antd";
 import {
-  X,
+  Eye,
+  EyeOff,
+  Forward,
+  Image as ImageIcon,
+  Mail,
+  Paperclip,
+  RefreshCcw,
   Reply,
   ReplyAll,
-  Forward,
-  Trash2,
-  Archive,
-  Download,
-  Eye,
-  FileText,
-  FileSpreadsheet,
-  FileWarning,
-  Code,
-  Paperclip,
   Send,
-  Mail,
-  EyeOff,
-  Image as ImageIcon,
+  Trash2,
+  Inbox,
+  FileText,
+  AlertCircle,
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  Archive,
+  PanelLeft,
+  PanelLeftClose,
+  Download,
+  FileSpreadsheet,
 } from "lucide-react";
 import dayjs from "dayjs";
-
 import { PageLayout } from "../../layout/PageLayout";
 import { DocumentPreviewModal } from "../../ui/DocumentPreviewModal";
 import { UserDocument } from "@/types/domain";
 import { useMailAttachments, useMailFolders, useMailMessage, useMailMessages } from "@/hooks/useMail";
-import { useIsNarrow } from "@/hooks/useBreakpoint";
-import { trimStr } from "@/utils/trim";
+import { useDebounce } from "@/hooks/useDebounce";
 import { sanitizeEmailHtml } from "@/utils/security/sanitizeHtml";
+import { determineFileType, safeFilename } from "@/utils/fileTypeUtils";
 import {
   deleteMail,
   downloadAttachment,
-  forwardMail,
   patchMail,
-  replyAllMail,
-  replyMail,
   sendMail,
+  MailMessage,
+  MailFolder,
+  MailAttachment,
+  MailMessageDetail
 } from "@/services/mail";
+import { EmailComposeModal } from "./EmailComposeModal";
+import { InlineReply, InlineReplyRef } from "./InlineReply";
+import { useUserDetails } from "@/hooks/useUser";
+import type { ContactOption } from "./EmailInput";
 
 const { Sider, Content } = Layout;
-const { Text, Title } = Typography;
+const { Text } = Typography;
 
-// -------------------- helpers --------------------
-
-function formatFrom(m: any) {
+function formatFrom(m?: MailMessage | MailMessageDetail) {
   const from = m?.from?.emailAddress;
   return from?.name || from?.address || "Unknown";
 }
 
-function formatRecipients(arr?: any[]) {
+function formatRecipients(arr?: Array<{ emailAddress?: { name?: string; address?: string } }>) {
   const list = (arr || [])
     .map((r) => r?.emailAddress?.name || r?.emailAddress?.address)
     .filter(Boolean);
@@ -85,11 +88,21 @@ function formatBytes(bytes: number) {
   return `${v.toFixed(i === 0 ? 0 : 1)} ${sizes[i]}`;
 }
 
-const emailLike = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
 
 
-// ---- Folder helpers ----
+// ---- Folder helpers for counts (frontend-only) ----
+const FOLDER_ICONS: Record<string, typeof Mail> = {
+  inbox: Inbox,
+  sentitems: Send,
+  drafts: FileText,
+  deleteditems: Trash2,
+  junkemail: AlertCircle,
+  archive: Archive,
+};
+
 const normalize = (s?: string) => (s || "").trim().toLowerCase();
+
+// well-known folder IDs used by your backend routing
 const WELL_KNOWN_DISPLAY: Record<string, string[]> = {
   inbox: ["inbox"],
   sentitems: ["sent items", "sent"],
@@ -98,54 +111,25 @@ const WELL_KNOWN_DISPLAY: Record<string, string[]> = {
   junkemail: ["junk email", "junk", "spam"],
   archive: ["archive"],
 };
+
 const RESERVED_NAMES = new Set(Object.values(WELL_KNOWN_DISPLAY).flat());
 
-function findGraphFolderForWellKnownId(wellKnownId: string, graphFolders: any[]) {
+function findGraphFolderForWellKnownId(wellKnownId: string, graphFolders: MailFolder[]) {
   const names = WELL_KNOWN_DISPLAY[wellKnownId] || [];
   if (!names.length) return undefined;
-  return graphFolders.find((f: any) => names.includes(normalize(f?.displayName)));
+  return graphFolders.find((f: MailFolder) => names.includes(normalize(f?.displayName)));
 }
-
-function collapseList(text: string, max = 90) {
-  if (!text) return { head: "", tail: "", isLong: false };
-  if (text.length <= max) return { head: text, tail: "", isLong: false };
-  return { head: text.slice(0, max).trimEnd(), tail: text.slice(max).trimStart(), isLong: true };
-}
-
-function filesFromUploadList(list: UploadFile[]) {
-  return list.map((f) => f.originFileObj).filter(Boolean) as File[];
-}
-
-function isUnderMB(file: File, mb: number) {
-  return file.size <= mb * 1024 * 1024;
-}
-
-// -------------------- component --------------------
 
 export function MailPage() {
-  const { message, modal } = App.useApp();
-  const isNarrow = useIsNarrow("lg");
+  const { message } = App.useApp();
+  const { data: userDetails } = useUserDetails();
+  const inlineReplyRef = useRef<InlineReplyRef>(null);
 
-  const [folder, setFolder] = useState<string>("inbox");
-  const [unreadOnly, setUnreadOnly] = useState(false);
-  const [selectedId, setSelectedId] = useState<string | undefined>(undefined);
-
-  // view controls
-  const [loadImages, setLoadImages] = useState(false);
-  const [showTextFallback, setShowTextFallback] = useState(false); // HTML default
-
-  // compose
-  const [composeOpen, setComposeOpen] = useState(false);
-  const [showComposeCc, setShowComposeCc] = useState(false);
-  const [composeTo, setComposeTo] = useState<string[]>([]);
-  const [composeCc, setComposeCc] = useState<string[]>([]);
-  const [composeBcc, setComposeBcc] = useState<string[]>([]);
-  const [composeSubject, setComposeSubject] = useState("");
-  const [composeBody, setComposeBody] = useState("");
-  const [sendingCompose, setSendingCompose] = useState(false);
-  const [composeFiles, setComposeFiles] = useState<UploadFile[]>([]);
-
-  // quick reply
+  const currentUser = userDetails?.result ? {
+    name: userDetails.result.name,
+    email: userDetails.result.email,
+    avatar: userDetails.result.profile_pic
+  } : { name: "Me", email: "" };
   const [replyOpen, setReplyOpen] = useState<"reply" | "replyAll" | "forward" | null>(null);
   const [replyText, setReplyText] = useState("");
   const [forwardTo, setForwardTo] = useState<string[]>([]);
@@ -154,22 +138,79 @@ export function MailPage() {
   const [downloadingIds, setDownloadingIds] = useState<Set<string>>(new Set());
   const [previewingIds, setPreviewingIds] = useState<Set<string>>(new Set());
 
+  const [folder, setFolder] = useState<string>("inbox");
+  const [unreadOnly, setUnreadOnly] = useState(false);
+  const [selectedId, setSelectedId] = useState<string | undefined>(undefined);
+  const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearch = useDebounce(searchTerm, 500);
+  const querySearch = debouncedSearch.trim().length >= 3 ? debouncedSearch.trim() : undefined;
+
+  // Date range filter (clear when folder changes)
+  const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null] | null>(null);
+  const receivedAfter = dateRange?.[0]
+    ? `${dateRange[0].format("YYYY-MM-DD")}T00:00:00.000Z`
+    : undefined;
+  const receivedBefore = dateRange?.[1]
+    ? `${dateRange[1].format("YYYY-MM-DD")}T23:59:59.999Z`
+    : undefined;
+
+  // view controls
+  const [bodyView, setBodyView] = useState<"html" | "text">("html");
+  const [loadImages, setLoadImages] = useState(false);
+  const [foldersCollapsed, setFoldersCollapsed] = useState(false);
+
   // preview
   const [previewDoc, setPreviewDoc] = useState<UserDocument | null>(null);
 
-  // keyboard nav for list
-  const [focusIndex, setFocusIndex] = useState(0);
-  const listWrapRef = useRef<HTMLDivElement | null>(null);
+  // compose
+  const [composeOpen, setComposeOpen] = useState(false);
+
+  // Quick reply/forward state is now handled by passing data to the compose modal
+  const [composeInitialData, setComposeInitialData] = useState<MailMessage | undefined>(undefined);
 
   const foldersQ = useMailFolders();
-  const messagesQ = useMailMessages(folder, unreadOnly, 25);
+  const messagesQ = useMailMessages(
+    folder,
+    unreadOnly,
+    25,
+    querySearch,
+    60000,
+    receivedAfter,
+    receivedBefore
+  );
 
   const msgs = useMemo(() => {
-    return (messagesQ.data?.pages || []).flatMap((p) => p.result?.items || []);
+    return (messagesQ.data?.pages || []).flatMap((p) => (p.result?.items || []) as MailMessage[]);
   }, [messagesQ.data]);
 
-  const graphFolders = (foldersQ.data?.result || []) as any[];
+  // Harvest contacts from messages for autocomplete
+  const autocompleteOptions = useMemo(() => {
+    const contactsMap = new Map<string, ContactOption>();
 
+    msgs.forEach((m: MailMessage) => {
+      // From
+      if (m.from?.emailAddress) {
+        const { address, name } = m.from.emailAddress;
+        if (address) contactsMap.set(address, { value: address, label: name || address, name, email: address });
+      }
+      // To
+      (m.toRecipients || []).forEach((r) => {
+        const { address, name } = r.emailAddress || {};
+        if (address) contactsMap.set(address, { value: address, label: name || address, name, email: address });
+      });
+      // Cc
+      (m.ccRecipients || []).forEach((r) => {
+        const { address, name } = r.emailAddress || {};
+        if (address) contactsMap.set(address, { value: address, label: name || address, name, email: address });
+      });
+    });
+
+    return Array.from(contactsMap.values());
+  }, [msgs]);
+
+  const graphFolders = useMemo(() => (foldersQ.data?.result || []) as MailFolder[], [foldersQ.data?.result]);
+
+  // Build folder list with unread counts for well-known folders too
   const folderItems = useMemo(() => {
     const defaults = [
       { id: "inbox", displayName: "Inbox" },
@@ -186,12 +227,17 @@ export function MailPage() {
       };
     });
 
-    const others = graphFolders.filter((f: any) => !RESERVED_NAMES.has(normalize(f?.displayName)));
+    // Keep “custom folders” from Graph, but avoid duplicating the default display names
+    const others = graphFolders.filter((f: MailFolder) => !RESERVED_NAMES.has(normalize(f?.displayName)));
+
     return [...defaults, ...others];
   }, [graphFolders]);
 
+  // Current folder totals (for "Loaded X / Y")
   const currentFolderTotals = useMemo(() => {
     if (!folder) return { total: undefined as number | undefined, unread: undefined as number | undefined };
+
+    // If well-known, map by displayName in Graph folder list
     if (WELL_KNOWN_DISPLAY[folder]) {
       const match = findGraphFolderForWellKnownId(folder, graphFolders);
       return {
@@ -199,6 +245,8 @@ export function MailPage() {
         unread: typeof match?.unreadItemCount === "number" ? match.unreadItemCount : undefined,
       };
     }
+
+    // Otherwise it's a real folder id returned by Graph listFolders
     const match = graphFolders.find((f: any) => f?.id === folder);
     return {
       total: typeof match?.totalItemCount === "number" ? match.totalItemCount : undefined,
@@ -210,51 +258,21 @@ export function MailPage() {
   const totalCount = currentFolderTotals.total;
   const remainingCount = typeof totalCount === "number" ? Math.max(totalCount - loadedCount, 0) : undefined;
 
-  // HTML default; “text” only when fallback enabled
-  const bodyType = showTextFallback ? "text" : "html";
-  const msgQ = useMailMessage(selectedId, bodyType);
+  const msgQ = useMailMessage(selectedId, bodyView);
   const attsQ = useMailAttachments(selectedId);
+
   const current = msgQ.data?.result;
 
-  useEffect(() => {
+  const [prevSelectedId, setPrevSelectedId] = useState(selectedId);
+  if (selectedId !== prevSelectedId) {
+    setPrevSelectedId(selectedId);
     setLoadImages(false);
-    setShowTextFallback(false);
-  }, [selectedId]);
+  }
 
-  // reset focus on folder change
-  useEffect(() => {
-    setFocusIndex(0);
-  }, [folder, unreadOnly]);
 
-  // reset quick modal state when open changes
-  useEffect(() => {
-    if (!replyOpen) {
-      setReplyText("");
-      setForwardTo([]);
-      setQuickFiles([]);
-    }
-  }, [replyOpen]);
 
-  // reset compose state when close
-  useEffect(() => {
-    if (!composeOpen) {
-      setComposeFiles([]);
-    }
-  }, [composeOpen]);
-
-  const onSelect = async (id: string, isRead?: boolean) => {
-    setSelectedId(id);
-
-    if (isRead === false) {
-      try {
-        await patchMail(id, { isRead: true });
-        messagesQ.refetch();
-        foldersQ.refetch();
-      } catch {
-        // ignore
-      }
-    }
-  };
+  // keyboard nav for list
+  const [focusIndex, setFocusIndex] = useState(0);
 
   const refresh = async () => {
     await foldersQ.refetch();
@@ -265,32 +283,79 @@ export function MailPage() {
     }
   };
 
-  useEffect(() => {
-    const id = window.setInterval(() => {
-      refresh();
-    }, 60_000); // 1 min
+  // reset focus on folder change
+  const [prevFolder, setPrevFolder] = useState(folder);
+  const [prevUnreadOnly, setPrevUnreadOnly] = useState(unreadOnly);
+  if (folder !== prevFolder || unreadOnly !== prevUnreadOnly) {
+    setPrevFolder(folder);
+    setPrevUnreadOnly(unreadOnly);
+    setFocusIndex(0);
+  }
 
-    return () => window.clearInterval(id);
-  }, [selectedId, folder, unreadOnly]);
 
+
+
+  /*
+   * Logic Update: Sync unread count immediately when reading
+   */
+  const onSelect = async (id: string, isRead?: boolean) => {
+    setSelectedId(id);
+
+    if (isRead === false) {
+      try {
+        await patchMail(id, { isRead: true });
+        // Refetch messages to update read status icon
+        messagesQ.refetch();
+        // Refetch folders to update "Inbox (N)" count
+        foldersQ.refetch();
+      } catch {
+        // ignore
+      }
+    }
+  };
+
+  const { modal } = App.useApp();
 
   const confirmDelete = () => {
     if (!selectedId) return;
+
     modal.confirm({
-      title: "Delete message?",
-      content: "This will move the message to Deleted items.",
-      okText: "Delete",
-      cancelText: "Cancel",
-      okButtonProps: { danger: true },
-      onOk: async () => {
-        await deleteMail(selectedId);
-        message.success("Deleted");
-        setSelectedId(undefined);
-        await messagesQ.refetch();
-        await foldersQ.refetch();
+      title: 'Delete Message',
+      content: 'Are you sure you want to delete this message?',
+      okText: 'Delete',
+      okType: 'danger',
+      cancelText: 'Cancel',
+      onOk: () => {
+        deleteMail(selectedId).then(() => {
+          message.success("Deleted");
+          setSelectedId(undefined);
+          messagesQ.refetch();
+          foldersQ.refetch(); // Update counts
+        });
       },
     });
   };
+
+  // keyboard navigation (up/down/enter)
+  const onListKeyDown = (e: React.KeyboardEvent) => {
+    if (!msgs.length) return;
+
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setFocusIndex((i) => Math.min(i + 1, msgs.length - 1));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setFocusIndex((i) => Math.max(i - 1, 0));
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      const m = msgs[focusIndex];
+      if (m?.id) onSelect(m.id, m.isRead);
+    } else if (e.key === "Delete") {
+      if (selectedId) confirmDelete();
+    }
+  };
+
+
 
   const doDownload = async (attId: string, name?: string) => {
     if (!selectedId || downloadingIds.has(attId)) return;
@@ -354,98 +419,39 @@ export function MailPage() {
     }
   };
 
-  // ---- validations ----
-  const composeToValid = composeTo.map((s) => s.trim()).filter(Boolean);
-  const composeToHasInvalid = composeToValid.some((e) => !emailLike(e));
-  const canSendCompose = composeToValid.length > 0 && !composeToHasInvalid && !sendingCompose;
-
-  const forwardToValid = forwardTo.map((s) => s.trim()).filter(Boolean);
-  const forwardToHasInvalid = forwardToValid.some((e) => !emailLike(e));
-
-  const canSendQuick =
-    !sendingQuick &&
-    !!selectedId &&
-    !!replyOpen &&
-    (replyOpen === "forward"
-      ? forwardToValid.length > 0 && !forwardToHasInvalid && replyText.trim().length > 0
-      : replyText.trim().length > 0);
-
-  // ---- Upload config ----
-  const MAX_MB = 20; // you can change
-  const commonBeforeUpload = (file: File) => {
-    if (!isUnderMB(file, MAX_MB)) {
-      message.error(`File too large: ${file.name} (max ${MAX_MB} MB)`);
-      return Upload.LIST_IGNORE;
-    }
-    return false; // prevent auto upload
+  const openCompose = (data?: MailMessage) => {
+    setComposeInitialData(data);
+    setComposeOpen(true);
   };
 
-  const doSend = async () => {
-    if (!canSendCompose) return;
-
-    setSendingCompose(true);
-    try {
-      await sendMail({
-        to: composeToValid,
-        cc: composeCc.map((s) => s.trim()).filter(Boolean) || undefined,
-        bcc: composeBcc.map((s) => s.trim()).filter(Boolean) || undefined,
-        subject: trimStr(composeSubject) || "(no subject)",
-        body: trimStr(composeBody) || "",
-        bodyType: "Text",
-        attachments: filesFromUploadList(composeFiles),
-      });
-
-      message.success("Mail sent");
-      setComposeOpen(false);
-      setComposeTo([]);
-      setComposeCc([]);
-      setComposeBcc([]);
-      setComposeSubject("");
-      setComposeBody("");
-      setShowComposeCc(false);
-      setComposeFiles([]);
-
-      await messagesQ.refetch();
-      await foldersQ.refetch();
-    } catch (e: any) {
-      message.error(e?.message || "Failed to send");
-    } finally {
-      setSendingCompose(false);
+  const handleSendMail = async (data: { to: string[]; cc: string[]; bcc: string[]; subject: string; body: string; attachments?: File[] }) => {
+    if (data.to.length === 0) {
+      message.error("Add at least one To recipient");
+      throw new Error("No recipients");
     }
+
+    await sendMail({
+      to: data.to,
+      cc: data.cc.length ? data.cc : undefined,
+      bcc: data.bcc.length ? data.bcc : undefined,
+      subject: data.subject || "(no subject)",
+      body: data.body || "",
+      bodyType: "HTML", // We are using rich text editor now
+      attachments: data.attachments,
+    });
+
+    message.success("Mail sent");
+    await messagesQ.refetch();
   };
 
-  const doQuickAction = async () => {
-    if (!canSendQuick) return;
-
-    setSendingQuick(true);
-    try {
-      const attachments = filesFromUploadList(quickFiles);
-
-      const comment = trimStr(replyText);
-      if (replyOpen === "reply") {
-        await replyMail(selectedId!, { comment, bodyType: "Text", attachments });
-        message.success("Replied");
-      } else if (replyOpen === "replyAll") {
-        await replyAllMail(selectedId!, { comment, bodyType: "Text", attachments });
-        message.success("Replied all");
-      } else if (replyOpen === "forward") {
-        await forwardMail(selectedId!, { to: forwardToValid, comment, bodyType: "Text", attachments });
-        message.success("Forwarded");
-      }
-
-      setReplyOpen(null);
-      setReplyText("");
-      setForwardTo([]);
-      setQuickFiles([]);
-
-      await messagesQ.refetch();
-      await foldersQ.refetch();
-    } catch (e: any) {
-      message.error(e?.message || "Failed");
-    } finally {
-      setSendingQuick(false);
-    }
+  const handleQuickAction = (type: 'reply' | 'replyAll' | 'forward') => {
+    if (!current) return;
+    // Scroll to and activate inline reply
+    inlineReplyRef.current?.activate(type);
   };
+
+  /* Old quick action logic removed for standard Reply/Forward to use inline. */
+  /* If you still want the modal fallback for complex actions, you can keep it or use a separate button. */
 
   const htmlBody = useMemo(() => {
     if (current?.body?.contentType !== "html") return "";
@@ -457,272 +463,6 @@ export function MailPage() {
     return current?.body?.content || "";
   }, [current?.body?.content, current?.body?.contentType]);
 
-  // Collapse recipients in header
-  const toLine = formatRecipients(current?.toRecipients);
-  const ccLine = formatRecipients(current?.ccRecipients);
-  const [toCollapsed, setToCollapsed] = useState(true);
-  const [ccCollapsed, setCcCollapsed] = useState(true);
-  useEffect(() => {
-    setToCollapsed(true);
-    setCcCollapsed(true);
-  }, [selectedId]);
-
-  const toParts = collapseList(toLine, 95);
-  const ccParts = collapseList(ccLine, 95);
-
-  // keyboard navigation (up/down/enter)
-  const onListKeyDown = (e: React.KeyboardEvent) => {
-    if (!msgs.length) return;
-
-    if (e.key === "ArrowDown") {
-      e.preventDefault();
-      setFocusIndex((i) => Math.min(i + 1, msgs.length - 1));
-    } else if (e.key === "ArrowUp") {
-      e.preventDefault();
-      setFocusIndex((i) => Math.max(i - 1, 0));
-    } else if (e.key === "Enter") {
-      e.preventDefault();
-      const m = msgs[focusIndex];
-      if (m?.id) onSelect(m.id, m.isRead);
-    } else if (e.key === "Delete") {
-      if (selectedId) confirmDelete();
-    }
-  };
-
-  const ReadingPane = (
-    <div className="bg-[#F7F7F7] rounded-[16px] p-4 overflow-auto min-h-0 h-full">
-      {!selectedId ? (
-        <div className="h-full flex items-center justify-center text-[#999]">Select a message</div>
-      ) : msgQ.isLoading ? (
-        <Skeleton active paragraph={{ rows: 10 }} />
-      ) : (
-        <>
-          {/* Header */}
-          <div className="sticky top-0 z-10 bg-[#F7F7F7] pt-1">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <Title level={5} style={{ margin: 0 }} className="truncate">
-                  {current?.subject || "(no subject)"}
-                </Title>
-
-                <div className="mt-2 text-xs text-[#666] space-y-1">
-                  <div className="truncate">
-                    <Text type="secondary">From:</Text>{" "}
-                    <span className="text-[#444]">{formatFrom(current)}</span>
-                  </div>
-
-                  {!!toLine && (
-                    <div className="leading-5">
-                      <Text type="secondary">To:</Text>{" "}
-                      <span className="text-[#444]">
-                        {toParts.isLong && toCollapsed ? (
-                          <>
-                            {toParts.head}
-                            <button
-                              type="button"
-                              className="ml-1 text-[#1677ff] hover:underline"
-                              onClick={() => setToCollapsed(false)}
-                            >
-                              …more
-                            </button>
-                          </>
-                        ) : (
-                          <>
-                            {toLine}
-                            {toParts.isLong ? (
-                              <button
-                                type="button"
-                                className="ml-1 text-[#1677ff] hover:underline"
-                                onClick={() => setToCollapsed(true)}
-                              >
-                                less
-                              </button>
-                            ) : null}
-                          </>
-                        )}
-                      </span>
-                    </div>
-                  )}
-
-                  {!!ccLine && (
-                    <div className="leading-5">
-                      <Text type="secondary">Cc:</Text>{" "}
-                      <span className="text-[#444]">
-                        {ccParts.isLong && ccCollapsed ? (
-                          <>
-                            {ccParts.head}
-                            <button
-                              type="button"
-                              className="ml-1 text-[#1677ff] hover:underline"
-                              onClick={() => setCcCollapsed(false)}
-                            >
-                              …more
-                            </button>
-                          </>
-                        ) : (
-                          <>
-                            {ccLine}
-                            {ccParts.isLong ? (
-                              <button
-                                type="button"
-                                className="ml-1 text-[#1677ff] hover:underline"
-                                onClick={() => setCcCollapsed(true)}
-                              >
-                                less
-                              </button>
-                            ) : null}
-                          </>
-                        )}
-                      </span>
-                    </div>
-                  )}
-
-                  {current?.receivedDateTime ? (
-                    <div className="truncate">
-                      <Text type="secondary">Date:</Text>{" "}
-                      <span className="text-[#444]">
-                        {dayjs(current.receivedDateTime).format("MMM D, YYYY • h:mm A")}
-                      </span>
-                    </div>
-                  ) : null}
-                </div>
-              </div>
-
-              <Space wrap>
-                <Tooltip title="Reply">
-                  <Button icon={<Reply className="w-4 h-4" />} onClick={() => setReplyOpen("reply")} />
-                </Tooltip>
-                <Tooltip title="Reply all">
-                  <Button icon={<ReplyAll className="w-4 h-4" />} onClick={() => setReplyOpen("replyAll")} />
-                </Tooltip>
-                <Tooltip title="Forward">
-                  <Button icon={<Forward className="w-4 h-4" />} onClick={() => setReplyOpen("forward")} />
-                </Tooltip>
-                <Tooltip title="Delete">
-                  <Button danger icon={<Trash2 className="w-4 h-4" />} onClick={confirmDelete} />
-                </Tooltip>
-              </Space>
-            </div>
-
-            <Divider style={{ margin: "12px 0" }} />
-
-            {/* HTML controls */}
-            <div className="flex items-center justify-between gap-2 mb-3">
-              <Space>
-                <Button size="small" onClick={() => setShowTextFallback((s) => !s)}>
-                  {showTextFallback ? "View HTML" : "View as text"}
-                </Button>
-
-                {!showTextFallback ? (
-                  <Button
-                    size="small"
-                    icon={loadImages ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    onClick={() => setLoadImages((s) => !s)}
-                  >
-                    {loadImages ? "Hide images" : "Load images"}
-                  </Button>
-                ) : null}
-              </Space>
-
-              {!showTextFallback && !loadImages ? (
-                <Text type="secondary" style={{ fontSize: 12 }}>
-                  <ImageIcon className="inline-block w-4 h-4 mr-1 align-[-2px]" />
-                  Images are blocked
-                </Text>
-              ) : null}
-            </div>
-          </div>
-
-          {/* Body */}
-          {!showTextFallback ? (
-            htmlBody ? (
-              <div
-                className="mail-html rounded-[12px] bg-white p-4 ring-1 ring-black/5"
-                dangerouslySetInnerHTML={{ __html: htmlBody }}
-              />
-            ) : (
-              <div className="rounded-[12px] bg-white p-4 ring-1 ring-black/5 text-[#777]">
-                No HTML content
-              </div>
-            )
-          ) : (
-            <div className="rounded-[12px] bg-white p-4 ring-1 ring-black/5 whitespace-pre-wrap text-xs leading-6">
-              {textBody}
-            </div>
-          )}
-
-          <Divider />
-
-          {/* Attachments */}
-          <Title level={5} style={{ marginTop: 0 }}>
-            Attachments
-          </Title>
-
-          {attsQ.isLoading ? (
-            <Skeleton active paragraph={{ rows: 3 }} />
-          ) : (attsQ.data?.result?.length || 0) === 0 ? (
-            <Text type="secondary">No attachments</Text>
-          ) : (
-            <div className="space-y-2">
-              {(attsQ.data?.result || []).map((a: any) => (
-                <div
-                  key={a.id}
-                  className="rounded-[12px] bg-white px-3 py-3 ring-1 ring-black/5 flex items-center justify-between gap-3"
-                >
-                  <div className="min-w-0">
-                    <div className="font-semibold truncate">{a.name}</div>
-                    <div className="text-xs text-[#777]">
-                      {a.contentType || "file"} • {formatBytes(a.size || 0)}
-                    </div>
-                  </div>
-                  <Space>
-                    <Button onClick={() => doPreview(a.id, a.name, a.contentType, a.size)}>Preview</Button>
-                    <Button onClick={() => doDownload(a.id, a.name)}>Download</Button>
-                  </Space>
-                </div>
-              ))}
-            </div>
-          )}
-
-          <style jsx global>{`
-            .mail-html { font-size: 0.75rem; line-height: 1.7; color: #222; overflow-wrap: anywhere; }
-            .mail-html img { max-width: 100%; height: auto; }
-            .mail-html table { width: 100%; border-collapse: collapse; }
-            .mail-html a { color: #1677ff; text-decoration: none; }
-            .mail-html a:hover { text-decoration: underline; }
-            .mail-html blockquote { border-left: 3px solid #e5e5e5; margin: 8px 0; padding-left: 10px; color: #555; }
-            .mail-html pre { white-space: pre-wrap; background: #fafafa; padding: 10px; border-radius: 10px; overflow: auto; }
-
-            /* Seamless tags Select */
-            .ant-select-seamless .ant-select-selector {
-              background-color: transparent !important;
-              border: none !important;
-              box-shadow: none !important;
-              padding-left: 0 !important;
-            }
-            .ant-select-seamless.ant-select-focused .ant-select-selector {
-              box-shadow: none !important;
-            }
-            .ant-select-seamless .ant-select-selection-placeholder {
-              color: #9ca3af;
-              font-size: var(--font-size-sm);
-              padding-left: 0;
-            }
-          `}</style>
-
-          <DocumentPreviewModal
-            open={!!previewDoc}
-            document={previewDoc}
-            onClose={() => {
-              if (previewDoc?.fileUrl) URL.revokeObjectURL(previewDoc.fileUrl);
-              setPreviewDoc(null);
-            }}
-          />
-        </>
-      )}
-    </div>
-  );
-
   return (
     <PageLayout
       title="Mail"
@@ -731,11 +471,29 @@ export function MailPage() {
       onTabChange={() => { }}
       titleAction={{
         label: "Compose",
-        icon: <Send className="w-4 h-4" />,
-        onClick: () => setComposeOpen(true),
+        onClick: () => openCompose(),
       }}
       titleExtra={
-        <Space>
+        <Space wrap>
+          <DatePicker.RangePicker
+            aria-label="Filter by date"
+            format="MMM D, YYYY"
+            value={dateRange ?? undefined}
+            onChange={(dates) => setDateRange(dates ?? null)}
+            allowClear
+            className="rounded-lg border border-[#EEEEEE] bg-white"
+            placeholder={["Start date", "End date"]}
+          />
+          {dateRange && (
+            <Button
+              type="link"
+              size="small"
+              onClick={() => setDateRange(null)}
+              className="p-0 text-[#666]"
+            >
+              Clear dates
+            </Button>
+          )}
           <Segmented
             options={[
               { label: "All", value: "all" },
@@ -744,442 +502,460 @@ export function MailPage() {
             value={unreadOnly ? "unread" : "all"}
             onChange={(v) => setUnreadOnly(v === "unread")}
           />
-          {/* <Button icon={<RefreshCcw className="w-4 h-4" />} onClick={refresh}>
+          <Button icon={<RefreshCcw className="w-4 h-4" />} onClick={refresh}>
             Refresh
-          </Button> */}
+          </Button>
         </Space>
       }
+      className="pb-0"
     >
       <Layout style={{ height: "100%", background: "transparent" }}>
-        {/* FOLDERS */}
+        {/* Folders */}
         <Sider
-          width={260}
-          style={{ background: "transparent", paddingRight: 12 }}
-          className={isNarrow ? "hidden md:block" : ""}
+          width={foldersCollapsed ? 64 : 180}
+          style={{
+            background: "transparent",
+            paddingRight: foldersCollapsed ? 10 : 8,
+            transition: "all 0.3s ease"
+          }}
         >
-          <div className="bg-[#F7F7F7] rounded-[16px] p-4 h-full overflow-auto">
-            <div className="flex items-center gap-2 mb-3">
-              <Mail className="w-4 h-4" />
-              <Text strong>Folders</Text>
+          <div className="bg-[#F7F7F7] rounded-[16px] p-2 md:p-3 h-full overflow-hidden flex flex-col text-xs">
+            <div className={`flex items-center ${foldersCollapsed ? 'justify-center' : 'justify-between'} mb-3`}>
+              {!foldersCollapsed && (
+                <div className="flex items-center gap-2 truncate">
+                  <Mail className="w-4 h-4" />
+                  <Text strong>Folders</Text>
+                </div>
+              )}
+              <button
+                onClick={() => setFoldersCollapsed(!foldersCollapsed)}
+                className="p-1.5 rounded-full hover:bg-white text-[#999999] hover:text-[#111111] transition-all"
+              >
+                {foldersCollapsed ? <PanelLeft size={18} /> : <PanelLeftClose size={18} />}
+              </button>
             </div>
 
             {foldersQ.isLoading ? (
-              <Skeleton active paragraph={{ rows: 10 }} />
+              <div className="flex justify-center py-4"><Spin size="small" /></div>
             ) : (
-              <div className="space-y-1">
-                {folderItems.map((f: any) => (
-                  <button
-                    key={f.id}
-                    type="button"
-                    className={[
-                      "w-full text-left px-3 py-2 rounded-[12px] transition flex items-center justify-between gap-2",
-                      folder === f.id ? "bg-white ring-1 ring-black/5" : "hover:bg-white/70",
-                    ].join(" ")}
-                    onClick={() => {
-                      setFolder(f.id);
-                      setSelectedId(undefined);
-                    }}
-                  >
-                    <span className="truncate">{f.displayName}</span>
-                    {!!f.unreadItemCount && f.unreadItemCount > 0 && (
-                      <Tag color="blue" className="m-0 shrink-0">
-                        {f.unreadItemCount}
-                      </Tag>
-                    )}
-                  </button>
-                ))}
+              <div className="space-y-1 overflow-auto flex-1">
+                {folderItems.map((f) => {
+                  const Icon = FOLDER_ICONS[f.id] || Mail;
+                  return (
+                    <Tooltip key={f.id} title={foldersCollapsed ? f.displayName : ""} placement="right">
+                      <button
+                        type="button"
+                        className={[
+                          "w-full text-left py-2 rounded-[12px] transition flex items-center gap-2",
+                          foldersCollapsed ? "justify-center px-0" : "px-3",
+                          folder === f.id ? "bg-white ring-1 ring-black/5" : "hover:bg-white/70",
+                        ].join(" ")}
+                        onClick={() => {
+                          setFolder(f.id);
+                          setSelectedId(undefined);
+                          setDateRange(null);
+                        }}
+                      >
+                        <Icon
+                          className={`w-4 h-4 shrink-0 transition-colors ${folder === f.id ? "text-[#ff3b3b]" : "text-[#434343]"}`}
+                        />
+
+                        {!foldersCollapsed && (
+                          <>
+                            <span className="truncate flex-1">{f.displayName}</span>
+                            {!!f.unreadItemCount && f.unreadItemCount > 0 && (
+                              <div className="bg-[#FEF3F2] text-[#ff3b3b] px-1.5 py-0.5 rounded-full text-2xs font-bold min-w-[20px] text-center">
+                                {f.unreadItemCount}
+                              </div>
+                            )}
+                          </>
+                        )}
+                      </button>
+                    </Tooltip>
+                  );
+                })}
               </div>
             )}
           </div>
         </Sider>
 
-        {/* CONTENT */}
         <Content style={{ background: "transparent" }}>
-          <div className={isNarrow ? "grid grid-cols-1 gap-4 h-full min-h-0" : "grid grid-cols-[420px_1fr] gap-4 h-full min-h-0"}>
-            {/* MESSAGE LIST */}
-            <div className="bg-[#F7F7F7] rounded-[16px] overflow-hidden flex flex-col min-h-0">
-              {/* sticky header */}
-              <div className="sticky top-0 z-10 bg-[#F7F7F7] p-4 pb-3">
-                {/* Search input — not yet implemented */}
-                {typeof currentFolderTotals.unread === "number" || typeof totalCount === "number" ? (
-                  <div className="mt-2 flex items-center justify-between text-xs text-[#777]">
-                    <span>
-                      {typeof currentFolderTotals.unread === "number" ? `Unread: ${currentFolderTotals.unread}` : ""}
-                    </span>
-                    <span>{typeof totalCount === "number" ? `Total: ${totalCount}` : ""}</span>
-                  </div>
-                ) : null}
+          <div className={`grid ${foldersCollapsed ? 'grid-cols-[240px_1fr]' : 'grid-cols-[260px_1fr]'} xl:grid-cols-[320px_1fr] gap-3 h-full min-h-0 transition-all duration-300`}>
+
+            {/* Message list */}
+            <div className="bg-[#F7F7F7] rounded-[16px] p-3 overflow-hidden flex flex-col min-h-0">
+              <div className="mb-2">
+                <Input
+                  placeholder="Search (min 3 chars)"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  allowClear
+                />
               </div>
 
               <div
-                ref={listWrapRef}
+                className="flex-1 overflow-auto pt-1 outline-none"
                 tabIndex={0}
                 onKeyDown={onListKeyDown}
-                className="flex-1 overflow-auto px-4 pb-4 outline-none"
               >
                 {messagesQ.isLoading ? (
-                  <Skeleton active paragraph={{ rows: 12 }} />
+                  <Spin />
                 ) : msgs.length === 0 ? (
                   <div className="h-full flex items-center justify-center text-[#999]">No messages</div>
                 ) : (
                   <div className="space-y-2">
-                    {msgs.map((m: any, idx: number) => (
-                      <button
-                        key={m.id}
-                        type="button"
-                        onClick={() => onSelect(m.id, m.isRead)}
-                        onFocus={() => setFocusIndex(idx)}
-                        className={[
-                          "w-full text-left rounded-[14px] px-3 py-3 transition",
-                          selectedId === m.id ? "bg-white ring-1 ring-black/5" : "hover:bg-white/70",
-                          idx === focusIndex ? "ring-1 ring-black/10" : "",
-                        ].join(" ")}
-                      >
-                        <div className="w-full">
-                          <div className="flex items-center justify-between gap-2">
-                            <div className="flex items-center gap-2 min-w-0">
-                              {!m.isRead ? (
-                                <span className="w-2 h-2 rounded-full bg-blue-500" />
-                              ) : (
-                                <span className="w-2 h-2" />
-                              )}
-                              <span className={["truncate", !m.isRead ? "font-semibold" : ""].join(" ")}>
-                                {formatFrom(m)}
+                    {msgs.map((m: MailMessage, idx: number) => {
+                      const isFocused = idx === focusIndex;
+                      const isSelected = selectedId === m.id;
+                      return (
+                        <button
+                          key={m.id}
+                          type="button"
+                          onClick={() => {
+                            setFocusIndex(idx);
+                            onSelect(m.id, m.isRead);
+                          }}
+                          className={[
+                            "w-full text-left rounded-[12px] px-2 py-2.5 transition border",
+                            isSelected
+                              ? "bg-white border-black/5 ring-1 ring-black/5"
+                              : isFocused
+                                ? "bg-white/50 border-blue-200"
+                                : "border-transparent hover:bg-white/70",
+                          ].join(" ")}
+                        >
+                          <div className="w-full">
+                            <div className="flex items-center justify-between gap-2">
+                              <div className="flex items-center gap-2 min-w-0">
+                                {!m.isRead ? <span className="w-2 h-2 rounded-full bg-blue-500" /> : <span className="w-2 h-2" />}
+                                <span className={["truncate", !m.isRead ? "font-semibold" : ""].join(" ")}>
+                                  {formatFrom(m)}
+                                </span>
+                                {m.importance === "high" ? <Tag color="red" className="m-0">High</Tag> : null}
+                              </div>
+                              <span className="text-xs text-[#777] whitespace-nowrap">
+                                {m.receivedDateTime ? dayjs(m.receivedDateTime).format("MMM D, h:mm A") : ""}
                               </span>
-                              {m.importance === "high" ? (
-                                <Tag color="red" className="m-0">
-                                  High
-                                </Tag>
-                              ) : null}
                             </div>
-                            <span className="text-xs text-[#777] whitespace-nowrap">
-                              {m.receivedDateTime ? dayjs(m.receivedDateTime).format("MMM D, h:mm A") : ""}
-                            </span>
-                          </div>
 
-                          <div className="flex items-center justify-between gap-2 mt-1">
-                            <span className={["truncate min-w-0", !m.isRead ? "font-semibold" : ""].join(" ")}>
-                              {m.subject || "(no subject)"}
-                            </span>
-                            {m.hasAttachments ? <Paperclip className="w-4 h-4 opacity-60 shrink-0" /> : null}
-                          </div>
+                            <div className="flex items-center justify-between gap-2 mt-1">
+                              <span className={["truncate min-w-0", !m.isRead ? "font-semibold" : ""].join(" ")}>
+                                {m.subject || "(no subject)"}
+                              </span>
+                              {m.hasAttachments ? <Paperclip className="w-4 h-4 opacity-60 shrink-0" /> : null}
+                            </div>
 
-                          <div className="text-xs text-[#777] truncate mt-1">{m.bodyPreview || ""}</div>
-                        </div>
-                      </button>
-                    ))}
+                            <div className="text-xs text-[#777] truncate mt-1">{m.bodyPreview || ""}</div>
+                          </div>
+                        </button>
+                      );
+                    })}
                   </div>
                 )}
               </div>
 
               <Divider style={{ margin: "12px 0" }} />
-              <div className="px-4 pb-4 flex items-center justify-between gap-3">
+
+              <div className="flex items-center justify-between gap-3">
                 <Button disabled={!messagesQ.hasNextPage} onClick={() => messagesQ.fetchNextPage()}>
+                  {/* ✅ show remaining if we know total */}
                   {typeof remainingCount === "number" ? `Load more (${remainingCount} left)` : "Load more"}
                 </Button>
+
+                {/* ✅ total messages beside load more */}
                 <Text type="secondary" style={{ fontSize: 12 }}>
-                  {typeof totalCount === "number" ? `Loaded ${loadedCount} / ${totalCount}` : `${loadedCount} loaded`}
+                  {typeof totalCount === "number"
+                    ? `Loaded ${loadedCount} / ${totalCount}`
+                    : `${loadedCount} loaded`}
                 </Text>
               </div>
             </div>
 
-            {/* READING PANE (desktop) */}
-            {!isNarrow ? ReadingPane : null}
-          </div>
+            {/* Reading pane */}
+            <div className="bg-[#F7F7F7] rounded-[16px] overflow-hidden flex flex-col h-full min-h-0 relative">
+              {!selectedId ? (
+                <div className="h-full flex items-center justify-center text-[#999]">Select a message</div>
+              ) : msgQ.isLoading ? (
+                <div className="h-full flex items-center justify-center bg-white/50 backdrop-blur-sm z-10">
+                  <Spin size="large" />
+                </div>
+              ) : (
+                <>
+                  {/* Sticky Header Section */}
+                  <div className="p-3 md:p-4 pb-0 shrink-0">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <h2 className="text-base font-bold text-[#111111] font-['Manrope'] m-0 truncate">
+                          {current?.subject || "(no subject)"}
+                        </h2>
 
-          {/* READING PANE (mobile) */}
-          {isNarrow ? (
-            <Drawer
-              open={!!selectedId}
-              onClose={() => setSelectedId(undefined)}
-              placement="right"
-              size="large"
-              styles={{
-                body: { padding: 0, background: "transparent" },
-              }}
-            >
-              {ReadingPane}
-            </Drawer>
-          ) : null}
+                        <div className="mt-1 text-xs space-y-0.5">
+                          <div className="flex items-center gap-1.5 truncate">
+                            <span className="text-[#999999] font-medium min-w-[36px]">From:</span>
+                            <span className="text-[#434343] font-semibold">{formatFrom(current)}</span>
+                          </div>
+
+                          {!!formatRecipients(current?.toRecipients) && (
+                            <div className="flex items-center gap-1.5 truncate">
+                              <span className="text-[#999999] font-medium min-w-[36px]">To:</span>
+                              <span className="text-[#434343]">{formatRecipients(current?.toRecipients)}</span>
+                            </div>
+                          )}
+
+                          {!!formatRecipients(current?.ccRecipients) && (
+                            <div className="flex items-center gap-1.5 truncate">
+                              <span className="text-[#999999] font-medium min-w-[36px]">Cc:</span>
+                              <span className="text-[#434343]">{formatRecipients(current?.ccRecipients)}</span>
+                            </div>
+                          )}
+
+                          {current?.receivedDateTime ? (
+                            <div className="flex items-center gap-1.5 truncate">
+                              <span className="text-[#999999] font-medium min-w-[36px]">Date:</span>
+                              <span className="text-[#434343]">
+                                {dayjs(current.receivedDateTime).format("MMM D, YYYY • h:mm A")}
+                              </span>
+                            </div>
+                          ) : null}
+                        </div>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Tooltip title="Reply">
+                          <button
+                            onClick={() => handleQuickAction("reply")}
+                            className="p-1.5 rounded-full hover:bg-white ring-1 ring-black/5 transition-all text-[#434343] hover:text-[#ff3b3b]"
+                          >
+                            <Reply size={16} />
+                          </button>
+                        </Tooltip>
+                        <Tooltip title="Reply all">
+                          <button
+                            onClick={() => handleQuickAction("replyAll")}
+                            className="p-1.5 rounded-full hover:bg-white ring-1 ring-black/5 transition-all text-[#434343] hover:text-[#ff3b3b]"
+                          >
+                            <ReplyAll size={16} />
+                          </button>
+                        </Tooltip>
+                        <Tooltip title="Forward">
+                          <button
+                            onClick={() => handleQuickAction("forward")}
+                            className="p-1.5 rounded-full hover:bg-white ring-1 ring-black/5 transition-all text-[#434343] hover:text-[#ff3b3b]"
+                          >
+                            <Forward size={16} />
+                          </button>
+                        </Tooltip>
+                        <Tooltip title="Delete">
+                          <button
+                            onClick={confirmDelete}
+                            className="p-1.5 rounded-full hover:bg-[#FEF3F2] ring-1 ring-black/5 transition-all text-[#434343] hover:text-[#ff3b3b] group"
+                          >
+                            <Trash2 size={16} className="group-hover:text-[#ff3b3b]" />
+                          </button>
+                        </Tooltip>
+                      </div>
+                    </div>
+
+                    <div className="h-px bg-[#EEEEEE] mt-2 mb-3" />
+
+                    <div className="flex items-center justify-between gap-2 mb-0">
+                      <div className="flex bg-white ring-1 ring-black/5 rounded-full p-1 self-start">
+                        <button
+                          onClick={() => setBodyView("html")}
+                          className={`px-3 py-1 text-xs font-semibold rounded-full transition-all ${bodyView === "html" ? "bg-[#111111] text-white shadow-sm" : "text-[#777777] hover:text-[#111111]"
+                            }`}
+                        >
+                          HTML
+                        </button>
+                        <button
+                          onClick={() => setBodyView("text")}
+                          className={`px-3 py-1 text-xs font-semibold rounded-full transition-all ${bodyView === "text" ? "bg-[#111111] text-white shadow-sm" : "text-[#777777] hover:text-[#111111]"
+                            }`}
+                        >
+                          Text
+                        </button>
+                      </div>
+
+                      {bodyView === "html" ? (
+                        <button
+                          onClick={() => setLoadImages((s) => !s)}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white ring-1 ring-black/5 text-xs font-medium text-[#434343] hover:bg-[#F7F7F7] transition-all"
+                        >
+                          {loadImages ? <EyeOff size={14} /> : <Eye size={14} />}
+                          {loadImages ? "Hide images" : "Load images"}
+                        </button>
+                      ) : null}
+                    </div>
+
+                    {bodyView === "html" && !loadImages ? (
+                      <div className="flex items-center gap-1.5 text-xs text-[#999999]">
+                        <ImageIcon size={14} />
+                        Images are blocked
+                      </div>
+                    ) : null}
+                  </div>
+
+                  {/* Scrollable Content Section */}
+                  <div className="flex-1 overflow-auto px-3 md:px-4 pt-0 pb-3 md:pb-4">
+
+                    {bodyView === "html" ? (
+                      htmlBody ? (
+                        <div className="min-w-full inline-block align-top">
+                          <div
+                            className="mail-html rounded-[12px] bg-white p-4 ring-1 ring-black/5"
+                            dangerouslySetInnerHTML={{ __html: htmlBody }}
+                          />
+                        </div>
+                      ) : (
+                        <div className="min-w-full inline-block align-top rounded-[12px] bg-white p-4 ring-1 ring-black/5 text-[#777]">
+                          No HTML content (switch to Text)
+                        </div>
+                      )
+                    ) : (
+                      <div className="min-w-full inline-block align-top rounded-[12px] bg-white p-4 ring-1 ring-black/5 whitespace-pre-wrap text-xs leading-6">
+                        {textBody}
+                      </div>
+                    )}
+
+                    <div className="h-px bg-[#EEEEEE] my-6" />
+
+                    <div className="min-w-full inline-block align-top">
+                      <h3 className="text-base font-bold text-[#111111] font-['Manrope'] mt-0 mb-4">
+                        Attachments
+                      </h3>
+
+                      {attsQ.isLoading ? (
+                        <div className="flex justify-center p-4"><Spin /></div>
+                      ) : (attsQ.data?.result?.length || 0) === 0 ? (
+                        <div className="text-xs text-[#999999]">No attachments</div>
+                      ) : (
+                        <div className="space-y-2">
+                          {(attsQ.data?.result || []).map((a: MailAttachment) => (
+                            <div
+                              key={a.id}
+                              className="rounded-[12px] bg-white px-3 py-2.5 ring-1 ring-black/5 flex items-center justify-between gap-3 shadow-sm hover:shadow-md transition-shadow"
+                            >
+                              <div className="min-w-0 flex items-center gap-3">
+                                <div className="p-1.5 bg-[#F7F7F7] rounded-[8px] text-[#111111]">
+                                  <Paperclip size={16} />
+                                </div>
+                                <div className="min-w-0">
+                                  <div className="font-semibold text-xs text-[#111111] truncate">{a.name || 'Unnamed'}</div>
+                                  <div className="text-xs text-[#777]">
+                                    {a.contentType || "file"} • {formatBytes(a.size || 0)}
+                                  </div>
+                                </div>
+                              </div>
+
+                              <Space size={8}>
+                                <Button
+                                  type="text"
+                                  size="small"
+                                  icon={<Eye size={14} className={previewingIds.has(a.id) ? "animate-pulse" : ""} />}
+                                  loading={previewingIds.has(a.id)}
+                                  onClick={() => doPreview(a.id, a.name || 'Unnamed', a.contentType || '', a.size || 0)}
+                                  className="text-[#666666] hover:text-[#111111]"
+                                >
+                                  Preview
+                                </Button>
+                                <Button
+                                  type="text"
+                                  size="small"
+                                  icon={<Download size={14} className={downloadingIds.has(a.id) ? "animate-bounce" : ""} />}
+                                  loading={downloadingIds.has(a.id)}
+                                  onClick={() => doDownload(a.id, a.name)}
+                                  className="text-[#666666] hover:text-[#111111]"
+                                >
+                                  Download
+                                </Button>
+                              </Space>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    <style jsx global>{`
+                    .mail-html {
+                      font-size: 0.75rem;
+                      line-height: 1.7;
+                      color: #222;
+                      overflow-wrap: anywhere;
+                      zoom: 0.92;
+                      transform-origin: top left;
+                    }
+                    .mail-html img {
+                      max-width: 100%;
+                      height: auto;
+                    }
+                    .mail-html table {
+                      width: 100%;
+                      border-collapse: collapse;
+                    }
+                    .mail-html a {
+                      color: #1677ff;
+                      text-decoration: none;
+                    }
+                    .mail-html a:hover {
+                      text-decoration: underline;
+                    }
+                    .mail-html blockquote {
+                      border-left: 3px solid #e5e5e5;
+                      margin: 8px 0;
+                      padding-left: 10px;
+                      color: #555;
+                    }
+                    .mail-html pre {
+                      white-space: pre-wrap;
+                      background: #fafafa;
+                      padding: 10px;
+                      border-radius: 10px;
+                      overflow: auto;
+                    }
+                  `}</style>
+
+                    {/* Inline Reply Box */}
+                    <div className="mt-8 mb-4">
+                      <InlineReply
+                        ref={inlineReplyRef}
+                        originalMessage={current}
+                        currentUser={currentUser}
+                        onSend={async (data) => {
+                          await handleSendMail({
+                            ...data,
+                            bcc: [] // Inline usually doesn't show BCC initially
+                          });
+                        }}
+                        onDiscard={() => {
+                          // Maybe clear? Or just do nothing as it resets itself
+                        }}
+                      />
+                    </div>
+
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
         </Content>
       </Layout>
 
-      {/* =========================
-          COMPOSE MODAL
-         ========================= */}
-      <Modal
-        title={null}
-        footer={null}
-        closable={false}
+      <EmailComposeModal
         open={composeOpen}
-        onCancel={() => setComposeOpen(false)}
-        width="min(680px, 95vw)"
-        destroyOnHidden
-        centered
-        styles={{
-          body: { padding: 16 },
+        onClose={() => setComposeOpen(false)}
+        onSend={handleSendMail}
+        initialData={composeInitialData}
+        autocompleteOptions={autocompleteOptions}
+      />
+
+      <DocumentPreviewModal
+        open={!!previewDoc}
+        document={previewDoc}
+        onClose={() => {
+          if (previewDoc?.fileUrl) URL.revokeObjectURL(previewDoc.fileUrl);
+          setPreviewDoc(null);
         }}
-      >
-        <div className="flex flex-col">
-          {/* header */}
-          <div className="flex items-center justify-between mb-4">
-            <Title level={4} style={{ margin: 0 }}>
-              New Message
-            </Title>
-            <Button type="text" icon={<X className="w-5 h-5 text-gray-500" />} onClick={() => setComposeOpen(false)} />
-          </div>
-
-          {/* To */}
-          <div className="flex items-start gap-3 border-b border-gray-100 pb-2">
-            <span className="text-gray-400 text-xs font-bold tracking-wide w-10 mt-1.5">TO</span>
-            <div className="flex-1">
-              <Select
-                mode="tags"
-                open={false}
-                className="ant-select-seamless w-full"
-                placeholder="Recipients"
-                value={composeTo}
-                onChange={setComposeTo}
-                suffixIcon={null}
-                tokenSeparators={[",", " "]}
-              />
-              {composeToHasInvalid ? (
-                <div className="text-xs text-red-500 mt-1">One or more recipients look invalid.</div>
-              ) : null}
-            </div>
-
-            <Button
-              type="text"
-              size="small"
-              className="text-xs text-gray-400 hover:text-gray-600 mt-0.5"
-              onClick={() => setShowComposeCc((s) => !s)}
-            >
-              Cc/Bcc
-            </Button>
-          </div>
-
-          {/* Cc/Bcc */}
-          {showComposeCc ? (
-            <div className="mt-2 space-y-2">
-              <div className="flex items-start gap-3 border-b border-gray-100 pb-2">
-                <span className="text-gray-400 text-xs font-bold tracking-wide w-10 mt-1.5">CC</span>
-                <Select
-                  mode="tags"
-                  open={false}
-                  className="ant-select-seamless w-full"
-                  value={composeCc}
-                  onChange={setComposeCc}
-                  suffixIcon={null}
-                  tokenSeparators={[",", " "]}
-                />
-              </div>
-
-              <div className="flex items-start gap-3 border-b border-gray-100 pb-2">
-                <span className="text-gray-400 text-xs font-bold tracking-wide w-10 mt-1.5">BCC</span>
-                <Select
-                  mode="tags"
-                  open={false}
-                  className="ant-select-seamless w-full"
-                  value={composeBcc}
-                  onChange={setComposeBcc}
-                  suffixIcon={null}
-                  tokenSeparators={[",", " "]}
-                />
-              </div>
-            </div>
-          ) : null}
-
-          {/* subject */}
-          <div className="flex items-center gap-3 border-b border-gray-100 pb-2 pt-3">
-            <span className="text-gray-400 text-xs font-bold tracking-wide w-10">SUB</span>
-            <Input
-              variant="borderless"
-              value={composeSubject}
-              onChange={(e) => setComposeSubject(e.target.value)}
-              placeholder="Subject"
-              className="p-0 flex-1 text-sm font-medium"
-            />
-          </div>
-
-          {/* body */}
-          <Input.TextArea
-            variant="borderless"
-            value={composeBody}
-            onChange={(e) => setComposeBody(e.target.value)}
-            placeholder="Type your message..."
-            autoSize={{ minRows: 10, maxRows: 18 }}
-            className="px-0 mt-3 text-sm resize-none"
-            style={{ lineHeight: 1.6 }}
-          />
-
-          {/* attachments */}
-          <div className="mt-3">
-            <Upload
-              multiple
-              fileList={composeFiles}
-              beforeUpload={commonBeforeUpload as any}
-              onChange={({ fileList }) => setComposeFiles(fileList)}
-              showUploadList={{ showRemoveIcon: true, showPreviewIcon: false }}
-            >
-              <Button icon={<Paperclip className="w-4 h-4" />}>
-                Attach files {composeFiles.length ? `(${composeFiles.length})` : ""}
-              </Button>
-            </Upload>
-            <div className="text-xs text-[#777] mt-2">
-              Max file size: {MAX_MB} MB each
-            </div>
-          </div>
-
-          {/* footer */}
-          <div className="flex justify-between items-center pt-4 mt-2">
-            <Button
-              type="text"
-              onClick={() => {
-                setComposeOpen(false);
-              }}
-            >
-              Discard
-            </Button>
-
-            <Tooltip
-              title={
-                !composeToValid.length
-                  ? "Add at least one recipient"
-                  : composeToHasInvalid
-                    ? "Fix invalid recipient(s)"
-                    : undefined
-              }
-            >
-              <Button
-                type="primary"
-                icon={<Send className="w-3.5 h-3.5" />}
-                onClick={doSend}
-                disabled={!canSendCompose}
-                loading={sendingCompose}
-              >
-                Send
-              </Button>
-            </Tooltip>
-          </div>
-        </div>
-      </Modal>
-
-      {/* =========================
-          REPLY / FORWARD MODAL
-         ========================= */}
-      <Modal
-        title={null}
-        footer={null}
-        closable={false}
-        open={!!replyOpen}
-        onCancel={() => setReplyOpen(null)}
-        width="min(600px, 95vw)"
-        centered
-        destroyOnHidden
-        styles={{
-          body: { padding: 16 },
-        }}
-      >
-        <div className="flex flex-col">
-          {/* header */}
-          <div className="flex items-center justify-between mb-4 border-b border-gray-100 pb-3">
-            <div className="flex items-center gap-2">
-              {replyOpen === "forward" ? (
-                <Forward className="w-4 h-4 text-black" />
-              ) : (
-                <Reply className="w-4 h-4 text-black" />
-              )}
-              <span className="font-semibold text-base">
-                {replyOpen === "forward" ? "Forward" : replyOpen === "replyAll" ? "Reply All" : "Reply"}
-              </span>
-              {current ? (
-                <span className="text-gray-400 font-medium text-sm ml-1">to {formatFrom(current)}</span>
-              ) : null}
-            </div>
-
-            <Button
-              type="text"
-              size="small"
-              icon={<X className="w-4 h-4 text-gray-400" />}
-              onClick={() => setReplyOpen(null)}
-            />
-          </div>
-
-          {/* forward to */}
-          {replyOpen === "forward" ? (
-            <div className="flex items-start gap-3 border-b border-gray-100 pb-2 mb-3">
-              <span className="text-gray-400 text-xs font-bold tracking-wide uppercase w-8 mt-1.5">To</span>
-              <div className="flex-1">
-                <Select
-                  mode="tags"
-                  open={false}
-                  className="ant-select-seamless w-full"
-                  placeholder="Forward To"
-                  value={forwardTo}
-                  onChange={setForwardTo}
-                  suffixIcon={null}
-                  tokenSeparators={[",", " "]}
-                />
-                {forwardToHasInvalid ? (
-                  <div className="text-xs text-red-500 mt-1">One or more recipients look invalid.</div>
-                ) : null}
-              </div>
-            </div>
-          ) : null}
-
-          <Input.TextArea
-            variant="borderless"
-            value={replyText}
-            onChange={(e) => setReplyText(e.target.value)}
-            autoSize={{ minRows: 8, maxRows: 16 }}
-            placeholder="Write your response..."
-            className="px-0 text-sm resize-none"
-            style={{ lineHeight: 1.6 }}
-          />
-
-          {/* attachments */}
-          <div className="mt-2">
-            <Upload
-              multiple
-              fileList={quickFiles}
-              beforeUpload={commonBeforeUpload as any}
-              onChange={({ fileList }) => setQuickFiles(fileList)}
-              showUploadList={{ showRemoveIcon: true, showPreviewIcon: false }}
-            >
-              <Button icon={<Paperclip className="w-4 h-4" />}>
-                Attach files {quickFiles.length ? `(${quickFiles.length})` : ""}
-              </Button>
-            </Upload>
-            <div className="text-xs text-[#777] mt-2">
-              Max file size: {MAX_MB} MB each
-            </div>
-          </div>
-
-          <div className="flex justify-end gap-3 pt-4">
-            <Button onClick={() => setReplyOpen(null)}>Cancel</Button>
-
-            <Tooltip
-              title={
-                replyOpen === "forward" && !forwardToValid.length
-                  ? "Add forward recipients"
-                  : replyText.trim().length === 0
-                    ? "Write a message"
-                    : undefined
-              }
-            >
-              <Button
-                type="primary"
-                icon={<Send className="w-3.5 h-3.5" />}
-                onClick={doQuickAction}
-                disabled={!canSendQuick}
-                loading={sendingQuick}
-              >
-                Send
-              </Button>
-            </Tooltip>
-          </div>
-        </div>
-      </Modal>
+      />
     </PageLayout>
   );
 }
