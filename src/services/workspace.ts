@@ -103,6 +103,12 @@ export const getRequirementsDropdownByWorkspaceId = async (workspaceId: number):
   return data;
 };
 
+// Get all requirements dropdown items across all company workspaces in a single request
+export const getAllRequirementsDropdown = async (): Promise<ApiResponse<RequirementDropdownItem[]>> => {
+  const { data } = await axiosApi.get<ApiResponse<RequirementDropdownItem[]>>('/requirement/dropdown');
+  return data;
+};
+
 // Comment operations
 export const addCommentToProject = async (params: ProjectCommentDto): Promise<ApiResponse<ProjectCommentDto>> => {
   const { data } = await axiosApi.post<ApiResponse<ProjectCommentDto>>(`/comment/create`, params);

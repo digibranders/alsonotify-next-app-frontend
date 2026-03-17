@@ -1,4 +1,8 @@
 
+// Derive backend origin for API proxy rewrite (eliminates CORS preflight overhead)
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1';
+const apiOrigin = new URL(apiUrl).origin; // e.g. "http://localhost:4000"
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     images: {
@@ -50,6 +54,14 @@ const nextConfig = {
             transform: 'lucide-react/dist/esm/icons/{{kebabCase member}}',
         },
         // @fluentui/react-icons doesn't need transformation - direct imports work fine
+    },
+    async rewrites() {
+        return [
+            {
+                source: '/api/:path*',
+                destination: `${apiOrigin}/api/:path*`,
+            },
+        ];
     },
     async headers() {
         return [
