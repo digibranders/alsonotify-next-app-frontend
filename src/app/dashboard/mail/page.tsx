@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import dynamic from "next/dynamic";
 
 const MailPage = dynamic(
-  () => import("../../../components/features/mail/MailPage3").then((m) => m.MailPage),
+  () => import("../../../components/features/mail/MailPage").then((m) => m.MailPage),
   { loading: () => <div className="flex h-full items-center justify-center">Loading mail...</div> }
 );
 
