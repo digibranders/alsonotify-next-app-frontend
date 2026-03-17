@@ -59,18 +59,23 @@ export function isAxiosError(error: unknown): error is {
  * Extract error message from various error types
  */
 export function getErrorMessage(error: unknown): string {
+  // Detect network errors first (no response from server)
+  if (isAxiosError(error) && !error.response) {
+    return 'Unable to connect. Please check your internet connection and try again.';
+  }
+
   if (error instanceof ApiError) {
     return error.message;
   }
-  
+
   if (error instanceof ValidationError) {
     return error.message;
   }
-  
+
   if (error instanceof NetworkError) {
     return error.message;
   }
-  
+
   if (isAxiosError(error)) {
     if (error.response?.data && typeof error.response.data === 'object') {
       const data = error.response.data as { message?: string; error?: string };

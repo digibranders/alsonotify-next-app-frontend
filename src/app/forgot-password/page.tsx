@@ -34,8 +34,12 @@ export default function ForgotPasswordPage() {
                 }
             },
             onError: (error: any) => {
-                const errorMessage = error?.response?.data?.message || "Something went wrong. Please try again.";
-                message.error(errorMessage);
+                if (!error?.response) {
+                    message.error("Unable to connect. Please check your internet connection and try again.");
+                } else {
+                    const errorMessage = error?.response?.data?.message || "Unable to send reset link. Please try again.";
+                    message.error(errorMessage);
+                }
             },
         });
     };

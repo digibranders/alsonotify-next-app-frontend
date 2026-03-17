@@ -56,3 +56,25 @@ export function formatDecimalHours(decimalHours: number): string {
     if (m === 0) return `${h}h`;
     return `${h}h ${m}m`;
 }
+
+/**
+ * Parse decimal hours into separate hours and minutes.
+ * @param decimalHours - Hours as a decimal (e.g., 2.5)
+ * @returns Object with integer hours and minutes
+ */
+export function parseDecimalToHM(decimalHours: number): { hours: number; minutes: number } {
+    if (!decimalHours || decimalHours <= 0) return { hours: 0, minutes: 0 };
+    const h = Math.floor(decimalHours);
+    const m = Math.round((decimalHours - h) * 60);
+    return { hours: h, minutes: m };
+}
+
+/**
+ * Combine separate hours and minutes into a decimal hours value.
+ * @param hours - Integer hours
+ * @param minutes - Integer minutes (0-59)
+ * @returns Decimal hours (e.g., 2h 30m = 2.5)
+ */
+export function combineHMToDecimal(hours: number, minutes: number): number {
+    return (hours || 0) + ((minutes || 0) / 60);
+}

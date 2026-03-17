@@ -488,8 +488,8 @@ export function TaskDetailsPage() {
                     <div className="flex justify-between items-end">
                       <div>
                         <div className="flex items-baseline gap-1">
-                          <span className="text-2xl font-bold text-[#111111] leading-none">{estimatedHours}</span>
-                          <span className="text-xs text-[#666666] font-medium">hrs estimated</span>
+                          <span className="text-2xl font-bold text-[#111111] leading-none">{formatDecimalHours(estimatedHours)}</span>
+                          <span className="text-xs text-[#666666] font-medium">estimated</span>
                         </div>
                       </div>
                       <div className="text-right">

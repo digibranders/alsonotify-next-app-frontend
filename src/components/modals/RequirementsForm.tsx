@@ -334,7 +334,9 @@ function RequirementsFormContent({
                     <span className="text-xs font-bold text-[#111111]">Workspace <span className="text-[#ff3b3b]">*</span></span>
                     <Select
                         showSearch
+                        autoClearSearchValue
                         optionFilterProp="label"
+                        optionLabelProp="label"
                         className="w-full h-11"
                         placeholder="Select workspace"
                         value={formData.workspace ? String(formData.workspace) : undefined}
@@ -410,6 +412,7 @@ function RequirementsFormContent({
                     </span>
                     <Select
                         showSearch
+                        autoClearSearchValue
                         optionFilterProp="label"
                         className="w-full h-11"
                         placeholder={`Select ${formData.type === 'inhouse' ? 'employee' : 'contact person'}`}

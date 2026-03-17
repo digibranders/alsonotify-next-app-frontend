@@ -78,9 +78,13 @@ function RegisterForm() {
           }
         },
         onError: (error: unknown) => {
-          const errorData = error as { response?: { data?: { message?: string } } };
-          const errorMessage = errorData?.response?.data?.message || "Something went wrong. Please try again.";
-          message.error(errorMessage);
+          const errorData = error as { response?: { data?: { message?: string } }; code?: string };
+          if (!errorData?.response) {
+            message.error("Unable to connect. Please check your internet connection and try again.");
+          } else {
+            const errorMessage = errorData?.response?.data?.message || "Registration failed. Please try again.";
+            message.error(errorMessage);
+          }
         },
       }
     );
@@ -212,6 +216,14 @@ function RegisterForm() {
               <Turnstile
                 siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY as string}
                 onSuccess={(token: string) => setTurnstileToken(token)}
+                onError={() => {
+                  setTurnstileToken(null);
+                  message.error("Security verification failed. Please check your internet connection and refresh the page.");
+                }}
+                onExpire={() => {
+                  setTurnstileToken(null);
+                  message.warning("Security verification expired. Please complete it again.");
+                }}
                 options={{
                   theme: 'light',
                   size: 'normal',

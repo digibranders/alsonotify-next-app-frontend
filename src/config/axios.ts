@@ -16,10 +16,22 @@ const CRITICAL_AUTH_ENDPOINTS = [
   '/auth/register/complete',
 ];
 
-// Response interceptor to handle 401 errors
+// Response interceptor to handle network errors and 401s
 axiosApi.interceptors.response.use(
   (response: AxiosResponse) => response,
   (error: AxiosError) => {
+    // Detect network-level failures (no response received from server)
+    if (!error.response) {
+      if (error.code === 'ECONNABORTED') {
+        error.message = 'Request timed out. Please check your connection and try again.';
+      } else if (error.code === 'ERR_NETWORK' || (typeof navigator !== 'undefined' && !navigator.onLine)) {
+        error.message = 'Unable to connect. Please check your internet connection and try again.';
+      } else {
+        error.message = 'Unable to reach the server. Please try again in a moment.';
+      }
+      (error as AxiosError & { _isNetworkError: boolean })._isNetworkError = true;
+    }
+
     if (error.response?.status === 401) {
       const url = error.config?.url || '';
       const isCriticalEndpoint = CRITICAL_AUTH_ENDPOINTS.some(endpoint => url.includes(endpoint));

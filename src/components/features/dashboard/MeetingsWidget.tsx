@@ -8,6 +8,7 @@ import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import { useCurrentUserCompany } from '@/hooks/useUser';
 import { useTeamsConnectionStatus, useCalendarEvents } from '@/hooks/useCalendar';
+import { formatDecimalHours } from '@/utils/date/timeFormat';
 import { GraphEvent } from '@/services/calendar';
 import { MeetingCreateModal } from '@/components/modals/MeetingCreateModal';
 
@@ -66,17 +67,7 @@ export function MeetingsWidget({ onNavigate }: { onNavigate?: (page: string) => 
         const durationMinutes = endTime.diff(startTime, 'minute');
 
         // Format duration
-        // eslint-disable-next-line no-useless-assignment
-        let duration = '';
-        if (durationMinutes < 60) {
-          duration = `${durationMinutes} mins`;
-        } else if (durationMinutes === 60) {
-          duration = '1 hour';
-        } else {
-          const hours = Math.floor(durationMinutes / 60);
-          const mins = durationMinutes % 60;
-          duration = mins > 0 ? `${hours}.${Math.round(mins / 60 * 10)} hours` : `${hours} hour${hours > 1 ? 's' : ''}`;
-        }
+        const duration = formatDecimalHours(durationMinutes / 60);
 
         // Get attendees from event attendees
         const attendees = (event.attendees || []).slice(0, 3).map((attendee: { emailAddress?: { name?: string; address?: string } }) => ({
