@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Button, Tooltip, App, Avatar } from "antd";
 import {
   X,
@@ -23,13 +23,18 @@ import {
   Heading3,
   Undo2,
   Redo2,
+  Check,
+  Cloud,
 } from "lucide-react";
 import dayjs from "dayjs";
 import { RichTextEditor } from "../../common/RichTextEditor";
 import { EmailInput, ContactOption } from "./EmailInput";
 import { FormatBtn } from "./FormatBtn";
 import { formatBytes } from "@/utils/format/fileFormatUtils";
+import { saveDraft, updateDraft, deleteMail } from "@/services/mail";
 import type { MailMessageDetail } from "@/services/mail";
+
+const AUTOSAVE_INTERVAL_MS = 30_000; // 30 seconds, same as Outlook Web
 
 interface EmailComposePaneProps {
   mode: "new" | "reply" | "replyAll" | "forward";
@@ -116,6 +121,8 @@ const MODE_LABELS: Record<string, string> = {
   forward: "Forward",
 };
 
+type DraftStatus = "idle" | "saving" | "saved" | "error";
+
 export function EmailComposePane({
   mode,
   originalMessage,
@@ -144,8 +151,99 @@ export function EmailComposePane({
   const [files, setFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Draft state
+  const [draftId, setDraftId] = useState<string | null>(null);
+  const [draftStatus, setDraftStatus] = useState<DraftStatus>("idle");
+  const draftIdRef = useRef<string | null>(null);
+  const sentRef = useRef(false);
+  const discardedRef = useRef(false);
+
+  // Keep ref in sync
+  useEffect(() => {
+    draftIdRef.current = draftId;
+  }, [draftId]);
+
   const isDirty = to.length > 0 || subject.trim() !== "" || body.trim() !== "" || files.length > 0;
   const canSend = to.length > 0 && !isSending;
+
+  // Build the draft payload from current state
+  const getDraftPayload = useCallback(() => ({
+    to,
+    cc,
+    bcc,
+    subject,
+    body,
+    bodyType: "HTML" as const,
+  }), [to, cc, bcc, subject, body]);
+
+  // Save or update draft
+  const persistDraft = useCallback(async () => {
+    if (sentRef.current || discardedRef.current) return;
+    if (!isDirty) return;
+
+    setDraftStatus("saving");
+    try {
+      const payload = getDraftPayload();
+      if (draftIdRef.current) {
+        await updateDraft(draftIdRef.current, payload);
+      } else {
+        const res = await saveDraft(payload);
+        if (res.result?.id) {
+          setDraftId(res.result.id);
+          draftIdRef.current = res.result.id;
+        }
+      }
+      setDraftStatus("saved");
+    } catch {
+      setDraftStatus("error");
+    }
+  }, [isDirty, getDraftPayload]);
+
+  // Auto-save timer (every 30 seconds)
+  useEffect(() => {
+    if (!isDirty) return;
+    const timer = setInterval(() => {
+      persistDraft();
+    }, AUTOSAVE_INTERVAL_MS);
+    return () => clearInterval(timer);
+  }, [isDirty, persistDraft]);
+
+  // Save on unmount (navigate away, close compose, switch message)
+  useEffect(() => {
+    return () => {
+      if (!sentRef.current && !discardedRef.current && isDirty) {
+        // Fire-and-forget save on unmount
+        const payload = getDraftPayload();
+        const id = draftIdRef.current;
+        if (id) {
+          updateDraft(id, payload).catch(() => {});
+        } else {
+          saveDraft(payload).catch(() => {});
+        }
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Warn on browser close/tab close
+  useEffect(() => {
+    if (!isDirty) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      if (!sentRef.current && !discardedRef.current) {
+        e.preventDefault();
+        // Save draft on unload
+        const payload = getDraftPayload();
+        const id = draftIdRef.current;
+        const data = JSON.stringify(payload);
+        // Use sendBeacon for reliable delivery during unload
+        // sendBeacon needs the full proxy path; PATCH not supported by sendBeacon so always POST
+        const url = "/api/v1/mail/draft";
+        navigator.sendBeacon(url, new Blob([data], { type: "application/json" }));
+      }
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [isDirty, getDraftPayload]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -166,9 +264,15 @@ export function EmailComposePane({
 
   const handleSend = async () => {
     setIsSending(true);
+    sentRef.current = true;
     try {
       await onSend({ to, cc, bcc, subject, body, attachments: files });
+      // If we had a draft, delete it after successful send (Graph moves sent items automatically)
+      if (draftIdRef.current) {
+        deleteMail(draftIdRef.current).catch(() => {});
+      }
     } catch {
+      sentRef.current = false;
       setIsSending(false);
     }
   };
@@ -177,16 +281,32 @@ export function EmailComposePane({
     if (isDirty && mode === "new") {
       modal.confirm({
         title: "Discard draft?",
-        content: "Your message will be lost.",
+        content: "Your draft will be deleted.",
         okText: "Discard",
         okType: "danger",
         cancelText: "Keep editing",
-        onOk: onDiscard,
+        onOk: () => {
+          discardedRef.current = true;
+          // Delete the draft from server if it was saved
+          if (draftIdRef.current) {
+            deleteMail(draftIdRef.current).catch(() => {});
+          }
+          onDiscard();
+        },
       });
     } else {
+      discardedRef.current = true;
       onDiscard();
     }
   };
+
+  // Draft status indicator text
+  const draftStatusLabel =
+    draftStatus === "saving"
+      ? "Saving..."
+      : draftStatus === "saved"
+        ? "Draft saved"
+        : null;
 
   return (
     <div className="bg-[#F7F7F7] rounded-[16px] flex flex-col h-full min-h-0 overflow-hidden">
@@ -197,6 +317,17 @@ export function EmailComposePane({
           <span className="font-bold text-sm text-[#111111]">
             {MODE_LABELS[mode] || "New Message"}
           </span>
+          {/* Draft save indicator */}
+          {draftStatusLabel && (
+            <span className="flex items-center gap-1 text-2xs text-[#999999] ml-2">
+              {draftStatus === "saving" ? (
+                <Cloud size={12} className="animate-pulse" />
+              ) : (
+                <Check size={12} className="text-green-500" />
+              )}
+              {draftStatusLabel}
+            </span>
+          )}
         </div>
         <Tooltip title="Discard">
           <button
