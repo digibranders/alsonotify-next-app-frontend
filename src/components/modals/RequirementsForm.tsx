@@ -3,7 +3,7 @@ import { useAuth } from '@/hooks/useAuth';
 import dayjs from '@/utils/date/dayjs';
 import { formatDateForApi, getTodayForApi } from '@/utils/date/date';
 import { Input, DatePicker, Checkbox, App, Button, Modal, Select, Space } from 'antd';
-import { Upload as UploadIcon, FileText, ChevronDown } from 'lucide-react';
+import { Upload as UploadIcon, FileText } from 'lucide-react';
 import { useEmployeesDropdown } from '@/hooks/useUser';
 import { getOutsourcedContacts } from '@/services/user';
 import { FormLayout } from '@/components/common/FormLayout';
@@ -348,7 +348,7 @@ function RequirementsFormContent({
                             }
                         }}
                         popupStyle={{ zIndex: 2000 }}
-                        suffixIcon={<ChevronDown className="w-4 h-4 text-gray-400" />}
+                        suffixIcon={<svg className="w-3 h-3 text-[#999999]" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 4.5L6 7.5L9 4.5"/></svg>}
                         disabled={disableWorkspaceSelect}
                         options={[
                             {
@@ -396,7 +396,7 @@ function RequirementsFormContent({
                             contactPerson: undefined,
                             workspace: formData.workspace
                         })}
-                        suffixIcon={<ChevronDown className="w-4 h-4 text-gray-400" />}
+                        suffixIcon={<svg className="w-3 h-3 text-[#999999]" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 4.5L6 7.5L9 4.5"/></svg>}
                     >
                         <Option value="inhouse">In-house</Option>
                         <Option value="outsourced">Outsourced</Option>
@@ -423,7 +423,7 @@ function RequirementsFormContent({
                             contactPerson: (option as { label?: string } | null)?.label
                         })}
                         loading={formData.type === 'inhouse' ? isLoadingEmployees : isLoadingOutsourcedContacts}
-                        suffixIcon={<ChevronDown className="w-4 h-4 text-gray-400" />}
+                        suffixIcon={<svg className="w-3 h-3 text-[#999999]" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 4.5L6 7.5L9 4.5"/></svg>}
                         optionLabelProp="label"
                         popupStyle={{ zIndex: 2000 }}
                         options={
@@ -472,7 +472,7 @@ function RequirementsFormContent({
                 {(formData.type === 'client') && (
                     <div className="space-y-1.5">
                         <span className="text-xs font-bold text-[#111111]">Quotation price</span>
-                        <Space.Compact className="w-full">
+                        <div className="w-full split-input-group">
                             <Select
                                 value={formData.currency}
                                 onChange={(v) => setFormData({ ...formData, currency: v })}
@@ -486,11 +486,11 @@ function RequirementsFormContent({
                             <Input
                                 type="number"
                                 placeholder="0.00"
-                                className="h-11 border border-[#EEEEEE]"
+                                className="h-11"
                                 value={formData.quoted_price}
                                 onChange={(e) => setFormData({ ...formData, quoted_price: e.target.value })}
                             />
-                        </Space.Compact>
+                        </div>
                     </div>
                 )}
             </div>

@@ -748,7 +748,7 @@ export function ProfilePage() {
                                             Phone Number
                                         </div>
                                         <div className="flex">
-                                            <Space.Compact className={`w-full employee-form-phone ${!isEditing ? 'bg-[#FAFAFA]' : 'bg-white'}`}>
+                                            <div className={`w-full split-input-group ${!isEditing ? 'bg-[#FAFAFA]' : 'bg-white'}`}>
                                                 <Select
                                                     value={profile.countryCode}
                                                     onChange={(v) =>
@@ -756,7 +756,7 @@ export function ProfilePage() {
                                                     }
                                                     disabled={!isEditing}
                                                     className="w-[85px] h-11"
-                                                    suffixIcon={<div className="text-gray-400">⌄</div>}
+                                                    suffixIcon={<svg className="w-3 h-3 text-[#999999]" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 4.5L6 7.5L9 4.5"/></svg>}
                                                 >
                                                     {countryCodes.map((c) => (
                                                         <Option key={c.code} value={c.code}>{c.code} {c.country}</Option>
@@ -772,7 +772,7 @@ export function ProfilePage() {
                                                     disabled={!isEditing}
                                                     className="flex-1 h-11 font-medium text-xs"
                                                 />
-                                            </Space.Compact>
+                                            </div>
                                         </div>
                                     </div>
                                     {renderField("DOB", profile.dob, "dob", "date")}
@@ -1206,46 +1206,7 @@ export function ProfilePage() {
                 onCancel={() => setUpgradeModalVisible(false)}
                 currentUser={user || null}
             />
-            <style jsx global>{`
-                :global(.employee-form-phone .ant-select-selector) {
-                    background-color: transparent !important;
-                    border: 1px solid #EEEEEE !important;
-                    border-right: 0 !important;
-                    border-radius: 8px 0 0 8px !important;
-                    height: 44px !important;
-                    display: flex !important;
-                    align-items: center !important;
-                    box-shadow: none !important;
-                    font-weight: 500 !important;
-                }
-
-                :global(.employee-form-phone .ant-input) {
-                    border: 1px solid #EEEEEE !important;
-                    border-left: 0 !important;
-                    border-radius: 0 8px 8px 0 !important;
-                }
-
-                :global(.employee-form-phone:focus-within .ant-select-selector),
-                :global(.employee-form-phone:focus-within .ant-input) {
-                    border-color: #ff3b3b !important;
-                }
-
-                :global(.employee-form-phone) {
-                    display: flex !important;
-                    border-radius: 8px !important;
-                    overflow: hidden !important;
-                }
-
-                :global(.employee-form-phone.bg-white .ant-select-selector),
-                :global(.employee-form-phone.bg-white .ant-input) {
-                    background-color: white !important;
-                }
-
-                :global(.employee-form-phone.bg-gray-50) :global(.ant-select-selector),
-                :global(.employee-form-phone.bg-gray-50) :global(.ant-input) {
-                    background-color: #FAFAFA !important;
-                }
-            `}</style>
+            {/* Split input groups now use unified .split-input-group from globals.css */}
         </PageLayout>
     );
 }

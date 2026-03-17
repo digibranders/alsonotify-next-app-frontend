@@ -13,6 +13,10 @@ const nextConfig = {
             },
             {
                 protocol: 'https',
+                hostname: 's3.amazonaws.com',
+            },
+            {
+                protocol: 'https',
                 hostname: '*.s3.amazonaws.com',
             },
             {
@@ -97,11 +101,11 @@ const nextConfig = {
                         value: [
                             "default-src 'self'",
                             // unsafe-inline required for Next.js inline scripts/styles; replace with nonce-based CSP as next step
-                            "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com",
+                            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com",
                             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-                            "img-src 'self' data: blob: https://s3.amazonaws.com https://*.s3.amazonaws.com https://*.s3.*.amazonaws.com",
+                            "img-src 'self' data: blob: https:",
                             "font-src 'self' data: https://fonts.gstatic.com",
-                            `connect-src 'self' ${new URL(process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000').origin} https://*.sentry.io https://challenges.cloudflare.com ws: wss:`,
+                            `connect-src 'self' ${new URL(process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000').origin} https://*.sentry.io https://challenges.cloudflare.com https://static.cloudflareinsights.com ws: wss:`,
                             "frame-src 'self' https://challenges.cloudflare.com",
                             "object-src 'none'",
                             "base-uri 'self'",

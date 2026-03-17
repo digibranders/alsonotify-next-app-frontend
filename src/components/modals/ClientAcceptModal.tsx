@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { Modal, Select, Card, App } from 'antd';
-import { ChevronDown } from 'lucide-react';
 import { WorkspaceForm } from './WorkspaceForm';
 
 const { Option } = Select;
@@ -142,7 +141,7 @@ export function ClientAcceptModal({
                 }
               }}
               disabled={loading || isConfirming}
-              suffixIcon={<ChevronDown className="w-4 h-4 text-gray-400" />}
+              suffixIcon={<svg className="w-3 h-3 text-[#999999]" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 4.5L6 7.5L9 4.5"/></svg>}
             >
               <Option
                 key="create_new"

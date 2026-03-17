@@ -182,6 +182,29 @@ export const forwardMail = async (id: string, payload: ForwardPayload) => {
 };
 
 /* -------------------------------------------
+   Drafts
+-------------------------------------------- */
+
+export type SaveDraftPayload = {
+  to?: string[];
+  cc?: string[];
+  bcc?: string[];
+  subject?: string;
+  body?: string;
+  bodyType?: "HTML" | "Text";
+};
+
+export const saveDraft = async (payload: SaveDraftPayload): Promise<ApiResponse<{ id: string }>> => {
+  const { data } = await axiosApi.post<ApiResponse<{ id: string }>>("/mail/draft", payload);
+  return data;
+};
+
+export const updateDraft = async (id: string, payload: SaveDraftPayload): Promise<ApiResponse<{ id: string }>> => {
+  const { data } = await axiosApi.patch<ApiResponse<{ id: string }>>("/mail/draft", payload, { params: { id } });
+  return data;
+};
+
+/* -------------------------------------------
    Patch / Delete
 -------------------------------------------- */
 

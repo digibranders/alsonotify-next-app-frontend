@@ -46,7 +46,8 @@ export const useTasks = (options: string = "") => {
     select: (data) => ({
       ...data,
       result: data.result ? data.result.map(mapTaskDtoToDomain) : []
-    })
+    }),
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -110,9 +111,8 @@ export const useUpdateTaskStatus = () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.tasks.listRoot() });
       queryClient.invalidateQueries({ queryKey: queryKeys.tasks.assigned() });
       queryClient.invalidateQueries({ queryKey: queryKeys.tasks.detail(variables.id) });
-      // Invalidate requirement queries — use exact: false to match all variants
-      // but only invalidate the requirement list, not every workspace-scoped query
-      queryClient.invalidateQueries({ queryKey: queryKeys.requirements.all() });
+      // Invalidate requirement queries (use allRoot to match any filter/pagination variant)
+      queryClient.invalidateQueries({ queryKey: queryKeys.requirements.allRoot() });
     },
   });
 };

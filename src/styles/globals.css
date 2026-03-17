@@ -754,22 +754,121 @@ select:disabled,
     }
 }
 
-/* Custom Phone Number Input Styling */
-.phone-code-select .ant-select-selector {
-    background-color: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    height: 100% !important;
-    padding: 0 0 0 8px !important;
-    display: flex;
-    align-items: center;
+/* ── Split Input Group (currency + input, phone code + input) ── */
+/* Outer border on the container; children are borderless inside */
+.split-input-group {
+    display: flex !important;
+    align-items: stretch !important;
+    height: 44px !important;
+    border: 1px solid #EEEEEE !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+    background-color: white;
+    transition: border-color 0.2s;
 }
 
-.phone-code-select .ant-select-selection-item {
+.split-input-group:focus-within {
+    border-color: #111111 !important;
+}
+
+/* Strip all borders from the Select — container owns the outer border.
+   Target both v5 class names (ant-select-selector / ant-select-content). */
+/* Select: fill height, strip borders, add right separator */
+.split-input-group .ant-select {
+    height: 100% !important;
+    min-height: 0 !important;
+    border: none !important;
+    border-right: 1px solid #EEEEEE !important;
+    box-shadow: none !important;
+    line-height: 1 !important;
+}
+
+.split-input-group .ant-select.ant-select-outlined,
+.split-input-group .ant-select.ant-select-borderless {
+    height: 100% !important;
+    border: none !important;
+    border-right: 1px solid #EEEEEE !important;
+    box-shadow: none !important;
+}
+
+.split-input-group .ant-select-selector,
+.split-input-group .ant-select-content {
+    background-color: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    box-shadow: none !important;
+    font-weight: 500 !important;
+    padding: 0 12px !important;
+}
+
+/* Input: fill height, strip borders */
+/* Also handle ant-input-affix-wrapper (created when prefix/suffix props are used) */
+.split-input-group .ant-input,
+.split-input-group .ant-input-outlined,
+.split-input-group .ant-input-affix-wrapper,
+.split-input-group .ant-input-affix-wrapper-outlined {
+    border: none !important;
+    border-radius: 0 !important;
+    height: 100% !important;
+    box-shadow: none !important;
+    background-color: transparent !important;
+}
+
+.split-input-group .ant-input-affix-wrapper .ant-input {
+    height: 100% !important;
+}
+
+.split-input-group .ant-input:focus,
+.split-input-group .ant-input:hover,
+.split-input-group .ant-input-focused,
+.split-input-group .ant-input-affix-wrapper:focus,
+.split-input-group .ant-input-affix-wrapper:hover,
+.split-input-group .ant-input-affix-wrapper-focused {
+    box-shadow: none !important;
+    border: none !important;
+}
+
+/* Background state variants */
+.split-input-group.bg-white {
+    background-color: white !important;
+}
+
+.split-input-group.bg-gray-50,
+.split-input-group.bg-\[\#FAFAFA\] {
+    background-color: #F9FAFB !important;
+}
+
+.split-input-group:focus-within.bg-gray-50,
+.split-input-group:focus-within.bg-\[\#FAFAFA\] {
+    background-color: white !important;
+}
+
+/* Phone code / currency select label styling */
+.split-input-group .ant-select-selection-item,
+.split-input-group .ant-select-content {
     font-weight: 600;
     color: #666;
     display: flex;
     align-items: center;
+}
+
+/* ── Smaller chevron for all Ant Design Select dropdowns ── */
+.ant-select-arrow {
+    font-size: 11px !important;
+    width: 14px !important;
+    height: 14px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: #999999 !important;
+}
+
+.ant-select-arrow .anticon {
+    font-size: 11px !important;
 }
 
 /* Atomic Mentions Styling */

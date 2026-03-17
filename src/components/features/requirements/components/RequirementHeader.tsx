@@ -128,6 +128,7 @@ export function RequirementHeader({
         await updateRequirement({
           id: requirement.id,
           status: getNextStatus(action.apiAction),
+          workspace_id: requirement.workspace_id,
         });
         message.success(`Action "${action.label}" completed successfully`);
       } catch (error: unknown) {
@@ -202,7 +203,8 @@ export function RequirementHeader({
       await updateRequirement({
         id: requirement.id,
         status: 'Rejected',
-        rejection_reason: reason
+        rejection_reason: reason,
+        workspace_id: requirement.workspace_id,
       });
       message.success("Requirement rejected successfully");
     } catch (error: unknown) {
@@ -210,7 +212,7 @@ export function RequirementHeader({
       message.error(errorMessage || "Failed to reject requirement");
       throw error;
     }
-  }, [requirement.id, updateRequirement, message]);
+  }, [requirement.id, requirement.workspace_id, updateRequirement, message]);
 
   // Determine if Submit for Approval button should be disabled
   const isSubmitApprovalAction = ctaConfig?.primaryAction?.modal === 'submit_approval';

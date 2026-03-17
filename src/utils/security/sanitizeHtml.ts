@@ -106,13 +106,46 @@ export function sanitizeRichTextForEditor(html: string): string {
 export function sanitizeEmailHtml(html: string, allowImages: boolean): string {
   if (!html) return "";
 
-  const dangerousTags = ['script', 'style', 'iframe', 'object', 'embed', 'form', 'input', 'textarea', 'button'];
+  const dangerousTags = ['script', 'iframe', 'object', 'embed', 'form', 'input', 'textarea', 'button'];
   const dangerousAttrs = ['on*', 'form*', 'action', 'formaction'];
 
-  return getSanitizer().sanitize(html, {
+  const sanitizer = getSanitizer();
+
+  // Allow <style> tags for email layout (Outlook/marketing emails depend on them)
+  // but strip dangerous JS expressions from CSS
+  let sanitized = sanitizer.sanitize(html, {
     USE_PROFILES: { html: true },
     FORBID_TAGS: allowImages ? dangerousTags : ["img", "picture", "source", ...dangerousTags],
     FORBID_ATTR: allowImages ? dangerousAttrs : ["srcset", ...dangerousAttrs],
     ADD_ATTR: ['target', 'rel'],
+    // Allow style tags for proper email rendering
+    ADD_TAGS: ['style'],
   });
+
+  // When images are blocked, strip background-image URLs from inline styles
+  if (!allowImages) {
+    sanitized = sanitized.replace(/background(-image)?\s*:\s*url\s*\([^)]*\)\s*;?/gi, '');
+  }
+
+  // Scope <style> blocks under .mail-html to prevent CSS leaking into the app
+  sanitized = sanitized.replace(/<style([^>]*)>([\s\S]*?)<\/style>/gi, (_match: string, attrs: string, css: string) => {
+    // Remove @import to prevent loading external stylesheets
+    let scoped = css.replace(/@import\s+[^;]+;/gi, '');
+    // Prefix each CSS rule with .mail-html
+    scoped = scoped.replace(
+      /([^\s@{}][^{}]*?)\{/g,
+      (ruleMatch: string, selector: string) => {
+        // Don't scope @media, @font-face, etc.
+        if (selector.trim().startsWith('@')) return ruleMatch;
+        const scopedSelectors = selector
+          .split(',')
+          .map((s: string) => `.mail-html ${s.trim()}`)
+          .join(', ');
+        return `${scopedSelectors} {`;
+      }
+    );
+    return `<style${attrs}>${scoped}</style>`;
+  });
+
+  return sanitized;
 }

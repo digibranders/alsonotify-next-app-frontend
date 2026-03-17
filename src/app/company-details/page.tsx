@@ -442,7 +442,7 @@ function CompanyDetailsForm() {
                         }
                         placeholder="Select Industry"
                         className="w-full h-12 company-details-select"
-                        suffixIcon={<div className="text-gray-400">⌄</div>}
+                        suffixIcon={<svg className="w-3 h-3 text-[#999999]" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 4.5L6 7.5L9 4.5"/></svg>}
                       >
                         {Object.keys(industryToBusinessType).map((industry) => (
                           <Option key={industry} value={industry}>
@@ -466,7 +466,7 @@ function CompanyDetailsForm() {
                         }
                         placeholder="Select Size"
                         className="w-full h-12 company-details-select"
-                        suffixIcon={<div className="text-gray-400">⌄</div>}
+                        suffixIcon={<svg className="w-3 h-3 text-[#999999]" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 4.5L6 7.5L9 4.5"/></svg>}
                       >
                         <Option value="1-10">1-10 Employees</Option>
                         <Option value="11-50">11-50 Employees</Option>
@@ -494,7 +494,7 @@ function CompanyDetailsForm() {
                       }
                       placeholder="Select Country"
                       className="w-full h-12 company-details-select"
-                      suffixIcon={<div className="text-gray-400">⌄</div>}
+                      suffixIcon={<svg className="w-3 h-3 text-[#999999]" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 4.5L6 7.5L9 4.5"/></svg>}
                     >
                       {commonCountries.map((country) => (
                         <Option key={country.code} value={country.name}>
@@ -518,7 +518,7 @@ function CompanyDetailsForm() {
                       }
                       placeholder="Select Timezone"
                       className="w-full h-12 company-details-select"
-                      suffixIcon={<div className="text-gray-400">⌄</div>}
+                      suffixIcon={<svg className="w-3 h-3 text-[#999999]" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 4.5L6 7.5L9 4.5"/></svg>}
                     >
                       {commonTimezones.map((tz) => (
                         <Option key={tz} value={tz}>
@@ -685,9 +685,6 @@ function CompanyDetailsForm() {
         }
         .company-details-select:hover .ant-select-selector {
           background-color: white !important;
-        }
-        .company-details-select .ant-select-arrow {
-          display: none !important;
         }
 
         :global(.company-details-phone .ant-select-selector) {

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, useRef } from "react";
+import React, { createContext, useContext, useEffect, useState, useRef, useMemo, useCallback } from "react";
 import { getCurrentActiveTimer } from "../services/task";
 import { startWorkLog, updateWorklog } from "../services/task";
 
@@ -45,6 +45,10 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
 
     // Pending stop when user stops before start returns (worklogId === -1)
     const pendingStopRef = useRef<{ taskId: number; startTime: Date; description?: string; session_status?: string } | null>(null);
+
+    // Ref to access latest timerState from stable callbacks without re-creating them
+    const timerStateRef = useRef(timerState);
+    timerStateRef.current = timerState;
 
     // Core Sync Logic - Stable Reference
     // This function is the "Single Source of Truth" enforcer.
@@ -191,7 +195,8 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
         };
     }, [timerState.isRunning, timerState.startTime]);
 
-    const startTimer = async (taskId: number, taskName: string, projectName: string) => {
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const startTimer = useCallback(async (taskId: number, taskName: string, projectName: string) => {
         // Optimistic Update
         const now = new Date();
         // Temporary ID until server responds, or we just trust the flow. 
@@ -260,14 +265,14 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
             });
             throw err;
         }
-    };
+    }, []);
 
-    const stopTimer = async (description?: string, session_status?: string) => {
-        if (timerState.worklogId === null) return;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const stopTimer = useCallback(async (description?: string, session_status?: string) => {
+        const { worklogId, taskId: currentTaskId, startTime: currentStart } = timerStateRef.current;
+        if (worklogId === null) return;
 
-        const currentId = timerState.worklogId;
-        const currentTaskId = timerState.taskId;
-        const currentStart = timerState.startTime;
+        const currentId = worklogId;
 
         // Optimistic Stop
         setTimerState({
@@ -301,10 +306,17 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
             console.error("Failed to stop timer", err);
             syncTimer(true);
         }
-    };
+    }, []);
+
+    const contextValue = useMemo(() => ({
+        timerState,
+        startTimer,
+        stopTimer,
+        isLoading,
+    }), [timerState, startTimer, stopTimer, isLoading]);
 
     return (
-        <TimerContext.Provider value={{ timerState, startTimer, stopTimer, isLoading }}>
+        <TimerContext.Provider value={contextValue}>
             {children}
         </TimerContext.Provider>
     );

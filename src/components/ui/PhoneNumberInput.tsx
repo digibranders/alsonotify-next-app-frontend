@@ -1,4 +1,4 @@
-import { Select, Input, Space } from "antd";
+import { Select, Input } from "antd";
 import { commonCountries } from "@/data/defaultData";
 import { useState } from "react";
 
@@ -29,7 +29,7 @@ export default function PhoneNumberInput({
   // Update state during render if value prop changes
   if (value !== prevValue) {
     setPrevValue(value);
-    
+
     const matchingCountry = commonCountries.find((c) =>
       value && value.startsWith(c.phoneCode + " ")
     );
@@ -55,19 +55,19 @@ export default function PhoneNumberInput({
   };
 
   return (
-    <Space.Compact className={`w-full ${className}`}>
+    <div className={`w-full split-input-group ${className}`}>
       <Select
         value={countryCode}
         onChange={handleCountryCodeChange}
         disabled={disabled}
-        className="phone-code-select min-w-[85px] h-11"
+        className="min-w-[85px] h-11"
         popupMatchSelectWidth={300}
         optionLabelProp="label"
-        suffixIcon={<div className="text-gray-400">⌄</div>}
+        suffixIcon={<svg className="w-3 h-3 text-[#999999]" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 4.5L6 7.5L9 4.5"/></svg>}
       >
         {commonCountries.map((country) => (
-          <Option 
-            key={country.code} 
+          <Option
+            key={country.code}
             value={country.phoneCode}
             label={country.phoneCode}
           >
@@ -85,8 +85,8 @@ export default function PhoneNumberInput({
         placeholder={placeholder}
         maxLength={15}
         disabled={disabled}
-        className="h-11 phone-number-input flex-1"
+        className="h-11 flex-1"
       />
-    </Space.Compact>
+    </div>
   );
 }

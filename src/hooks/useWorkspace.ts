@@ -157,6 +157,7 @@ export const useAllRequirements = (options: string = "") => {
     select: selectRequirements,
     staleTime: 2 * 60 * 1000, // 2 minutes (was 30s — too aggressive for list data)
     refetchInterval: 2 * 60 * 1000,
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -179,8 +180,9 @@ export const useCreateRequirement = () => {
         queryClient.invalidateQueries({ queryKey: queryKeys.requirements.byWorkspace(variables.workspace_id) });
         queryClient.invalidateQueries({ queryKey: queryKeys.workspaces.detail(variables.workspace_id) });
       }
-      // Invalidate all requirements queries
-      queryClient.invalidateQueries({ queryKey: queryKeys.requirements.all() });
+      // Invalidate all requirements queries (use allRoot to match any filter/pagination variant)
+      queryClient.invalidateQueries({ queryKey: queryKeys.requirements.allRoot() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.requirements.dropdownRoot() });
     },
   });
 };
@@ -195,11 +197,13 @@ export const useUpdateRequirement = () => {
         queryClient.invalidateQueries({ queryKey: queryKeys.requirements.byWorkspace(variables.workspace_id) });
         queryClient.invalidateQueries({ queryKey: queryKeys.workspaces.detail(variables.workspace_id) });
       }
-      // Invalidate all requirements queries (both list and workspace-scoped)
-      queryClient.invalidateQueries({ queryKey: queryKeys.requirements.all() });
+      // Invalidate all requirements queries (use allRoot to match any filter/pagination variant)
+      queryClient.invalidateQueries({ queryKey: queryKeys.requirements.allRoot() });
       // Also invalidate all workspace-scoped requirement queries to ensure UI refresh
       queryClient.invalidateQueries({ queryKey: ['requirements', 'workspace'] });
       queryClient.invalidateQueries({ queryKey: queryKeys.requirements.collaborative() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.requirements.dropdownRoot() });
+      queryClient.invalidateQueries({ queryKey: ['requirements', 'activities'] });
     },
   });
 };
@@ -213,8 +217,9 @@ export const useDeleteRequirement = () => {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.requirements.byWorkspace(variables.workspace_id) });
       queryClient.invalidateQueries({ queryKey: queryKeys.workspaces.detail(variables.workspace_id) });
-      // Invalidate all requirements queries
-      queryClient.invalidateQueries({ queryKey: queryKeys.requirements.all() });
+      // Invalidate all requirements queries (use allRoot to match any filter/pagination variant)
+      queryClient.invalidateQueries({ queryKey: queryKeys.requirements.allRoot() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.requirements.dropdownRoot() });
     },
   });
 };
@@ -225,10 +230,11 @@ export const useApproveRequirement = () => {
   return useMutation({
     mutationFn: (params: ApproveRequirementRequestDto) => approveRequirement(params),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.requirements.all() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.requirements.allRoot() });
       // Invalidate all workspace-scoped requirement queries to ensure UI refresh
       queryClient.invalidateQueries({ queryKey: ['requirements', 'workspace'] });
       queryClient.invalidateQueries({ queryKey: queryKeys.requirements.collaborative() });
+      queryClient.invalidateQueries({ queryKey: ['requirements', 'activities'] });
     },
   });
 };
@@ -239,7 +245,7 @@ export const useSubmitForReview = () => {
     mutationFn: ({ requirementId, body }: { requirementId: number; body?: SubmitForReviewRequestDto }) =>
       submitRequirementForReview(requirementId, body ?? {}),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.requirements.all() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.requirements.allRoot() });
       // Invalidate all workspace-scoped requirement queries to ensure UI refresh
       queryClient.invalidateQueries({ queryKey: ['requirements', 'workspace'] });
       queryClient.invalidateQueries({ queryKey: queryKeys.requirements.collaborative() });
