@@ -174,8 +174,8 @@ export const useAllRequirements = (options: string = "") => {
     queryKey: queryKeys.requirements.all(options),
     queryFn: () => getAllRequirements(options),
     select: selectRequirements,
-    staleTime: 30_000,
-    refetchInterval: 30_000,
+    staleTime: 2 * 60 * 1000, // 2 minutes (was 30s — too aggressive for list data)
+    refetchInterval: 2 * 60 * 1000,
   });
 };
 
@@ -183,8 +183,8 @@ export const useCollaborativeRequirements = () => {
   return useQuery({
     queryKey: queryKeys.requirements.collaborative(),
     queryFn: () => getCollaborativeRequirements(),
-    staleTime: 30_000,
-    refetchInterval: 30_000,
+    staleTime: 2 * 60 * 1000,
+    refetchInterval: 2 * 60 * 1000,
   });
 };
 

@@ -1,7 +1,7 @@
 
 import { ArrowRight } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Label } from 'recharts';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, memo } from 'react';
 import { useQueries } from '@tanstack/react-query';
 import dayjs, { Dayjs } from 'dayjs';
 import isoWeek from 'dayjs/plugin/isoWeek';
@@ -412,7 +412,7 @@ interface HoursBarProps {
   onClick?: () => void;
 }
 
-function HoursBar({ data, onClick }: HoursBarProps) {
+const HoursBar = memo(function HoursBar({ data, onClick }: HoursBarProps) {
   const isOverCapacity = data.allotted > data.total && data.total > 0;
 
   return (
@@ -474,7 +474,7 @@ function HoursBar({ data, onClick }: HoursBarProps) {
       </div>
     </div>
   );
-}
+});
 
 interface ProgressCardProps {
   title: string;
@@ -491,7 +491,7 @@ interface ProgressCardProps {
   onStatusClick?: (status: string) => void;
 }
 
-function ProgressCard({ title, data, isLoading = false, dateRangeLabel = 'this period', onClick, onStatusClick }: ProgressCardProps) {
+const ProgressCard = memo(function ProgressCard({ title, data, isLoading = false, dateRangeLabel = 'this period', onClick, onStatusClick }: ProgressCardProps) {
   const chartData = [
     { name: 'Completed', value: data.completed, color: '#0F9D58' },   // Green - matches reference
     { name: 'In Progress', value: data.inProgress, color: '#2F80ED' }, // Blue - matches reference
@@ -693,4 +693,4 @@ function ProgressCard({ title, data, isLoading = false, dateRangeLabel = 'this p
       </div>
     </div>
   );
-}
+});

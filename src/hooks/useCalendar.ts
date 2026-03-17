@@ -8,8 +8,8 @@ export const useTeamsConnectionStatus = () => {
     queryKey: queryKeys.calendar.teamsConnection(),
     queryFn: () => getTeamsConnectionStatus(),
     refetchOnWindowFocus: true,
-    refetchInterval: 30000, // Refetch every 30 seconds to check connection status
-    staleTime: 30_000,
+    refetchInterval: 2 * 60 * 1000, // Check every 2 minutes (was 30s — too aggressive)
+    staleTime: 2 * 60 * 1000,
   });
 };
 
@@ -21,8 +21,9 @@ export const useCalendarEvents = (startISO?: string, endISO?: string) => {
     queryKey: queryKeys.calendar.events(start, end),
     queryFn: () => getCalendarEvents(start, end),
     enabled: !!start && !!end,
-    staleTime: 0, // Always consider data stale to allow refetching
-    refetchOnWindowFocus: true, // Refetch when window regains focus
+    staleTime: 60_000, // Consider fresh for 1 minute (was 0 — caused refetch on every tab focus)
+    refetchInterval: 2 * 60 * 1000, // Auto-refresh every 2 minutes
+    refetchOnWindowFocus: true,
   });
 };
 
