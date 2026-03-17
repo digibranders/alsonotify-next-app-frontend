@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, Suspense } from "react";
+import { useState, useRef, Suspense } from "react";
+import type { TurnstileInstance } from "@marsidev/react-turnstile";
 import { useSearchParams } from "next/navigation";
 import { App } from "antd";
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Loader2 } from "lucide-react";
@@ -24,6 +25,8 @@ function LoginForm() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [turnstileRetries, setTurnstileRetries] = useState(0);
+  const turnstileRef = useRef<TurnstileInstance>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,6 +51,9 @@ function LoginForm() {
             const errorMessage = errorData?.response?.data?.message || "Login failed. Please check your credentials and try again.";
             message.error(errorMessage);
           }
+          // Reset Turnstile to get a fresh token — tokens are single-use and consumed by the backend
+          turnstileRef.current?.reset();
+          setTurnstileToken(null);
         },
       }
     );
@@ -133,21 +139,41 @@ function LoginForm() {
 
           <div className="pt-2">
             <Turnstile
+              ref={turnstileRef}
               siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY as string}
-              onSuccess={(token: string) => setTurnstileToken(token)}
+              onSuccess={(token: string) => {
+                setTurnstileToken(token);
+                setTurnstileRetries(0);
+              }}
               onError={() => {
                 setTurnstileToken(null);
-                message.error("Security verification failed. Please check your internet connection and refresh the page.");
+                setTurnstileRetries(prev => prev + 1);
+                message.error("Security verification failed. Retrying automatically...");
+                setTimeout(() => turnstileRef.current?.reset(), 2000);
               }}
               onExpire={() => {
                 setTurnstileToken(null);
-                message.warning("Security verification expired. Please complete it again.");
+                turnstileRef.current?.reset();
               }}
               options={{
                 theme: 'light',
                 size: 'normal',
+                retry: 'auto',
+                retryInterval: 3000,
               }}
             />
+            {turnstileRetries >= 3 && !turnstileToken && (
+              <p className="text-xs text-[#999999] mt-2">
+                Verification unavailable.{" "}
+                <button
+                  type="button"
+                  onClick={() => { setTurnstileRetries(0); turnstileRef.current?.reset(); }}
+                  className="text-[#ff3b3b] font-semibold underline"
+                >
+                  Try again
+                </button>
+              </p>
+            )}
           </div>
 
           <motion.div variants={itemVariants} className="pt-2">
