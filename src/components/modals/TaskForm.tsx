@@ -362,9 +362,11 @@ export function TaskForm({
             disabled={disabledFields.workspace}
             suffixIcon={<Building2 className="w-4 h-4 text-[#999999]" />}
             showSearch
+            autoClearSearchValue
             filterOption={(input, option) =>
               String(option?.label ?? '').toLowerCase().includes(input.toLowerCase())
             }
+            optionLabelProp="label"
           >
             {workspaces.length > 0 ? (
               workspaces.map((ws) => (
@@ -461,6 +463,8 @@ export function TaskForm({
             suffixIcon={null}
             styles={{ popup: { root: { borderRadius: '8px', padding: '8px' } } }}
             showSearch
+            autoClearSearchValue
+            optionLabelProp="label"
             filterOption={(input, option) => {
               const label = String(option?.label ?? '').toLowerCase();
               return label.includes(input.toLowerCase());
