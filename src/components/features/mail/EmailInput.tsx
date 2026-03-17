@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Select, Avatar, Typography } from 'antd';
+import { Select, Typography } from 'antd';
 import type { SelectProps } from 'antd';
 
 const { Text } = Typography;
@@ -22,19 +22,18 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export function EmailInput({ value, onChange, options, ...props }: Readonly<EmailInputProps>) {
   const [searchValue, setSearchValue] = useState('');
 
-  // Merge known options with current values (in case some values are not not in options)
-  // This ensures we can display them correctly if we have data
-
   const isValidEmail = (email: string) => EMAIL_REGEX.test(email);
 
-  // Custom Tag Render
-  const tagRender: SelectProps['tagRender'] = (props) => {
-    const { value, closable, onClose } = props;
-    const email = (value as string) || '';
-    
-    // Find associated info if available
+  // Filter out already-selected options from dropdown to prevent double checkmarks
+  const filteredOptions = options.filter(o => !value.includes(o.email));
+
+  // Compact tag render — single line, name only (or email if no name)
+  const tagRender: SelectProps['tagRender'] = (tagProps) => {
+    const { value: tagValue, closable, onClose } = tagProps;
+    const email = (tagValue as string) || '';
+
     const option = options.find(o => o.value === email);
-    const name = option?.name || (email && email.includes('@') ? email.split('@')[0] : email) || 'Unknown';
+    const displayName = option?.name || (email.includes('@') ? email.split('@')[0] : email) || email;
     const isEmailValid = isValidEmail(email);
 
     if (!email) return <></>;
@@ -45,31 +44,22 @@ export function EmailInput({ value, onChange, options, ...props }: Readonly<Emai
           e.preventDefault();
           e.stopPropagation();
         }}
-        className={`inline-flex items-center gap-1.5 px-1 pr-2 py-0.5 rounded-full mr-1.5 mb-1 border ${
-            isEmailValid ? 'bg-white border-[#d9d9d9]' : 'bg-red-50 border-red-200'
+        className={`inline-flex items-center gap-1 pl-2 pr-1 py-0.5 rounded-md mr-1 mb-0.5 text-2xs leading-tight ${
+          isEmailValid
+            ? 'bg-[#F3F4F6] text-[#374151] border border-[#E5E7EB]'
+            : 'bg-red-50 text-red-600 border border-red-200'
         }`}
       >
-        <Avatar 
-            size={20} 
-            className="text-2xs bg-blue-100 text-blue-600"
-        >
-            {name?.[0]?.toUpperCase() || '?'}
-        </Avatar>
-        <div className="flex flex-col leading-none py-0.5">
-           <Text className={`text-xs ${isEmailValid ? 'text-[#333]' : 'text-red-500'}`}>
-             {option?.name ? option.name : email}
-           </Text>
-           {option?.name && (
-             <Text className="text-xs text-[#888]">{email}</Text>
-           )}
-        </div>
+        <span className="truncate max-w-[160px]">
+          {displayName}
+        </span>
         {closable && (
-          <span
+          <button
             onClick={onClose}
-            className="ml-0.5 cursor-pointer text-gray-400 hover:text-gray-600 text-sm leading-none"
+            className="ml-0.5 p-0.5 rounded hover:bg-black/5 text-[#9CA3AF] hover:text-[#374151] transition-colors leading-none"
           >
             ×
-          </span>
+          </button>
         )}
       </span>
     );
@@ -82,18 +72,34 @@ export function EmailInput({ value, onChange, options, ...props }: Readonly<Emai
       onChange={onChange}
       onSearch={setSearchValue}
       tagRender={tagRender}
-      className="email-input py-0.5"
+      className="email-input"
       variant="borderless"
       placeholder={props.placeholder}
       suffixIcon={null}
+      menuItemSelectedIcon={null}
       tokenSeparators={[',', ' ', ';']}
       notFoundContent={null}
-      options={options.map(o => ({
+      popupClassName="email-input-dropdown"
+      options={filteredOptions.map(o => ({
         label: (
-            <div className="flex flex-col py-1">
-                <Text strong className="text-xs">{o.name}</Text>
-                <Text type="secondary" className="text-xs">{o.email}</Text>
+          <div className="flex items-center gap-2 py-0.5">
+            <div
+              className="w-6 h-6 rounded-full flex items-center justify-center text-white text-2xs font-semibold shrink-0"
+              style={{ backgroundColor: getOptionColor(o.name || o.email) }}
+            >
+              {(o.name || o.email)[0]?.toUpperCase() || '?'}
             </div>
+            <div className="min-w-0">
+              {o.name && (
+                <div className="text-xs font-medium text-[#111111] truncate leading-tight">
+                  {o.name}
+                </div>
+              )}
+              <div className="text-2xs text-[#999999] truncate leading-tight">
+                {o.email}
+              </div>
+            </div>
+          </div>
         ),
         value: o.email
       }))}
@@ -101,4 +107,17 @@ export function EmailInput({ value, onChange, options, ...props }: Readonly<Emai
       {...props}
     />
   );
+}
+
+// Deterministic color for dropdown avatars
+const OPTION_COLORS = [
+  '#4F46E5', '#0891B2', '#059669', '#D97706',
+  '#DC2626', '#7C3AED', '#DB2777', '#2563EB',
+];
+
+function getOptionColor(name: string): string {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++)
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  return OPTION_COLORS[Math.abs(hash) % OPTION_COLORS.length];
 }
