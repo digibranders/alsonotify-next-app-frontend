@@ -362,7 +362,6 @@ function EmployeeFormContent({
       value={resolvedFormData.currency}
       onChange={(val) => setFormData({ ...formData, currency: val })}
       className="currency-select-addon"
-      variant="borderless"
       popupMatchSelectWidth={false}
       style={{ width: 80 }}
     >
@@ -421,7 +420,7 @@ function EmployeeFormContent({
               const num = parts.slice(1).join(' ');
               setFormData({ ...formData, countryCode: code, phone: num });
             }}
-            className={`employee-form-phone ${resolvedFormData.phone ? 'bg-white' : 'bg-gray-50'}`}
+            className={resolvedFormData.phone ? 'bg-white' : 'bg-gray-50'}
           />
         </div>
 
@@ -437,7 +436,7 @@ function EmployeeFormContent({
               const role = fetchedRoles.find((r: Role) => r.name === v);
               setFormData({ ...formData, access: v as string, role_id: role?.id });
             }}
-            suffixIcon={<div className="text-gray-400">⌄</div>}
+            suffixIcon={<svg className="w-3 h-3 text-[#999999]" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 4.5L6 7.5L9 4.5"/></svg>}
           >
             {fetchedRoles.map((role: Role) => {
               const config = getAccessLevelConfig(role.name);
@@ -460,7 +459,7 @@ function EmployeeFormContent({
             placeholder="Select type"
             value={resolvedFormData.employment_type}
             onChange={(v) => setFormData({ ...formData, employment_type: v as EmployeeFormData["employment_type"] })}
-            suffixIcon={<div className="text-gray-400">⌄</div>}
+            suffixIcon={<svg className="w-3 h-3 text-[#999999]" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 4.5L6 7.5L9 4.5"/></svg>}
           >
             <Option value="Full-time">Full Time</Option>
             <Option value="Part-time">Part Time</Option>
@@ -486,7 +485,7 @@ function EmployeeFormContent({
             placeholder="Select department"
             value={resolvedFormData.department || undefined}
             onChange={(v) => setFormData({ ...formData, department: String(v) })}
-            suffixIcon={<div className="text-gray-400">⌄</div>}
+            suffixIcon={<svg className="w-3 h-3 text-[#999999]" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 4.5L6 7.5L9 4.5"/></svg>}
           >
             {departments.length > 0 ? (
               departments.map((dept) => (
@@ -522,7 +521,7 @@ function EmployeeFormContent({
 
         <div className="col-span-6 space-y-1">
           <span className="text-xs font-bold text-[#111111]">Salary (CTC) <span className="text-[#666666] font-medium text-xs ml-1">(Annual)</span></span>
-          <Space.Compact className="w-full employee-form-salary">
+          <div className="w-full split-input-group">
             {CurrencySelector}
             <Input
               type="number"
@@ -532,7 +531,7 @@ function EmployeeFormContent({
               onChange={(e) => setFormData({ ...formData, salary: e.target.value })}
               prefix={<span className="text-gray-400 mr-1">{currencySymbol}</span>}
             />
-          </Space.Compact>
+          </div>
         </div>
         <div className="col-span-6 space-y-1">
           <span className="text-xs font-bold text-[#111111]">Total Leaves</span>
@@ -554,7 +553,7 @@ function EmployeeFormContent({
               className={`w-full h-11 employee-form-datepicker ${resolvedFormData.workingHoursStart ? 'employee-form-datepicker-filled' : ''}`}
               value={resolvedFormData.workingHoursStart ? dayjs(resolvedFormData.workingHoursStart, 'h:mm a') : null}
               onChange={(time) => setFormData({ ...formData, workingHoursStart: time ? time.format('h:mm a') : '' })}
-              suffixIcon={<div className="text-gray-400">⌄</div>}
+              suffixIcon={<svg className="w-3 h-3 text-[#999999]" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 4.5L6 7.5L9 4.5"/></svg>}
             />
             <TimePicker
               placeholder="End"
@@ -562,7 +561,7 @@ function EmployeeFormContent({
               className={`w-full h-11 employee-form-datepicker ${resolvedFormData.workingHoursEnd ? 'employee-form-datepicker-filled' : ''}`}
               value={resolvedFormData.workingHoursEnd ? dayjs(resolvedFormData.workingHoursEnd, 'h:mm a') : null}
               onChange={(time) => setFormData({ ...formData, workingHoursEnd: time ? time.format('h:mm a') : '' })}
-              suffixIcon={<div className="text-gray-400">⌄</div>}
+              suffixIcon={<svg className="w-3 h-3 text-[#999999]" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 4.5L6 7.5L9 4.5"/></svg>}
             />
           </div>
         </div>
@@ -718,60 +717,7 @@ function EmployeeFormContent({
             box-shadow: none !important;
           }
 
-          :global(.employee-form-phone .ant-select-selector),
-          :global(.employee-form-salary .currency-select-addon .ant-select-selector) {
-            background-color: transparent !important;
-            border: 1px solid #EEEEEE !important;
-            border-right: 0 !important;
-            border-radius: 8px 0 0 8px !important;
-            height: 44px !important;
-            display: flex !important;
-            align-items: center !important;
-            box-shadow: none !important;
-            font-weight: 500 !important;
-          }
-
-          :global(.employee-form-phone .ant-input),
-          :global(.employee-form-salary .ant-input) {
-             border: 1px solid #EEEEEE !important;
-             border-left: 0 !important;
-             border-radius: 0 8px 8px 0 !important;
-          }
-          
-          :global(.employee-form-phone:focus-within .ant-select-selector),
-          :global(.employee-form-salary:focus-within .currency-select-addon .ant-select-selector) {
-             border-color: #111111 !important;
-             background-color: white !important;
-          }
-
-          :global(.employee-form-phone:focus-within .ant-input),
-          :global(.employee-form-salary:focus-within .ant-input) {
-             border-color: #111111 !important;
-             background-color: white !important;
-          }
-
-          :global(.employee-form-phone), :global(.employee-form-salary) {
-             display: flex !important;
-             border-radius: 8px !important;
-             overflow: hidden !important;
-          }
-
-          :global(.employee-form-phone.bg-white .ant-select-selector),
-          :global(.employee-form-salary .bg-white .ant-select-selector),
-          :global(.employee-form-salary .bg-white.ant-input) {
-              background-color: white !important;
-          }
-
-          :global(.employee-form-phone.bg-gray-50) :global(.ant-select-selector),
-          :global(.employee-form-salary) :global(.bg-gray-50) :global(.ant-select-selector),
-          :global(.employee-form-salary) :global(.bg-gray-50.ant-input) {
-              background-color: #F9FAFB !important;
-          }
-
-          :global(.currency-select-addon) {
-             display: flex !important;
-             align-items: center !important;
-          }
+          /* Split input groups now use unified .split-input-group from globals.css */
           
           :global(.access-level-popup), :global(.linkedin-skill-dropdown) {
             box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;

@@ -234,7 +234,7 @@ function ClientFormContent({
                 onChange={(v) => setFormData({ ...formData, company: String(v) })}
                 className="w-full h-11"
                 placeholder="Select company"
-                suffixIcon={<div className="text-gray-400">⌄</div>}
+                suffixIcon={<svg className="w-3 h-3 text-[#999999]" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 4.5L6 7.5L9 4.5"/></svg>}
               >
                 <Option value="Triem Security">Triem Security</Option>
                 <Option value="Eventus Security">Eventus Security</Option>
@@ -267,7 +267,7 @@ function ClientFormContent({
                   className="w-[85px] h-11"
                   value={formData.countryCode}
                   onChange={(v) => setFormData({ ...formData, countryCode: String(v) })}
-                  suffixIcon={<div className="text-gray-400">⌄</div>}
+                  suffixIcon={<svg className="w-3 h-3 text-[#999999]" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 4.5L6 7.5L9 4.5"/></svg>}
                 >
                   <Option value="+91">+91 IN</Option>
                   <Option value="+1">+1 US</Option>
@@ -298,7 +298,7 @@ function ClientFormContent({
                 onChange={(v) => setFormData({ ...formData, country: String(v) })}
                 className="w-full h-11"
                 placeholder="Select country"
-                suffixIcon={<div className="text-gray-400">⌄</div>}
+                suffixIcon={<svg className="w-3 h-3 text-[#999999]" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 4.5L6 7.5L9 4.5"/></svg>}
               >
                 <Option value="USA">USA</Option>
                 <Option value="India">India</Option>

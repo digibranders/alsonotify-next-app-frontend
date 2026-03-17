@@ -401,7 +401,7 @@ export function TaskForm({
               }));
             }}
             disabled={disabledFields.requirement || (!formData.workspace_id && !formData.requirement_id)}
-            suffixIcon={<div className="text-gray-400">⌄</div>}
+            suffixIcon={<svg className="w-3 h-3 text-[#999999]" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 4.5L6 7.5L9 4.5"/></svg>}
             showSearch
             filterOption={(input, option) =>
               String(option?.label ?? '').toLowerCase().includes(input.toLowerCase())

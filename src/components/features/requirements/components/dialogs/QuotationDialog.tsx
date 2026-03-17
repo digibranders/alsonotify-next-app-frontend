@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Modal, Input, App, Select, Space, Checkbox, DatePicker } from 'antd';
+import { Modal, Input, App, Select, Checkbox, DatePicker } from 'antd';
 import dayjs from 'dayjs';
 
 const { Option } = Select;
@@ -111,7 +111,7 @@ export function QuotationDialog({
   };
 
   const currencySelector = (
-    <Select value={currency} onChange={setCurrency} style={{ width: 80 }} variant="borderless" className="currency-select-addon">
+    <Select value={currency} onChange={setCurrency} style={{ width: 80 }} className="currency-select-addon">
       <Option value="USD">USD</Option>
       <Option value="EUR">EUR</Option>
       <Option value="GBP">GBP</Option>
@@ -141,16 +141,16 @@ export function QuotationDialog({
             <>
               <div className="space-y-2">
                 <label className="text-xs font-bold text-[#111111]">Confirmed Hourly Rate</label>
-                <Space.Compact className="w-full quotation-dialog-currency">
+                <div className="w-full split-input-group">
                   {currencySelector}
                   <Input
                     type="number"
                     placeholder="0.00"
-                    className="h-11 rounded-lg bg-white"
+                    className="h-11 bg-white"
                     value={rate}
                     onChange={(e) => setRate(e.target.value)}
                   />
-                </Space.Compact>
+                </div>
               </div>
               <div className="space-y-2">
                 <label className="text-xs font-bold text-[#111111]">Estimated Hours</label>
@@ -172,16 +172,16 @@ export function QuotationDialog({
           ) : (
             <div className="space-y-2">
               <label className="text-xs font-bold text-[#111111]">Total Project Cost</label>
-              <Space.Compact className="w-full quotation-dialog-currency">
+              <div className="w-full split-input-group">
                 {currencySelector}
                 <Input
                   type="number"
                   placeholder="0.00"
-                  className="h-11 rounded-lg bg-white"
+                  className="h-11 bg-white"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                 />
-              </Space.Compact>
+              </div>
             </div>
           )}
 
@@ -200,16 +200,16 @@ export function QuotationDialog({
               <div className="mt-3 space-y-3 pl-6">
                 <div className="space-y-1">
                   <label className="text-xs font-bold text-[#111111]">Advance Amount</label>
-                  <Space.Compact className="w-full quotation-dialog-currency">
+                  <div className="w-full split-input-group">
                     {currencySelector}
                     <Input
                       type="number"
                       placeholder="0.00"
-                      className="h-11 rounded-lg bg-white"
+                      className="h-11 bg-white"
                       value={advanceAmount}
                       onChange={(e) => setAdvanceAmount(e.target.value)}
                     />
-                  </Space.Compact>
+                  </div>
                 </div>
                 <div className="space-y-1">
                   <label className="text-xs font-bold text-[#111111]">Payment Due Date</label>
@@ -226,44 +226,6 @@ export function QuotationDialog({
           </div>
         </div>
       </Modal>
-      <style jsx global>{`
-          .quotation-dialog-currency .currency-select-addon .ant-select-selector {
-            background-color: white !important;
-            border: 1px solid #d9d9d9 !important;
-            border-right: 0 !important;
-            border-radius: 8px 0 0 8px !important;
-            height: 44px !important;
-            display: flex !important;
-            align-items: center !important;
-            box-shadow: none !important;
-            font-weight: 500 !important;
-          }
-
-          .quotation-dialog-currency .ant-input {
-             border: 1px solid #d9d9d9 !important;
-             border-left: 0 !important;
-             border-radius: 0 8px 8px 0 !important;
-          }
-
-          .quotation-dialog-currency:focus-within .currency-select-addon .ant-select-selector {
-             border-color: #111111 !important;
-          }
-
-          .quotation-dialog-currency:focus-within .ant-input {
-             border-color: #111111 !important;
-          }
-
-          .quotation-dialog-currency {
-             display: flex !important;
-             border-radius: 8px !important;
-             overflow: hidden !important;
-          }
-
-          .quotation-dialog-currency .currency-select-addon {
-             display: flex !important;
-             align-items: center !important;
-          }
-      `}</style>
     </>
   );
 }
