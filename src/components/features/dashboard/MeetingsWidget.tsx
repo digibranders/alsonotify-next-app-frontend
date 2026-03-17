@@ -1,6 +1,6 @@
 import svgPaths from "@/constants/iconPaths";
 import { Video, Clock, Plus } from "lucide-react";
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, memo } from 'react';
 import { Button, Popover } from 'antd';
 import { Skeleton } from '@/components/ui/Skeleton';
 import dayjs from 'dayjs';
@@ -18,7 +18,7 @@ dayjs.extend(timezone);
 export function MeetingsWidget({ onNavigate }: { onNavigate?: (page: string) => void }) {
   const [showDialog, setShowDialog] = useState(false);
 
-  const { data: teamsStatus, refetch: refetchTeamsStatus } = useTeamsConnectionStatus();
+  const { data: teamsStatus } = useTeamsConnectionStatus();
   const isConnected = teamsStatus?.result?.connected ?? false;
 
   const { data: companyData } = useCurrentUserCompany();
@@ -29,17 +29,8 @@ export function MeetingsWidget({ onNavigate }: { onNavigate?: (page: string) => 
   const { data: eventsData, isLoading, isError, refetch: refetchCalendarEvents } = useCalendarEvents(startISO, endISO);
 
 
-  useEffect(() => {
-    refetchTeamsStatus();
-  }, [refetchTeamsStatus]);
-
-  useEffect(() => {
-    if (!isConnected) return;
-    const interval = setInterval(() => {
-      refetchCalendarEvents();
-    }, 60000);
-    return () => clearInterval(interval);
-  }, [isConnected, refetchCalendarEvents]);
+  // Removed manual refetch intervals — React Query's refetchInterval handles this
+  // (useTeamsConnectionStatus has refetchInterval: 2min, useCalendarEvents has refetchInterval: 2min)
 
   // Transform and filter meetings
   const processedMeetings = useMemo(() => {
@@ -251,7 +242,7 @@ export function MeetingsWidget({ onNavigate }: { onNavigate?: (page: string) => 
 }
 
 
-function MeetingItem({
+const MeetingItem = memo(function MeetingItem({
   title,
   time,
   date,
@@ -508,4 +499,4 @@ function MeetingItem({
       </Popover>
     </>
   );
-}
+});

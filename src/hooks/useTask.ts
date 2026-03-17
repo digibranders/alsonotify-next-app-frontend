@@ -110,9 +110,9 @@ export const useUpdateTaskStatus = () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.tasks.listRoot() });
       queryClient.invalidateQueries({ queryKey: queryKeys.tasks.assigned() });
       queryClient.invalidateQueries({ queryKey: queryKeys.tasks.detail(variables.id) });
-      // Also invalidate requirement queries since task status affects requirement state
-      queryClient.invalidateQueries({ queryKey: ['requirements', 'workspace'] });
-      queryClient.invalidateQueries({ queryKey: ['requirements', 'all'] });
+      // Invalidate requirement queries — use exact: false to match all variants
+      // but only invalidate the requirement list, not every workspace-scoped query
+      queryClient.invalidateQueries({ queryKey: queryKeys.requirements.all() });
     },
   });
 };

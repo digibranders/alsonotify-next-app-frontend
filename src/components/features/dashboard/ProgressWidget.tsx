@@ -1,8 +1,7 @@
 
 import { ArrowRight } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Label } from 'recharts';
-import { useMemo, useState } from 'react';
-import { useQueries } from '@tanstack/react-query';
+import { useMemo, useState, memo } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
 import isoWeek from 'dayjs/plugin/isoWeek';
 import quarterOfYear from 'dayjs/plugin/quarterOfYear';
@@ -16,18 +15,14 @@ dayjs.extend(isSameOrBefore);
 dayjs.extend(isSameOrAfter);
 dayjs.extend(customParseFormat);
 import { useTasks } from '@/hooks/useTask';
-import { useWorkspaces } from '@/hooks/useWorkspace';
 import { useUserDetails, useCurrentUserCompany } from '@/hooks/useUser';
-import { Task } from '@/types/domain';
-import { getRequirementsByWorkspaceId } from '@/services/workspace';
 import { DateRangeSelector } from '@/components/common/DateRangeSelector';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { ApiResponse } from '@/types/api';
-import { RequirementDto } from '@/types/dto/requirement.dto';
 import { useAccountType } from '@/utils/format/accountTypeUtils';
 import { getWorkingDaysCount } from '@/utils/date/date';
 import { useTimezone } from '@/hooks/useTimezone';
 import { usePublicHolidays } from '@/hooks/useHoliday';
+import { useProgressSummary } from '@/hooks/useDashboard';
 
 export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => void }) {
   const { getDayjsInTimezone } = useTimezone();
@@ -55,14 +50,9 @@ export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => 
     return query;
   }, [dateRange]);
 
-  // Hours query: fetches actual task records needed to sum estimated_time for allotted capacity.
-  const taskHoursQueryString = useMemo(() => {
-    let query = "limit=1000&skip=0";
-    if (dateRange && dateRange[0] && dateRange[1]) {
-      query += `&start_date_start=${dateRange[0].startOf('day').toISOString()}&start_date_end=${dateRange[1].endOf('day').toISOString()}`;
-    }
-    return query;
-  }, [dateRange]);
+  // ISO date strings for the progress summary endpoint (requirements + task hours in one call)
+  const startDateISO = dateRange?.[0]?.startOf('day').toISOString() ?? null;
+  const endDateISO = dateRange?.[1]?.endOf('day').toISOString() ?? null;
 
   // Helper to get label for ProgressCard
   const getRangeLabel = () => {
@@ -87,11 +77,9 @@ export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => 
 
   // Stats query — provides status_counts for the task progress card.
   const { data: tasksData, isLoading: isLoadingTasks } = useTasks(taskStatsQueryString);
-  // Hours query — provides all task records for allotted hours calculation.
-  const { data: tasksHoursData, isLoading: isLoadingTasksHours } = useTasks(taskHoursQueryString);
 
-  // Fetch all workspaces to get requirements
-  const { data: workspacesData, isLoading: isLoadingWorkspaces } = useWorkspaces("");
+  // Single endpoint for requirements summary + task hours (replaces N+1 workspace/requirement queries)
+  const { data: progressData, isLoading: isLoadingProgress } = useProgressSummary(startDateISO, endDateISO);
 
   // Calculate task statistics using backend status_counts — identical methodology
   // to TasksPage.stats so widget counts always match the tab counts.
@@ -122,143 +110,27 @@ export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => 
     return { completed, total, percentage, inProgress, delayed };
   }, [tasksData, isLoadingTasks]);
 
-  // Get all workspace IDs
-  const workspaceIds = useMemo(() => {
-    return workspacesData?.result?.workspaces?.map((w: { id: number }) => w.id) || [];
-  }, [workspacesData]);
-
-  // Fetch requirements for all workspaces in parallel
-  const requirementQueries = useQueries({
-    queries: workspaceIds.map((id: number) => ({
-      queryKey: ['requirements', id],
-      queryFn: () => getRequirementsByWorkspaceId(id),
-      enabled: !!id && workspaceIds.length > 0 && !isLoadingWorkspaces,
-    })),
-  });
-
-  const isLoadingRequirements = requirementQueries.some(q => q.isLoading);
-
-  // Combine all requirements from all workspaces
-  const allRequirements = useMemo(() => {
-    const combined: RequirementDto[] = [];
-    requirementQueries.forEach((query) => {
-      const data = query.data as ApiResponse<RequirementDto[]>;
-      if (data?.result && Array.isArray(data.result)) {
-        combined.push(...data.result);
-      }
-    });
-    return combined;
-  }, [requirementQueries]);
-
-  // Calculate requirements statistics
+  // Requirements stats from the single backend endpoint (no more N+1 queries)
   const requirementsData = useMemo(() => {
-    if (isLoadingRequirements || isLoadingWorkspaces) {
-      return { completed: 0, total: 0, percentage: 0, inProgress: 0, delayed: 0 };
-    }
+    const req = progressData?.result?.requirements;
+    if (!req) return { completed: 0, total: 0, percentage: 0, inProgress: 0, delayed: 0 };
+    const percentage = req.total > 0 ? Math.round((req.completed / req.total) * 100) : 0;
+    return {
+      completed: req.completed,
+      total: req.total,
+      percentage,
+      inProgress: req.in_progress,
+      delayed: req.delayed,
+    };
+  }, [progressData]);
 
-    let completed = 0;
-    let inProgress = 0;
-    let delayed = 0;
-    let total = 0;
-
-    allRequirements.forEach((req) => {
-      // Filter by date if range is selected
-      if (dateRange && dateRange[0] && dateRange[1]) {
-        // A requirement is included if its start date is before or within the end of the selected range 
-        // AND (its end date is after or within the start of the selected range, or it has no end date)
-        const reqStartDate = req.start_date ? dayjs(req.start_date) : null;
-        const reqEndDate = req.end_date ? dayjs(req.end_date).endOf('day') : null;
-        
-        const filterStart = dateRange[0].startOf('day');
-        const filterEnd = dateRange[1].endOf('day');
-
-        // Check for lack of overlap: starts after filter ends OR ends before filter starts
-        if (
-          !reqStartDate || 
-          reqStartDate.isAfter(filterEnd) || 
-          (reqEndDate && reqEndDate.isBefore(filterStart))
-        ) {
-          return;
-        }
-      }
-
-      // Filter: Exclude archived requirements
-      if (req.is_archived) {
-        return;
-      }
-
-      const status = req.status?.toLowerCase() || '';
-
-      // Filter: Exclude Draft and Pending (Waiting, Submitted, Rejected) requirements from dashboard
-      if (status === 'draft' || status === 'waiting' || status === 'submitted' || status === 'rejected') {
-        return;
-      }
-
-      // Count this requirement in the total
-      total++;
-
-      // Calculate strict delay for requirements based on end date
-      let isOverdue = false;
-      if (req.end_date) {
-        const endDate = dayjs(req.end_date);
-        if (endDate.isValid() && endDate.isBefore(dayjs().startOf('day'))) {
-          isOverdue = true;
-        }
-      }
-
-      const isCompleted = status === 'completed' || status === 'review';
-
-      if (isCompleted) {
-        completed++;
-      } else if (isOverdue) {
-        delayed++;
-      } else {
-        inProgress++;
-      }
-    });
-
-    const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
-
-    return { completed, total, percentage, inProgress, delayed };
-  }, [allRequirements, isLoadingRequirements, isLoadingWorkspaces, dateRange]);
-
-  // Fetch user details for filtering tasks by current user
+  // Fetch user details for capacity calculation (working hours config)
   const { data: userDetailsData } = useUserDetails();
-  const currentUserId = userDetailsData?.result?.id;
 
   // Calculate Hours Capacity Data
   const hoursData = useMemo(() => {
-    // 1. Calculate Allotted Hours (Sum of estimated time of fetched tasks ASSIGNED TO CURRENT USER)
-    // Always calculate allotted if tasks exist, regardless of capacity
-    const allotted = (!tasksHoursData?.result || isLoadingTasksHours || !currentUserId)
-      ? 0
-      : Math.round((tasksHoursData.result as Task[]).reduce((acc: number, task: Task) => {
-        // Filter: Check if task is assigned to current user
-        let isAssigned = false;
-
-        // Direct assignment check (assigned_to_user is preferred)
-        if (task.leader_user?.id === currentUserId || task.member_user?.id === currentUserId) {
-          isAssigned = true;
-        }
-
-        // Handle assignedTo legacy path
-        if (!isAssigned && task.member_user) {
-          if (task.member_user.id === currentUserId) isAssigned = true;
-        }
-
-        // Member list check
-        if (!isAssigned && Array.isArray(task.task_members)) {
-          isAssigned = task.task_members.some((m) => (m.user_id === currentUserId || m.user?.id === currentUserId));
-        }
-
-        if (isAssigned) {
-          // Handle various property casing from API safely
-          const estValue = task.estTime ?? task.estimated_time ?? 0;
-          const est = Number(estValue);
-          return acc + (isNaN(est) ? 0 : est);
-        }
-        return acc;
-      }, 0));
+    // 1. Allotted hours from backend (SUM of estimated_time for tasks assigned to current user)
+    const allotted = Math.round(progressData?.result?.task_hours_allotted ?? 0);
 
     // 2. Calculate Total Capacity dynamically
     let total = 0;
@@ -281,12 +153,10 @@ export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => 
     // A. Daily Hours Logic (User > Company > 0)
     let grossDailyHours = 0;
 
-    // Check User Profile
     if (userProfile?.working_hours?.start_time && userProfile?.working_hours?.end_time) {
       grossDailyHours = calculateDailyHours(userProfile.working_hours.start_time, userProfile.working_hours.end_time);
     }
 
-    // Check Company Settings if User Profile is missing/incomplete
     if (grossDailyHours === 0 && companySettings?.start_time && companySettings?.end_time) {
       grossDailyHours = calculateDailyHours(companySettings.start_time, companySettings.end_time);
     }
@@ -294,18 +164,13 @@ export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => 
     // B. Break Time Logic (User > Company > 0)
     let breakTimeMinutes = 0;
 
-    // Check User Profile
     if (userProfile?.working_hours?.break_time !== undefined) {
       breakTimeMinutes = Number(userProfile.working_hours.break_time);
-    }
-    // Check Company Settings
-    else if (companySettings?.break_time !== undefined) {
+    } else if (companySettings?.break_time !== undefined) {
       breakTimeMinutes = Number(companySettings.break_time);
     }
 
-    // C. Working Days Logic — always from company settings (source of truth for the org's work week).
-    // Individual user profiles only store start_time/end_time, never working_days.
-    // If working_days is missing, total remains 0 — admin must configure company working hours.
+    // C. Working Days Logic — always from company settings
     const workingDaysConfig: string[] | undefined =
       Array.isArray(companySettings?.working_days) && companySettings.working_days.length > 0
         ? companySettings.working_days
@@ -315,7 +180,6 @@ export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => 
     const netDailyHours = Math.max(0, grossDailyHours - (breakTimeMinutes / 60));
 
     if (dateRange && dateRange[0] && dateRange[1] && netDailyHours > 0 && workingDaysConfig) {
-      // Calculate precise working days from company config, excluding public holidays
       const holidays = (holidaysData?.result ?? []) as { date: string }[];
       const workDays = getWorkingDaysCount(dateRange[0], dateRange[1], workingDaysConfig, holidays);
       total = Math.round(workDays * netDailyHours);
@@ -325,9 +189,9 @@ export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => 
     const remaining = Math.max(0, total - allotted);
 
     return { allotted, total, percentage, remaining };
-  }, [tasksHoursData, isLoadingTasksHours, dateRange, currentUserId, companyData?.result?.working_hours, userDetailsData?.result, holidaysData]);
+  }, [progressData, dateRange, companyData?.result?.working_hours, userDetailsData?.result, holidaysData]);
 
-  const isLoading = isLoadingTasks || isLoadingWorkspaces || isLoadingRequirements;
+  const isLoading = isLoadingTasks || isLoadingProgress;
 
   return (
     <div className="bg-white rounded-[24px] p-4 w-full h-full flex flex-col overflow-y-auto border border-[#EEEEEE]">
@@ -412,7 +276,7 @@ interface HoursBarProps {
   onClick?: () => void;
 }
 
-function HoursBar({ data, onClick }: HoursBarProps) {
+const HoursBar = memo(function HoursBar({ data, onClick }: HoursBarProps) {
   const isOverCapacity = data.allotted > data.total && data.total > 0;
 
   return (
@@ -474,7 +338,7 @@ function HoursBar({ data, onClick }: HoursBarProps) {
       </div>
     </div>
   );
-}
+});
 
 interface ProgressCardProps {
   title: string;
@@ -491,7 +355,7 @@ interface ProgressCardProps {
   onStatusClick?: (status: string) => void;
 }
 
-function ProgressCard({ title, data, isLoading = false, dateRangeLabel = 'this period', onClick, onStatusClick }: ProgressCardProps) {
+const ProgressCard = memo(function ProgressCard({ title, data, isLoading = false, dateRangeLabel = 'this period', onClick, onStatusClick }: ProgressCardProps) {
   const chartData = [
     { name: 'Completed', value: data.completed, color: '#0F9D58' },   // Green - matches reference
     { name: 'In Progress', value: data.inProgress, color: '#2F80ED' }, // Blue - matches reference
@@ -693,4 +557,4 @@ function ProgressCard({ title, data, isLoading = false, dateRangeLabel = 'this p
       </div>
     </div>
   );
-}
+});
