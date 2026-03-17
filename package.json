@@ -36,7 +36,7 @@
         "date-fns": "^4.1.0",
         "dayjs": "^1.11.19",
         "dompurify": "^3.3.1",
-        "framer-motion": "^12.23.26",
+        "framer-motion": "^12.37.0",
         "html2canvas": "^1.4.1",
         "jspdf": "^4.0.0",
         "lottie-react": "^2.4.1",
