@@ -658,7 +658,10 @@ export function MailPage() {
   }, [current?.body?.content, current?.body?.contentType, loadImages]);
 
   const hasImages = useMemo(
-    () => !!current?.body?.content && /<img\s/i.test(current.body.content),
+    () =>
+      !!current?.body?.content &&
+      (/<(?:img|picture|source)\s/i.test(current.body.content) ||
+        /background-image\s*:/i.test(current.body.content)),
     [current?.body?.content]
   );
 
@@ -786,27 +789,6 @@ export function MailPage() {
                 </div>
               </div>
             ))}
-          </div>
-        ) : !isConnected && !isLoadingIntegration ? (
-          <div className="h-full flex flex-col items-center justify-center text-center px-4">
-            <div className="w-16 h-16 rounded-full bg-[#F3F4F6] flex items-center justify-center mb-3">
-              <MailOpen size={28} className="text-[#999999]" />
-            </div>
-            <span className="text-sm font-semibold text-[#111111]">
-              Connect Microsoft 365
-            </span>
-            <span className="text-xs text-[#999999] mt-1 max-w-[200px]">
-              Connect your account to see your emails here.
-            </span>
-            <Button
-              type="primary"
-              size="small"
-              loading={connecting}
-              onClick={connectMicrosoft}
-              className="mt-3 h-8 px-4 text-xs font-semibold bg-[#111111] hover:bg-[#000000]/90 border-none"
-            >
-              Connect Microsoft 365
-            </Button>
           </div>
         ) : msgs.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-center px-4">
@@ -1386,23 +1368,6 @@ export function MailPage() {
               icon={<RefreshCcw className="w-3.5 h-3.5" />}
               onClick={refresh}
             />
-            {!isLoadingIntegration && !isConnected && (
-              <Button
-                type="primary"
-                size="small"
-                loading={connecting}
-                onClick={connectMicrosoft}
-                className="h-8 px-4 text-xs font-semibold bg-[#111111] hover:bg-[#000000]/90 border-none"
-              >
-                Connect Microsoft 365
-              </Button>
-            )}
-            {!isLoadingIntegration && isConnected && (
-              <div className="flex items-center gap-1.5 text-xs text-[#999999]">
-                <span className="w-2 h-2 rounded-full bg-green-500" />
-                Connected
-              </div>
-            )}
           </Space>
         }
         className="pb-0"
@@ -1502,22 +1467,6 @@ export function MailPage() {
           >
             Refresh
           </Button>
-          {!isLoadingIntegration && !isConnected && (
-            <Button
-              type="primary"
-              loading={connecting}
-              onClick={connectMicrosoft}
-              className="h-8 px-4 text-xs font-semibold bg-[#111111] hover:bg-[#000000]/90 border-none"
-            >
-              Connect Microsoft 365
-            </Button>
-          )}
-          {!isLoadingIntegration && isConnected && (
-            <div className="flex items-center gap-1.5 text-xs text-[#999999]">
-              <span className="w-2 h-2 rounded-full bg-green-500" />
-              Connected
-            </div>
-          )}
         </Space>
       }
       className="pb-0"

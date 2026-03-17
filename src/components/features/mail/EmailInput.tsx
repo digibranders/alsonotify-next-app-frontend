@@ -79,7 +79,7 @@ export function EmailInput({ value, onChange, options, ...props }: Readonly<Emai
       menuItemSelectedIcon={null}
       tokenSeparators={[',', ' ', ';']}
       notFoundContent={null}
-      popupClassName="email-input-dropdown"
+      classNames={{ popup: { root: "email-input-dropdown" } }}
       options={filteredOptions.map(o => ({
         label: (
           <div className="flex items-center gap-2 py-0.5">
