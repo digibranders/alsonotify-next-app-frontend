@@ -39,8 +39,6 @@ import {
   PanelLeft,
   PanelLeftClose,
   Download,
-  MoreHorizontal,
-  ChevronDown,
 } from "lucide-react";
 import dayjs from "dayjs";
 import { PageLayout } from "../../layout/PageLayout";
@@ -67,7 +65,10 @@ import {
   MailMessageDetail,
 } from "@/services/mail";
 import { EmailComposePane } from "./EmailComposePane";
+import { useQuery } from "@tanstack/react-query";
 import { useUserDetails } from "@/hooks/useUser";
+import { getIntegrationStatus } from "@/services/integration";
+import { MicrosoftUserOAuth } from "@/services/calendar";
 import type { ContactOption } from "./EmailInput";
 
 const { Sider, Content } = Layout;
@@ -178,18 +179,19 @@ function findGraphFolderForWellKnownId(
 type ComposeMode =
   | { active: false }
   | {
-      active: true;
-      type: "new" | "reply" | "replyAll" | "forward";
-      originalMessage?: MailMessageDetail;
-    };
+    active: true;
+    type: "new" | "reply" | "replyAll" | "forward";
+    originalMessage?: MailMessageDetail;
+  };
 
 // ---- Responsive hook ----
 function useMediaQuery(query: string): boolean {
-  const [matches, setMatches] = useState(false);
+  const [matches, setMatches] = useState(() =>
+    typeof window !== "undefined" ? window.matchMedia(query).matches : false
+  );
   useEffect(() => {
     if (typeof window === "undefined") return;
     const mql = window.matchMedia(query);
-    setMatches(mql.matches);
     const handler = (e: MediaQueryListEvent) => setMatches(e.matches);
     mql.addEventListener("change", handler);
     return () => mql.removeEventListener("change", handler);
@@ -204,16 +206,26 @@ export function MailPage() {
   const { message } = App.useApp();
   const { data: userDetails } = useUserDetails();
 
+  // Microsoft 365 connection status
+  const { data: integrationStatus, isLoading: isLoadingIntegration } = useQuery({
+    queryKey: ["integration", "status"],
+    queryFn: getIntegrationStatus,
+    refetchOnWindowFocus: true,
+    staleTime: 2 * 60 * 1000,
+  });
+  const isConnected = integrationStatus?.result?.connected ?? false;
+  const [connecting, setConnecting] = useState(false);
+
   const isMobile = useMediaQuery("(max-width: 767px)");
   const isTablet = useMediaQuery("(min-width: 768px) and (max-width: 1023px)");
   const isSmallLaptop = useMediaQuery("(min-width: 1024px) and (max-width: 1279px)");
 
   const currentUser = userDetails?.result
     ? {
-        name: userDetails.result.name,
-        email: userDetails.result.email,
-        avatar: userDetails.result.profile_pic,
-      }
+      name: userDetails.result.name,
+      email: userDetails.result.email,
+      avatar: userDetails.result.profile_pic,
+    }
     : { name: "Me", email: "" };
 
   // ---- State ----
@@ -417,6 +429,20 @@ export function MailPage() {
       await attsQ.refetch();
     }
   };
+
+  const connectMicrosoft = useCallback(async () => {
+    try {
+      setConnecting(true);
+      const response = await MicrosoftUserOAuth();
+      if (response?.result) {
+        window.location.href = response.result;
+      }
+    } catch {
+      message.error("Failed to connect to Microsoft 365");
+    } finally {
+      setConnecting(false);
+    }
+  }, [message]);
 
   const [prevFolder, setPrevFolder] = useState(folder);
   const [prevUnreadOnly, setPrevUnreadOnly] = useState(unreadOnly);
@@ -761,6 +787,27 @@ export function MailPage() {
               </div>
             ))}
           </div>
+        ) : !isConnected && !isLoadingIntegration ? (
+          <div className="h-full flex flex-col items-center justify-center text-center px-4">
+            <div className="w-16 h-16 rounded-full bg-[#F3F4F6] flex items-center justify-center mb-3">
+              <MailOpen size={28} className="text-[#999999]" />
+            </div>
+            <span className="text-sm font-semibold text-[#111111]">
+              Connect Microsoft 365
+            </span>
+            <span className="text-xs text-[#999999] mt-1 max-w-[200px]">
+              Connect your account to see your emails here.
+            </span>
+            <Button
+              type="primary"
+              size="small"
+              loading={connecting}
+              onClick={connectMicrosoft}
+              className="mt-3 h-8 px-4 text-xs font-semibold bg-[#111111] hover:bg-[#000000]/90 border-none"
+            >
+              Connect Microsoft 365
+            </Button>
+          </div>
         ) : msgs.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-center px-4">
             <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center mb-3">
@@ -915,6 +962,24 @@ export function MailPage() {
             if (isMobile) setMobileView(selectedId ? "detail" : "list");
           }}
         />
+      ) : !isConnected && !isLoadingIntegration ? (
+        <div className="h-full flex flex-col items-center justify-center text-center px-6">
+          <div className="w-20 h-20 rounded-full bg-[#F3F4F6] flex items-center justify-center mb-4">
+            <MailOpen size={36} className="text-[#999999]" />
+          </div>
+          <h3 className="text-base font-semibold text-[#111111] mb-1">Connect Microsoft 365</h3>
+          <p className="text-sm text-[#999999] mb-4 max-w-[280px]">
+            Connect your Microsoft 365 account to access your Outlook emails, calendar, and more.
+          </p>
+          <Button
+            type="primary"
+            loading={connecting}
+            onClick={connectMicrosoft}
+            className="h-9 px-6 text-xs font-semibold bg-[#111111] hover:bg-[#000000]/90 border-none"
+          >
+            Connect Microsoft 365
+          </Button>
+        </div>
       ) : !selectedId ? (
         <div className="h-full flex flex-col items-center justify-center text-center px-4">
           <div className="w-20 h-20 rounded-full bg-white flex items-center justify-center mb-4">
@@ -994,9 +1059,9 @@ export function MailPage() {
                               {i <
                                 formatRecipientsFull(current?.toRecipients)
                                   .length -
-                                  1 && (
-                                <span className="text-[#CCCCCC]">,</span>
-                              )}
+                                1 && (
+                                  <span className="text-[#CCCCCC]">,</span>
+                                )}
                             </span>
                           )
                         )}
@@ -1022,9 +1087,9 @@ export function MailPage() {
                               {i <
                                 formatRecipientsFull(current?.ccRecipients)
                                   .length -
-                                  1 && (
-                                <span className="text-[#CCCCCC]">,</span>
-                              )}
+                                1 && (
+                                  <span className="text-[#CCCCCC]">,</span>
+                                )}
                             </span>
                           )
                         )}
@@ -1092,21 +1157,19 @@ export function MailPage() {
                 <div className="flex bg-white ring-1 ring-black/5 rounded-full p-0.5">
                   <button
                     onClick={() => setBodyView("html")}
-                    className={`px-2.5 py-0.5 text-2xs font-semibold rounded-full transition-all ${
-                      bodyView === "html"
+                    className={`px-2.5 py-0.5 text-2xs font-semibold rounded-full transition-all ${bodyView === "html"
                         ? "bg-[#111111] text-white shadow-sm"
                         : "text-[#777777] hover:text-[#111111]"
-                    }`}
+                      }`}
                   >
                     HTML
                   </button>
                   <button
                     onClick={() => setBodyView("text")}
-                    className={`px-2.5 py-0.5 text-2xs font-semibold rounded-full transition-all ${
-                      bodyView === "text"
+                    className={`px-2.5 py-0.5 text-2xs font-semibold rounded-full transition-all ${bodyView === "text"
                         ? "bg-[#111111] text-white shadow-sm"
                         : "text-[#777777] hover:text-[#111111]"
-                    }`}
+                      }`}
                   >
                     Text
                   </button>
@@ -1299,7 +1362,7 @@ export function MailPage() {
         title="Mail"
         tabs={[]}
         activeTab=""
-        onTabChange={() => {}}
+        onTabChange={() => { }}
         titleAction={{
           label: "Compose",
           onClick: () => {
@@ -1323,6 +1386,23 @@ export function MailPage() {
               icon={<RefreshCcw className="w-3.5 h-3.5" />}
               onClick={refresh}
             />
+            {!isLoadingIntegration && !isConnected && (
+              <Button
+                type="primary"
+                size="small"
+                loading={connecting}
+                onClick={connectMicrosoft}
+                className="h-8 px-4 text-xs font-semibold bg-[#111111] hover:bg-[#000000]/90 border-none"
+              >
+                Connect Microsoft 365
+              </Button>
+            )}
+            {!isLoadingIntegration && isConnected && (
+              <div className="flex items-center gap-1.5 text-xs text-[#999999]">
+                <span className="w-2 h-2 rounded-full bg-green-500" />
+                Connected
+              </div>
+            )}
           </Space>
         }
         className="pb-0"
@@ -1390,7 +1470,7 @@ export function MailPage() {
       title="Mail"
       tabs={[]}
       activeTab=""
-      onTabChange={() => {}}
+      onTabChange={() => { }}
       titleAction={{
         label: "Compose",
         onClick: () => {
@@ -1422,6 +1502,22 @@ export function MailPage() {
           >
             Refresh
           </Button>
+          {!isLoadingIntegration && !isConnected && (
+            <Button
+              type="primary"
+              loading={connecting}
+              onClick={connectMicrosoft}
+              className="h-8 px-4 text-xs font-semibold bg-[#111111] hover:bg-[#000000]/90 border-none"
+            >
+              Connect Microsoft 365
+            </Button>
+          )}
+          {!isLoadingIntegration && isConnected && (
+            <div className="flex items-center gap-1.5 text-xs text-[#999999]">
+              <span className="w-2 h-2 rounded-full bg-green-500" />
+              Connected
+            </div>
+          )}
         </Space>
       }
       className="pb-0"

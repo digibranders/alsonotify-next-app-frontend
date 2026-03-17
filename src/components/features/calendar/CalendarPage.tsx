@@ -84,7 +84,7 @@ export function CalendarPage() {
       }
     } catch (err) {
       console.error(err);
-      message.error("Failed to connect to Microsoft Teams");
+      message.error("Failed to connect to Microsoft 365");
     } finally {
       setConnecting(false);
     }
@@ -287,12 +287,12 @@ export function CalendarPage() {
             <>
               {isConnected ? (
                 <Popconfirm
-                  title="Disconnect Teams"
-                  description="Are you sure you want to disconnect your Microsoft Teams account?"
+                  title="Disconnect Microsoft 365"
+                  description="Are you sure you want to disconnect your Microsoft 365 account?"
                   onConfirm={() => {
                     disconnectTeams(undefined, {
                       onSuccess: () => {
-                        message.success("Disconnected from Microsoft Teams");
+                        message.success("Disconnected from Microsoft 365");
                       },
                       onError: () => {
                         message.error("Failed to disconnect");
@@ -313,7 +313,7 @@ export function CalendarPage() {
                   </Button>
                 </Popconfirm>
               ) : (
-                <Button type="primary" icon={<Video className="w-4 h-4" />} loading={connecting} onClick={connectToTeams} className="h-9 px-4 text-xs font-semibold bg-[#111111] hover:bg-[#000000]/90 border-none">Connect to Teams</Button>
+                <Button type="primary" icon={<Video className="w-4 h-4" />} loading={connecting} onClick={connectToTeams} className="h-9 px-4 text-xs font-semibold bg-[#111111] hover:bg-[#000000]/90 border-none">Connect Microsoft 365</Button>
               )}
             </>
           )}
