@@ -1,5 +1,3 @@
-// C:\Users\SaiKumarGandhi\Desktop\NodeJS - Alsonotify\alsonotify_jan\alsonotify-new-ui-test\src\components\features\mail\MailPage.tsx
-
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -306,7 +304,7 @@ export function MailPage() {
       a.style.display = 'none';
       document.body.appendChild(a);
       a.click();
-      
+
       // Delay revocation to ensure browser captures the URL
       setTimeout(() => {
         window.URL.revokeObjectURL(url);
