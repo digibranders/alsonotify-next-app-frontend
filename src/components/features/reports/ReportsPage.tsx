@@ -8,9 +8,6 @@ import { TaskStatusBadge } from '@/components/features/tasks/components/TaskStat
 import { DateRangeSelector } from '../../common/DateRangeSelector';
 import { Tooltip, Button, Avatar } from "antd";
 import { Skeleton } from '../../ui/Skeleton';
-import dynamic from 'next/dynamic';
-const ReportsPdfTemplate = dynamic(() => import('./ReportsPdfGeneration').then(m => m.ReportsPdfTemplate), { ssr: false });
-const IndividualEmployeePdfTemplate = dynamic(() => import('./ReportsPdfGeneration').then(m => m.IndividualEmployeePdfTemplate), { ssr: false });
 import dayjs from '@/utils/date/dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 import { useTabSync } from '@/hooks/useTabSync';
@@ -200,14 +197,8 @@ export function ReportsPage() {
   };
 
   // --- Export Logic ---
-  const [exportData, setExportData] = useState<{
-    requirements: RequirementReport[];
-    tasks: TaskReport[];
-    employees: EmployeeReport[];
-  } | null>(null);
-
   const fetchAllDataForExport = async () => {
-    const limit = 1000; // Safe cap for export
+    const limit = 1000;
     const skip = 0;
 
     if (activeTab === 'requirement') {
@@ -258,63 +249,35 @@ export function ReportsPage() {
     }
   };
 
-  // Helper to wait for element to exist in DOM
-  const waitForElement = (id: string, timeout = 3000): Promise<HTMLElement | null> => {
-    return new Promise((resolve) => {
-      if (document.getElementById(id)) {
-        return resolve(document.getElementById(id));
-      }
-
-      const observer = new MutationObserver(() => {
-        if (document.getElementById(id)) {
-          observer.disconnect();
-          resolve(document.getElementById(id));
-        }
-      });
-
-      observer.observe(document.body, {
-        childList: true,
-        subtree: true,
-      });
-
-      setTimeout(() => {
-        observer.disconnect();
-        resolve(document.getElementById(id));
-      }, timeout);
-    });
-  };
-
   const handleDownloadPDF = async () => {
     if (isDownloading) return;
     setIsDownloading(true);
 
     try {
-      // 1. Fetch ALL data
       const allData = await fetchAllDataForExport();
 
-      // 2. Set data to state to render the hidden PDF component
-      // We need sort the data same as UI if sortConfig is present
       if (sortConfig) {
         if (activeTab === 'requirement') allData.requirements = sortData(allData.requirements);
         if (activeTab === 'task') allData.tasks = sortData(allData.tasks);
         if (activeTab === 'member') allData.employees = sortData(allData.employees);
       }
 
-      setExportData(allData);
-
-      // 3. Wait for render (using MutationObserver instead of fixed timeout)
-      await waitForElement('pdf-report-container');
-
       const fileName = `alsonotify_${activeTab}_report_${getDayjsInTimezone().format('YYYY-MM-DD')}.pdf`;
-      const { generatePdf } = await import('./ReportsPdfGeneration');
+      const data = activeTab === 'requirement' ? allData.requirements : activeTab === 'task' ? allData.tasks : allData.employees;
+      const kpiData = activeTab === 'requirement' ? kpi : activeTab === 'task' ? taskKPI : employeeKPI;
 
-      await generatePdf(fileName, 'pdf-report-container');
+      const { generateReportPdf } = await import('./ReportsPdfGeneration');
+      await generateReportPdf(fileName, activeTab, data, kpiData, {
+        dateRange,
+        companyName,
+        timezone: companyTimezone,
+        currency: companyCurrency,
+      });
     } catch (error) {
       console.error('PDF Generation failed:', error);
       alert("Failed to generate PDF. Please try again.");
     } finally {
       setIsDownloading(false);
-      setExportData(null); // Cleanup
     }
   };
 
@@ -322,12 +285,14 @@ export function ReportsPage() {
     if (!selectedMember) return;
     setIsDownloadingIndividual(true);
     try {
-      // Ensure element is present (it should be since drawer is open, but safe to wait)
-      await waitForElement('pdf-individual-report-container');
-
       const fileName = `alsonotify_employee_${selectedMember.member.replace(/\s+/g, '_')}_${getDayjsInTimezone().format('YYYY-MM-DD')}.pdf`;
-      const { generatePdf } = await import('./ReportsPdfGeneration');
-      await generatePdf(fileName, 'pdf-individual-report-container');
+      const { generateIndividualEmployeePdf } = await import('./ReportsPdfGeneration');
+      await generateIndividualEmployeePdf(fileName, selectedMember, selectedMemberWorklogs, {
+        dateRange,
+        companyName,
+        timezone: companyTimezone,
+        currency: companyCurrency,
+      });
     } catch (error) {
       console.error('PDF Generation failed:', error);
       alert("Failed to generate PDF");
@@ -1183,30 +1148,6 @@ export function ReportsPage() {
           onDownload={handleDownloadIndividualPDF}
         />
 
-        {/* Hidden PDF Template Component */}
-        {(isDownloading && exportData) && (
-          <ReportsPdfTemplate
-            activeTab={activeTab}
-            data={activeTab === 'requirement' ? exportData!.requirements : activeTab === 'task' ? exportData!.tasks : exportData!.employees}
-            kpis={(activeTab === 'requirement' ? kpi : activeTab === 'task' ? taskKPI : employeeKPI) as any}
-            dateRange={dateRange}
-            companyName={companyName}
-            timezone={companyTimezone}
-            currency={companyCurrency}
-          />
-        )}
-
-        {/* Hidden Individual Employee PDF Template */}
-        {selectedMember && (
-          <IndividualEmployeePdfTemplate
-            member={selectedMember}
-            worklogs={selectedMemberWorklogs}
-            dateRange={dateRange}
-            companyName={companyName}
-            timezone={companyTimezone}
-            currency={companyCurrency}
-          />
-        )}
 
 
       </div>

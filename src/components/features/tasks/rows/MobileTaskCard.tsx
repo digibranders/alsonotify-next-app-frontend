@@ -8,6 +8,7 @@ import { Task } from "../../../../types/domain";
 import { TaskStatusBadge } from "../components/TaskStatusBadge";
 import { RevisionModal } from "../../../modals/RevisionModal";
 import { provideEstimate, submitReviewDecision, startReviewFromOriginal } from "../../../../services/task";
+import { combineHMToDecimal } from "@/utils/date/timeFormat";
 import { useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/queryKeys";
 import { TaskLiveProgress } from "./TaskLiveProgress";
@@ -47,7 +48,8 @@ export const MobileTaskCard = memo(function MobileTaskCard({
   const router = useRouter();
   const queryClient = useQueryClient();
   const [estimateOpen, setEstimateOpen] = useState(false);
-  const [estimateHours, setEstimateHours] = useState("");
+  const [estH, setEstH] = useState("");
+  const [estM, setEstM] = useState("");
   const [submissionLoading, setSubmissionLoading] = useState(false);
   const [revisionModalOpen, setRevisionModalOpen] = useState(false);
   const [reviewDecisionOpen, setReviewDecisionOpen] = useState(false);
@@ -260,23 +262,41 @@ export const MobileTaskCard = memo(function MobileTaskCard({
                 content={
                   <div className="p-2 w-48">
                     <p className="text-xs font-medium mb-2">Your Estimate</p>
-                    <Input
-                      type="number"
-                      placeholder="Hours"
-                      value={estimateHours}
-                      onChange={(e) => setEstimateHours(e.target.value)}
-                      className="mb-4 text-sm"
-                    />
+                    <div className="flex gap-2 mb-4">
+                      <Input
+                        type="number"
+                        min="0"
+                        placeholder="0"
+                        suffix="h"
+                        value={estH}
+                        onChange={(e) => setEstH(e.target.value.replace(/\D/g, ''))}
+                        className="flex-1 text-sm"
+                      />
+                      <Input
+                        type="number"
+                        min="0"
+                        max="59"
+                        placeholder="0"
+                        suffix="m"
+                        value={estM}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/\D/g, '');
+                          if (val === '' || parseInt(val) <= 59) setEstM(val);
+                        }}
+                        className="flex-1 text-sm"
+                      />
+                    </div>
                     <Button
                       type="primary"
                       size="small"
                       loading={submissionLoading}
                       className="w-full bg-[#EAB308] text-black"
                       onClick={async () => {
-                        if (!estimateHours) return;
+                        const decimal = combineHMToDecimal(parseInt(estH) || 0, parseInt(estM) || 0);
+                        if (decimal <= 0) return;
                         setSubmissionLoading(true);
                         try {
-                          await provideEstimate(Number(task.id), Number(estimateHours));
+                          await provideEstimate(Number(task.id), decimal);
                           message.success("Estimate submitted");
                           setEstimateOpen(false);
                           queryClient.invalidateQueries({ queryKey: queryKeys.tasks.listRoot() });

@@ -23,6 +23,7 @@ import { getWorkingDaysCount } from '@/utils/date/date';
 import { useTimezone } from '@/hooks/useTimezone';
 import { usePublicHolidays } from '@/hooks/useHoliday';
 import { useProgressSummary } from '@/hooks/useDashboard';
+import { formatDecimalHours } from '@/utils/date/timeFormat';
 
 export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => void }) {
   const { getDayjsInTimezone } = useTimezone();
@@ -313,13 +314,13 @@ const HoursBar = memo(function HoursBar({ data, onClick }: HoursBarProps) {
           <div className="flex items-center gap-1">
             <span className="text-xs text-[#888888] font-medium leading-tight">Balance:</span>
             <span className={`text-sm font-bold leading-tight ${isOverCapacity ? 'text-[#ff3b3b]' : 'text-[#111111]'}`}>
-              {data.remaining}h
+              {formatDecimalHours(data.remaining)}
             </span>
           </div>
           <div className="w-px h-3 bg-gray-200" />
           <div className="flex items-center gap-1">
             <span className="text-xs text-[#888888] font-medium leading-tight">Total:</span>
-            <span className="text-sm font-bold text-[#111111] leading-tight">{data.total}h</span>
+            <span className="text-sm font-bold text-[#111111] leading-tight">{formatDecimalHours(data.total)}</span>
           </div>
         </button>
 

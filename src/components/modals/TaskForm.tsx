@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Button, Input, Select, Checkbox, DatePicker, App, Avatar, Tooltip } from 'antd';
 import { CheckSquare, Calendar, Users, ArrowRight, Layers, UserPlus, X, Building2, GripVertical } from 'lucide-react';
 import { Reorder } from "framer-motion";
@@ -6,6 +6,7 @@ import dayjs from '@/utils/date/dayjs';
 import { formatDateForApi, getTodayForApi } from '@/utils/date/date';
 import { FormLayout } from '@/components/common/FormLayout';
 import { trimStr } from '@/utils/trim';
+import { parseDecimalToHM, combineHMToDecimal } from '@/utils/date/timeFormat';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -112,6 +113,28 @@ export function TaskForm({
       execution_mode: base.execution_mode || "parallel",
     };
   });
+
+  // Split H + M state for "My Hours" input
+  const [estHours, setEstHours] = useState<string>(() => {
+    const val = parseFloat(formData.estimated_time);
+    return isNaN(val) || val <= 0 ? '' : String(parseDecimalToHM(val).hours);
+  });
+  const [estMinutes, setEstMinutes] = useState<string>(() => {
+    const val = parseFloat(formData.estimated_time);
+    return isNaN(val) || val <= 0 ? '' : String(parseDecimalToHM(val).minutes);
+  });
+
+  // Sync H + M back to formData.estimated_time
+  useEffect(() => {
+    const h = parseInt(estHours) || 0;
+    const m = parseInt(estMinutes) || 0;
+    const decimal = combineHMToDecimal(h, m);
+    const newVal = (h === 0 && m === 0 && estHours === '' && estMinutes === '') ? '' : String(decimal);
+    if (newVal !== formData.estimated_time) {
+      setFormData(prev => ({ ...prev, estimated_time: newVal }));
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [estHours, estMinutes]);
 
   const sortedUsers = useMemo(() => {
     // 1. Start with the provided users list
@@ -530,18 +553,32 @@ export function TaskForm({
           <span className={`text-xs font-bold ${formData.assigned_members.includes(parseInt(currentUserId)) ? 'text-[#111111]' : 'text-gray-400'}`}>
             My Hours <span className={`${formData.assigned_members.includes(parseInt(currentUserId)) ? 'text-red-500' : 'hidden'}`}>*</span>
           </span>
-          <Input
-            type="number"
-            step="0.1"
-            min="0"
-            placeholder={formData.assigned_members.includes(parseInt(currentUserId)) ? "0" : "-"}
-            className="w-full h-11 rounded-lg border border-[#EEEEEE] text-xs"
-            value={formData.estimated_time}
-            onChange={(e) => {
-              setFormData({ ...formData, estimated_time: e.target.value });
-            }}
-            disabled={!formData.assigned_members.includes(parseInt(currentUserId))}
-          />
+          <div className="flex gap-2">
+            <Input
+              type="number"
+              min="0"
+              placeholder="0"
+              suffix="h"
+              className="flex-1 h-11 rounded-lg border border-[#EEEEEE] text-xs"
+              value={estHours}
+              onChange={(e) => setEstHours(e.target.value.replace(/\D/g, ''))}
+              disabled={!formData.assigned_members.includes(parseInt(currentUserId))}
+            />
+            <Input
+              type="number"
+              min="0"
+              max="59"
+              placeholder="0"
+              suffix="m"
+              className="flex-1 h-11 rounded-lg border border-[#EEEEEE] text-xs"
+              value={estMinutes}
+              onChange={(e) => {
+                const val = e.target.value.replace(/\D/g, '');
+                if (val === '' || parseInt(val) <= 59) setEstMinutes(val);
+              }}
+              disabled={!formData.assigned_members.includes(parseInt(currentUserId))}
+            />
+          </div>
         </div>
       </div>
 

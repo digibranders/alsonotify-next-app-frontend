@@ -1,8 +1,4 @@
-import React from 'react';
-// Imports removed to be dynamic
-
 import dayjs from '@/utils/date/dayjs';
-import BrandLogo from '@/assets/images/logo.png';
 import { RequirementReport, TaskReport, EmployeeReport, ReportKPI, EmployeeKPI, TaskReportsResponse } from '../../../services/report';
 import { getCurrencySymbol } from '@/utils/format/currencyUtils';
 import { formatDecimalHours } from '../../../utils/date/timeFormat';
@@ -30,777 +26,537 @@ export interface WorklogRow {
     startTime: string;
     endTime: string;
     engagedTime: string;
+    sessionStatus?: string;
 }
 
-interface ReportsPdfTemplateProps {
-    activeTab: 'requirement' | 'task' | 'member';
-    data: RequirementReport[] | TaskReport[] | EmployeeReport[];
-    kpis: ReportKPI | EmployeeKPI | TaskReportsResponse['kpi'];
-    dateRange: [dayjs.Dayjs | null, dayjs.Dayjs | null] | null;
-    companyName?: string;
-    timezone?: string;
-    currency?: string;
-}
+// --- Status Colors ---
+type RGB = [number, number, number];
 
-// --- Pagination Constants ---
-// Approximate row limits to ensure safety margins.
-// A4 @ 96 DPI is ~794px width x 1123px height.
-// We are scaling by 2 for quality, but the DOM layout is 1:1.
-const PAGE_1_ROWS = 12; // Fewer rows due to KPIs
-const PAGE_N_ROWS = 20; // More rows on subsequent pages (no KPIs)
-
-// --- Helper Functions ---
-const chunkData = <T,>(data: T[], firstPageSize: number, otherPageSize: number): T[][] => {
-    const chunks = [];
-    if (data.length === 0) return [];
-
-    // First chunk
-    chunks.push(data.slice(0, firstPageSize));
-
-    // Subsequent chunks
-    let i = firstPageSize;
-    while (i < data.length) {
-        chunks.push(data.slice(i, i + otherPageSize));
-        i += otherPageSize;
-    }
-    return chunks;
-};
-
-const getStatusColor = (status: string) => {
+const getStatusColor = (status: string): { bg: RGB, text: RGB, label: string } => {
     const s = status?.toLowerCase();
-    if (s === 'completed' || s === 'done') return { bg: '#E8F5E9', text: '#0F9D58', label: 'Completed' };
-    if (s === 'in progress' || s === 'in-progress' || s === 'in_progress') return { bg: '#E3F2FD', text: '#2F80ED', label: 'In Progress' };
-    if (s === 'delayed') return { bg: '#FFF5F5', text: '#ff3b3b', label: 'Delayed' };
-    if (s === 'review' || s === 'in review' || s === 'in-review') return { bg: '#F3E5F5', text: '#9C27B0', label: 'In Review' };
-    if (s === 'paid' || s === 'payment received') return { bg: '#E8F5E9', text: '#7ccf00', label: 'Payment Received' };
-    if (s === 'billed' || s === 'invoice sent') return { bg: '#E3F2FD', text: '#2196F3', label: 'Invoice Sent' };
-    if (s === 'draft') return { bg: '#F5F5F5', text: '#666666', label: 'Draft' };
-    return { bg: '#F5F5F5', text: '#4B5563', label: status };
+    if (s === 'completed' || s === 'done') return { bg: [232, 245, 233], text: [15, 157, 88], label: 'Completed' };
+    if (s === 'in progress' || s === 'in-progress' || s === 'in_progress') return { bg: [227, 242, 253], text: [47, 128, 237], label: 'In Progress' };
+    if (s === 'delayed') return { bg: [255, 245, 245], text: [255, 59, 59], label: 'Delayed' };
+    if (s === 'review' || s === 'in review' || s === 'in-review') return { bg: [243, 229, 245], text: [156, 39, 176], label: 'In Review' };
+    if (s === 'assigned') return { bg: [255, 243, 224], text: [255, 152, 0], label: 'Assigned' };
+    if (s === 'draft') return { bg: [245, 245, 245], text: [102, 102, 102], label: 'Draft' };
+    return { bg: [245, 245, 245], text: [75, 85, 99], label: status || '-' };
 };
 
 
-// --- Components ---
+// ==========================================================================
+// Native jsPDF + jspdf-autotable PDF Generation
+// ==========================================================================
 
-export const ReportsPdfTemplate = ({ activeTab, data, kpis, dateRange, companyName, timezone, currency }: ReportsPdfTemplateProps) => {
-    const currSym = getCurrencySymbol(currency || 'USD');
-    const generatedDate = dayjs().tz(timezone || 'Asia/Kolkata').format('MMM DD, YYYY');
-    const periodStart = dateRange && dateRange[0] ? dateRange[0].format('MMM DD, YYYY') : 'Start';
-    const periodEnd = dateRange && dateRange[1] ? dateRange[1].format('MMM DD, YYYY') : 'End';
+// A4 dimensions in mm
+const PAGE_W = 210;
+const PAGE_H = 297;
+const MARGIN = 15;
+const CONTENT_W = PAGE_W - MARGIN * 2;
 
-    // Chunk Data
-    const chunks = chunkData(data as unknown[], PAGE_1_ROWS, PAGE_N_ROWS);
-    const totalPages = chunks.length || 1;
-
-    // If no data, render at least one page
-    if (chunks.length === 0) {
-        chunks.push([]);
-    }
-
-    return (
-        <div id="pdf-report-container" style={{ position: 'absolute', left: '-9999px', top: 0 }}>
-            {chunks.map((chunk, pageIndex) => (
-                <div
-                    key={pageIndex}
-                    className="pdf-page"
-                    style={{
-                        width: '210mm',
-                        height: '296mm', // Fixed A4 height
-                        padding: '40px',
-                        backgroundColor: 'white',
-                        fontFamily: "'Inter', sans-serif",
-                        color: '#111111',
-                        position: 'relative',
-                        boxSizing: 'border-box',
-                        overflow: 'hidden', // Ensure no overflow
-                        display: 'flex',
-                        flexDirection: 'column'
-                    }}
-                >
-                    {/* Header Section (On every page for context, or Simplified?) */}
-                    <div style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'flex-start',
-                        borderBottom: '2px solid #EEEEEE',
-                        paddingBottom: '20px',
-                        marginBottom: '20px',
-                        flexShrink: 0
-                    }}>
-                        <div className="brand-section">
-                            <h1 style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 800, fontSize: "var(--font-size-2xl)", margin: 0, color: '#111111' }}>
-                                {companyName || 'Company Name'}
-                            </h1>
-                        </div>
-                        <div style={{ textAlign: 'right', fontSize: "var(--font-size-xs)", color: '#666666' }}>
-                            <span style={{
-                                fontFamily: "'Manrope', sans-serif", fontWeight: 700, fontSize: "var(--font-size-base)", color: '#111111', marginBottom: '4px', display: 'block'
-                            }}>
-                                {activeTab === 'requirement' ? 'Requirements Report' : activeTab === 'task' ? 'Tasks Report' : 'Employees Report'}
-                            </span>
-                            <span>Generated: {generatedDate}</span><br />
-                            <span>Period: {periodStart} - {periodEnd}</span>
-                        </div>
-                    </div>
-
-                    {/* KPIs (Page 1 Only) */}
-                    {pageIndex === 0 && (
-                        <div style={{
-                            display: 'grid',
-                            gridTemplateColumns: activeTab === 'member' ? 'repeat(3, 1fr)' : 'repeat(5, 1fr)',
-                            gap: '15px',
-                            marginBottom: '30px',
-                            flexShrink: 0
-                        }}>
-                            {activeTab === 'requirement' && renderRequirementKPIs(kpis as ReportKPI)}
-                            {activeTab === 'task' && renderTaskKPIs(kpis as TaskReportsResponse['kpi'])}
-                            {activeTab === 'member' && renderEmployeeKPIs(kpis as EmployeeKPI, currSym)}
-                        </div>
-                    )}
-
-                    {/* Table Section */}
-                    <div style={{ flex: 1 }}> {/* Table takes remaining space */}
-                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: "var(--font-size-xs)" }}>
-                            <thead>
-                                <tr>
-                                    {activeTab === 'requirement' && renderReqHeader()}
-                                    {activeTab === 'task' && renderTaskHeader()}
-                                    {activeTab === 'member' && renderEmpHeader()}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {chunk.map((row, idx) => {
-                                    // Calculate global index
-                                    const globalIdx = (pageIndex === 0 ? idx : PAGE_1_ROWS + (pageIndex - 1) * PAGE_N_ROWS + idx);
-                                    return (
-                                        <tr key={idx} style={idx % 2 === 0 ? {} : { backgroundColor: '#F9FAFB' }}>
-                                            {activeTab === 'requirement' && renderReqRow(row as unknown as RequirementReport, globalIdx, timezone, currSym)}
-                                            {activeTab === 'task' && renderTaskRow(row as unknown as TaskReport, globalIdx)}
-                                            {activeTab === 'member' && renderEmpRow(row as unknown as EmployeeReport, globalIdx, currSym)}
-                                        </tr>
-                                    );
-                                })}
-                                {chunk.length === 0 && (
-                                    <tr><Td colSpan={7} style={{ textAlign: 'center', padding: '30px', color: '#999' }}>No data available for this period.</Td></tr>
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    {/* Footer Section - Absolute bottom to ensure margin */}
-                    <div style={{
-                        position: 'absolute',
-                        bottom: '40px',
-                        left: '40px',
-                        right: '40px',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'flex-end',
-                        borderTop: '1px solid #EEEEEE',
-                        paddingTop: '20px'
-                    }}>
-                        <img src={BrandLogo.src} alt="Alsonotify" className="h-6 object-contain" />
-                        <span style={{ fontSize: "var(--font-size-2xs)", color: '#999999' }}>Page {pageIndex + 1} of {totalPages}</span>
-                    </div>
-                </div>
-            ))}
-        </div>
-    );
+// Font sizes in pt
+const FONT = {
+    title: 14,
+    subtitle: 10,
+    meta: 7,
+    kpiLabel: 7,
+    kpiValue: 14,
+    tableHead: 7,
+    tableBody: 7,
+    tableBodySub: 6.5,
+    footer: 6,
 };
 
-
-export const IndividualEmployeePdfTemplate = ({ member, worklogs, dateRange, companyName, timezone }: { member: MemberRow, worklogs: WorklogRow[], dateRange: [dayjs.Dayjs | null, dayjs.Dayjs | null] | null, companyName?: string, timezone?: string, currency?: string }) => {
-    const generatedDate = dayjs().tz(timezone || 'Asia/Kolkata').format('MMM DD, YYYY');
-    const periodStart = dateRange && dateRange[0] ? dateRange[0].format('MMM DD, YYYY') : 'Start';
-    const periodEnd = dateRange && dateRange[1] ? dateRange[1].format('MMM DD, YYYY') : 'End';
-    const taskEfficiency = member.efficiency;
-    const occupancy = member.utilization;
-
-    // Chunk worklogs
-    // Page 1: Profile + KPIs + History Header + ~5 rows
-    // Page N: History Header + ~20 rows
-    const EMP_PAGE_1_ROWS = 8;
-    const EMP_PAGE_N_ROWS = 25;
-
-    const chunks = chunkData(worklogs, EMP_PAGE_1_ROWS, EMP_PAGE_N_ROWS);
-    const totalPages = chunks.length || 1;
-    if (chunks.length === 0) chunks.push([]);
-
-    return (
-        <div id="pdf-individual-report-container" style={{ position: 'absolute', left: '-9999px', top: 0 }}>
-            {chunks.map((chunk, pageIndex) => (
-                <div
-                    key={pageIndex}
-                    className="pdf-page"
-                    style={{
-                        width: '210mm',
-                        height: '296mm',
-                        padding: '40px',
-                        backgroundColor: 'white',
-                        fontFamily: "'Inter', sans-serif",
-                        color: '#111111',
-                        position: 'relative',
-                        boxSizing: 'border-box',
-                        overflow: 'hidden'
-                    }}
-                >
-                    {/* Header */}
-                    <div style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'flex-start',
-                        borderBottom: '2px solid #EEEEEE',
-                        paddingBottom: '20px',
-                        marginBottom: '30px'
-                    }}>
-                        <div className="brand-section">
-                            <h1 style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 800, fontSize: "var(--font-size-2xl)", margin: 0, color: '#111111' }}>
-                                {companyName || 'Company Name'}
-                            </h1>
-                        </div>
-                        <div style={{ textAlign: 'right', fontSize: "var(--font-size-xs)", color: '#666666' }}>
-                            <span style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, fontSize: "var(--font-size-base)", color: '#111111', marginBottom: '4px', display: 'block' }}>
-                                Employee Performance Report
-                            </span>
-                            <span>Generated: {generatedDate}</span><br />
-                            <span>Period: {periodStart} - {periodEnd}</span>
-                        </div>
-                    </div>
-
-                    {/* Profile & KPIs (Page 1 Only) */}
-                    {pageIndex === 0 && (
-                        <div style={{ display: 'flex', gap: '20px', marginBottom: '30px' }}>
-                            {/* Profile Card */}
-                            <div style={{ flex: 1, padding: '20px', background: '#FAFAFA', border: '1px solid #EEEEEE', borderRadius: '12px' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
-                                    <div style={{
-                                        width: '48px', height: '48px', borderRadius: '50%', backgroundColor: '#111111',
-                                        color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                        fontSize: "var(--font-size-xl)", fontFamily: "'Manrope', sans-serif", fontWeight: 700
-                                    }}>
-                                        {member.member.charAt(0)}
-                                    </div>
-                                    <div>
-                                        <div style={{ fontSize: "var(--font-size-lg)", fontWeight: 700, color: '#111111', fontFamily: "'Manrope', sans-serif" }}>{member.member}</div>
-                                        <div style={{ fontSize: "var(--font-size-xs)", color: '#666666' }}>{member.department}</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div style={{ display: 'flex', gap: '10px', flex: 3 }}>
-                                <div style={{ flex: 1, padding: '12px', borderRadius: '12px', border: '1px solid #EEEEEE', backgroundColor: '#FAFAFA', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                    <span style={{ fontSize: "var(--font-size-2xs)", fontWeight: 500, color: '#666666', textTransform: 'uppercase' }}>Total Hours</span>
-                                    <span style={{ fontSize: "var(--font-size-xl)", fontFamily: "'Manrope', sans-serif", fontWeight: 700, color: '#111111' }}>{formatDecimalHours(member.totalWorkingHrs)}</span>
-                                </div>
-                                <div style={{ flex: 1, padding: '12px', borderRadius: '12px', border: '1px solid #EEEEEE', backgroundColor: '#FAFAFA', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                    <span style={{ fontSize: "var(--font-size-2xs)", fontWeight: 500, color: '#666666', textTransform: 'uppercase' }}>Engaged</span>
-                                    <span style={{ fontSize: "var(--font-size-xl)", fontFamily: "'Manrope', sans-serif", fontWeight: 700, color: '#111111' }}>{formatDecimalHours(member.actualEngagedHrs)}</span>
-                                </div>
-                                <div style={{ flex: 1, padding: '12px', borderRadius: '12px', border: '1px solid #EEEEEE', backgroundColor: '#FAFAFA', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                    <span style={{ fontSize: "var(--font-size-2xs)", fontWeight: 500, color: '#666666', textTransform: 'uppercase' }}>Efficiency</span>
-                                    <span style={{ fontSize: "var(--font-size-xl)", fontFamily: "'Manrope', sans-serif", fontWeight: 700, color: taskEfficiency >= 75 ? '#0F9D58' : taskEfficiency >= 50 ? '#2196F3' : '#FF3B3B' }}>
-                                        {taskEfficiency}%
-                                    </span>
-                                </div>
-                                <div style={{ flex: 1, padding: '12px', borderRadius: '12px', border: '1px solid #EEEEEE', backgroundColor: '#FAFAFA', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                    <span style={{ fontSize: "var(--font-size-2xs)", fontWeight: 500, color: '#666666', textTransform: 'uppercase' }}>Occupancy</span>
-                                    <span style={{ fontSize: "var(--font-size-xl)", fontFamily: "'Manrope', sans-serif", fontWeight: 700, color: occupancy >= 70 ? '#0F9D58' : '#FF3B3B' }}>
-                                        {occupancy}%
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Table Section */}
-                    <div style={{ marginBottom: '15px' }}>
-                        {/* Title only page 1 */}
-                        {pageIndex === 0 && (
-                            <h3 style={{ fontSize: "var(--font-size-sm)", fontWeight: 700, fontFamily: "'Manrope', sans-serif", color: '#111111', textTransform: 'uppercase', marginBottom: '15px' }}>Work History</h3>
-                        )}
-
-                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: "var(--font-size-xs)" }}>
-                            <thead>
-                                <tr>
-                                    <Th style={{ width: '100px' }}>Date</Th>
-                                    <Th style={{ width: '150px' }}>Task</Th>
-                                    <Th>Details</Th>
-                                    <Th style={{ width: '120px', textAlign: 'right' }}>Time</Th>
-                                    <Th style={{ width: '80px', textAlign: 'right' }}>Duration</Th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {chunk.map((log, idx) => (
-                                    <tr key={idx} style={idx % 2 === 0 ? {} : { backgroundColor: '#F9FAFB' }}>
-                                        <Td style={{ fontWeight: 500, color: '#111111' }}>{dayjs(log.date).format('MMM DD')}</Td>
-                                        <Td style={{ fontWeight: 500, color: '#111111' }}>{log.task}</Td>
-                                        <Td style={{ color: '#666666' }}>{log.details}</Td>
-                                        <Td style={{ textAlign: 'right', color: '#666666' }}>{log.startTime} - {log.endTime}</Td>
-                                        <Td style={{ textAlign: 'right', fontWeight: 700, color: '#111111' }}>{log.engagedTime}</Td>
-                                    </tr>
-                                ))}
-                                {chunk.length === 0 && pageIndex === 0 && (
-                                    <tr><Td style={{ textAlign: 'center', color: '#999' }} colSpan={5}>No work history found.</Td></tr>
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    {/* Footer */}
-                    <div style={{
-                        position: 'absolute',
-                        bottom: '40px',
-                        left: '40px',
-                        right: '40px',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'flex-end',
-                        borderTop: '1px solid #EEEEEE',
-                        paddingTop: '20px'
-                    }}>
-                        <img src={BrandLogo.src} alt="Alsonotify" className="h-6 object-contain" />
-                        <span style={{ fontSize: "var(--font-size-2xs)", color: '#999999' }}>Page {pageIndex + 1} of {totalPages}</span>
-                    </div>
-                </div>
-            ))}
-        </div>
-    );
+// Colors
+const COLOR = {
+    black: [17, 17, 17] as RGB,
+    dark: [51, 51, 51] as RGB,
+    gray: [102, 102, 102] as RGB,
+    lightGray: [153, 153, 153] as RGB,
+    border: [238, 238, 238] as RGB,
+    bgLight: [250, 250, 250] as RGB,
+    white: [255, 255, 255] as RGB,
+    green: [15, 157, 88] as RGB,
+    red: [255, 59, 59] as RGB,
+    blue: [33, 150, 243] as RGB,
+    orange: [255, 138, 0] as RGB,
+    teal: [0, 163, 137] as RGB,
 };
 
+type JsPDFInstance = InstanceType<typeof import('jspdf').default>;
 
-// --- Generator Function ---
+// Font name — Manrope is embedded for full Unicode currency symbol support
+const PDF_FONT = 'Manrope';
 
-export const generatePdf = async (fileName: string, containerId: string = 'pdf-report-container') => {
-    // If containerId is generic, we might want to be specific, but for now strict IDs are passed.
-    // However, for the individual report, we passed 'pdf-report-container' by prop default or override.
-    // The components above use hardcoded IDs 'pdf-report-container' and 'pdf-individual-report-container'.
-    // We should ensure the caller passes the right ID or we query based on presence.
+// Load and register Manrope TTF font into jsPDF
+async function registerManropeFont(pdf: JsPDFInstance) {
+    const [regularBuf, boldBuf] = await Promise.all([
+        fetch('/fonts/Manrope-Regular.ttf').then(r => r.arrayBuffer()),
+        fetch('/fonts/Manrope-Bold.ttf').then(r => r.arrayBuffer()),
+    ]);
 
-    // Actually, let's select ALL elements with class 'pdf-page' inside the container.
-    const container = document.getElementById(containerId);
-    if (!container) {
-        console.error(`PDF Container ${containerId} not found`);
-        return;
+    const toBase64 = (buf: ArrayBuffer) => {
+        const bytes = new Uint8Array(buf);
+        let binary = '';
+        for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+        return btoa(binary);
+    };
+
+    pdf.addFileToVFS('Manrope-Regular.ttf', toBase64(regularBuf));
+    pdf.addFont('Manrope-Regular.ttf', PDF_FONT, 'normal');
+
+    pdf.addFileToVFS('Manrope-Bold.ttf', toBase64(boldBuf));
+    pdf.addFont('Manrope-Bold.ttf', PDF_FONT, 'bold');
+}
+
+// --- Header Drawing ---
+function drawHeader(pdf: JsPDFInstance, companyName: string, reportTitle: string, generatedDate: string, periodStart: string, periodEnd: string) {
+    const y = MARGIN;
+
+    pdf.setFont(PDF_FONT, 'bold');
+    pdf.setFontSize(FONT.title);
+    pdf.setTextColor(...COLOR.black);
+    pdf.text(companyName || 'Company Name', MARGIN, y + 5);
+
+    pdf.setFont(PDF_FONT, 'bold');
+    pdf.setFontSize(FONT.subtitle);
+    pdf.setTextColor(...COLOR.black);
+    pdf.text(reportTitle, PAGE_W - MARGIN, y + 2, { align: 'right' });
+
+    pdf.setFont(PDF_FONT, 'normal');
+    pdf.setFontSize(FONT.meta);
+    pdf.setTextColor(...COLOR.gray);
+    pdf.text(`Generated: ${generatedDate}`, PAGE_W - MARGIN, y + 6, { align: 'right' });
+    pdf.text(`Period: ${periodStart} - ${periodEnd}`, PAGE_W - MARGIN, y + 9.5, { align: 'right' });
+
+    const lineY = y + 13;
+    pdf.setDrawColor(...COLOR.border);
+    pdf.setLineWidth(0.5);
+    pdf.line(MARGIN, lineY, PAGE_W - MARGIN, lineY);
+
+    return lineY + 4;
+}
+
+// --- KPI Cards Drawing ---
+function drawKPICards(pdf: JsPDFInstance, kpis: Array<{ label: string; value: string; color?: RGB }>, startY: number): number {
+    const count = kpis.length;
+    const gap = 3;
+    const cardW = (CONTENT_W - gap * (count - 1)) / count;
+    const cardH = 16;
+
+    kpis.forEach((kpi, i) => {
+        const x = MARGIN + i * (cardW + gap);
+
+        pdf.setFillColor(...COLOR.bgLight);
+        pdf.setDrawColor(...COLOR.border);
+        pdf.roundedRect(x, startY, cardW, cardH, 2, 2, 'FD');
+
+        pdf.setFont(PDF_FONT, 'normal');
+        pdf.setFontSize(FONT.kpiLabel);
+        pdf.setTextColor(...COLOR.gray);
+        pdf.text(kpi.label.toUpperCase(), x + 3, startY + 5);
+
+        const valStr = String(kpi.value);
+        const valFontSize = valStr.length > 12 ? 9 : valStr.length > 8 ? 11 : FONT.kpiValue;
+        pdf.setFont(PDF_FONT, 'bold');
+        pdf.setFontSize(valFontSize);
+        pdf.setTextColor(...(kpi.color || COLOR.black));
+        pdf.text(valStr, x + 3, startY + 12);
+    });
+
+    return startY + cardH + 5;
+}
+
+// --- Footer Drawing ---
+function drawFooter(pdf: JsPDFInstance, pageNumber: number, totalPages: number) {
+    const y = PAGE_H - MARGIN + 2;
+    pdf.setDrawColor(...COLOR.border);
+    pdf.setLineWidth(0.3);
+    pdf.line(MARGIN, y - 5, PAGE_W - MARGIN, y - 5);
+
+    pdf.setFont(PDF_FONT, 'bold');
+    pdf.setFontSize(FONT.footer + 1);
+    pdf.setTextColor(...COLOR.black);
+    pdf.text('alsonotify', MARGIN, y);
+
+    pdf.setFont(PDF_FONT, 'normal');
+    pdf.setFontSize(FONT.footer);
+    pdf.setTextColor(...COLOR.lightGray);
+    pdf.text(`Page ${pageNumber} of ${totalPages}`, PAGE_W - MARGIN, y, { align: 'right' });
+}
+
+
+// ==========================================================================
+// Main Report PDF Generator
+// ==========================================================================
+
+export async function generateReportPdf(
+    fileName: string,
+    activeTab: 'requirement' | 'task' | 'member',
+    data: RequirementReport[] | TaskReport[] | EmployeeReport[],
+    kpis: ReportKPI | EmployeeKPI | TaskReportsResponse['kpi'],
+    options: {
+        dateRange: [dayjs.Dayjs | null, dayjs.Dayjs | null] | null;
+        companyName?: string;
+        timezone?: string;
+        currency?: string;
+    }
+) {
+    const jsPDF = (await import('jspdf')).default;
+    const { default: autoTable } = await import('jspdf-autotable');
+
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    await registerManropeFont(pdf);
+
+    const currSym = getCurrencySymbol(options.currency || 'USD');
+    const tz = options.timezone || 'Asia/Kolkata';
+    const generatedDate = dayjs().tz(tz).format('MMM DD, YYYY');
+    const periodStart = options.dateRange?.[0]?.format('MMM DD, YYYY') || 'Start';
+    const periodEnd = options.dateRange?.[1]?.format('MMM DD, YYYY') || 'End';
+
+    const reportTitle = activeTab === 'requirement' ? 'Requirements Report' : activeTab === 'task' ? 'Tasks Report' : 'Employees Report';
+
+    // --- Build KPI data ---
+    let kpiCards: Array<{ label: string; value: string; color?: RGB }> = [];
+
+    if (activeTab === 'requirement') {
+        const k = kpis as ReportKPI;
+        kpiCards = [
+            { label: 'Total Requirements', value: String(k.totalRequirements) },
+            { label: 'On Time Completed', value: String(k.onTimeCompleted), color: COLOR.green },
+            { label: 'In Progress', value: String(k.inProgress) },
+            { label: 'Delayed', value: `${k.delayed} (+${formatDecimalHours(k.totalExtraHrs)})`, color: COLOR.red },
+            { label: 'Efficiency', value: `${k.efficiency}%`, color: COLOR.blue },
+        ];
+    } else if (activeTab === 'task') {
+        const k = kpis as TaskReportsResponse['kpi'];
+        kpiCards = [
+            { label: 'Total Tasks', value: String(k.totalTasks) },
+            { label: 'On Time Completed', value: String(k.onTimeCompleted), color: COLOR.green },
+            { label: 'In Progress', value: String(k.inProgress) },
+            { label: 'Delayed', value: `${k.delayed} (+${formatDecimalHours(k.totalExtraHrs)})`, color: COLOR.red },
+            { label: 'Efficiency', value: `${k.efficiency}%`, color: COLOR.blue },
+        ];
+    } else {
+        const k = kpis as EmployeeKPI;
+        kpiCards = [
+            { label: 'Total Expenses', value: `${currSym}${(k.totalExpenses || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}` },
+            { label: 'Total Revenue', value: `${currSym}${(k.totalRevenue || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}`, color: COLOR.green },
+            { label: 'Net Profit', value: `${k.netProfit >= 0 ? '' : '-'}${currSym}${Math.abs(k.netProfit || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}`, color: k.netProfit >= 0 ? COLOR.green : COLOR.red },
+            { label: 'Avg. Rate/Hr', value: `${currSym}${(k.avgRatePerHr || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}`, color: COLOR.blue },
+            { label: 'Occupancy', value: `${k.avgOccupancy}%`, color: k.avgOccupancy >= 70 ? COLOR.green : COLOR.red },
+            { label: 'Efficiency', value: `${k.avgEfficiency}%`, color: k.avgEfficiency >= 75 ? COLOR.green : COLOR.red },
+        ];
     }
 
-    const pages = container.querySelectorAll('.pdf-page');
-    if (pages.length === 0) {
-        console.error('No PDF pages found');
-        return;
+    // Draw first page header + KPIs
+    let tableStartY = drawHeader(pdf, options.companyName || '', reportTitle, generatedDate, periodStart, periodEnd);
+    tableStartY = drawKPICards(pdf, kpiCards, tableStartY);
+
+    // --- Build table data ---
+    let head: string[][] = [];
+    let body: Array<Array<string | { content: string; styles?: Record<string, unknown> }>> = [];
+    let columnStyles: Record<number, Record<string, unknown>> = {};
+
+    if (activeTab === 'requirement') {
+        head = [['No', 'Requirement', 'Contact Person', 'Timeline', 'Hours Utilization', 'Rev', 'Revenue / P&L', 'Status']];
+        columnStyles = {
+            0: { cellWidth: 8, halign: 'center' },
+            1: { cellWidth: 'auto' },
+            2: { cellWidth: 28 },
+            3: { cellWidth: 22 },
+            4: { cellWidth: 28 },
+            5: { cellWidth: 12, halign: 'center' },
+            6: { cellWidth: 25, halign: 'right' },
+            7: { cellWidth: 20, halign: 'center' },
+        };
+        (data as RequirementReport[]).forEach((row, idx) => {
+            const remaining = (row.allottedHrs || 0) - (row.engagedHrs || 0);
+            const isBleeding = row.engagedHrs > (row.allottedHrs || 0);
+            const hoursText = `${formatDecimalHours(row.engagedHrs || 0)}${(row.allottedHrs || 0) > 0 ? '/' + formatDecimalHours(row.allottedHrs) : ''}\n${isBleeding ? '+' + formatDecimalHours(Math.abs(remaining)) + ' over' : formatDecimalHours(remaining) + ' left'}`;
+            const startDate = row.startDate ? dayjs(row.startDate).tz(tz).format('MMM DD') : '-';
+            const endDate = row.endDate ? dayjs(row.endDate).tz(tz).format('MMM DD') : '-';
+            const isOverdue = row.status !== 'Completed' && row.endDate && dayjs().isAfter(dayjs(row.endDate), 'day');
+            const statusInfo = getStatusColor(row.status);
+
+            body.push([
+                String(idx + 1),
+                `${row.requirement}${row.partner ? '\n' + row.partner : ''}${row.workspaceName ? '\n' + row.workspaceName : ''}${row.type ? '\n[' + row.type + ']' : ''}${row.priority ? ' [' + row.priority + ']' : ''}${row.department ? ' [' + row.department + ']' : ''}`,
+                row.manager || 'Unassigned',
+                { content: `${startDate}\nto ${endDate}`, styles: isOverdue ? { textColor: COLOR.red } : {} },
+                { content: hoursText, styles: isBleeding ? { textColor: COLOR.red } : {} },
+                row.revision > 0 ? `v${row.revision + 1}` : '-',
+                `${currSym}${(row.revenue || 0).toLocaleString()}\n${row.profit >= 0 ? '+' : ''}${currSym}${(row.profit || 0).toLocaleString()}`,
+                { content: statusInfo.label, styles: { textColor: statusInfo.text, fillColor: statusInfo.bg, halign: 'center' as const } },
+            ]);
+        });
+    } else if (activeTab === 'task') {
+        head = [['No', 'Task', 'Requirement', 'Leader', 'Assigned', 'Due Date', 'Hours Variance', 'Status']];
+        columnStyles = {
+            0: { cellWidth: 8, halign: 'center' },
+            1: { cellWidth: 'auto' },
+            2: { cellWidth: 30 },
+            3: { cellWidth: 22 },
+            4: { cellWidth: 22 },
+            5: { cellWidth: 18 },
+            6: { cellWidth: 28 },
+            7: { cellWidth: 20, halign: 'center' },
+        };
+        (data as TaskReport[]).forEach((row, idx) => {
+            const remaining = (row.allottedHrs || 0) - (row.engagedHrs || 0);
+            const isBleeding = row.engagedHrs > (row.allottedHrs || 0);
+            const hasEstimate = (row.allottedHrs || 0) > 0;
+            const isOverdue = row.dueDate && new Date() > new Date(row.dueDate) && row.status !== 'Completed';
+            const hoursText = `${formatDecimalHours(row.engagedHrs || 0)}${hasEstimate ? '/' + formatDecimalHours(row.allottedHrs || 0) : ''}\n${hasEstimate ? (isBleeding ? '+' + formatDecimalHours(Math.abs(remaining)) + ' over' : formatDecimalHours(remaining) + ' left') : 'No estimate'}`;
+            const statusInfo = getStatusColor(row.status);
+
+            body.push([
+                String(idx + 1),
+                `${row.task}${row.workspaceName ? '\n' + row.workspaceName : ''}`,
+                row.requirement || '-',
+                row.leader || '-',
+                row.assigned || '-',
+                { content: row.dueDate ? dayjs(row.dueDate).format('MMM DD') : '-', styles: isOverdue ? { textColor: COLOR.red, fontStyle: 'bold' } : {} },
+                { content: hoursText, styles: isBleeding ? { textColor: COLOR.red } : {} },
+                { content: statusInfo.label, styles: { textColor: statusInfo.text, fillColor: statusInfo.bg, halign: 'center' as const } },
+            ]);
+        });
+    } else {
+        head = [['No', 'Employee', 'Tasks Performance', 'Load', 'Expenses', 'Revenue', 'Net Profit']];
+        columnStyles = {
+            0: { cellWidth: 8, halign: 'center' },
+            1: { cellWidth: 'auto' },
+            2: { cellWidth: 35 },
+            3: { cellWidth: 18 },
+            4: { cellWidth: 22 },
+            5: { cellWidth: 22 },
+            6: { cellWidth: 25 },
+        };
+        (data as EmployeeReport[]).forEach((row, idx) => {
+            const profitColor = row.profit >= 0 ? COLOR.green : COLOR.red;
+            body.push([
+                String(idx + 1),
+                `${row.member}\n${row.designation || ''} | ${row.department || ''}`,
+                `${row.taskStats.assigned} Assigned\nC:${row.taskStats.completed}  P:${row.taskStats.inProgress}  D:${row.taskStats.delayed}`,
+                `${row.utilization}%`,
+                `${currSym}${(row.expenses || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}`,
+                `${currSym}${(row.revenue || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}`,
+                { content: `${row.profit >= 0 ? '+' : ''}${currSym}${(row.profit || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}`, styles: { textColor: profitColor, fontStyle: 'bold' } },
+            ]);
+        });
     }
 
-    try {
-        const jsPDF = (await import('jspdf')).default;
-        const html2canvas = (await import('html2canvas')).default;
+    let totalPages = 0;
 
-        const pdf = new jsPDF('p', 'mm', 'a4');
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = pdf.internal.pageSize.getHeight();
+    autoTable(pdf, {
+        head,
+        body,
+        startY: tableStartY,
+        margin: { left: MARGIN, right: MARGIN, top: MARGIN, bottom: MARGIN + 8 },
+        styles: {
+            fontSize: FONT.tableBody,
+            cellPadding: { top: 2.5, right: 2, bottom: 2.5, left: 2 },
+            textColor: COLOR.black,
+            lineColor: COLOR.border,
+            lineWidth: 0.2,
+            overflow: 'linebreak',
+            font: PDF_FONT,
+            valign: 'middle',
+        },
+        headStyles: {
+            fillColor: COLOR.black,
+            textColor: COLOR.white,
+            fontStyle: 'bold',
+            fontSize: FONT.tableHead,
+            cellPadding: { top: 3, right: 2, bottom: 3, left: 2 },
+            halign: 'left',
+        },
+        alternateRowStyles: {
+            fillColor: [249, 250, 251],
+        },
+        columnStyles,
+        didDrawPage: (hookData) => {
+            totalPages = pdf.getNumberOfPages();
+            if (hookData.pageNumber > 1) {
+                drawHeader(pdf, options.companyName || '', reportTitle, generatedDate, periodStart, periodEnd);
+            }
+        },
+        willDrawPage: (hookData) => {
+            if (hookData.pageNumber > 1) {
+                hookData.settings.startY = MARGIN + 17;
+            }
+        },
+    });
 
-        for (let i = 0; i < pages.length; i++) {
-            const pageEl = pages[i] as HTMLElement;
-
-            // Render the page
-            const canvas = await html2canvas(pageEl, {
-                scale: 2,
-                useCORS: true,
-                logging: false,
-                backgroundColor: '#ffffff',
-                width: pageEl.offsetWidth, // Ensure we capture full width/height
-                height: pageEl.offsetHeight
-            });
-
-            const imgData = canvas.toDataURL('image/png');
-
-            if (i > 0) pdf.addPage();
-
-            // Add image full scale to PDF page
-            // We set DOM element to 210mm x 297mm, so it maps 1:1
-            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-        }
-
-        pdf.save(fileName);
-        return true;
-    } catch (error) {
-        console.error('PDF Generation failed:', error);
-        throw error;
+    // Draw footers on all pages
+    totalPages = pdf.getNumberOfPages();
+    for (let i = 1; i <= totalPages; i++) {
+        pdf.setPage(i);
+        drawFooter(pdf, i, totalPages);
     }
-};
 
-
-// --- Render Helpers (Split out for cleaner code) ---
-function renderReqHeader() {
-    return (
-        <>
-            <Th style={{ width: '50px' }}>No</Th>
-            <Th style={{ width: '25%' }}>Requirement</Th>
-            <Th style={{ width: '15%' }}>Partner</Th>
-            <Th style={{ width: '12%' }}>Timeline</Th>
-            <Th style={{ width: '15%' }}>Hours Utilization</Th>
-            <Th style={{ width: '10%' }}>Revision</Th>
-            <Th style={{ width: '13%', textAlign: 'right' }}>Revenue / P&L</Th>
-            <Th style={{ width: '10%', textAlign: 'center' }}>Status</Th>
-        </>
-    )
+    pdf.save(fileName);
+    return true;
 }
 
-function renderTaskHeader() {
-    return (
-        <>
-            <Th style={{ width: '50px' }}>No</Th>
-            <Th style={{ width: '22%' }}>Task</Th>
-            <Th style={{ width: '18%' }}>Requirement</Th>
-            <Th style={{ width: '10%' }}>Leader</Th>
-            <Th style={{ width: '12%' }}>Assigned</Th>
-            <Th style={{ width: '8%' }}>Due Date</Th>
-            <Th style={{ width: '16%' }}>Hours Variance</Th>
-            <Th style={{ width: '10%', textAlign: 'center' }}>Status</Th>
-        </>
-    )
-}
 
-function renderEmpHeader() {
-    return (
-        <>
-            <Th style={{ width: '50px' }}>No</Th>
-            <Th style={{ width: '18%' }}>Employee</Th>
-            <Th style={{ width: '22%' }}>Tasks Performance</Th>
-            <Th style={{ width: '15%' }}>Load</Th>
-            <Th style={{ width: '12%' }}>Expenses</Th>
-            <Th style={{ width: '12%' }}>Revenue</Th>
-            <Th style={{ width: '12%' }}>Net Profit</Th>
-        </>
-    )
-}
+// ==========================================================================
+// Individual Employee PDF Generator
+// ==========================================================================
 
-function renderReqRow(row: RequirementReport, idx: number, timezone?: string, currSym: string = '$') {
-    return (
-        <>
-            <Td>{idx + 1}</Td>
-            <Td>
-                <div style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, fontSize: "var(--font-size-xs)", color: '#111111' }}>
-                  {row.requirement}
-                </div>
-                <div style={{ fontSize: "var(--font-size-xs)", color: '#666666', fontWeight: 500, marginTop: '2px' }}>
-                  {row.workspaceName}
-                </div>
-                <div style={{ display: 'flex', gap: '4px', marginTop: '4px' }}>
-                     {row.type && <span style={{ fontSize: "var(--font-size-2xs)", backgroundColor: '#F5F5F5', color: '#888888', padding: '2px 4px', borderRadius: '4px', textTransform: 'uppercase' }}>{row.type}</span>}
-                     {row.priority && <span style={{ fontSize: "var(--font-size-2xs)", backgroundColor: row.priority === 'High' ? '#FFF0F0' : '#F0F8FF', color: row.priority === 'High' ? '#FF3B3B' : '#2196F3', padding: '2px 4px', borderRadius: '4px', textTransform: 'uppercase' }}>{row.priority}</span>}
-                </div>
-            </Td>
-            <Td>
-                 <div style={{ fontWeight: 700, fontSize: "var(--font-size-xs)", color: '#111111' }}>{row.partner}</div>
-                 <div style={{ fontSize: "var(--font-size-2xs)", color: '#666666' }}>{row.manager || '-'}</div>
-            </Td>
-            <Td>
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <span style={{ fontWeight: 600, color: '#111' }}>{row.startDate ? dayjs(row.startDate).tz(timezone || 'Asia/Kolkata').format('MMM DD') : '-'}</span>
-                    <span style={{ fontSize: "var(--font-size-2xs)", color: (row.status !== 'Completed' && row.endDate && dayjs().isAfter(dayjs(row.endDate), 'day')) ? '#FF3B3B' : '#666', fontWeight: (row.status !== 'Completed' && row.endDate && dayjs().isAfter(dayjs(row.endDate), 'day')) ? 700 : 400 }}>
-                       to {row.endDate ? dayjs(row.endDate).tz(timezone || 'Asia/Kolkata').format('MMM DD') : '-'}
-                    </span>
-                </div>
-            </Td>
-            <Td>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', paddingRight: '12px' }}>
-                    {(() => {
-                        const remaining = (row.allottedHrs || 0) - (row.engagedHrs || 0);
-                        const isBleeding = row.engagedHrs > (row.allottedHrs || 0);
-                        const isWarning = !isBleeding && (row.allottedHrs || 0) > 0 && row.engagedHrs >= ((row.allottedHrs || 0) * 0.8);
-                        
-                        // Calculate visualization percentages (max 100%)
-                        const total = (row.allottedHrs || 0) > 0 ? row.allottedHrs : Math.max(row.engagedHrs || 1, 1);
-                        const fillRatio = Math.min((row.engagedHrs || 0) / total, 1);
-                        const fillPercent = `${(fillRatio * 100).toFixed(1)}%`;
-                        
-                        // Determine colors
-                        const barColor = isBleeding ? '#FF3B3B' : isWarning ? '#FF8A00' : '#111111';
-                        const trackColor = '#F0F0F0';
-                        
-                        return (
-                          <>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                <span style={{ fontWeight: 700, fontSize: "var(--font-size-xs)", color: isBleeding ? '#FF3B3B' : isWarning ? '#FF8A00' : '#111111' }}>
-                                  {formatDecimalHours(row.engagedHrs || 0)}
-                                </span>
-                                <span style={{ fontSize: "var(--font-size-2xs)", fontWeight: 600, padding: isBleeding ? '2px 6px' : '0', backgroundColor: isBleeding ? '#FFF0F0' : 'transparent', borderRadius: '4px', color: isBleeding ? '#FF3B3B' : isWarning ? '#FF8A00' : '#999999' }}>
-                                  {isBleeding ? `+${formatDecimalHours(Math.abs(remaining))} over` : `${formatDecimalHours(remaining)} left`}
-                                </span>
-                            </div>
-                            {/* Micro-visualization Sparkline inline style */}
-                            <div style={{ height: '4px', width: '100%', borderRadius: '4px', overflow: 'hidden', backgroundColor: trackColor }}>
-                                <div style={{ height: '100%', borderRadius: '4px', backgroundColor: barColor, width: fillPercent }} />
-                            </div>
-                          </>
-                        );
-                    })()}
-                    </div>
-            </Td>
-            <Td>
-                <div style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 600, fontSize: "var(--font-size-xs)", color: '#111111' }}>
-                    {row.revision > 0 ? (
-                        <span style={{ padding: '2px 8px', borderRadius: '4px', backgroundColor: row.revision > 1 ? '#FFF4EC' : '#F5F5F5', color: row.revision > 1 ? '#FF8A00' : '#666666' }}>
-                            v{row.revision + 1}
-                        </span>
-                    ) : (
-                        <span style={{ color: '#CCCCCC' }}>-</span>
-                    )}
-                </div>
-            </Td>
-            <Td style={{ fontFamily: "'Manrope', sans-serif", textAlign: 'right', verticalAlign: 'middle' }}>
-                <div style={{ fontSize: "var(--font-size-2xs)", color: '#999999', fontWeight: 500 }}>
-                    {currSym}{(row.revenue || 0).toLocaleString()}
-                </div>
-                <div style={{ fontWeight: 700, fontSize: "var(--font-size-xs)", color: row.profit >= 0 ? '#00A389' : '#FF3B3B', marginTop: '1px' }}>
-                    {row.profit >= 0 ? '+' : ''}{currSym}{(row.profit || 0).toLocaleString()}
-                </div>
-            </Td>
-            <Td style={{ textAlign: 'center' }}>
-                <div style={{
-                    display: 'inline-block',
-                    padding: '4px 10px',
-                    borderRadius: '6px',
-                    fontSize: "var(--font-size-2xs)",
-                    fontWeight: 700,
-                    backgroundColor: getStatusColor(row.status).bg,
-                    color: getStatusColor(row.status).text,
-                    whiteSpace: 'nowrap'
-                }}>
-                    {getStatusColor(row.status).label}
-                </div>
-            </Td>
-        </>
-    )
-}
+export async function generateIndividualEmployeePdf(
+    fileName: string,
+    member: MemberRow,
+    worklogs: WorklogRow[],
+    options: {
+        dateRange: [dayjs.Dayjs | null, dayjs.Dayjs | null] | null;
+        companyName?: string;
+        timezone?: string;
+        currency?: string;
+    }
+) {
+    const jsPDF = (await import('jspdf')).default;
+    const { default: autoTable } = await import('jspdf-autotable');
 
-function renderTaskRow(row: TaskReport, idx: number) {
-    const isOverdue = row.dueDate && new Date() > new Date(row.dueDate) && row.status !== 'Completed';
-    const remaining = (row.allottedHrs || 0) - (row.engagedHrs || 0);
-    const isBleeding = row.engagedHrs > (row.allottedHrs || 0);
-    const isWarning = !isBleeding && (row.allottedHrs || 0) > 0 && row.engagedHrs >= ((row.allottedHrs || 0) * 0.8);
-    const hasEstimate = (row.allottedHrs || 0) > 0;
-    const total = hasEstimate ? row.allottedHrs : Math.max(row.engagedHrs || 1, 1);
-    const fillRatio = Math.min((row.engagedHrs || 0) / total, 1);
-    const fillPercent = `${(fillRatio * 100).toFixed(1)}%`;
-    const barColor = isBleeding ? '#FF3B3B' : isWarning ? '#FF8A00' : '#111111';
-    const trackColor = '#F0F0F0';
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    await registerManropeFont(pdf);
 
-    return (
-        <>
-            <Td>{idx + 1}</Td>
-            <Td>
-                <div style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, fontSize: "var(--font-size-xs)", color: '#111111' }}>
-                    {row.task}
-                </div>
-                {row.workspaceName && (
-                    <div style={{ fontSize: "var(--font-size-xs)", color: '#999999', fontWeight: 500, marginTop: '2px' }}>
-                        {row.workspaceName}
-                    </div>
-                )}
-            </Td>
-            <Td style={{ color: '#666666' }}>{row.requirement}</Td>
-            <Td style={{ color: '#666666' }}>{row.leader}</Td>
-            <Td style={{ color: '#666666' }}>{row.assigned}</Td>
-            <Td>
-                {row.dueDate ? (
-                    <span style={{
-                        fontSize: "var(--font-size-xs)",
-                        fontWeight: isOverdue ? 700 : 500,
-                        color: isOverdue ? '#FF3B3B' : '#111111'
-                    }}>
-                        {dayjs(row.dueDate).format('MMM DD')}
-                    </span>
-                ) : (
-                    <span style={{ color: '#CCCCCC' }}>-</span>
-                )}
-            </Td>
-            <Td>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', paddingRight: '8px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <span style={{ fontWeight: 700, fontSize: "var(--font-size-xs)", color: isBleeding ? '#FF3B3B' : isWarning ? '#FF8A00' : '#111111' }}>
-                            {formatDecimalHours(row.engagedHrs || 0)}
-                        </span>
-                        {hasEstimate ? (
-                            <span style={{ fontSize: "var(--font-size-2xs)", fontWeight: 600, padding: isBleeding ? '2px 6px' : '0', backgroundColor: isBleeding ? '#FFF0F0' : 'transparent', borderRadius: '4px', color: isBleeding ? '#FF3B3B' : isWarning ? '#FF8A00' : '#999999' }}>
-                                {isBleeding ? `+${formatDecimalHours(Math.abs(remaining))} over` : `${formatDecimalHours(remaining)} left`}
-                            </span>
-                        ) : (
-                            <span style={{ fontSize: "var(--font-size-2xs)", color: '#CCCCCC' }}>No estimate</span>
-                        )}
-                    </div>
-                    <div style={{ height: '4px', width: '100%', borderRadius: '4px', overflow: 'hidden', backgroundColor: trackColor }}>
-                        <div style={{ height: '100%', borderRadius: '4px', backgroundColor: barColor, width: fillPercent }} />
-                    </div>
-                </div>
-            </Td>
-            <Td style={{ textAlign: 'center' }}>
-                <div style={{
-                    display: 'inline-block',
-                    padding: '4px 10px',
-                    borderRadius: '6px',
-                    fontSize: "var(--font-size-2xs)",
-                    fontWeight: 700,
-                    backgroundColor: getStatusColor(row.status).bg,
-                    color: getStatusColor(row.status).text,
-                    whiteSpace: 'nowrap'
-                }}>
-                    {getStatusColor(row.status).label}
-                </div>
-            </Td>
-        </>
-    )
-}
+    const tz = options.timezone || 'Asia/Kolkata';
+    const generatedDate = dayjs().tz(tz).format('MMM DD, YYYY');
+    const periodStart = options.dateRange?.[0]?.format('MMM DD, YYYY') || 'Start';
+    const periodEnd = options.dateRange?.[1]?.format('MMM DD, YYYY') || 'End';
 
-function renderEmpRow(row: EmployeeReport, idx: number, currSym: string = '$') {
-    return (
-        <>
-            <Td>{idx + 1}</Td>
-            <Td>
-                <div style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, fontSize: "var(--font-size-xs)", color: '#111111' }}>{row.member}</div>
-                <div style={{ fontSize: "var(--font-size-xs)", color: '#666666' }}>{row.designation} <span style={{ color: '#E5E5E5' }}>|</span> {row.department}</div>
-            </Td>
-            <Td>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    <span style={{ fontWeight: 700, fontSize: "var(--font-size-xs)" }}>{row.taskStats.assigned} <span style={{ fontWeight: 400, color: '#666' }}>Assigned</span></span>
-                    <div style={{ display: 'flex', gap: '8px', fontSize: "var(--font-size-2xs)", color: '#666' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><div style={{ width: 6, height: 6, borderRadius: '50%', background: '#0F9D58' }}></div> {row.taskStats.completed}</div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><div style={{ width: 6, height: 6, borderRadius: '50%', background: '#1A73E8' }}></div> {row.taskStats.inProgress}</div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><div style={{ width: 6, height: 6, borderRadius: '50%', background: '#FF3B3B' }}></div> {row.taskStats.delayed}</div>
-                    </div>
-                </div>
-            </Td>
-            <Td>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: "var(--font-size-xs)" }}>
-                        <span style={{ fontWeight: 700, color: '#111111' }}>{row.utilization}%</span>
-                    </div>
-                    <ProgressBar filled={row.utilization} total={100} color={row.utilization > 100 ? '#FF3B3B' : '#111111'} />
-                </div>
-            </Td>
-            <Td style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, color: '#111111' }}>{currSym}{(row.expenses || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}</Td>
-            <Td style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, color: '#111111' }}>{currSym}{(row.revenue || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}</Td>
-            <Td style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 700, color: row.profit >= 0 ? '#0F9D58' : '#FF3B3B' }}>
-                {row.profit >= 0 ? '+' : ''}{currSym}{(row.profit || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}
-            </Td>
-        </>
-    )
-}
+    let y = drawHeader(pdf, options.companyName || '', 'Employee Performance Report', generatedDate, periodStart, periodEnd);
 
-// Reuse Sub-components like KPICard, Th, Td, ProgressBar from before
-const KPICard = ({ label, value, color = '#111111', subValue = null }: { label: string, value: string | number, color?: string, subValue?: React.ReactNode }) => (
-    <div style={{
-        background: '#FAFAFA',
-        border: '1px solid #EEEEEE',
-        borderRadius: '12px',
-        padding: '15px'
-    }}>
-        <span style={{
-            fontSize: "var(--font-size-xs)",
-            fontWeight: 500,
-            color: '#666666',
-            textTransform: 'uppercase',
-            letterSpacing: '0.5px',
-            marginBottom: '5px',
-            display: 'block'
-        }}>{label}</span>
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-            <p style={{
-                fontFamily: "'Manrope', sans-serif",
-                fontWeight: 700,
-                fontSize: "var(--font-size-xl)",
-                margin: 0,
-                color: color
-            }}>{value}</p>
-            {subValue}
-        </div>
-    </div>
-);
+    // --- Profile Section ---
+    const profileH = 18;
 
-const Th = ({ children, style, ...props }: React.ThHTMLAttributes<HTMLTableCellElement>) => (
-    <th style={{
-        backgroundColor: '#111111',
-        color: 'white',
-        fontFamily: "'Manrope', sans-serif",
-        fontWeight: 600,
-        textAlign: 'left',
-        padding: '12px 15px',
-        fontSize: "var(--font-size-xs)",
-        textTransform: 'uppercase',
-        letterSpacing: '0.5px',
-        ...style
-    }} {...props}>
-        {children}
-    </th>
-);
+    // Avatar circle
+    pdf.setFillColor(...COLOR.black);
+    pdf.circle(MARGIN + 6, y + profileH / 2, 5, 'F');
+    pdf.setFont(PDF_FONT, 'bold');
+    pdf.setFontSize(10);
+    pdf.setTextColor(...COLOR.white);
+    pdf.text(member.member.charAt(0).toUpperCase(), MARGIN + 6, y + profileH / 2 + 1.5, { align: 'center' });
 
-const Td = ({ children, style, ...props }: React.TdHTMLAttributes<HTMLTableCellElement>) => (
-    <td style={{
-        padding: '12px 15px',
-        borderBottom: '1px solid #EEEEEE',
-        fontWeight: 500,
-        verticalAlign: 'middle',
-        color: '#111111',
-        ...style
-    }} {...props}>
-        {children}
-    </td>
-);
+    // Name & designation/department
+    pdf.setFont(PDF_FONT, 'bold');
+    pdf.setFontSize(11);
+    pdf.setTextColor(...COLOR.black);
+    pdf.text(member.member, MARGIN + 14, y + 6);
+    pdf.setFont(PDF_FONT, 'normal');
+    pdf.setFontSize(FONT.meta);
+    pdf.setTextColor(...COLOR.gray);
+    pdf.text(`${member.designation || ''} | ${member.department || ''}`, MARGIN + 14, y + 10);
 
-const ProgressBar = ({ filled, total, color }: { filled: number, total: number, color: string }) => {
-    // Kept for backward compatibility with Tasks and Employee reporting, removed from Requirements.
-    const pct = Math.min((filled / (total || 1)) * 100, 100);
-    return (
-        <div style={{ width: '100%', height: '6px', backgroundColor: '#F0F0F0', borderRadius: '50px', overflow: 'hidden' }}>
-            <div style={{ height: '100%', width: `${pct}%`, backgroundColor: color, borderRadius: '50px' }}></div>
-        </div>
-    )
-}
+    // KPI cards (inline)
+    const empKpis = [
+        { label: 'Total Hours', value: formatDecimalHours(member.totalWorkingHrs) },
+        { label: 'Engaged', value: formatDecimalHours(member.actualEngagedHrs) },
+        { label: 'Occupancy', value: `${member.utilization}%`, color: member.utilization >= 70 ? COLOR.green : COLOR.red },
+        { label: 'Efficiency', value: `${member.efficiency}%`, color: member.efficiency >= 75 ? COLOR.green : member.efficiency >= 50 ? COLOR.blue : COLOR.red },
+    ];
 
-function renderRequirementKPIs(kpi: ReportKPI) {
-    if (!kpi) return null;
-    return (
-        <>
-            <KPICard label="Total Requirements" value={kpi.totalRequirements} />
-            <KPICard label="On Time Completed" value={kpi.onTimeCompleted} color="#0F9D58" />
-            <KPICard label="In Progress" value={kpi.inProgress} />
-            <KPICard
-                label="Delayed"
-                value={kpi.delayed}
-                color="#FF3B3B"
-                subValue={kpi.totalExtraHrs > 0 ? <span style={{ fontSize: "var(--font-size-xs)", fontWeight: 500, color: '#666' }}>(+{formatDecimalHours(kpi.totalExtraHrs)})</span> : null}
-            />
-            <KPICard label="Efficiency" value={`${kpi.efficiency}%`} color="#2196F3" />
-        </>
-    )
-}
+    const kpiStartX = MARGIN + 55;
+    const kpiCardW = (CONTENT_W - 55 - 6) / 4;
+    empKpis.forEach((kpi, i) => {
+        const x = kpiStartX + i * (kpiCardW + 2);
+        pdf.setFillColor(...COLOR.bgLight);
+        pdf.setDrawColor(...COLOR.border);
+        pdf.roundedRect(x, y, kpiCardW, profileH, 2, 2, 'FD');
 
-function renderTaskKPIs(kpis: TaskReportsResponse['kpi']) {
-    if (!kpis) return null;
-    return (
-        <>
-            <KPICard label="Total Tasks" value={kpis.totalTasks} />
-            <KPICard label="On Time Completed" value={kpis.onTimeCompleted} color="#0F9D58" />
-            <KPICard label="In Progress" value={kpis.inProgress} />
-            <KPICard
-                label="Delayed"
-                value={kpis.delayed}
-                color="#FF3B3B"
-                subValue={kpis.totalExtraHrs > 0 ? <span style={{ fontSize: "var(--font-size-xs)", fontWeight: 500, color: '#666' }}>(+{formatDecimalHours(kpis.totalExtraHrs)})</span> : null}
-            />
-            <KPICard label="Efficiency" value={`${kpis.efficiency}%`} color="#2196F3" />
-        </>
-    )
-}
+        pdf.setFont(PDF_FONT, 'normal');
+        pdf.setFontSize(5.5);
+        pdf.setTextColor(...COLOR.gray);
+        pdf.text(kpi.label.toUpperCase(), x + 2.5, y + 5);
 
-function renderEmployeeKPIs(kpi: EmployeeKPI, currSym: string = '$') {
-    if (!kpi) return null;
-    return (
-        <>
-            <KPICard label="Total Expenses" value={`${currSym}${(kpi.totalExpenses || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}`} />
-            <KPICard label="Total Revenue" value={`${currSym}${(kpi.totalRevenue || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}`} color="#0F9D58" />
-            <KPICard label="Net Profit" value={`${kpi.netProfit >= 0 ? '' : '-'}${currSym}${Math.abs(kpi.netProfit || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}`} color={kpi.netProfit >= 0 ? "#0F9D58" : "#FF3B3B"} />
-            <KPICard label="Avg. Rate/Hr" value={`${currSym}${(kpi.avgRatePerHr || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}`} color="#2196F3" />
-            <KPICard label="Occupancy" value={`${kpi.avgOccupancy}%`} color={kpi.avgOccupancy >= 70 ? "#0F9D58" : "#FF3B3B"} />
-            <KPICard label="Efficiency" value={`${kpi.avgEfficiency}%`} color={kpi.avgEfficiency >= 75 ? "#0F9D58" : "#FF3B3B"} />
-        </>
-    )
+        pdf.setFont(PDF_FONT, 'bold');
+        pdf.setFontSize(10);
+        pdf.setTextColor(...(kpi.color || COLOR.black));
+        pdf.text(kpi.value, x + 2.5, y + 12.5);
+    });
+
+    y += profileH + 6;
+
+    // --- Work History Title ---
+    pdf.setFont(PDF_FONT, 'bold');
+    pdf.setFontSize(8);
+    pdf.setTextColor(...COLOR.black);
+    pdf.text('WORK HISTORY', MARGIN, y);
+    y += 4;
+
+    // --- Work History Table (includes Status column matching UI drawer) ---
+    const head = [['Date', 'Task', 'Details', 'Time', 'Status', 'Duration']];
+    const body: Array<Array<string | { content: string; styles?: Record<string, unknown> }>> = worklogs.map(log => {
+        const statusInfo = log.sessionStatus ? getStatusColor(log.sessionStatus) : null;
+        return [
+            dayjs(log.date).format('MMM DD'),
+            log.task,
+            log.details || '-',
+            `${log.startTime} - ${log.endTime}`,
+            statusInfo
+                ? { content: statusInfo.label, styles: { textColor: statusInfo.text, fillColor: statusInfo.bg, halign: 'center' as const } }
+                : '-',
+            log.engagedTime,
+        ];
+    });
+
+    if (body.length === 0) {
+        body.push([{ content: 'No work history found.', colSpan: 6, styles: { halign: 'center', textColor: COLOR.lightGray } } as unknown as string, '', '', '', '', '']);
+    }
+
+    autoTable(pdf, {
+        head,
+        body,
+        startY: y,
+        margin: { left: MARGIN, right: MARGIN, top: MARGIN, bottom: MARGIN + 8 },
+        styles: {
+            fontSize: FONT.tableBody,
+            cellPadding: { top: 2, right: 2, bottom: 2, left: 2 },
+            textColor: COLOR.black,
+            lineColor: COLOR.border,
+            lineWidth: 0.2,
+            overflow: 'linebreak',
+            font: PDF_FONT,
+            valign: 'middle',
+        },
+        headStyles: {
+            fillColor: COLOR.black,
+            textColor: COLOR.white,
+            fontStyle: 'bold',
+            fontSize: FONT.tableHead,
+            cellPadding: { top: 2.5, right: 2, bottom: 2.5, left: 2 },
+        },
+        alternateRowStyles: {
+            fillColor: [249, 250, 251],
+        },
+        columnStyles: {
+            0: { cellWidth: 18 },
+            1: { cellWidth: 32 },
+            2: { cellWidth: 'auto' },
+            3: { cellWidth: 26 },
+            4: { cellWidth: 20, halign: 'center' },
+            5: { cellWidth: 18, halign: 'right', fontStyle: 'bold' },
+        },
+        didDrawPage: (hookData) => {
+            if (hookData.pageNumber > 1) {
+                drawHeader(pdf, options.companyName || '', 'Employee Performance Report', generatedDate, periodStart, periodEnd);
+            }
+        },
+        willDrawPage: (hookData) => {
+            if (hookData.pageNumber > 1) {
+                hookData.settings.startY = MARGIN + 17;
+            }
+        },
+    });
+
+    // Draw footers on all pages
+    const totalPages = pdf.getNumberOfPages();
+    for (let i = 1; i <= totalPages; i++) {
+        pdf.setPage(i);
+        drawFooter(pdf, i, totalPages);
+    }
+
+    pdf.save(fileName);
+    return true;
 }
