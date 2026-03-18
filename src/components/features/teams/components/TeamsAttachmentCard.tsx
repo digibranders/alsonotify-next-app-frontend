@@ -89,7 +89,7 @@ export function TeamsAttachmentCard({ attachment }: TeamsAttachmentCardProps) {
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium text-[#111111] truncate">{attachment.name}</p>
         <p className="text-xs text-[#999999]">
-          {attachment.contentType.split('/').pop()?.toUpperCase() || 'File'}
+          {(attachment.contentType || '').split('/').pop()?.toUpperCase() || 'File'}
         </p>
       </div>
       <ExternalLink size={14} className="text-[#999999] shrink-0" />

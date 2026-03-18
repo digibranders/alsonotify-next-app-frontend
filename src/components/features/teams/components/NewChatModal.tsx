@@ -23,7 +23,7 @@ export function NewChatModal({ open, onClose, onChatCreated }: NewChatModalProps
   const [selectedUsers, setSelectedUsers] = useState<SelectedUser[]>([]);
   const createChat = useCreateTeamsChat();
 
-  const { data: peopleData, isLoading: searching } = useTeamsPeopleSearch(search);
+  const { data: peopleData, isLoading: searching, isError: searchError } = useTeamsPeopleSearch(search);
   const people = peopleData?.result || [];
 
   const toggleUser = (user: SelectedUser) => {
@@ -115,6 +115,10 @@ export function NewChatModal({ open, onClose, onChatCreated }: NewChatModalProps
           ) : search.length < 2 ? (
             <p className="text-sm text-[#999999] text-center py-6">
               Type at least 2 characters to search
+            </p>
+          ) : searchError ? (
+            <p className="text-sm text-[#ff3b3b] text-center py-6">
+              Search failed. Please reconnect Microsoft 365 in Settings.
             </p>
           ) : people.length === 0 ? (
             <p className="text-sm text-[#999999] text-center py-6">
