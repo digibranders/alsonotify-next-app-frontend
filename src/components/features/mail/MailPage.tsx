@@ -76,8 +76,7 @@ import {
 import { EmailComposePane } from "./EmailComposePane";
 import { useQuery } from "@tanstack/react-query";
 import { useUserDetails } from "@/hooks/useUser";
-import { getIntegrationStatus } from "@/services/integration";
-import { MicrosoftUserOAuth } from "@/services/calendar";
+import { MicrosoftUserOAuth, getTeamsConnectionStatus } from "@/services/calendar";
 import type { ContactOption } from "./EmailInput";
 
 const { Sider, Content } = Layout;
@@ -215,10 +214,10 @@ export function MailPage() {
   const { message } = App.useApp();
   const { data: userDetails } = useUserDetails();
 
-  // Microsoft 365 connection status
+  // Microsoft 365 connection status (user-level, same as Calendar)
   const { data: integrationStatus, isLoading: isLoadingIntegration } = useQuery({
-    queryKey: ["integration", "status"],
-    queryFn: getIntegrationStatus,
+    queryKey: ["calendar", "teamsConnection"],
+    queryFn: getTeamsConnectionStatus,
     refetchOnWindowFocus: true,
     staleTime: 2 * 60 * 1000,
   });

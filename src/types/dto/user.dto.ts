@@ -61,6 +61,7 @@ export interface UserDto {
   profile_pic?: string;
   date_of_joining?: string;
   late_time?: number | null;
+  azure_oid?: string;
 
   user_profile?: {
     mobile_number?: string;

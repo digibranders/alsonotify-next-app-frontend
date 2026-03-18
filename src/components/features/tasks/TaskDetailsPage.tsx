@@ -6,7 +6,7 @@ import { useTabSync } from '@/hooks/useTabSync';
 import {
   FileText, Calendar, Clock,
   AlertCircle, Briefcase, FolderOpen,
-  ArrowRight, Eye, CheckCircle, RotateCcw
+  ArrowRight, Eye, CheckCircle, RotateCcw, Video
 } from 'lucide-react';
 import { Breadcrumb, App, Modal, Input, Button } from 'antd';
 import { TaskStatusBadge, TaskChatPanel } from './components';
@@ -27,6 +27,7 @@ import { ReviewDecisionModal } from './components/ReviewDecisionModal';
 
 import { Linkify } from '@/components/common/Linkify';
 import { formatDecimalHours } from '@/utils/date/timeFormat';
+import { CreateMeetingModal } from '@/components/modals/CreateMeetingModal';
 
 interface TaskActivityAttachment {
   id: number;
@@ -90,6 +91,7 @@ export function TaskDetailsPage() {
   const [reviewDecisionOpen, setReviewDecisionOpen] = useState(false);
   const [reviewDecisionType, setReviewDecisionType] = useState<'Approve' | 'RequestChanges' | null>(null);
   const [reviewDecisionLoading, setReviewDecisionLoading] = useState(false);
+  const [meetingModalOpen, setMeetingModalOpen] = useState(false);
 
   const queryClient = useQueryClient();
   const { mutateAsync: updateMemberStatusAsync } = useUpdateMemberStatus();
@@ -321,6 +323,13 @@ export function TaskDetailsPage() {
               </Button>
             </>
           )}
+          <Button
+            size="small"
+            icon={<Video className="w-3.5 h-3.5" />}
+            onClick={() => setMeetingModalOpen(true)}
+          >
+            Start Meeting
+          </Button>
         </div>
       }
       tabs={[
@@ -526,6 +535,11 @@ export function TaskDetailsPage() {
           <DocumentsTab activityData={documentsActivityData} />
         </div>
       </div>
+      <CreateMeetingModal
+        open={meetingModalOpen}
+        onClose={() => setMeetingModalOpen(false)}
+        defaultSubject={task.name || ''}
+      />
       <ReviewDecisionModal
         open={reviewDecisionOpen}
         decision={reviewDecisionType}

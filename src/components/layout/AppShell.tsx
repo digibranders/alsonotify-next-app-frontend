@@ -221,7 +221,7 @@ function AppShellContent({ children }: Readonly<AppShellProps>) {
           </div>
         </div>
         {/* FloatingProductivityWidget removed - FloatingTimerBar handles all timer functionality */}
-        {!pathname?.startsWith('/dashboard/mail') && <FloatingTimerBar />}
+        {!pathname?.startsWith('/dashboard/mail') && !pathname?.startsWith('/dashboard/teams') && <FloatingTimerBar />}
         <InvitationPopup />
 
         {/* Mobile sidebar drawer - same content as desktop sidebar; collapse button closes drawer */}
