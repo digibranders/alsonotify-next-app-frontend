@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo, useEffect, useState } from 'react';
-import { TrendingUp, TrendingDown, DollarSign, Users, Percent, AlertTriangle } from 'lucide-react';
+import { TrendingUp, TrendingDown, DollarSign } from 'lucide-react';
 import { Tooltip } from 'antd';
 import { Task, Requirement } from '@/types/domain';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
@@ -400,21 +400,6 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
         )}
       </div>
       </div>
-
-      {/* Alert for over-budget tasks */}
-      {summary.overBudgetTasks > 0 && (
-        <div className="bg-[#FFF5F5] border border-[#FECACA] rounded-[12px] p-4 flex items-start gap-3">
-          <AlertTriangle className="w-5 h-5 text-[#DC2626] shrink-0 mt-0.5" />
-          <div>
-            <p className="text-xs font-semibold text-[#DC2626]">
-              {summary.overBudgetTasks} task{summary.overBudgetTasks > 1 ? 's' : ''} over budget
-            </p>
-            <p className="text-xs text-[#991B1B] mt-0.5">
-              Some tasks have exceeded their estimated time allocation. Review the details below.
-            </p>
-          </div>
-        </div>
-      )}
 
       {/* Task Details Table */}
       <div className="bg-white rounded-[16px] border border-[#EEEEEE] shadow-sm overflow-hidden">

@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { Checkbox, Button, App, Input, Modal } from 'antd';
 import { Skeleton } from '../../ui/Skeleton';
-import { useWorkspace, useRequirements, useUpdateRequirement, useWorkspaces } from '@/hooks/useWorkspace';
+import { useWorkspace, useRequirements } from '@/hooks/useWorkspace';
 import { useTasks, useRequestRevision, useCreateTask, useUpdateTask, useUpdateTaskStatus } from '@/hooks/useTask';
 import { TaskForm } from '../../modals/TaskForm';
 import { CreateTaskRequestDto, UpdateTaskRequestDto } from '@/types/dto/task.dto';
@@ -76,8 +76,6 @@ export function RequirementDetailsPage() {
   });
   const [selectedTasks, setSelectedTasks] = useState<string[]>([]);
 
-  const { mutateAsync: updateRequirement } = useUpdateRequirement();
-  const { data: workspacesData } = useWorkspaces('limit=1000');
   const { data: partnersData } = usePartners();
   const { mutate: requestRevision } = useRequestRevision();
 
@@ -133,12 +131,6 @@ export function RequirementDetailsPage() {
     if (!tasksData?.result || !requirement) return [];
     return tasksData.result.filter((t: Task) => Number(t.requirement_id) === reqId && t.type === 'revision');
   }, [tasksData, requirement, reqId]);
-
-  const allTasksCompleted = useMemo(() => {
-    // If no tasks exist, allow submission (tasks are optional)
-    if (tasks.length === 0) return true;
-    return tasks.every((t: Task) => t.status === 'Completed');
-  }, [tasks]);
 
   const myCompanyId = companyData?.result?.id;
 
@@ -353,16 +345,12 @@ export function RequirementDetailsPage() {
         <RequirementHeader
           workspace={workspace}
           requirement={requirement}
-          ctaConfig={ctaConfig}
           requirementStatus={requirementStatus}
           assignedTo={assignedTo}
           router={router}
-          workspacesData={workspacesData}
-          updateRequirement={updateRequirement}
           activeTab={activeTab}
           setActiveTab={setActiveTab}
           visibleTabs={visibleTabs}
-          allTasksCompleted={allTasksCompleted}
         />
 
         {/* Content Area - Using CSS visibility to prevent DOM unmounting and flickering */}

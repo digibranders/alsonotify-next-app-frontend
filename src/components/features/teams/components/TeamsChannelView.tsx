@@ -15,7 +15,7 @@ interface TeamsChannelViewProps {
 function ChannelMessageBubble({ message }: { message: ChannelMessage }) {
   const senderName = message.from?.user?.displayName || 'Unknown';
   const time = dayjs(message.createdDateTime).format('h:mm A');
-  const textContent = message.body.content.replace(/<[^>]*>/g, '').trim();
+  const textContent = (message.body?.content || '').replace(/<[^>]*>/g, '').trim();
   if (!textContent) return null;
 
   return (

@@ -6,9 +6,9 @@ import { useTabSync } from '@/hooks/useTabSync';
 import {
   FileText, Calendar, Clock,
   AlertCircle, Briefcase, FolderOpen,
-  ArrowRight, Eye, CheckCircle, RotateCcw, Video
+  ArrowRight, Eye
 } from 'lucide-react';
-import { Breadcrumb, App, Modal, Input, Button } from 'antd';
+import { Breadcrumb, App, Modal, Input } from 'antd';
 import { TaskStatusBadge, TaskChatPanel } from './components';
 import { TaskMembersList } from './components/TaskMembersList';
 import { DocumentsTab } from '@/components/common/DocumentsTab';
@@ -21,13 +21,8 @@ import { format } from 'date-fns';
 import { Skeleton } from '../../ui/Skeleton';
 import { PageLayout } from '../../layout/PageLayout';
 import { queryKeys } from '@/lib/queryKeys';
-import { submitReviewDecision } from '@/services/task';
-import { ReviewDecisionModal } from './components/ReviewDecisionModal';
-
-
 import { Linkify } from '@/components/common/Linkify';
 import { formatDecimalHours } from '@/utils/date/timeFormat';
-import { CreateMeetingModal } from '@/components/modals/CreateMeetingModal';
 
 interface TaskActivityAttachment {
   id: number;
@@ -88,10 +83,6 @@ export function TaskDetailsPage() {
   const [showCompleteModal, setShowCompleteModal] = useState(false);
   const [completeDescription, setCompleteDescription] = useState('');
   const [completeSubmitting, setCompleteSubmitting] = useState(false);
-  const [reviewDecisionOpen, setReviewDecisionOpen] = useState(false);
-  const [reviewDecisionType, setReviewDecisionType] = useState<'Approve' | 'RequestChanges' | null>(null);
-  const [reviewDecisionLoading, setReviewDecisionLoading] = useState(false);
-  const [meetingModalOpen, setMeetingModalOpen] = useState(false);
 
   const queryClient = useQueryClient();
   const { mutateAsync: updateMemberStatusAsync } = useUpdateMemberStatus();
@@ -120,27 +111,6 @@ export function TaskDetailsPage() {
       queryClient.invalidateQueries({ queryKey: queryKeys.tasks.timer(taskId) });
     } finally {
       setCompleteSubmitting(false);
-    }
-  };
-
-  const handleReviewDecisionConfirm = async (notes: string) => {
-    if (!reviewDecisionType || !task) return;
-    setReviewDecisionLoading(true);
-    try {
-      await submitReviewDecision(
-        Number(task.id),
-        reviewDecisionType === 'Approve' ? 'Approved' : 'ChangesRequested',
-        notes
-      );
-      message.success(reviewDecisionType === 'Approve' ? 'Task approved!' : 'Changes requested');
-      setReviewDecisionOpen(false);
-      queryClient.invalidateQueries({ queryKey: queryKeys.tasks.detail(taskId) });
-      queryClient.invalidateQueries({ queryKey: queryKeys.tasks.listRoot() });
-      queryClient.invalidateQueries({ queryKey: queryKeys.tasks.assigned() });
-    } catch {
-      message.error('Failed to submit decision');
-    } finally {
-      setReviewDecisionLoading(false);
     }
   };
 
@@ -303,33 +273,6 @@ export function TaskDetailsPage() {
               HIGH PRIORITY
             </span>
           )}
-          {task.is_review_task && (isMember || isLeader) && task.status !== 'Completed' && (
-            <>
-              <Button
-                size="small"
-                icon={<CheckCircle className="w-3.5 h-3.5" />}
-                style={{ backgroundColor: '#16a34a', borderColor: '#16a34a', color: '#fff' }}
-                onClick={() => { setReviewDecisionType('Approve'); setReviewDecisionOpen(true); }}
-              >
-                Approve
-              </Button>
-              <Button
-                size="small"
-                icon={<RotateCcw className="w-3.5 h-3.5" />}
-                danger
-                onClick={() => { setReviewDecisionType('RequestChanges'); setReviewDecisionOpen(true); }}
-              >
-                Request Changes
-              </Button>
-            </>
-          )}
-          <Button
-            size="small"
-            icon={<Video className="w-3.5 h-3.5" />}
-            onClick={() => setMeetingModalOpen(true)}
-          >
-            Start Meeting
-          </Button>
         </div>
       }
       tabs={[
@@ -535,19 +478,6 @@ export function TaskDetailsPage() {
           <DocumentsTab activityData={documentsActivityData} />
         </div>
       </div>
-      <CreateMeetingModal
-        open={meetingModalOpen}
-        onClose={() => setMeetingModalOpen(false)}
-        defaultSubject={task.name || ''}
-      />
-      <ReviewDecisionModal
-        open={reviewDecisionOpen}
-        decision={reviewDecisionType}
-        taskName={task.review_for_task?.name || task.name}
-        loading={reviewDecisionLoading}
-        onClose={() => setReviewDecisionOpen(false)}
-        onConfirm={handleReviewDecisionConfirm}
-      />
       <Modal
         title="Mark as Complete"
         open={showCompleteModal}
