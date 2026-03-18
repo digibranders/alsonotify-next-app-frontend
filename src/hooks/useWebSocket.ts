@@ -3,6 +3,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import Cookies from 'universal-cookie';
 import { queryKeys } from '@/lib/queryKeys';
+import { NotificationToast } from '@/components/features/notifications/NotificationToast';
+import { getPriority } from '@/components/features/notifications/utils';
 
 const WS_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000')
   .replace(/^http/, 'ws')
@@ -64,15 +66,20 @@ export function useWebSocket() {
         // Invalidate all notification queries so panels refresh
         queryClient.invalidateQueries({ queryKey: ['notifications'] });
 
-        // Show a toast for the incoming notification
-        const toastTitle = data.title || data.message || 'New notification';
-        const toastDesc = data.title ? data.message : undefined;
+        // Show a rich toast for the incoming notification
+        const priority = data.type ? getPriority(data.type) : 'info';
+        const duration = priority === 'critical' ? 15000 : priority === 'warning' ? 8000 : 5000;
 
-        if (toastDesc) {
-          toast(toastTitle, { description: toastDesc });
-        } else {
-          toast(toastTitle);
-        }
+        toast.custom(
+          (t) =>
+            NotificationToast({
+              type: data.type,
+              title: data.title,
+              message: data.message,
+              onDismiss: () => toast.dismiss(t),
+            }),
+          { duration, position: 'top-right' },
+        );
       } catch {
         // Ignore malformed messages
       }

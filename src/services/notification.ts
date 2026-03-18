@@ -100,3 +100,33 @@ export const markNotificationRead = async (id: number): Promise<ApiResponse<void
   const { data } = await axiosApi.post<ApiResponse<void>>(`/notifications/${id}/read`);
   return data;
 };
+
+// Archive a notification (soft delete)
+export const archiveNotification = async (id: number): Promise<ApiResponse<void>> => {
+  const { data } = await axiosApi.post<ApiResponse<void>>(`/notifications/${id}/archive`);
+  return data;
+};
+
+// Restore an archived notification
+export const unarchiveNotification = async (id: number): Promise<ApiResponse<void>> => {
+  const { data } = await axiosApi.post<ApiResponse<void>>(`/notifications/${id}/unarchive`);
+  return data;
+};
+
+// Permanently delete a notification
+export const deleteNotification = async (id: number): Promise<ApiResponse<void>> => {
+  const { data } = await axiosApi.delete<ApiResponse<void>>(`/notifications/${id}`);
+  return data;
+};
+
+// Archive all read notifications
+export const archiveAllRead = async (): Promise<ApiResponse<void>> => {
+  const { data } = await axiosApi.post<ApiResponse<void>>("/notifications/archive-read");
+  return data;
+};
+
+// Clear all notifications permanently
+export const clearAllNotifications = async (): Promise<ApiResponse<void>> => {
+  const { data } = await axiosApi.delete<ApiResponse<void>>("/notifications/clear-all");
+  return data;
+};
