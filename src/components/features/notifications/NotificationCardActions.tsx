@@ -106,6 +106,9 @@ export function NotificationCardActions({ notification, onMarkAsRead, onNavigate
       {actions.includes('edit_resend') && (
         <button onClick={(e) => handleNavigate(e, notification.actionLink)} className={accentBtn}>Edit &amp; Resend</button>
       )}
+      {actions.includes('view_invoice') && (
+        <button onClick={(e) => handleNavigate(e, notification.actionLink)} className={outlineBtn}>View Invoice</button>
+      )}
     </div>
   );
 }

@@ -86,4 +86,14 @@ export const queryKeys = {
     message: (id: string) => ["mail", "message", id] as const,
     attachments: (messageId: string) => ["mail", "attachments", messageId] as const,
   },
+  teams: {
+    presences: (userIds: string[]) => ['teams', 'presences', userIds.sort().join(',')] as const,
+    meetings: () => ['teams', 'meetings'] as const,
+    meetingAttendance: (meetingId: string) => ['teams', 'meetings', meetingId, 'attendance'] as const,
+    chats: () => ['teams', 'chats'] as const,
+    chatMessages: (chatId: string) => ['teams', 'chats', chatId, 'messages'] as const,
+    joinedTeams: () => ['teams', 'joinedTeams'] as const,
+    channels: (teamId: string) => ['teams', 'channels', teamId] as const,
+    channelMessages: (teamId: string, channelId: string) => ['teams', 'channels', teamId, channelId, 'messages'] as const,
+  },
 } as const;

@@ -932,3 +932,34 @@ input[type="number"] {
     font-size: var(--text-xs) !important;
     line-height: var(--text-xs--line-height) !important;
 }
+
+/* ─── Teams Chat Message Body ─────────────────────────────────────── */
+.teams-message-body p { margin: 0 0 4px; }
+.teams-message-body p:last-child { margin-bottom: 0; }
+.teams-message-body a { color: #ff3b3b; text-decoration: underline; }
+.teams-message-body a:hover { color: #cc2f2f; }
+.teams-message-body strong, .teams-message-body b { font-weight: 600; }
+.teams-message-body em, .teams-message-body i { font-style: italic; }
+.teams-message-body ul, .teams-message-body ol { padding-left: 20px; margin: 4px 0; }
+.teams-message-body li { margin: 2px 0; }
+.teams-message-body code {
+    background: #F7F7F7; padding: 1px 4px; border-radius: 3px;
+    font-family: monospace; font-size: 0.9em;
+}
+.teams-message-body pre {
+    background: #F7F7F7; padding: 8px 12px; border-radius: 8px;
+    overflow-x: auto; margin: 4px 0;
+}
+.teams-message-body blockquote {
+    border-left: 3px solid #EEEEEE; padding-left: 12px;
+    margin: 4px 0; color: #666666;
+}
+.teams-message-body img { max-width: 100%; border-radius: 8px; margin: 4px 0; }
+.teams-message-body .mention { color: #2F80ED; font-weight: 500; }
+
+/* Teams input editor */
+.teams-input-editor:empty:before {
+    content: attr(data-placeholder);
+    color: #999999;
+    pointer-events: none;
+}

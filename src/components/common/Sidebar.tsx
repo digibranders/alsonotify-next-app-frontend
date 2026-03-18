@@ -18,7 +18,8 @@ import {
   NotebookPen,
   ChevronsLeft,
   ChevronsRight,
-  Mail
+  Mail,
+  MessageSquareText
 } from 'lucide-react';
 import React from "react";
 
@@ -87,6 +88,13 @@ const NAV_ITEMS: NavItemConfig[] = [
     path: '/dashboard/mail',
     label: 'Mail',
     icon: <Mail size={20} />,
+    allowedRoles: ['Admin', 'Manager', 'Head', 'Finance', 'HR', 'Employee', 'Coordinator']
+  },
+  {
+    id: 'teams',
+    path: '/dashboard/teams',
+    label: 'Teams',
+    icon: <MessageSquareText size={20} />,
     allowedRoles: ['Admin', 'Manager', 'Head', 'Finance', 'HR', 'Employee', 'Coordinator']
   },
   // People

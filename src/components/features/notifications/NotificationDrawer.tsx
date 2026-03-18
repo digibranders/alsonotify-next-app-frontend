@@ -140,19 +140,24 @@ export function NotificationDrawer({ open, onClose }: NotificationDrawerProps) {
 
   // ── Header 3-dot menu ────────────────────────────────────────────
 
+  const hasNotifications = enrichedNotifications.length > 0;
+  const hasUnread = totalUnread > 0;
+
   const headerMenuItems: MenuProps['items'] = [
     {
       key: 'mark-all',
       icon: <CheckCheck className="w-4 h-4" />,
       label: 'Mark all as read',
       onClick: handleMarkAllRead,
+      disabled: !hasUnread,
     },
     { type: 'divider' },
     {
       key: 'clear-all',
       icon: <Trash2 className="w-4 h-4 text-[#ff3b3b]" />,
-      label: <span className="text-[#ff3b3b]">Clear all notifications</span>,
+      label: <span className={hasNotifications ? 'text-[#ff3b3b]' : 'text-[#CCCCCC]'}>Clear all notifications</span>,
       onClick: handleClearAll,
+      disabled: !hasNotifications,
     },
     { type: 'divider' },
     {

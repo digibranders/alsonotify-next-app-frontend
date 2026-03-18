@@ -1,5 +1,5 @@
 import { Breadcrumb, Skeleton, Button, App, Tooltip } from 'antd';
-import { FileText, ListTodo, BarChart2, Columns, TrendingUp, Paperclip, ChevronRight, DollarSign } from 'lucide-react';
+import { FileText, ListTodo, BarChart2, Columns, TrendingUp, Paperclip, ChevronRight, DollarSign, Video } from 'lucide-react';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { TabButton } from './TabButton';
 import { useState, useCallback } from 'react';
@@ -14,6 +14,7 @@ import { RequirementRejectionModal } from '@/components/modals/RequirementReject
 import { SubmitForApprovalModal } from '@/components/modals/SubmitForApprovalModal';
 import { RequirementApprovalModal } from '@/components/modals/RequirementApprovalModal';
 import { useSubmitForReview, useApproveRequirement } from '@/hooks/useWorkspace';
+import { CreateMeetingModal } from '@/components/modals/CreateMeetingModal';
 
 export type ReqTabId = 'details' | 'tasks' | 'gantt' | 'kanban' | 'pnl' | 'documents' | 'billing';
 
@@ -56,6 +57,7 @@ export function RequirementHeader({
   const [isSubmitForApprovalOpen, setIsSubmitForApprovalOpen] = useState(false);
   const [isApprovalModalOpen, setIsApprovalModalOpen] = useState(false);
   const [rejectionTitle, setRejectionTitle] = useState("Reject Requirement");
+  const [meetingModalOpen, setMeetingModalOpen] = useState(false);
 
   const getNextStatus = useCallback((apiAction: string) => {
     switch (apiAction) {
@@ -280,6 +282,14 @@ export function RequirementHeader({
                 </Button>
               </Tooltip>
             )}
+            <Button
+              size="middle"
+              icon={<Video className="w-3.5 h-3.5" />}
+              className="rounded-full px-4 font-semibold"
+              onClick={() => setMeetingModalOpen(true)}
+            >
+              Start Meeting
+            </Button>
           </div>
 
           <StatusBadge status={requirementStatus} />
@@ -338,7 +348,11 @@ export function RequirementHeader({
         onSubmit={handleApproval}
         requirement={requirement}
       />
-
+      <CreateMeetingModal
+        open={meetingModalOpen}
+        onClose={() => setMeetingModalOpen(false)}
+        defaultSubject={requirement.title || ''}
+      />
 
       {/* Tabs */}
       <div className="border-b border-[#EEEEEE]">
