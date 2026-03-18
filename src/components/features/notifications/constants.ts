@@ -84,7 +84,8 @@ export const FILTER_CHIPS: Record<string, FilterChip[]> = {
     { key: 'requirements', label: 'Requirements', filter: (n: EnrichedNotification) => n.type === 'REQUIREMENT_MENTIONED' },
   ],
   dues: [
-    { key: 'overdue', label: 'Overdue', filter: (n: EnrichedNotification) => n.type === 'TASK_OVERDUE' || n.type === 'INVOICE_OVERDUE' },
-    { key: 'due_soon', label: 'Due This Week', filter: (n: EnrichedNotification) => n.type === 'TASK_DUE_SOON' || n.type === 'TASK_DEADLINE_APPROACHING' },
+    { key: 'overdue', label: 'Overdue', filter: (n: EnrichedNotification) => n.type === 'TASK_OVERDUE' || n.type === 'INVOICE_OVERDUE' || n.type === 'REQUIREMENT_DELAYED' },
+    { key: 'due_soon', label: 'Due Soon', filter: (n: EnrichedNotification) => n.type === 'TASK_DUE_SOON' || n.type === 'TASK_DEADLINE_APPROACHING' || n.type === 'REQUIREMENT_DEADLINE_APPROACHING' },
+    { key: 'reminders', label: 'Reminders', filter: (n: EnrichedNotification) => n.type === 'TODO_REMINDER' },
   ],
 };
