@@ -36,7 +36,7 @@ import { useCreateNote } from '@/hooks/useNotes';
 import { useLogout } from '@/hooks/useAuth';
 import { formatDateForApi, getTodayForApi } from '@/utils/date/date';
 import { searchEmployees } from '@/services/user';
-import { getRequirementsByWorkspaceId } from '@/services/workspace';
+import { getAllRequirementsDropdown } from '@/services/workspace';
 import { RequirementDropdownItem, CreateRequirementRequestDto } from '@/types/dto/requirement.dto';
 import { NoteComposerModal } from './NoteComposerModal';
 // import { AIAssistantDrawer } from '../features/ai/AIAssistantDrawer';
@@ -164,49 +164,17 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
 
   useEffect(() => {
     const fetchRequirements = async () => {
-      if (!workspacesData?.result?.workspaces?.length) return;
-
       try {
-        const allRequirements: RequirementDropdownItem[] = [];
-
-        for (const workspace of workspacesData.result.workspaces) {
-          try {
-            const workspaceId = Number(workspace.id);
-            if (isNaN(workspaceId)) continue;
-
-            const response = await getRequirementsByWorkspaceId(workspaceId);
-            if (response.success && response.result) {
-              const mapped: RequirementDropdownItem[] = response.result.map((r: any) => ({
-                id: r.id,
-                name: r.name || r.title || '',
-                type: r.type || 'inhouse',
-                status: r.status || 'Assigned',
-                workspace_id: r.workspace_id,
-                receiver_workspace_id: r.receiver_workspace_id ?? null,
-                receiver_company_id: r.receiver_company_id ?? null
-              }));
-              allRequirements.push(...mapped);
-            }
-          } catch {
-            // Failed to fetch requirements for workspace - continue with others
-          }
+        const response = await getAllRequirementsDropdown();
+        if (response.success && response.result) {
+          setRequirementsDropdown(response.result);
         }
-
-        // Filter: Only include active requirements
-        // The getRequirementsByWorkspaceId returns ALL requirements, so we filter by status
-        const activeStatuses = ['Assigned', 'In_Progress', 'Review', 'Revision', 'On_Hold'];
-        const filteredRequirements = allRequirements.filter(req => {
-          return activeStatuses.includes(req.status);
-        });
-
-
-        setRequirementsDropdown(filteredRequirements);
       } catch (error) {
         console.error('Failed to fetch requirements:', error);
       }
     };
     fetchRequirements();
-  }, [workspacesData]); // Only refetch when workspaces change
+  }, [workspacesData]); // Refetch when workspaces change
 
   // Handle Calendar Success
 

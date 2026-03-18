@@ -138,3 +138,6 @@ export { getTaskCTAConfig, getTaskTab } from './task/taskCTA';
 // Task UI Configuration (Colors, Icons, Labels)
 export { getTaskStatusUI } from './task/taskUI';
 export type { TaskUIConfig } from './task/taskUI';
+
+// Requirement overdue detection
+export { isRequirementOverdue, getOverdueRequirementIds } from './requirement/requirementOverdue';

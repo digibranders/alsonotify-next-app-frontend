@@ -18,6 +18,7 @@ import {
 import { useUserDetails, usePartners, useCompanyDepartments } from '@/hooks/useUser';
 import { fileService } from '@/services/file.service';
 import { format } from 'date-fns';
+import { useAutoDelayOverdue } from '@/hooks/useAutoDelayOverdue';
 import { RequirementsList } from '../requirements/components/RequirementsList';
 import { RequirementsForm } from '../../modals/RequirementsForm';
 import { QuotationDialog, RejectDialog, InternalMappingModal } from '../requirements/components/dialogs';
@@ -287,6 +288,13 @@ export function WorkspaceRequirementsPage() {
     useEffect(() => {
         requirementsRef.current = requirements;
     }, [requirements]);
+
+    // Auto-delay overdue requirements (active status + past due date → Delayed)
+    const overdueCheckData = useMemo(
+        () => requirements.map((r) => ({ id: r.id, status: r.rawStatus || '', end_date: r.end_date })),
+        [requirements]
+    );
+    useAutoDelayOverdue(overdueCheckData);
 
     // Filter options
     const allPartners = useMemo(() => {

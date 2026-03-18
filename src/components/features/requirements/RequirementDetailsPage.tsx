@@ -16,6 +16,7 @@ import { useEmployees, useEmployeesDropdown, usePartners, useCurrentUserCompany 
 import { useRequirementActivities } from '@/hooks/useRequirementActivity';
 import { useAuth } from '@/hooks/useAuth';
 import { format } from 'date-fns';
+import { useAutoDelayOverdue } from '@/hooks/useAutoDelayOverdue';
 import { getTodayForApi } from '@/utils/date/date';
 import { TaskRow } from '@/components/features/tasks/rows/TaskRow';
 import { Requirement, Task } from '@/types/domain';
@@ -108,6 +109,13 @@ export function RequirementDetailsPage() {
     if (!requirementsData?.result) return undefined;
     return requirementsData.result.find((r: Requirement) => r.id === reqId);
   }, [requirementsData, reqId]);
+
+  // Auto-delay overdue requirements (active status + past due date → Delayed)
+  const overdueCheckData = useMemo(
+    () => requirement ? [{ id: requirement.id, status: requirement.rawStatus || requirement.status || '', end_date: requirement.end_date }] : [],
+    [requirement]
+  );
+  useAutoDelayOverdue(overdueCheckData);
 
   const mapRequirementStatus = (status: string): 'in-progress' | 'completed' | 'delayed' => {
     const statusLower = status?.toLowerCase() || '';

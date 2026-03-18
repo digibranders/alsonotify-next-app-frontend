@@ -67,12 +67,15 @@ export function TaskLiveProgress({ task, currentUserId }: TaskLiveProgressProps)
   const remaining = effectiveEst - totalLoggedHours;
   const isBleeding = hasEst && totalLoggedHours > effectiveEst;
   const isWarning = !isBleeding && hasEst && totalLoggedHours >= effectiveEst * 0.8;
+  const isTaskCompleted = task.status === 'Completed';
 
   // ── Segment bar logic ────────────────────────────────────────────────────
   const isMultiMember = liveMembers.length > 1;
 
   // Function to determine color based on status and overtime (from old implementation)
   const getSegmentColor = (m: any, ratio: number) => {
+    if (isTaskCompleted) return '#16A34A'; // Green — task-level override
+
     const isOvertime = ratio > 1;
     const isMemberDelayed = m.status === 'Delayed';
 
@@ -123,9 +126,11 @@ export function TaskLiveProgress({ task, currentUserId }: TaskLiveProgressProps)
     : '0%';
 
   // Use the same status-based color logic for single member
-  const singleBarColorHex = singleMember
-    ? getSegmentColor(singleMember, hasEst ? totalLoggedHours / effectiveEst : 0)
-    : '#111111';
+  const singleBarColorHex = isTaskCompleted
+    ? '#16A34A'
+    : singleMember
+      ? getSegmentColor(singleMember, hasEst ? totalLoggedHours / effectiveEst : 0)
+      : '#111111';
 
   const labelColor = 'text-[#111111]';
 
@@ -170,11 +175,13 @@ export function TaskLiveProgress({ task, currentUserId }: TaskLiveProgressProps)
             {formatDecimalHours(totalLoggedHours)}{hasEst ? `/${formatDecimalHours(effectiveEst)}` : ''}
           </span>
           {hasEst ? (
-            <span className={`task-row-sub font-medium whitespace-nowrap ${isBleeding
-              ? 'text-[#FF3B3B]'
-              : isWarning
-                ? 'text-[#EAB308]'
-                : 'text-[#666666]'
+            <span className={`task-row-sub font-medium whitespace-nowrap ${isTaskCompleted
+              ? 'text-[#16A34A]'
+              : isBleeding
+                ? 'text-[#FF3B3B]'
+                : isWarning
+                  ? 'text-[#EAB308]'
+                  : 'text-[#666666]'
               }`}>
               {isBleeding ? `+${formatDecimalHours(Math.abs(remaining))} over` : `${formatDecimalHours(remaining)} left`}
             </span>

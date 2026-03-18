@@ -14,6 +14,7 @@ import { fileService } from '@/services/file.service';
 import { format } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import { useTabSync } from '@/hooks/useTabSync';
+import { useAutoDelayOverdue } from '@/hooks/useAutoDelayOverdue';
 import { Dayjs } from 'dayjs';
 
 
@@ -421,6 +422,13 @@ export function RequirementsPage() {
   useEffect(() => {
     requirementsRef.current = requirements;
   }, [requirements]);
+
+  // Auto-delay overdue requirements (active status + past due date → Delayed)
+  const overdueCheckData = useMemo(
+    () => requirements.map((r) => ({ id: r.id, status: r.rawStatus || '', end_date: r.end_date })),
+    [requirements]
+  );
+  useAutoDelayOverdue(overdueCheckData);
 
   // Quotation Dialog State
   const [isQuotationOpen, setIsQuotationOpen] = useState(false);
