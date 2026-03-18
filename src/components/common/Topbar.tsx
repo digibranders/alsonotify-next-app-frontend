@@ -24,7 +24,7 @@ import {
 import { TaskForm } from '../modals/TaskForm';
 import { RequirementsForm, RequirementFormData } from '../modals/RequirementsForm';
 import { WorkspaceForm } from '../modals/WorkspaceForm';
-import { NotificationPanel } from './NotificationPanel';
+import { NotificationDrawer } from '../features/notifications/NotificationDrawer';
 import { Skeleton } from '../ui/Skeleton';
 
 import { useUserDetails, useCurrentUserCompany } from '@/hooks/useUser';
@@ -394,6 +394,7 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
                 className="!w-9 !h-9 !min-w-[36px] rounded-full !bg-[#ff3b3b] hover:!bg-[#ff6b6b] !flex !items-center !justify-center !p-0 !border-none !shadow-none"
                 type="primary"
                 shape="circle"
+                aria-label="Create new item"
               >
                 <Add24Filled className="w-5 h-5 text-white" />
               </Button>
@@ -413,6 +414,7 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
               onClick={() => router.push('/dashboard/feedback')}
               className="hidden md:flex w-9 h-9 min-w-[36px] rounded-full bg-[#ff3b3b] hover:bg-[#ff6b6b] items-center justify-center transition-all cursor-pointer border-none shadow-none"
               title="Give Feedback"
+              aria-label="Give Feedback"
             >
               <MessageSquareShare className="w-5 h-5 text-white" />
             </button>
@@ -423,6 +425,9 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
                 onClick={() => setNotificationDrawerOpen(true)}
                 className="relative w-9 h-9 rounded-full bg-[#F7F7F7] hover:bg-[#EEEEEE] flex items-center justify-center transition-colors cursor-pointer"
                 title="Notifications"
+                aria-label={unreadCount > 0 ? `Notifications, ${unreadCount} unread` : 'Notifications'}
+                aria-haspopup="dialog"
+                aria-expanded={notificationDrawerOpen}
               >
                 <Alert24Filled className="w-5 h-5 text-[#111111]" />
                 {/* Notification Badge */}
@@ -432,17 +437,19 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
                   </span>
                 )}
               </button>
-              <NotificationPanel
+              <NotificationDrawer
                 open={notificationDrawerOpen}
                 onClose={() => setNotificationDrawerOpen(false)}
-                onMarkAsRead={handleMarkAsRead}
-                onMarkAllRead={handleClearAllNotifications}
               />
             </>
 
             {/* Profile photo & Role Switcher */}
             <Dropdown menu={{ items: profileMenuItems }} placement="bottomRight" trigger={['click']}>
-              <div className="relative shrink-0 size-[32px] rounded-full ring-2 ring-transparent hover:ring-[#ff3b3b]/20 transition-all cursor-pointer">
+              <button
+                className="relative shrink-0 size-[32px] rounded-full ring-2 ring-transparent hover:ring-[#ff3b3b]/20 transition-all cursor-pointer border-none bg-transparent p-0"
+                aria-label={`Profile menu for ${user?.name || 'User'}`}
+                aria-haspopup="menu"
+              >
                 {isLoadingUserDetails ? (
                   <Skeleton className="w-[32px] h-[32px] rounded-full" />
                 ) : (
@@ -455,7 +462,7 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
                     {user?.name?.[0]?.toUpperCase() || 'U'}
                   </Avatar>
                 )}
-              </div>
+              </button>
             </Dropdown>
           </div>
         </div>
