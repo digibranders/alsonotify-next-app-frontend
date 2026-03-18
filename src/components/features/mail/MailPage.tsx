@@ -6,8 +6,11 @@ import {
   Avatar,
   Button,
   DatePicker,
+  Dropdown,
   Input,
   Layout,
+  Modal,
+  Popover,
   Segmented,
   Skeleton,
   Space,
@@ -39,6 +42,9 @@ import {
   PanelLeft,
   PanelLeftClose,
   Download,
+  FolderOutput,
+  Plus,
+  FolderPlus,
 } from "lucide-react";
 import dayjs from "dayjs";
 import { PageLayout } from "../../layout/PageLayout";
@@ -49,6 +55,9 @@ import {
   useMailFolders,
   useMailMessage,
   useMailMessages,
+  useCreateFolder,
+  useDeleteFolder,
+  useMoveMessage,
 } from "@/hooks/useMail";
 import { useDebounce } from "@/hooks/useDebounce";
 import { sanitizeEmailHtml } from "@/utils/security/sanitizeHtml";
@@ -264,6 +273,16 @@ export function MailPage() {
 
   // Mobile view
   const [mobileView, setMobileView] = useState<MobileView>("list");
+
+  // Folder management
+  const [newFolderName, setNewFolderName] = useState("");
+  const [showNewFolder, setShowNewFolder] = useState(false);
+  const createFolderMut = useCreateFolder();
+  const deleteFolderMut = useDeleteFolder();
+  const moveMessageMut = useMoveMessage();
+
+  // Context menu for message list
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; messageId: string } | null>(null);
 
   // ---- Queries ----
   const foldersQ = useMailFolders();
@@ -490,6 +509,68 @@ export function MailPage() {
     });
   };
 
+  const handleMoveToFolder = (messageId: string, targetFolderId: string, targetName: string) => {
+    moveMessageMut.mutate(
+      { messageId, folderId: targetFolderId },
+      {
+        onSuccess: () => {
+          message.success(`Moved to ${targetName}`);
+          setSelectedId(undefined);
+          setContextMenu(null);
+          if (isMobile) setMobileView("list");
+        },
+        onError: () => message.error("Failed to move message"),
+      }
+    );
+  };
+
+  const moveToMenuItems = folderItems
+    .filter((f) => f.id !== folder)
+    .map((f) => {
+      const Icon = FOLDER_ICONS[f.id] || Mail;
+      return {
+        key: f.id,
+        icon: <Icon size={14} />,
+        label: f.displayName,
+        onClick: () => {
+          const msgId = contextMenu?.messageId || selectedId;
+          if (msgId) handleMoveToFolder(msgId, f.id, f.displayName);
+        },
+      };
+    });
+
+  const handleCreateFolder = () => {
+    const name = newFolderName.trim();
+    if (!name) return;
+    createFolderMut.mutate(name, {
+      onSuccess: () => {
+        message.success(`Folder "${name}" created`);
+        setNewFolderName("");
+        setShowNewFolder(false);
+      },
+      onError: () => message.error("Failed to create folder"),
+    });
+  };
+
+  const handleDeleteFolder = (folderId: string, folderName: string) => {
+    modal.confirm({
+      title: "Delete Folder",
+      content: `Are you sure you want to delete "${folderName}"? All messages in this folder will be moved to Deleted Items.`,
+      okText: "Delete",
+      okType: "danger",
+      cancelText: "Cancel",
+      onOk: () => {
+        deleteFolderMut.mutate(folderId, {
+          onSuccess: () => {
+            message.success(`Folder "${folderName}" deleted`);
+            if (folder === folderId) setFolder("inbox");
+          },
+          onError: () => message.error("Failed to delete folder"),
+        });
+      },
+    });
+  };
+
   // Keyboard navigation
   const onListKeyDown = (e: React.KeyboardEvent) => {
     if (!msgs.length) return;
@@ -683,16 +764,48 @@ export function MailPage() {
             <Text strong>Folders</Text>
           </div>
         )}
-        <button
-          onClick={() => setFoldersCollapsed(!foldersCollapsed)}
-          className="p-1.5 rounded-full hover:bg-white text-[#999999] hover:text-[#111111] transition-all"
-        >
-          {foldersCollapsed ? (
-            <PanelLeft size={18} />
-          ) : (
-            <PanelLeftClose size={18} />
+        <div className="flex items-center gap-0.5">
+          {!foldersCollapsed && (
+            <Popover
+              open={showNewFolder}
+              onOpenChange={setShowNewFolder}
+              trigger="click"
+              placement="bottomRight"
+              content={
+                <div className="flex flex-col gap-2 w-48">
+                  <Input
+                    size="small"
+                    placeholder="Folder name"
+                    value={newFolderName}
+                    onChange={(e) => setNewFolderName(e.target.value)}
+                    onPressEnter={handleCreateFolder}
+                    autoFocus
+                  />
+                  <div className="flex justify-end gap-1">
+                    <Button size="small" onClick={() => { setShowNewFolder(false); setNewFolderName(""); }}>Cancel</Button>
+                    <Button size="small" type="primary" onClick={handleCreateFolder} loading={createFolderMut.isPending} disabled={!newFolderName.trim()}>Create</Button>
+                  </div>
+                </div>
+              }
+            >
+              <Tooltip title="New folder">
+                <button className="p-1.5 rounded-full hover:bg-white text-[#999999] hover:text-[#111111] transition-all">
+                  <FolderPlus size={16} />
+                </button>
+              </Tooltip>
+            </Popover>
           )}
-        </button>
+          <button
+            onClick={() => setFoldersCollapsed(!foldersCollapsed)}
+            className="p-1.5 rounded-full hover:bg-white text-[#999999] hover:text-[#111111] transition-all"
+          >
+            {foldersCollapsed ? (
+              <PanelLeft size={18} />
+            ) : (
+              <PanelLeftClose size={18} />
+            )}
+          </button>
+        </div>
       </div>
 
       {foldersQ.isLoading ? (
@@ -711,42 +824,56 @@ export function MailPage() {
         <div className="space-y-1 overflow-auto flex-1">
           {folderItems.map((f) => {
             const Icon = FOLDER_ICONS[f.id] || Mail;
+            const isCustom = !WELL_KNOWN_DISPLAY[f.id];
             return (
               <Tooltip
                 key={f.id}
                 title={foldersCollapsed ? f.displayName : ""}
                 placement="right"
               >
-                <button
-                  type="button"
-                  className={[
-                    "w-full text-left py-2 rounded-[12px] transition flex items-center gap-2",
-                    foldersCollapsed ? "justify-center px-0" : "px-3",
-                    folder === f.id
-                      ? "bg-white ring-1 ring-black/5"
-                      : "hover:bg-white/70",
-                  ].join(" ")}
-                  onClick={() => {
-                    setFolder(f.id);
-                    setSelectedId(undefined);
-                    setDateRange(null);
-                    setComposeMode({ active: false });
-                  }}
-                >
-                  <Icon
-                    className={`w-4 h-4 shrink-0 transition-colors ${folder === f.id ? "text-[#ff3b3b]" : "text-[#434343]"}`}
-                  />
-                  {!foldersCollapsed && (
-                    <>
-                      <span className="truncate flex-1">{f.displayName}</span>
-                      {!!f.unreadItemCount && f.unreadItemCount > 0 && (
-                        <div className="bg-[#FEF3F2] text-[#ff3b3b] px-1.5 py-0.5 rounded-full text-2xs font-bold min-w-[20px] text-center">
-                          {f.unreadItemCount}
-                        </div>
-                      )}
-                    </>
+                <div className="group relative">
+                  <button
+                    type="button"
+                    className={[
+                      "w-full text-left py-2 rounded-[12px] transition flex items-center gap-2",
+                      foldersCollapsed ? "justify-center px-0" : "px-3",
+                      folder === f.id
+                        ? "bg-white ring-1 ring-black/5"
+                        : "hover:bg-white/70",
+                    ].join(" ")}
+                    onClick={() => {
+                      setFolder(f.id);
+                      setSelectedId(undefined);
+                      setDateRange(null);
+                      setComposeMode({ active: false });
+                    }}
+                  >
+                    <Icon
+                      className={`w-4 h-4 shrink-0 transition-colors ${folder === f.id ? "text-[#ff3b3b]" : "text-[#434343]"}`}
+                    />
+                    {!foldersCollapsed && (
+                      <>
+                        <span className="truncate flex-1">{f.displayName}</span>
+                        {!!f.unreadItemCount && f.unreadItemCount > 0 && (
+                          <div className="bg-[#FEF3F2] text-[#ff3b3b] px-1.5 py-0.5 rounded-full text-2xs font-bold min-w-[20px] text-center">
+                            {f.unreadItemCount}
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </button>
+                  {isCustom && !foldersCollapsed && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteFolder(f.id, f.displayName);
+                      }}
+                      className="absolute right-1 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-[#FEF3F2] text-[#999999] hover:text-[#ff3b3b] opacity-0 group-hover:opacity-100 transition-all"
+                    >
+                      <Trash2 size={12} />
+                    </button>
                   )}
-                </button>
+                </div>
               </Tooltip>
             );
           })}
@@ -819,8 +946,42 @@ export function MailPage() {
                   const avatarColor = getAvatarColor(senderName);
 
                   return (
-                    <button
+                    <Dropdown
                       key={m.id}
+                      menu={{
+                        items: [
+                          {
+                            key: "moveTo",
+                            label: "Move to",
+                            icon: <FolderOutput size={14} />,
+                            children: folderItems
+                              .filter((f) => f.id !== folder)
+                              .map((f) => {
+                                const FIcon = FOLDER_ICONS[f.id] || Mail;
+                                return {
+                                  key: f.id,
+                                  icon: <FIcon size={14} />,
+                                  label: f.displayName,
+                                  onClick: () => handleMoveToFolder(m.id, f.id, f.displayName),
+                                };
+                              }),
+                          },
+                          { type: "divider" as const },
+                          {
+                            key: "delete",
+                            label: "Delete",
+                            icon: <Trash2 size={14} />,
+                            danger: true,
+                            onClick: () => {
+                              setSelectedId(m.id);
+                              setTimeout(confirmDelete, 0);
+                            },
+                          },
+                        ],
+                      }}
+                      trigger={["contextMenu"]}
+                    >
+                    <button
                       type="button"
                       onClick={() => {
                         setFocusIndex(idx);
@@ -899,6 +1060,7 @@ export function MailPage() {
                         </div>
                       </div>
                     </button>
+                    </Dropdown>
                   );
                 })}
               </div>
@@ -944,24 +1106,6 @@ export function MailPage() {
             if (isMobile) setMobileView(selectedId ? "detail" : "list");
           }}
         />
-      ) : !isConnected && !isLoadingIntegration ? (
-        <div className="h-full flex flex-col items-center justify-center text-center px-6">
-          <div className="w-20 h-20 rounded-full bg-[#F3F4F6] flex items-center justify-center mb-4">
-            <MailOpen size={36} className="text-[#999999]" />
-          </div>
-          <h3 className="text-base font-semibold text-[#111111] mb-1">Connect Microsoft 365</h3>
-          <p className="text-sm text-[#999999] mb-4 max-w-[280px]">
-            Connect your Microsoft 365 account to access your Outlook emails, calendar, and more.
-          </p>
-          <Button
-            type="primary"
-            loading={connecting}
-            onClick={connectMicrosoft}
-            className="h-9 px-6 text-xs font-semibold bg-[#111111] hover:bg-[#000000]/90 border-none"
-          >
-            Connect Microsoft 365
-          </Button>
-        </div>
       ) : !selectedId ? (
         <div className="h-full flex flex-col items-center justify-center text-center px-4">
           <div className="w-20 h-20 rounded-full bg-white flex items-center justify-center mb-4">
@@ -1120,6 +1264,13 @@ export function MailPage() {
                     <Forward size={15} />
                   </button>
                 </Tooltip>
+                <Dropdown menu={{ items: moveToMenuItems }} trigger={["click"]} placement="bottomRight">
+                  <Tooltip title="Move to folder">
+                    <button className="p-1.5 rounded-full hover:bg-white ring-1 ring-black/5 transition-all text-[#434343] hover:text-[#ff3b3b]">
+                      <FolderOutput size={15} />
+                    </button>
+                  </Tooltip>
+                </Dropdown>
                 <Tooltip title="Delete">
                   <button
                     onClick={confirmDelete}
@@ -1368,6 +1519,17 @@ export function MailPage() {
               icon={<RefreshCcw className="w-3.5 h-3.5" />}
               onClick={refresh}
             />
+            {!isConnected && !isLoadingIntegration && (
+              <Button
+                type="primary"
+                size="small"
+                loading={connecting}
+                onClick={connectMicrosoft}
+                className="text-xs font-semibold bg-[#111111] hover:bg-[#000000]/90 border-none"
+              >
+                Connect
+              </Button>
+            )}
           </Space>
         }
         className="pb-0"
@@ -1375,7 +1537,7 @@ export function MailPage() {
         {/* Mobile folder pills */}
         {mobileView === "list" && (
           <div className="flex gap-1.5 overflow-x-auto pb-2 scrollbar-hide mb-2">
-            {folderItems.slice(0, 6).map((f) => {
+            {folderItems.map((f) => {
               const Icon = FOLDER_ICONS[f.id] || Mail;
               return (
                 <button
@@ -1467,6 +1629,16 @@ export function MailPage() {
           >
             Refresh
           </Button>
+          {!isConnected && !isLoadingIntegration && (
+            <Button
+              type="primary"
+              loading={connecting}
+              onClick={connectMicrosoft}
+              className="h-8 px-4 text-xs font-semibold bg-[#111111] hover:bg-[#000000]/90 border-none"
+            >
+              Connect Microsoft 365
+            </Button>
+          )}
         </Space>
       }
       className="pb-0"

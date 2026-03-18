@@ -217,3 +217,21 @@ export const deleteMail = async (id: string) => {
   const { data } = await axiosApi.delete("/mail/message", { params: { id } });
   return data;
 };
+
+/* -------------------------------------------
+   Folder CRUD
+-------------------------------------------- */
+
+export const createMailFolder = async (displayName: string) => {
+  const { data } = await axiosApi.post("/mail/folder", { displayName });
+  return data;
+};
+
+export const deleteMailFolder = async (folderId: string) => {
+  const { data } = await axiosApi.delete("/mail/folder", { params: { id: folderId } });
+  return data;
+};
+
+export const moveMailToFolder = async (messageId: string, folderId: string) => {
+  return patchMail(messageId, { parentFolderId: folderId });
+};
