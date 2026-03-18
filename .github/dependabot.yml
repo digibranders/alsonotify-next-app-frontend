@@ -1,13 +1,9 @@
 version: 2
 updates:
-  - package-ecosystem: "npm"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 5
-    target-branch: "development"
+  # Only GitHub Actions updates (low volume) — npm version bumps removed
+  # Security vulnerability PRs are handled automatically by GitHub's Dependabot security updates
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     open-pull-requests-limit: 3
