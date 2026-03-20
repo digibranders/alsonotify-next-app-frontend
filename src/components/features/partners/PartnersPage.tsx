@@ -565,8 +565,8 @@ export function PartnersPageContent() {
                 label: "Add Partner"
             }}
             tabs={[
-                { id: 'active', label: 'Active', count: partners.filter(p => p.status === 'active').length },
-                { id: 'inactive', label: 'Inactive', count: partners.filter(p => p.status === 'inactive').length },
+                { id: 'active', label: 'Active' },
+                { id: 'inactive', label: 'Inactive' },
                 { id: 'requests', label: 'Requests', count: allRequests.length },
                 { id: 'account-managers', label: 'Account Managers' }
             ]}

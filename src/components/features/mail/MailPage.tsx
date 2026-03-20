@@ -882,7 +882,7 @@ export function MailPage() {
   );
 
   const renderMessageList = () => (
-    <div className="bg-[#F7F7F7] rounded-[16px] p-3 overflow-hidden flex flex-col min-h-0">
+    <div className="bg-[#F7F7F7] rounded-[16px] p-3 overflow-hidden flex flex-col min-h-0 h-full">
       <div className="mb-2">
         <Input
           placeholder="Search emails..."
@@ -1535,7 +1535,7 @@ export function MailPage() {
       >
         {/* Mobile folder pills */}
         {mobileView === "list" && (
-          <div className="flex gap-1.5 overflow-x-auto pb-2 scrollbar-hide mb-2">
+          <div className="flex gap-1.5 overflow-x-auto pb-2 scrollbar-hide mb-2 shrink-0">
             {folderItems.map((f) => {
               const Icon = FOLDER_ICONS[f.id] || Mail;
               return (
@@ -1565,7 +1565,7 @@ export function MailPage() {
           </div>
         )}
 
-        <div className="h-full min-h-0">
+        <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
           {mobileView === "list" && renderMessageList()}
           {mobileView === "detail" && renderReadingPane()}
           {mobileView === "compose" && renderReadingPane()}

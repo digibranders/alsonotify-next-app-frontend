@@ -135,4 +135,6 @@ export interface RequirementContext {
   readonly isRejectedBySender: boolean;
   readonly hasQuotedPrice: boolean;
   readonly isAdvancePending: boolean;
+  readonly requiresAdvancePayment: boolean;
+  readonly hasAdvanceInvoice: boolean;
 }

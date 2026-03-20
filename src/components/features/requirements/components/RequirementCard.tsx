@@ -514,7 +514,7 @@ export function RequirementCard({
                     const { modal } = ctaConfig.primaryAction!;
                     if (modal === 'edit') {
                       onEdit?.();
-                    } else if (modal === 'quotation' || modal === 'mapping' || modal === 'none' || modal === 'client_accept' || modal === 'approval') {
+                    } else if (modal === 'quotation' || modal === 'mapping' || modal === 'none' || modal === 'client_accept' || modal === 'approval' || modal === 'advance_proforma') {
                       // quotation, mapping, client_accept, approval and none (direct API) all use onAccept
                       onAccept?.();
                     }

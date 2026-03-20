@@ -118,11 +118,16 @@ export function mapRequirementToContext(
     && !!req.advance_invoice_id
     && req.advance_invoice?.status !== 'paid';
 
+  const requiresAdvancePayment = !!req.requires_advance_payment;
+  const hasAdvanceInvoice = !!req.advance_invoice_id;
+
   return {
     isWorkspaceMapped,
     isRejectedBySender,
     hasQuotedPrice,
     isAdvancePending,
+    requiresAdvancePayment,
+    hasAdvanceInvoice,
   };
 }
 
