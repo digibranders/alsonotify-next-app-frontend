@@ -73,6 +73,14 @@ export function RequirementCard({
 
     if (status === 'draft' || status === 'Draft') {
       const isOutsourced = type === 'outsourced';
+      // Only sender can act on drafts; receiver sees read-only draft
+      if (role === 'receiver') {
+        return {
+          isPending: true,
+          displayStatus: 'Draft - Awaiting Sender',
+          tab: 'draft' as const,
+        };
+      }
       return {
         isPending: true,
         displayStatus: 'Draft',

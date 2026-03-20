@@ -581,7 +581,7 @@ export function RequirementsPage() {
     });
   };
 
-  /** Send requirement: create then set Waiting/Assigned; edit Draft → set Waiting/Assigned */
+  /** Send requirement: create with target status directly; edit Draft → set Waiting/Assigned */
   const handleSendRequirement = (data: CreateRequirementRequestDto, files?: File[]) => {
     const targetStatus = data.type === 'outsourced' ? 'Waiting' : 'Assigned';
     if (editingReq) {
@@ -598,36 +598,19 @@ export function RequirementsPage() {
       });
       return;
     }
-    createRequirementMutation.mutate(data, {
+    // Pass status in create payload — backend supports creating with Waiting/Assigned directly.
+    // This avoids the fragile two-step create-then-update flow that could leave reqs stuck in Draft.
+    const createPayload = { ...data, status: targetStatus };
+    createRequirementMutation.mutate(createPayload, {
       onSuccess: async (response: { result?: { id?: number } }) => {
-        if (!response?.result?.id) {
-          messageApi.success("Requirement created");
-          setIsDialogOpen(false);
-          return;
-        }
-        const reqId = response.result.id;
+        const successMsg = data.type === 'outsourced' ? "Sent to partner"
+          : data.type === 'client' ? "Client work logged successfully"
+          : "Submitted for work";
+        messageApi.success(successMsg);
+        setIsDialogOpen(false);
 
-        // Skip immediate status update for client work to avoid 'Invalid transition' error.
-        // Client work is created with 'Waiting' status by the backend when requested by frontend.
-        if (data.type === 'client') {
-          messageApi.success("Client work logged successfully");
-          setIsDialogOpen(false);
-          return;
-        }
-
-        updateRequirementMutation.mutate(
-          { id: reqId, workspace_id: data.workspace_id, status: targetStatus } as UpdateRequirementRequestDto,
-          {
-            onSuccess: () => {
-              messageApi.success(data.type === 'outsourced' ? "Sent to partner" : "Submitted for work");
-              setIsDialogOpen(false);
-            },
-            onError: (error: unknown) => {
-              messageApi.error(getErrorMessage(error, "Failed to send requirement"));
-            },
-          }
-        );
-        if (files && files.length > 0) {
+        const reqId = response?.result?.id;
+        if (files && files.length > 0 && reqId) {
           messageApi.loading({ content: 'Uploading documents...', key: 'req-upload' });
           try {
             const uploadPromises = files.map(file => fileService.uploadFile(file, 'REQUIREMENT', reqId));
@@ -640,7 +623,7 @@ export function RequirementsPage() {
         }
       },
       onError: (error: unknown) => {
-        messageApi.error(getErrorMessage(error, "Failed to create requirement"));
+        messageApi.error(getErrorMessage(error, "Failed to send requirement"));
       },
     });
   };
