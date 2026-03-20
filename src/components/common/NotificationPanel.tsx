@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Drawer, message } from 'antd';
+import { Drawer, message, Modal } from 'antd';
 import {
   BellOff,
   Bell,
@@ -36,6 +36,7 @@ import { useNotifications } from '@/hooks/useNotification';
 import axiosApi from '@/config/axios';
 import { useIsNarrow } from '@/hooks/useBreakpoint';
 import { queryKeys } from '@/lib/queryKeys';
+import { removeActionsFromCache, isStaleActionError } from '@/utils/notificationCacheUtils';
 import type { NotificationTypeValue, NotificationMetadata } from '@/services/notification';
 import type { LucideIcon } from 'lucide-react';
 import { Linkify } from '@/components/common/Linkify';
@@ -123,44 +124,79 @@ function ActionButtons({
   navigate: (path: string) => void;
 }) {
   const queryClient = useQueryClient();
+  const [isActioning, setIsActioning] = useState(false);
   const actions = notification.metadata?.actions ?? [];
   if (actions.length === 0) return null;
 
   const requirementId = notification.metadata?.requirementId as number | undefined;
 
+  const handleStaleError = (error: unknown, fallbackMsg: string) => {
+    if (isStaleActionError(error)) {
+      message.info('This action has already been completed.');
+      removeActionsFromCache(queryClient, notification.id);
+      queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all() });
+    } else {
+      message.error(fallbackMsg);
+    }
+  };
+
   const handleApprove = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!requirementId) return;
+    if (!requirementId || isActioning) return;
+    setIsActioning(true);
     try {
       await axiosApi.post('/requirement/approve', { requirement_id: requirementId, status: 'Assigned' });
       markAsRead(notification.id);
       queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all() });
       if (notification.actionLink) navigate(notification.actionLink);
-    } catch { message.error('Network error. Please try again.'); }
+    } catch (error) {
+      handleStaleError(error, 'Failed to accept. Please try again.');
+    } finally {
+      setIsActioning(false);
+    }
   };
 
   const handleReject = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!requirementId) return;
-    try {
-      await axiosApi.post('/requirement/approve', { requirement_id: requirementId, status: 'Rejected' });
-      markAsRead(notification.id);
-      queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all() });
-    } catch { message.error('Network error. Please try again.'); }
+    if (!requirementId || isActioning) return;
+
+    Modal.confirm({
+      title: 'Reject Requirement',
+      content: `Are you sure you want to reject "${notification.metadata?.requirementName || 'this requirement'}"? The sender will be notified.`,
+      okText: 'Reject',
+      okType: 'danger',
+      cancelText: 'Cancel',
+      onOk: async () => {
+        setIsActioning(true);
+        try {
+          await axiosApi.post('/requirement/approve', { requirement_id: requirementId, status: 'Rejected' });
+          markAsRead(notification.id);
+          queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all() });
+        } catch (error) {
+          handleStaleError(error, 'Failed to reject. Please try again.');
+        } finally {
+          setIsActioning(false);
+        }
+      },
+    });
   };
 
   const handleNavigate = (e: React.MouseEvent, path?: string | null) => {
     e.stopPropagation();
-    markAsRead(notification.id);
+    try { markAsRead(notification.id); } catch { /* swallow if notification already gone */ }
     if (path) navigate(path);
   };
+
+  const disabled = isActioning;
+  const disabledClass = disabled ? ' opacity-50 cursor-not-allowed pointer-events-none' : '';
 
   return (
     <div className="flex flex-wrap gap-2 mt-2">
       {actions.includes('accept') && (
         <button
           onClick={handleApprove}
-          className="w-8 h-8 flex items-center justify-center rounded-full bg-[#0F9D58] text-white hover:bg-[#0B8043] transition-colors shadow-sm"
+          disabled={disabled}
+          className={`w-8 h-8 flex items-center justify-center rounded-full bg-[#0F9D58] text-white hover:bg-[#0B8043] transition-colors shadow-sm${disabledClass}`}
           title="Accept"
         >
           <Check className="w-4 h-4" />
@@ -169,7 +205,8 @@ function ActionButtons({
       {actions.includes('reject') && (
         <button
           onClick={handleReject}
-          className="w-8 h-8 flex items-center justify-center rounded-full bg-[#ff3b3b] text-white hover:bg-[#d32f2f] transition-colors shadow-sm"
+          disabled={disabled}
+          className={`w-8 h-8 flex items-center justify-center rounded-full bg-[#ff3b3b] text-white hover:bg-[#d32f2f] transition-colors shadow-sm${disabledClass}`}
           title="Reject"
         >
           <X className="w-4 h-4" />
@@ -194,7 +231,8 @@ function ActionButtons({
       {actions.includes('give_estimate') && (
         <button
           onClick={(e) => handleNavigate(e, notification.actionLink)}
-          className="h-7 px-3 flex items-center justify-center rounded-full border border-[#1976d2] bg-[#e3f2fd] text-[#1976d2] hover:bg-[#bbdefb] transition-colors text-xs font-medium"
+          disabled={disabled}
+          className={`h-7 px-3 flex items-center justify-center rounded-full border border-[#1976d2] bg-[#e3f2fd] text-[#1976d2] hover:bg-[#bbdefb] transition-colors text-xs font-medium${disabledClass}`}
         >
           Give Estimate
         </button>
@@ -210,7 +248,8 @@ function ActionButtons({
       {actions.includes('revise_quote') && (
         <button
           onClick={(e) => handleNavigate(e, notification.actionLink)}
-          className="h-7 px-3 flex items-center justify-center rounded-full bg-[#FF9800] text-white hover:bg-[#F57C00] transition-colors text-xs font-medium"
+          disabled={disabled}
+          className={`h-7 px-3 flex items-center justify-center rounded-full bg-[#FF9800] text-white hover:bg-[#F57C00] transition-colors text-xs font-medium${disabledClass}`}
         >
           <RotateCcw className="w-3 h-3 mr-1" />
           Revise Quote
@@ -227,7 +266,8 @@ function ActionButtons({
       {actions.includes('start_work') && (
         <button
           onClick={(e) => handleNavigate(e, notification.actionLink)}
-          className="h-7 px-3 flex items-center justify-center rounded-full bg-[#0F9D58] text-white hover:bg-[#0B8043] transition-colors text-xs font-medium"
+          disabled={disabled}
+          className={`h-7 px-3 flex items-center justify-center rounded-full bg-[#0F9D58] text-white hover:bg-[#0B8043] transition-colors text-xs font-medium${disabledClass}`}
         >
           Start Work
         </button>
@@ -243,7 +283,8 @@ function ActionButtons({
       {actions.includes('approve') && (
         <button
           onClick={(e) => handleNavigate(e, notification.actionLink)}
-          className="h-7 px-3 flex items-center justify-center rounded-full bg-[#0F9D58] text-white hover:bg-[#0B8043] transition-colors text-xs font-medium"
+          disabled={disabled}
+          className={`h-7 px-3 flex items-center justify-center rounded-full bg-[#0F9D58] text-white hover:bg-[#0B8043] transition-colors text-xs font-medium${disabledClass}`}
         >
           Approve
         </button>
@@ -251,7 +292,8 @@ function ActionButtons({
       {actions.includes('request_revision') && (
         <button
           onClick={(e) => handleNavigate(e, notification.actionLink)}
-          className="h-7 px-3 flex items-center justify-center rounded-full border border-[#EEEEEE] bg-white text-[#111111] hover:bg-[#F7F7F7] transition-colors text-xs font-medium"
+          disabled={disabled}
+          className={`h-7 px-3 flex items-center justify-center rounded-full border border-[#EEEEEE] bg-white text-[#111111] hover:bg-[#F7F7F7] transition-colors text-xs font-medium${disabledClass}`}
         >
           Request Revision
         </button>
@@ -289,7 +331,7 @@ function NotificationItemComponent({
   const IconComponent = config.icon;
 
   const handleClick = () => {
-    markAsRead(notification.id);
+    try { markAsRead(notification.id); } catch { /* swallow if notification already gone */ }
     if (notification.actionLink) navigate(notification.actionLink);
   };
 

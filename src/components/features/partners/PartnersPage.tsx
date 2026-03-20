@@ -36,6 +36,8 @@ import { Skeleton } from '../../ui/Skeleton';
 import { UserDto } from '@/types/dto/user.dto';
 import { getErrorMessage } from '@/types/api-utils';
 import { trimStr } from '@/utils/trim';
+import { useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/lib/queryKeys';
 import { AccountManagersTab } from './tabs/AccountManagersTab';
 
 interface ReceivedInvite {
@@ -65,6 +67,7 @@ const countryCodes = [
 ];
 
 export function PartnersPageContent() {
+    const queryClient = useQueryClient();
     const { message, modal } = App.useApp();
     const [partners, setPartners] = useState<Partner[]>([]);
     const [pendingInvites, setPendingInvites] = useState<ReceivedInvite[]>([]); // New state
@@ -300,6 +303,8 @@ export function PartnersPageContent() {
                 // Optimistically remove from pending list
                 setPendingInvites(prev => prev.filter(inv => inv.id !== inviteId));
                 fetchPartners(); // Refresh both lists to get updated active partners
+                // Sync notification panel — remove stale invite CTAs
+                queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all() });
             } else {
                 message.error(res.message || 'Failed to accept invite');
             }
@@ -314,6 +319,8 @@ export function PartnersPageContent() {
             if (res.success) {
                 message.success('Invite declined successfully');
                 fetchPartners(); // Refresh both lists
+                // Sync notification panel — remove stale invite CTAs
+                queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all() });
             } else {
                 message.error(res.message || 'Failed to decline invite');
             }

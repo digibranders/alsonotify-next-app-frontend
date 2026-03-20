@@ -26,6 +26,9 @@ export const useUpdateMemberStatus = () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.tasks.listRoot() });
       queryClient.invalidateQueries({ queryKey: queryKeys.tasks.detail(variables.taskId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.tasks.assigned() });
+      // Sync notification panel — strip stale CTAs and refetch
+      clearStaleNotificationActions(queryClient, 'taskId', variables.taskId);
+      queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all() });
     },
   });
 };
@@ -38,6 +41,7 @@ export { usePartners } from "./useUser";
 
 import { mapTaskDtoToDomain } from "../utils/mappers/task";
 import { queryKeys } from "../lib/queryKeys";
+import { clearStaleNotificationActions } from "../utils/notificationCacheUtils";
 
 export const useTasks = (options: string = "") => {
   return useQuery({
@@ -113,6 +117,9 @@ export const useUpdateTaskStatus = () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.tasks.detail(variables.id) });
       // Invalidate requirement queries (use allRoot to match any filter/pagination variant)
       queryClient.invalidateQueries({ queryKey: queryKeys.requirements.allRoot() });
+      // Sync notification panel — strip stale CTAs and refetch
+      clearStaleNotificationActions(queryClient, 'taskId', variables.id);
+      queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all() });
     },
   });
 };
@@ -134,6 +141,9 @@ export const useProvideEstimate = () => {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.tasks.listRoot() });
       queryClient.invalidateQueries({ queryKey: queryKeys.tasks.detail(variables.id) });
+      // Sync notification panel — strip stale CTAs and refetch
+      clearStaleNotificationActions(queryClient, 'taskId', variables.id);
+      queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all() });
     },
   });
 };
@@ -182,6 +192,9 @@ export const useRequestRevision = () => {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.tasks.listRoot() });
       queryClient.invalidateQueries({ queryKey: queryKeys.tasks.detail(variables.id) });
+      // Sync notification panel — strip stale CTAs and refetch
+      clearStaleNotificationActions(queryClient, 'taskId', variables.id);
+      queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all() });
     },
   });
 };

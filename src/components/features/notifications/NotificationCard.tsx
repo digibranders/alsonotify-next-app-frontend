@@ -73,7 +73,7 @@ export function NotificationCard({
   const priorityStyle = PRIORITY_STYLES[notification.priority];
 
   const handleClick = () => {
-    onMarkAsRead(notification.id);
+    try { onMarkAsRead(notification.id); } catch { /* swallow if notification already gone */ }
     if (notification.actionLink) onNavigate(notification.actionLink);
   };
 

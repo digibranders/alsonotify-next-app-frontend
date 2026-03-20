@@ -24,6 +24,7 @@ import { ApiResponse } from "../types/api";
 import { Workspace, Task, Requirement } from "../types/domain";
 import { mapWorkspaceDtoToDomain } from "../utils/mappers/workspace";
 import { queryKeys } from "../lib/queryKeys";
+import { clearStaleNotificationActions } from "../utils/notificationCacheUtils";
 
 // Workspaces
 const selectWorkspaces = (data: ApiResponse<{ workspaces: WorkspaceDto[] }>): ApiResponse<{ workspaces: Workspace[] }> => {
@@ -204,6 +205,9 @@ export const useUpdateRequirement = () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.requirements.collaborative() });
       queryClient.invalidateQueries({ queryKey: queryKeys.requirements.dropdownRoot() });
       queryClient.invalidateQueries({ queryKey: ['requirements', 'activities'] });
+      // Sync notification panel — strip stale CTAs and refetch
+      clearStaleNotificationActions(queryClient, 'requirementId', variables.id);
+      queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all() });
     },
   });
 };
@@ -229,12 +233,15 @@ export const useApproveRequirement = () => {
 
   return useMutation({
     mutationFn: (params: ApproveRequirementRequestDto) => approveRequirement(params),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.requirements.allRoot() });
       // Invalidate all workspace-scoped requirement queries to ensure UI refresh
       queryClient.invalidateQueries({ queryKey: ['requirements', 'workspace'] });
       queryClient.invalidateQueries({ queryKey: queryKeys.requirements.collaborative() });
       queryClient.invalidateQueries({ queryKey: ['requirements', 'activities'] });
+      // Sync notification panel — strip stale CTAs and refetch
+      clearStaleNotificationActions(queryClient, 'requirementId', variables.requirement_id);
+      queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all() });
     },
   });
 };
@@ -244,11 +251,14 @@ export const useSubmitForReview = () => {
   return useMutation({
     mutationFn: ({ requirementId, body }: { requirementId: number; body?: SubmitForReviewRequestDto }) =>
       submitRequirementForReview(requirementId, body ?? {}),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.requirements.allRoot() });
       // Invalidate all workspace-scoped requirement queries to ensure UI refresh
       queryClient.invalidateQueries({ queryKey: ['requirements', 'workspace'] });
       queryClient.invalidateQueries({ queryKey: queryKeys.requirements.collaborative() });
+      // Sync notification panel — strip stale CTAs and refetch
+      clearStaleNotificationActions(queryClient, 'requirementId', variables.requirementId);
+      queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all() });
     },
   });
 };
