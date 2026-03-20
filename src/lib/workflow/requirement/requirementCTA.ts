@@ -430,6 +430,25 @@ function getSenderAssignedCTA(
     };
   }
 
+  // Advance required but partner hasn't created proforma invoice yet
+  if (context.requiresAdvancePayment && !context.hasAdvanceInvoice) {
+    return {
+      displayStatus: "Awaiting Partner's Proforma...",
+      isPending: true,
+      tab,
+    };
+  }
+
+  // Advance invoice exists but not yet paid — sender can view it
+  if (context.isAdvancePending) {
+    return {
+      displayStatus: 'Advance Payment Pending',
+      isPending: true,
+      tab,
+      primaryAction: createAction('View Invoice', 'primary', 'none', 'view_advance_invoice'),
+    };
+  }
+
   return {
     displayStatus: 'Assigned',
     isPending: false,
@@ -580,7 +599,17 @@ function getReceiverAssignedCTA(
     };
   }
 
-  // Block work when advance payment is pending
+  // Advance payment required but no proforma invoice created yet — receiver needs to raise one
+  if (context.requiresAdvancePayment && !context.hasAdvanceInvoice) {
+    return {
+      displayStatus: 'Action Needed: Raise Proforma',
+      isPending: true,
+      tab,
+      primaryAction: createAction('Raise Proforma', 'primary', 'advance_proforma'),
+    };
+  }
+
+  // Block work when advance payment is pending (invoice exists but not paid)
   if (context.isAdvancePending) {
     return {
       displayStatus: 'Awaiting Advance Payment',

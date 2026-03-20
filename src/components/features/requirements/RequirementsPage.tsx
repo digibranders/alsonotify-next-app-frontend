@@ -24,6 +24,7 @@ import { ClientAcceptModal } from '../../modals/ClientAcceptModal';
 import { SubmitForApprovalModal } from '../../modals/SubmitForApprovalModal';
 import { QuotationDialog, RejectDialog, InternalMappingModal } from './components/dialogs';
 import { RequirementsList } from './components/RequirementsList';
+import { RaiseAdvanceProformaModal } from '../finance/RaiseAdvanceProformaModal';
 
 import { Requirement, Workspace, RequirementType } from '@/types/domain';
 import { RequirementDto, CreateRequirementRequestDto, UpdateRequirementRequestDto } from '@/types/dto/requirement.dto';
@@ -435,6 +436,7 @@ export function RequirementsPage() {
   const [isRejectOpen, setIsRejectOpen] = useState(false);
   const [isMappingOpen, setIsMappingOpen] = useState(false);
   const [isClientAcceptOpen, setIsClientAcceptOpen] = useState(false);
+  const [isAdvanceProformaOpen, setIsAdvanceProformaOpen] = useState(false);
   const [pendingReqId, setPendingReqId] = useState<number | null>(null);
   const [isSubmitReviewOpen, setIsSubmitReviewOpen] = useState(false);
   const [pendingSubmitReqId, setPendingSubmitReqId] = useState<number | null>(null);
@@ -826,6 +828,12 @@ export function RequirementsPage() {
           return;
         }
 
+        // Scenario 2.5: Workspace mapped, advance payment required but no proforma yet
+        if (workflowStatus === 'Assigned' && req.receiver_workspace_id && req.requires_advance_payment && !req.advance_invoice_id) {
+          setIsAdvanceProformaOpen(true);
+          return;
+        }
+
         // Scenario 3: Other receiver states - should not show accept button
         messageApi.info("No action required at this stage");
         return;
@@ -833,6 +841,12 @@ export function RequirementsPage() {
 
       // SENDER ACTIONS (Company A - Client)
       if (req.isSender) {
+        // Scenario 0: Advance invoice exists — navigate to invoice detail
+        if (workflowStatus === 'Assigned' && req.advance_invoice_id) {
+          router.push(`/dashboard/finance/invoices/${req.advance_invoice_id}`);
+          return;
+        }
+
         // Scenario 1: Reviewing QUOTE submission (Status: Submitted)
         if (workflowStatus === 'Submitted') {
           // Accept quote directly - update status to Assigned
@@ -915,7 +929,7 @@ export function RequirementsPage() {
   const tabs = [
     { id: 'active', label: 'Active' },
     { id: 'pending', label: 'Pending', count: statusCounts.Pending },
-    { id: 'draft', label: 'Drafts', count: statusCounts.Draft },
+    { id: 'draft', label: 'Drafts' },
     { id: 'delayed', label: 'Delayed', count: statusCounts.Delayed },
     { id: 'completed', label: 'Completed' },
     { id: 'archived', label: 'Archive' }
@@ -1172,6 +1186,26 @@ export function RequirementsPage() {
         creatorName={requirements.find(r => r.id === pendingReqId)?.headerContact ?? undefined}
         loading={approveRequirementMutation.isPending}
       />
+
+      {isAdvanceProformaOpen && pendingReqId && (() => {
+        const req = requirements.find(r => r.id === pendingReqId);
+        if (!req) return null;
+        return (
+          <RaiseAdvanceProformaModal
+            isOpen={isAdvanceProformaOpen}
+            onClose={() => {
+              setIsAdvanceProformaOpen(false);
+              setPendingReqId(null);
+            }}
+            requirementId={req.id}
+            requirementTitle={req.title || req.name}
+            quotedPrice={req.quoted_price || 0}
+            currency={req.currency || 'INR'}
+            receiverCompanyId={Number(req.receiver_company_id) || 0}
+            senderCompanyId={Number(req.sender_company_id) || 0}
+          />
+        );
+      })()}
 
       {isSubmitReviewOpen && pendingSubmitReqId && requirements.find(r => r.id === pendingSubmitReqId) && (
         <SubmitForApprovalModal

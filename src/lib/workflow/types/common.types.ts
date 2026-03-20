@@ -22,4 +22,4 @@ export type Tab = 'draft' | 'pending' | 'active' | 'completed' | 'delayed' | 'ar
  * - client_accept: Accept client work and map workspace (combined action for B)
  * - none: No modal needed, direct API action
  */
-export type ModalType = 'quotation' | 'reject' | 'mapping' | 'edit' | 'submit_approval' | 'approval' | 'revision' | 'client_accept' | 'none';
+export type ModalType = 'quotation' | 'reject' | 'mapping' | 'edit' | 'submit_approval' | 'approval' | 'revision' | 'client_accept' | 'advance_proforma' | 'none';
