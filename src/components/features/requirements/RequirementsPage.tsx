@@ -23,6 +23,7 @@ import { RequirementsForm } from '../../modals/RequirementsForm';
 import { ClientAcceptModal } from '../../modals/ClientAcceptModal';
 import { SubmitForApprovalModal } from '../../modals/SubmitForApprovalModal';
 import { QuotationDialog, RejectDialog, InternalMappingModal } from './components/dialogs';
+import type { RejectVariant } from './components/dialogs/RejectDialog';
 import { RequirementsList } from './components/RequirementsList';
 import { RaiseAdvanceProformaModal } from '../finance/RaiseAdvanceProformaModal';
 
@@ -1125,6 +1126,15 @@ export function RequirementsPage() {
         open={isRejectOpen}
         onOpenChange={setIsRejectOpen}
         onConfirm={handleRejectConfirm}
+        variant={(() => {
+          const req = requirements.find(r => r.id === pendingReqId);
+          if (!req) return 'generic';
+          const ws = mapRequirementToStatus(req);
+          if (ws === 'Review') return 'request_revision' as RejectVariant;
+          if (ws === 'Submitted') return 'reject_quote' as RejectVariant;
+          if (ws === 'Waiting' && req.isReceiver) return 'decline_requirement' as RejectVariant;
+          return 'generic' as RejectVariant;
+        })()}
       />
       <InternalMappingModal
         open={isMappingOpen}
