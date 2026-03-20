@@ -51,7 +51,7 @@ function EmailPillInput({
                 {label}
             </label>
             <div
-                className="flex flex-wrap gap-1.5 p-2 border border-[#EEEEEE] rounded-lg bg-white min-h-[40px] cursor-text focus-within:border-[#ff3b3b] transition-colors"
+                className="flex flex-wrap gap-1.5 p-2 border border-[#EEEEEE] rounded-lg bg-white min-h-[40px] cursor-text focus-within:border-[#111111] transition-colors"
                 onClick={() => inputRef.current?.focus()}
             >
                 {emails.map(email => (
@@ -254,7 +254,7 @@ export function SendInvoiceModal({
                         onChange={e => setCustomMessage(e.target.value)}
                         placeholder="Add a personal message..."
                         rows={3}
-                        className="w-full px-3 py-2 border border-[#EEEEEE] rounded-lg text-sm text-[#111111] placeholder:text-[#CCCCCC] focus:border-[#ff3b3b] outline-none resize-none"
+                        className="w-full px-3 py-2 border border-[#EEEEEE] rounded-lg text-sm text-[#111111] placeholder:text-[#CCCCCC] focus:border-[#111111] outline-none resize-none"
                     />
                 </div>
             </div>

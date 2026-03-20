@@ -153,7 +153,7 @@ function WorkspaceFormContent({ onCancel, onSuccess, initialData }: WorkspaceFor
                     <label className="text-xs font-bold text-[#111111]">Workspace Name <span className="text-[#ff3b3b]">*</span></label>
                     <Input
                         placeholder="e.g. Website Redesign"
-                        className="h-11 rounded-xl border-[#EEEEEE] font-medium"
+                        className="h-11 rounded-lg border-[#EEEEEE] font-medium"
                         value={newWorkspace.name}
                         onChange={(e) => setNewWorkspace({ ...newWorkspace, name: e.target.value })}
                     />
@@ -177,7 +177,7 @@ function WorkspaceFormContent({ onCancel, onSuccess, initialData }: WorkspaceFor
                                 setNewWorkspace({ ...newWorkspace, inHouse: false, partner_id: val as number });
                             }
                         }}
-                        styles={{ popup: { root: { borderRadius: '12px', padding: '8px' } } }}
+                        popupStyle={{ borderRadius: '12px', padding: '8px' }}
                     >
                         <Option value="self" className="rounded-lg mb-1">
                             {companyData?.result?.name || 'My Company'} (Self)
@@ -201,7 +201,7 @@ function WorkspaceFormContent({ onCancel, onSuccess, initialData }: WorkspaceFor
                     <label className="text-xs font-bold text-[#111111]">Description</label>
                     <TextArea
                         placeholder="Describe your workspace..."
-                        className="rounded-xl border-[#EEEEEE] font-medium py-3"
+                        className="rounded-lg border-[#EEEEEE] font-medium py-3"
                         rows={4}
                         value={newWorkspace.description}
                         onChange={(e) => setNewWorkspace({ ...newWorkspace, description: e.target.value })}

@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
-import { MessageSquare, Paperclip, X, Send, Loader2, Eye, Download, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { MessageSquare, Paperclip, Send, Loader2, Eye, Download, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { Mentions, App } from 'antd';
 import { fileService } from '@/services/file.service';
 import { DocumentPreviewModal } from '@/components/ui/DocumentPreviewModal';
+import { ChatFileAttachmentList } from '@/components/ui/FileAttachment';
 import { UserDocument } from '@/types/domain';
 import { parseMentionsAndTasks, MentionOption } from '@/utils/format/textUtils';
 import { useResizable } from '@/hooks/useResizable';
@@ -374,25 +375,11 @@ export function ChatPanel({
             {/* Message Input */}
             {!isCollapsed && (
                 <div className="p-4 border-t border-[#EEEEEE] bg-white">
-                    {attachments.length > 0 && (
-                        <div className="mb-3 space-y-1">
-                            {attachments.map((file, index) => (
-                                <div key={index} className="flex items-center justify-between p-2 bg-white rounded border border-[#EEEEEE]">
-                                    <div className="flex items-center gap-2 flex-1 min-w-0">
-                                        <Paperclip className="w-3.5 h-3.5 text-[#666666] shrink-0" />
-                                        <span className="text-xs text-[#444444] truncate">{file.name}</span>
-                                    </div>
-                                    <button
-                                        onClick={() => setAttachments(attachments.filter((_, i) => i !== index))}
-                                        className="p-1 hover:bg-[#FAFAFA] rounded transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff3b3b] focus-visible:ring-offset-2"
-                                        aria-label="Remove attachment"
-                                    >
-                                        <X className="w-3.5 h-3.5 text-[#999999]" />
-                                    </button>
-                                </div>
-                            ))}
-                        </div>
-                    )}
+                    <ChatFileAttachmentList
+                        files={attachments}
+                        onRemove={(index) => setAttachments(attachments.filter((_, i) => i !== index))}
+                        className="mb-3"
+                    />
 
                     <div className="relative border border-[#DDDDDD] rounded-[12px] bg-white">
                         {/* Mirror Highlight Overlay */}

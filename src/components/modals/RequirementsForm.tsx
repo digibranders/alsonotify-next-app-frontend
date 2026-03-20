@@ -2,8 +2,9 @@ import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import dayjs from '@/utils/date/dayjs';
 import { formatDateForApi, getTodayForApi } from '@/utils/date/date';
-import { Input, DatePicker, Checkbox, App, Button, Modal, Select, Space } from 'antd';
-import { Upload as UploadIcon, FileText } from 'lucide-react';
+import { Input, DatePicker, Checkbox, App, Button, Modal, Select } from 'antd';
+import { FileText } from 'lucide-react';
+import { FileAttachmentInput } from '@/components/ui/FileAttachment';
 import { useEmployeesDropdown } from '@/hooks/useUser';
 import { getOutsourcedContacts } from '@/services/user';
 import { FormLayout } from '@/components/common/FormLayout';
@@ -178,20 +179,9 @@ function RequirementsFormContent({
         }
     }, [formData.type, message]);
 
-    const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files) {
-            const files = Array.from(e.target.files);
-            const maxSize = 50 * 1024 * 1024; // 50MB
-
-            const oversizedFiles = files.filter(file => file.size > maxSize);
-            if (oversizedFiles.length > 0) {
-                message.error(`File size must be less than 50MB. ${oversizedFiles.length} file(s) exceeded the limit.`);
-                return;
-            }
-
-            setSelectedFiles(files);
-        }
-    };
+    const handleFilesChange = useCallback((newFiles: File[]) => {
+        setSelectedFiles(newFiles);
+    }, []);
 
     const buildPayload = useCallback((): CreateRequirementRequestDto | null => {
         const title = (formData.title || '').trim();
@@ -515,42 +505,13 @@ function RequirementsFormContent({
                 />
             </div>
 
-            <div className="space-y-1.5">
-                <span className="text-xs font-bold text-[#111111]">Upload Documents</span>
-                <label
-                    className="border-2 border-dashed border-[#EEEEEE] rounded-xl p-3 flex flex-col items-center justify-center text-center hover:border-[#ff3b3b]/30 hover:bg-[#FFFAFA] transition-colors cursor-pointer bg-white group"
-                >
-                    <input
-                        type="file"
-                        multiple
-                        className="hidden"
-                        onChange={handleFileSelect}
-                        accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.jpeg,.jpg,.png"
-                    />
-                    <div className="w-8 h-8 rounded-full bg-[#F7F7F7] group-hover:bg-white flex items-center justify-center mb-1.5 transition-colors">
-                        <UploadIcon className="w-4 h-4 text-[#999999] group-hover:text-[#ff3b3b] transition-colors" />
-                    </div>
-                    {selectedFiles.length > 0 ? (
-                        <div className="space-y-1">
-                            <p className="text-xs font-bold text-[#111111] mb-0.5">
-                                {selectedFiles.length} file(s) selected
-                            </p>
-                            <div className="text-xs text-[#666666] font-medium">
-                                {selectedFiles.map(f => f.name).join(', ')}
-                            </div>
-                        </div>
-                    ) : (
-                        <>
-                            <p className="text-xs font-bold text-[#111111] mb-0.5">
-                                Choose files or drop them here
-                            </p>
-                            <p className="text-xs text-[#999999] font-medium">
-                                pdf, docx, xlsx - Up to 50MB
-                            </p>
-                        </>
-                    )}
-                </label>
-            </div>
+            <FileAttachmentInput
+                files={selectedFiles}
+                onChange={handleFilesChange}
+                maxSizeMB={50}
+                accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.jpeg,.jpg,.png"
+                onError={(msg) => message.error(msg)}
+            />
 
             <WorkspaceForm
                 open={isWorkspaceCreateOpen}

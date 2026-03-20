@@ -385,7 +385,7 @@ function EmployeeFormContent({
           <span className="text-xs font-bold text-[#111111]">First Name <span className="text-[#ff3b3b]">*</span></span>
           <Input
             placeholder="First name"
-            className={`h-11 rounded-lg border border-[#EEEEEE] font-medium ${resolvedFormData.firstName ? 'bg-white' : 'bg-[#F9FAFB]'}`}
+            className={`h-11 rounded-lg border border-[#EEEEEE] font-medium bg-white`}
             value={resolvedFormData.firstName}
             onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
           />
@@ -394,7 +394,7 @@ function EmployeeFormContent({
           <span className="text-xs font-bold text-[#111111]">Last Name</span>
           <Input
             placeholder="Last name"
-            className={`h-11 rounded-lg border border-[#EEEEEE] font-medium ${resolvedFormData.lastName ? 'bg-white' : 'bg-[#F9FAFB]'}`}
+            className={`h-11 rounded-lg border border-[#EEEEEE] font-medium bg-white`}
             value={resolvedFormData.lastName}
             onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
           />
@@ -404,7 +404,7 @@ function EmployeeFormContent({
           <span className="text-xs font-bold text-[#111111]">Email Address <span className="text-[#ff3b3b]">*</span></span>
           <Input
             placeholder="email@company.com"
-            className={`h-11 rounded-lg border border-[#EEEEEE] font-medium ${resolvedFormData.email ? 'bg-white' : 'bg-[#F9FAFB]'}`}
+            className={`h-11 rounded-lg border border-[#EEEEEE] font-medium bg-white`}
             value={resolvedFormData.email}
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
           />
@@ -420,14 +420,14 @@ function EmployeeFormContent({
               const num = parts.slice(1).join(' ');
               setFormData({ ...formData, countryCode: code, phone: num });
             }}
-            className={resolvedFormData.phone ? 'bg-white' : 'bg-gray-50'}
+            className="bg-white"
           />
         </div>
 
         <div className="col-span-6 space-y-1">
           <span className="text-xs font-bold text-[#111111]">Access Level <span className="text-[#ff3b3b]">*</span></span>
           <Select
-            className={`w-full h-11 access-level-select employee-form-select ${resolvedFormData.access ? 'employee-form-select-filled' : ''}`}
+            className={`w-full h-11 access-level-select employee-form-select`}
             classNames={{ popup: { root: 'access-level-popup' } }}
             placeholder={isLoadingRoles ? "Loading roles..." : "Select access"}
             loading={isLoadingRoles}
@@ -455,7 +455,7 @@ function EmployeeFormContent({
         <div className="col-span-6 space-y-1">
           <span className="text-xs font-bold text-[#111111]">Employment Type <span className="text-[#ff3b3b]">*</span></span>
           <Select
-            className={`w-full h-11 employee-form-select ${resolvedFormData.employment_type ? 'employee-form-select-filled' : ''}`}
+            className={`w-full h-11 employee-form-select`}
             placeholder="Select type"
             value={resolvedFormData.employment_type}
             onChange={(v) => setFormData({ ...formData, employment_type: v as EmployeeFormData["employment_type"] })}
@@ -472,7 +472,7 @@ function EmployeeFormContent({
           <span className="text-xs font-bold text-[#111111]">Designation</span>
           <Input
             placeholder="e.g. Senior Developer"
-            className={`h-11 rounded-lg border border-[#EEEEEE] font-medium ${resolvedFormData.role ? 'bg-white' : 'bg-[#F9FAFB]'}`}
+            className={`h-11 rounded-lg border border-[#EEEEEE] font-medium bg-white`}
             value={resolvedFormData.role}
             onChange={(e) => setFormData({ ...formData, role: e.target.value })}
           />
@@ -481,7 +481,7 @@ function EmployeeFormContent({
           <span className="text-xs font-bold text-[#111111]">Department</span>
           <Select
             showSearch
-            className={`w-full h-11 employee-form-select ${resolvedFormData.department ? 'employee-form-select-filled' : ''}`}
+            className={`w-full h-11 employee-form-select`}
             placeholder="Select department"
             value={resolvedFormData.department || undefined}
             onChange={(v) => setFormData({ ...formData, department: String(v) })}
@@ -502,7 +502,7 @@ function EmployeeFormContent({
           <Input
             type="number"
             placeholder="e.g. 5"
-            className={`h-11 rounded-lg border border-[#EEEEEE] font-medium ${resolvedFormData.experience ? 'bg-white' : 'bg-[#F9FAFB]'}`}
+            className={`h-11 rounded-lg border border-[#EEEEEE] font-medium bg-white`}
             value={resolvedFormData.experience}
             onChange={(e) => setFormData({ ...formData, experience: e.target.value })}
           />
@@ -510,7 +510,7 @@ function EmployeeFormContent({
         <div className="col-span-6 space-y-1">
           <span className="text-xs font-bold text-[#111111]">Date of Joining</span>
           <DatePicker
-            className={`w-full h-11 employee-form-datepicker ${resolvedFormData.dateOfJoining ? 'employee-form-datepicker-filled' : ''}`}
+            className={`w-full h-11 employee-form-datepicker`}
             placeholder={DATE_FORMAT_DISPLAY.toLowerCase()}
             format={DATE_FORMAT_DISPLAY}
             value={resolvedFormData.dateOfJoining ? dayjs(resolvedFormData.dateOfJoining) : null}
@@ -526,7 +526,7 @@ function EmployeeFormContent({
             <Input
               type="number"
               placeholder="e.g. 1200000"
-              className={`h-11 font-medium ${resolvedFormData.salary ? 'bg-white' : 'bg-gray-50'}`}
+              className="h-11 font-medium bg-white"
               value={resolvedFormData.salary}
               onChange={(e) => setFormData({ ...formData, salary: e.target.value })}
               prefix={<span className="text-gray-400 mr-1">{currencySymbol}</span>}
@@ -538,7 +538,7 @@ function EmployeeFormContent({
           <Input
             type="number"
             placeholder="Days"
-            className={`h-11 rounded-lg border border-[#EEEEEE] font-medium ${resolvedFormData.leaves ? 'bg-white' : 'bg-[#F9FAFB]'}`}
+            className={`h-11 rounded-lg border border-[#EEEEEE] font-medium bg-white`}
             value={resolvedFormData.leaves}
             onChange={(e) => setFormData({ ...formData, leaves: e.target.value })}
           />
@@ -550,7 +550,7 @@ function EmployeeFormContent({
             <TimePicker
               placeholder="Start"
               format="h:mm a"
-              className={`w-full h-11 employee-form-datepicker ${resolvedFormData.workingHoursStart ? 'employee-form-datepicker-filled' : ''}`}
+              className={`w-full h-11 employee-form-datepicker`}
               value={resolvedFormData.workingHoursStart ? dayjs(resolvedFormData.workingHoursStart, 'h:mm a') : null}
               onChange={(time) => setFormData({ ...formData, workingHoursStart: time ? time.format('h:mm a') : '' })}
               suffixIcon={<svg className="w-3 h-3 text-[#999999]" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 4.5L6 7.5L9 4.5"/></svg>}
@@ -558,7 +558,7 @@ function EmployeeFormContent({
             <TimePicker
               placeholder="End"
               format="h:mm a"
-              className={`w-full h-11 employee-form-datepicker ${resolvedFormData.workingHoursEnd ? 'employee-form-datepicker-filled' : ''}`}
+              className={`w-full h-11 employee-form-datepicker`}
               value={resolvedFormData.workingHoursEnd ? dayjs(resolvedFormData.workingHoursEnd, 'h:mm a') : null}
               onChange={(time) => setFormData({ ...formData, workingHoursEnd: time ? time.format('h:mm a') : '' })}
               suffixIcon={<svg className="w-3 h-3 text-[#999999]" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 4.5L6 7.5L9 4.5"/></svg>}
@@ -580,7 +580,7 @@ function EmployeeFormContent({
           <span className="text-xs font-bold text-[#111111]">Professional Skillsets</span>
           <Select
             mode="tags"
-            className={`w-full employee-form-select linkedin-skill-select ${resolvedFormData.skillsets ? 'employee-form-select-filled' : ''}`}
+            className={`w-full employee-form-select linkedin-skill-select`}
             classNames={{ popup: { root: 'linkedin-skill-dropdown' } }}
             placeholder="Type and press enter (e.g. React, UX Design, etc.)"
             value={resolvedFormData.skillsets ? resolvedFormData.skillsets.split(',').filter(s => s.trim()) : []}
@@ -599,152 +599,6 @@ function EmployeeFormContent({
         </div>
       </div>
 
-      <style jsx global>{`
-          :global(.ant-input), 
-          :global(.ant-select),
-          :global(.ant-select-selector), 
-          :global(.ant-picker) {
-            height: 44px !important;
-          }
-          
-          :global(.ant-select-selector), 
-          :global(.ant-picker) {
-            min-height: 44px !important;
-            display: flex !important;
-            align-items: center !important;
-            padding-top: 0 !important;
-            padding-bottom: 0 !important;
-          }
-          
-          :global(.ant-select-selection-item), 
-          :global(.ant-select-selection-placeholder),
-          :global(.ant-select-selection-search-input) {
-            display: flex !important;
-            align-items: center !important;
-          }
-          
-          :global(.ant-select-selection-placeholder) {
-            height: 100% !important;
-            top: 0 !important;
-            display: flex !important;
-            align-items: center !important;
-          }
-          
-          :global(.ant-select-selection-search) {
-            height: 100% !important;
-            top: 0 !important;
-            display: flex !important;
-            align-items: center !important;
-            margin-top: 0 !important;
-            margin-bottom: 0 !important;
-          }
-          
-          :global(.ant-select-selection-overflow) {
-            height: 100% !important;
-            display: flex !important;
-            align-items: center !important;
-            flex-wrap: nowrap !important;
-            padding-top: 0 !important;
-            padding-bottom: 0 !important;
-          }
-
-          :global(.linkedin-skill-select .ant-select-selection-item) {
-            background: #E7F3FF !important;
-            border: 1px solid #70B5FF !important;
-            border-radius: 4px !important;
-            color: #004182 !important;
-            font-family: 'Manrope:SemiBold', sans-serif !important;
-            font-size: var(--font-size-xs) !important;
-            height: 24px !important;
-            line-height: 22px !important;
-            margin: 0 4px 0 0 !important;
-            padding-inline-start: 8px !important;
-            display: flex !important;
-            align-items: center !important;
-            overflow: visible !important;
-          }
-          :global(.linkedin-skill-select .ant-select-selection-item-remove) {
-            color: #004182 !important;
-            transition: all 0.2s;
-          }
-          :global(.linkedin-skill-select .ant-select-selection-item-remove:hover) {
-            color: #ff3b3b !important;
-          }
-          :global(.linkedin-skill-select .ant-select-selection-overflow-item) {
-            display: flex !important;
-            align-items: center !important;
-          }
-          :global(.linkedin-skill-select .ant-select-selector) {
-            padding-top: 0 !important;
-            padding-bottom: 0 !important;
-            padding-left: 11px !important;
-            overflow: hidden !important;
-          }
-          .employee-form-select .ant-select-selector {
-            background-color: #F9FAFB !important;
-            border-color: #EEEEEE !important;
-          }
-          .employee-form-select .ant-select-selector:hover {
-            border-color: #EEEEEE !important;
-          }
-          .employee-form-select.ant-select-focused .ant-select-selector {
-            border-color: #EEEEEE !important;
-            box-shadow: none !important;
-          }
-          
-          .employee-form-select-filled .ant-select-selector {
-            background-color: white !important;
-          }
-          
-          .employee-form-datepicker .ant-picker {
-            background-color: #F9FAFB !important;
-            border-color: #EEEEEE !important;
-          }
-          .employee-form-datepicker .ant-picker:hover {
-            border-color: #EEEEEE !important;
-          }
-          .employee-form-datepicker .ant-picker-focused {
-            border-color: #EEEEEE !important;
-            box-shadow: none !important;
-          }
-          
-          .employee-form-datepicker-filled .ant-picker {
-            background-color: white !important;
-          }
-          
-          .ant-input:focus {
-            border-color: #EEEEEE !important;
-            box-shadow: none !important;
-          }
-
-          /* Split input groups now use unified .split-input-group from globals.css */
-          
-          :global(.access-level-popup), :global(.linkedin-skill-dropdown) {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
-            border: 1px solid #EEEEEE !important;
-            border-radius: 8px !important;
-            padding: 4px !important;
-            background: white !important;
-          }
-          :global(.access-level-popup .ant-select-item), :global(.linkedin-skill-dropdown .ant-select-item) {
-            background: white !important;
-            padding: 8px 12px !important;
-            border-radius: 6px !important;
-            margin-bottom: 2px !important;
-          }
-          :global(.access-level-popup .ant-select-item:hover), :global(.linkedin-skill-dropdown .ant-select-item:hover) {
-            background: #F7F7F7 !important;
-            height: auto !important;
-          }
-          :global(.access-level-popup .ant-select-item-option-selected), :global(.linkedin-skill-dropdown .ant-select-item-option-selected) {
-            background: #F9FAFB !important;
-            font-weight: 600 !important;
-          }
-          :global(.access-level-popup .ant-select-item-option-state),
-          :global(.linkedin-skill-dropdown .ant-select-item-option-state) {
-            display: flex !important;
-          }
-        `}</style>
     </FormLayout>
   );
 }

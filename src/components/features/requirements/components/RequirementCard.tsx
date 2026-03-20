@@ -73,6 +73,14 @@ export function RequirementCard({
 
     if (status === 'draft' || status === 'Draft') {
       const isOutsourced = type === 'outsourced';
+      // Only sender can act on drafts; receiver sees read-only draft
+      if (role === 'receiver') {
+        return {
+          isPending: true,
+          displayStatus: 'Draft - Awaiting Sender',
+          tab: 'draft' as const,
+        };
+      }
       return {
         isPending: true,
         displayStatus: 'Draft',
@@ -434,8 +442,26 @@ export function RequirementCard({
 
       {/* Pending Message */}
       {isPending && (
-        <div className="mt-auto mb-4 min-h-[40px] flex items-center justify-center text-xs text-[#999999] italic bg-[#F9FAFB] rounded-lg border border-dashed border-[#E5E7EB] mx-1 px-2 text-center">
-          {displayStatus}
+        <div className="mt-auto mb-4 min-h-[40px] flex flex-col items-center justify-center text-xs text-[#999999] italic bg-[#F9FAFB] rounded-lg border border-dashed border-[#E5E7EB] mx-1 px-2 text-center py-2 gap-1.5">
+          <span>{displayStatus}</span>
+          {/* Show advance payment info when quote is received/submitted */}
+          {requirement.requires_advance_payment && requirement.advance_amount && (requirement.rawStatus === 'Submitted' || requirement.rawStatus === 'Waiting') && (() => {
+            const currencyCode = requirement.currency ? requirement.currency.toUpperCase() : 'USD';
+            const symbol = CURRENCY_SYMBOLS[currencyCode] || requirement.currency || '$';
+            const totalCost = requirement.quoted_price || requirement.estimated_cost || requirement.budget;
+            const percentage = totalCost ? Math.round((requirement.advance_amount! / totalCost) * 100) : null;
+            const dueDate = requirement.advance_payment_due_date
+              ? format(parseISO(requirement.advance_payment_due_date), 'MMM d, yyyy')
+              : null;
+            return (
+              <span className="not-italic text-[#EF6C00] font-semibold text-2xs flex items-center gap-1">
+                <AlertCircle className="w-3 h-3" />
+                Advance: {symbol}{Number(requirement.advance_amount).toLocaleString()}
+                {percentage ? ` (${percentage}%)` : ''}
+                {dueDate ? ` · Due ${dueDate}` : ''}
+              </span>
+            );
+          })()}
         </div>
       )}
 

@@ -963,3 +963,92 @@ input[type="number"] {
     color: #999999;
     pointer-events: none;
 }
+
+/* ─── Employee Form: Select & DatePicker overrides ────────────────── */
+.employee-form-select .ant-select-selector {
+    background-color: white !important;
+    border-color: #EEEEEE !important;
+}
+.employee-form-select .ant-select-selector:hover {
+    border-color: #EEEEEE !important;
+}
+.employee-form-select.ant-select-focused .ant-select-selector {
+    border-color: #EEEEEE !important;
+    box-shadow: none !important;
+}
+
+.employee-form-datepicker .ant-picker {
+    background-color: white !important;
+    border-color: #EEEEEE !important;
+}
+.employee-form-datepicker .ant-picker:hover {
+    border-color: #EEEEEE !important;
+}
+.employee-form-datepicker .ant-picker-focused {
+    border-color: #EEEEEE !important;
+    box-shadow: none !important;
+}
+
+/* ─── Employee Form: Skill tag pills (LinkedIn style) ─────────────── */
+.linkedin-skill-select .ant-select-selection-item {
+    background: #E7F3FF !important;
+    border: 1px solid #70B5FF !important;
+    border-radius: 4px !important;
+    color: #004182 !important;
+    font-size: var(--text-xs) !important;
+    height: 24px !important;
+    line-height: 22px !important;
+    margin: 0 4px 0 0 !important;
+    padding-inline-start: 8px !important;
+    display: flex !important;
+    align-items: center !important;
+    overflow: visible !important;
+}
+.linkedin-skill-select .ant-select-selection-item-remove {
+    color: #004182 !important;
+    transition: all 0.2s;
+}
+.linkedin-skill-select .ant-select-selection-item-remove:hover {
+    color: #ff3b3b !important;
+}
+.linkedin-skill-select .ant-select-selection-overflow-item {
+    display: flex !important;
+    align-items: center !important;
+}
+.linkedin-skill-select .ant-select-selector {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    padding-left: 11px !important;
+    overflow: hidden !important;
+}
+
+/* ─── Employee Form: Dropdown popups ──────────────────────────────── */
+.access-level-popup,
+.linkedin-skill-dropdown {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+    border: 1px solid #EEEEEE !important;
+    border-radius: 8px !important;
+    padding: 4px !important;
+    background: white !important;
+}
+.access-level-popup .ant-select-item,
+.linkedin-skill-dropdown .ant-select-item {
+    background: white !important;
+    padding: 8px 12px !important;
+    border-radius: 6px !important;
+    margin-bottom: 2px !important;
+}
+.access-level-popup .ant-select-item:hover,
+.linkedin-skill-dropdown .ant-select-item:hover {
+    background: #F7F7F7 !important;
+    height: auto !important;
+}
+.access-level-popup .ant-select-item-option-selected,
+.linkedin-skill-dropdown .ant-select-item-option-selected {
+    background: #F9FAFB !important;
+    font-weight: 600 !important;
+}
+.access-level-popup .ant-select-item-option-state,
+.linkedin-skill-dropdown .ant-select-item-option-state {
+    display: flex !important;
+}
