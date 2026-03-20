@@ -40,6 +40,8 @@ export function QuotationDialog({
 
   // Advance payment fields
   const [requiresAdvance, setRequiresAdvance] = useState(false);
+  const [advanceType, setAdvanceType] = useState<'percentage' | 'flat'>('percentage');
+  const [advancePercentage, setAdvancePercentage] = useState<number>(50);
   const [advanceAmount, setAdvanceAmount] = useState('');
   const [advanceDueDate, setAdvanceDueDate] = useState('');
 
@@ -51,6 +53,8 @@ export function QuotationDialog({
     setHours('');
     setCurrency('USD');
     setRequiresAdvance(false);
+    setAdvanceType('percentage');
+    setAdvancePercentage(50);
     setAdvanceAmount('');
     setAdvanceDueDate('');
   } else if (!open && prevOpen) {
@@ -71,8 +75,16 @@ export function QuotationDialog({
     }
 
     // Validate advance payment fields
+    const totalCost = pricingModel === 'hourly'
+      ? parseFloat(rate) * parseFloat(hours)
+      : parseFloat(amount);
+
     if (requiresAdvance) {
-      if (!advanceAmount || parseFloat(advanceAmount) <= 0) {
+      const computedAdvance = advanceType === 'percentage'
+        ? (totalCost * advancePercentage) / 100
+        : parseFloat(advanceAmount);
+
+      if (!computedAdvance || computedAdvance <= 0) {
         messageApi.error("Please enter a valid advance amount");
         return;
       }
@@ -80,14 +92,17 @@ export function QuotationDialog({
         messageApi.error("Please select a payment due date");
         return;
       }
-      const totalCost = pricingModel === 'hourly'
-        ? parseFloat(rate) * parseFloat(hours)
-        : parseFloat(amount);
-      if (parseFloat(advanceAmount) > totalCost) {
+      if (computedAdvance > totalCost) {
         messageApi.error("Advance amount cannot exceed total cost");
         return;
       }
     }
+
+    const computedAdvanceAmount = requiresAdvance
+      ? (advanceType === 'percentage'
+        ? (totalCost * advancePercentage) / 100
+        : parseFloat(advanceAmount))
+      : undefined;
 
     const baseData = pricingModel === 'hourly'
       ? {
@@ -104,7 +119,7 @@ export function QuotationDialog({
     onConfirm({
       ...baseData,
       requires_advance_payment: requiresAdvance,
-      advance_amount: requiresAdvance ? parseFloat(advanceAmount) : undefined,
+      advance_amount: computedAdvanceAmount,
       advance_payment_due_date: requiresAdvance ? advanceDueDate : undefined,
     });
     onOpenChange(false);
@@ -196,33 +211,96 @@ export function QuotationDialog({
               </span>
             </Checkbox>
 
-            {requiresAdvance && (
-              <div className="mt-3 space-y-3 pl-6">
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-[#111111]">Advance Amount</label>
-                  <div className="w-full split-input-group">
-                    {currencySelector}
-                    <Input
-                      type="number"
-                      placeholder="0.00"
-                      className="h-11 bg-white"
-                      value={advanceAmount}
-                      onChange={(e) => setAdvanceAmount(e.target.value)}
+            {requiresAdvance && (() => {
+              const total = pricingModel === 'hourly'
+                ? (parseFloat(rate) || 0) * (parseFloat(hours) || 0)
+                : (parseFloat(amount) || 0);
+              const computedAdvance = advanceType === 'percentage'
+                ? (total * advancePercentage) / 100
+                : (parseFloat(advanceAmount) || 0);
+
+              return (
+                <div className="mt-3 space-y-3 pl-6">
+                  {/* Percentage / Flat toggle */}
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setAdvanceType('percentage')}
+                      className={`flex-1 py-1.5 rounded-lg text-xs font-bold border transition-colors ${
+                        advanceType === 'percentage'
+                          ? 'bg-[#111111] text-white border-[#111111]'
+                          : 'bg-white text-[#666666] border-[#EEEEEE] hover:border-[#111111]'
+                      }`}
+                    >
+                      Percentage
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setAdvanceType('flat')}
+                      className={`flex-1 py-1.5 rounded-lg text-xs font-bold border transition-colors ${
+                        advanceType === 'flat'
+                          ? 'bg-[#111111] text-white border-[#111111]'
+                          : 'bg-white text-[#666666] border-[#EEEEEE] hover:border-[#111111]'
+                      }`}
+                    >
+                      Flat Amount
+                    </button>
+                  </div>
+
+                  {advanceType === 'percentage' ? (
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-[#111111]">Advance Percentage</label>
+                      <div className="flex gap-1.5">
+                        {[25, 50, 75, 100].map(p => (
+                          <button
+                            key={p}
+                            type="button"
+                            onClick={() => setAdvancePercentage(p)}
+                            className={`flex-1 py-1.5 rounded-lg text-xs font-bold border transition-colors ${
+                              advancePercentage === p
+                                ? 'bg-[#111111] text-white border-[#111111]'
+                                : 'bg-[#F9FAFB] text-[#666666] border-[#EEEEEE] hover:border-[#111111]'
+                            }`}
+                          >
+                            {p}%
+                          </button>
+                        ))}
+                      </div>
+                      {total > 0 && (
+                        <p className="text-xs text-[#666666]">
+                          = {currency} {computedAdvance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} of {currency} {total.toLocaleString()}
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-[#111111]">Advance Amount</label>
+                      <div className="w-full split-input-group">
+                        {currencySelector}
+                        <Input
+                          type="number"
+                          placeholder="0.00"
+                          className="h-11 bg-white"
+                          value={advanceAmount}
+                          onChange={(e) => setAdvanceAmount(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-[#111111]">Payment Due Date</label>
+                    <DatePicker
+                      value={advanceDueDate ? dayjs(advanceDueDate) : null}
+                      onChange={(d) => setAdvanceDueDate(d ? d.format('YYYY-MM-DD') : '')}
+                      className="w-full h-11 rounded-lg"
+                      format="MMM D, YYYY"
+                      disabledDate={(current) => current && current < dayjs().startOf('day')}
                     />
                   </div>
                 </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-[#111111]">Payment Due Date</label>
-                  <DatePicker
-                    value={advanceDueDate ? dayjs(advanceDueDate) : null}
-                    onChange={(d) => setAdvanceDueDate(d ? d.format('YYYY-MM-DD') : '')}
-                    className="w-full h-11 rounded-lg"
-                    format="MMM D, YYYY"
-                    disabledDate={(current) => current && current < dayjs().startOf('day')}
-                  />
-                </div>
-              </div>
-            )}
+              );
+            })()}
           </div>
         </div>
       </Modal>
