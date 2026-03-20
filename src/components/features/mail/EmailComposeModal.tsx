@@ -8,6 +8,7 @@ import {
 import { RichTextEditor } from '../../common/RichTextEditor';
 import { EmailInput, ContactOption } from './EmailInput';
 import { FormatBtn } from './FormatBtn';
+import { FileChipList } from '@/components/ui/FileAttachment';
 
 interface EmailComposeModalProps {
   open: boolean;
@@ -75,15 +76,6 @@ function EmailComposeForm({
 
   const removeFile = (index: number) => {
     setFiles((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const formatBytes = (bytes: number) => {
-    if (!bytes) return "0 B";
-    const k = 1024;
-    const sizes = ["B", "KB", "MB", "GB"];
-    const i = Math.min(Math.floor(Math.log(bytes) / Math.log(k)), sizes.length - 1);
-    const v = bytes / Math.pow(k, i);
-    return `${v.toFixed(1)} ${sizes[i]}`;
   };
 
   const handleSendClick = async () => {
@@ -188,20 +180,8 @@ function EmailComposeForm({
 
       {/* Selected Files List */}
       {files.length > 0 && (
-        <div className="shrink-0 px-4 py-2 border-t border-[#f0f0f0] bg-gray-50 flex flex-wrap gap-2 max-h-[100px] overflow-auto">
-          {files.map((file, i) => (
-            <div key={i} className="flex items-center gap-2 bg-white border border-gray-200 rounded px-2 py-1 text-xs shadow-sm">
-              <Paperclip size={12} className="text-gray-400" />
-              <span className="truncate max-w-[150px] text-[#333]">{file.name}</span>
-              <span className="text-gray-400 text-xs">{formatBytes(file.size)}</span>
-              <button
-                onClick={() => removeFile(i)}
-                className="text-gray-400 hover:text-red-500 transition-colors ml-1"
-              >
-                <X size={12} />
-              </button>
-            </div>
-          ))}
+        <div className="shrink-0 px-4 py-2 border-t border-[#f0f0f0] bg-gray-50 max-h-[100px] overflow-auto">
+          <FileChipList files={files} onRemove={removeFile} />
         </div>
       )}
 

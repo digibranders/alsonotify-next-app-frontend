@@ -4,9 +4,10 @@ import {
   Bold, Italic,
   List,
   Paperclip, Image as ImageIcon, Smile,
-  Trash2, Forward, X
+  Trash2, Forward
 } from 'lucide-react';
 import { RichTextEditor, formatText } from '../../common/RichTextEditor';
+import { FileChipList } from '@/components/ui/FileAttachment';
 import dayjs from 'dayjs';
 
 interface InlineReplyProps {
@@ -132,15 +133,6 @@ export const InlineReply = forwardRef<InlineReplyRef, InlineReplyProps>(({ origi
     setFiles(prev => prev.filter((_, i) => i !== index));
   };
 
-  const formatBytes = (bytes: number) => {
-    if (!bytes) return "0 B";
-    const k = 1024;
-    const sizes = ["B", "KB", "MB", "GB"];
-    const i = Math.min(Math.floor(Math.log(bytes) / Math.log(k)), sizes.length - 1);
-    const v = bytes / Math.pow(k, i);
-    return `${v.toFixed(1)} ${sizes[i]}`;
-  };
-
   const FormatBtn = ({ icon: Icon, cmd, title }: any) => (
     <Tooltip title={title}>
       <button
@@ -217,20 +209,8 @@ export const InlineReply = forwardRef<InlineReplyRef, InlineReplyProps>(({ origi
 
             {/* File List */}
             {files.length > 0 && (
-              <div className="mb-2 px-2 flex flex-wrap gap-2">
-                {files.map((file, i) => (
-                  <div key={i} className="flex items-center gap-2 bg-white border border-gray-200 rounded px-2 py-1 text-xs shadow-sm">
-                    <Paperclip size={12} className="text-gray-400" />
-                    <span className="truncate max-w-[150px] text-[#333]">{file.name}</span>
-                    <span className="text-gray-400 text-xs">{formatBytes(file.size)}</span>
-                    <button
-                      onClick={() => removeFile(i)}
-                      className="text-gray-400 hover:text-red-500 transition-colors ml-1"
-                    >
-                      <X size={12} />
-                    </button>
-                  </div>
-                ))}
+              <div className="mb-2 px-2">
+                <FileChipList files={files} onRemove={removeFile} />
               </div>
             )}
 

@@ -123,7 +123,19 @@ export function LeaveApplyModal({
             <Form.Item
               name="end_date"
               label={<span className="text-xs font-bold text-[#111111]">End Date <span className="text-[#ff3b3b]">*</span></span>}
-              rules={[{ required: true, message: 'Please select end date' }]}
+              dependencies={['start_date']}
+              rules={[
+                { required: true, message: 'Please select end date' },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    const startDate = getFieldValue('start_date');
+                    if (!value || !startDate || !value.isBefore(startDate, 'day')) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(new Error('End date cannot be before start date'));
+                  },
+                }),
+              ]}
             >
               <DatePicker
                 className="w-full h-11 rounded-lg border-[#EEEEEE] font-medium"

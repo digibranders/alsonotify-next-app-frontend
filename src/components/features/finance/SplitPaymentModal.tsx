@@ -1,5 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
+import { Modal } from 'antd';
 import { X, Check } from 'lucide-react';
 
 interface SplitPaymentModalProps {
@@ -43,8 +44,6 @@ export const SplitPaymentModal: React.FC<SplitPaymentModalProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isOpen]);
 
-    if (!isOpen) return null;
-
     const computedAmount = (() => {
         if (mode === 'full') return remaining;
         if (customMode === 'percentage') {
@@ -66,8 +65,21 @@ export const SplitPaymentModal: React.FC<SplitPaymentModalProps> = ({
     };
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm">
-            <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden flex flex-col">
+        <Modal
+            open={isOpen}
+            onCancel={onClose}
+            footer={null}
+            title={null}
+            closable={false}
+            width={448}
+            centered
+            destroyOnHidden={true}
+            className="rounded-[16px] overflow-hidden"
+            styles={{
+                body: { padding: 0 },
+            }}
+        >
+            <div className="flex flex-col">
                 {/* Header */}
                 <div className="px-6 py-4 border-b border-[#EEEEEE] flex items-center justify-between">
                     <div>
@@ -198,7 +210,7 @@ export const SplitPaymentModal: React.FC<SplitPaymentModalProps> = ({
                         className={`px-6 py-2.5 text-sm font-bold rounded-full transition-colors flex items-center gap-2 ${
                             isValid
                                 ? 'bg-[#111111] text-white hover:bg-black shadow-[0_4px_14px_rgba(0,0,0,0.2)]'
-                                : 'bg-gray-100 text-[#a0aabf] cursor-not-allowed'
+                                : 'bg-[#EEEEEE] text-[#999999] cursor-not-allowed'
                         }`}
                     >
                         <Check className="w-4 h-4" />
@@ -206,6 +218,6 @@ export const SplitPaymentModal: React.FC<SplitPaymentModalProps> = ({
                     </button>
                 </div>
             </div>
-        </div>
+        </Modal>
     );
 };

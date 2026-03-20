@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Button, Tooltip, App, Avatar } from "antd";
 import {
-  X,
   Paperclip,
   Bold,
   Italic,
@@ -30,7 +29,7 @@ import dayjs from "dayjs";
 import { RichTextEditor } from "../../common/RichTextEditor";
 import { EmailInput, ContactOption } from "./EmailInput";
 import { FormatBtn } from "./FormatBtn";
-import { formatBytes } from "@/utils/format/fileFormatUtils";
+import { FileChipList } from "@/components/ui/FileAttachment";
 import { saveDraft, updateDraft, deleteMail } from "@/services/mail";
 import type { MailMessageDetail } from "@/services/mail";
 
@@ -469,27 +468,8 @@ export function EmailComposePane({
 
       {/* Attachments */}
       {files.length > 0 && (
-        <div className="shrink-0 px-4 py-2 border-t border-[#EEEEEE] flex flex-wrap gap-2 max-h-[100px] overflow-auto">
-          {files.map((file, i) => (
-            <div
-              key={i}
-              className="flex items-center gap-2 bg-white border border-[#EEEEEE] rounded-lg px-2 py-1 text-xs shadow-sm"
-            >
-              <Paperclip size={12} className="text-[#999999]" />
-              <span className="truncate max-w-[150px] text-[#434343]">
-                {file.name}
-              </span>
-              <span className="text-[#999999] text-xs">
-                {formatBytes(file.size)}
-              </span>
-              <button
-                onClick={() => removeFile(i)}
-                className="text-[#999999] hover:text-[#ff3b3b] transition-colors ml-1"
-              >
-                <X size={12} />
-              </button>
-            </div>
-          ))}
+        <div className="shrink-0 px-4 py-2 border-t border-[#EEEEEE] max-h-[100px] overflow-auto">
+          <FileChipList files={files} onRemove={removeFile} />
         </div>
       )}
 

@@ -1,10 +1,9 @@
-import { Modal, Input, Button, Upload, App } from "antd";
-import { useState } from "react";
-import { Upload as UploadIcon } from "lucide-react";
-import type { UploadFile } from "antd/es/upload/interface";
+import { Modal, Input, Button, App } from "antd";
+import { useState, useCallback } from "react";
 import { fileService } from "../../services/file.service";
 import { requestRevision } from "../../services/task";
 import { Task } from "../../types/domain";
+import { FileAttachmentInput } from "@/components/ui/FileAttachment";
 
 const { TextArea } = Input;
 
@@ -19,9 +18,10 @@ export const RevisionModal = ({ open, onClose, task, onSuccess }: RevisionModalP
     const { message } = App.useApp();
     const [reason, setReason] = useState("");
     const [estimatedTime, setEstimatedTime] = useState<string>("");
-    const [fileList, setFileList] = useState<UploadFile[]>([]);
+    const [fileList, setFileList] = useState<File[]>([]);
     const [uploading, setUploading] = useState(false);
     const [loading, setLoading] = useState(false);
+    const handleFilesChange = useCallback((files: File[]) => setFileList(files), []);
 
     const handleSubmit = async () => {
         if (!reason.trim()) {
@@ -42,13 +42,9 @@ export const RevisionModal = ({ open, onClose, task, onSuccess }: RevisionModalP
                     setUploading(true);
                     message.loading({ content: "Uploading attachments...", key: "upload" });
 
-                    const uploadPromises = fileList.map((file) => {
-                        if (file.originFileObj) {
-                            // Context is 'TASK' to link to the revision task
-                            return fileService.uploadFile(file.originFileObj, "TASK", revisionTaskId);
-                        }
-                        return Promise.resolve();
-                    });
+                    const uploadPromises = fileList.map((file) =>
+                        fileService.uploadFile(file, "TASK", revisionTaskId)
+                    );
 
                     await Promise.all(uploadPromises);
                     message.success({ content: "Revision requested and files uploaded!", key: "upload" });
@@ -116,27 +112,13 @@ export const RevisionModal = ({ open, onClose, task, onSuccess }: RevisionModalP
                     />
                 </div>
 
-                <div>
-                    <label className="block text-sm font-medium mb-1 text-[#333]">Attachments (Optional)</label>
-                    <Upload
-                        fileList={fileList}
-                        onRemove={(file) => {
-                            setFileList((prev) => prev.filter((item) => item.uid !== file.uid));
-                        }}
-                        beforeUpload={(file) => {
-                            const maxSize = 25 * 1024 * 1024; // 25MB
-                            if (file.size > maxSize) {
-                                message.error(`${file.name} exceeds the 25MB size limit`);
-                                return Upload.LIST_IGNORE;
-                            }
-                            setFileList((prev) => [...prev, file]);
-                            return false; // Prevent auto-upload
-                        }}
-                        multiple
-                    >
-                        <Button icon={<UploadIcon className="w-4 h-4" />}>Select Files</Button>
-                    </Upload>
-                </div>
+                <FileAttachmentInput
+                    files={fileList}
+                    onChange={handleFilesChange}
+                    maxSizeMB={25}
+                    label="Attachments (Optional)"
+                    onError={(msg) => message.error(msg)}
+                />
 
                 <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-[#f0f0f0]">
                     <Button onClick={handleClose} disabled={loading}>

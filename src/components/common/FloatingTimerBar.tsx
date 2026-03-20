@@ -8,9 +8,8 @@ import {
   ChevronDown,
   Loader2,
   Clock,
-  Paperclip,
-  X
 } from "lucide-react";
+import { ChatFileAttachmentList } from '@/components/ui/FileAttachment';
 import { useFloatingMenu } from '../../context/FloatingMenuContext';
 import { useTimer } from '../../context/TimerContext';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -659,27 +658,13 @@ export function FloatingTimerBar() {
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Attachments
             </label>
-            {attachments.length > 0 && (
-              <div className="mb-3 space-y-2">
-                {attachments.map((file, index) => (
-                  <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded border border-gray-200">
-                    <div className="flex items-center gap-2 flex-1 min-w-0">
-                      <Paperclip className="w-3.5 h-3.5 text-gray-500 shrink-0" aria-hidden="true" />
-                      <span className="text-xs text-gray-700 truncate">{file.name}</span>
-                    </div>
-                    <button
-                      onClick={() => setAttachments(attachments.filter((_, i) => i !== index))}
-                      className="p-1 hover:bg-gray-200 rounded transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff3b3b]"
-                      aria-label={`Remove attachment: ${file.name}`}
-                    >
-                      <X className="w-3.5 h-3.5 text-gray-400" aria-hidden="true" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-            <label className="cursor-pointer inline-flex items-center gap-2 text-sm text-[#ff3b3b] hover:text-[#e03131] transition-colors font-medium">
-              <Paperclip className="w-4 h-4" />
+            <ChatFileAttachmentList
+              files={attachments}
+              onRemove={(index) => setAttachments(attachments.filter((_, i) => i !== index))}
+              className="mb-3"
+            />
+            <label className="cursor-pointer inline-flex items-center gap-2 text-xs text-[#ff3b3b] hover:text-[#e03131] transition-colors font-medium border border-dashed border-[#DDDDDD] hover:border-[#ff3b3b]/40 rounded-lg px-3 py-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
               Attach Files
               <input
                 type="file"
