@@ -40,14 +40,14 @@ export function FloatingTimerBar() {
   const searchParams = useSearchParams();
   const { message } = App.useApp();
   const queryClient = useQueryClient();
-  const [isOnline, setIsOnline] = useState(true);
+  const [, setIsOnline] = useState(true);
 
   const [isFormOpen, setIsFormOpen] = useState(false);
 
   // Network Status listener
   useEffect(() => {
     // Initial sync; event listeners below handle subsequent updates.
-    // eslint-disable-next-line
+     
     setIsOnline(navigator.onLine);
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
@@ -161,7 +161,7 @@ export function FloatingTimerBar() {
   useEffect(() => {
     if (timerState.taskId && selectedTaskId !== timerState.taskId) {
       // Sync from timer state; omit selectedTaskId from deps to avoid feedback loop.
-      // eslint-disable-next-line
+       
       setSelectedTaskId(timerState.taskId);
     }
   }, [timerState.taskId, selectedTaskId]);

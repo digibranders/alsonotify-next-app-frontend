@@ -73,6 +73,7 @@ export function TaskLiveProgress({ task, currentUserId }: TaskLiveProgressProps)
   const isMultiMember = liveMembers.length > 1;
 
   // Function to determine color based on status and overtime (from old implementation)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const getSegmentColor = (m: any, ratio: number) => {
     if (isTaskCompleted) return '#16A34A'; // Green — task-level override
 

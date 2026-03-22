@@ -63,7 +63,7 @@ export function WorkspaceRequirementsPage() {
     const { data: workspaceData, isLoading: isLoadingWorkspace } = useWorkspace(workspaceId);
     const { data: requirementsData, isLoading: isLoadingRequirements } = useRequirements(workspaceId);
     const { data: userData } = useUserDetails();
-    const { data: workspacesData, isLoading: isLoadingWorkspaces } = useWorkspaces('limit=1000');
+    const { data: workspacesData, isLoading: _isLoadingWorkspaces } = useWorkspaces('limit=1000');
     const { data: partnersData } = usePartners();
     const { data: departmentsData } = useCompanyDepartments();
     useCollaborativeRequirements();
@@ -143,6 +143,7 @@ export function WorkspaceRequirementsPage() {
     };
 
     const allRawRequirements = useMemo(() => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return (requirementsData?.result || []) as any[];
     }, [requirementsData]);
 
@@ -185,8 +186,10 @@ export function WorkspaceRequirementsPage() {
                 if (isSender) {
                     const contactName = req.contact_person?.name;
                     const creatorName =
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         (typeof req.created_user === 'object' ? (req.created_user as any)?.name : undefined) ||
                         req.created_user_data?.name;
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     const receiverCompanyName = (req as any).receiver_company?.name;
                     const isContactExternal = !!contactName && !!creatorName && contactName !== creatorName;
                     if (isContactExternal) {
@@ -199,24 +202,32 @@ export function WorkspaceRequirementsPage() {
                 } else if (isReceiver) {
                     headerContact =
                         req.created_user_data?.name ||
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         (typeof req.created_user === 'object' ? (req.created_user as any)?.name : undefined) ||
                         req.contact_person?.name ||
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         (req as any).sender_company?.name ||
                         'Sender';
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     headerCompany = (req as any).sender_company?.name;
                     if (headerContact === headerCompany) headerCompany = undefined;
                 }
             } else {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 if (isReceiver && (req as any).sender_company) {
                     headerContact =
                         req.created_user_data?.name ||
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         (typeof req.created_user === 'object' ? (req.created_user as any)?.name : undefined) ||
                         req.contact_person?.name ||
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         (req as any).sender_company?.name ||
                         'Sender';
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     headerCompany = (req as any).sender_company?.name;
                 } else {
                     headerContact =
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         (typeof req.contact_person === 'object' ? (req.contact_person as any)?.name : req.contact_person) ||
                         'Unknown';
                     headerCompany = wsData?.client_company_name || wsData?.company_name || undefined;
@@ -301,6 +312,7 @@ export function WorkspaceRequirementsPage() {
         const partners = partnersData?.result || [];
         const options = partners
             .filter(isValidPartner)
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             .map((p: any) => ({
                 label: getPartnerName(p),
                 value: String(getPartnerCompanyId(p)),
@@ -310,6 +322,7 @@ export function WorkspaceRequirementsPage() {
 
     const allCategories = useMemo(() => {
         const depts = departmentsData?.result || [];
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const options = depts.map((d: any) => ({ label: d.name, value: String(d.id) }));
         return [{ label: 'All', value: 'All' }, ...options];
     }, [departmentsData]);

@@ -25,6 +25,7 @@ export default function RegisterSuccess({ email }: RegisterSuccessProps) {
           message.error(data.message || "Failed to resend verification email.");
         }
       },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       onError: (error: any) => {
         const errorMessage = error?.response?.data?.message || "Something went wrong. Please try again.";
         message.error(errorMessage);

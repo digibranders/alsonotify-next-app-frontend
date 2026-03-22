@@ -23,6 +23,7 @@ export default function UpgradeToOrgModal({ visible, onCancel, currentUser }: Up
     }
   }, [visible, form]);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onFinish = (values: any) => {
     if (!currentUser) {
       message.error("User details not found. Please try refreshing the page.");

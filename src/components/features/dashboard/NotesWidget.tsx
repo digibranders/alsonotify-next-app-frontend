@@ -254,17 +254,20 @@ function NoteCard({ note, onArchive, onDelete, onClick }: {
                 </div>
 
                 <div className="flex-1 overflow-hidden min-h-0 w-full pointer-events-none">
+                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                     {(note.type === 'TEXT_NOTE' || (note.type as any) === 'text') && note.content && (
                         <div
                             className="font-medium text-xs text-[#666666] line-clamp-4 leading-normal prose prose-sm max-w-none [&>p]:m-0 h-full"
                             dangerouslySetInnerHTML={{ __html: sanitizeRichText(note.content) }}
                         />
                     )}
+                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                     {(note.type === 'CHECKLIST_NOTE' || (note.type as any) === 'checklist') && note.items && Array.isArray(note.items) && note.items.length > 0 && (
                         <div className="flex flex-col gap-1.5 h-full overflow-hidden">
                             {note.items
                                 .filter((item: ChecklistItem) => {
                                     // Backend may send `checked` instead of `isChecked`
+                                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                                     const raw = item as any;
                                     return raw.checked !== undefined ? !raw.checked : !item.isChecked;
                                 })

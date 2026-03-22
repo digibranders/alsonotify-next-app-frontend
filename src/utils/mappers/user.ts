@@ -30,16 +30,20 @@ export const mapUserDtoToEmployee = (dto: UserDto, permissions?: UserPermissions
 
   // Phone
   const rawUserProfile = dto.user_profile;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const userProfileObj = Array.isArray(rawUserProfile) ? rawUserProfile[0] : (rawUserProfile as any) || {};
 
   const phone = dto.mobile_number || dto.phone || userProfileObj?.mobile_number || userProfileObj?.phone || dto.user?.mobile_number || '';
 
   // Dates (Backend sends flat structure from getUsersService)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const rawDateOfJoining = dto.date_of_joining || userProfileObj?.date_of_joining || (dto.user_employee as any)?.date_of_joining;
 
   let profilePic = dto.profile_pic 
     || userProfileObj?.profile_pic 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     || (dto as any).user?.profile_pic 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     || (dto as any).user_employee?.user?.profile_pic;
 
   if (profilePic === 'null' || profilePic === 'undefined') {

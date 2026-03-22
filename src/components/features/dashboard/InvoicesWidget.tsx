@@ -26,7 +26,7 @@ export function InvoicesWidget() {
 
       {/* Invoices List */}
       <div className="flex flex-col gap-3 flex-1 overflow-y-auto">
-        {invoices.map((invoice, index) => (
+        {invoices.map((invoice) => (
           <InvoiceItem key={invoice.id} {...invoice} />
         ))}
       </div>

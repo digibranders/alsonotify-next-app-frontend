@@ -15,6 +15,7 @@ vi.mock('../../utils/security/sanitizeHtml', () => ({
 
 describe('RichTextEditor Sanitization', () => {
   let container: HTMLDivElement | null = null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let root: any = null;
 
   afterEach(async () => {
@@ -31,6 +32,7 @@ describe('RichTextEditor Sanitization', () => {
     vi.clearAllMocks();
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async function render(component: any) {
     container = document.createElement('div');
     document.body.appendChild(container);

@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
-import { Select, Typography } from 'antd';
+import { Select } from 'antd';
 import type { SelectProps } from 'antd';
-
-const { Text } = Typography;
 
 export interface ContactOption {
   value: string; // The email address
@@ -20,7 +18,7 @@ interface EmailInputProps extends Omit<SelectProps, 'options' | 'onChange' | 'va
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function EmailInput({ value, onChange, options, ...props }: Readonly<EmailInputProps>) {
-  const [searchValue, setSearchValue] = useState('');
+  const [, setSearchValue] = useState('');
 
   const isValidEmail = (email: string) => EMAIL_REGEX.test(email);
 

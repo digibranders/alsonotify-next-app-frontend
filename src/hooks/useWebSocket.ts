@@ -2,7 +2,6 @@ import { useEffect, useRef, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import Cookies from 'universal-cookie';
-import { queryKeys } from '@/lib/queryKeys';
 import { NotificationToast } from '@/components/features/notifications/NotificationToast';
 import { getPriority } from '@/components/features/notifications/utils';
 

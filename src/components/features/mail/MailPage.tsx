@@ -9,12 +9,10 @@ import {
   Dropdown,
   Input,
   Layout,
-  Modal,
   Popover,
   Segmented,
   Skeleton,
   Space,
-  Spin,
   Tag,
   Typography,
   Tooltip,
@@ -43,7 +41,6 @@ import {
   PanelLeftClose,
   Download,
   FolderOutput,
-  Plus,
   FolderPlus,
 } from "lucide-react";
 import dayjs from "dayjs";
@@ -106,7 +103,7 @@ function formatRecipientsFull(
     .filter((r) => r.email);
 }
 
-function formatRecipients(
+function _formatRecipients(
   arr?: Array<{ emailAddress?: { name?: string; address?: string } }>
 ) {
   const list = (arr || [])
@@ -1584,7 +1581,7 @@ export function MailPage() {
   }
 
   // ---- Desktop / Tablet layout ----
-  const showFolderSidebar = !isTablet || !foldersCollapsed;
+  const _showFolderSidebar = !isTablet || !foldersCollapsed;
   const gridCols = isTablet
     ? "grid-cols-[240px_1fr]"
     : foldersCollapsed

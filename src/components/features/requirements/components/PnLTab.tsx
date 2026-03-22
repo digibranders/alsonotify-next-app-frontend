@@ -168,8 +168,11 @@ export function PnLTab({ requirement, tasks }: PnLTabProps) {
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (!active || !payload || payload.length === 0) return null;
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const planned = payload.find((p: any) => p.dataKey === 'price')?.value;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const actual = payload.find((p: any) => p.dataKey === 'invested')?.value;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const forecast = payload.find((p: any) => p.dataKey === 'forecast')?.value;
 
     const costValue = actual ?? forecast;

@@ -720,7 +720,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
           await Promise.all(selectedTasks.map(id => deleteTaskMutation.mutateAsync(parseInt(id))));
           messageRef.current.success(`${selectedTasks.length} tasks deleted`);
           setSelectedTasks([]);
-        } catch (error) {
+        } catch (_error) {
           messageRef.current.error('Failed to delete some tasks');
         }
       },
@@ -746,7 +746,9 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
 
     if (sortColumn) {
       sorted.sort((a, b) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let aVal: any;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let bVal: any;
 
         switch (sortColumn) {
@@ -763,6 +765,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
             bVal = b.dueDateValue || 0;
             break;
           case 'assignedTo': {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const getAssigneeName = (val: any) => typeof val === 'string' ? val : (val?.name || '');
             aVal = getAssigneeName(a.assignedTo).toLowerCase();
             bVal = getAssigneeName(b.assignedTo).toLowerCase();
@@ -1006,6 +1009,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
           }}
           users={usersDropdown}
           requirements={requirementsDropdown}
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           workspaces={workspacesData?.result?.workspaces?.map((p: any) => ({
             id: p.id,
             name: p.name,

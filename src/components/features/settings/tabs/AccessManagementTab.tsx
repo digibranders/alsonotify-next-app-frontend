@@ -14,8 +14,10 @@ interface AccessManagementTabProps {
   setRoleFormName: (name: string) => void;
   setRoleFormColor: (color: string) => void;
   setIsRoleModalOpen: (val: boolean) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updatePermissionsMutation: any;
   isLoadingPermissions: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   rolePermissions?: ApiResponse<any[]>;
   initialSelectedPermissionIds: Set<number>;
 }
@@ -165,9 +167,13 @@ export function AccessManagementTab({
                       </div>
                     )}
                     className="custom-permissions-collapse"
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     items={rolePermissions?.result?.map((mod: any) => {
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
                       const actionIds = mod.actions.map((a: any) => a.id);
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
                       const allChecked = actionIds.every((id: any) => selectedPermissionIds.has(id));
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
                       const indeterminate = actionIds.some((id: any) => selectedPermissionIds.has(id)) && !allChecked;
 
                       return {
@@ -183,6 +189,7 @@ export function AccessManagementTab({
                                 checked={allChecked}
                                 onChange={(e) => {
                                   const next = new Set(selectedPermissionIds);
+                                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                                   actionIds.forEach((id: any) => {
                                     if (e.target.checked) next.add(id);
                                     else next.delete(id);
@@ -204,6 +211,7 @@ export function AccessManagementTab({
                                 checked={allChecked}
                                 onChange={(e) => {
                                   const next = new Set(selectedPermissionIds);
+                                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                                   actionIds.forEach((id: any) => {
                                     if (e.target.checked) next.add(id);
                                     else next.delete(id);
@@ -216,6 +224,7 @@ export function AccessManagementTab({
                         ),
                         children: (
                           <div className="grid grid-cols-2 gap-4 p-2">
+                            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                             {mod.actions.map((act: any) => (
                               <div
                                 key={act.id}

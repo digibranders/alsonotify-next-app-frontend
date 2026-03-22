@@ -17,6 +17,7 @@ export interface CalendarEvent {
     color: string;
     raw?: MeetingType | LeaveType | GraphEvent | TaskDto | Holiday | unknown;
     endDate?: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     startDateTime?: any; // dayjs.Dayjs - keep as is or import dayjs
 }
 

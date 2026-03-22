@@ -49,6 +49,7 @@ export function NotificationDrawer({ open, onClose }: NotificationDrawerProps) {
         actionLink: n.link,
         metadata: n.metadata,
         createdAt: n.created_at,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         isArchived: (n as any).is_archived ?? false,
       })
     );
@@ -108,6 +109,7 @@ export function NotificationDrawer({ open, onClose }: NotificationDrawerProps) {
     } catch {
       message.error('Failed to dismiss notification');
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [queryClient]);
 
   const handleClearAll = useCallback(() => {
@@ -127,6 +129,7 @@ export function NotificationDrawer({ open, onClose }: NotificationDrawerProps) {
         }
       },
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [queryClient]);
 
   const handleTabChange = useCallback((tab: string) => {

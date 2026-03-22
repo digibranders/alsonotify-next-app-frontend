@@ -187,7 +187,7 @@ const TimelineRow: React.FC<{ task: GanttTask }> = ({ task }) => {
     const endX = task.end_date ? getDateX(new Date(task.end_date)) : startX + columnWidth;
     const width = Math.max(columnWidth * 0.5, endX - startX);
 
-    const tooltipLabel = [
+    const _tooltipLabel = [
         task.start_date ? `Start: ${format(new Date(task.start_date), 'MMM d, yyyy')}` : null,
         task.end_date ? `End: ${format(new Date(task.end_date), 'MMM d, yyyy')}` : null,
         task.progress != null ? `Progress: ${task.progress}%` : null,

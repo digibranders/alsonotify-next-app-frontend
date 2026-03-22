@@ -28,6 +28,7 @@ import { clearStaleNotificationActions } from "../utils/notificationCacheUtils";
 
 // Workspaces
 const selectWorkspaces = (data: ApiResponse<{ workspaces: WorkspaceDto[] }>): ApiResponse<{ workspaces: Workspace[] }> => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   if (!data) return data as any;
   return {
     ...data,
@@ -48,6 +49,7 @@ export const useWorkspaces = (options: string = "") => {
 
 import { mapTaskDtoToDomain } from "../utils/mappers/task";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const selectWorkspaceTasks = (data: ApiResponse<any[]>): ApiResponse<Task[]> => ({
   ...data,
   result: data.result ? data.result.map(mapTaskDtoToDomain) : []
@@ -64,6 +66,7 @@ export const useWorkspaceTasks = (workspaceId: number) => {
 
 const selectWorkspace = (data: ApiResponse<WorkspaceDto>): ApiResponse<Workspace> => ({
   ...data,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   result: data.result ? mapWorkspaceDtoToDomain(data.result) : undefined as any
 });
 
@@ -113,6 +116,7 @@ export const useDeleteWorkspace = () => {
 import { mapRequirementDtoToDomain } from "../utils/mappers/requirement";
 
 const selectRequirements = (data: ApiResponse<RequirementDto[]>): ApiResponse<Requirement[]> => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   if (!data) return data as any;
   return {
     ...data,

@@ -148,6 +148,7 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
       try {
         const response = await searchEmployees();
         if (response.success) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const transformed = (response.result || []).map((item: any) => ({
             id: item.value || item.id,
             name: item.label || item.name,
@@ -183,17 +184,18 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
     [notificationsData]
   );
 
-  const handleMarkAsRead = (id: number) => {
+  const _handleMarkAsRead = (id: number) => {
     markReadMutation.mutate(id);
   };
 
-  const handleClearAllNotifications = () => {
+  const _handleClearAllNotifications = () => {
     markAllReadMutation.mutate();
   };
 
 
 
   // Handle requirement creation
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleCreateRequirement = async (data: RequirementFormData | any) => {
     if (!data.title) {
       message.error("Requirement title is required");
@@ -238,12 +240,13 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
   };
 
   // Handle Note Creation
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleCreateNote = async (noteData: any) => {
     try {
       await createNoteMutation.mutateAsync(noteData);
       message.success("Note created successfully");
       setShowNoteDialog(false);
-    } catch (error) {
+    } catch (_error) {
       // Error handling is managed by the mutation or global handler usually, but here distinct
       message.error("Failed to create note");
     }

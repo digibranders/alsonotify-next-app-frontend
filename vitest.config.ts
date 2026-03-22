@@ -19,6 +19,12 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
+      thresholds: {
+        statements: 30,
+        branches: 30,
+        functions: 30,
+        lines: 30,
+      },
     },
     testTimeout: 10000,
   },

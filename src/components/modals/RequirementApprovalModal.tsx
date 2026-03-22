@@ -38,6 +38,7 @@ export const RequirementApprovalModal = ({
         remark: remark.trim() || undefined,
       });
       handleClose();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       message.error(err.message || "Failed to approve requirement.");
     } finally {

@@ -43,6 +43,7 @@ interface CompanyDetailsTabProps {
   setState: (val: string) => void;
   zipcode: string;
   setZipcode: (val: string) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   companyData: any; // Using exact type if possible would be better, but 'any' matches usage in SettingsPage for now or we can use typed logic
 
   // Departments
@@ -136,6 +137,7 @@ export function CompanyDetailsTab({
         setTaxIdError(null); // Clear error on auto-switch
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [country, isEditing]); // We depend on country change
 
   // Validate Tax ID

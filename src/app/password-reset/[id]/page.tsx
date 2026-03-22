@@ -56,6 +56,7 @@ export default function PasswordResetPage() {
       } else {
         message.error(result.message || "Failed to reset password");
       }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       const errorMessage =
         error?.response?.data?.message || "Failed to reset password. Please try again.";

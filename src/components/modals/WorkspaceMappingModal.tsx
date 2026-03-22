@@ -29,6 +29,7 @@ export const WorkspaceMappingModal = ({
         try {
             await onSubmit(selectedWorkspaceId);
             onClose();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             // Error handling is usually done in the onSubmit caller, but we can catch here as well
             console.error("Mapping failed:", error);

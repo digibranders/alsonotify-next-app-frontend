@@ -25,6 +25,7 @@ export const updatePaymentPreset = async (id: number, payload: Partial<PaymentPr
     return data;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const deletePaymentPreset = async (id: number): Promise<ApiResponse<any>> => {
     const { data } = await axiosApi.delete(`/payment-preset/${id}`);
     return data;

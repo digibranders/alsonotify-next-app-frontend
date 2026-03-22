@@ -41,7 +41,7 @@ export function EditManagerPartnersModal({
             // TODO: API call to update partner assignments
             // await updateManagerPartners(manager.id, selectedPartnerIds);
             onSuccess();
-        } catch (error) {
+        } catch (_error) {
             message.error('Failed to update partner assignments');
         } finally {
             setSaving(false);

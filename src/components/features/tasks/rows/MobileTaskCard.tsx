@@ -37,13 +37,13 @@ export const MobileTaskCard = memo(function MobileTaskCard({
   onEdit,
   onDuplicate,
   onDelete,
-  onStatusChange,
+  onStatusChange: _onStatusChange,
   currentUserId,
   hideRequirements = false,
   isAdmin = false,
   className = "",
-  onSubmitForReview,
-  onStartReview
+  onSubmitForReview: _onSubmitForReview,
+  onStartReview: _onStartReview
 }: MobileTaskCardProps) {
   const router = useRouter();
   const queryClient = useQueryClient();

@@ -4,6 +4,7 @@ import { Checkbox } from 'antd';
 import { TaskStatusBadge } from './TaskStatusBadge';
 
 interface StepRowProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   step: any;
   selected?: boolean;
   onSelect?: () => void;

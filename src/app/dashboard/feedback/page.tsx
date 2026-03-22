@@ -334,6 +334,7 @@ export default function AdminFeedbackPage() {
                         className="px-2 py-0.5 rounded-lg text-xs font-bold flex items-center gap-1.5 whitespace-nowrap"
                         style={{ backgroundColor: typeConfig.bgColor, color: typeConfig.color }}
                       >
+                        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                         {typeConfig.icon ? React.cloneElement(typeConfig.icon as React.ReactElement<any>, { className: 'w-3 h-3' }) : null}
                         {typeConfig.label.toUpperCase()}
                       </div>

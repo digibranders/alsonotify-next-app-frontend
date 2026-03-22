@@ -65,7 +65,7 @@ export function AddAccountManagerModal({
             await Promise.all(promises);
             message.success(`Successfully added ${selectedEmployeeIds.length} account manager${selectedEmployeeIds.length > 1 ? 's' : ''}`);
             onSuccess();
-        } catch (error) {
+        } catch (_error) {
             message.error('Failed to add account managers');
         } finally {
             setSaving(false);

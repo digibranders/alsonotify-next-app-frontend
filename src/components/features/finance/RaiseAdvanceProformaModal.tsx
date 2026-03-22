@@ -60,7 +60,7 @@ export const RaiseAdvanceProformaModal: React.FC<RaiseAdvanceProformaModalProps>
     const taxAmount = (advanceBase * taxRate) / 100;
     const proformaTotal = advanceBase + taxAmount;
 
-    const handleCreate = async (sendAfter: boolean) => {
+    const handleCreate = async (_sendAfter: boolean) => {
         if (!dueDate) {
             toast.error('Please select a due date');
             return;

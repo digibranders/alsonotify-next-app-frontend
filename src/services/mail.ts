@@ -105,10 +105,12 @@ function buildMailMultipart(payload: unknown, files?: File[]) {
   return fd;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function postSmart<T = any>(
   url: string,
   payload: unknown,
   files?: File[],
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   axiosConfig?: any
 ) {
   if (!files || files.length === 0) {
@@ -208,6 +210,7 @@ export const updateDraft = async (id: string, payload: SaveDraftPayload): Promis
    Patch / Delete
 -------------------------------------------- */
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const patchMail = async (id: string, updates: any) => {
   const { data } = await axiosApi.patch("/mail/message", updates, { params: { id } });
   return data;

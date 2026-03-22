@@ -54,7 +54,7 @@ interface EmailComposePaneProps {
 function buildInitialTo(
   mode: string,
   msg?: MailMessageDetail,
-  currentEmail?: string
+  _currentEmail?: string
 ): string[] {
   if (mode === "new" || mode === "forward") return [];
   const sender = msg?.from?.emailAddress?.address;
@@ -232,7 +232,7 @@ export function EmailComposePane({
         e.preventDefault();
         // Save draft on unload
         const payload = getDraftPayload();
-        const id = draftIdRef.current;
+        const _id = draftIdRef.current;
         const data = JSON.stringify(payload);
         // Use sendBeacon for reliable delivery during unload
         // sendBeacon needs the full proxy path; PATCH not supported by sendBeacon so always POST
