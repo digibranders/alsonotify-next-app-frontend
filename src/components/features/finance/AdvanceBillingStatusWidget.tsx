@@ -21,6 +21,8 @@ type BillingStatusConfig = {
 const BILLING_STATUS_CONFIG: Record<string, BillingStatusConfig> = {
     Not_Billable:            { label: 'Not Billable',           color: 'text-[#666666]',  bgColor: 'bg-[#F1F5F9]' },
     Ready_To_Bill:           { label: 'Ready to Bill',          color: 'text-[#0F9D58]',  bgColor: 'bg-[#E8F5E9]' },
+    Advance_Payment_Required:{ label: 'Advance Required',       color: 'text-[#FF9800]',  bgColor: 'bg-[#FFF3E0]' },
+    Advance_Ready_To_Send:   { label: 'Ready to Send',          color: 'text-[#2196F3]',  bgColor: 'bg-[#E3F2FD]' },
     Advance_Draft:           { label: 'Advance Draft',          color: 'text-[#FF9800]',  bgColor: 'bg-[#FFF3E0]' },
     Advance_Sent:            { label: 'Advance Sent',           color: 'text-[#2196F3]',  bgColor: 'bg-[#E3F2FD]' },
     Advance_Partial:         { label: 'Partial Advance Paid',   color: 'text-[#FF9800]',  bgColor: 'bg-[#FFF3E0]' },
@@ -149,6 +151,18 @@ export const AdvanceBillingStatusWidget: React.FC<AdvanceBillingStatusWidgetProp
 
             {/* Status Hints */}
             <div className="mt-2 space-y-2">
+                {status === 'Advance_Payment_Required' && (
+                    <div className="flex items-center justify-center gap-1.5 py-2 text-xs text-[#666666]">
+                        <Clock className="w-3.5 h-3.5" />
+                        Advance proforma not yet created
+                    </div>
+                )}
+                {status === 'Advance_Ready_To_Send' && (
+                    <div className="flex items-center justify-center gap-1.5 py-2 text-xs text-[#2196F3]">
+                        <Clock className="w-3.5 h-3.5" />
+                        Proforma ready — send to client
+                    </div>
+                )}
                 {(status === 'Advance_Draft' || status === 'Advance_Sent' || status === 'Advance_Partial') && (
                     <div className="flex items-center justify-center gap-1.5 py-2 text-xs text-[#666666]">
                         <Clock className="w-3.5 h-3.5" />
