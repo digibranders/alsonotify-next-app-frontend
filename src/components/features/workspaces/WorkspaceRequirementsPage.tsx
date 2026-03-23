@@ -287,6 +287,11 @@ export function WorkspaceRequirementsPage() {
                 receiver_project_id: req.receiver_workspace_id,
                 negotiation_reason: req.negotiation_reason,
                 is_archived: req.is_archived,
+                requires_advance_payment: req.requires_advance_payment ?? false,
+                advance_amount: req.advance_amount ?? null,
+                advance_payment_due_date: req.advance_payment_due_date ?? null,
+                advance_invoice_id: req.advance_invoice_id ?? null,
+                advance_invoice: req.advance_invoice ?? null,
                 completed_at: req.completed_at,
             };
 
