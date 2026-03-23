@@ -113,7 +113,25 @@ function getClientWorkSenderCTA(
         tab,
       };
 
-    case 'Assigned':
+    case 'Assigned': {
+      // Step 1: Advance required but no invoice sent
+      if (context.requiresAdvancePayment && (!context.hasAdvanceInvoice || !context.isAdvanceInvoiceSent)) {
+        return {
+          displayStatus: "Awaiting Partner's Invoice...",
+          isPending: true,
+          tab,
+        };
+      }
+      // Step 2: Advance invoice sent, awaiting payment
+      if (context.requiresAdvancePayment && context.isAdvanceInvoiceSent && !context.isAdvancePaid) {
+        return {
+          displayStatus: 'Advance Payment Pending',
+          isPending: true,
+          tab,
+          primaryAction: createAction('View Invoice', 'primary', 'none', 'view_advance_invoice'),
+        };
+      }
+      // Step 3: Workspace mapping
       if (!context.isWorkspaceMapped) {
         return {
           displayStatus: 'Awaiting Workspace Mapping...',
@@ -126,6 +144,7 @@ function getClientWorkSenderCTA(
         isPending: false,
         tab,
       };
+    }
 
     case 'In_Progress':
       return {
@@ -215,14 +234,33 @@ function getClientWorkReceiverCTA(
         tab,
       };
 
-    case 'Assigned':
-      // A already mapped their workspace at creation; no mapping CTA needed
+    case 'Assigned': {
+      // Step 1: Advance required but no invoice sent — send invoice first
+      if (context.requiresAdvancePayment && (!context.hasAdvanceInvoice || !context.isAdvanceInvoiceSent)) {
+        return {
+          displayStatus: 'Action Needed: Send Invoice to Client',
+          isPending: true,
+          tab,
+          primaryAction: createAction('View & Send Invoice', 'primary', 'advance_proforma'),
+        };
+      }
+      // Step 2: Invoice sent, awaiting payment
+      if (context.requiresAdvancePayment && context.isAdvanceInvoiceSent && !context.isAdvancePaid) {
+        return {
+          displayStatus: 'Awaiting Advance Payment',
+          isPending: true,
+          tab,
+          primaryAction: createAction('Mark Advance Paid', 'primary', 'none', 'mark_advance_paid'),
+        };
+      }
+      // Step 3: A already mapped workspace at creation; ready to start
       return {
         displayStatus: 'Ready to Start',
         isPending: false,
         tab,
         primaryAction: createAction('Start Work', 'primary', 'none', 'start_work'),
       };
+    }
 
     case 'In_Progress':
       return {
