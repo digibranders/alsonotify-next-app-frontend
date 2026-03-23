@@ -14,6 +14,7 @@ import React, { useMemo, useState } from 'react';
 import { format, differenceInDays, isPast, isToday, parseISO } from 'date-fns';
 import {
   getRequirementCTAConfig,
+  isTransitionValid,
   type RequirementStatus,
 } from '@/lib/workflow';
 import { Requirement as DomainRequirement } from '@/types/domain';
@@ -98,6 +99,15 @@ export function RequirementCard({
 
   const isPending = ctaConfig.isPending;
   const displayStatus = ctaConfig.displayStatus;
+
+  // Use workflow state machine to determine if "Submit for Review" is valid
+  const canSubmitForReview = useMemo(() => {
+    const status = mapRequirementToStatus(requirement);
+    if (status === 'draft' || status === 'Draft') return false;
+    const role = mapRequirementToRole(requirement);
+    const type = mapRequirementToType(requirement);
+    return isTransitionValid(status as RequirementStatus, 'Review', role, type);
+  }, [requirement]);
 
   const getUnifiedStatusConfig = () => {
     // 1. Billing / Financial Status (Highest Priority)
@@ -289,7 +299,7 @@ export function RequirementCard({
                   </button>
                 )}
 
-                {onSubmitForReview && ['In_Progress', 'Delayed', 'On_Hold'].includes(requirement.rawStatus || '') && requirement.tasksTotal > 0 && requirement.tasksCompleted === requirement.tasksTotal && (
+                {onSubmitForReview && canSubmitForReview && requirement.tasksTotal > 0 && requirement.tasksCompleted === requirement.tasksTotal && (
                   <button
                     onClick={() => {
                       setIsMenuOpen(false);
@@ -423,7 +433,9 @@ export function RequirementCard({
               Progress
             </span>
             <span className="text-2xs text-[#111111] font-bold">
-              {requirement.progress}%
+              {requirement.isSender && requirement.type === 'outsourced' && (requirement.progress === 0 || !requirement.progress) && requirement.rawStatus === 'In_Progress'
+                ? 'Managed by partner'
+                : `${requirement.progress}%`}
             </span>
           </div>
           <div className="w-full h-[3.5px] bg-[#F0F0F0] rounded-full overflow-hidden">
