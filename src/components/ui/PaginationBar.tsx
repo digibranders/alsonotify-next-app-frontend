@@ -31,7 +31,7 @@ export function PaginationBar({
     };
 
     return (
-        <div className={`mt-2 pt-2 flex items-center justify-between border-t border-[#EEEEEE] h-10 ${className}`}>
+        <div className={`mt-2 pt-2 flex items-center justify-between border-t border-[#EEEEEE] h-[60px] ${className}`}>
             <p className="text-xs font-medium text-[#666666] leading-none flex items-center h-full">
                 {Math.min(startIndex + 1, totalItems)}-{endIndex} of {totalItems} {itemLabel}
             </p>
