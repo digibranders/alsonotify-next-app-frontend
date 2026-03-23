@@ -13,7 +13,6 @@ import {
     useCreateRequirement,
     useUpdateRequirement,
     useDeleteRequirement,
-    useCollaborativeRequirements,
 } from '@/hooks/useWorkspace';
 import { useUserDetails, usePartners, useCompanyDepartments } from '@/hooks/useUser';
 import { fileService } from '@/services/file.service';
@@ -63,10 +62,10 @@ export function WorkspaceRequirementsPage() {
     const { data: workspaceData, isLoading: isLoadingWorkspace } = useWorkspace(workspaceId);
     const { data: requirementsData, isLoading: isLoadingRequirements } = useRequirements(workspaceId);
     const { data: userData } = useUserDetails();
-    const { data: workspacesData, isLoading: _isLoadingWorkspaces } = useWorkspaces('limit=1000');
+    const { data: workspacesData, isLoading: _isLoadingWorkspaces } = useWorkspaces('limit=100');
     const { data: partnersData } = usePartners();
     const { data: departmentsData } = useCompanyDepartments();
-    useCollaborativeRequirements();
+
 
     const currentUser = userData?.result;
     const userRole = getRoleFromUser(currentUser);

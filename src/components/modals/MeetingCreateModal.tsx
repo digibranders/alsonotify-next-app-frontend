@@ -36,7 +36,7 @@ export function MeetingCreateModal({
   const [submitting, setSubmitting] = useState(false);
 
   // Fetch employees for autocomplete (only when modal is open)
-  const { data: employeesData } = useEmployees(open ? 'limit=1000' : '');
+  const { data: employeesData } = useEmployees(open ? 'limit=100' : '');
 
   const [formData, setFormData] = useState({
     title: '',

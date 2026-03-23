@@ -219,7 +219,7 @@ export const GanttProvider: React.FC<GanttProviderProps> = ({ initialTasks, work
         return addDays(dateRange.start, days);
     }, [dateRange.start, columnWidth]);
 
-    const value = {
+    const value = useMemo(() => ({
         tasks: flatTasks,
         allTasksMap,
         viewMode,
@@ -240,7 +240,7 @@ export const GanttProvider: React.FC<GanttProviderProps> = ({ initialTasks, work
         setVisibleDate,
         getDateX,
         getDateFromX
-    };
+    }), [flatTasks, allTasksMap, viewMode, columnWidth, sidebarWidth, dateRange, baseDate, totalWidth, visibleDate, workingDayNumbers, toggleRow, updateTaskDates, onNext, onPrev, goToToday, getDateX, getDateFromX]);
 
     return <GanttContext.Provider value={value}>{children}</GanttContext.Provider>;
 };

@@ -163,7 +163,7 @@ select:disabled,
     border: 1px solid #dddddd !important;
     border-radius: 4px !important;
     background-color: #f5f5f5 !important;
-    transition: all 0.2s !important;
+    transition: background-color 0.2s, border-color 0.2s, color 0.2s !important;
     box-shadow: none !important;
 }
 
@@ -597,7 +597,7 @@ select:disabled,
 }
 
 .ant-picker-header-view button {
-    transition: all 0.2s !important;
+    transition: background-color 0.2s, border-color 0.2s, color 0.2s !important;
 }
 
 .ant-picker-header-view button:hover {
@@ -631,7 +631,7 @@ select:disabled,
     height: 34px !important;
     line-height: 34px !important;
     border-radius: 50% !important;
-    transition: all 0.2s !important;
+    transition: background-color 0.2s, border-color 0.2s, color 0.2s !important;
     position: relative !important;
     display: flex !important;
     align-items: center !important;
@@ -697,7 +697,7 @@ select:disabled,
 .ant-picker {
     border: 1px solid #eeeeee !important;
     border-radius: 8px !important;
-    transition: all 0.2s ease !important;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
 }
 
 .ant-input-affix-wrapper .ant-input {
@@ -1006,7 +1006,7 @@ input[type="number"] {
 }
 .linkedin-skill-select .ant-select-selection-item-remove {
     color: #004182 !important;
-    transition: all 0.2s;
+    transition: color 0.2s;
 }
 .linkedin-skill-select .ant-select-selection-item-remove:hover {
     color: #ff3b3b !important;

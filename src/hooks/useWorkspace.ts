@@ -163,7 +163,6 @@ export const useAllRequirements = (options: string = "") => {
     select: selectRequirements,
     staleTime: 2 * 60 * 1000, // 2 minutes (was 30s — too aggressive for list data)
     refetchInterval: 2 * 60 * 1000,
-    refetchOnWindowFocus: true,
   });
 };
 

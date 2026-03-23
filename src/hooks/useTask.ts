@@ -51,7 +51,6 @@ export const useTasks = (options: string = "") => {
       ...data,
       result: data.result ? data.result.map(mapTaskDtoToDomain) : []
     }),
-    refetchOnWindowFocus: true,
   });
 };
 
