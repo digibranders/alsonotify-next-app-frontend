@@ -8,7 +8,7 @@ import { DateRangeSelector } from '../../common/DateRangeSelector';
 
 import { PaginationBar } from '../../ui/PaginationBar';
 import { App } from 'antd';
-import { useWorkspaces, useCreateRequirement, useUpdateRequirement, useDeleteRequirement, useAllRequirements, useCollaborativeRequirements, useApproveRequirement, useSubmitForReview } from '@/hooks/useWorkspace';
+import { useWorkspaces, useCreateRequirement, useUpdateRequirement, useDeleteRequirement, useAllRequirements, useCollaborativeRequirements, useApproveRequirement, useSubmitForReview, useMarkAdvancePaid } from '@/hooks/useWorkspace';
 import { useUserDetails, usePartners, useCompanyDepartments } from '@/hooks/useUser';
 import { fileService } from '@/services/file.service';
 import { format } from 'date-fns';
@@ -452,6 +452,7 @@ export function RequirementsPage() {
   const [isClientAcceptOpen, setIsClientAcceptOpen] = useState(false);
   const [isAdvanceProformaOpen, setIsAdvanceProformaOpen] = useState(false);
   const [pendingReqId, setPendingReqId] = useState<number | null>(null);
+  const markAdvancePaidMutation = useMarkAdvancePaid();
   const [isSubmitReviewOpen, setIsSubmitReviewOpen] = useState(false);
   const [pendingSubmitReqId, setPendingSubmitReqId] = useState<number | null>(null);
   const submitForReviewMutation = useSubmitForReview();
@@ -820,16 +821,52 @@ export function RequirementsPage() {
           return;
         }
 
-        // Scenario 2: Quote accepted, need to map to internal workspace
-        if (workflowStatus === 'Assigned' && !req.receiver_workspace_id) {
-          // Open workspace mapping modal
-          setIsMappingOpen(true);
-          return;
+        // Scenario 2: Advance required, invoice not yet sent — navigate to invoice page to review & send
+        if (workflowStatus === 'Assigned' && req.requires_advance_payment) {
+          if (!req.advance_invoice_id) {
+            // No invoice at all — open creation modal (fallback; normally auto-created on acceptance)
+            setIsAdvanceProformaOpen(true);
+            return;
+          }
+          const invoiceStatus = req.advance_invoice?.status || '';
+          const isInvoiceSent = ['sent', 'overdue', 'partial', 'paid'].includes(invoiceStatus);
+
+          if (!isInvoiceSent) {
+            // Invoice exists as draft — navigate to invoice page so partner can send it
+            router.push(`/dashboard/finance/invoices/${req.advance_invoice_id}`);
+            return;
+          }
+
+          if (isInvoiceSent && invoiceStatus !== 'paid') {
+            // Invoice sent, awaiting payment — show confirm mark-paid dialog
+            const currencySymbols: Record<string, string> = { INR: '₹', USD: '$', EUR: '€', GBP: '£', AED: 'د.إ' };
+            const sym = currencySymbols[req.currency?.toUpperCase() || 'INR'] || req.currency || '₹';
+            const amount = req.advance_amount ? `${sym}${Number(req.advance_amount).toLocaleString()}` : 'advance amount';
+            modalRef.current.confirm({
+              title: 'Mark Advance Payment as Received',
+              content: `Confirm that you have received ${amount} as advance payment for "${req.title || req.name}"?`,
+              okText: 'Mark as Paid',
+              cancelText: 'Cancel',
+              okButtonProps: { style: { backgroundColor: '#111111', borderColor: '#111111' } },
+              onOk: () => {
+                markAdvancePaidMutation.mutate(req.id, {
+                  onSuccess: () => {
+                    messageApi.success('Advance payment marked as received.');
+                    setPendingReqId(null);
+                  },
+                  onError: (err: Error) => {
+                    messageApi.error(getErrorMessage(err, 'Failed to mark advance as paid'));
+                  },
+                });
+              },
+            });
+            return;
+          }
         }
 
-        // Scenario 2.5: Workspace mapped, advance payment required but no proforma yet
-        if (workflowStatus === 'Assigned' && req.receiver_workspace_id && req.requires_advance_payment && !req.advance_invoice_id) {
-          setIsAdvanceProformaOpen(true);
+        // Scenario 2.6: Advance paid (or not required) but workspace not mapped yet
+        if (workflowStatus === 'Assigned' && !req.receiver_workspace_id) {
+          setIsMappingOpen(true);
           return;
         }
 

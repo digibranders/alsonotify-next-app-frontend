@@ -118,6 +118,14 @@ export function mapRequirementToContext(
     && !!req.advance_invoice_id
     && req.advance_invoice?.status !== 'paid';
 
+  const isAdvancePaid = !!req.requires_advance_payment
+    && !!req.advance_invoice_id
+    && req.advance_invoice?.status === 'paid';
+
+  // Invoice has been sent to client (email dispatched, awaiting payment)
+  const isAdvanceInvoiceSent = !!req.advance_invoice_id
+    && ['sent', 'overdue', 'partial'].includes(req.advance_invoice?.status || '');
+
   const requiresAdvancePayment = !!req.requires_advance_payment;
   const hasAdvanceInvoice = !!req.advance_invoice_id;
 
@@ -126,6 +134,8 @@ export function mapRequirementToContext(
     isRejectedBySender,
     hasQuotedPrice,
     isAdvancePending,
+    isAdvancePaid,
+    isAdvanceInvoiceSent,
     requiresAdvancePayment,
     hasAdvanceInvoice,
   };

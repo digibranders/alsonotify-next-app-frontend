@@ -422,30 +422,31 @@ function getSenderAssignedCTA(
   context: RequirementContext,
   tab: RequirementCTAConfig['tab']
 ): RequirementCTAConfig {
-  if (!context.isWorkspaceMapped) {
+  // Advance invoice not yet sent to client
+  if (context.requiresAdvancePayment && (!context.hasAdvanceInvoice || !context.isAdvanceInvoiceSent)) {
     return {
-      displayStatus: 'Waiting for Partner to Map Workspace...',
+      displayStatus: "Awaiting Partner's Invoice...",
       isPending: true,
       tab,
     };
   }
 
-  // Advance required but partner hasn't created proforma invoice yet
-  if (context.requiresAdvancePayment && !context.hasAdvanceInvoice) {
-    return {
-      displayStatus: "Awaiting Partner's Proforma...",
-      isPending: true,
-      tab,
-    };
-  }
-
-  // Advance invoice exists but not yet paid — sender can view it
-  if (context.isAdvancePending) {
+  // Advance invoice sent, awaiting payment — sender can view it
+  if (context.requiresAdvancePayment && context.isAdvanceInvoiceSent && !context.isAdvancePaid) {
     return {
       displayStatus: 'Advance Payment Pending',
       isPending: true,
       tab,
       primaryAction: createAction('View Invoice', 'primary', 'none', 'view_advance_invoice'),
+    };
+  }
+
+  // Advance paid (or not required) but workspace not yet mapped
+  if (!context.isWorkspaceMapped) {
+    return {
+      displayStatus: 'Waiting for Partner to Map Workspace...',
+      isPending: true,
+      tab,
     };
   }
 
@@ -590,6 +591,27 @@ function getReceiverAssignedCTA(
   context: RequirementContext,
   tab: RequirementCTAConfig['tab']
 ): RequirementCTAConfig {
+  // Step 1: Advance required but no invoice, or invoice is draft — raise/view & send invoice first
+  if (context.requiresAdvancePayment && (!context.hasAdvanceInvoice || !context.isAdvanceInvoiceSent)) {
+    return {
+      displayStatus: 'Action Needed: Send Invoice to Client',
+      isPending: true,
+      tab,
+      primaryAction: createAction('View & Send Invoice', 'primary', 'advance_proforma'),
+    };
+  }
+
+  // Step 2: Invoice sent, awaiting payment — receiver marks it paid after receiving offline payment
+  if (context.requiresAdvancePayment && context.isAdvanceInvoiceSent && !context.isAdvancePaid) {
+    return {
+      displayStatus: 'Awaiting Advance Payment',
+      isPending: true,
+      tab,
+      primaryAction: createAction('Mark Advance Paid', 'primary', 'none', 'mark_advance_paid'),
+    };
+  }
+
+  // Step 3: Advance paid (or not required) — now map workspace
   if (!context.isWorkspaceMapped) {
     return {
       displayStatus: 'Action Needed: Map Workspace',
@@ -599,25 +621,7 @@ function getReceiverAssignedCTA(
     };
   }
 
-  // Advance payment required but no proforma invoice created yet — receiver needs to raise one
-  if (context.requiresAdvancePayment && !context.hasAdvanceInvoice) {
-    return {
-      displayStatus: 'Action Needed: Raise Proforma',
-      isPending: true,
-      tab,
-      primaryAction: createAction('Raise Proforma', 'primary', 'advance_proforma'),
-    };
-  }
-
-  // Block work when advance payment is pending (invoice exists but not paid)
-  if (context.isAdvancePending) {
-    return {
-      displayStatus: 'Awaiting Advance Payment',
-      isPending: true,
-      tab,
-    };
-  }
-
+  // Step 4: Everything done — ready to start
   return {
     displayStatus: 'Ready to Start',
     isPending: false,

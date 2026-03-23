@@ -137,6 +137,12 @@ export const submitRequirementForReview = async (
   return data;
 };
 
+// === BILLING: Mark Advance Invoice as Paid ===
+export const markRequirementAdvancePaid = async (requirementId: number): Promise<ApiResponse<{ message: string }>> => {
+  const { data } = await axiosApi.patch<ApiResponse<{ message: string }>>(`/requirement/${requirementId}/mark-advance-paid`);
+  return data;
+};
+
 // === BILLING: Link Invoice to Requirement ===
 export interface BillingInfo {
   billingStatus: 'Not_Billable' | 'Ready_To_Bill' | 'Invoiced' | 'Paid';
