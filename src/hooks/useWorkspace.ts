@@ -14,6 +14,7 @@ import {
   reactivateWorkspace,
   getAllRequirements,
   submitRequirementForReview,
+  markRequirementAdvancePaid,
 } from "../services/workspace";
 import { WorkspaceDto, CreateWorkspaceRequestDto, UpdateWorkspaceRequestDto } from "../types/dto/workspace.dto";
 import { RequirementDto, CreateRequirementRequestDto, UpdateRequirementRequestDto, RequirementDropdownItem, ApproveRequirementRequestDto, SubmitForReviewRequestDto } from "../types/dto/requirement.dto";
@@ -263,6 +264,19 @@ export const useSubmitForReview = () => {
       // Sync notification panel — strip stale CTAs and refetch
       clearStaleNotificationActions(queryClient, 'requirementId', variables.requirementId);
       queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all() });
+    },
+  });
+};
+
+export const useMarkAdvancePaid = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (requirementId: number) => markRequirementAdvancePaid(requirementId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.requirements.allRoot() });
+      queryClient.invalidateQueries({ queryKey: ['requirements', 'workspace'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.requirements.collaborative() });
     },
   });
 };
