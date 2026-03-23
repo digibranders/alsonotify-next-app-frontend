@@ -36,6 +36,7 @@ export const SubmitForApprovalModal = ({
   }, [onClose]);
 
   const handleUpload = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async ({ file, onSuccess, onError, onProgress }: { file: any; onSuccess?: (body: any) => void; onError?: (err: any) => void; onProgress?: (event: { percent: number }) => void }) => {
       setUploading(true);
       try {
@@ -46,6 +47,7 @@ export const SubmitForApprovalModal = ({
           (percent) => onProgress?.({ percent })
         );
         onSuccess?.(result);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
         onError?.(err);
         message.error(`Upload failed: ${err.message}`);

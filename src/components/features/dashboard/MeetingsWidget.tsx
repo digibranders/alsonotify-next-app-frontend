@@ -20,7 +20,7 @@ export function MeetingsWidget({ onNavigate }: { onNavigate?: (page: string) => 
   const [showDialog, setShowDialog] = useState(false);
 
   const { data: teamsStatus } = useTeamsConnectionStatus();
-  const isConnected = teamsStatus?.result?.connected ?? false;
+  const _isConnected = teamsStatus?.result?.connected ?? false;
 
   const { data: companyData } = useCurrentUserCompany();
   const companyTimeZone = companyData?.result?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
@@ -237,8 +237,8 @@ const MeetingItem = memo(function MeetingItem({
   title,
   time,
   date,
-  attendees,
-  totalAttendees,
+  attendees: _attendees,
+  totalAttendees: _totalAttendees,
   platform,
   organizer,
   joinUrl,
@@ -277,7 +277,7 @@ const MeetingItem = memo(function MeetingItem({
     setShowDetails(true);
   };
   // Get initials from name
-  const getInitials = (name: string) => {
+  const _getInitials = (name: string) => {
     return name
       .split(' ')
       .map((n) => n[0])

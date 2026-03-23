@@ -55,6 +55,7 @@ export const RevisionModal = ({ open, onClose, task, onSuccess }: RevisionModalP
                 onSuccess();
                 handleClose();
             }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             console.error(error);
             message.error(error.message || "Failed to request revision.");

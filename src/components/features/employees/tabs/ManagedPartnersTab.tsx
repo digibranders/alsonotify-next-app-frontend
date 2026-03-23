@@ -41,11 +41,13 @@ export function ManagedPartnersTab({ employeeId }: Readonly<ManagedPartnersTabPr
                     // Checked schema, it's a relation. Verify if service includes it.
                     // If not, we might need to update service. For now, let's assume it returns it or we can't display.
                     // Map backend 'logo' to frontend 'logo_url'
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     const mapped = (response.data.data.account_managed_companies || []).map((p: any) => ({
                         ...p,
                         logo_url: p.logo
                     }));
                     setAssignedPartners(mapped);
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     setSelectedPartnerIds(mapped.map((p: any) => getPartnerId(p) || 0));
                 }
             } catch (error) {
@@ -68,6 +70,7 @@ export function ManagedPartnersTab({ employeeId }: Readonly<ManagedPartnersTabPr
 
             if (response.data?.success) {
                 message.success('Partners assigned successfully');
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const mapped = (response.data.result.account_managed_companies || []).map((p: any) => ({
                     ...p,
                     logo_url: p.logo
@@ -102,6 +105,7 @@ export function ManagedPartnersTab({ employeeId }: Readonly<ManagedPartnersTabPr
         {
             title: 'Action',
             key: 'action',
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             render: (_: any, record: Partner) => (
                 <Button
                     type="text"
@@ -124,6 +128,7 @@ export function ManagedPartnersTab({ employeeId }: Readonly<ManagedPartnersTabPr
                             partnerIds: newIds
                         }).then(res => {
                             if (res.data.success) {
+                                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                                 const mapped = (res.data.result.account_managed_companies || []).map((p: any) => ({
                                     ...p,
                                     logo_url: p.logo

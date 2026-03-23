@@ -7,6 +7,7 @@ interface NotificationsTabProps {
     push: boolean;
     reports: boolean;
   };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setNotifications: (val: any) => void;
 }
 

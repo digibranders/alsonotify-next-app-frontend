@@ -15,6 +15,7 @@ export async function connectAdmin() {
  * Gets the current integration status for the company
  */
 export async function getIntegrationStatus() {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data } = await axiosApi.get<ApiResponse<any>>("/integration/status");
     return data;
 }
@@ -23,6 +24,7 @@ export async function getIntegrationStatus() {
  * Disconnects the organization integration
  */
 export async function disconnectIntegration() {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data } = await axiosApi.post<ApiResponse<any>>("/integration/disconnect");
     return data;
 }

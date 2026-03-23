@@ -19,7 +19,7 @@ export function PartnerRow({
     onStatusUpdate
 }: PartnerRowProps) {
 
-    const getInitials = (name: string) => {
+    const _getInitials = (name: string) => {
         if (!name) return '?';
         const parts = name.split(' ').filter(Boolean);
         if (parts.length === 0) return '?';

@@ -499,6 +499,7 @@ export function ReportsPage() {
     billablePerHour: 0,
     efficiency: selectedMemberData.efficiency,
     utilization: selectedMemberData.utilization
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } as any : null;
 
   // Placeholder task filtering for member drawer - Mock worklogs as we don't have an endpoint for user worklogs yet

@@ -5,6 +5,7 @@ describe('Security Headers', () => {
   it('should have security headers configured', async () => {
     // @ts-expect-error - headers() is not in the default NextConfig type without augmentation, or simply because it's JS file
     const headersConfig = await nextConfig.headers();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const globalHeaders = headersConfig.find((h: any) => h.source === '/:path*');
 
     expect(globalHeaders).toBeDefined();
@@ -14,6 +15,7 @@ describe('Security Headers', () => {
     }
 
     const headers = globalHeaders.headers;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const headerMap = headers.reduce((acc: any, h: any) => {
       acc[h.key] = h.value;
       return acc;

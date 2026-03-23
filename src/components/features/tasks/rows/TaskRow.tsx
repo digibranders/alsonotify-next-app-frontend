@@ -39,16 +39,16 @@ const TaskRowComponent = memo(function TaskRow({
   onEdit,
   onDuplicate,
   onDelete,
-  onStatusChange,
+  onStatusChange: _onStatusChange,
   currentUserId,
   hideRequirements = false,
   isAdmin = false,
   onSubmitForReview,
-  onStartReview
+  onStartReview: _onStartReview
 }: TaskRowProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { stopTimer, timerState } = useTimer();
+  const { stopTimer: _stopTimer, timerState: _timerState } = useTimer();
   const [estimateOpen, setEstimateOpen] = useState(false);
   const [estH, setEstH] = useState("");
   const [estM, setEstM] = useState("");

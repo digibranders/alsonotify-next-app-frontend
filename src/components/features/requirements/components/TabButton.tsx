@@ -1,5 +1,6 @@
 import React from 'react';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function TabButton({ active, onClick, label }: { active: boolean; onClick: () => void; icon?: any; label: string }) {
   return (
     <button

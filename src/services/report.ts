@@ -56,6 +56,7 @@ interface ApiResponse<T> {
 }
 
 export const getRequirementReports = async (params: GetRequirementReportsParams): Promise<RequirementReportsResponse> => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const queryParams: Record<string, any> = {};
     if (params.search) queryParams.search = params.search;
     if (params.partner_id && params.partner_id !== 'All') queryParams.partner_id = params.partner_id;
@@ -116,6 +117,7 @@ interface GetTaskReportsParams {
 }
 
 export const getTaskReports = async (params: GetTaskReportsParams): Promise<TaskReportsResponse> => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const queryParams: Record<string, any> = {};
     if (params.search) queryParams.search = params.search;
     if (params.leader_id && params.leader_id !== 'All') queryParams.leader_id = params.leader_id;
@@ -185,6 +187,7 @@ interface GetEmployeeReportsParams {
 }
 
 export const getEmployeeReports = async (params: GetEmployeeReportsParams): Promise<EmployeeReportsResponse> => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const queryParams: Record<string, any> = {};
     if (params.search) queryParams.search = params.search;
     if (params.department_id && params.department_id !== 'All') queryParams.department_id = params.department_id;
@@ -215,6 +218,7 @@ export interface MemberWorklog {
 }
 
 export const getMemberWorklogs = async (memberId: string, startDate?: string, endDate?: string): Promise<MemberWorklog[]> => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const queryParams: Record<string, any> = { member_id: memberId };
     if (startDate) queryParams.start_date = startDate;
     if (endDate) queryParams.end_date = endDate;

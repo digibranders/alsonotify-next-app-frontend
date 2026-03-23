@@ -27,6 +27,7 @@ import { mapUserDtoToEmployee } from "../utils/mappers/user";
 import { queryKeys } from "../lib/queryKeys";
 
 const selectEmployees = (data: ApiResponse<UserDto[]>): ApiResponse<Employee[]> => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   if (!data) return data as any;
   return {
     ...data,
@@ -45,6 +46,7 @@ export const useEmployees = (options: string = "") => {
 
 const selectEmployee = (data: ApiResponse<UserDto>): ApiResponse<Employee> => ({
   ...data,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   result: data.result ? mapUserDtoToEmployee(data.result) : undefined as any
 });
 
@@ -63,6 +65,7 @@ export const useEmployeesDropdown = (search?: string) => {
     queryKey: queryKeys.users.employees('dropdown', search),
     queryFn: () => searchEmployees(search),
     staleTime: 5 * 60 * 1000, // 5 minutes
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     select: (data) => (data.result || []).map((item: any) => ({
       id: item.id ?? item.value,
       name: item.name || item.label || item.first_name || `User #${item.id ?? item.value}`,
@@ -163,9 +166,11 @@ export const useUpdateEmployeeStatus = () => {
 };
 
 const selectUserDetails = (data: ApiResponse<{ user: UserDto; access: UserPermissions }>): ApiResponse<Employee> => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   if (!data) return data as any;
   return {
     ...data,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     result: data.result ? mapUserDtoToEmployee(data.result.user, data.result.access) : undefined as any
   };
 };

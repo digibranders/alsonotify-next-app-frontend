@@ -144,7 +144,7 @@ export function RichTextEditor({ value, onChange, placeholder = "Note content...
     }
   }, [isMounted, value]);
 
-  const handleInput = (e: React.FormEvent<HTMLDivElement>) => {
+  const handleInput = (_e: React.FormEvent<HTMLDivElement>) => {
     if (editorRef.current) {
       // Sanitize content before sending it up
       // We generally trust the editor's output mainly for structure, but it's good practice 
@@ -178,8 +178,10 @@ export function RichTextEditor({ value, onChange, placeholder = "Note content...
   // Expose format function for parent component
   useEffect(() => {
     if (editorRef.current) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (editorRef.current as any).applyFormat = applyFormat;
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Don't render contentEditable during SSR
@@ -411,7 +413,7 @@ const applyFormatToSelection = (type: string, selection: Selection) => {
   selection.removeAllRanges();
 };
 
-const insertBlockFormat = (type: string, editor: HTMLElement) => {
+const insertBlockFormat = (type: string, _editor: HTMLElement) => {
   if (typeof window === 'undefined' || typeof document === 'undefined') return;
 
   const selection = window.getSelection();

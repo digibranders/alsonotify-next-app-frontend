@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   TrendingUp,
   TrendingDown,
@@ -9,7 +9,6 @@ import {
   Clock,
   AlertTriangle,
   ChevronLeft,
-  Calendar,
   Users,
   FileText,
 } from 'lucide-react';

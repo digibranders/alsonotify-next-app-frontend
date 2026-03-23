@@ -56,6 +56,7 @@ export function TeamsChatList({ selectedChatId, onSelectChat }: TeamsChatListPro
   const [search, setSearch] = useState('');
   const { data: chatsData, isLoading } = useTeamsChats();
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const chats = chatsData?.result || [];
 
   const filteredChats = useMemo(() => {

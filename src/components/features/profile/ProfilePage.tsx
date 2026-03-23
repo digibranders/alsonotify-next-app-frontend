@@ -1,6 +1,6 @@
 
 import { useState, useMemo, useEffect, useRef } from "react";
-import { Button, Input, Select, Divider, Upload, Switch, Progress, App, Space } from "antd";
+import { Button, Input, Select, Divider, Upload, Switch, Progress, App } from "antd";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { Camera, Pencil, FileText, Bell, Shield, User, Briefcase } from "lucide-react";
@@ -174,6 +174,7 @@ export function ProfilePage() {
         const result: UserDocument[] = [];
 
         // Map files by type name for easy lookup
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const filesByType = new Map<string, any[]>();
         files.forEach(file => {
             const typeName = file.document_type_name || 'Uncategorized';

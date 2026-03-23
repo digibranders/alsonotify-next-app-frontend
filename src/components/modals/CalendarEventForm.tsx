@@ -131,7 +131,7 @@ export function CalendarEventForm({
         });
         message.success("Leave applied successfully!");
         onSuccess?.();
-      } catch (error: unknown) {
+      } catch (_error: unknown) {
         // Error already handled generally
       } finally {
         setSubmitting(false);

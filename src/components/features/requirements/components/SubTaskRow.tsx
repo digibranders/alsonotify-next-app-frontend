@@ -9,6 +9,7 @@ export function SubTaskRow({
   selected = false,
   onSelect
 }: Readonly<{
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   task: any;
   isRevision?: boolean;
   selected?: boolean;

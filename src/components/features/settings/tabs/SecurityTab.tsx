@@ -12,6 +12,7 @@ interface SecurityTabProps {
     newPassword?: string;
     confirmPassword?: string;
   };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setSecurity: (val: any) => void;
   defaultEmployeePassword: string;
   setDefaultEmployeePassword: (val: string) => void;

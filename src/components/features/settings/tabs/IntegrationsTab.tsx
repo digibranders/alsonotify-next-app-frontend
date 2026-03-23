@@ -49,13 +49,14 @@ export function IntegrationsTab() {
       message.error('Failed to connect integration.');
       window.history.replaceState({}, '', window.location.pathname + '?tab=integrations');
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
   const handleConnect = async () => {
     try {
       message.loading({ content: "Redirecting to Microsoft...", key: "connect" });
       await IntegrationService.connectAdmin();
-    } catch (err) {
+    } catch (_err) {
       message.error({ content: "Failed to initiate integration", key: "connect" });
     }
   };
@@ -70,7 +71,7 @@ export function IntegrationsTab() {
       } else {
         message.error({ content: res.message || "Failed to disconnect", key: "disconnect" });
       }
-    } catch (err) {
+    } catch (_err) {
       message.error({ content: "Operation failed", key: "disconnect" });
     }
   };

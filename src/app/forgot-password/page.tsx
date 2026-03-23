@@ -33,6 +33,7 @@ export default function ForgotPasswordPage() {
                     message.error(data.message || "Failed to send reset link");
                 }
             },
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             onError: (error: any) => {
                 if (!error?.response) {
                     message.error("Unable to connect. Please check your internet connection and try again.");

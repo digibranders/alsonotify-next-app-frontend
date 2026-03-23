@@ -31,6 +31,7 @@ export const RequirementRejectionModal = ({
             await onSubmit(reason);
             setReason("");
             onClose();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             message.error(error.message || "Failed to submit rejection.");
         } finally {

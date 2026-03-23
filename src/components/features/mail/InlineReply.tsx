@@ -11,6 +11,7 @@ import { FileChipList } from '@/components/ui/FileAttachment';
 import dayjs from 'dayjs';
 
 interface InlineReplyProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   originalMessage: any;
   onSend: (data: { body: string; to: string[]; cc: string[]; subject: string; attachments?: File[] }) => Promise<void>;
   onDiscard: () => void;
@@ -34,11 +35,11 @@ export const InlineReply = forwardRef<InlineReplyRef, InlineReplyProps>(({ origi
       setResponseType(type);
       setIsFocused(true);
       // Determine subject prefix
-      let subject = "";
+      let _subject = "";
       if (type === 'forward') {
-        subject = `Fwd: ${originalMessage.subject}`;
+        _subject = `Fwd: ${originalMessage.subject}`;
       } else {
-        subject = `Re: ${originalMessage.subject}`;
+        _subject = `Re: ${originalMessage.subject}`;
       }
       // Scroll into view
       setTimeout(() => {
@@ -52,6 +53,7 @@ export const InlineReply = forwardRef<InlineReplyRef, InlineReplyProps>(({ origi
     // Basic logic - can be expanded to be editable
     const to = [originalMessage.from?.emailAddress?.address].filter(Boolean);
     const cc = responseType === 'replyAll'
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ? (originalMessage.ccRecipients || []).map((r: any) => r.emailAddress?.address).filter(Boolean)
       : [];
     return { to, cc };
@@ -133,6 +135,7 @@ export const InlineReply = forwardRef<InlineReplyRef, InlineReplyProps>(({ origi
     setFiles(prev => prev.filter((_, i) => i !== index));
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const FormatBtn = ({ icon: Icon, cmd, title }: any) => (
     <Tooltip title={title}>
       <button

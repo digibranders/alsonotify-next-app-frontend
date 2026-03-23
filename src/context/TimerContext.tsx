@@ -36,7 +36,7 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
 
     const [isLoading, setIsLoading] = useState(true);
     // Silent sync state if needed for UI indicators later (optional)
-    const [isSyncing, setIsSyncing] = useState(false);
+    const [_isSyncing, setIsSyncing] = useState(false);
 
     // Debounce for Remote Stop to prevent "blips"
     const consecutiveNullsRef = useRef(0);
@@ -56,12 +56,14 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
         if (!isBackground) setIsLoading(true);
         else setIsSyncing(true);
 
-        const source = isBackground ? 'Background/Event' : 'Manual/Initial';
+        const _source = isBackground ? 'Background/Event' : 'Manual/Initial';
 
         try {
             const { result } = await getCurrentActiveTimer();
 
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             if (result && (result as any).worklog_id) {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const timer = result as any; // Treat result as the timer object directly
                 const start = new Date(timer.start_datetime || "");
                 const now = new Date();
@@ -195,7 +197,7 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
         };
     }, [timerState.isRunning, timerState.startTime]);
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
     const startTimer = useCallback(async (taskId: number, taskName: string, projectName: string) => {
         // Optimistic Update
         const now = new Date();
@@ -267,7 +269,7 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
         }
     }, []);
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
     const stopTimer = useCallback(async (description?: string, session_status?: string) => {
         const { worklogId, taskId: currentTaskId, startTime: currentStart } = timerStateRef.current;
         if (worklogId === null) return;

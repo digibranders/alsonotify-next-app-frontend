@@ -34,6 +34,7 @@ const SHARED_CONFIG = {
   FORBID_ATTR: ['on*', 'form*', 'action', 'formaction'], // Explicitly forbid event handlers
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let sanitizerInstance: any = null;
 
 function getSanitizer() {
@@ -47,7 +48,7 @@ function getSanitizer() {
             const { JSDOM } = require('jsdom');
             const window = new JSDOM('').window;
             sanitizerInstance = DOMPurify(window);
-        } catch (e) {
+        } catch (_e) {
             console.warn('DOMPurify: jsdom not available on server, HTML sanitization skipped (returning empty string for safety).');
             // Safe fallback: return empty string sanitizer
             return { sanitize: () => '' };
@@ -64,6 +65,7 @@ function getSanitizer() {
     // Add a hook to enforce target="_blank" and rel="noopener noreferrer" on links
     // Only add if supported (instance)
     if (sanitizerInstance && typeof sanitizerInstance.addHook === 'function') {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         sanitizerInstance.addHook('afterSanitizeAttributes', (node: any) => {
             if ('target' in node || (node.tagName && node.tagName.toLowerCase() === 'a')) {
                 node.setAttribute('target', '_blank');

@@ -25,7 +25,6 @@ import { AutoComplete, Select } from 'antd';
 import { InvoicePreview } from './InvoicePreview';
 import { useInvoicePresets, InvoicePaymentPreset } from '@/hooks/useInvoicePresets';
 import { trimStr } from '@/utils/trim';
-import { getPartnerId, getPartnerName } from '@/utils/partnerUtils';
 
 interface LineItem {
     id: string;
@@ -203,6 +202,7 @@ export function CreateInvoicePage() {
             const city = partnerData.city || partnerData.user_profile?.city || '';
             const state = partnerData.state || partnerData.user_profile?.state || '';
             const zip = partnerData.zipcode || partnerData.user_profile?.zipcode || '';
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const country = (partnerData as any).country || partnerData.user_profile?.country || '';
 
             let addressParts = [addr1, addr2].filter(Boolean).join('\n');

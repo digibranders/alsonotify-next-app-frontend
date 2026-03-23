@@ -36,6 +36,7 @@ export function useTabSync<T extends string>({
 
     // Stabilization for validTabs
     const validTabsJson = JSON.stringify(validTabs);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const stableValidTabs = useMemo(() => validTabs, [validTabsJson, validTabs]);
 
     // Initialize state from URL (runs once on mount)

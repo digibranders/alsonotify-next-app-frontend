@@ -120,6 +120,7 @@ export function EmployeesPage() {
 
   const totalCount = useMemo(() => {
     // Backend getUsersService returns total_count in each item
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return (employeesData?.result?.[0] as any)?.total_count || 0;
   }, [employeesData]);
 

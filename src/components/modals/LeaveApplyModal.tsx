@@ -61,7 +61,7 @@ export function LeaveApplyModal({
       form.resetFields();
       if (onSuccess) onSuccess();
       onCancel();
-    } catch (error) {
+    } catch (_error) {
       // Error handled by mutation usually, but we can add a fallback
     }
   };

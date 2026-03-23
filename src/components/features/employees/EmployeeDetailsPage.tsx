@@ -182,7 +182,7 @@ export function EmployeeDetailsPage() {
         if (!isNaN(date.getTime())) {
           dateOfJoining = date.toISOString();
         }
-      } catch (_) {
+      } catch {
         // Invalid date format
       }
     }
@@ -204,6 +204,7 @@ export function EmployeeDetailsPage() {
         salary_yearly: parseFloat(data.salary) || 0,
         hourly_rates: hourlyRate,
         no_of_leaves: parseFloat(data.leaves) || 0,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any,
       {
         onSuccess: () => {
@@ -550,6 +551,7 @@ export function EmployeeDetailsPage() {
         isEditing={true}
         initialData={backendEmp}
         onSubmit={handleUpdateEmployee}
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         departments={departmentsData?.result?.filter((dept: { is_active?: boolean; name?: string }) => dept.is_active !== false).map((dept: any) => dept.name) || []}
       />
       <input

@@ -82,6 +82,7 @@ export function LeavesWidget({ onNavigate }: { onNavigate?: (page: string) => vo
 
       const totalDuration = Math.max(1, endDate.diff(startDate, "day") + 1);
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let avatar = (leave.user as any)?.user_profile?.profile_pic || (leave.user as any)?.avatar || null;
       if (avatar === 'null' || avatar === 'undefined') avatar = null;
 

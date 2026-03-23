@@ -34,7 +34,7 @@ export function sanitizeUrl(url?: string | null): string | undefined {
 
     // Unsafe protocol (e.g. javascript:, vbscript:, data:)
     return 'about:blank';
-  } catch (e) {
+  } catch (_e) {
     // Fail closed: If URL parsing fails, return 'about:blank'
     return 'about:blank';
   }

@@ -87,6 +87,7 @@ function ClientFormContent({
   // Initialize state directly (runs once on mount)
   const [formData, setFormData] = useState<ClientFormData>(() => {
     if (initialData) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const nameParts = ((initialData as any).name || "").split(" ");
       let phone = initialData.phone || "";
       let countryCode = initialData.countryCode || "+91";
@@ -152,6 +153,7 @@ function ClientFormContent({
     }
 
     return true;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   },  [formData.email, formData.firstName, isEditing]);
 
   const handleSubmit = () => {

@@ -19,6 +19,7 @@ describe('NotificationPanel', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (useNotifications as any).mockReturnValue({
       data: {
         result: [
@@ -37,6 +38,7 @@ describe('NotificationPanel', () => {
   });
 
   it('renders close button on mobile', () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (useIsNarrow as any).mockReturnValue(true); // Mobile view
 
     const queryClient = new QueryClient();
@@ -59,6 +61,7 @@ describe('NotificationPanel', () => {
   });
 
   it('renders close button on desktop', () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (useIsNarrow as any).mockReturnValue(false); // Desktop view
 
     const queryClient = new QueryClient();

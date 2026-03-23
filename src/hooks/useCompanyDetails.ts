@@ -93,6 +93,7 @@ export const useCompanyDetails = ({ initialData }: UseCompanyDetailsProps) => {
         };
     }, [formData]);
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const updateField = useCallback((field: keyof typeof formData, value: any) => {
         setFormData(prev => ({ ...prev, [field]: value }));
     }, []);

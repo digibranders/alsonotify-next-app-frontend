@@ -60,7 +60,7 @@ export function TeamsChatView({ chatId }: TeamsChatViewProps) {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages.length]);
 
-  const handleSend = (content: string, contentType: 'html' | 'text') => {
+  const handleSend = (content: string, _contentType: 'html' | 'text') => {
     if (!chatId || !content.trim()) return;
     sendMessage.mutate(
       { chatId, content: content.trim() },

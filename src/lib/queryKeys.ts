@@ -82,6 +82,7 @@ export const queryKeys = {
   },
   mail: {
     folders: () => ["mail", "folders"] as const,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     messages: (params: any) => ["mail", "messages", params] as const,
     message: (id: string) => ["mail", "message", id] as const,
     attachments: (messageId: string) => ["mail", "attachments", messageId] as const,

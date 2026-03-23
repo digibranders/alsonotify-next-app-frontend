@@ -64,6 +64,7 @@ export const fileService = {
             }
           },
         });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (uploadError: any) {
         console.error('S3 Upload Error Details:', {
           message: uploadError.message,
@@ -161,6 +162,7 @@ export const fileService = {
             'Content-Type': file.type,
           }
         });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (uploadError: any) {
         console.error('S3 Employee Upload Error Details:', {
           message: uploadError.message,

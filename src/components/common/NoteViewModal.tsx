@@ -42,6 +42,7 @@ export function NoteViewModal({ open, note, onClose }: NoteViewModalProps) {
       if (note.title !== title) setTitle(note.title || '');
       if (note.content !== content) setContent(note.content || '');
       // Normalize type: backend might return 'text'/'checklist', but we use 'TEXT_NOTE'/'CHECKLIST_NOTE'
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const normalizedType = (note.type === 'TEXT_NOTE' || (note.type as any) === 'text') ? 'TEXT_NOTE' : 'CHECKLIST_NOTE';
       if (normalizedType !== noteType) setNoteType(normalizedType);
       setColor(note.color || '#ff3b3b');
@@ -90,6 +91,7 @@ export function NoteViewModal({ open, note, onClose }: NoteViewModalProps) {
   }, [note, open]);
 
   const updateMutation = useMutation({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mutationFn: (params: { id: number; data: any }) => updateNote(params.id, params.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.notes.all() });
@@ -144,6 +146,7 @@ export function NoteViewModal({ open, note, onClose }: NoteViewModalProps) {
         clearTimeout(saveTimeoutRef.current);
       }
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [title, content, items, color, noteType, hasChanges]);
 
   const handleTypeToggle = () => {

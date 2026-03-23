@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-  getPaymentPresets, createPaymentPreset, updatePaymentPreset, deletePaymentPreset, PaymentPresetDto
+  getPaymentPresets, createPaymentPreset, deletePaymentPreset, PaymentPresetDto
 } from '../services/paymentPreset';
 
 export interface InvoicePaymentPreset {

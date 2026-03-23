@@ -5,8 +5,11 @@ import React from 'react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 describe('TimerContext Verification', () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let activeTimerSpy: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let startWorkLogSpy: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let updateWorklogSpy: any;
 
     beforeEach(() => {
@@ -16,7 +19,9 @@ describe('TimerContext Verification', () => {
         // Spy on the imported module methods
         // This effectively mocks them while preserving the module structure
         activeTimerSpy = vi.spyOn(taskService, 'getCurrentActiveTimer');
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         startWorkLogSpy = vi.spyOn(taskService, 'startWorkLog').mockResolvedValue({ success: true, message: 'started' } as any);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         updateWorklogSpy = vi.spyOn(taskService, 'updateWorklog').mockResolvedValue({ success: true, message: 'updated' } as any);
     });
 
@@ -26,6 +31,7 @@ describe('TimerContext Verification', () => {
     });
 
     // Define mock factory to be used inside tests where Date is safe
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const createMockTimer = (override: any = {}) => ({
         success: true,
         message: 'Success',
@@ -222,6 +228,7 @@ describe('TimerContext Verification', () => {
     it('pending stop (worklogId -1): applies stop when start resolves and calls updateWorklog once', async () => {
         activeTimerSpy.mockResolvedValue({ success: true, message: 'No timer', result: null });
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let resolveStart: (value: any) => void;
         const startPromise = new Promise<{ result: { id: number } }>((resolve) => {
             resolveStart = resolve;

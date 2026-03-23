@@ -243,6 +243,7 @@ describe('useAuth Hooks', () => {
       vi.spyOn(UserService, 'getUserDetails').mockResolvedValue({
         success: true,
         message: 'Success',
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         result: { user: mockUser as any, access: {} },
       });
 
@@ -271,6 +272,7 @@ describe('useAuth Hooks', () => {
       vi.spyOn(UserService, 'getUserDetails').mockResolvedValue({
         success: true,
         message: 'Success',
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         result: { user: { id: 1, name: 'Test', email: 'test@example.com' } as any, access: {} },
       });
 

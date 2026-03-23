@@ -30,8 +30,8 @@ export function RequirementsList({
     currentUser,
     userRole,
     activeStatusTab,
-    currentPage,
-    pageSize,
+    currentPage: _currentPage,
+    pageSize: _pageSize,
     handleReqAccept,
     handleReqReject,
     handleEditDraft,
@@ -89,11 +89,17 @@ export function RequirementsList({
                             currentUserId={currentUser?.id}
                             onAccept={userRole !== 'Employee' ? () => handleReqAccept(requirement.id) : undefined}
                             onReject={userRole !== 'Employee' ? () => handleReqReject(requirement.id) : undefined}
-                            onEdit={userRole !== 'Employee' ? () => handleEditDraft(requirement) : undefined}
+                            onEdit={
+                                userRole !== 'Employee'
+                                    && !['Completed', 'Review', 'Submitted'].includes(requirement.rawStatus || '')
+                                    ? () => handleEditDraft(requirement)
+                                    : undefined
+                            }
 
-                            // Condition for Delete vs Restore
+                            // Condition for Delete vs Restore — block during active cross-party workflow states
                             onDelete={
                                 userRole !== 'Employee' && activeStatusTab !== 'archived'
+                                    && !['Review', 'Submitted', 'Revision'].includes(requirement.rawStatus || '')
                                     ? () => handleDelete(requirement)
                                     : undefined
                             }
@@ -105,10 +111,15 @@ export function RequirementsList({
 
                             deleteLabel={(activeStatusTab === 'active' || activeStatusTab === 'completed' || activeStatusTab === 'delayed') ? 'Archive' : 'Delete'}
                             deleteIcon={(activeStatusTab === 'active' || activeStatusTab === 'completed' || activeStatusTab === 'delayed') ? <Archive className="w-3.5 h-3.5" /> : undefined}
-                            onDuplicate={userRole !== 'Employee' ? () => handleDuplicateRequirement(requirement) : undefined}
+                            onDuplicate={
+                                userRole !== 'Employee' && activeStatusTab !== 'archived'
+                                    ? () => handleDuplicateRequirement(requirement)
+                                    : undefined
+                            }
                             onNavigate={() => onNavigate(requirement.workspace_id || 0, requirement.id)}
                             onSubmitForReview={
                                 userRole !== 'Employee' && handleSubmitForReview
+                                    && (requirement.type === 'inhouse' || requirement.isReceiver === true)
                                     ? () => handleSubmitForReview(requirement.id)
                                     : undefined
                             }

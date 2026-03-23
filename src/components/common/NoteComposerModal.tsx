@@ -31,7 +31,7 @@ interface NoteComposerModalProps {
 
 export function NoteComposerModal({ open, onClose, onSave, initialNote }: Readonly<NoteComposerModalProps>) {
   const { message } = App.useApp();
-  const [state, setState] = useState<ComposerState>('COLLAPSED');
+  const [, setState] = useState<ComposerState>('COLLAPSED');
   const [noteType, setNoteType] = useState<NoteType>(initialNote?.type || 'TEXT_NOTE');
   const [title, setTitle] = useState(initialNote?.title || '');
   const [content, setContent] = useState(initialNote?.content || '');
@@ -42,6 +42,7 @@ export function NoteComposerModal({ open, onClose, onSave, initialNote }: Readon
   );
   const [color, setColor] = useState(() => {
     const initial = initialNote?.color || DEFAULT_NOTE_COLOR;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return NOTE_COLORS.includes(initial as any) ? initial : NOTE_COLORS[0];
   });
   const [isSaving, setIsSaving] = useState(false);
@@ -83,6 +84,7 @@ export function NoteComposerModal({ open, onClose, onSave, initialNote }: Readon
       }
 
       const noteColor = initialNote.color || DEFAULT_NOTE_COLOR;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       setColor(NOTE_COLORS.includes(noteColor as any) ? noteColor : NOTE_COLORS[0]);
       setState(initialNote.type === 'CHECKLIST_NOTE' ? 'EXPANDED_CHECKLIST' : 'EXPANDED_TEXT');
       hasChangesRef.current = false;
@@ -169,7 +171,7 @@ export function NoteComposerModal({ open, onClose, onSave, initialNote }: Readon
       });
       hasChangesRef.current = false;
       onClose();
-    } catch (_error) {
+    } catch {
       message.error("Failed to save note");
     } finally {
       setIsSaving(false);

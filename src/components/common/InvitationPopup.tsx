@@ -33,6 +33,7 @@ export function InvitationPopup() {
                 const res = await getReceivedInvites();
                 if (res.success && Array.isArray(res.result)) {
                     // Filter only PENDING invites
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     const pending = res.result.filter((i: any) => i.status !== 'REJECTED' && i.status !== 'ACCEPTED');
 
                     if (pending.length > 0) {
@@ -69,7 +70,7 @@ export function InvitationPopup() {
             } else {
                 message.error(res.message || 'Failed to accept invitation');
             }
-        } catch (_error) {
+        } catch {
             message.error('Failed to accept invitation');
         } finally {
             setLoading(false);
@@ -92,7 +93,7 @@ export function InvitationPopup() {
             } else {
                 message.error(res.message || 'Failed to decline invitation');
             }
-        } catch (_error) {
+        } catch {
             message.error('Failed to decline invitation');
         } finally {
             setLoading(false);

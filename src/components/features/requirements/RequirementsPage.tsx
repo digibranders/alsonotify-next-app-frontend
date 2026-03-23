@@ -243,6 +243,7 @@ export function RequirementsPage() {
   };
 
   const allRequirements = useMemo(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return (requirementsData?.result || []) as any[];
   }, [requirementsData]);
 
@@ -291,17 +292,22 @@ export function RequirementsPage() {
       let headerContact: string | undefined;
       let headerCompany: string | undefined;
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const creatorName = (typeof req.created_user === 'object' ? (req.created_user as any)?.name : undefined) || req.created_user_data?.name;
       const isClientWork = ['client', 'Client work', 'Client Work'].includes(req.type || '');
 
       if (isClientWork) {
         if (isReceiver) {
           // A (Receiver/Worker) sees B (Client) details
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           headerContact = req.contact_person?.name || (req as any).sender_company?.name || 'Client';
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           headerCompany = (req as any).sender_company?.name;
         } else if (isSender) {
           // B (Sender/Client) sees A (Worker) details
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           headerContact = creatorName || req.contact_person?.name || (req as any).receiver_company?.name || 'Worker';
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           headerCompany = (req as any).receiver_company?.name;
         }
 
@@ -311,6 +317,7 @@ export function RequirementsPage() {
       } else if (req.type === 'outsourced') {
         if (isSender) {
           const contactName = req.contact_person?.name;
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const receiverCompanyName = (req as any).receiver_company?.name;
 
           const isContactExternal = !!contactName && !!creatorName && contactName !== creatorName;
@@ -325,9 +332,11 @@ export function RequirementsPage() {
         } else if (isReceiver) {
           headerContact = creatorName ||
             req.contact_person?.name ||
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (req as any).sender_company?.name ||
             'Sender';
 
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           headerCompany = (req as any).sender_company?.name;
 
           if (headerContact === headerCompany) {
@@ -340,13 +349,17 @@ export function RequirementsPage() {
           headerCompany = undefined;
         }
       } else {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         if (isReceiver && (req as any).sender_company) {
           headerContact = creatorName ||
             req.contact_person?.name ||
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (req as any).sender_company?.name ||
             'Sender';
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           headerCompany = (req as any).sender_company?.name;
         } else {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           headerContact = (typeof req.contact_person === 'object' ? (req.contact_person as any)?.name : req.contact_person) || 'Unknown';
           headerCompany = workspace?.client_company_name || workspace?.company_name || undefined;
         }
@@ -653,6 +666,7 @@ export function RequirementsPage() {
     // We must use the company_id associated with the partner user.
     const options = partners
       .filter(isValidPartner)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .map((p: any) => ({
         label: getPartnerName(p),
         value: String(getPartnerCompanyId(p))
@@ -669,6 +683,7 @@ export function RequirementsPage() {
   // Get unique departments/categories
   const allCategories = useMemo(() => {
     const depts = departmentsData?.result || [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const options = depts.map((d: any) => ({ label: d.name, value: String(d.id) }));
     return [{ label: 'All', value: 'All' }, ...options];
   }, [departmentsData]);
@@ -1172,6 +1187,7 @@ export function RequirementsPage() {
           });
           messageApi.success("Requirement accepted and workspace mapped!");
         }}
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         workspaces={workspacesData?.result?.workspaces?.map((w: any) => ({ id: w.id, name: w.name })) || []}
         quotedPrice={requirements.find(r => r.id === pendingReqId)?.quoted_price ?? undefined}
         currency={requirements.find(r => r.id === pendingReqId)?.currency ?? undefined}

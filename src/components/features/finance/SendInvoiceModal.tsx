@@ -110,7 +110,7 @@ export function SendInvoiceModal({
         if (!isOpen) return;
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setToError('');
-        // eslint-disable-next-line react-hooks/set-state-in-effect
+         
         setIsLoadingRecipients(true);
         getEmailRecipients(invoiceId)
             .then(res => {

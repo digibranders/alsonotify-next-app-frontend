@@ -6,8 +6,7 @@ import {
     differenceInDays,
     startOfDay,
     subDays,
-    min as fnsMin,
-    max as fnsMax
+    min as fnsMin
 } from 'date-fns';
 
 interface GanttContextType {
