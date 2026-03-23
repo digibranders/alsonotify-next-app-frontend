@@ -155,7 +155,7 @@ export function QuotationDialog({
           {pricingModel === 'hourly' ? (
             <>
               <div className="space-y-2">
-                <label className="text-xs font-bold text-[#111111]">Confirmed Hourly Rate</label>
+                <label className="text-xs font-bold text-[#111111]">Confirmed Hourly Rate <span className="text-red-500">*</span></label>
                 <div className="w-full split-input-group">
                   {currencySelector}
                   <Input
@@ -168,7 +168,7 @@ export function QuotationDialog({
                 </div>
               </div>
               <div className="space-y-2">
-                <label className="text-xs font-bold text-[#111111]">Estimated Hours</label>
+                <label className="text-xs font-bold text-[#111111]">Estimated Hours <span className="text-red-500">*</span></label>
                 <Input
                   type="number"
                   placeholder="0"
@@ -186,7 +186,7 @@ export function QuotationDialog({
             </>
           ) : (
             <div className="space-y-2">
-              <label className="text-xs font-bold text-[#111111]">Total Project Cost</label>
+              <label className="text-xs font-bold text-[#111111]">Total Project Cost <span className="text-red-500">*</span></label>
               <div className="w-full split-input-group">
                 {currencySelector}
                 <Input
@@ -249,7 +249,7 @@ export function QuotationDialog({
 
                   {advanceType === 'percentage' ? (
                     <div className="space-y-2">
-                      <label className="text-xs font-bold text-[#111111]">Advance Percentage</label>
+                      <label className="text-xs font-bold text-[#111111]">Advance Percentage <span className="text-red-500">*</span></label>
                       <div className="flex gap-1.5">
                         {[25, 50, 75, 100].map(p => (
                           <button
@@ -274,7 +274,7 @@ export function QuotationDialog({
                     </div>
                   ) : (
                     <div className="space-y-1">
-                      <label className="text-xs font-bold text-[#111111]">Advance Amount</label>
+                      <label className="text-xs font-bold text-[#111111]">Advance Amount <span className="text-red-500">*</span></label>
                       <div className="w-full split-input-group">
                         {currencySelector}
                         <Input
@@ -289,7 +289,7 @@ export function QuotationDialog({
                   )}
 
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-[#111111]">Payment Due Date</label>
+                    <label className="text-xs font-bold text-[#111111]">Payment Due Date <span className="text-red-500">*</span></label>
                     <DatePicker
                       value={advanceDueDate ? dayjs(advanceDueDate) : null}
                       onChange={(d) => setAdvanceDueDate(d ? d.format('YYYY-MM-DD') : '')}
