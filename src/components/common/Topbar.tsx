@@ -22,7 +22,7 @@ import {
   NotebookPen
 } from 'lucide-react';
 import { TaskForm } from '../modals/TaskForm';
-import { RequirementsForm, RequirementFormData } from '../modals/RequirementsForm';
+import { RequirementsForm } from '../modals/RequirementsForm';
 import { WorkspaceForm } from '../modals/WorkspaceForm';
 import { NotificationDrawer } from '../features/notifications/NotificationDrawer';
 import { Skeleton } from '../ui/Skeleton';
@@ -34,10 +34,10 @@ import { useWorkspaces, useCreateRequirement } from '../../hooks/useWorkspace';
 import { useCreateTask } from '@/hooks/useTask';
 import { useCreateNote } from '@/hooks/useNotes';
 import { useLogout } from '@/hooks/useAuth';
-import { formatDateForApi, getTodayForApi } from '@/utils/date/date';
 import { searchEmployees } from '@/services/user';
 import { getAllRequirementsDropdown } from '@/services/workspace';
 import { RequirementDropdownItem, CreateRequirementRequestDto } from '@/types/dto/requirement.dto';
+import { fileService } from '@/services/file.service';
 import { NoteComposerModal } from './NoteComposerModal';
 // import { AIAssistantDrawer } from '../features/ai/AIAssistantDrawer';
 import { MeetingCreateModal } from '../modals/MeetingCreateModal';
@@ -194,49 +194,53 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
 
 
 
-  // Handle requirement creation
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleCreateRequirement = async (data: RequirementFormData | any) => {
-    if (!data.title) {
-      message.error("Requirement title is required");
-      return;
-    }
+  // Handle requirement save as draft (no status → backend defaults to Draft)
+  const handleSaveDraft = (data: CreateRequirementRequestDto, files?: File[]) => {
+    createRequirementMutation.mutate(data, {
+      onSuccess: async (response: { result?: { id?: number } }) => {
+        message.success("Draft saved");
+        setShowRequirementDialog(false);
+        const reqId = response?.result?.id;
+        if (files && files.length > 0 && reqId) {
+          try {
+            await Promise.all(files.map(file => fileService.uploadFile(file, 'REQUIREMENT', reqId)));
+          } catch {
+            message.error("Failed to upload documents");
+          }
+        }
+      },
+      onError: (error: unknown) => {
+        const errorMessage = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to save draft";
+        message.error(errorMessage);
+      },
+    });
+  };
 
-    if (!data.workspace && !data.workspace_id) {
-      message.error("Please select a workspace");
-      return;
-    }
-
-    const requirementPayload: CreateRequirementRequestDto = {
-      workspace_id: Number(data.workspace || data.workspace_id),
-      project_id: Number(data.workspace || data.workspace_id), // Backward compatibility
-      name: data.title as string,
-      description: (data.description || '') as string,
-      start_date: getTodayForApi(),
-      end_date: data.dueDate ? formatDateForApi(data.dueDate) : undefined,
-      status: 'Assigned',
-      is_high_priority: data.priority === 'HIGH' || Boolean(data.is_high_priority) || false,
-      type: data.type as string | undefined,
-      contact_person: data.contactPerson as string | undefined,
-      contact_person_id: data.contact_person_id as number | undefined,
-      receiver_company_id: data.receiver_company_id as number | undefined,
-      budget: Number(data.budget) || 0,
-    };
-
-    createRequirementMutation.mutate(
-      requirementPayload,
-      {
-        onSuccess: () => {
-          message.success("Requirement created successfully!");
-          setShowRequirementDialog(false);
-          // Reset form handled by component unmount/remount usually, but here we might need to reset state if we kept it
-        },
-        onError: (error: unknown) => {
-          const errorMessage = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to create requirement";
-          message.error(errorMessage);
-        },
-      }
-    );
+  // Handle requirement send (sets Waiting for outsourced, Assigned for others)
+  const handleSendRequirement = (data: CreateRequirementRequestDto, files?: File[]) => {
+    const targetStatus = data.type === 'outsourced' ? 'Waiting' : 'Assigned';
+    const createPayload = { ...data, status: targetStatus };
+    createRequirementMutation.mutate(createPayload, {
+      onSuccess: async (response: { result?: { id?: number } }) => {
+        const successMsg = data.type === 'outsourced' ? "Sent to partner"
+          : data.type === 'client' ? "Client work logged successfully"
+          : "Submitted for work";
+        message.success(successMsg);
+        setShowRequirementDialog(false);
+        const reqId = response?.result?.id;
+        if (files && files.length > 0 && reqId) {
+          try {
+            await Promise.all(files.map(file => fileService.uploadFile(file, 'REQUIREMENT', reqId)));
+          } catch {
+            message.error("Failed to upload documents");
+          }
+        }
+      },
+      onError: (error: unknown) => {
+        const errorMessage = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to send requirement";
+        message.error(errorMessage);
+      },
+    });
   };
 
   // Handle Note Creation
@@ -541,7 +545,8 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
 
       <RequirementsForm
         open={showRequirementDialog}
-        onSubmit={handleCreateRequirement}
+        onSubmit={handleSaveDraft}
+        onSubmitAndSend={handleSendRequirement}
         onCancel={() => setShowRequirementDialog(false)}
         workspaces={workspacesData?.result?.workspaces?.map((w) => ({
           id: w.id,
