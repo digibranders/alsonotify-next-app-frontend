@@ -7,6 +7,7 @@ import { getTaxPreview } from '@/services/invoice';
 import { useCreateAdvanceProforma } from '@/hooks/useInvoice';
 import { toast } from 'sonner';
 import dayjs from 'dayjs';
+import { useRouter } from 'next/navigation';
 
 interface RaiseAdvanceProformaModalProps {
     isOpen: boolean;
@@ -32,6 +33,7 @@ export const RaiseAdvanceProformaModal: React.FC<RaiseAdvanceProformaModalProps>
     receiverCompanyId,
     senderCompanyId,
 }) => {
+    const router = useRouter();
     const [advanceType, setAdvanceType] = useState<'percentage' | 'flat'>('percentage');
     const [percentage, setPercentage] = useState<number>(50);
     const [flatAmount, setFlatAmount] = useState<number>(0);
@@ -66,7 +68,7 @@ export const RaiseAdvanceProformaModal: React.FC<RaiseAdvanceProformaModalProps>
             return;
         }
         try {
-            await createProforma({
+            const response = await createProforma({
                 requirementId,
                 data: {
                     advance_type: advanceType,
@@ -80,8 +82,12 @@ export const RaiseAdvanceProformaModal: React.FC<RaiseAdvanceProformaModalProps>
                 },
             });
             toast.success('Advance proforma created successfully');
-            onClose();
-            // TODO: if sendAfter, open email modal
+            const invoiceId = response?.result?.id;
+            if (invoiceId) {
+                router.push(`/dashboard/finance/invoices/${invoiceId}`);
+            } else {
+                onClose();
+            }
         } catch (err: unknown) {
             toast.error((err as { response?: { data?: { message?: string } } }).response?.data?.message || 'Failed to create advance proforma');
         }
@@ -260,7 +266,7 @@ export const RaiseAdvanceProformaModal: React.FC<RaiseAdvanceProformaModalProps>
                         disabled={isPending || (advanceType === 'flat' && !flatAmount)}
                         className="px-6 py-2.5 text-sm font-bold bg-[#111111] text-white rounded-full hover:bg-black shadow-[0_4px_14px_rgba(0,0,0,0.2)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
-                        {isPending ? 'Creating...' : 'Create as Draft'}
+                        {isPending ? 'Creating...' : 'Create Proforma'}
                     </button>
                 </div>
             </div>

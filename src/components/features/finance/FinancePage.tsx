@@ -198,6 +198,11 @@ export function FinancePage() {
     setCurrentPage(1);
   }, []);
 
+  const handleSearchChange = useCallback((value: string) => {
+    setSearchQuery(value);
+    setCurrentPage(1);
+  }, []);
+
   const clearFilters = useCallback(() => {
     setClientFilter('All');
     setStatusFilter('All');
@@ -370,9 +375,6 @@ export function FinancePage() {
       ]}
       activeTab={activeTab}
       onTabChange={(id) => { setActiveTab(id as 'ready_to_bill' | 'drafts' | 'outstanding' | 'history'); setCurrentPage(1); }}
-      searchPlaceholder="Search finance..."
-      searchValue={searchQuery}
-      onSearchChange={setSearchQuery}
       showFilter={false} // We implement custom filter bar
       customFilters={
         <button
@@ -395,6 +397,9 @@ export function FinancePage() {
             }}
             onFilterChange={handleFilterChange}
             onClearFilters={clearFilters}
+            searchPlaceholder="Search"
+            searchValue={searchQuery}
+            onSearchChange={handleSearchChange}
             extraContent={
               <DateRangeSelector
                 value={dateRange}
