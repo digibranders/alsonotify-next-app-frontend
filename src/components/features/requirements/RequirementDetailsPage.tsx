@@ -32,9 +32,14 @@ import {
 } from './utils/requirementState.utils';
 import { getRoleFromUser } from '@/utils/roleUtils';
 import { ReqTabId, RequirementHeader } from './components/RequirementHeader';
-// Extracted components
-import { GanttChartTab, PnLTab, DocumentsTab, KanbanBoardTab } from './components';
-import { BillingTab } from './components/BillingTab';
+// Lazy-loaded tab components (recharts, gantt, etc.)
+import dynamic from 'next/dynamic';
+const TabLoadingFallback = () => <Skeleton className="h-64 w-full rounded-[16px]" />;
+const GanttChartTab = dynamic(() => import('./components/GanttChartTab').then(m => ({ default: m.GanttChartTab })), { ssr: false, loading: TabLoadingFallback });
+const PnLTab = dynamic(() => import('./components/PnLTab').then(m => ({ default: m.PnLTab })), { ssr: false, loading: TabLoadingFallback });
+const KanbanBoardTab = dynamic(() => import('./components/KanbanBoardTab').then(m => ({ default: m.KanbanBoardTab })), { ssr: false, loading: TabLoadingFallback });
+const BillingTab = dynamic(() => import('./components/BillingTab').then(m => ({ default: m.BillingTab })), { ssr: false, loading: TabLoadingFallback });
+import { DocumentsTab } from './components';
 import { RequirementInfoCard } from './components/RequirementInfoCard';
 import { ActivitySidebar } from './components/ActivitySidebar';
 import { SubTaskRow } from './components/SubTaskRow';

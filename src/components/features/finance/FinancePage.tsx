@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import {
   CheckCircle,
   ChevronDown,
@@ -17,6 +17,7 @@ import { Skeleton } from '../../ui/Skeleton';
 
 import { PageLayout } from '../../layout/PageLayout';
 import { FilterBar, FilterOption } from '../../ui/FilterBar';
+import { PaginationBar } from '../../ui/PaginationBar';
 import { DateRangeSelector } from '../../common/DateRangeSelector';
 
 dayjs.extend(isBetween);
@@ -61,8 +62,12 @@ interface Invoice {
 export function FinancePage() {
   const router = useRouter();
 
+  // Pagination state for invoice tabs
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+
   // Real API Fetches
-  const { data: dbInvoicesData, isLoading: isLoadingInvoices } = useInvoices({ limit: 1000 });
+  const { data: dbInvoicesData, isLoading: isLoadingInvoices } = useInvoices({ limit: pageSize, skip: (currentPage - 1) * pageSize });
   const { data: collaborativeReqs, isLoading: isLoadingReqs } = useCollaborativeRequirements();
   const loading = isLoadingInvoices || isLoadingReqs;
 
@@ -87,6 +92,8 @@ export function FinancePage() {
       })),
     }));
   }, [dbInvoicesData]);
+
+  const totalInvoices = dbInvoicesData?.total ?? 0;
 
   // Company data — fetched early so we can use companyId when filtering requirements
   const { data: companyRes } = useCurrentUserCompany();
@@ -185,16 +192,31 @@ export function FinancePage() {
     }] : [])
   ];
 
-  const handleFilterChange = (filterId: string, value: string) => {
+  const handleFilterChange = useCallback((filterId: string, value: string) => {
     if (filterId === 'client') setClientFilter(value);
     else if (filterId === 'status') setStatusFilter(value);
-  };
+    setCurrentPage(1);
+  }, []);
 
-  const clearFilters = () => {
+  const clearFilters = useCallback(() => {
     setClientFilter('All');
     setStatusFilter('All');
     setSearchQuery('');
-  };
+    setCurrentPage(1);
+  }, []);
+
+  const handlePageChange = useCallback((page: number) => {
+    setCurrentPage(page);
+  }, []);
+
+  const handlePageSizeChange = useCallback((size: number) => {
+    setPageSize(size);
+    setCurrentPage(1);
+  }, []);
+
+  const toggleCollapse = useCallback((client: string) => {
+    setCollapsedGroups(prev => ({ ...prev, [client]: !prev[client] }));
+  }, []);
 
   // --- Filtering Logic ---
 
@@ -347,11 +369,20 @@ export function FinancePage() {
         { id: 'history', label: 'History' }
       ]}
       activeTab={activeTab}
-      onTabChange={(id) => setActiveTab(id as 'ready_to_bill' | 'drafts' | 'outstanding' | 'history')}
+      onTabChange={(id) => { setActiveTab(id as 'ready_to_bill' | 'drafts' | 'outstanding' | 'history'); setCurrentPage(1); }}
       searchPlaceholder="Search finance..."
       searchValue={searchQuery}
       onSearchChange={setSearchQuery}
       showFilter={false} // We implement custom filter bar
+      customFilters={
+        <button
+          onClick={() => router.push('/dashboard/finance/pnl')}
+          className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-white bg-[#111111] rounded-full hover:bg-[#333333] transition-colors whitespace-nowrap"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+          P&L Report
+        </button>
+      }
     >
       <div className="flex flex-col h-full relative">
         {/* Filter Bar */}
@@ -365,19 +396,10 @@ export function FinancePage() {
             onFilterChange={handleFilterChange}
             onClearFilters={clearFilters}
             extraContent={
-              <>
-                <DateRangeSelector
-                  value={dateRange}
-                  onChange={setDateRange}
-                />
-                <button
-                  onClick={() => router.push('/dashboard/finance/pnl')}
-                  className="px-4 py-2 text-xs font-bold text-white bg-[#111111] rounded-lg hover:bg-[#333333] transition-colors flex items-center gap-2"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
-                  P&L Report
-                </button>
-              </>
+              <DateRangeSelector
+                value={dateRange}
+                onChange={setDateRange}
+              />
             }
           />
 
@@ -493,7 +515,7 @@ export function FinancePage() {
                     client={client}
                     reqs={reqs}
                     collapsed={!!collapsedGroups[client]}
-                    onToggleCollapse={() => setCollapsedGroups(prev => ({ ...prev, [client]: !prev[client] }))}
+                    onToggleCollapse={toggleCollapse}
                     onGenerateInvoice={() => handleCreateInvoice(client)}
                     currencySymbol={currencySymbol}
                   />
@@ -586,6 +608,19 @@ export function FinancePage() {
               </table>
             </div>
           )}
+          {/* Pagination for invoice tabs */}
+          {activeTab !== 'ready_to_bill' && totalInvoices > 0 && (
+            <div className="mt-4">
+              <PaginationBar
+                currentPage={currentPage}
+                totalItems={totalInvoices}
+                pageSize={pageSize}
+                onPageChange={handlePageChange}
+                onPageSizeChange={handlePageSizeChange}
+                itemLabel="invoices"
+              />
+            </div>
+          )}
         </div>
       </div>
       {sendModalInvoice && (
@@ -650,7 +685,7 @@ function ClientGroup({
   client: string,
   reqs: Requirement[],
   collapsed: boolean,
-  onToggleCollapse: () => void,
+  onToggleCollapse: (client: string) => void,
   onGenerateInvoice: () => void,
   currencySymbol: string,
 }) {
@@ -660,7 +695,7 @@ function ClientGroup({
     <div className="bg-white border border-[#EEEEEE] rounded-[16px] overflow-hidden">
       <div className="bg-[#F9FAFB] border-b border-[#EEEEEE] p-4 flex items-center justify-between">
         <div className="flex items-center gap-4 flex-1">
-          <button onClick={onToggleCollapse} className="text-[#666666] hover:text-[#111111]">
+          <button onClick={() => onToggleCollapse(client)} className="text-[#666666] hover:text-[#111111]">
             {collapsed ? <ChevronRight className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
           </button>
 

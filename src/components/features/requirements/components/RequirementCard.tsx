@@ -48,7 +48,7 @@ const CURRENCY_SYMBOLS: Record<string, string> = {
   'AED': 'د.إ',
 };
 
-export function RequirementCard({
+export const RequirementCard = React.memo(function RequirementCard({
   requirement,
   onAccept,
   onReject,
@@ -578,4 +578,4 @@ export function RequirementCard({
       </div>
     </div>
   );
-}
+});

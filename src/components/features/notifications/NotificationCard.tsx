@@ -1,7 +1,7 @@
 'use client';
 
 import { X, MoreHorizontal, Eye, EyeOff } from 'lucide-react';
-import { useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Dropdown } from 'antd';
 import type { MenuProps } from 'antd';
 import { Linkify } from '@/components/common/Linkify';
@@ -59,7 +59,7 @@ interface NotificationCardProps {
   isMobile?: boolean;
 }
 
-export function NotificationCard({
+export const NotificationCard = React.memo(function NotificationCard({
   notification,
   onMarkAsRead,
   onMarkAsUnread,
@@ -224,4 +224,4 @@ export function NotificationCard({
       </div>
     </div>
   );
-}
+});

@@ -8,7 +8,7 @@ import { DateRangeSelector } from '../../common/DateRangeSelector';
 
 import { PaginationBar } from '../../ui/PaginationBar';
 import { App } from 'antd';
-import { useWorkspaces, useCreateRequirement, useUpdateRequirement, useDeleteRequirement, useAllRequirements, useCollaborativeRequirements, useApproveRequirement, useSubmitForReview, useMarkAdvancePaid } from '@/hooks/useWorkspace';
+import { useWorkspaces, useCreateRequirement, useUpdateRequirement, useDeleteRequirement, useAllRequirements, useApproveRequirement, useSubmitForReview, useMarkAdvancePaid } from '@/hooks/useWorkspace';
 import { useUserDetails, usePartners, useCompanyDepartments } from '@/hooks/useUser';
 import { fileService } from '@/services/file.service';
 import { format } from 'date-fns';
@@ -56,7 +56,7 @@ export function RequirementsPage() {
   const updateRequirementMutation = useUpdateRequirement();
   const approveRequirementMutation = useApproveRequirement();
 
-  const { data: workspacesData, isLoading: isLoadingWorkspaces } = useWorkspaces('limit=1000');
+  const { data: workspacesData, isLoading: isLoadingWorkspaces } = useWorkspaces('limit=100');
   const { data: userData } = useUserDetails();
   const currentUser = userData?.result;
 
@@ -200,8 +200,6 @@ export function RequirementsPage() {
     return firstItem?.status_counts || {};
   }, [countsData]);
 
-  // Fetch collaborative requirements (where my company is receiver)
-  useCollaborativeRequirements();
 
   const isLoading = isLoadingWorkspaces || isLoadingRequirements;
 

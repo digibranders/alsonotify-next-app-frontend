@@ -96,7 +96,7 @@ export function ReportsPage() {
 
   // Fetch Dropdown Data
   const { data: partnersData } = usePartners();
-  const { data: employeesData } = useEmployees("is_active=true&limit=1000"); // Fetch all active for filters
+  const { data: employeesData } = useEmployees("is_active=true&limit=100"); // Fetch active for filters
   const { data: departmentsData } = useCompanyDepartments();
 
   const partnerOptions = useMemo(() => {
@@ -541,7 +541,7 @@ export function ReportsPage() {
     >
       <div className="flex flex-col h-full relative overflow-hidden">
         {/* Filter Bar - Fixed at top */}
-        <div className="mb-6 space-y-4 shrink-0 px-1">
+        <div className="mb-2">
           <FilterBar
             filters={filterOptions}
             selectedFilters={filters}

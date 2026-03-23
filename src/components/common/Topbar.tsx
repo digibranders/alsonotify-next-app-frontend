@@ -89,7 +89,7 @@ export function Header({ userRole = 'Admin', roleColor }: HeaderProps) {
   const markReadMutation = useMarkNotificationRead();
 
   // Fetch data for dialogs
-  const { data: workspacesData } = useWorkspaces('limit=1000');
+  const { data: workspacesData } = useWorkspaces('limit=100');
 
   const [usersDropdown, setUsersDropdown] = useState<Array<{ id: number; name: string }>>([]);
   const [requirementsDropdown, setRequirementsDropdown] = useState<RequirementDropdownItem[]>([]);

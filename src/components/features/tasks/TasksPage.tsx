@@ -112,7 +112,7 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
   const deleteTaskMutation = useDeleteTask();
   const updateTaskMutation = useUpdateTask();
   const updateTaskStatusMutation = useUpdateTaskStatus();
-  const { data: workspacesData } = useWorkspaces('limit=1000');
+  const { data: workspacesData } = useWorkspaces('limit=100');
 
   // Use new centralized hooks for dropdowns (already passed via props but using hook for consistency/updates?)
   // Actually, strictly we should use the props to avoid re-suspend issues, 
@@ -567,14 +567,14 @@ function TasksPageContent({ currentUser, userDetailsData, usersDropdownData, com
   }, []);
 
   // Handle pagination change
-  const handlePaginationChange = (page: number, pageSize: number) => {
+  const handlePaginationChange = useCallback((page: number, pageSize: number) => {
     setPagination({
       current: page,
       pageSize,
       limit: pageSize,
       skip: (page - 1) * pageSize,
     });
-  };
+  }, []);
 
   // Get timer state
   const { timerState, stopTimer, startTimer } = useTimer();
