@@ -465,7 +465,7 @@ export function FloatingTimerBar() {
   return (
     <div
       className="fixed left-1/2 -translate-x-1/2 z-[9999] transition-all duration-300 ease-out flex flex-col items-center"
-      style={{ bottom: '30px' }}
+      style={{ bottom: '18px' }}
     >
       {/* Dropdown Menu */}
       {showTaskSelector && (
