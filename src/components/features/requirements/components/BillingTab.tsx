@@ -25,6 +25,7 @@ export const BillingTab: React.FC<BillingTabProps> = ({ requirement }) => {
             dueDate: inv.due_date || '',
             amount: inv.total || 0,
             status: (inv.status?.toLowerCase() || 'draft') as string,
+            type: (inv.invoice_type?.toUpperCase() || 'TAX') as string,
         }));
     }, [dbInvoicesData]);
 
@@ -58,6 +59,12 @@ export const BillingTab: React.FC<BillingTabProps> = ({ requirement }) => {
 
     const quotedPrice = Number(requirement.quoted_price ?? requirement.estimated_cost ?? 0);
     const currency = requirement.currency ?? 'INR';
+    const currencySymbol = (() => {
+        try {
+            return new Intl.NumberFormat('en', { style: 'currency', currency, maximumFractionDigits: 0 })
+                .formatToParts(0).find(p => p.type === 'currency')?.value ?? currency;
+        } catch { return currency; }
+    })();
 
     return (
         <div className="max-w-5xl mx-auto space-y-8">
@@ -81,15 +88,15 @@ export const BillingTab: React.FC<BillingTabProps> = ({ requirement }) => {
                 <div className="grid grid-cols-3 gap-6 mb-8">
                     <div className="p-4 rounded-xl border border-[#EEEEEE] bg-[#F9FAFB]">
                         <p className="text-xs font-semibold text-[#666666] uppercase tracking-wider mb-1">Total Quoted / Estimated</p>
-                        <p className="text-2xl font-bold text-[#111111]">₹{estimatedCost.toLocaleString()}</p>
+                        <p className="text-2xl font-bold text-[#111111]">{currencySymbol}{estimatedCost.toLocaleString()}</p>
                     </div>
                     <div className="p-4 rounded-xl border border-[#EEEEEE] bg-[#F9FAFB]">
                         <p className="text-xs font-semibold text-[#666666] uppercase tracking-wider mb-1">Total Billed</p>
-                        <p className="text-2xl font-bold text-[#111111]">₹{totalBilled.toLocaleString()}</p>
+                        <p className="text-2xl font-bold text-[#111111]">{currencySymbol}{totalBilled.toLocaleString()}</p>
                     </div>
                     <div className="p-4 rounded-xl border border-[#EEEEEE] bg-blue-50/50">
                         <p className="text-xs font-semibold text-blue-600 uppercase tracking-wider mb-1">Remaining Balance</p>
-                        <p className="text-2xl font-bold text-blue-700">₹{remainingBalance.toLocaleString()}</p>
+                        <p className="text-2xl font-bold text-blue-700">{currencySymbol}{remainingBalance.toLocaleString()}</p>
                     </div>
                 </div>
 
@@ -141,6 +148,7 @@ export const BillingTab: React.FC<BillingTabProps> = ({ requirement }) => {
                                 <thead>
                                     <tr className="bg-[#F9FAFB] border-b border-[#EEEEEE]">
                                         <th className="px-4 py-3 text-xs font-semibold text-[#666666] uppercase tracking-wider">Invoice #</th>
+                                        <th className="px-4 py-3 text-xs font-semibold text-[#666666] uppercase tracking-wider">Type</th>
                                         <th className="px-4 py-3 text-xs font-semibold text-[#666666] uppercase tracking-wider">Date</th>
                                         <th className="px-4 py-3 text-xs font-semibold text-[#666666] uppercase tracking-wider">Amount</th>
                                         <th className="px-4 py-3 text-xs font-semibold text-[#666666] uppercase tracking-wider">Status</th>
@@ -149,22 +157,36 @@ export const BillingTab: React.FC<BillingTabProps> = ({ requirement }) => {
                                 </thead>
                                 <tbody>
                                     {invoices.map((inv, idx) => (
-                                        <tr key={inv.id} className={idx !== invoices.length - 1 ? 'border-b border-[#EEEEEE]' : ''}>
+                                        <tr
+                                            key={inv.id}
+                                            className={`cursor-pointer hover:bg-[#F9FAFB] transition-colors ${idx !== invoices.length - 1 ? 'border-b border-[#EEEEEE]' : ''}`}
+                                            onClick={() => router.push(`/dashboard/finance/invoices/${inv.id}`)}
+                                        >
                                             <td className="px-4 py-3">
                                                 <p className="text-sm font-medium text-[#111111]">{inv.invoiceNumber}</p>
+                                            </td>
+                                            <td className="px-4 py-3">
+                                                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-2xs font-semibold uppercase tracking-wider ${
+                                                    inv.type === 'PROFORMA'
+                                                        ? 'bg-[#FFF3E0] text-[#FF9800]'
+                                                        : 'bg-[#E3F2FD] text-[#2196F3]'
+                                                }`}>
+                                                    {inv.type === 'PROFORMA' ? 'Proforma' : 'Tax'}
+                                                </span>
                                             </td>
                                             <td className="px-4 py-3">
                                                 <p className="text-xs text-[#666666]">{inv.date ? dayjs(inv.date).format('MMM D, YYYY') : '--'}</p>
                                             </td>
                                             <td className="px-4 py-3">
-                                                <p className="text-xs font-medium text-[#111111]">₹{inv.amount.toLocaleString()}</p>
+                                                <p className="text-xs font-medium text-[#111111]">{currencySymbol}{inv.amount.toLocaleString()}</p>
                                             </td>
                                             <td className="px-4 py-3">
                                                 <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold uppercase tracking-wider ${inv.status === 'paid' ? 'bg-[#E8F5E9] text-[#0F9D58]' :
                                                         inv.status === 'sent' || inv.status === 'open' ? 'bg-blue-50 text-blue-600' :
                                                             inv.status === 'overdue' || inv.status === 'past_due' ? 'bg-red-50 text-[#D14343]' :
                                                                 inv.status === 'partial' ? 'bg-orange-50 text-orange-600' :
-                                                                    'bg-gray-100 text-[#666666]'
+                                                                    inv.status === 'void' ? 'bg-[#EEEEEE] text-[#111111]' :
+                                                                        'bg-gray-100 text-[#666666]'
                                                     }`}>
                                                     {inv.status}
                                                 </span>
@@ -172,7 +194,7 @@ export const BillingTab: React.FC<BillingTabProps> = ({ requirement }) => {
                                             <td className="px-4 py-3 text-right">
                                                 <div className="flex items-center justify-end gap-2">
                                                     <button
-                                                        onClick={() => handleDownloadPDF(inv.id, inv.invoiceNumber)}
+                                                        onClick={(e) => { e.stopPropagation(); handleDownloadPDF(inv.id, inv.invoiceNumber); }}
                                                         disabled={isDownloading[inv.id]}
                                                         className="p-1.5 text-[#666666] hover:bg-gray-100 rounded-md transition-colors disabled:opacity-50"
                                                         title="Download PDF"
@@ -184,9 +206,9 @@ export const BillingTab: React.FC<BillingTabProps> = ({ requirement }) => {
                                                         )}
                                                     </button>
                                                     <button
-                                                        onClick={() => router.push('/dashboard/finance')}
+                                                        onClick={(e) => { e.stopPropagation(); router.push(`/dashboard/finance/invoices/${inv.id}`); }}
                                                         className="p-1.5 text-[#666666] hover:bg-gray-100 rounded-md transition-colors"
-                                                        title="View in Finance"
+                                                        title="View Invoice"
                                                     >
                                                         <ChevronRight className="w-4 h-4" />
                                                     </button>

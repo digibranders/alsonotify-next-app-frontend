@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Download, Send, CreditCard, X } from 'lucide-react';
 import { toast } from 'sonner';
+import { useUserDetails } from '@/hooks/useUser';
 import { useInvoice, useRecordPayment, useUpdateInvoiceStatus, useReviseInvoice, usePaymentHistory } from '@/hooks/useInvoice';
 import { getInvoicePdfBlob, convertProformaToTaxInvoice } from '@/services/invoice';
 import dayjs from 'dayjs';
@@ -17,6 +18,8 @@ export function InvoiceDetailPage() {
     const router = useRouter();
     const id = params.id as string;
 
+    const { data: userData } = useUserDetails();
+    const currentUser = userData?.result;
     const { data: invoice, isLoading } = useInvoice(id);
     const { mutateAsync: recordPaymentMutation, isPending: isRecordingPayment } = useRecordPayment();
     const { mutateAsync: updateStatus, isPending: isUpdatingStatus } = useUpdateInvoiceStatus();
@@ -158,10 +161,12 @@ export function InvoiceDetailPage() {
     }
 
     const status = invoice.status ?? 'draft';
-    const canSend = status === 'draft' || status === 'pending_approval';
-    const canRecordPayment = status === 'sent' || status === 'overdue' || status === 'partial';
-    const canRevise = status === 'sent' || status === 'overdue';
-    const canVoid = status !== 'paid' && status !== 'void';
+    // Only the invoice owner (bill_from company) can perform actions; bill_to sees read-only
+    const isOwner = currentUser?.company_id && String(currentUser.company_id) === String(invoice.bill_from);
+    const canSend = isOwner && (status === 'draft' || status === 'pending_approval');
+    const canRecordPayment = isOwner && (status === 'sent' || status === 'overdue' || status === 'partial');
+    const canRevise = isOwner && (status === 'sent' || status === 'overdue');
+    const canVoid = isOwner && status !== 'paid' && status !== 'void';
 
     // Check if it's a Proforma and if it hasn't been converted yet
     const isProforma = invoice.invoice_type === 'PROFORMA';
@@ -237,7 +242,7 @@ export function InvoiceDetailPage() {
                             Send
                         </button>
                     )}
-                    {isProforma && status !== 'void' && (
+                    {isOwner && isProforma && status !== 'void' && (
                         <button
                             onClick={handleConvertToTax}
                             disabled={isConverting}

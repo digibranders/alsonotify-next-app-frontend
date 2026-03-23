@@ -456,8 +456,8 @@ export function RequirementCard({
       {isPending && (
         <div className="mt-auto mb-4 min-h-[40px] flex flex-col items-center justify-center text-xs text-[#999999] italic bg-[#F9FAFB] rounded-lg border border-dashed border-[#E5E7EB] mx-1 px-2 text-center py-2 gap-1.5">
           <span>{displayStatus}</span>
-          {/* Show advance payment info when quote is received/submitted */}
-          {requirement.requires_advance_payment && requirement.advance_amount && (requirement.rawStatus === 'Submitted' || requirement.rawStatus === 'Waiting') && (() => {
+          {/* Show advance payment info when quote is pending, received, or advance still unpaid */}
+          {requirement.requires_advance_payment && requirement.advance_amount && (requirement.rawStatus === 'Submitted' || requirement.rawStatus === 'Waiting' || (requirement.rawStatus === 'Assigned' && requirement.advance_invoice?.status !== 'paid')) && (() => {
             const currencyCode = requirement.currency ? requirement.currency.toUpperCase() : 'USD';
             const symbol = CURRENCY_SYMBOLS[currencyCode] || requirement.currency || '$';
             const totalCost = requirement.quoted_price || requirement.estimated_cost || requirement.budget;
