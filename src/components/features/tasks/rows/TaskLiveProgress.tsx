@@ -176,10 +176,10 @@ export function TaskLiveProgress({ task, currentUserId }: TaskLiveProgressProps)
             {formatDecimalHours(totalLoggedHours)}{hasEst ? `/${formatDecimalHours(effectiveEst)}` : ''}
           </span>
           {hasEst ? (
-            <span className={`task-row-sub font-medium whitespace-nowrap ${isTaskCompleted
-              ? 'text-[#16A34A]'
-              : isBleeding
-                ? 'text-[#FF3B3B]'
+            <span className={`task-row-sub font-medium whitespace-nowrap ${isBleeding
+              ? 'text-[#FF3B3B]'
+              : isTaskCompleted
+                ? 'text-[#16A34A]'
                 : isWarning
                   ? 'text-[#EAB308]'
                   : 'text-[#666666]'
