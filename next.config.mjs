@@ -1,3 +1,4 @@
+import { withSentryConfig } from "@sentry/nextjs";
 
 // Derive backend origin for API proxy rewrite (eliminates CORS preflight overhead)
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1';
@@ -118,4 +119,14 @@ const nextConfig = {
     },
 };
 
-export default nextConfig;
+export default withSentryConfig(nextConfig, {
+    org: "fynix-digital",
+    project: "javascript-nextjs",
+    sourcemaps: {
+        deleteSourcemapsAfterUpload: true,
+    },
+    tunnelRoute: "/monitoring",
+    hideSourceMaps: true,
+    // Tree-shake Sentry debug logging in production
+    silent: !process.env.CI,
+});

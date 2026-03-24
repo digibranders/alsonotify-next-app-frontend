@@ -639,6 +639,7 @@ export function ProfilePage() {
                                                     <Upload
                                                         name="avatar"
                                                         showUploadList={false}
+                                                        accept=".jpg,.jpeg,.png,.webp"
                                                         customRequest={async ({ file, onSuccess, onError }) => {
                                                             try {
                                                                 message.loading({ content: 'Uploading avatar...', key: 'avatar-upload' });

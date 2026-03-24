@@ -147,6 +147,7 @@ export const SubmitForApprovalModal = ({
             fileList={fileList}
             onChange={({ fileList: newList }) => setFileList(newList)}
             customRequest={handleUpload}
+            accept=".pdf,.doc,.docx,.xls,.xlsx,.pptx,.ppt,.jpg,.jpeg,.png,.gif,.webp,.heic,.heif,.svg,.zip,.txt,.csv"
             beforeUpload={(file) => {
               const isLt50M = file.size / 1024 / 1024 <= 50;
               if (!isLt50M) {
