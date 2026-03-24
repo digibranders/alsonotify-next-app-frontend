@@ -99,7 +99,7 @@ export const fileService = {
       console.error('File upload failed:', error);
       // Extract server error message from axios 4xx responses
       if (axios.isAxiosError(error) && error.response?.data?.message) {
-        throw new Error(error.response.data.message);
+        throw new Error(error.response.data.message, { cause: error });
       }
       throw error;
     }
@@ -201,7 +201,7 @@ export const fileService = {
     } catch (error) {
       console.error('Employee document upload failed:', error);
       if (axios.isAxiosError(error) && error.response?.data?.message) {
-        throw new Error(error.response.data.message);
+        throw new Error(error.response.data.message, { cause: error });
       }
       throw error;
     }
