@@ -25,7 +25,6 @@ import { SubmitForApprovalModal } from '../../modals/SubmitForApprovalModal';
 import { QuotationDialog, RejectDialog, InternalMappingModal } from './components/dialogs';
 import type { RejectVariant } from './components/dialogs/RejectDialog';
 import { RequirementsList } from './components/RequirementsList';
-import { RaiseAdvanceProformaModal } from '../finance/RaiseAdvanceProformaModal';
 
 import { Requirement, Workspace, RequirementType } from '@/types/domain';
 import { RequirementDto, CreateRequirementRequestDto, UpdateRequirementRequestDto } from '@/types/dto/requirement.dto';
@@ -453,7 +452,6 @@ export function RequirementsPage() {
   const [isRejectOpen, setIsRejectOpen] = useState(false);
   const [isMappingOpen, setIsMappingOpen] = useState(false);
   const [isClientAcceptOpen, setIsClientAcceptOpen] = useState(false);
-  const [isAdvanceProformaOpen, setIsAdvanceProformaOpen] = useState(false);
   const [pendingReqId, setPendingReqId] = useState<number | null>(null);
   const markAdvancePaidMutation = useMarkAdvancePaid();
   const [isSubmitReviewOpen, setIsSubmitReviewOpen] = useState(false);
@@ -827,8 +825,10 @@ export function RequirementsPage() {
         // Scenario 2: Advance required, invoice not yet sent — navigate to invoice page to review & send
         if (workflowStatus === 'Assigned' && req.requires_advance_payment) {
           if (!req.advance_invoice_id) {
-            // No invoice at all — open creation modal (fallback; normally auto-created on acceptance)
-            setIsAdvanceProformaOpen(true);
+            // No invoice at all — navigate to advance proforma creation page
+            router.push(
+              `/dashboard/finance/advance-proforma/create?requirementId=${req.id}&requirementTitle=${encodeURIComponent(req.title || req.name || '')}&quotedPrice=${req.quoted_price || 0}&currency=${req.currency || 'INR'}&billFrom=${req.sender_company_id || 0}&billTo=${req.receiver_company_id || 0}`
+            );
             return;
           }
           const invoiceStatus = req.advance_invoice?.status || '';
@@ -1236,25 +1236,6 @@ export function RequirementsPage() {
         loading={approveRequirementMutation.isPending}
       />
 
-      {isAdvanceProformaOpen && pendingReqId && (() => {
-        const req = requirements.find(r => r.id === pendingReqId);
-        if (!req) return null;
-        return (
-          <RaiseAdvanceProformaModal
-            isOpen={isAdvanceProformaOpen}
-            onClose={() => {
-              setIsAdvanceProformaOpen(false);
-              setPendingReqId(null);
-            }}
-            requirementId={req.id}
-            requirementTitle={req.title || req.name}
-            quotedPrice={req.quoted_price || 0}
-            currency={req.currency || 'INR'}
-            receiverCompanyId={Number(req.receiver_company_id) || 0}
-            senderCompanyId={Number(req.sender_company_id) || 0}
-          />
-        );
-      })()}
 
       {isSubmitReviewOpen && pendingSubmitReqId && requirements.find(r => r.id === pendingSubmitReqId) && (
         <SubmitForApprovalModal
