@@ -17,7 +17,7 @@ import {
 import { toast } from 'sonner';
 import dayjs from 'dayjs';
 import { useCurrentUserCompany, usePartners } from '@/hooks/useUser';
-import { useCreateInvoice } from '@/hooks/useInvoice';
+import { useCreateInvoice, useCreateAdvanceProforma } from '@/hooks/useInvoice';
 import { useCollaborativeRequirements } from '@/hooks/useRequirement';
 import { getNextInvoiceNumber, getTaxPreview, searchHsnSacCodes, getTdsSections } from '@/services/invoice';
 import type { HsnSacCode, TdsSection } from '@/services/invoice';
@@ -48,6 +48,8 @@ export function CreateInvoicePage() {
 
     // --- Query Params ---
     const clientId = searchParams.get('clientId');
+    const advanceReqId = searchParams.get('advanceReqId'); // When set, page runs in advance proforma mode
+    const isAdvanceProformaMode = !!advanceReqId;
     const reqIds = useMemo(() => {
         const raw = searchParams.get('reqIds');
         return raw ? raw.split(',') : [];
@@ -64,7 +66,7 @@ export function CreateInvoicePage() {
     const [memo, setMemo] = useState('Payment is due within 7 days. Please include the invoice number on your wire transfer.');
     const [footer, setFooter] = useState<string>('');
 
-    const [invoiceType, setInvoiceType] = useState<'TAX' | 'PROFORMA'>('TAX');
+    const [invoiceType, setInvoiceType] = useState<'TAX' | 'PROFORMA'>(isAdvanceProformaMode ? 'PROFORMA' : 'TAX');
     const [advanceDeducted, setAdvanceDeducted] = useState<number>(0);
     const [proformaRefId, setProformaRefId] = useState<string>('');
 
@@ -88,6 +90,7 @@ export function CreateInvoicePage() {
     const { data: companyRes } = useCurrentUserCompany();
     const { data: partnersRes } = usePartners();
     const { mutateAsync: createInvoiceMutation, isPending: isSaving } = useCreateInvoice();
+    const { mutateAsync: createAdvanceProformaMutation, isPending: isCreatingProforma } = useCreateAdvanceProforma();
 
     // Type assertion unavoidable: API response type for company is loosely defined in the hooks
     const companyId = (companyRes?.result as { id?: number } | undefined)?.id;
@@ -312,9 +315,13 @@ export function CreateInvoicePage() {
         if (reqIds.length > 0 && reqsForInvoice.length > 0) {
             setItems(reqsForInvoice.map(req => ({
                 id: crypto.randomUUID(),
-                description: req.name ?? '',
+                description: isAdvanceProformaMode
+                    ? `Advance Payment for Services — ${req.name ?? ''}`
+                    : (req.name ?? ''),
                 quantity: 1,
-                unitPrice: Number(req.quoted_price ?? req.estimated_cost ?? 0),
+                unitPrice: isAdvanceProformaMode
+                    ? Number(req.advance_amount ?? req.quoted_price ?? 0)
+                    : Number(req.quoted_price ?? req.estimated_cost ?? 0),
                 taxRate: taxConfig.rate,
                 requirement_id: req.id,
             })));
@@ -327,7 +334,7 @@ export function CreateInvoicePage() {
                 taxRate: taxConfig.rate,
             }]);
         }
-    }, [reqIds, reqsForInvoice]);
+    }, [reqIds, reqsForInvoice, isAdvanceProformaMode]);
 
     // --- Calculations ---
 
@@ -449,6 +456,44 @@ export function CreateInvoicePage() {
             toast.error('Please select a valid client company.');
             return;
         }
+
+        // ── Advance Proforma Mode: use dedicated API ──
+        if (isAdvanceProformaMode && advanceReqId) {
+            try {
+                const response = await createAdvanceProformaMutation({
+                    requirementId: Number(advanceReqId),
+                    data: {
+                        advance_type: 'flat',
+                        advance_amount: totals.subtotal,
+                        currency: currencyCode,
+                        due_date: new Date(dueDate).toISOString(),
+                        payment_details: footer || undefined,
+                        memo: memo || undefined,
+                        tax_type: taxConfig.name || undefined,
+                        particulars: items.map(item => ({
+                            id: item.id,
+                            description: item.description,
+                            quantity: item.quantity,
+                            unit_price: item.unitPrice,
+                            amount: item.quantity * item.unitPrice,
+                        })),
+                    },
+                });
+                const newId = response?.result?.id;
+                toast.success('Advance proforma saved as draft.');
+                localStorage.removeItem(DRAFT_KEY);
+                if (newId) {
+                    router.push(`/dashboard/finance/invoices/${newId}`);
+                } else {
+                    router.push('/dashboard/finance');
+                }
+            } catch {
+                toast.error('Failed to create advance proforma. Please try again.');
+            }
+            return;
+        }
+
+        // ── Regular Invoice Mode ──
         try {
             const particulars = items.map(item => ({
                 id: item.id,
@@ -579,7 +624,7 @@ export function CreateInvoicePage() {
                         <X className="w-5 h-5" />
                     </button>
                     <span className="text-base font-semibold text-[#111111]">
-                        New Invoice
+                        {isAdvanceProformaMode ? 'New Advance Proforma' : 'New Invoice'}
                     </span>
                 </div>
                 <div className="flex items-center gap-3">
@@ -603,11 +648,11 @@ export function CreateInvoicePage() {
                     </button>
                     <button
                         onClick={handleSaveInvoice}
-                        disabled={isSaving}
+                        disabled={isSaving || isCreatingProforma}
                         className="px-6 py-2 bg-[#ff3b3b] text-white rounded-full font-bold text-xs hover:bg-[#e63535] transition-colors flex items-center gap-2 disabled:opacity-60"
                     >
                         <Send className="w-4 h-4" />
-                        {isSaving ? 'Saving...' : 'Save as Draft'}
+                        {(isSaving || isCreatingProforma) ? 'Saving...' : 'Save as Draft'}
                     </button>
                 </div>
             </div>
@@ -670,7 +715,8 @@ export function CreateInvoicePage() {
                                     <select
                                         value={invoiceType}
                                         onChange={(e) => setInvoiceType(e.target.value as 'TAX' | 'PROFORMA')}
-                                        className="w-full px-3 py-2.5 bg-white border border-[#EEEEEE] rounded-[8px] text-sm text-[#111111] focus:ring-1 focus:ring-[#ff3b3b] outline-none appearance-none"
+                                        disabled={isAdvanceProformaMode}
+                                        className="w-full px-3 py-2.5 bg-white border border-[#EEEEEE] rounded-[8px] text-sm text-[#111111] focus:ring-1 focus:ring-[#ff3b3b] outline-none appearance-none disabled:bg-[#F5F5F5] disabled:text-[#999999]"
                                     >
                                         <option value="TAX">TAX</option>
                                         <option value="PROFORMA">PROFORMA</option>

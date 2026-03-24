@@ -825,9 +825,9 @@ export function RequirementsPage() {
         // Scenario 2: Advance required, invoice not yet sent — navigate to invoice page to review & send
         if (workflowStatus === 'Assigned' && req.requires_advance_payment) {
           if (!req.advance_invoice_id) {
-            // No invoice at all — navigate to advance proforma creation page
+            // No invoice at all — navigate to invoice creation page in advance proforma mode
             router.push(
-              `/dashboard/finance/advance-proforma/create?requirementId=${req.id}&requirementTitle=${encodeURIComponent(req.title || req.name || '')}&quotedPrice=${req.quoted_price || 0}&currency=${req.currency || 'INR'}&billFrom=${req.sender_company_id || 0}&billTo=${req.receiver_company_id || 0}`
+              `/dashboard/finance/create?clientId=${req.sender_company_id || ''}&reqIds=${req.id}&advanceReqId=${req.id}`
             );
             return;
           }
