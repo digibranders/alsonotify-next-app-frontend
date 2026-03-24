@@ -2,7 +2,7 @@ import axios from 'axios';
 import axiosApi from '../config/axios';
 import { ApiResponse } from '../types/api';
 
-export type FileContextType = 'REQUIREMENT' | 'TASK' | 'COMMENT' | 'EMPLOYEE_DOCUMENT' | 'COMPANY_LOGO' | 'USER_PROFILE_PICTURE';
+export type FileContextType = 'REQUIREMENT' | 'TASK' | 'COMMENT' | 'EMPLOYEE_DOCUMENT' | 'COMPANY_LOGO' | 'USER_PROFILE_PICTURE' | 'REQUIREMENT_ACTIVITY' | 'TASK_ACTIVITY';
 
 export interface UploadUrlResponse {
   upload_url: string;
@@ -97,6 +97,10 @@ export const fileService = {
       return confirmResponse.result;
     } catch (error) {
       console.error('File upload failed:', error);
+      // Extract server error message from axios 4xx responses
+      if (axios.isAxiosError(error) && error.response?.data?.message) {
+        throw new Error(error.response.data.message);
+      }
       throw error;
     }
   },
@@ -196,6 +200,9 @@ export const fileService = {
       return confirmResponse.result;
     } catch (error) {
       console.error('Employee document upload failed:', error);
+      if (axios.isAxiosError(error) && error.response?.data?.message) {
+        throw new Error(error.response.data.message);
+      }
       throw error;
     }
   }

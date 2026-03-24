@@ -182,6 +182,7 @@ export function CompanyDetailsTab({
                   <Upload
                     name="logo"
                     showUploadList={false}
+                    accept=".jpg,.jpeg,.png,.webp"
                     customRequest={async ({ file, onSuccess, onError }) => {
                       try {
                         message.loading({ content: 'Uploading logo...', key: 'logo-upload' });
