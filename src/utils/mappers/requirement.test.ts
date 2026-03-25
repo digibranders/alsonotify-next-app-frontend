@@ -130,8 +130,8 @@ describe('mapRequirementToDomain', () => {
       quoted_price: 1500,
       pricing_model: 'project' as any,
     }));
-    expect(result.quotedPrice).toBe(1500);
-    expect(result.pricingModel).toBe('project');
+    expect(result.quoted_price).toBe(1500);
+    expect(result.pricing_model).toBe('project');
   });
 
   it('should set assignedTo to empty array', () => {
