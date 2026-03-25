@@ -34,6 +34,26 @@ const SHARED_CONFIG = {
   FORBID_ATTR: ['on*', 'form*', 'action', 'formaction'], // Explicitly forbid event handlers
 };
 
+/**
+ * Strip dangerous CSS constructs that can execute code or exfiltrate data.
+ * Removes: expression(), behavior:, -moz-binding:, url(javascript:...),
+ * url(data:text/html...), and @import rules.
+ */
+function stripDangerousCss(css: string): string {
+  let cleaned = css;
+  // Remove CSS expressions (IE) — e.g. width: expression(alert(1))
+  cleaned = cleaned.replace(/expression\s*\([^)]*\)/gi, '/* removed */');
+  // Remove behavior (IE HTC) — e.g. behavior: url(xss.htc)
+  cleaned = cleaned.replace(/behavior\s*:\s*[^;}]*/gi, '/* removed */');
+  // Remove -moz-binding (old Firefox XBL)
+  cleaned = cleaned.replace(/-moz-binding\s*:\s*[^;}]*/gi, '/* removed */');
+  // Remove url() with javascript: or data:text/html protocols
+  cleaned = cleaned.replace(/url\s*\(\s*['"]?\s*(?:javascript|data\s*:\s*text\/html)[^)]*\)/gi, '/* removed */');
+  // Remove @import to prevent loading external stylesheets
+  cleaned = cleaned.replace(/@import\s+[^;]+;/gi, '');
+  return cleaned;
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let sanitizerInstance: any = null;
 
@@ -70,6 +90,11 @@ function getSanitizer() {
             if ('target' in node || (node.tagName && node.tagName.toLowerCase() === 'a')) {
                 node.setAttribute('target', '_blank');
                 node.setAttribute('rel', 'noopener noreferrer');
+            }
+            // Strip dangerous CSS from inline style attributes
+            if (node.hasAttribute && node.hasAttribute('style')) {
+                const style = node.getAttribute('style') || '';
+                node.setAttribute('style', stripDangerousCss(style));
             }
         });
     }
@@ -131,8 +156,9 @@ export function sanitizeEmailHtml(html: string, allowImages: boolean): string {
 
   // Scope <style> blocks under .mail-html to prevent CSS leaking into the app
   sanitized = sanitized.replace(/<style([^>]*)>([\s\S]*?)<\/style>/gi, (_match: string, attrs: string, css: string) => {
-    // Remove @import to prevent loading external stylesheets
-    let scoped = css.replace(/@import\s+[^;]+;/gi, '');
+    // Strip all dangerous CSS constructs (expression, behavior, -moz-binding,
+    // javascript:/data:text/html URLs, and @import)
+    let scoped = stripDangerousCss(css);
     // Prefix each CSS rule with .mail-html
     scoped = scoped.replace(
       /([^\s@{}][^{}]*?)\{/g,
