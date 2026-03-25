@@ -53,6 +53,21 @@ const NAV_ITEMS: NavItemConfig[] = [
     icon: <LayoutDashboard size={20} />,
     allowedRoles: ['Admin', 'Manager', 'Head', 'Finance', 'HR', 'Employee', 'Coordinator']
   },
+  // People
+  {
+    id: 'employees',
+    path: '/dashboard/employees',
+    label: 'Employees',
+    icon: <Users size={20} />,
+    allowedRoles: ['Admin', 'Manager', 'Head', 'Finance', 'HR'] // Employee & Coordinator excluded
+  },
+  {
+    id: 'partners',
+    path: '/dashboard/partners',
+    label: 'Partners',
+    icon: <Handshake size={20} />,
+    allowedRoles: ['Admin', 'Manager', 'Head', 'Finance', 'Coordinator']
+  },
   // Daily Work
   {
     id: 'workspace',
@@ -97,20 +112,20 @@ const NAV_ITEMS: NavItemConfig[] = [
     icon: <MessageSquareText size={20} />,
     allowedRoles: ['Admin', 'Manager', 'Head', 'Finance', 'HR', 'Employee', 'Coordinator']
   },
-  // People
+  // Personal
   {
-    id: 'employees',
-    path: '/dashboard/employees',
-    label: 'Employees',
-    icon: <Users size={20} />,
-    allowedRoles: ['Admin', 'Manager', 'Head', 'Finance', 'HR'] // Employee & Coordinator excluded
+    id: 'leaves',
+    path: '/dashboard/leaves',
+    label: 'Leaves',
+    icon: <CalendarOff size={20} />,
+    allowedRoles: ['Admin', 'Manager', 'Head', 'Finance', 'HR', 'Employee', 'Coordinator']
   },
   {
-    id: 'partners',
-    path: '/dashboard/partners',
-    label: 'Partners',
-    icon: <Handshake size={20} />,
-    allowedRoles: ['Admin', 'Manager', 'Head', 'Finance', 'Coordinator']
+    id: 'notes',
+    path: '/dashboard/notes',
+    label: 'Notes',
+    icon: <NotebookPen size={20} />,
+    allowedRoles: ['Admin', 'Manager', 'Head', 'Finance', 'HR', 'Employee', 'Coordinator']
   },
   // Analytics
   {
@@ -126,21 +141,6 @@ const NAV_ITEMS: NavItemConfig[] = [
     label: 'Finance',
     icon: <CircleDollarSign size={20} />,
     allowedRoles: ['Admin', 'Manager', 'Head', 'Finance']
-  },
-  // Personal
-  {
-    id: 'leaves',
-    path: '/dashboard/leaves',
-    label: 'Leaves',
-    icon: <CalendarOff size={20} />,
-    allowedRoles: ['Admin', 'Manager', 'Head', 'Finance', 'HR', 'Employee', 'Coordinator']
-  },
-  {
-    id: 'notes',
-    path: '/dashboard/notes',
-    label: 'Notes',
-    icon: <NotebookPen size={20} />,
-    allowedRoles: ['Admin', 'Manager', 'Head', 'Finance', 'HR', 'Employee', 'Coordinator']
   },
 ];
 
