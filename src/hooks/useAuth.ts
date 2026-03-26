@@ -22,7 +22,12 @@ export const useLogin = () => {
         }
 
         const redirect = variables.redirect || "/dashboard";
-        router.push(redirect);
+        // Prevent open redirect: only allow relative paths starting with /
+        if (typeof redirect === 'string' && redirect.startsWith('/') && !redirect.startsWith('//')) {
+          router.push(redirect);
+        } else {
+          router.push('/dashboard');
+        }
       }
     },
   });
