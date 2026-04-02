@@ -55,7 +55,7 @@ export const doCompleteSignup = async (
 };
 
 export const verifyRegisterToken = async (registerToken: string): Promise<ApiResponse<VerifyTokenResponseDTO>> => {
-    const { data } = await axiosApi.get<ApiResponse<VerifyTokenResponseDTO>>(`/auth/register/verify-token?registerToken=${registerToken}`);
+    const { data } = await axiosApi.get<ApiResponse<VerifyTokenResponseDTO>>(`/auth/register/verify-token?registerToken=${encodeURIComponent(registerToken)}`);
     return data;
 };
 
