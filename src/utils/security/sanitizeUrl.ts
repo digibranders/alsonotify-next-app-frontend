@@ -18,6 +18,12 @@ export function sanitizeUrl(url?: string | null): string | undefined {
   const safeProtocols = ['http:', 'https:', 'mailto:', 'tel:', 'blob:'];
 
   try {
+    // Reject protocol-relative URLs (//evil.com) — they inherit the current
+    // page's scheme and redirect to an attacker-controlled host.
+    if (cleanedUrl.startsWith('//')) {
+      return 'about:blank';
+    }
+
     // If it's a relative URL, URL() constructor will throw.
     // We can test if it starts with valid relative prefixes.
     if (cleanedUrl.startsWith('/') || cleanedUrl.startsWith('#') || cleanedUrl.startsWith('?')) {
