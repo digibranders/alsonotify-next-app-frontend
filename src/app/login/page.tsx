@@ -19,7 +19,13 @@ function LoginForm() {
   const loginMutation = useLogin();
 
   const initialEmail = searchParams.get("email") || "";
-  const redirect = searchParams.get("redirect") || (searchParams.get("invite") ? `/dashboard/partners?invite=${searchParams.get("invite")}` : "/dashboard");
+  const rawRedirect = searchParams.get("redirect");
+  const invite = searchParams.get("invite");
+  const redirect = rawRedirect && rawRedirect.startsWith("/") && !rawRedirect.startsWith("//")
+    ? rawRedirect
+    : invite
+      ? `/dashboard/partners?invite=${encodeURIComponent(invite)}`
+      : "/dashboard";
 
   const [email, setEmail] = useState(initialEmail);
   const [password, setPassword] = useState("");
@@ -117,7 +123,7 @@ function LoginForm() {
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
+                  placeholder="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"
                   className="w-full h-12 pl-11 pr-11 bg-[#FAFAFA] border border-transparent focus:bg-white focus:border-[#ff3b3b] focus:ring-4 focus:ring-[#ff3b3b]/10 rounded-xl transition-all font-medium outline-none text-black"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}

@@ -7,6 +7,16 @@ import { UpgradeOrgDto } from "@/types/dto/user.dto";
 import { queryKeys } from "../lib/queryKeys";
 import { useUserDetails } from "./useUser";
 
+/** Ensure redirect targets are same-origin relative paths to prevent open-redirect attacks. */
+function getSafeRedirect(redirect: string | null | undefined): string {
+  const fallback = "/dashboard";
+  if (!redirect) return fallback;
+  if (redirect.startsWith("/") && !redirect.startsWith("//")) {
+    return redirect;
+  }
+  return fallback;
+}
+
 export const useLogin = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -21,8 +31,7 @@ export const useLogin = () => {
           queryClient.invalidateQueries({ queryKey: queryKeys.users.me() });
         }
 
-        const redirect = variables.redirect || "/dashboard";
-        router.push(redirect);
+        router.push(getSafeRedirect(variables.redirect));
       }
     },
   });
