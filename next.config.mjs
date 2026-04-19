@@ -106,7 +106,7 @@ const nextConfig = {
                             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
                             "img-src 'self' data: blob: https:",
                             "font-src 'self' data: https://fonts.gstatic.com",
-                            `connect-src 'self' ${new URL(process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000').origin} https://*.sentry.io https://challenges.cloudflare.com https://static.cloudflareinsights.com ws: wss:`,
+                            `connect-src 'self' ${new URL(process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000').origin} https://*.sentry.io https://challenges.cloudflare.com https://static.cloudflareinsights.com ${new URL(process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000').origin.replace(/^http/, 'ws')}`,
                             "frame-src 'self' https://challenges.cloudflare.com",
                             "object-src 'none'",
                             "base-uri 'self'",

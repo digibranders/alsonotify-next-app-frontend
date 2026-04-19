@@ -1,7 +1,7 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import Cookies from 'universal-cookie';
+import { isAuthenticated } from '@/services/cookies';
 import { NotificationToast } from '@/components/features/notifications/NotificationToast';
 import { getPriority } from '@/components/features/notifications/utils';
 
@@ -32,9 +32,7 @@ export function useWebSocket() {
   const connect = useCallback(() => {
     if (unmountedRef.current) return;
 
-    const cookies = new Cookies();
-    const token: string | undefined = cookies.get('_token');
-    if (!token) return; // Not authenticated yet
+    if (!isAuthenticated()) return;
 
     // Close any existing connection
     if (wsRef.current) {
@@ -43,7 +41,7 @@ export function useWebSocket() {
       wsRef.current = null;
     }
 
-    const ws = new WebSocket(`${WS_URL}/ws`, token);
+    const ws = new WebSocket(`${WS_URL}/ws`);
     wsRef.current = ws;
 
     ws.onopen = () => {

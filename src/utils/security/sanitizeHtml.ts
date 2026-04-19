@@ -35,12 +35,23 @@ const SHARED_CONFIG = {
 };
 
 /**
+ * Decode CSS unicode escape sequences (e.g. \70 → 'p') so that
+ * obfuscated property/at-rule names are normalised before pattern
+ * matching.  Without this, @im\70ort bypasses the @import filter.
+ */
+function normalizeCssEscapes(css: string): string {
+  return css.replace(/\\([0-9a-fA-F]{1,6})\s?/g, (_match, hex) => {
+    return String.fromCodePoint(parseInt(hex, 16));
+  });
+}
+
+/**
  * Strip dangerous CSS constructs that can execute code or exfiltrate data.
  * Removes: expression(), behavior:, -moz-binding:, url(javascript:...),
  * url(data:text/html...), and @import rules.
  */
 function stripDangerousCss(css: string): string {
-  let cleaned = css;
+  let cleaned = normalizeCssEscapes(css);
   // Remove CSS expressions (IE) — e.g. width: expression(alert(1))
   cleaned = cleaned.replace(/expression\s*\([^)]*\)/gi, '/* removed */');
   // Remove behavior (IE HTC) — e.g. behavior: url(xss.htc)
@@ -49,8 +60,8 @@ function stripDangerousCss(css: string): string {
   cleaned = cleaned.replace(/-moz-binding\s*:\s*[^;}]*/gi, '/* removed */');
   // Remove url() with javascript: or data:text/html protocols
   cleaned = cleaned.replace(/url\s*\(\s*['"]?\s*(?:javascript|data\s*:\s*text\/html)[^)]*\)/gi, '/* removed */');
-  // Remove @import to prevent loading external stylesheets
-  cleaned = cleaned.replace(/@import\s+[^;]+;/gi, '');
+  // Remove @import to prevent loading external stylesheets (with or without trailing semicolon)
+  cleaned = cleaned.replace(/@import\s[^;{}]*(?:;|$)/gi, '');
   return cleaned;
 }
 
