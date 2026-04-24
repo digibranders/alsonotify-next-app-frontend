@@ -13,6 +13,12 @@ import AuthLayout from "@/components/features/auth/AuthLayout";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { Turnstile } from "@marsidev/react-turnstile";
 
+function isSafeRedirect(url: string): boolean {
+  if (!url || !url.startsWith('/')) return false;
+  if (url.startsWith('//')) return false;
+  return true;
+}
+
 function LoginForm() {
   const { message } = App.useApp();
   const searchParams = useSearchParams();
@@ -20,10 +26,9 @@ function LoginForm() {
 
   const initialEmail = searchParams.get("email") || "";
   const rawRedirect = searchParams.get("redirect");
-  const invite = searchParams.get("invite");
-  const redirect = (rawRedirect && rawRedirect.startsWith("/") && !rawRedirect.startsWith("//"))
+  const redirect = rawRedirect && isSafeRedirect(rawRedirect)
     ? rawRedirect
-    : (invite ? `/dashboard/partners?invite=${encodeURIComponent(invite)}` : "/dashboard");
+    : (searchParams.get("invite") ? `/dashboard/partners?invite=${searchParams.get("invite")}` : "/dashboard");
 
   const [email, setEmail] = useState(initialEmail);
   const [password, setPassword] = useState("");
