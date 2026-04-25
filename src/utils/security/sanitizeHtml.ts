@@ -34,24 +34,44 @@ const SHARED_CONFIG = {
   FORBID_ATTR: ['on*', 'form*', 'action', 'formaction'], // Explicitly forbid event handlers
 };
 
+const SAFE_CSS_PROPERTIES = new Set([
+  'color', 'background-color', 'background',
+  'font-size', 'font-weight', 'font-style', 'font-family',
+  'text-align', 'text-decoration', 'text-indent', 'text-transform',
+  'line-height', 'letter-spacing', 'word-spacing',
+  'margin', 'margin-top', 'margin-right', 'margin-bottom', 'margin-left',
+  'padding', 'padding-top', 'padding-right', 'padding-bottom', 'padding-left',
+  'border', 'border-top', 'border-right', 'border-bottom', 'border-left',
+  'border-color', 'border-style', 'border-width', 'border-radius',
+  'display', 'list-style', 'list-style-type',
+  'width', 'max-width', 'min-width',
+  'height', 'max-height', 'min-height',
+  'vertical-align', 'white-space', 'overflow', 'word-break', 'word-wrap',
+  'float', 'clear',
+  'opacity',
+  'table-layout', 'border-collapse', 'border-spacing',
+]);
+
 /**
- * Strip dangerous CSS constructs that can execute code or exfiltrate data.
- * Removes: expression(), behavior:, -moz-binding:, url(javascript:...),
- * url(data:text/html...), and @import rules.
+ * Strip dangerous CSS by only allowing known-safe property names and
+ * rejecting any value that contains url(), expression(), javascript:, or data:.
+ * This allowlist approach is far more resilient than regex-based denylisting.
  */
 function stripDangerousCss(css: string): string {
-  let cleaned = css;
-  // Remove CSS expressions (IE) — e.g. width: expression(alert(1))
-  cleaned = cleaned.replace(/expression\s*\([^)]*\)/gi, '/* removed */');
-  // Remove behavior (IE HTC) — e.g. behavior: url(xss.htc)
-  cleaned = cleaned.replace(/behavior\s*:\s*[^;}]*/gi, '/* removed */');
-  // Remove -moz-binding (old Firefox XBL)
-  cleaned = cleaned.replace(/-moz-binding\s*:\s*[^;}]*/gi, '/* removed */');
-  // Remove url() with javascript: or data:text/html protocols
-  cleaned = cleaned.replace(/url\s*\(\s*['"]?\s*(?:javascript|data\s*:\s*text\/html)[^)]*\)/gi, '/* removed */');
-  // Remove @import to prevent loading external stylesheets
-  cleaned = cleaned.replace(/@import\s+[^;]+;/gi, '');
-  return cleaned;
+  return css
+    .split(';')
+    .filter(decl => {
+      const trimmed = decl.trim();
+      if (!trimmed) return false;
+      const colonIndex = trimmed.indexOf(':');
+      if (colonIndex === -1) return false;
+      const property = trimmed.substring(0, colonIndex).trim().toLowerCase();
+      if (!SAFE_CSS_PROPERTIES.has(property)) return false;
+      const value = trimmed.substring(colonIndex + 1).toLowerCase();
+      if (/url\s*\(|expression\s*\(|javascript:|data:/i.test(value)) return false;
+      return true;
+    })
+    .join('; ');
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -158,7 +178,7 @@ export function sanitizeEmailHtml(html: string, allowImages: boolean): string {
   sanitized = sanitized.replace(/<style([^>]*)>([\s\S]*?)<\/style>/gi, (_match: string, attrs: string, css: string) => {
     // Strip all dangerous CSS constructs (expression, behavior, -moz-binding,
     // javascript:/data:text/html URLs, and @import)
-    let scoped = stripDangerousCss(css);
+    let scoped = stripDangerousEmailCss(css);
     // Prefix each CSS rule with .mail-html
     scoped = scoped.replace(
       /([^\s@{}][^{}]*?)\{/g,
@@ -176,4 +196,19 @@ export function sanitizeEmailHtml(html: string, allowImages: boolean): string {
   });
 
   return sanitized;
+}
+
+/**
+ * Strip dangerous constructs from CSS inside email <style> blocks.
+ * Uses a denylist here (not the property allowlist) because email <style>
+ * blocks contain full CSS rules, not just inline declarations.
+ */
+function stripDangerousEmailCss(css: string): string {
+  let cleaned = css;
+  cleaned = cleaned.replace(/expression\s*\([^)]*\)/gi, '/* removed */');
+  cleaned = cleaned.replace(/behavior\s*:\s*[^;}]*/gi, '/* removed */');
+  cleaned = cleaned.replace(/-moz-binding\s*:\s*[^;}]*/gi, '/* removed */');
+  cleaned = cleaned.replace(/url\s*\(\s*['"]?\s*(?:javascript|data\s*:\s*text\/html)[^)]*\)/gi, '/* removed */');
+  cleaned = cleaned.replace(/@import\s+[^;]+;/gi, '');
+  return cleaned;
 }

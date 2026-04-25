@@ -69,9 +69,26 @@ export const getTeamsConnectionStatus = async (): Promise<ApiResponse<TeamsConne
   return data;
 };
 
+const ALLOWED_OAUTH_HOSTS = [
+  "login.microsoftonline.com",
+  "login.microsoft.com",
+];
+
+function isAllowedOAuthUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === "https:" && ALLOWED_OAUTH_HOSTS.some(h => parsed.hostname === h || parsed.hostname.endsWith("." + h));
+  } catch {
+    return false;
+  }
+}
+
 // Connect to Microsoft Teams (OAuth)
 export const MicrosoftUserOAuth = async (): Promise<ApiResponse<string>> => {
   const { data } = await axiosApi.get<ApiResponse<string>>("/microsoft/auth/login");
+  if (data.result && !isAllowedOAuthUrl(data.result)) {
+    throw new Error("Unexpected OAuth redirect URL");
+  }
   return data;
 };
 
