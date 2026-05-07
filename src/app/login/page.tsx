@@ -19,7 +19,9 @@ function LoginForm() {
   const loginMutation = useLogin();
 
   const initialEmail = searchParams.get("email") || "";
-  const redirect = searchParams.get("redirect") || (searchParams.get("invite") ? `/dashboard/partners?invite=${searchParams.get("invite")}` : "/dashboard");
+  const rawRedirect = searchParams.get("redirect");
+  const isValidRedirect = rawRedirect && rawRedirect.startsWith('/') && !rawRedirect.startsWith('//');
+  const redirect = isValidRedirect ? rawRedirect : (searchParams.get("invite") ? `/dashboard/partners?invite=${searchParams.get("invite")}` : "/dashboard");
 
   const [email, setEmail] = useState(initialEmail);
   const [password, setPassword] = useState("");

@@ -37,7 +37,7 @@ const SHARED_CONFIG = {
 /**
  * Strip dangerous CSS constructs that can execute code or exfiltrate data.
  * Removes: expression(), behavior:, -moz-binding:, url(javascript:...),
- * url(data:text/html...), and @import rules.
+ * url(data:text/html...), url(http/https:...), and @import rules.
  */
 function stripDangerousCss(css: string): string {
   let cleaned = css;
@@ -49,6 +49,8 @@ function stripDangerousCss(css: string): string {
   cleaned = cleaned.replace(/-moz-binding\s*:\s*[^;}]*/gi, '/* removed */');
   // Remove url() with javascript: or data:text/html protocols
   cleaned = cleaned.replace(/url\s*\(\s*['"]?\s*(?:javascript|data\s*:\s*text\/html)[^)]*\)/gi, '/* removed */');
+  // Remove url() with http/https to prevent external resource loading and data exfiltration
+  cleaned = cleaned.replace(/url\s*\(\s*['"]?\s*https?:[^)]*\)/gi, '/* removed */');
   // Remove @import to prevent loading external stylesheets
   cleaned = cleaned.replace(/@import\s+[^;]+;/gi, '');
   return cleaned;

@@ -22,7 +22,8 @@ export const useLogin = () => {
         }
 
         const redirect = variables.redirect || "/dashboard";
-        router.push(redirect);
+        const safeRedirect = (redirect.startsWith("/") && !redirect.startsWith("//")) ? redirect : "/dashboard";
+        router.push(safeRedirect);
       }
     },
   });
