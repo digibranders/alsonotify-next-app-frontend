@@ -155,6 +155,12 @@ export function sanitizeEmailHtml(html: string, allowImages: boolean): string {
     ADD_ATTR: ['target', 'rel'],
     // Allow style tags for proper email rendering
     ADD_TAGS: ['style'],
+    // REQUIRED for ADD_TAGS: ['style'] to have any effect. Without it the HTML
+    // parser hoists a leading <style> into <head>, and DOMPurify returns only
+    // body content — so the element was silently dropped and the scoping block
+    // below was dead code from the day it was written. FORCE_BODY parses the
+    // fragment inside <body>, which is where email markup belongs anyway.
+    FORCE_BODY: true,
   });
 
   // When images are blocked, strip background-image URLs from inline styles
@@ -167,17 +173,24 @@ export function sanitizeEmailHtml(html: string, allowImages: boolean): string {
     // Strip all dangerous CSS constructs (expression, behavior, -moz-binding,
     // javascript:/data:text/html URLs, and @import)
     let scoped = stripDangerousCss(css);
-    // Prefix each CSS rule with .mail-html
+    // Prefix each CSS rule with .mail-html.
+    //
+    // The prelude is anchored to the start of the stylesheet or to a preceding
+    // brace, and must not begin with '@'. The previous pattern
+    // (/([^\s@{}][^{}]*?)\{/g) excluded '@' only at the first character it
+    // tried, so for "@media print {" it simply started matching one character
+    // later and produced "@.mail-html media print {" — the at-rule guard below
+    // never fired, because the captured selector was "media print". Rules
+    // NESTED inside an at-rule are still scoped, which is what we want.
     scoped = scoped.replace(
-      /([^\s@{}][^{}]*?)\{/g,
-      (ruleMatch: string, selector: string) => {
-        // Don't scope @media, @font-face, etc.
-        if (selector.trim().startsWith('@')) return ruleMatch;
+      /(^|[{}])([^{}@][^{}]*?)\{/g,
+      (ruleMatch: string, delim: string, selector: string) => {
+        if (!selector.trim()) return ruleMatch;
         const scopedSelectors = selector
           .split(',')
-          .map((s: string) => `.mail-html ${s.trim()}`)
+          .map((sel: string) => `.mail-html ${sel.trim()}`)
           .join(', ');
-        return `${scopedSelectors} {`;
+        return `${delim}${scopedSelectors} {`;
       }
     );
     return `<style${attrs}>${scoped}</style>`;

@@ -6,7 +6,7 @@ _Regenerated from `pnpm vitest run --coverage` on 2026-09-07. The figures below
 this line were previously 60 files / 623 tests, which had drifted._
 
 - **Test files**: 73
-- **Tests**: 806 (all passing)
+- **Tests**: 813 (all passing)
 - **Statement coverage**: 58.83%
 - **Branch coverage**: 57.24%
 - **Function coverage**: 51.77%
@@ -17,7 +17,7 @@ All metrics **pass** the configured 30% thresholds.
 ### Previous State
 
 - Test files: 23 → **73** (+50)
-- Tests: 121 → **806** (+685)
+- Tests: 121 → **813** (+692)
 - Statements: 32.47% → **58.83%**
 - Branches: 28.09% → **57.24%**
 - Functions: 23.27% → **51.77%**
@@ -38,7 +38,7 @@ a real measurement, just an old one._
 | Context providers | 1 | |
 | Utilities | 20 | includes 4 mapper suites |
 | Lib | 11 | includes 8 workflow-engine suites |
-| **Total** | **73** | 806 tests |
+| **Total** | **73** | 813 tests |
 
 _Counted on disk 2026-09-07. The previous version of this table claimed 8
 component, 2 hook and 3 service test files with "~5%" style percentages; those
@@ -64,8 +64,9 @@ Remaining, in rough order of value:
    stale UI with no error, so this is worth finishing.
 3. **Modal and form components.** TaskForm, LeaveApplyModal, RequirementsForm —
    user-facing validation, currently untested.
-4. **The `<style>` handling in `sanitizeEmailHtml`** — see the section at the
-   end of this document. Not a test gap: the code is unreachable.
+4. ~~**The `<style>` handling in `sanitizeEmailHtml`**~~ — fixed 2026-09-07, see
+   the section at the end of this document. It was unreachable code, not a test
+   gap; it is now live and covered.
 
 ---
 
@@ -117,28 +118,35 @@ strips scripts, `on*` handlers and `javascript:` URLs correctly, and the new
 tests assert each of those. The risk was that a refactor could have reopened
 them silently.
 
-### Found while writing those tests
+### Two bugs found and fixed while writing those tests
 
-`sanitizeHtml.ts:150-183` sets `ADD_TAGS: ['style']` with the comment *"Allow
-`<style>` tags for email layout (Outlook/marketing emails depend on them)"*, and
-then ~20 lines scope those blocks under `.mail-html`.
+**1. The `<style>` handling never ran.** `sanitizeHtml.ts` set
+`ADD_TAGS: ['style']` with the comment *"Allow `<style>` tags for email layout
+(Outlook/marketing emails depend on them)"*, then spent ~20 lines scoping those
+blocks under `.mail-html`. All of it was dead.
 
-**That scoping code is unreachable.** DOMPurify with
-`USE_PROFILES: { html: true }` removes the `<style>` element and its contents
-regardless of `ADD_TAGS`, so the regex never has a block to rewrite:
+The cause was neither `ADD_TAGS` nor `USE_PROFILES`: without `FORCE_BODY`, the
+HTML parser hoists a leading `<style>` into `<head>`, and DOMPurify returns only
+body content — so the element was dropped before the scoping regex ever saw it.
+Adding `FORCE_BODY: true` makes the documented intent real. Marketing and
+Outlook emails now render with their styles, scoped so they cannot restyle the
+app around them.
 
-```
-sanitizeEmailHtml('<style>body{color:red}</style><p>x</p>', true) === '<p>x</p>'
-```
+**2. Enabling it exposed a bug in the scoping regex.** The old pattern
+`/([^\s@{}][^{}]*?)\{/g` excluded `@` only at the first character it tried, so
+for `@media print {` it began matching one character later and emitted
+`@.mail-html media print {` — invalid CSS that drops the whole block. The
+at-rule guard never fired, because the captured selector was `media print`, not
+`@media print`. The pattern now anchors the prelude to the start of the
+stylesheet or a preceding brace and rejects one beginning with `@`, so at-rules
+survive intact while the rules **nested inside them** are still scoped.
 
-Coverage confirms it — lines 169-183 are the only part of the function still
-uncovered, because they cannot execute.
+Both fixes are independently guarded: removing `FORCE_BODY` fails 6 tests,
+reverting the regex fails 2. Because the style path is live now, its CSS
+sanitising is covered too — `expression()`, `behavior:`, `-moz-binding`,
+`@import`, `javascript:` URLs and cross-origin (including protocol-relative)
+`url()` all have tests.
 
-- **Security impact: none.** Stripping `<style>` is the safer direction.
-- **Functional impact: real.** Marketing and Outlook emails that rely on
-  `<style>` render unstyled, which is the opposite of the stated intent.
-
-Not fixed here: making `<style>` survive is a behaviour change in the riskier
-direction and belongs in its own task with its own review. The tests assert the
-current behaviour and are written to fail if `<style>` ever starts surviving, so
-the dead branch cannot come alive unnoticed.
+Module coverage went 53.44% → **82.75%** statements, **88.46%** lines. The
+previously unreachable block at lines 169-183 is now exercised; the only
+uncovered region left is the server-side jsdom fallback.
