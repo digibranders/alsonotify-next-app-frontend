@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { sanitizeRichText, sanitizeRichTextForEditor } from './sanitizeHtml';
+import { sanitizeEmailHtml, sanitizeRichText, sanitizeRichTextForEditor } from './sanitizeHtml';
 
 describe('sanitizeHtml', () => {
     describe('sanitizeRichText', () => {
@@ -110,5 +110,130 @@ describe('sanitizeHtml', () => {
             const input = '<p>Test</p>';
             expect(sanitizeRichTextForEditor(input)).toBe(input);
          });
+    });
+});
+
+/**
+ * sanitizeEmailHtml feeds both the iframe srcDoc and the MailPage body and had
+ * ZERO tests — coverage showed lines 142-186 entirely uncovered while the rest
+ * of this module sat at ~53%.
+ *
+ * Both recorded XSS findings against this module are genuinely fixed in the
+ * code; this is a coverage gap, not a live vulnerability. These tests exist so
+ * a future refactor cannot silently reopen them.
+ */
+describe('sanitizeEmailHtml', () => {
+    it('returns an empty string for empty input', () => {
+        expect(sanitizeEmailHtml('', true)).toBe('');
+    });
+
+    it('strips script tags', () => {
+        const out = sanitizeEmailHtml('<p>hi</p><script>alert(1)</script>', true);
+
+        expect(out).not.toContain('<script');
+        expect(out).not.toContain('alert(1)');
+        expect(out).toContain('hi');
+    });
+
+    it('strips on* event handlers', () => {
+        const out = sanitizeEmailHtml('<div onclick="alert(1)">x</div>', true);
+
+        expect(out).not.toContain('onclick');
+        expect(out).not.toContain('alert(1)');
+    });
+
+    it('strips iframe, object, embed and form controls', () => {
+        for (const tag of ['iframe', 'object', 'embed', 'form', 'input', 'textarea', 'button']) {
+            const out = sanitizeEmailHtml(`<${tag}></${tag}>`, true);
+            expect(out).not.toContain(`<${tag}`);
+        }
+    });
+
+    it('preserves safe formatting markup', () => {
+        const out = sanitizeEmailHtml('<p><strong>bold</strong> and <em>italic</em></p>', true);
+
+        expect(out).toContain('<strong>');
+        expect(out).toContain('<em>');
+        expect(out).toContain('bold');
+    });
+
+    it('keeps images when allowImages is true', () => {
+        const out = sanitizeEmailHtml('<img src="https://example.com/a.png">', true);
+
+        expect(out).toContain('<img');
+    });
+
+    it('removes images when allowImages is false', () => {
+        const out = sanitizeEmailHtml('<img src="https://tracker.example/pixel.gif">', false);
+
+        expect(out).not.toContain('<img');
+    });
+
+    it('strips background-image urls when images are blocked, so tracking pixels cannot load via CSS', () => {
+        const out = sanitizeEmailHtml(
+            '<div style="background-image: url(https://tracker.example/p.gif)">x</div>',
+            false,
+        );
+
+        expect(out).not.toContain('tracker.example');
+    });
+
+    /**
+     * FINDING, 2026-09-07. The code sets ADD_TAGS: ['style'] with the comment
+     * "Allow <style> tags for email layout (Outlook/marketing emails depend on
+     * them)", and then ~20 lines scope those blocks under .mail-html.
+     *
+     * That scoping code is DEAD. DOMPurify with USE_PROFILES: { html: true }
+     * removes the <style> element and its contents regardless of ADD_TAGS, so
+     * the regex never has a block to rewrite. Verified empirically:
+     *   sanitizeEmailHtml('<style>body{color:red}</style><p>x</p>', true)
+     *     === '<p>x</p>'
+     *
+     * These tests assert what the function ACTUALLY does, not what the comment
+     * claims, and are deliberately written to fail if <style> ever starts
+     * surviving — at which point the scoping logic becomes live and needs its
+     * own tests before it can be trusted.
+     *
+     * Security impact: none. Stripping style is the SAFER direction. The cost
+     * is functional: marketing and Outlook emails that depend on <style>
+     * render unstyled, which is the opposite of the stated intent.
+     */
+    it('strips style blocks entirely — the .mail-html scoping code is dead', () => {
+        const out = sanitizeEmailHtml('<style>body { color: red; }</style><p>x</p>', true);
+
+        expect(out).not.toContain('<style');
+        expect(out).not.toContain('color: red');
+        expect(out).toContain('<p>x</p>');
+        // If this flips, the scoping branch has become reachable.
+        expect(out).not.toContain('.mail-html');
+    });
+
+    it('drops a comma-separated rule with the rest of the style block', () => {
+        const out = sanitizeEmailHtml('<style>h1, h2 { color: red; }</style>', true);
+
+        expect(out).toBe('');
+    });
+
+    it('drops @media blocks too, since the whole element goes', () => {
+        const out = sanitizeEmailHtml('<style>@media print { p { color: red; } }</style>', true);
+
+        expect(out).toBe('');
+    });
+
+    it('removes dangerous CSS constructs, by removing the style element wholesale', () => {
+        const out = sanitizeEmailHtml(
+            '<style>p { width: expression(alert(1)); behavior: url(x.htc); } @import url(evil.css);</style>',
+            true,
+        );
+
+        // Passes because the element is gone, not because stripDangerousCss ran.
+        expect(out).toBe('');
+        expect(out).not.toContain('expression(');
+    });
+
+    it('neutralises javascript: URLs in anchors', () => {
+        const out = sanitizeEmailHtml('<a href="javascript:alert(1)">x</a>', true);
+
+        expect(out).not.toContain('javascript:');
     });
 });
