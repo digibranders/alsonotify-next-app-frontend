@@ -408,9 +408,15 @@ environment, never in a committed file.
 | `test`           | `vitest run`                         | Run full test suite once                        |
 | `test:watch`     | `vitest`                             | Test suite in watch mode                        |
 | `test:coverage`  | `vitest run --coverage`              | Coverage report                                 |
-| `ci`             | `lint && typecheck && test && build` | Full CI validation pipeline                     |
+| `analyze`        | `next experimental-analyze`          | Inspect bundle composition                      |
 
 > Run `pnpm run build` after every significant change. The build must pass before any PR is opened.
+
+There is no single `ci` script. To run what CI runs, chain the four checks:
+
+```bash
+pnpm run lint && pnpm run typecheck && pnpm test && pnpm run build
+```
 
 ---
 
