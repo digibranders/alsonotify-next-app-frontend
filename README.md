@@ -322,9 +322,11 @@ Reference implementation: `src/components/features/tasks/rows/TaskRow.tsx`
 
 ### Prerequisites
 
-- **Node.js** v18+
-- **pnpm** v8+ (this project uses pnpm exclusively — do not use npm or yarn)
+- **Node.js** 22, as pinned in `.nvmrc`
+- **pnpm** (this project uses pnpm exclusively; do not use npm or yarn)
 - AlsoNotify Backend running on port 4000
+- A Cloudflare Turnstile site key. Sign-in does not work without one; see
+  [Environment Variables](#environment-variables) for the development test key.
 
 ### Installation
 
@@ -337,7 +339,7 @@ cd alsonotify-frontend
 pnpm install
 
 # 3. Configure environment
-cp .env.local.example .env.local
+cp .env.example .env.local
 # Edit .env.local with your values
 
 # 4. Start the development server (Turbopack enabled)
@@ -350,26 +352,47 @@ The app starts on `http://localhost:3000`.
 
 ## Environment Variables
 
-Create `.env.local` at the project root:
+Copy `.env.example` to `.env.local` at the project root:
 
 ```env
-# ── API ───────────────────────────────────────────────────────
+# Base URL of the backend API. Also builds the connect-src entry in the CSP.
 NEXT_PUBLIC_API_URL=http://localhost:4000
 
-# ── Developer Tools ────────────────────────────────────────────
-# Comma-separated email addresses with access to dev/debug UI
-NEXT_PUBLIC_DEVELOPER_EMAILS=dev@example.com
-
-# ── Cloudflare Turnstile (CAPTCHA) ────────────────────────────
+# Cloudflare Turnstile site key, rendered on the login and register pages.
 NEXT_PUBLIC_TURNSTILE_SITE_KEY=
 
-# ── Sentry ────────────────────────────────────────────────────
+# Optional. Blank disables Sentry reporting.
 NEXT_PUBLIC_SENTRY_DSN=
-SENTRY_AUTH_TOKEN=
-
-# ── Vercel (auto-injected in Vercel deployments) ───────────────
-# NEXT_PUBLIC_VERCEL_ENV=production
 ```
+
+Every `NEXT_PUBLIC_*` value is inlined into the client bundle at build time, so
+a change only takes effect after the dev server restarts. Never put a secret in
+one: it ships to the browser.
+
+### Notes on individual values
+
+**`NEXT_PUBLIC_API_URL`** feeds the `connect-src` directive in the Content
+Security Policy built in `next.config.mjs`. A wrong value shows up as blocked
+requests in the browser console rather than as a clear error.
+
+**`NEXT_PUBLIC_TURNSTILE_SITE_KEY`** must be set for sign-in to work. Left
+empty, the widget throws `Invalid input for parameter "sitekey"` and never
+issues a token, so the backend rejects every login and registration. Cloudflare
+publishes an always-pass test key for development: `1x00000000000000000000AA`.
+The matching secret key is a **backend** variable (`TURNSTILE_SECRET_KEY`);
+this app never verifies tokens itself.
+
+**`NEXT_PUBLIC_SENTRY_DSN`** is shared by the browser, server and edge runtimes.
+The Sentry org and project are hardcoded in `next.config.mjs`, so a normal build
+needs nothing else.
+
+### Build-time only
+
+`SENTRY_AUTH_TOKEN` is not part of `.env.example` and is not needed to run the
+app locally. The Sentry build plugin reads it from the environment to upload
+source maps, which `next.config.mjs` enables via
+`sourcemaps.deleteSourcemapsAfterUpload`. Set it in CI or your deployment
+environment, never in a committed file.
 
 ---
 
@@ -385,9 +408,15 @@ SENTRY_AUTH_TOKEN=
 | `test`           | `vitest run`                         | Run full test suite once                        |
 | `test:watch`     | `vitest`                             | Test suite in watch mode                        |
 | `test:coverage`  | `vitest run --coverage`              | Coverage report                                 |
-| `ci`             | `lint && typecheck && test && build` | Full CI validation pipeline                     |
+| `analyze`        | `next experimental-analyze`          | Inspect bundle composition                      |
 
 > Run `pnpm run build` after every significant change. The build must pass before any PR is opened.
+
+There is no single `ci` script. To run what CI runs, chain the four checks:
+
+```bash
+pnpm run lint && pnpm run typecheck && pnpm test && pnpm run build
+```
 
 ---
 
@@ -443,7 +472,7 @@ Before opening a PR, the following must pass:
 - [ ] No `any` or `as any` introduced
 - [ ] Frontend types updated if backend response shapes changed
 - [ ] No dead code; no commented-out blocks
-- [ ] New env variables added to `.env.local.example`
+- [ ] New env variables added to `.env.example`
 - [ ] Components use Tailwind/AntD — no inline styles
 
 **Branch naming:** `feat/short-description`, `fix/short-description`
