@@ -12,7 +12,6 @@ import { FormatIcon } from './FormatIcon';
 
 interface TeamsMessageInputProps {
   onSend: (content: string, contentType: 'html' | 'text') => void;
-  isSending: boolean;
   replyingTo?: TeamsChatMessage | null;
   onCancelReply?: () => void;
 }
@@ -54,7 +53,6 @@ function ToolbarIcon({
 
 export function TeamsMessageInput({
   onSend,
-  isSending,
   replyingTo,
   onCancelReply,
 }: TeamsMessageInputProps) {
@@ -216,9 +214,10 @@ export function TeamsMessageInput({
           <Tooltip title="Send (Enter)">
             <button
               onClick={handleSend}
-              disabled={isEmpty || isSending}
+              aria-label="Send message"
+              disabled={isEmpty}
               className={`w-7 h-7 flex items-center justify-center rounded transition-colors ${
-                isEmpty || isSending
+                isEmpty
                   ? 'text-[#CCCCCC] cursor-not-allowed'
                   : 'text-[#ff3b3b] hover:bg-[#FEF3F2] cursor-pointer'
               }`}

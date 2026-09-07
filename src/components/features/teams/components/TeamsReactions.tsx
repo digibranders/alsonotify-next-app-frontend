@@ -26,12 +26,17 @@ interface ReactionPillsProps {
 export function ReactionPills({ reactions }: ReactionPillsProps) {
   if (!reactions || reactions.length === 0) return null;
 
-  // Group by reaction type
+  // Group by reaction type. A reaction Graph gave us no type for cannot be
+  // drawn as anything -- there is no pill and no tooltip to put it in -- so it
+  // is skipped rather than rendered as a "null" pill.
   const grouped = reactions.reduce<Record<string, string[]>>((acc, r) => {
+    if (!r.reactionType) return acc;
     if (!acc[r.reactionType]) acc[r.reactionType] = [];
-    acc[r.reactionType].push(r.user.displayName);
+    acc[r.reactionType].push(r.user?.displayName || 'Unknown');
     return acc;
   }, {});
+
+  if (Object.keys(grouped).length === 0) return null;
 
   return (
     <div className="flex items-center gap-1 mt-1">

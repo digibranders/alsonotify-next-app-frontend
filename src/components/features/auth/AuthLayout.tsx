@@ -1,7 +1,6 @@
 'use client';
 
 import { ReactNode } from "react";
-import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import BrandLogo from "@/assets/images/logo-white.png";
@@ -25,34 +24,22 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
                 {/* Animated Background Stars */}
                 <div className="absolute inset-0 overflow-hidden pointer-events-none">
                     {/* Star 1 - Top Right */}
-                    <motion.div
-                        animate={{
-                            opacity: [0.4, 0.7, 0.4],
-                            scale: [1, 1.15, 1],
-                            rotate: [0, 5, 0]
-                        }}
-                        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-                        className="absolute top-[-100px] right-[-100px] w-[700px] h-[700px] text-[#FF3B3B] opacity-40 blur-[90px]"
+                    <div
+                        className="absolute top-[-100px] right-[-100px] w-[700px] h-[700px] text-[#FF3B3B] opacity-40 blur-[90px] auth-star-1"
                     >
                         <svg viewBox="0 0 996 990" className="w-full h-full fill-current">
                             <path d={STAR_PATH} />
                         </svg>
-                    </motion.div>
+                    </div>
 
                     {/* Star 2 - Bottom Left */}
-                    <motion.div
-                        animate={{
-                            opacity: [0.3, 0.6, 0.3],
-                            scale: [1, 1.2, 1],
-                            rotate: [0, -5, 0]
-                        }}
-                        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                        className="absolute bottom-[-150px] left-[-150px] w-[600px] h-[600px] text-[#FF3B3B] opacity-30 blur-[80px]"
+                    <div
+                        className="absolute bottom-[-150px] left-[-150px] w-[600px] h-[600px] text-[#FF3B3B] opacity-30 blur-[80px] auth-star-2"
                     >
                         <svg viewBox="0 0 996 990" className="w-full h-full fill-current">
                             <path d={STAR_PATH} />
                         </svg>
-                    </motion.div>
+                    </div>
                 </div>
 
                 {/* Brand Header */}
@@ -72,22 +59,16 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
 
                 {/* Main Text Content */}
                 <div className="relative z-10 max-w-xl space-y-8 my-auto">
-                    <motion.h1
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8, delay: 0.2 }}
-                        className="text-6xl font-extrabold leading-[1.1] tracking-tight"
+                    <h1
+                        className="text-6xl font-extrabold leading-[1.1] tracking-tight auth-fade-up auth-delay-200"
                     >
                         Manage projects, clients, and tasks all in <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#ffce64] via-[#ff5b52] to-[#ffffff]">one place.</span>
-                    </motion.h1>
-                    <motion.p
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 0.8, delay: 0.4 }}
-                        className="text-base font-medium text-[#999999] leading-relaxed max-w-md"
+                    </h1>
+                    <p
+                        className="text-base font-medium text-[#999999] leading-relaxed max-w-md auth-fade-in auth-delay-400"
                     >
                         Streamline your agency operations with the platform designed for modern teams. Track profitability, manage resources, and scale your business.
-                    </motion.p>
+                    </p>
                 </div>
 
                 {/* Footer Links */}

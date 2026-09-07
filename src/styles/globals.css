@@ -1052,3 +1052,61 @@ input[type="number"] {
 .linkedin-skill-dropdown .ant-select-item-option-state {
     display: flex !important;
 }
+/* ---------------------------------------------------------------------------
+ * Auth-page animations
+ *
+ * These replace framer-motion on the auth critical path — the first thing a
+ * logged-out user loads, and the point at which they are least tolerant of a
+ * slow page. Every animation here was a simple fade/scale or an infinite
+ * keyframe loop; none needed a layout engine.
+ *
+ * framer-motion honoured prefers-reduced-motion automatically. Hand-rolled CSS
+ * does not, so the media query at the bottom is load-bearing, not decorative.
+ * ------------------------------------------------------------------------- */
+
+@keyframes auth-fade-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes auth-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes auth-scale-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* Matches the previous framer easing: [0.22, 1, 0.36, 1] */
+.auth-fade-up  { animation: auth-fade-up  500ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+.auth-fade-in  { animation: auth-fade-in  800ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+.auth-scale-in { animation: auth-scale-in 500ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+.auth-delay-200 { animation-delay: 200ms; }
+.auth-delay-400 { animation-delay: 400ms; }
+
+/* The two blurred background stars on the auth split-screen. */
+@keyframes auth-star-1 {
+  0%, 100% { opacity: 0.4; transform: scale(1)    rotate(0deg); }
+  50%      { opacity: 0.7; transform: scale(1.15) rotate(5deg); }
+}
+
+@keyframes auth-star-2 {
+  0%, 100% { opacity: 0.3; transform: scale(1)   rotate(0deg); }
+  50%      { opacity: 0.6; transform: scale(1.2) rotate(-5deg); }
+}
+
+.auth-star-1 { animation: auth-star-1  8s ease-in-out infinite; }
+.auth-star-2 { animation: auth-star-2 10s ease-in-out infinite 1s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-fade-up,
+  .auth-fade-in,
+  .auth-scale-in,
+  .auth-star-1,
+  .auth-star-2 {
+    animation: none;
+  }
+}

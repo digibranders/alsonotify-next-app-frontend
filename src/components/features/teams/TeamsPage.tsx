@@ -44,7 +44,16 @@ export function TeamsPage() {
               selectedChatId={selectedChatId}
               onSelectChat={setSelectedChatId}
             />
-            <TeamsChatView chatId={selectedChatId} />
+            {/*
+              Keyed so switching conversations gets a fresh view rather than
+              the previous one's state. TeamsChatView holds `replyingTo`
+              locally, so without this, selecting chat A, clicking Reply and
+              switching to chat B left the composer saying "Replying to
+              <someone in A>". Its scroll position came along too: the
+              follow-the-bottom effect keys on messages.length, and switching
+              between two conversations of the same length never fires it.
+            */}
+            <TeamsChatView key={selectedChatId ?? 'none'} chatId={selectedChatId} />
           </>
         )}
         {activeTab === 'channels' && (
@@ -56,6 +65,7 @@ export function TeamsPage() {
               onSelectChannel={setSelectedChannelId}
             />
             <TeamsChannelView
+              key={`${selectedTeamId ?? 'none'}/${selectedChannelId ?? 'none'}`}
               teamId={selectedTeamId}
               channelId={selectedChannelId}
             />

@@ -131,7 +131,7 @@ sequenceDiagram
 | Client State       | React Context                  | —          |
 | Forms / Validation | Zod                            | v4         |
 | HTTP Client        | Axios                          | 1.x        |
-| Calendar           | FullCalendar (daygrid, timegrid, interaction) | v6 |
+| Calendar           | Custom (DayView / WeekView / MonthView)       | —  |
 | Charts             | Recharts                       | 3.6.0      |
 | Animations         | Framer Motion                  | v12        |
 | Toasts             | Sonner                         | 2.x        |
@@ -181,7 +181,7 @@ src/
 │   ├── features/                 # Domain components, co-located with their module
 │   │   ├── ai/                   # AI assistant chat panel
 │   │   ├── auth/                 # Login, register, onboarding forms
-│   │   ├── calendar/             # FullCalendar wrappers and event components
+│   │   ├── calendar/             # Hand-built day/week/month views and event components
 │   │   ├── dashboard/            # KPI cards, summary widgets
 │   │   ├── employees/            # Team member list, profile cards
 │   │   ├── finance/              # Invoice and payment components
@@ -231,7 +231,7 @@ The dashboard (`/dashboard`) is a protected shell with 15 nested feature modules
 | --------------------------- | ----------------- | -------------------------------------------------------- |
 | `/dashboard/tasks`          | Task Management   | Create, assign, track tasks with members and deadlines   |
 | `/dashboard/requirements`   | Requirements      | Workspace requirements with activity tracking and kanban |
-| `/dashboard/calendar`       | Calendar          | FullCalendar with event creation and iCal support        |
+| `/dashboard/calendar`       | Calendar          | Custom calendar with event creation and iCal support        |
 | `/dashboard/leaves`         | Leave Management  | Leave requests, approval flows, balance tracking         |
 | `/dashboard/employees`      | Employees         | Team directory, profiles, and document management        |
 | `/dashboard/finance`        | Finance           | Invoice generation (PDF), payment tracking               |

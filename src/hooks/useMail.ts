@@ -8,6 +8,9 @@ export const useMailFolders = (refetchInterval = 60000) =>
     refetchOnWindowFocus: false,
     staleTime: 60_000,
     refetchInterval,
+    // Never poll in a hidden tab: a backgrounded dashboard otherwise hits
+    // the API on this interval indefinitely, for data nobody is looking at.
+    refetchIntervalInBackground: false,
   });
 
 export const useMailMessages = (
@@ -26,6 +29,9 @@ export const useMailMessages = (
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (lastPage) => lastPage?.result?.nextLink,
     refetchInterval,
+    // Never poll in a hidden tab: a backgrounded dashboard otherwise hits
+    // the API on this interval indefinitely, for data nobody is looking at.
+    refetchIntervalInBackground: false,
   });
 
 export const useMailMessage = (id?: string, bodyType: "text" | "html" = "html") =>

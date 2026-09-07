@@ -1,6 +1,6 @@
 
 import { ArrowRight } from 'lucide-react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Label } from 'recharts';
+import dynamic from 'next/dynamic';
 import { useMemo, useState, memo } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
 import isoWeek from 'dayjs/plugin/isoWeek';
@@ -24,6 +24,20 @@ import { useTimezone } from '@/hooks/useTimezone';
 import { usePublicHolidays } from '@/hooks/useHoliday';
 import { useProgressSummary } from '@/hooks/useDashboard';
 import { formatDecimalHours } from '@/utils/date/timeFormat';
+
+// recharts is ~100KB gzipped and this widget renders on every dashboard load.
+// ssr: false because the donut needs measured DOM dimensions anyway.
+// The skeleton fills the same responsive box as the chart, so nothing shifts
+// when it swaps in.
+const ProgressChart = dynamic(() => import('./ProgressChart'), {
+  ssr: false,
+  loading: () => (
+    <div
+      className="w-full h-full rounded-full bg-gray-100 animate-pulse"
+      aria-label="Loading chart"
+    />
+  ),
+});
 
 export function ProgressWidget({ onNavigate }: { onNavigate?: (page: string) => void }) {
   const { getDayjsInTimezone } = useTimezone();
@@ -427,102 +441,13 @@ const ProgressCard = memo(function ProgressCard({ title, data, isLoading = false
       <div className="flex-1 flex items-center gap-2 sm:gap-4 min-h-[80px] px-1" style={{ minHeight: '80px' }}>
         {/* Chart Section — responsive, fits small cards and stops clipping */}
         <div className="relative flex items-center justify-center shrink-0 w-[80px] h-[80px] sm:w-[96px] sm:h-[96px] lg:w-[112px] lg:h-[112px] max-w-[40%] self-center">
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
-              <Pie
-                data={renderData}
-                cx="50%"
-                cy="50%"
-                innerRadius="68%"
-                outerRadius="90%"
-                paddingAngle={data.total === 0 ? 0 : 4}
-                cornerRadius={data.total === 0 ? 0 : 4}
-                dataKey="value"
-                stroke="#ffffff"
-                strokeWidth={2}
-                isAnimationActive={false}
-              >
-                {renderData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-                <Label
-                  content={({ viewBox }) => {
-                    if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-                      if (data.total === 0) {
-                        const itemType = title.toLowerCase();
-                        let periodText = (dateRangeLabel || 'this period').toLowerCase();
-                        if (periodText.includes(' - ')) {
-                          periodText = 'this period';
-                        }
-                        return (
-                          <text
-                            x={viewBox.cx}
-                            y={viewBox.cy}
-                            textAnchor="middle"
-                            dominantBaseline="middle"
-                          >
-                            <tspan
-                              x={viewBox.cx}
-                              y={(viewBox.cy || 0) - 8}
-                              fill="#666666"
-                              fontSize="10"
-                              fontWeight="500"
-                            >
-                              No {itemType}
-                            </tspan>
-                            <tspan
-                              x={viewBox.cx}
-                              y={(viewBox.cy || 0) + 8}
-                              fill="#666666"
-                              fontSize="10"
-                              fontWeight="500"
-                            >
-                              {periodText}
-                            </tspan>
-                          </text>
-                        );
-                      }
-
-                      return (
-                        <text
-                          x={viewBox.cx}
-                          y={viewBox.cy}
-                          textAnchor="middle"
-                          dominantBaseline="middle"
-                          style={{ cursor: onClick ? 'pointer' : 'default' }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            if (onClick) onClick();
-                          }}
-                        >
-                          <tspan
-                            x={viewBox.cx}
-                            y={(viewBox.cy || 0) - 4}
-                            fill="#111111"
-                            fontSize="18"
-                            fontWeight="800"
-                          >
-                            {data.total || 0}
-                          </tspan>
-                          <tspan
-                            x={viewBox.cx}
-                            y={(viewBox.cy || 0) + 12}
-                            fill="#999999"
-                            fontSize="8"
-                            fontWeight="600"
-                            letterSpacing="0.05em"
-                          >
-                            TOTAL
-                          </tspan>
-                        </text>
-                      );
-                    }
-                    return null;
-                  }}
-                />
-              </Pie>
-            </PieChart>
-          </ResponsiveContainer>
+          <ProgressChart
+            renderData={renderData}
+            total={data.total}
+            title={title}
+            dateRangeLabel={dateRangeLabel}
+            onClick={onClick}
+          />
         </div>
 
         {/* Legend / Stats Section */}

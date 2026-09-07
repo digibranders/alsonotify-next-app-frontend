@@ -9,6 +9,10 @@ export const useTeamsConnectionStatus = () => {
     queryFn: () => getTeamsConnectionStatus(),
     refetchOnWindowFocus: true,
     refetchInterval: 2 * 60 * 1000, // Check every 2 minutes (was 30s — too aggressive)
+    // Never poll in a hidden tab: a backgrounded dashboard otherwise hits
+    // the API on this interval indefinitely. This query refetches on focus,
+    // so the user still sees fresh data the moment they look at it.
+    refetchIntervalInBackground: false,
     staleTime: 2 * 60 * 1000,
   });
 };
@@ -23,6 +27,9 @@ export const useCalendarEvents = (startISO?: string, endISO?: string) => {
     enabled: !!start && !!end,
     staleTime: 60_000, // Consider fresh for 1 minute (was 0 — caused refetch on every tab focus)
     refetchInterval: 2 * 60 * 1000, // Auto-refresh every 2 minutes
+    // Never poll in a hidden tab: a backgrounded dashboard otherwise hits
+    // the API on this interval indefinitely, for data nobody is looking at.
+    refetchIntervalInBackground: false,
     refetchOnWindowFocus: true,
   });
 };

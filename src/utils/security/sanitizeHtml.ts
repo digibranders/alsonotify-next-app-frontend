@@ -37,7 +37,8 @@ const SHARED_CONFIG = {
 /**
  * Strip dangerous CSS constructs that can execute code or exfiltrate data.
  * Removes: expression(), behavior:, -moz-binding:, url(javascript:...),
- * url(data:text/html...), and @import rules.
+ * url(data:text/html...), any url() naming another host (`//host`, with or
+ * without an http/https scheme), and @import rules.
  */
 function stripDangerousCss(css: string): string {
   let cleaned = css;
@@ -49,6 +50,13 @@ function stripDangerousCss(css: string): string {
   cleaned = cleaned.replace(/-moz-binding\s*:\s*[^;}]*/gi, '/* removed */');
   // Remove url() with javascript: or data:text/html protocols
   cleaned = cleaned.replace(/url\s*\(\s*['"]?\s*(?:javascript|data\s*:\s*text\/html)[^)]*\)/gi, '/* removed */');
+  // Remove url() pointing at another host, to prevent external resource
+  // loading and data exfiltration. The `https?:` is optional because a
+  // protocol-relative `url(//host/x)` inherits the page's scheme and loads
+  // identically, while matching none of the schemes checked above -- it was
+  // the one way to get a remote fetch past this function. What survives is
+  // `url(/path)` and `url(path)`: no host, so no third party.
+  cleaned = cleaned.replace(/url\s*\(\s*['"]?\s*(?:https?:)?\/\/[^)]*\)/gi, '/* removed */');
   // Remove @import to prevent loading external stylesheets
   cleaned = cleaned.replace(/@import\s+[^;]+;/gi, '');
   return cleaned;

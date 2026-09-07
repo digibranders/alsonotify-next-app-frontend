@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { Input, Button, Skeleton } from 'antd';
 import { Send, Hash } from 'lucide-react';
 import { useChannelMessages, useSendChannelMessage } from '@/hooks/useTeams';
+import { useMessagePaneScroll } from '@/hooks/useMessagePaneScroll';
 import { ChannelMessage } from '@/services/teams';
 import dayjs from 'dayjs';
 
@@ -31,18 +32,24 @@ function ChannelMessageBubble({ message }: { message: ChannelMessage }) {
 
 export function TeamsChannelView({ teamId, channelId }: TeamsChannelViewProps) {
   const [newMessage, setNewMessage] = useState('');
-  const messagesEndRef = useRef<HTMLDivElement>(null);
   const { data: messagesData, isLoading } = useChannelMessages(teamId, channelId);
   const sendMessage = useSendChannelMessage();
 
-  const messages = messagesData?.result || [];
+  // Graph returns messages newest-first, exactly as it does for chats. This
+  // view had no reverse, so the channel rendered newest at the top and oldest
+  // at the bottom -- and then scrolled to the bottom, landing the user on the
+  // OLDEST message with no cue that the order was inverted.
+  const messages = useMemo(
+    () => [...(messagesData?.result || [])].reverse(),
+    [messagesData],
+  );
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages.length]);
+  const { paneRef, onScroll, followNextUpdate } = useMessagePaneScroll(messages.length);
 
   const handleSend = () => {
     if (!teamId || !channelId || !newMessage.trim()) return;
+    // Sending is an explicit request to be at the bottom.
+    followNextUpdate();
     sendMessage.mutate(
       { teamId, channelId, content: newMessage.trim() },
       { onSuccess: () => setNewMessage('') }
@@ -68,7 +75,13 @@ export function TeamsChannelView({ teamId, channelId }: TeamsChannelViewProps) {
   return (
     <div className="flex-1 flex flex-col border border-[#EEEEEE] rounded-2xl bg-white overflow-hidden">
       {/* Messages area */}
-      <div className="flex-1 overflow-y-auto p-2">
+      <div
+        ref={paneRef}
+        onScroll={onScroll}
+        role="log"
+        aria-label="Channel messages"
+        className="flex-1 overflow-y-auto p-2"
+      >
         {isLoading ? (
           <div className="flex flex-col gap-3 p-4">
             {[1, 2, 3, 4].map((i) => (
@@ -85,7 +98,6 @@ export function TeamsChannelView({ teamId, channelId }: TeamsChannelViewProps) {
             {messages.map((msg) => (
               <ChannelMessageBubble key={msg.id} message={msg} />
             ))}
-            <div ref={messagesEndRef} />
           </>
         )}
       </div>

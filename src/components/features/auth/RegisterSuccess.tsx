@@ -1,7 +1,15 @@
 'use client';
 
-import { motion } from "framer-motion";
-import Lottie from "lottie-react";
+import dynamic from "next/dynamic";
+
+// Purely decorative, and only on the post-registration screen — a page most
+// users see exactly once. No reason to put ~40KB in the auth bundle for every
+// visitor who never registers. The placeholder matches the 200x200 wrapper, so
+// the copy below it does not move when the animation swaps in.
+const Lottie = dynamic(() => import("lottie-react"), {
+  ssr: false,
+  loading: () => <div className="w-full h-full" aria-hidden="true" />,
+});
 import Link from "next/link";
 import emailAnimation from "@/assets/email-sent-animation.json";
 
@@ -34,21 +42,15 @@ export default function RegisterSuccess({ email }: RegisterSuccessProps) {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-      className="flex flex-col items-center justify-center text-center max-w-[420px] w-full mx-auto"
+    <div
+      className="flex flex-col items-center justify-center text-center max-w-[420px] w-full mx-auto auth-scale-in"
     >
       <div className="w-[200px] h-[200px] mb-8">
         <Lottie animationData={emailAnimation} loop={true} />
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2, duration: 0.5 }}
-        className="space-y-6"
+      <div
+        className="space-y-6 auth-fade-up auth-delay-200"
       >
         <div className="space-y-3">
           <h2 className="text-3xl font-bold text-[#111111] tracking-tight">
@@ -84,7 +86,7 @@ export default function RegisterSuccess({ email }: RegisterSuccessProps) {
         <p className="text-xs text-[#999999]">
           Didn't receive the email? <button onClick={handleResend} disabled={resendEmailMutation.isPending} className="text-[#ff3b3b] hover:text-[#E63535] font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed">{resendEmailMutation.isPending ? "Sending..." : "Click to resend"}</button>
         </p>
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   );
 }

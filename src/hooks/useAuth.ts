@@ -23,6 +23,9 @@ export const useLogin = () => {
         }
 
         // Never push an unvalidated query param — that is an open redirect.
+        // safeRedirectPath is used rather than an inline startsWith("//") check:
+        // it decodes first, so it also rejects %2F%2F, backslash variants like
+        // /\evil.com, and embedded control characters.
         router.push(safeRedirectPath(variables.redirect));
       }
     },

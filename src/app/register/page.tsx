@@ -8,7 +8,6 @@ import { Lock, Eye, EyeOff, Mail, User, Building2, CheckCircle2, ArrowRight, Loa
 import { useRegister } from "@/hooks/useAuth";
 import { trimStr } from "@/utils/trim";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import AuthLayout from "@/components/features/auth/AuthLayout";
 import RegisterSuccess from "@/components/features/auth/RegisterSuccess";
 import { Skeleton } from "@/components/ui/Skeleton";
@@ -96,14 +95,6 @@ function RegisterForm() {
     );
   };
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] as const }
-    }
-  };
 
   if (isSuccess) {
     return (
@@ -115,20 +106,18 @@ function RegisterForm() {
 
   return (
     <AuthLayout>
-      <motion.div
-        initial="hidden"
-        animate="visible"
+      <div
         className="w-full max-w-[420px] space-y-8"
       >
-        <motion.div variants={itemVariants} className="space-y-2">
+        <div className="space-y-2 auth-fade-up">
           <h2 className="text-3xl font-bold text-[#111111] tracking-tight">
             Create Account
           </h2>
-        </motion.div>
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Account Type Selector */}
-          <motion.div variants={itemVariants} className="space-y-3">
+          <div className="space-y-3 auth-fade-up">
             <label className="text-xs font-medium text-[#999999] uppercase tracking-wider">Account Type</label>
             <div className="grid grid-cols-2 gap-3">
               {(['Organization', 'Individual'] as const).map((type) => (
@@ -153,9 +142,9 @@ function RegisterForm() {
                 </button>
               ))}
             </div>
-          </motion.div>
+          </div>
 
-          <motion.div variants={itemVariants} className="space-y-5">
+          <div className="space-y-5 auth-fade-up">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className="text-xs font-medium text-[#999999] uppercase tracking-wider">First Name</label>
@@ -256,9 +245,9 @@ function RegisterForm() {
                 </p>
               )}
             </div>
-          </motion.div>
+          </div>
 
-          <motion.div variants={itemVariants} className="pt-2">
+          <div className="pt-2 auth-fade-up">
             <button
               type="submit"
               disabled={registerMutation.isPending || !turnstileToken}
@@ -273,10 +262,10 @@ function RegisterForm() {
                 </>
               )}
             </button>
-          </motion.div>
+          </div>
         </form>
 
-        <motion.div variants={itemVariants} className="text-center">
+        <div className="text-center auth-fade-up">
           <p className="text-sm text-[#666666]">
             Already have an account?{" "}
             <Link
@@ -286,8 +275,8 @@ function RegisterForm() {
               Sign In
             </Link>
           </p>
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
     </AuthLayout>
   );
 }

@@ -67,3 +67,4 @@ refactor_report.md
 # This project uses pnpm exclusively (see pnpm-lock.yaml).
 # A stray package-lock.json resolves a different tree than CI and production.
 package-lock.json
+bundle-report-*.txt

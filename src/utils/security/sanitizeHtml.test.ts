@@ -60,6 +60,49 @@ describe('sanitizeHtml', () => {
            const output = sanitizeRichText(input);
            expect(output).toContain('target="_blank"');
        });
+
+        // Inline-style CSS url(). These run against the real DOMPurify with
+        // the real SHARED_CONFIG, because `style` is an allowed attribute and
+        // stripDangerousCss only ever sees what DOMPurify hands its
+        // afterSanitizeAttributes hook -- a regex asserted in isolation would
+        // not prove the attribute survives to reach it.
+        //
+        // Teams chat routes attacker-authored HTML here (TeamsChatMessage
+        // sanitizes `contentType === 'html'` bodies), and the backend sets
+        // `contententSecurityPolicy: false`, so there is no CSP backstop: a
+        // remote load that gets through is a read receipt plus the reader's
+        // IP and user agent, for anyone able to send them a message.
+        describe('CSS url() in inline styles', () => {
+            it('strips an absolute https url()', () => {
+                const output = sanitizeRichText('<div style="background:url(https://evil.example/p.gif)">x</div>');
+                expect(output).not.toContain('evil.example');
+            });
+
+            it('strips a protocol-relative url()', () => {
+                // `//host/x` inherits the page's scheme, so it loads exactly
+                // like the https case above while matching neither `https?:`
+                // nor `javascript:` nor `data:`.
+                const output = sanitizeRichText('<div style="background:url(//evil.example/p.gif)">x</div>');
+                expect(output).not.toContain('evil.example');
+            });
+
+            it('strips a protocol-relative url() inside quotes', () => {
+                const output = sanitizeRichText(`<div style="background:url('//evil.example/p.gif')">x</div>`);
+                expect(output).not.toContain('evil.example');
+            });
+
+            it('strips a protocol-relative url() with padding whitespace', () => {
+                const output = sanitizeRichText('<div style="background: url(  //evil.example/p.gif )">x</div>');
+                expect(output).not.toContain('evil.example');
+            });
+
+            it('leaves a same-origin relative url() alone', () => {
+                // Single slash: no host, so it cannot reach a third party. The
+                // fix must not widen into a blanket url() ban.
+                const output = sanitizeRichText('<div style="background:url(/assets/bullet.png)">x</div>');
+                expect(output).toContain('/assets/bullet.png');
+            });
+        });
     });
 
     describe('sanitizeRichTextForEditor', () => {

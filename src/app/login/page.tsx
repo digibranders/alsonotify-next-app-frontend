@@ -8,7 +8,6 @@ import { Mail, Lock, Eye, EyeOff, ArrowRight, Loader2 } from "lucide-react";
 import { useLogin } from "@/hooks/useAuth";
 import { trimStr } from "@/utils/trim";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import AuthLayout from "@/components/features/auth/AuthLayout";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { Turnstile } from "@marsidev/react-turnstile";
@@ -19,7 +18,9 @@ function LoginForm() {
   const loginMutation = useLogin();
 
   const initialEmail = searchParams.get("email") || "";
-  const redirect = searchParams.get("redirect") || (searchParams.get("invite") ? `/dashboard/partners?invite=${searchParams.get("invite")}` : "/dashboard");
+  const rawRedirect = searchParams.get("redirect");
+  const isValidRedirect = rawRedirect && rawRedirect.startsWith('/') && !rawRedirect.startsWith('//');
+  const redirect = isValidRedirect ? rawRedirect : (searchParams.get("invite") ? `/dashboard/partners?invite=${searchParams.get("invite")}` : "/dashboard");
 
   const [email, setEmail] = useState(initialEmail);
   const [password, setPassword] = useState("");
@@ -59,34 +60,24 @@ function LoginForm() {
     );
   };
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] as const }
-    }
-  };
 
   return (
     <AuthLayout>
-      <motion.div
-        initial="hidden"
-        animate="visible"
+      <div
         className="w-full max-w-[420px] space-y-8"
       >
         {/* Header */}
-        <motion.div variants={itemVariants} className="space-y-2">
+        <div className="space-y-2 auth-fade-up">
           <h2 className="text-3xl font-bold text-[#111111] tracking-tight">
             Welcome Back
           </h2>
           <p className="text-sm font-medium text-[#666666]">
             Enter your details to access your workspace
           </p>
-        </motion.div>
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <motion.div variants={itemVariants} className="space-y-5">
+          <div className="space-y-5 auth-fade-up">
             <div className="space-y-2">
               <label className="text-xs font-medium text-[#999999] uppercase tracking-wider">Email Address</label>
               <div className="relative">
@@ -135,7 +126,7 @@ function LoginForm() {
                 </button>
               </div>
             </div>
-          </motion.div>
+          </div>
 
           <div className="pt-2">
             <Turnstile
@@ -176,7 +167,7 @@ function LoginForm() {
             )}
           </div>
 
-          <motion.div variants={itemVariants} className="pt-2">
+          <div className="pt-2 auth-fade-up">
             <button
               type="submit"
               disabled={loginMutation.isPending || !turnstileToken}
@@ -192,10 +183,10 @@ function LoginForm() {
                 </>
               )}
             </button>
-          </motion.div>
+          </div>
         </form>
 
-        <motion.div variants={itemVariants} className="text-center">
+        <div className="text-center auth-fade-up">
           <p className="text-sm text-[#666666]">
             Don't have an account?{" "}
             <Link
@@ -206,8 +197,8 @@ function LoginForm() {
               Sign Up
             </Link>
           </p>
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
     </AuthLayout>
   );
 }

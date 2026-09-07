@@ -6,8 +6,8 @@ interface TeamsAttachmentCardProps {
   attachment: TeamsChatMessageAttachment;
 }
 
-function getFileIcon(name: string) {
-  const ext = name.split('.').pop()?.toLowerCase() || '';
+function getFileIcon(name: string | null) {
+  const ext = (name ?? '').split('.').pop()?.toLowerCase() || '';
   if (['pdf'].includes(ext)) return <FileText size={20} className="text-[#ff3b3b]" />;
   if (['doc', 'docx'].includes(ext)) return <FileText size={20} className="text-[#2F80ED]" />;
   if (['xls', 'xlsx', 'csv'].includes(ext)) return <Sheet size={20} className="text-[#0F9D58]" />;
@@ -15,7 +15,8 @@ function getFileIcon(name: string) {
   return <File size={20} className="text-[#999999]" />;
 }
 
-function isLinkPreview(contentType: string): boolean {
+function isLinkPreview(contentType: string | null): boolean {
+  if (!contentType) return false;
   return (
     contentType.includes('reference') ||
     contentType.includes('thumbnail') ||
@@ -29,7 +30,7 @@ interface LinkPreviewData {
   images?: Array<{ url: string }>;
 }
 
-function parseLinkPreview(content?: string): LinkPreviewData | null {
+function parseLinkPreview(content?: string | null): LinkPreviewData | null {
   if (!content) return null;
   try {
     const parsed = JSON.parse(content);

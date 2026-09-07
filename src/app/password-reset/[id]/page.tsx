@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { App } from "antd";
 import { Lock, Eye, EyeOff, CheckCircle2, ArrowRight, Loader2 } from "lucide-react";
-import { motion } from "framer-motion";
 import { resetPassword } from "@/services/auth";
 import AuthLayout from "@/components/features/auth/AuthLayout";
 
@@ -66,24 +65,14 @@ export default function PasswordResetPage() {
     }
   };
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] as const },
-    },
-  };
 
   return (
     <AuthLayout>
-      <motion.div
-        initial="hidden"
-        animate="visible"
+      <div
         className="w-full max-w-[420px] space-y-8"
       >
         {isSubmitted ? (
-          <motion.div variants={itemVariants} className="text-center space-y-4">
+          <div className="text-center space-y-4 auth-fade-up">
             <CheckCircle2 className="w-16 h-16 text-[#28a745] mx-auto" />
             <h2 className="text-3xl font-bold text-[#111111] tracking-tight">
               Password Reset!
@@ -91,29 +80,29 @@ export default function PasswordResetPage() {
             <p className="text-[#666666]">
               Your password has been successfully reset. You can now log in with your new password.
             </p>
-            <motion.div variants={itemVariants} className="mt-8">
+            <div className="mt-8 auth-fade-up">
               <button
                 onClick={() => router.push("/login")}
                 className="w-full h-12 bg-[#ff3b3b] hover:bg-[#E63535] text-white rounded-[16px] font-bold text-sm shadow-lg shadow-[#ff3b3b]/25 transition-all hover:shadow-[#ff3b3b]/40 hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2"
               >
                 Back to Login
               </button>
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
         ) : (
           <>
             {/* Header */}
-            <motion.div variants={itemVariants} className="space-y-2">
+            <div className="space-y-2 auth-fade-up">
               <h2 className="text-3xl font-bold text-[#111111] tracking-tight">
                 Reset Password
               </h2>
               <p className="text-sm font-medium text-[#666666]">
                 Enter your new password below.
               </p>
-            </motion.div>
+            </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              <motion.div variants={itemVariants} className="space-y-5">
+              <div className="space-y-5 auth-fade-up">
                 <div className="space-y-2">
                   <label className="text-xs font-medium text-[#999999] uppercase tracking-wider">
                       New Password <span className="text-[#ff3b3b]">*</span>                 </label>
@@ -160,10 +149,10 @@ export default function PasswordResetPage() {
                     </button>
                   </div>
                 </div>
-              </motion.div>
+              </div>
 
               {/* Submit Button */}
-              <motion.div variants={itemVariants} className="mt-8">
+              <div className="mt-8 auth-fade-up">
                 <button
                   type="submit"
                   disabled={isLoading}
@@ -178,11 +167,11 @@ export default function PasswordResetPage() {
                     </>
                   )}
                 </button>
-              </motion.div>
+              </div>
             </form>
           </>
         )}
-      </motion.div>
+      </div>
     </AuthLayout>
   );
 }

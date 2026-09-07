@@ -1,6 +1,7 @@
 'use client';
 
-import { useMemo } from 'react';
+import { memo, useMemo } from 'react';
+import { AlertCircle } from 'lucide-react';
 import { sanitizeRichText } from '@/utils/security/sanitizeHtml';
 import { Linkify } from '@/components/common/Linkify';
 import { TeamsAttachmentCard } from './TeamsAttachmentCard';
@@ -12,8 +13,28 @@ import dayjs from 'dayjs';
 interface TeamsChatMessageProps {
   message: TChatMessage;
   previousMessage?: TChatMessage;
-  allMessages?: TChatMessage[];
+  /**
+   * The message this one replies to, already resolved by the list.
+   *
+   * Resolved there rather than by handing every row the whole array: each
+   * realtime cache write produces a fresh array, so an `allMessages` prop
+   * changed identity on every update and defeated the memo below outright.
+   */
+  replyMessage?: TChatMessage | null;
   onReply?: (message: TChatMessage) => void;
+  /** Resend a message that failed to send. Only relevant when `message.__status === 'failed'`. */
+  onRetry?: (message: TChatMessage) => void;
+  /**
+   * A retry of THIS message is in flight. Disables its Retry button so a
+   * second click cannot fire a second real `sendTeamsChatMessage` call
+   * against the same failed row -- two fast clicks would otherwise create two
+   * messages in the actual Teams conversation, not just a local rendering
+   * glitch.
+   *
+   * Per row, not per view: this used to be the shared `sendMessage.isPending`,
+   * so retrying one failed message greyed out Retry on every other one.
+   */
+  isRetrying?: boolean;
   currentUserAzureId?: string | null;
 }
 
@@ -52,19 +73,16 @@ function isSameSenderGroup(current: TChatMessage, previous?: TChatMessage): bool
   return Math.abs(diff) < 5;
 }
 
-export function TeamsChatMessage({
+function TeamsChatMessageRow({
   message,
   previousMessage,
-  allMessages,
+  replyMessage,
   onReply,
+  onRetry,
+  isRetrying,
   currentUserAzureId,
 }: TeamsChatMessageProps) {
   // All hooks must be called before any early return
-  const replyMessage = useMemo(() => {
-    if (!message.replyToId || !allMessages) return null;
-    return allMessages.find((m) => m.id === message.replyToId) || null;
-  }, [message.replyToId, allMessages]);
-
   const bodyHtml = useMemo(() => {
     if (message.body?.contentType === 'html' && message.body?.content) {
       return sanitizeRichText(message.body.content);
@@ -76,11 +94,22 @@ export function TeamsChatMessage({
 
   const senderName = message.from?.user?.displayName || 'Unknown';
   const senderId = message.from?.user?.id;
-  const isOwnMessage = !!(currentUserAzureId && senderId && currentUserAzureId === senderId);
+  // A row carrying __tempId came out of this tab's own composer, so its
+  // authorship is known first-hand and does not depend on ids matching. That
+  // matters because `azure_oid` is nullable on the backend User model and no
+  // code path writes it today, so `currentUserAzureId` is null for everyone
+  // and the comparison below can never succeed -- which rendered the user's
+  // own messages left-aligned under an "Unknown" avatar. __tempId survives
+  // reconciliation on purpose (see reconcilePendingMessage), so the row does
+  // not flip sides the moment the server copy lands either.
+  const isOwnMessage =
+    !!message.__tempId || !!(currentUserAzureId && senderId && currentUserAzureId === senderId);
   const time = dayjs(message.createdDateTime).format('h:mm A');
   const showHeader = !isSameSenderGroup(message, previousMessage);
   const avatarColor = getAvatarColor(senderName);
   const plainText = message.body?.contentType === 'text' ? message.body.content : null;
+  const isPending = message.__status === 'pending';
+  const isFailed = message.__status === 'failed';
 
   // Skip empty messages
   const textContent = (message.body?.content || '').replace(/<[^>]*>/g, '').trim();
@@ -92,7 +121,7 @@ export function TeamsChatMessage({
         isOwnMessage
           ? 'flex-row-reverse hover:bg-[#E8F4FD]'
           : 'hover:bg-[#FAFAFA]'
-      }`}
+      } ${isPending ? 'opacity-60' : ''}`}
     >
       {/* Avatar column */}
       <div className="w-9 shrink-0 pt-0.5">
@@ -156,8 +185,10 @@ export function TeamsChatMessage({
           {/* Attachments */}
           {message.attachments && message.attachments.length > 0 && (
             <div className="flex flex-col gap-1 text-left">
-              {message.attachments.map((att) => (
-                <TeamsAttachmentCard key={att.id} attachment={att} />
+              {message.attachments.map((att, i) => (
+                // Graph does not guarantee an attachment id, and two nulls
+                // would be the same React key.
+                <TeamsAttachmentCard key={att.id ?? `${message.id}-att-${i}`} attachment={att} />
               ))}
             </div>
           )}
@@ -167,6 +198,32 @@ export function TeamsChatMessage({
         <div className={isOwnMessage ? 'text-left' : ''}>
           <ReactionPills reactions={message.reactions} />
         </div>
+
+        {/* Failed send: keep the text on screen, offer a retry rather than losing it */}
+        {isFailed && (
+          <div
+            className={`flex items-center gap-1 mt-0.5 text-xs text-[#D32F2F] ${
+              isOwnMessage ? 'justify-end' : ''
+            }`}
+          >
+            <AlertCircle size={12} strokeWidth={2} />
+            <span>Failed to send</span>
+            {onRetry && (
+              <button
+                type="button"
+                onClick={() => onRetry(message)}
+                disabled={isRetrying}
+                className={`font-medium ${
+                  isRetrying
+                    ? 'opacity-50 cursor-not-allowed'
+                    : 'underline hover:no-underline cursor-pointer'
+                }`}
+              >
+                Retry
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Hover actions toolbar */}
@@ -176,3 +233,17 @@ export function TeamsChatMessage({
     </div>
   );
 }
+
+/**
+ * Memoised because the list re-renders on every realtime cache write.
+ *
+ * setQueryData hands TeamsChatView a fresh array each time, but the row
+ * objects inside it are reused, so an untouched row's props are referentially
+ * identical and this skips it. Without that, a 50-message burst -- which
+ * arrives as 50 separate macrotasks -- re-rendered every row 50 times, each
+ * one parsing a dayjs date and running a regex strip.
+ *
+ * It only works while the handlers passed in are stable, which is why
+ * TeamsChatView wraps them in useCallback.
+ */
+export const TeamsChatMessage = memo(TeamsChatMessageRow);

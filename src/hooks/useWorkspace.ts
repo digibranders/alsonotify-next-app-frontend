@@ -163,6 +163,9 @@ export const useAllRequirements = (options: string = "") => {
     select: selectRequirements,
     staleTime: 2 * 60 * 1000, // 2 minutes (was 30s — too aggressive for list data)
     refetchInterval: 2 * 60 * 1000,
+    // Never poll in a hidden tab: a backgrounded dashboard otherwise hits
+    // the API on this interval indefinitely, for data nobody is looking at.
+    refetchIntervalInBackground: false,
   });
 };
 
@@ -172,6 +175,9 @@ export const useCollaborativeRequirements = () => {
     queryFn: () => getCollaborativeRequirements(),
     staleTime: 2 * 60 * 1000,
     refetchInterval: 2 * 60 * 1000,
+    // Never poll in a hidden tab: a backgrounded dashboard otherwise hits
+    // the API on this interval indefinitely, for data nobody is looking at.
+    refetchIntervalInBackground: false,
   });
 };
 

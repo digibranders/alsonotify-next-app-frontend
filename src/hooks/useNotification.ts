@@ -12,6 +12,9 @@ export const useNotifications = (activeTab: string = 'all') => {
     queryFn: () => fetchNotifications(activeTab),
     staleTime: 30_000, // 30 seconds
     refetchInterval: 30_000, // Poll every 30 seconds (WebSocket handles real-time)
+    // Never poll in a hidden tab: a backgrounded dashboard otherwise hits
+    // the API on this interval indefinitely, for data nobody is looking at.
+    refetchIntervalInBackground: false,
   });
 };
 

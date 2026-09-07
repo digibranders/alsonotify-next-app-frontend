@@ -55,32 +55,58 @@ export interface TeamsChat {
   }>;
 }
 
+/**
+ * Every field is nullable because Graph makes no promise about any of them:
+ * a hero-card attachment has no `name`, a file attachment no `content`. The
+ * realtime path normalises a missing or non-string field to null rather than
+ * inventing a value (see toTeamsEvent), and TeamsAttachmentCard renders around
+ * the gaps. Declaring these `string` was a claim, not a check.
+ */
 export interface TeamsChatMessageAttachment {
-  id: string;
-  name: string;
-  contentType: string;
-  contentUrl: string;
-  content?: string;
-  thumbnailUrl?: string;
+  id: string | null;
+  name: string | null;
+  contentType: string | null;
+  contentUrl: string | null;
+  content?: string | null;
+  thumbnailUrl?: string | null;
 }
 
+/** Nullable for the same reason as TeamsChatMessageAttachment above. */
 export interface TeamsChatMessageReaction {
-  reactionType: string;
-  user: { displayName: string };
-  createdDateTime: string;
+  reactionType: string | null;
+  user: { id?: string | null; displayName: string | null };
+  createdDateTime: string | null;
 }
 
 export interface TeamsChatMessage {
   id: string;
-  messageType: "message" | "systemEventMessage";
+  /**
+   * 'message' | 'systemEventMessage' | anything Graph adds later. A plain
+   * string on purpose: the UI already renders nothing for anything that is
+   * not 'message', and narrowing here would turn an unrecognised value into a
+   * type error at the boundary rather than data to skip.
+   */
+  messageType: string;
   createdDateTime: string;
+  /**
+   * Nullable throughout, deliberately. Graph omits `from.user` entirely on
+   * system event messages, the realtime event maps a missing sender to `null`
+   * (see toTeamsEvent / toCached), and an optimistic row has no sender id at
+   * all until `azure_oid` is populated. Typing these `string` said none of
+   * that could happen while the code wrote it anyway; every render site
+   * already guards with `?.` and a fallback.
+   */
   from?: {
-    user?: { displayName: string; id: string };
-  };
+    user?: { displayName: string | null; id: string | null } | null;
+  } | null;
   body: { contentType: "html" | "text"; content: string };
   attachments?: TeamsChatMessageAttachment[];
   reactions?: TeamsChatMessageReaction[];
-  replyToId?: string;
+  replyToId?: string | null;
+  /** Local-only: set while an optimistic send is in flight or has failed (see useTeamsRealtime.ts). Never present on server data. */
+  __status?: "pending" | "failed";
+  /** Local-only: correlates an optimistic message with its eventual server copy. Never present on server data. */
+  __tempId?: string;
 }
 
 export interface Team {
@@ -100,8 +126,13 @@ export interface ChannelMessage {
   id: string;
   messageType: string;
   createdDateTime: string;
-  from?: { user?: { displayName: string; id: string } };
+  /** Nullable for the same reasons as TeamsChatMessage.from above. */
+  from?: { user?: { displayName: string | null; id: string | null } | null } | null;
   body: { contentType: "html" | "text"; content: string };
+  /** Local-only: set while an optimistic send is in flight or has failed (see useTeamsRealtime.ts). Never present on server data. */
+  __status?: "pending" | "failed";
+  /** Local-only: correlates an optimistic message with its eventual server copy. Never present on server data. */
+  __tempId?: string;
 }
 
 export interface AttendanceReport {
