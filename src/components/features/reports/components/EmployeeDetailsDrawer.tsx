@@ -5,6 +5,7 @@ import { MemberWorklog, EmployeeReport } from '../../../../services/report';
 import { useResizable } from '@/hooks/useResizable';
 import Link from 'next/link';
 import { formatDecimalHours } from '../../../../utils/date/timeFormat';
+import { kpiBand } from '../kpiThresholds';
 
 interface EmployeeDetailsDrawerProps {
     isOpen: boolean;
@@ -71,9 +72,12 @@ const EmployeeDetailsDrawer: React.FC<EmployeeDetailsDrawerProps> = ({
 
     if (!member) return null;
 
+    // Bands come from the shared kpiThresholds module so this and the PDF
+    // export cannot drift apart again.
     const getEfficiencyColor = (value: number) => {
-        if (value >= 90) return 'text-[#7ccf00]';
-        if (value >= 75) return 'text-[#2196F3]';
+        const band = kpiBand(value);
+        if (band === 'excellent') return 'text-[#7ccf00]';
+        if (band === 'good') return 'text-[#2196F3]';
         return 'text-[#FF3B3B]';
     };
 
@@ -243,7 +247,7 @@ const EmployeeDetailsDrawer: React.FC<EmployeeDetailsDrawerProps> = ({
                                                         style={{
                                                             backgroundColor: log.sessionStatus === 'Completed' ? '#7ccf0020' : '#11111108',
                                                             color: log.sessionStatus === 'Completed' ? '#7ccf00' : '#666666',
-                                                            fontSize: "var(--font-size-2xs)",
+                                                            fontSize: "var(--text-2xs)",
                                                             fontWeight: 'bold',
                                                             textTransform: 'uppercase',
                                                             padding: '0 6px',
