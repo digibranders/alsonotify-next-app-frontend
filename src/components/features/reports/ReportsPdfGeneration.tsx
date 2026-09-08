@@ -2,6 +2,7 @@ import dayjs from '@/utils/date/dayjs';
 import { RequirementReport, TaskReport, EmployeeReport, ReportKPI, EmployeeKPI, TaskReportsResponse } from '../../../services/report';
 import { getCurrencySymbol } from '@/utils/format/currencyUtils';
 import { formatDecimalHours } from '../../../utils/date/timeFormat';
+import { kpiBand } from './kpiThresholds';
 
 // --- Types ---
 export interface MemberRow {
@@ -81,6 +82,19 @@ const COLOR = {
     blue: [33, 150, 243] as RGB,
     orange: [255, 138, 0] as RGB,
     teal: [0, 163, 137] as RGB,
+};
+
+/**
+ * Map a KPI band to a PDF colour. The bands themselves live in
+ * kpiThresholds.ts and are shared with EmployeeDetailsDrawer — this file used
+ * to carry its own cutoffs (70 for occupancy, 75/50 for efficiency), so an
+ * employee at 72% occupancy printed green here and read Low in the app.
+ */
+const bandColor = (value: number): RGB => {
+    const band = kpiBand(value);
+    if (band === 'excellent') return COLOR.green;
+    if (band === 'good') return COLOR.blue;
+    return COLOR.red;
 };
 
 type JsPDFInstance = InstanceType<typeof import('jspdf').default>;
@@ -244,8 +258,8 @@ export async function generateReportPdf(
             { label: 'Total Revenue', value: `${currSym}${(k.totalRevenue || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}`, color: COLOR.green },
             { label: 'Net Profit', value: `${k.netProfit >= 0 ? '' : '-'}${currSym}${Math.abs(k.netProfit || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}`, color: k.netProfit >= 0 ? COLOR.green : COLOR.red },
             { label: 'Avg. Rate/Hr', value: `${currSym}${(k.avgRatePerHr || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}`, color: COLOR.blue },
-            { label: 'Occupancy', value: `${k.avgOccupancy}%`, color: k.avgOccupancy >= 70 ? COLOR.green : COLOR.red },
-            { label: 'Efficiency', value: `${k.avgEfficiency}%`, color: k.avgEfficiency >= 75 ? COLOR.green : COLOR.red },
+            { label: 'Occupancy', value: `${k.avgOccupancy}%`, color: bandColor(k.avgOccupancy) },
+            { label: 'Efficiency', value: `${k.avgEfficiency}%`, color: bandColor(k.avgEfficiency) },
         ];
     }
 
@@ -453,8 +467,8 @@ export async function generateIndividualEmployeePdf(
     const empKpis = [
         { label: 'Total Hours', value: formatDecimalHours(member.totalWorkingHrs) },
         { label: 'Engaged', value: formatDecimalHours(member.actualEngagedHrs) },
-        { label: 'Occupancy', value: `${member.utilization}%`, color: member.utilization >= 70 ? COLOR.green : COLOR.red },
-        { label: 'Efficiency', value: `${member.efficiency}%`, color: member.efficiency >= 75 ? COLOR.green : member.efficiency >= 50 ? COLOR.blue : COLOR.red },
+        { label: 'Occupancy', value: `${member.utilization}%`, color: bandColor(member.utilization) },
+        { label: 'Efficiency', value: `${member.efficiency}%`, color: bandColor(member.efficiency) },
     ];
 
     const kpiStartX = MARGIN + 55;
