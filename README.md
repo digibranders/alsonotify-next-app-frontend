@@ -454,8 +454,33 @@ The application ships with hardened HTTP security headers configured in `next.co
 | `X-Frame-Options`             | `SAMEORIGIN`                                                 |
 | `X-Content-Type-Options`      | `nosniff`                                                    |
 | `Referrer-Policy`             | `strict-origin-when-cross-origin`                            |
-| `Content-Security-Policy`     | Scoped to Cloudflare, Google Fonts, S3, Sentry, WebSockets   |
+| `Content-Security-Policy`     | See the note below — **not** as tight as "scoped" implies    |
 | `Permissions-Policy`          | Disables camera, microphone, geolocation, browsing-topics    |
+
+#### What the CSP actually allows
+
+This table previously described the CSP as "Scoped to Cloudflare, Google Fonts,
+S3, Sentry, WebSockets", which reads as a tight allowlist. The real header
+(`next.config.mjs:102-115`) is looser in three specific ways, and they matter
+when reasoning about XSS:
+
+- **`script-src` includes `'unsafe-inline'`.** Inline `<script>` blocks and
+  inline event handlers execute. This is the single largest gap — it is what a
+  CSP normally exists to prevent. It is present because Next.js emits inline
+  bootstrap scripts; the fix is a nonce-based CSP, deferred (see
+  `docs/perf-2026-08.md`).
+- **`style-src` includes `'unsafe-inline'`.** Inline styles are permitted.
+- **`img-src` ends in `https:`** — images may be loaded from *any* HTTPS host,
+  not just S3. Useful for exfiltrating data via image URLs.
+
+Genuinely scoped: `default-src 'self'`, `object-src 'none'`, `base-uri 'self'`,
+`frame-src` (self + Cloudflare Turnstile), `font-src` (self + Google Fonts),
+and `connect-src` (self + the configured API origin + Sentry + Cloudflare +
+`ws:`/`wss:`).
+
+**Treat `'unsafe-inline'` on `script-src` as the reason to keep sanitising
+untrusted HTML at the application layer.** The CSP is not a second line of
+defence against injected scripts today.
 
 **Console logs** are stripped from production builds by the Next.js compiler (`removeConsole`). Do not rely on this — avoid committing `console.log`.
 
